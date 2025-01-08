@@ -37,32 +37,32 @@ class minimap_t : public gui_component_t
 {
 public:
 	enum MAP_DISPLAY_MODE {
-		PLAIN          = 0,
-		MAP_TOWN       = 1<<0,
-		MAP_PASSENGER  = 1<<1,
-		MAP_MAIL       = 1<<2,
-		MAP_FREIGHT    = 1<<3,
-		MAP_STATUS     = 1<<4,
-		MAP_SERVICE    = 1<<5,
-		MAP_TRAFFIC    = 1<<6,
-		MAP_ORIGIN     = 1<<7,
-		MAP_TRANSFER   = 1<<8,
-		MAP_WAITING    = 1<<9,
-		MAP_TRACKS     = 1<<10,
-		MAX_SPEEDLIMIT = 1<<11,
-		MAP_POWERLINES = 1<<12,
-		MAP_TOURIST    = 1<<13,
-		MAP_FACTORIES  = 1<<14,
-		MAP_DEPOT      = 1<<15,
-		MAP_FOREST     = 1<<16,
-		MAP_CITYLIMIT  = 1<<17,
-		MAP_PAX_DEST   = 1<<18,
-		MAP_OWNER      = 1<<19,
-		MAP_LINES      = 1<<20,
-		MAP_LEVEL      = 1<<21,
-		MAP_WAITCHANGE = 1<<22,
-		MAP_HIDE_CONTOUR = 1<<23,
-		MAP_CLIMATES   = 1<<24,
+		PLAIN            = 0,
+		MAP_TOWN         = 1 << 0,
+		MAP_PASSENGER    = 1 << 1,
+		MAP_MAIL         = 1 << 2,
+		MAP_FREIGHT      = 1 << 3,
+		MAP_STATUS       = 1 << 4,
+		MAP_SERVICE      = 1 << 5,
+		MAP_TRAFFIC      = 1 << 6,
+		MAP_ORIGIN       = 1 << 7,
+		MAP_TRANSFER     = 1 << 8,
+		MAP_WAITING      = 1 << 9,
+		MAP_TRACKS       = 1 << 10,
+		MAX_SPEEDLIMIT   = 1 << 11,
+		MAP_POWERLINES   = 1 << 12,
+		MAP_TOURIST      = 1 << 13,
+		MAP_FACTORIES    = 1 << 14,
+		MAP_DEPOT        = 1 << 15,
+		MAP_FOREST       = 1 << 16,
+		MAP_CITYLIMIT    = 1 << 17,
+		MAP_PAX_DEST     = 1 << 18,
+		MAP_OWNER        = 1 << 19,
+		MAP_LINES        = 1 << 20,
+		MAP_LEVEL        = 1 << 21,
+		MAP_WAITCHANGE   = 1 << 22,
+		MAP_HIDE_CONTOUR = 1 << 23,
+		MAP_CLIMATES     = 1 << 24,
 
 		MAP_MODE_HALT_FLAGS = (MAP_STATUS|MAP_SERVICE|MAP_ORIGIN|MAP_TRANSFER|MAP_WAITING|MAP_WAITCHANGE),
 		MAP_MODE_FLAGS = (MAP_TOWN|MAP_CITYLIMIT|MAP_STATUS|MAP_SERVICE|MAP_WAITING|MAP_WAITCHANGE|MAP_TRANSFER|MAP_LINES|MAP_FACTORIES|MAP_ORIGIN|MAP_DEPOT|MAP_TOURIST|MAP_PAX_DEST)
@@ -146,7 +146,7 @@ private:
 
 	const fabrik_t* get_factory_near(koord pos, bool large_area) const;
 
-	const fabrik_t* draw_factory_connections(PIXVAL colour, scr_coord pos) const;
+	const fabrik_t* draw_factory_connections(const fabrik_t* const fab, bool supplier_link, const scr_coord pos) const;
 
 	static sint32 max_cargo;
 	static sint32 max_passed;

@@ -87,7 +87,7 @@ bridge_desc_t::img_t bridge_desc_t::get_ramp(slope_t::type slope) const
 		}
 	}
 	return (img_t) - 1;
- }
+}
 
 
 /**

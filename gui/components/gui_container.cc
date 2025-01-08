@@ -79,7 +79,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 
 		if(  comp_focus  &&  comp_focus->is_visible()  ) {
 			event_t ev2 = *ev;
-			translate_event(&ev2, -comp_focus->get_pos().x, -comp_focus->get_pos().y);
+			ev2.move_origin(comp_focus->get_pos());
 			swallowed = comp_focus->infowin_event(&ev2);
 		}
 
@@ -115,7 +115,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 				// ==> give the inner container a chance to activate the first focusable component
 				if(  new_focus  &&  new_focus->get_focus()==NULL  ) {
 					event_t ev2 = *ev;
-					translate_event(&ev2, -new_focus->get_pos().x, -new_focus->get_pos().y);
+					ev2.move_origin(new_focus->get_pos());
 					new_focus->infowin_event(&ev2);
 				}
 
@@ -140,7 +140,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 		if(  comp_focus  &&  comp_focus->is_visible()  ) {
 			gui_component_t *const comp = comp_focus;
 			event_t ev2 = *ev;
-			translate_event(&ev2, -comp->get_pos().x, -comp->get_pos().y);
+			ev2.move_origin(comp->get_pos());
 			swallowed = comp->infowin_event(&ev2);
 
 			// set focus for component, if component allows focus
@@ -200,7 +200,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 
 				// if component hit, translate coordinates and deliver event
 				event_t ev2 = *ev;
-				translate_event(&ev2, -comp->get_pos().x, -comp->get_pos().y);
+				ev2.move_origin(comp->get_pos());
 
 				// CAUTION : call to infowin_event() should not delete the component itself!
 				swallowed = comp->infowin_event(&ev2);
@@ -233,7 +233,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 		if(  old_focus  ) {
 			// release focus
 			event_t ev2 = *ev;
-			translate_event(&ev2, -old_focus->get_pos().x, -old_focus->get_pos().y);
+			ev2.move_origin(old_focus->get_pos());
 			ev2.ev_class = INFOWIN;
 			ev2.ev_code = WIN_UNTOP;
 			old_focus->infowin_event(&ev2);
@@ -280,7 +280,8 @@ void gui_container_t::draw(scr_coord offset)
 #ifdef SHOW_BBOX
 			if (dynamic_cast<gui_container_t*>(c) == NULL) {
 				scr_coord c_pos = screen_pos + c->get_pos();
-				display_ddd_box_clip_rgb(shorten(c_pos.x), shorten(c_pos.y), shorten(c->get_size().w), shorten(c->get_size().h), color_idx_to_rgb(COL_YELLOW),color_idx_to_rgb(COL_YELLOW));
+				int color = c->is_marginless() ? COL_BLUE : COL_YELLOW;
+				display_ddd_box_clip_rgb(shorten(c_pos.x), shorten(c_pos.y), shorten(c->get_size().w), shorten(c->get_size().h), color_idx_to_rgb(color),color_idx_to_rgb(color));
 			}
 #endif
 			c->draw(screen_pos);

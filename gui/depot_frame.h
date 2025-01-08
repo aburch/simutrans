@@ -130,6 +130,8 @@ private:
 	button_t bt_copy_convoi;
 	button_t bt_apply_line;
 
+	button_t bt_paste_convoi;
+
 	vector_tpl<gui_image_list_t::image_data_t*> convoi_pics;
 	gui_image_list_t convoi;
 

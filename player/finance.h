@@ -64,12 +64,12 @@ enum accounting_type_common {
  * Supersedes COST_ types, that CAN be distinguished by type of transport.
  */
 enum accounting_type_vehicles {
-	ATV_REVENUE_PASSENGER=0, ///< Revenue from passenger transport
-	ATV_REVENUE_MAIL,        ///< Revenue from mail transport
-	ATV_REVENUE_GOOD,        ///< Revenue from good transport
-	ATV_REVENUE_TRANSPORT,   ///< Operating profit = passenger + mail + goods = was: COST_INCOME
-	ATV_TOLL_RECEIVED,       ///< Toll paid to you by another player
-	ATV_REVENUE,             ///< Operating profit = revenue_transport + toll = passenger + mail+ goods + toll_received
+	ATV_REVENUE_PASSENGER = 0, ///< Revenue from passenger transport
+	ATV_REVENUE_MAIL,          ///< Revenue from mail transport
+	ATV_REVENUE_GOOD,          ///< Revenue from good transport
+	ATV_REVENUE_TRANSPORT,     ///< Operating profit = passenger + mail + goods = was: COST_INCOME
+	ATV_TOLL_RECEIVED,         ///< Toll paid to you by another player
+	ATV_REVENUE,               ///< Operating profit = revenue_transport + toll = passenger + mail+ goods + toll_received
 
 	ATV_RUNNING_COST,               ///< Distance based running costs, was: COST_VEHICLE_RUN
 	ATV_VEHICLE_MAINTENANCE,        ///< Monthly vehicle maintenance. Unused.
@@ -180,7 +180,6 @@ public:
 	 * Adds construction cost to finance stats.
 	 * @param amount sum of money
 	 * @param wt way type, e.g. tram_wt
-	 * @param utyp used for distinguishing transport type of building for accounting purposes, used with buildings only.
 	 */
 	inline void book_construction_costs(const sint64 amount, const waytype_t wt) {
 		transport_type tt = translate_waytype_to_tt(wt);
@@ -202,7 +201,6 @@ public:
 	 * Adds maintenance into/from finance stats.
 	 * @param change monthly maintenance cost difference
 	 * @param wt - waytype for accounting purposes
-	 * @param utyp - used for distinguishing of transport type of buildings. Used with buildings only.
 	 */
 	inline sint64 book_maintenance(sint64 change, waytype_t const wt)
 	{
@@ -225,6 +223,14 @@ public:
 		veh_month[tt][0][ATV_NEW_VEHICLE] += amount;
 
 		update_assets(-amount, wt);
+
+		account_balance += amount;
+	}
+
+	inline void book_sending_money(const sint64 amount)
+	{
+		veh_year[TT_OTHER][0][ATV_NEW_VEHICLE] += amount;
+		veh_month[TT_OTHER][0][ATV_NEW_VEHICLE] += amount;
 
 		account_balance += amount;
 	}
@@ -468,6 +474,7 @@ public:
 	 */
 	static transport_type translate_waytype_to_tt(waytype_t wt);
 
+	void update_assets(sint64 delta, transport_type tt);
 	void update_assets(sint64 delta, waytype_t wt);
 
 private:

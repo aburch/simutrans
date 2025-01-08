@@ -8,7 +8,7 @@
 
 
 #include "../simdebug.h"
-#include "../simobj.h"
+#include "../obj/simobj.h"
 #include "base_info.h"
 #include "components/gui_obj_view_t.h"
 

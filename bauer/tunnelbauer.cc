@@ -361,16 +361,19 @@ const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_d
 
 	// Search tunnel end and check intermediate tiles
 	const char *err = NULL;
-	koord3d end = find_end_pos(player, gr->get_pos(), zv, desc, full_tunnel, &err);
-	if (err) {
-		return err;
-	}
+	koord3d end = koord3d::invalid;
 
 	if (!full_tunnel) {
 		// if there is no tunnel behind set end to start position
 		const grund_t *gr_end = welt->lookup(end);
 		if (gr_end == NULL  ||  !gr_end->ist_tunnel()) {
 			end = gr->get_pos();
+		}
+	}
+	else {
+		end = find_end_pos(player, gr->get_pos(), zv, desc, full_tunnel, &err);
+		if (err) {
+			return err;
 		}
 	}
 
@@ -380,17 +383,20 @@ const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_d
 	}
 
 	// check ownership
-	if (const grund_t *gr_end = welt->lookup(end)) {
-		if (weg_t *weg_end = gr_end->get_weg(wegtyp)) {
+	const grund_t *end_gr = welt->lookup(end);
+	if (end_gr) {
+		if (weg_t *weg_end = end_gr->get_weg(wegtyp)) {
 			if (weg_end->is_deletable(player)!=NULL) {
 				return "Das Feld gehoert\neinem anderen Spieler\n";
+			}
+			if(  full_tunnel  &&  end_gr->get_typ() == grund_t::tunnelboden  ) {
+				full_tunnel = false;
 			}
 		}
 	}
 
 	// Begin and end found, we can build
 
-	const grund_t *end_gr = welt->lookup(end);
 	slope_t::type end_slope = slope_type(-zv) * env_t::pak_height_conversion_factor;
 	if(  full_tunnel  &&  (!end_gr  ||  end_gr->get_grund_hang()!=end_slope)  ) {
 		// end slope not at correct height - we have already checked in find_end_pos that we can change this
@@ -484,7 +490,6 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 			lt->set_desc(way_desc);
 			tunnel->obj_add( lt );
 			lt->finish_rd();
-			player_t::add_maintenance( player, -way_desc->get_maintenance(), powerline_wt );
 		}
 		tunnel->obj_add(new tunnel_t(pos, player, desc));
 		tunnel->calc_image();
@@ -533,7 +538,6 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 			lt->set_desc(way_desc);
 			tunnel->obj_add( lt );
 			lt->finish_rd();
-			player_t::add_maintenance( player, -way_desc->get_maintenance(), powerline_wt );
 		}
 		tunnel->obj_add(new tunnel_t(pos, player, desc));
 		tunnel->calc_image();
@@ -602,12 +606,10 @@ void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord 
 			lt = new leitung_t(tunnel->get_pos(), player);
 			lt->set_desc(way_desc);
 			tunnel->obj_add( lt );
-			player_t::add_maintenance( player, -way_desc->get_maintenance(), powerline_wt );
 		}
 		else {
-			// subtract twice maintenance: once for the already existing powerline
-			// once since leitung_t::finish_rd will add it again
-			player_t::add_maintenance( player, -2*lt->get_desc()->get_maintenance(), powerline_wt );
+			// subtract maintenance once since leitung_t::finish_rd will add it again
+			player_t::add_maintenance( player, -1*lt->get_desc()->get_maintenance(), powerline_wt );
 		}
 		lt->finish_rd();
 	}
@@ -707,8 +709,8 @@ const char *tunnel_builder_t::remove(player_t *player, koord3d start, waytype_t 
 
 		// Nachbarn raussuchen
 		for(int r = 0; r < 4; r++) {
-			if((zv == koord::invalid || zv == koord::nsew[r]) &&
-				from->get_neighbour(to, delete_wegtyp, ribi_t::nsew[r]) &&
+			if((zv == koord::invalid || zv == koord::nesw[r]) &&
+				from->get_neighbour(to, delete_wegtyp, ribi_t::nesw[r]) &&
 				!marker.is_marked(to) &&
 				(wegtyp != powerline_wt || to->get_leitung()))
 			{
@@ -810,8 +812,7 @@ const char *tunnel_builder_t::remove(player_t *player, koord3d start, waytype_t 
 
 		// then add the new ground, copy everything and replace the old one
 		grund_t *gr_new = new boden_t(pos, gr->get_grund_hang());
-		gr_new->take_obj_from( gr );
-		welt->access(pos.get_2d())->kartenboden_setzen(gr_new );
+		welt->access(pos.get_2d())->kartenboden_setzen(gr_new);
 
 		if(gr_new->get_leitung()) {
 			gr_new->get_leitung()->finish_rd();

@@ -103,7 +103,7 @@ void scrollbar_t::set_knob(sint32 new_visible_size, sint32 new_total_size)
 void scrollbar_t::reposition_buttons()
 {
 	const sint32 area = (type == vertical ?
-		size.h - D_ARROW_UP_HEIGHT - D_ARROW_DOWN_HEIGHT :
+		max(size.h - D_ARROW_UP_HEIGHT - D_ARROW_DOWN_HEIGHT, 0) :
 		size.w - D_ARROW_LEFT_WIDTH - D_ARROW_RIGHT_WIDTH);
 		// area will be actual area knob can move in
 
@@ -124,9 +124,9 @@ void scrollbar_t::reposition_buttons()
 
 	if(type == vertical) {
 		button_def[left_top_arrow_index].set_pos( scr_coord( (D_SCROLLBAR_WIDTH - D_ARROW_UP_WIDTH)/2, 0) );
-		button_def[right_bottom_arrow_index].set_pos( scr_coord( (D_SCROLLBAR_WIDTH - D_ARROW_DOWN_WIDTH)/2, size.h - D_ARROW_DOWN_HEIGHT) );
+		button_def[right_bottom_arrow_index].set_pos( scr_coord( (D_SCROLLBAR_WIDTH - D_ARROW_DOWN_WIDTH)/2, max(D_ARROW_UP_HEIGHT+D_SCROLL_MIN_HEIGHT,size.h-D_ARROW_DOWN_HEIGHT) ) );
 		sliderarea.set( 0, D_ARROW_UP_HEIGHT, D_SCROLLBAR_WIDTH, area );
-		knobarea.set( 0, D_ARROW_UP_HEIGHT + offset, D_SCROLLBAR_WIDTH, length );
+		knobarea.set( 0, D_ARROW_UP_HEIGHT + max(offset,0), D_SCROLLBAR_WIDTH, length );
 	}
 	else { // horizontal
 		button_def[left_top_arrow_index].set_pos( scr_coord(0,(D_SCROLLBAR_HEIGHT - D_ARROW_LEFT_HEIGHT)/2) );

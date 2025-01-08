@@ -10,16 +10,21 @@
 #include "../simversion.h"
 #include "../simconst.h"
 #include "../simtypes.h"
+#include "../sys/simsys.h"
 #include "../simmesg.h"
 #include "koord3d.h"
-#include "../simcity.h"
 
 #include "../utils/simrandom.h"
 void rdwr_win_settings(loadsave_t *file); // simwin
 
+sint16 env_t::menupos = MENU_TOP;
+sint16 env_t::fullscreen = WINDOWED;
+sint16 env_t::display_scale_percent = 100;
+bool env_t::reselect_closes_tool = true;
+
 sint8 env_t::pak_tile_height_step = 16;
 sint8 env_t::pak_height_conversion_factor = 1;
-bool env_t::new_height_map_conversion = false;
+env_t::height_conversion_mode env_t::height_conv_mode = env_t::HEIGHT_CONV_LINEAR;
 
 bool env_t::simple_drawing = false;
 bool env_t::simple_drawing_fast_forward = true;
@@ -27,7 +32,7 @@ sint16 env_t::simple_drawing_normal = 4;
 sint16 env_t::simple_drawing_default = 24;
 uint8 env_t::follow_convoi_underground = 2;
 
-char env_t::program_dir[PATH_MAX];
+char env_t::data_dir[PATH_MAX];
 plainstring env_t::default_theme;
 const char *env_t::user_dir = 0;
 const char *env_t::savegame_version_str = SAVEGAME_VER_NR;
@@ -64,23 +69,30 @@ sint32 env_t::network_frames_per_step = 4;
 uint32 env_t::server_sync_steps_between_checks = 24;
 bool env_t::pause_server_no_clients = false;
 
+char env_t::newserver_name[2048] = "";
+
 std::string env_t::nickname = "";
 
 // this is explicitly and interactively set by user => we do not touch it on init
 const char *env_t::language_iso = "en";
 sint16 env_t::scroll_multi = -1; // start with same scrool as mouse as nowadays standard
+bool env_t::scroll_infinite = false; // since it fails with touch devices
 sint16 env_t::global_volume = 127;
 uint32 env_t::sound_distance_scaling;
 sint16 env_t::midi_volume = 127;
 uint16 env_t::specific_volume[MAX_SOUND_TYPES];
+
+std::string env_t::soundfont_filename = "";
 bool env_t::global_mute_sound = false;
 bool env_t::mute_midi = false;
 bool env_t::shuffle_midi = true;
 sint16 env_t::window_snap_distance = 8;
 scr_size env_t::iconsize( 32, 32 );
-uint8 env_t::chat_window_transparency = 75;
+uint8 env_t::chat_window_transparency = 100;
 bool env_t::hide_rail_return_ticket = true;
 bool env_t::show_delete_buttons = false;
+
+bool env_t::numpad_always_moves_map = true;
 
 // only used internally => do not touch further
 bool env_t::quit_simutrans = false;
@@ -99,8 +111,6 @@ bool env_t::hide_trees;
 uint8 env_t::hide_buildings;
 bool env_t::hide_under_cursor;
 uint16 env_t::cursor_hide_range;
-bool env_t::highlight_city;
-stadt_t *env_t::highlighted_city;
 bool env_t::use_transparency_station_coverage;
 uint8 env_t::station_coverage_show;
 sint32 env_t::show_names;
@@ -111,13 +121,14 @@ uint32 env_t::moving_object_probability;
 bool env_t::road_user_info;
 bool env_t::tree_info;
 bool env_t::ground_info;
+uint8 env_t::show_factory_storage_bar;
 bool env_t::townhall_info;
 bool env_t::single_info;
 bool env_t::window_buttons_right;
 bool env_t::second_open_closes_win;
 bool env_t::remember_window_positions;
 bool env_t::window_frame_active;
-uint8 env_t::verbose_debug;
+log_t::level_t env_t::verbose_debug;
 uint8 env_t::default_sortmode;
 uint32 env_t::default_mapmode;
 uint8 env_t::show_month;
@@ -153,8 +164,13 @@ sint8 env_t::show_money_message;
 uint8 env_t::gui_player_color_dark = 1;
 uint8 env_t::gui_player_color_bright = 4;
 
+#ifndef __ANDROID__
 std::string env_t::fontname = FONT_PATH_X "prop.fnt";
 uint8 env_t::fontsize = 11;
+#else
+std::string env_t::fontname = FONT_PATH_X "Roboto-Regular.ttf";
+uint8 env_t::fontsize = 17;
+#endif
 
 uint32 env_t::front_window_text_color_rgb;
 PIXVAL env_t::front_window_text_color;
@@ -169,16 +185,32 @@ uint16 env_t::compass_screen_position;
 
 uint32 env_t::default_ai_construction_speed;
 
-bool env_t::hide_keyboard = false;
 
 bool env_t::previous_OTRP_data;
 char env_t::otrp_statistics_log[PATH_MAX];
 
 bool  env_t::commandline_snapshot = false;
-koord3d env_t::commandline_snapshot_world_position = koord3d(0, 0, 0);
+koord3d env_t::commandline_snapshot_world_position;
 sint8   env_t::commandline_snapshot_zoom_factor = 3; // ZOOM_NEUTRAL (3)
 
 bool env_t::show_oneway_ribi_only;
+bool env_t::put_new_toolbar_below_others;
+
+uint8 env_t::before_active_player_nr = 0;
+uint8 env_t::last_active_player_nr = 0;
+
+bool env_t::show_yen = false;
+
+bool env_t::commandline_position = false;
+koord env_t::commandline_server_start_position;
+
+bool env_t::send_tax_public = false;
+#ifdef __ANDROID__
+// autoshow keyboard on textinput
+bool env_t::hide_keyboard = true;
+#else
+bool env_t::hide_keyboard = false;
+#endif
 
 // Define default settings.
 void env_t::init()
@@ -189,16 +221,15 @@ void env_t::init()
 	message_flags[2] = 0x0080;
 	message_flags[3] = 0;
 
-	night_shift = false;
+	night_shift = true;
 
 	hide_with_transparency = true;
 	hide_trees = false;
 	hide_buildings = env_t::NOT_HIDE;
 	hide_under_cursor = false;
 	cursor_hide_range = 5;
-	
-	highlight_city = false;
-	highlighted_city = NULL;
+
+	scroll_infinite = false;
 
 	visualize_schedule = true;
 
@@ -227,7 +258,7 @@ void env_t::init()
 	remember_window_positions = true;
 
 	// debug level (0: only fatal, 1: error, 2: warning, 3: all
-	verbose_debug = 0;
+	verbose_debug = log_t::LEVEL_FATAL;
 
 	default_sortmode = 1; // sort by amount
 	default_mapmode = 0;  // show cities
@@ -235,14 +266,16 @@ void env_t::init()
 	savegame_version_str = SAVEGAME_VER_NR;
 
 	show_month = DATE_FMT_US;
+	show_factory_storage_bar = 0;
 
 	intercity_road_length = 200;
 
 	river_types = 0;
 
-
 	// autosave every x months (0=off)
 	autosave = 0;
+
+	reload_and_save_on_quit = true;
 
 	// default: make 25 frames per second (if possible) and 10 for faster fast forward
 	fps = 25;
@@ -252,7 +285,7 @@ void env_t::init()
 	max_acceleration=50;
 
 #ifdef MULTI_THREAD
-	num_threads = 4;
+	num_threads = dr_get_max_threads();
 #else
 	num_threads = 1;
 #endif
@@ -301,7 +334,7 @@ void env_t::init()
 	// upper right
 	compass_map_position = ALIGN_RIGHT|ALIGN_TOP;
 	// lower right
-	compass_screen_position = 0, // disbale, other could be ALIGN_RIGHT|ALIGN_BOTTOM;
+	compass_screen_position = 0; // disbale, other could be ALIGN_RIGHT|ALIGN_BOTTOM;
 
 	// Listen on all addresses by default
 	listen.append_unique("::");
@@ -312,6 +345,7 @@ void env_t::init()
 	
 	sprintf(otrp_statistics_log, "");
 	show_oneway_ribi_only = false;
+	put_new_toolbar_below_others = false;
 }
 
 
@@ -497,8 +531,20 @@ void env_t::rdwr(loadsave_t *file)
 		file->rdwr_str( default_theme );
 	}
 	if(  file->is_version_atleast(120, 2)  ) {
-		file->rdwr_bool( new_height_map_conversion );
+		if(  file->is_version_atleast(122, 1)) {
+			sint32 conv_mode = height_conv_mode;
+			file->rdwr_long( conv_mode );
+			if (file->is_loading()) {
+				height_conv_mode = (env_t::height_conversion_mode)::clamp(conv_mode, 0, (int)env_t::NUM_HEIGHT_CONV_MODES-1);
+			}
+		}
+		else {
+			bool new_convert = height_conv_mode != env_t::HEIGHT_CONV_LEGACY_SMALL;
+			file->rdwr_bool( new_convert );
+			height_conv_mode = new_convert ? env_t::HEIGHT_CONV_LEGACY_LARGE : env_t::HEIGHT_CONV_LEGACY_SMALL;
+		}
 	}
+
 	if(  file->is_version_atleast(120, 5)  ) {
 		file->rdwr_long( background_color_rgb );
 		file->rdwr_long( tooltip_color_rgb );
@@ -516,7 +562,7 @@ void env_t::rdwr(loadsave_t *file)
 		}
 		file->rdwr_byte( fontsize );
 	}
-	if(  file->is_version_atleast(102, 7)  ||  file->get_OTRP_version()>=15  ) {
+	if(  file->is_version_atleast(120, 7)  ) {
 		file->rdwr_byte(show_money_message);
 	}
 
@@ -540,6 +586,35 @@ void env_t::rdwr(loadsave_t *file)
 	
 	if (file->get_OTRP_version()>=29) {
 		file->rdwr_bool(show_oneway_ribi_only);
+	}
+	
+	if (file->get_OTRP_version()>=32) {
+		file->rdwr_bool(put_new_toolbar_below_others);
+	}
+
+	if( file->is_version_atleast( 122, 1 ) ) {
+		file->rdwr_bool( env_t::numpad_always_moves_map );
+
+		plainstring str = soundfont_filename.c_str();
+		file->rdwr_str( str );
+		if(  file->is_loading()  ) {
+			soundfont_filename = str ? str.c_str() : "";
+		}
+
+		file->rdwr_short(env_t::menupos);
+		env_t::menupos &= 3;
+		file->rdwr_bool( reselect_closes_tool );
+
+		file->rdwr_byte( show_factory_storage_bar );
+
+		file->rdwr_short( fullscreen );
+	}
+	if (file->get_OTRP_version()>=33) {
+		file->rdwr_bool(scroll_infinite);
+	}
+
+	if(  file->is_version_atleast(123, 1)  ||  file->get_OTRP_version()>=33  ) {
+		file->rdwr_short(display_scale_percent);
 	}
 
 	// server settings are not saved, since they are server specific

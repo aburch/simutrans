@@ -7,6 +7,7 @@
 #define GUI_DISPLAY_SETTINGS_H
 
 
+#include "simwin.h"
 #include "gui_frame.h"
 #include "components/gui_divider.h"
 #include "components/gui_label.h"
@@ -15,31 +16,45 @@
 #include "components/gui_combobox.h"
 #include "components/gui_tab_panel.h"
 
+
 /**
  * Menu with display settings
  */
-class gui_settings_t : public gui_aligned_container_t
+class gui_settings_t : public gui_aligned_container_t, public action_listener_t
 {
 private:
+	gui_numberinput_t screen_scale_numinp;
+	button_t screen_scale_auto;
+
 	gui_label_buf_t
 		frame_time_value_label,
 		idle_time_value_label,
 		fps_value_label,
 		simloops_value_label;
+
 public:
+	button_t toolbar_pos, reselect_closes_tool, fullscreen, 
+	borderless, put_below_others;
+
 	gui_settings_t();
-	virtual void draw( scr_coord offset ) OVERRIDE;
+
+	void draw( scr_coord offset ) OVERRIDE;
+	bool action_triggered( gui_action_creator_t *comp, value_t v) OVERRIDE;
 };
+
 
 class map_settings_t : public gui_aligned_container_t, public action_listener_t
 {
+private:
+	char time_str[8][64];
+	gui_combobox_t time_setting;
 public:
 	gui_numberinput_t
 		inp_underground_level,
 		brightness,
 		scrollspeed;
 	map_settings_t();
-	virtual bool action_triggered( gui_action_creator_t *comp, value_t v ) OVERRIDE;
+	bool action_triggered( gui_action_creator_t *comp, value_t v ) OVERRIDE;
 };
 
 class station_settings_t : public gui_aligned_container_t
@@ -53,9 +68,10 @@ class transparency_settings_t : public gui_aligned_container_t, public action_li
 private:
 	gui_numberinput_t cursor_hide_range;
 	gui_combobox_t hide_buildings;
+	gui_combobox_t factory_tooltip;
 public:
 	transparency_settings_t();
-	virtual bool action_triggered( gui_action_creator_t *comp, value_t v );
+	bool action_triggered( gui_action_creator_t *comp, value_t v ) OVERRIDE;
 	void draw(scr_coord offset) OVERRIDE;
 };
 
@@ -67,7 +83,7 @@ private:
 	gui_combobox_t convoy_tooltip, money_booking, follow_mode;
 public:
 	traffic_settings_t();
-	virtual bool action_triggered( gui_action_creator_t *comp, value_t v );
+	bool action_triggered( gui_action_creator_t *comp, value_t v ) OVERRIDE;
 };
 
 /**
@@ -98,6 +114,10 @@ public:
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+	uint32 get_rdwr_id() OVERRIDE { return magic_color_gui_t; }
+
+	void rdwr(loadsave_t*) OVERRIDE;
 };
 
 #endif

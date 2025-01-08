@@ -1,5 +1,4 @@
 To be done:
-- menu_position (left, top, right, bottom?)
 - weight limit on ways by axle_load entry in vehicles (to avoid problem when going back and forth with diff. load)
 - busy platform images
 - Signals switching nearly like before (should be easy)
@@ -9,15 +8,9 @@ To be done:
 - fog view to the top?
 - instant text updates
 - bahnhofsdetaildialog (more text on the station buildings)
-- depot list
-- vehicle list
-- Scaled fonts
-- seperate volume control for different sounds
 
 partially done:
 - connection weighted by their intermediate stops => A* for goods routing [A* did not worked out, but intermediate stops may be considered]
-- more environmental sounds, factory sounds
-- unified list dialoges (with their filer as component)
 
 reconsider:
 - leave stop if other convoi has arrived there patch

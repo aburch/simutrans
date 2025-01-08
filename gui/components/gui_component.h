@@ -283,7 +283,7 @@ class gui_margin_t : public gui_component_t
 public:
 	gui_margin_t(uint margin_x = D_H_SPACE, uint margin_y = D_V_SPACE) : width(margin_x), height(margin_y) {}
 
-	void draw(scr_coord) { }
+	void draw(scr_coord) OVERRIDE { }
 
 	scr_size get_min_size() const OVERRIDE { return scr_size(width, height); }
 	scr_size get_max_size() const OVERRIDE { return scr_size(width, height); }

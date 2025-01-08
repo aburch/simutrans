@@ -9,9 +9,6 @@
 
 utf32 const UNICODE_NUL = 0;
 
-// the bytes in a sequence have always the format 10xxxxxx
-static inline int is_cont_char(utf8 c) { return (c & 0xC0) == 0x80; }
-
 utf8_decoder_t::utf8_decoder_t(utf8 const *const str)
 {
 	utf8str = str;

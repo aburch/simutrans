@@ -12,7 +12,7 @@ cyr.bdf
 #                             Language: ru Russian                             #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                            Date Created: 3.02 2020                           #
+#                           Date Created: 20.10 2020                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -533,7 +533,7 @@ Add Stop
 Добавить
 Add stops for backward travel
 Добавить остановки для обратного пути
-Air
+air_wt
 рулежная дорожка/взлетная полоса
 aircraft_tab
 Грузовые
@@ -823,8 +823,8 @@ cost for removal
 стоимость удаления 
 Cost per unit
 Стоим. ТС
-Cost: %8s (%.2f$/km %.f$/m)\n
-Стоимость: %s (%.2f$/км %.2fm)\n
+Cost: %8s (%.2f$/km %.2f$/m)\n
+Стоимость: %s (%.2f$/км %.2f$/месяц)\n
 Cost: %8s (%.2f$/km)\n
 Стоимость: %8s (%.2f$/км)\n
 Costs
@@ -1655,7 +1655,7 @@ Restore natural slope
 Восстановить естественный склон
 Restwert:
 \nСтоимость продажи:
-Retire date 
+Retire date
 Дата устарев.
 Retire. date:
 Конец экспл.:

@@ -8,8 +8,10 @@
 
 
 #include "gui_frame.h"
+#include "simwin.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_scrolled_list.h"
+#include "components/gui_waytype_tab_panel.h"
 #include "components/gui_label.h"
 #include "components/gui_image.h"
 
@@ -19,9 +21,9 @@ class depot_t;
 class depotlist_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
-	button_t sortedby;
-	button_t sorteddir;
 	gui_scrolled_list_t scrolly;
+
+	gui_waytype_tab_panel_t tabs;
 
 	uint32 last_depot_count;
 
@@ -30,7 +32,9 @@ private:
 	player_t *player;
 
 public:
-	depotlist_frame_t(player_t *player);
+	depotlist_frame_t();
+
+	depotlist_frame_t(player_t* player);
 
 	const char *get_help_filename() const OVERRIDE {return "depotlist.txt"; }
 
@@ -41,6 +45,10 @@ public:
 	bool has_min_sizer() const OVERRIDE { return true; }
 
 	void map_rotate90( sint16 ) OVERRIDE { fill_list(); }
+
+	void rdwr(loadsave_t* file) OVERRIDE;
+
+	uint32 get_rdwr_id() OVERRIDE { return magic_depotlist; }
 };
 
 
@@ -55,9 +63,6 @@ private:
 	void update_label();
 
 public:
-	static int sort_mode;
-	static bool reverse;
-
 	depotlist_stats_t(depot_t *);
 
 	void draw( scr_coord pos) OVERRIDE;

@@ -32,7 +32,7 @@ public:
 	inline waytype_t get_waytype() const OVERRIDE {return air_wt;}
 
 	/**
-	* @return additional info is reservation!
+	* @param[out] buf additional info is reservation!
 	*/
 	void info(cbuffer_t & buf) const OVERRIDE;
 

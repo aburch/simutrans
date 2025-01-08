@@ -241,7 +241,7 @@ SQInteger _read_two_bytes(IOBuffer *iobuffer)
 {
 	if(iobuffer->ptr < iobuffer->size) {
 		if(iobuffer->size < 2) return 0;
-		SQInteger ret = *((const char*)&iobuffer->buffer[iobuffer->ptr]);
+		SQInteger ret = *((const wchar_t*)&iobuffer->buffer[iobuffer->ptr]);
 		iobuffer->ptr += 2;
 		return ret;
 	}
@@ -249,7 +249,7 @@ SQInteger _read_two_bytes(IOBuffer *iobuffer)
 		if( (iobuffer->size = sqstd_fread(iobuffer->buffer,1,IO_BUFFER_SIZE,iobuffer->file )) > 0 )
 		{
 			if(iobuffer->size < 2) return 0;
-			SQInteger ret = *((const char*)&iobuffer->buffer[0]);
+			SQInteger ret = *((const wchar_t*)&iobuffer->buffer[0]);
 			iobuffer->ptr = 2;
 			return ret;
 		}

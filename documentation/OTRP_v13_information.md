@@ -19,16 +19,16 @@
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitterハッシュタグ： [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)
 
-version29_6現在，simutrans standard nightly r9281をベースにしています．  
+version30現在，simutrans standard nightly r9281をベースにしています．  
 追加で取り込んでいるコミットについては [こちらを参照](cherry-picked-commits.txt) してください．
 
 # ダウンロード
-実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください．  
+実行には本体の他にribi-arrowアドオンが必要なので https://osdn.net/projects/otrp/downloads/76098/RibiArrow.zip/ からDLしてpakセットの中に突っ込んでください．  
 
-本体は下のリンクからどうぞ．**（2021年5月23日PM3時　ver29_6に更新）**  
-windows(GDI 64bit): https://osdn.net/projects/otrp/downloads/75207/sim-WinGDI64-OTRPv29_6.exe/   
-mac: https://osdn.net/projects/otrp/downloads/75207/sim-mac-OTRPv29_6.zip/  
-Linux: https://osdn.net/projects/otrp/downloads/75207/sim-linux-OTRPv29_6.zip/  
+本体は下のリンクからどうぞ．**（2021年8月15日PM9時　ver30に更新）**  
+windows(GDI 64bit): https://osdn.net/projects/otrp/downloads/75752/sim-WinGDI64-OTRPv30.exe/  
+mac: https://osdn.net/projects/otrp/downloads/75752/sim-mac-OTRPv30.zip/  
+Linux: https://osdn.net/projects/otrp/downloads/75752/sim-linux-OTRPv30.zip/  
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 OTRP専用のmakeobjはありません．simutrans standardのmakeobjをご利用ください．

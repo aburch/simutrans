@@ -148,73 +148,78 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 
 	set_table_layout(1,0);
 	add_component( &tab_panel );
-	// tab panel to switch between two
-	tab_panel.add_tab( &goods_cont, translator::translate("Goods") );
-	goods_cont.set_table_layout(1,0);
-	goods_cont.add_component( &goods_chart );
+
+	const uint32 input_count = factory->get_input().get_count();
+	const uint32 output_count = factory->get_output().get_count();
+	if(  input_count>0  ||  output_count>0  ) {
+		// only add tab if there is something to display
+		tab_panel.add_tab(&goods_cont, translator::translate("Goods"));
+		goods_cont.set_table_layout(1, 0);
+		goods_cont.add_component(&goods_chart);
+
+		// GUI components for goods input/output statistics
+		goods_chart.set_min_size(scr_size(D_DEFAULT_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT, CHART_HEIGHT));
+		goods_chart.set_dimension(12, 10000);
+		goods_chart.set_background(SYSCOL_CHART_BACKGROUND);
+		const uint32 input_count = factory->get_input().get_count();
+		const uint32 output_count = factory->get_output().get_count();
+
+		uint32 count = 0;
+
+		// first tab: charts for goods production/consumption
+		goods_cont.add_table(4, 0)->set_force_equal_columns(true);
+
+		if (input_count > 0) {
+			// create table of buttons, insert curves to chart
+			goods_cont.new_component_span<gui_label_t>("Verbrauch", 4);
+
+			const array_tpl<ware_production_t>& input = factory->get_input();
+			for (uint32 g = 0; g < input_count; ++g) {
+				goods_cont.new_component<gui_label_t>(input[g].get_typ()->get_name());
+				for (int s = 0; s < MAX_FAB_GOODS_STAT; ++s) {
+					uint16 curve = goods_chart.add_curve(color_idx_to_rgb(goods_color[count % MAX_GOODS_COLOR] + (s * 3) / 2), input[g].get_stats(), MAX_FAB_GOODS_STAT, s, MAX_MONTH, false, false, true, 0, goods_convert[s]);
+
+					button_t* b = goods_cont.new_component<button_t>();
+					b->init(button_t::box_state_automatic | button_t::flexible, input_type[s]);
+					b->background_color = color_idx_to_rgb(goods_color[count % MAX_GOODS_COLOR] + (s * 3) / 2);
+					b->pressed = false;
+					button_to_chart.append(b, &goods_chart, curve);
+
+					if ((s % 2) == 1) {
+						// skip last cell in current row, first cell in next row
+						goods_cont.new_component<gui_empty_t>();
+						if (s + 1 < MAX_FAB_GOODS_STAT) {
+							goods_cont.new_component<gui_empty_t>();
+						}
+					}
+				}
+				count++;
+			}
+		}
+		if (output_count > 0) {
+			goods_cont.new_component_span<gui_label_t>("Produktion", 4);
+			const array_tpl<ware_production_t>& output = factory->get_output();
+			for (uint32 g = 0; g < output_count; ++g) {
+				goods_cont.new_component<gui_label_t>(output[g].get_typ()->get_name());
+				for (int s = 0; s < 3; ++s) {
+					uint16 curve = goods_chart.add_curve(color_idx_to_rgb(goods_color[count % MAX_GOODS_COLOR] + s * 2), output[g].get_stats(), MAX_FAB_GOODS_STAT, s, MAX_MONTH, false, false, true, 0, goods_convert[s]);
+
+					button_t* b = goods_cont.new_component<button_t>();
+					b->init(button_t::box_state_automatic | button_t::flexible, output_type[s]);
+					b->background_color = color_idx_to_rgb(goods_color[count % MAX_GOODS_COLOR] + s * 2);
+					b->pressed = false;
+					button_to_chart.append(b, &goods_chart, curve);
+				}
+				count++;
+			}
+		}
+		goods_cont.end_table();
+		goods_cont.new_component<gui_empty_t>();
+	}
 
 	tab_panel.add_tab( &prod_cont, translator::translate("Production/Boost") );
 	prod_cont.set_table_layout(1,0);
 	prod_cont.add_component( &prod_chart );
-
-	// GUI components for goods input/output statistics
-	goods_chart.set_min_size( scr_size( D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT, CHART_HEIGHT ) );
-	goods_chart.set_dimension(12, 10000);
-	goods_chart.set_background(SYSCOL_CHART_BACKGROUND);
-	const uint32 input_count = factory->get_input().get_count();
-	const uint32 output_count = factory->get_output().get_count();
-
-	uint32 count = 0;
-
-	// first tab: charts for goods production/consumption
-	goods_cont.add_table(4, 0)->set_force_equal_columns(true);
-
-	if(  input_count>0  ) {
-		// create table of buttons, insert curves to chart
-		goods_cont.new_component_span<gui_label_t>("Verbrauch", 4);
-
-		const array_tpl<ware_production_t> &input = factory->get_input();
-		for(  uint32 g=0;  g<input_count;  ++g  ) {
-			goods_cont.new_component<gui_label_t>(  input[g].get_typ()->get_name() );
-			for(  int s=0;  s<MAX_FAB_GOODS_STAT;  ++s  ) {
-				uint16 curve = goods_chart.add_curve( color_idx_to_rgb(goods_color[count%MAX_GOODS_COLOR]+(s*3)/2), input[g].get_stats(), MAX_FAB_GOODS_STAT, s, MAX_MONTH, false, false, true, 0, goods_convert[s] );
-
-				button_t *b = goods_cont.new_component<button_t>();
-				b->init(button_t::box_state_automatic | button_t::flexible, input_type[s]);
-				b->background_color = color_idx_to_rgb(goods_color[count%MAX_GOODS_COLOR]+(s*3)/2);
-				b->pressed = false;
-				button_to_chart.append(b, &goods_chart, curve);
-
-				if ( (s % 2) ==1) {
-					// skip last cell in current row, first cell in next row
-					goods_cont.new_component<gui_empty_t>();
-					if (s+1 < MAX_FAB_GOODS_STAT) {
-						goods_cont.new_component<gui_empty_t>();
-					}
-				}
-			}
-			count++;
-		}
-	}
-	if(  output_count>0  ) {
-		goods_cont.new_component_span<gui_label_t>("Produktion", 4);
-		const array_tpl<ware_production_t> &output = factory->get_output();
-		for(  uint32 g=0;  g<output_count;  ++g  ) {
-			goods_cont.new_component<gui_label_t>( output[g].get_typ()->get_name() );
-			for(  int s=0;  s<3;  ++s  ) {
-				uint16 curve = goods_chart.add_curve( color_idx_to_rgb(goods_color[count%MAX_GOODS_COLOR]+s*2), output[g].get_stats(), MAX_FAB_GOODS_STAT, s, MAX_MONTH, false, false, true, 0, goods_convert[s] );
-
-				button_t *b = goods_cont.new_component<button_t>();
-				b->init(button_t::box_state_automatic | button_t::flexible, output_type[s]);
-				b->background_color = color_idx_to_rgb(goods_color[count%MAX_GOODS_COLOR]+s*2);
-				b->pressed = false;
-				button_to_chart.append(b, &goods_chart, curve);
-			}
-			count ++;
-		}
-	}
-	goods_cont.end_table();
-	goods_cont.new_component<gui_empty_t>();
 
 	prod_cont.add_table(4, 0)->set_force_equal_columns(true);
 	// GUI components for other production-related statistics

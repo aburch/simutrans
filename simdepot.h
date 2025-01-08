@@ -70,7 +70,7 @@ public:
 	void rdwr(loadsave_t *file) OVERRIDE;
 
 	// text for the tabs is defaulted to the train names
-	virtual const char * get_electrics_name() { return "Electrics_tab"; };
+	virtual const char * get_electrics_name() { return "Electrics_tab"; }
 	virtual const char * get_passenger_name() { return "Pas_tab"; }
 	virtual const char * get_zieher_name() { return "Lokomotive_tab"; }
 	virtual const char * get_haenger_name() { return "Waggon_tab"; }
@@ -94,12 +94,12 @@ public:
 	/**
 	 * copies convoi and its schedule or line
 	 */
-	convoihandle_t copy_convoi(convoihandle_t old_cnv, bool local_execution);
+	convoihandle_t copy_convoi(convoihandle_t old_cnv, bool local_execution, bool is_copy_schedule = true);
 
 	/**
 	 * Let convoi leave the depot.
 	 * If not possible, a message is displayed and the function returns false.
-	 * @param if local_execution is true, this method creates pop-ups in case of errors
+	 * @param local_execution if true, this method creates pop-ups in case of errors
 	 */
 	bool start_convoi(convoihandle_t cnv, bool local_execution);
 
@@ -161,10 +161,13 @@ public:
 	/**
 	 * Parameters to determine layout and behaviour of the depot_frame_t.
 	 */
-	virtual int get_x_grid() const = 0;
-	virtual int get_y_grid() const = 0;
-	virtual int get_x_placement() const = 0;
-	virtual int get_y_placement() const = 0;
+	virtual sint8 get_x_grid() const = 0;
+	virtual sint8 get_x_num_grid() const = 0;
+	virtual sint8 get_y_grid() const = 0;
+	virtual sint8 get_x_placement() const = 0;
+	virtual sint8 get_y_placement() const = 0;
+	virtual sint8 get_grid_dx() const = 0;
+	virtual sint8 get_placement_dx() const = 0;
 	virtual unsigned get_max_convoi_length() const = 0;
 
 	/**
@@ -238,10 +241,13 @@ public:
 	/**
 	 * Parameters to determine layout and behaviour of the depot_frame_t.
 	 */
-	int get_x_placement() const OVERRIDE {return -25; }
-	int get_y_placement() const OVERRIDE {return -28; }
-	int get_x_grid() const OVERRIDE { return 24; }
-	int get_y_grid() const OVERRIDE { return 24; }
+	sint8 get_x_placement() const OVERRIDE;
+	sint8 get_y_placement() const OVERRIDE;
+	sint8 get_x_grid() const OVERRIDE;
+	sint8 get_x_num_grid() const OVERRIDE;
+	sint8 get_y_grid() const OVERRIDE;
+	sint8 get_grid_dx() const OVERRIDE;
+	sint8 get_placement_dx() const OVERRIDE;
 	unsigned get_max_convoi_length() const OVERRIDE;
 
 	obj_t::typ get_typ() const OVERRIDE { return bahndepot; }
@@ -319,10 +325,13 @@ public:
 	/**
 	 * Parameters to determine layout and behaviour of the depot_frame_t.
 	 */
-	int get_x_placement() const OVERRIDE { return -20; }
-	int get_y_placement() const OVERRIDE { return -25; }
-	int get_x_grid() const OVERRIDE { return 24; }
-	int get_y_grid() const OVERRIDE { return 24; }
+	sint8 get_x_placement() const OVERRIDE { return -20; }
+	sint8 get_y_placement() const OVERRIDE { return -25; }
+	sint8 get_x_grid() const OVERRIDE { return 24; }
+	sint8 get_x_num_grid() const OVERRIDE{ return 24; };
+	sint8 get_y_grid() const OVERRIDE { return 24; }
+	sint8 get_grid_dx() const OVERRIDE{ return 24; }
+	sint8 get_placement_dx() const OVERRIDE{ return 24; }
 	unsigned get_max_convoi_length() const OVERRIDE;
 
 	obj_t::typ get_typ() const OVERRIDE { return strassendepot; }
@@ -351,11 +360,14 @@ public:
 	/**
 	 * Parameters to determine layout and behaviour of the depot_frame_t.
 	 */
-	int get_x_placement() const OVERRIDE { return -1; }
-	int get_y_placement() const OVERRIDE { return -11; }
-	int get_x_grid() const OVERRIDE { return 60; }
-	int get_y_grid() const OVERRIDE { return 46; }
-
+	sint8 get_x_placement() const OVERRIDE;
+	sint8 get_y_placement() const OVERRIDE;
+	sint8 get_x_grid() const OVERRIDE;
+	sint8 get_x_num_grid() const OVERRIDE;
+	sint8 get_y_grid() const OVERRIDE;
+	sint8 get_grid_dx() const OVERRIDE;
+	sint8 get_placement_dx() const OVERRIDE;
+	
 	unsigned get_max_convoi_length() const OVERRIDE;
 	obj_t::typ get_typ() const OVERRIDE { return schiffdepot; }
 	const char *get_name() const OVERRIDE {return "Schiffdepot";}
@@ -380,10 +392,13 @@ public:
 	/**
 	 * Parameters to determine layout and behaviour of the depot_frame_t.
 	 */
-	int get_x_placement() const OVERRIDE {return -10; }
-	int get_y_placement() const OVERRIDE {return -23; }
-	int get_x_grid() const OVERRIDE { return 36; }
-	int get_y_grid() const OVERRIDE { return 36; }
+	sint8 get_x_placement() const OVERRIDE;
+	sint8 get_y_placement() const OVERRIDE;
+	sint8 get_x_grid() const OVERRIDE;
+	sint8 get_x_num_grid() const OVERRIDE;
+	sint8 get_y_grid() const OVERRIDE;
+	sint8 get_grid_dx() const OVERRIDE;
+	sint8 get_placement_dx() const OVERRIDE;
 	unsigned get_max_convoi_length() const OVERRIDE;
 
 	obj_t::typ get_typ() const OVERRIDE { return airdepot; }

@@ -36,15 +36,13 @@ private:
 public:
 	gui_fixedwidth_textarea_t(cbuffer_t* buf, const sint16 width);
 
+	// call this after buffer size changes
 	void recalc_size();
 
-	// after using any of these setter functions, remember to call recalc_size() to recalculate textarea height
+	// this sets a maximum width. The actual width may be smaller, depending on the text
 	void set_width(scr_coord_val width) OVERRIDE;
 
 	void set_reserved_area(const scr_size area);
-
-	// it will deliberately ignore the y-component (height) of the size
-	void set_size(scr_size size) OVERRIDE;
 
 	void draw(scr_coord offset) OVERRIDE;
 

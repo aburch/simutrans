@@ -194,7 +194,11 @@ public:
 	/**
 	 * Constants
 	 */
-	enum { precision_bits = 10, old_precision_bits = 10, precision_mask = 1023 };
+	enum {
+		old_precision_bits = 10,
+		precision_bits     = 10,
+		precision_mask     = (1 << precision_bits) - 1
+	};
 
 private:
 	/**
@@ -222,7 +226,7 @@ private:
 		CL_CONS_MANY,    // Consumer that consumes multiple inputs, possibly produces power.
 		// Electricity producers provide power.
 		CL_ELEC_PROD,    // Simple electricity source. (green energy)
-		CL_ELEC_CLASSIC, // Classic electricity producer behaviour with no inputs.
+		CL_ELEC_CLASSIC  // Classic electricity producer behaviour with no inputs.
 	} control_type;
 
 	// Demand buffer order logic;
@@ -238,7 +242,7 @@ private:
 		BL_NONE,    // Production cannot be boosted.
 		BL_PAXM,    // Production boosted only using passengers/mail.
 		BL_POWER,   // Production boosted with power as well. Needs aditional logic for correct ordering.
-		BL_CLASSIC, // Production boosted in classic way.
+		BL_CLASSIC  // Production boosted in classic way.
 	} boost_type;
 
 	// Functions for manipulating factory statistics
@@ -307,7 +311,7 @@ private:
 	array_tpl<ware_production_t> output; ///< array for output/produced goods
 
 	/// Accumulated time since last production
-	sint32 delta_sum;
+	uint32 delta_sum;
 	uint32 delta_menge;
 
 	// production remainder when scaled to PRODUCTION_DELTA_T. added back next step to eliminate cumulative error
@@ -317,9 +321,12 @@ private:
 	uint8 activity_count;
 
 	// The adjacent connected transformer, if any.
-	leitung_t *transformer;
+	vector_tpl<leitung_t *>transformers;
 
 	// true, if the factory did produce enough in the last step to require power
+	bool currently_requiring_power;
+
+	// there is input or output and we do something with it ...
 	bool currently_producing;
 
 	uint32 last_sound_ms;
@@ -558,19 +565,20 @@ public:
 	sint32 vorrat_an(const goods_desc_t *ware);        // Vorrat von Warentyp
 
 	// true, if there was production requiring power in the last step
-	bool is_currently_producing() const { return currently_producing; }
+	bool is_currently_producing() const { return currently_requiring_power; }
 
 	/**
 	 * True if a transformer is connected to this factory.
 	 */
-	bool is_transformer_connected() const { return transformer != NULL; }
+	bool is_transformer_connected() const { return !transformers.empty(); }
 
-	leitung_t* get_transformer() { return transformer; }
+	vector_tpl<leitung_t*> const &get_transformers() { return transformers; }
 
 	/**
 	 * Connect transformer to this factory.
 	 */
-	void set_transformer_connected(leitung_t *transformer) { this->transformer = transformer; }
+	void add_transformer_connected(leitung_t *transformer) { transformers.append_unique(transformer); }
+	void remove_transformer_connected( leitung_t* transformer ) { transformers.remove( transformer ); }
 
 	/**
 	 * @return 1 wenn consumption,
@@ -623,7 +631,7 @@ public:
 	/// Builds buildings (gebaeude_t) for the factory.
 	void build(sint32 rotate, bool build_fields, bool force_initial_prodbase);
 
-	sint16 get_rotate() const { return rotate; }
+	uint8 get_rotate() const { return rotate; }
 	void set_rotate( uint8 r ) { rotate = r; }
 
 	/* field generation code
@@ -662,13 +670,24 @@ public:
 	sint32 get_current_production() const { return (sint32)welt->scale_with_month_length( ((sint64)prodbase * (sint64)get_prodfactor())>>8 ); }
 
 	/* returns the status of the current factory, as well as output */
-	enum { bad, medium, good, inactive, nothing };
+	enum {
+		STATUS_BAD,
+		STATUS_MEDIUM,
+		STATUS_GOOD,
+		STATUS_INACTIVE,
+		STATUS_NOTHING
+	};
 	static uint8 status_to_color[5];
 
 	uint8  get_status() const { return status; }
 	uint32 get_total_in() const { return total_input; }
 	uint32 get_total_transit() const { return total_transit; }
 	uint32 get_total_out() const { return total_output; }
+
+	/**
+	 * Draws some nice colored bars giving some status information
+	 */
+	void display_status(sint16 xpos, sint16 ypos);
 
 	/**
 	 * Crossconnects all factories

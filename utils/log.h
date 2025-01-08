@@ -13,15 +13,21 @@
 #include "../simtypes.h"
 
 
-#if defined(MAKEOBJ)
-extern int debuglevel;
-#endif
-
 /**
  * Logging facility
  */
 class log_t
 {
+public:
+	enum level_t
+	{
+		LEVEL_FATAL = 0,
+		LEVEL_ERROR = 1,
+		LEVEL_WARN  = 2,
+		LEVEL_MSG   = 3,
+		LEVEL_DEBUG = 4
+	};
+
 private:
 	/**
 	 * Primary log file.
@@ -45,10 +51,12 @@ private:
 	 */
 	const char* tag;
 
+#ifdef SYSLOG
 	/**
 	 * Log to syslog?
 	 */
 	bool syslog;
+#endif
 
 	std::string doublettes;
 
@@ -85,6 +93,16 @@ public:
 	void NORETURN fatal(const char* who, const char* format, ...);
 
 	/**
+	 * writes an error into the log, aborts the program, use own messsgae.
+	 */
+	void NORETURN custom_fatal(char* error_str);
+
+	/**
+	 * writes an error into the log, aborts the program.
+	 */
+	void NORETURN custom_fatal(const char* error_str);
+
+	/**
 	 * writes to log using va_lists
 	 */
 	void vmessage(const char *what, const char *who, const char *format,  va_list args );
@@ -100,5 +118,9 @@ public:
 
 	~log_t();
 };
+
+#if defined(MAKEOBJ)
+extern log_t::level_t debuglevel;
+#endif
 
 #endif

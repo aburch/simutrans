@@ -41,6 +41,9 @@ void simlinemgmt_t::add_line(linehandle_t new_line)
 void simlinemgmt_t::delete_line(linehandle_t line)
 {
 	if (line.is_bound()) {
+		while(line->count_convoys() ) {
+			line->get_convoy(0)->set_line( linehandle_t() );
+		}
 		all_managed_lines.remove(line);
 		//destroy line object
 		delete line.get_rep();
@@ -232,4 +235,15 @@ void simlinemgmt_t::show_lineinfo(player_t *player, linehandle_t line)
 		create_win( schedule_list_gui, w_info, magic_line_management_t+player->get_player_nr() );
 	}
 	dynamic_cast<schedule_list_gui_t *>(schedule_list_gui)->show_lineinfo(line);
+}
+
+
+void simlinemgmt_t::change_owner_for_all_line(player_t *new_player) {
+	simlinemgmt_t& linemgmt_of_new_player = new_player->simlinemgmt;
+	FOR(vector_tpl<linehandle_t>, const line, all_managed_lines) {
+		line->set_owner(new_player);
+		linemgmt_of_new_player.add_line(line);
+		line->renew_stops();
+	}
+	all_managed_lines.clear();
 }

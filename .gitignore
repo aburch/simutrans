@@ -16,6 +16,7 @@
 *.rej
 /simutrans/*pak*
 /simutrans/pak*
+/simutrans/PAK*
 /simutrans/text
 *.bdf
 *.zip
@@ -27,7 +28,9 @@
 *.patch
 *.log
 /doxygen
-.*
-configure
-autom4te.cache
-simres.d
+.vs/
+revision.h
+.idea
+*.d
+*.res
+.DS_Store

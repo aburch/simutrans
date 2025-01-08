@@ -13,8 +13,29 @@ static int cx = -1; // coordinates of last mouse click event
 static int cy = -1; // initialised to "nowhere"
 static int control_shift_state = 0; // none pressed
 static event_t meta_event(EVENT_NONE); // for storing meta-events like double-clicks and triple-clicks
-static unsigned int last_meta_class = EVENT_NONE;
+static event_class_t last_meta_class = EVENT_NONE;
 static slist_tpl<event_t *> queued_events;
+
+
+event_t::event_t(event_class_t event_class) :
+	ev_class(event_class),
+	ev_code(0),
+	mx(0), my(0),
+	cx(0), cy(0),
+	button_state(0),
+	ev_key_mod(SIM_MOD_NONE)
+{
+}
+
+
+void event_t::move_origin(scr_coord delta)
+{
+	mx -= delta.x;
+	cx -= delta.x;
+	my -= delta.y;
+	cy -= delta.y;
+}
+
 
 int event_get_last_control_shift()
 {
@@ -24,7 +45,7 @@ int event_get_last_control_shift()
 }
 
 
-unsigned int last_meta_event_get_class()
+event_class_t last_meta_event_get_class()
 {
 	return last_meta_class;
 }
@@ -36,10 +57,18 @@ unsigned int last_meta_event_get_class()
  * so the origin keeps pointing to the window top bar.
  *  Mainly to prevent copied, double code.
  */
-void change_drag_start(int x, int y)
+void change_drag_start(scr_coord_val x, scr_coord_val y)
 {
 	cx += x;
 	cy += y;
+}
+
+
+// since finger events work with absolute coordinates
+void set_click_xy(scr_coord_val x, scr_coord_val y)
+{
+	cx = x;
+	cy = y;
 }
 
 
@@ -154,10 +183,9 @@ static void fill_event(event_t* const ev)
 			break;
 
 		case SIM_SYSTEM:
-			ev->ev_class = EVENT_SYSTEM;
-			ev->ev_code  = sys_event.code;
-			ev->size_x = sys_event.size_x;
-			ev->size_y = sys_event.size_y;
+			ev->ev_class        = EVENT_SYSTEM;
+			ev->ev_code         = sys_event.code;
+			ev->new_window_size = scr_size(sys_event.new_window_size_w, sys_event.new_window_size_h);
 			break;
 	}
 
@@ -249,30 +277,6 @@ void display_poll_event(event_t* const ev)
 	}
 	else {
 		last_meta_class = EVENT_NONE;
-		GetEventsNoWait();
-		fill_event(ev);
-		// prepare for next event
-		sys_event.type = SIM_NOEVENT;
-		sys_event.code = 0;
-	}
-}
-
-
-void display_get_event(event_t* const ev)
-{
-	if(  !queued_events.empty()  ) {
-		// We have a queued (injected programatically) event, return it.
-		event_t *elem = queued_events.remove_first();
-		*ev = *elem;
-		delete elem;
-		return ;
-	}
-	// if there is any pending meta-event, consume it instead of fetching a new event from the system
-	if(  meta_event.ev_class!=EVENT_NONE  ) {
-		*ev = meta_event;
-		meta_event.ev_class = EVENT_NONE;
-	}
-	else {
 		GetEvents();
 		fill_event(ev);
 		// prepare for next event

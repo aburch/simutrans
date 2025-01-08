@@ -541,6 +541,21 @@ const char* scenario_t::is_convoy_allowed(const player_t* player, convoihandle_t
 
 }
 
+const char* scenario_t::jump_to_link_executed(koord3d pos)
+{
+	if (env_t::server) {
+		// networkgame: allowed
+		return NULL;
+	}
+	// call script
+	if (what_scenario == SCRIPTED) {
+		static plainstring msg;
+		const char *err = script->call_function(script_vm_t::FORCE, "jump_to_link_executed", msg, pos);
+
+		return err == NULL ? msg.c_str() : NULL;
+	}
+	return NULL;
+}
 
 const char* scenario_t::get_error_text()
 {
@@ -717,9 +732,10 @@ plainstring scenario_t::load_language_file(const char* filename)
 		if(len>0) {
 			char* const buf = MALLOCN(char, len + 1);
 			fseek(file,0,SEEK_SET);
-			fread(buf, 1, len, file);
-			buf[len] = '\0';
-			text = buf;
+			if (fread(buf, 1, len, file) == (size_t)len) {
+				buf[len] = '\0';
+				text = buf;
+			}
 			free(buf);
 		}
 		fclose(file);
@@ -797,7 +813,7 @@ void scenario_t::rdwr(loadsave_t *file)
 
 				// failed, try scenario from pakset directory
 				if (rdwr_error) {
-					scenario_path = (env_t::program_dir + env_t::objfilename + "scenario/" + scenario_name.c_str() + "/").c_str();
+					scenario_path = (env_t::data_dir + env_t::objfilename + "scenario/" + scenario_name.c_str() + "/").c_str();
 					script_filename.clear();
 					script_filename.printf("%sscenario.nut", scenario_path.c_str());
 					rdwr_error = !load_script(script_filename);

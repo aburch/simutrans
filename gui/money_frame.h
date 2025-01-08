@@ -15,6 +15,7 @@
 #include "components/gui_tab_panel.h"
 #include "components/gui_chart.h"
 #include "components/gui_combobox.h"
+#include "components/gui_numberinput.h"
 
 #include "../player/finance.h"
 #include "../player/simplay.h"
@@ -54,6 +55,14 @@ private:
 
 	button_t headquarter;
 	cbuffer_t headquarter_tooltip;
+
+	gui_label_t send_money_format;
+	char send_money_format_str[30];
+
+	uint8 viewable_players[MAX_PLAYER_COUNT];
+	gui_combobox_t send_money_player_num;
+	gui_numberinput_t write_money;
+	button_t send_money_button;
 
 	/// Helper method to query data from players statistics
 	sint64 get_statistics_value(int transport_type, uint8 type, int yearmonth, bool monthly);

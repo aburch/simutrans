@@ -66,10 +66,16 @@ private:
 	/**
 	 * Adds one entry to the list.
 	 * @param path Qualified path to the directory of the entry.
-	 * @param filename Filename of the file to add.
+	 * @param entry Filename of the file to add.
 	 * @param prepend Add the full path to the file or just the file name.
 	 */
 	void add_entry(const std::string &path, const char *entry, const bool prepend );
+
+	/**
+	 * Checks if @p fn matches @p pattern, case insensitive.
+	 * @param pattern may start with an * as a wildcard that matches 0 or more characters.
+	 */
+	bool filename_matches_pattern(const char *fn, const char *pattern);
 
 	/**
 	 * Clears the search results.

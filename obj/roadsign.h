@@ -7,7 +7,7 @@
 #define OBJ_ROADSIGN_H
 
 
-#include "../simobj.h"
+#include "simobj.h"
 #include "../simtypes.h"
 #include "../descriptor/roadsign_desc.h"
 #include "../ifc/sync_steppable.h"
@@ -25,7 +25,11 @@ protected:
 	image_id image;
 	image_id foreground_image;
 
-	enum { SHOW_FONT=1, SHOW_BACK=2, SWITCH_AUTOMATIC=16 };
+	enum {
+		SHOW_FONT        = 1,
+		SHOW_BACK        = 2,
+		SWITCH_AUTOMATIC = 16
+	};
 
 	uint8 state:2; // counter for steps ...
 	uint8 dir:4;
@@ -34,6 +38,7 @@ protected:
 	uint8 preview:1;
 	uint8 ticks_ns;
 	uint8 ticks_ow;
+        uint8 ticks_yellow_ns, ticks_yellow_ow;
 	uint8 ticks_offset;
 	bool guide_signal;
 
@@ -47,7 +52,11 @@ protected:
 
 	ribi_t::ribi calc_mask() const { return ribi_t::is_single(dir) ? dir : (ribi_t::ribi)ribi_t::none; }
 public:
-	enum signalstate {rot=0, gruen=1, naechste_rot=2 };
+	enum signalstate {
+		STATE_RED    = 0,
+		STATE_GREEN  = 1,
+		STATE_YELLOW = 2  // next state is red
+	};
 
 	/**
 	 * return direction or the state of the traffic light
@@ -107,16 +116,32 @@ public:
 	void set_ticks_ns(uint8 ns) {
 		ticks_ns = ns;
 		// To prevent overflow in ticks_offset when rotating
-		if (ticks_ow > 256-ticks_ns) {
-			ticks_ow = 256-ticks_ns;
+		if (ticks_ow > 256-ticks_ns - ticks_yellow_ns - ticks_yellow_ow ) {
+			ticks_ow = 256-ticks_ns-ticks_yellow_ns-ticks_yellow_ow;
 		}
 	}
 	uint8 get_ticks_ow() const { return ticks_ow; }
 	void set_ticks_ow(uint8 ow) {
 		ticks_ow = ow;
 		// To prevent overflow in ticks_offset when rotating
-		if (ticks_ns > 256-ticks_ow) {
-			ticks_ns = 256-ticks_ow;
+		if (ticks_ns > 256-ticks_ow - ticks_yellow_ns-ticks_yellow_ow ) {
+			ticks_ns = 256-ticks_ow-ticks_yellow_ns-ticks_yellow_ow;
+		}
+	}
+	uint8 get_ticks_yellow_ns() const { return ticks_yellow_ns; }
+	void set_ticks_yellow_ns(uint8 yellow) {
+		ticks_yellow_ns = yellow;
+		// To prevent overflow in ticks_offset when rotating
+		if (ticks_yellow_ns > 256-ticks_ns - ticks_ow - ticks_yellow_ow) {
+		  ticks_yellow_ns = 256-ticks_ns-ticks_ow-ticks_yellow_ow;
+		}
+	}
+	uint8 get_ticks_yellow_ow() const { return ticks_yellow_ow; }
+	void set_ticks_yellow_ow(uint8 yellow) {
+		ticks_yellow_ow = yellow;
+		// To prevent overflow in ticks_offset when rotating
+		if (ticks_yellow_ow > 256-ticks_ns - ticks_ow - ticks_yellow_ns) {
+		  ticks_yellow_ow = 256-ticks_ns-ticks_ow-ticks_yellow_ns;
 		}
 	}
 	uint8 get_ticks_offset() const { return ticks_offset; }
@@ -148,6 +173,7 @@ public:
 	void display_after(int xpos, int ypos, bool dirty) const OVERRIDE;
 #endif
 
+	inline bool is_bidirectional() const { return ((dir & ribi_t::east) && (dir & ribi_t::west)) || ((dir & ribi_t::south) && (dir & ribi_t::north)) || ((dir & ribi_t::northeast) && (dir & ribi_t::southwest)) || ((dir & ribi_t::northwest) && (dir & ribi_t::southeast)); }
 
 	void rdwr(loadsave_t *file) OVERRIDE;
 

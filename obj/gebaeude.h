@@ -8,12 +8,13 @@
 
 
 #include "../ifc/sync_steppable.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../simcolor.h"
 
 class building_tile_desc_t;
 class fabrik_t;
 class stadt_t;
+class grund_t;
 
 /**
  * Asynchronous or synchronous animations for buildings.
@@ -124,6 +125,12 @@ public:
 
 	bool is_city_building() const;
 
+	bool is_building_of_city() const { return is_city_building() || is_headquarter() || is_monument(); }
+
+	/// fills vector with a list of all tiles with this building
+	/// @return number of actual tiles
+	uint32 get_tile_list( vector_tpl<grund_t *>& list ) const;
+
 	/// @copydoc obj_t::info
 	void info(cbuffer_t & buf) const OVERRIDE;
 
@@ -147,7 +154,7 @@ public:
 	const building_tile_desc_t *get_tile() const { return tile; }
 
 	bool is_within_players_network(const player_t* player) const;
-		
+
 	void show_info() OVERRIDE;
 
 	void cleanup(player_t *player) OVERRIDE;

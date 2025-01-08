@@ -157,7 +157,7 @@ public:
 	typ get_typ() const OVERRIDE { return road_user; }
 
 	/**
-	 * @return a description string for the object
+	 * @param[out] buf a description string for the object
 	 * e.g. for the observation window/dialog
 	 * @see simwin
 	 */

@@ -15,19 +15,21 @@
 template<class T> class slist_tpl;
 
 
-class imagelist2d_writer_t : public obj_writer_t {
-	private:
-		static imagelist2d_writer_t the_instance;
+class imagelist2d_writer_t : public obj_writer_t
+{
+private:
+	static imagelist2d_writer_t the_instance;
 
-		imagelist2d_writer_t() { register_writer(false); }
+	imagelist2d_writer_t() { register_writer(false); }
 
-	public:
-		static imagelist2d_writer_t* instance() { return &the_instance; }
+public:
+	static imagelist2d_writer_t* instance() { return &the_instance; }
 
-		virtual obj_type get_type() const { return obj_imagelist2d; }
-		virtual const char* get_type_name() const { return "imagelist2d"; }
+	obj_type get_type() const OVERRIDE { return obj_imagelist2d; }
+	const char* get_type_name() const OVERRIDE { return "imagelist2d"; }
 
-		void write_obj(FILE* fp, obj_node_t& parent, const slist_tpl<slist_tpl<std::string> >& keys);
+	void write_obj(FILE* fp, obj_node_t& parent, const slist_tpl<slist_tpl<std::string> >& keys);
 };
+
 
 #endif

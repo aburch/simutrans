@@ -14,6 +14,9 @@
 #include "../utils/cbuffer_t.h"
 #include "components/gui_button_to_chart.h"
 #include "components/gui_scrolled_list.h"
+#include "../sys/simsys.h"
+#include "messagebox.h"
+#include "simwin.h"
 
 
 /**
@@ -76,6 +79,9 @@ const uint8 citylist_frame_t::hist_type_type[karte_t::MAX_WORLD_COST] =
 	STANDARD
 };
 
+char citylist_frame_t::name_filter[256] = "";
+
+
 class playername_const_scroll_item_t : public gui_scrolled_list_t::const_text_scrollitem_t {
 public:
 	const uint8 player_nr;
@@ -98,16 +104,20 @@ citylist_frame_t::citylist_frame_t() :
 	main.add_tab( &list, translator::translate("City list") );
 
 	list.set_table_layout(1,0);
-	list.new_component<gui_label_t>("hl_txt_sort");
 
-	list.add_table(4,0);
-	sortedby.init(button_t::roundbox, sort_text[citylist_stats_t::sort_mode & 0x1F]);
-	sortedby.add_listener(this);
-	list.add_component(&sortedby);
+	list.add_table(3, 4);
+	list.new_component<gui_label_t>("Filter:");
+	name_filter_input.set_text(name_filter, lengthof(name_filter));
+	list.add_component(&name_filter_input);
+	list.new_component<gui_fill_t>();
 
-	sorteddir.init(button_t::roundbox, citylist_stats_t::sort_mode > citylist_stats_t::SORT_MODES ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
-	sorteddir.add_listener(this);
-	list.add_component(&sorteddir);
+	// add copy csv button
+	bt_copy_csv.init(button_t::roundbox | button_t::flexible, translator::translate("Copy csv format"));
+	bt_copy_csv.set_tooltip("Copy the list of city name and population to clipboard in csv format.");
+	bt_copy_csv.add_listener(this);
+	list.add_component(&bt_copy_csv);
+	list.new_component<gui_fill_t>();
+	list.new_component<gui_fill_t>();
 
 	filter_by_owner.init( button_t::square_automatic, "Served by" );
 	filter_by_owner.add_listener(this);
@@ -124,6 +134,23 @@ citylist_frame_t::citylist_frame_t() :
 	}
 	filterowner.add_listener(this);
 	list.add_component(&filterowner);
+	list.new_component<gui_fill_t>();
+
+
+	list.new_component<gui_label_t>("hl_txt_sort");
+	sortedby.set_unsorted(); // do not sort
+	for (size_t i = 0; i < lengthof(sort_text); i++) {
+		sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
+	}
+	sortedby.set_selection(citylist_stats_t::sort_mode & 0x1F);
+	sortedby.add_listener(this);
+	list.add_component(&sortedby);
+
+	sorteddir.init(button_t::sortarrow_state, NULL);
+	sorteddir.pressed = citylist_stats_t::sort_mode > citylist_stats_t::SORT_MODES;
+	sorteddir.add_listener(this);
+	list.add_component(&sorteddir);
+
 
 	list.end_table();
 	list.add_component(&scrolly);
@@ -194,10 +221,13 @@ void citylist_frame_t::fill_list()
 {
 	old_city_count = world()->get_cities().get_count();
 	scrolly.clear_elements();
+	strcpy(last_name_filter, name_filter);
 	player_t *pl = (filter_by_owner.pressed  &&  filterowner.get_selection()>0) ? world()->get_player(filterowner.get_selection()) : NULL;
 	FOR( const weighted_vector_tpl<stadt_t *>, city, world()->get_cities() ) {
-		if( pl == NULL || city->is_within_players_network( pl ) ) {
-			scrolly.new_component<citylist_stats_t>( city );
+		if(  pl == NULL  ||  city->is_within_players_network( pl ) ) {
+			if(  last_name_filter[0] == 0  ||  utf8caseutf8(city->get_name(), last_name_filter)  ) {
+				scrolly.new_component<citylist_stats_t>(city);
+			}
 		}
 	}
 	scrolly.sort(0);
@@ -205,19 +235,16 @@ void citylist_frame_t::fill_list()
 }
 
 
-bool citylist_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
+bool citylist_frame_t::action_triggered( gui_action_creator_t *comp, value_t v)
 {
 	if(comp == &sortedby) {
-		int i = citylist_stats_t::sort_mode & ~citylist_stats_t::SORT_REVERSE;
-		i = (i + 1) % citylist_stats_t::SORT_MODES;
-		sortedby.set_text(sort_text[i]);
-		citylist_stats_t::sort_mode = (citylist_stats_t::sort_mode_t)(i | (citylist_stats_t::sort_mode & citylist_stats_t::SORT_REVERSE));
+		citylist_stats_t::sort_mode = (citylist_stats_t::sort_mode_t)(v.i | (citylist_stats_t::sort_mode & citylist_stats_t::SORT_REVERSE));
 		scrolly.sort(0);
 	}
 	else if(comp == &sorteddir) {
 		bool reverse = citylist_stats_t::sort_mode <= citylist_stats_t::SORT_MODES;
-		sorteddir.set_text(reverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
-		citylist_stats_t::sort_mode = (citylist_stats_t::sort_mode_t)((citylist_stats_t::sort_mode & ~citylist_stats_t::SORT_REVERSE) + (reverse*citylist_stats_t::SORT_REVERSE) );
+		sorteddir.pressed = reverse;
+		citylist_stats_t::sort_mode = (citylist_stats_t::sort_mode_t)((citylist_stats_t::sort_mode & ~citylist_stats_t::SORT_REVERSE) + (reverse * citylist_stats_t::SORT_REVERSE));
 		scrolly.sort(0);
 	}
 	else if(comp == &filterowner) {
@@ -228,7 +255,39 @@ bool citylist_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 	else if( comp == &filter_by_owner ) {
 		fill_list();
 	}
+	else if( comp == &bt_copy_csv ) {
+		copy_csv_format();
+	}
 	return true;
+}
+
+// copy citylist and respective populations to clipboard
+void citylist_frame_t::copy_csv_format() {
+	// copy in csv format. separator is \t.
+	cbuffer_t clipboard;
+	
+	// append header
+	clipboard.append("City\tpopulation\n");
+	
+	// loop over the cities shown in the city list and add the name/population size
+	for (int i = 0; i < scrolly.get_count(); i++) {
+
+		// get city from city list
+		const citylist_stats_t* element = dynamic_cast<const citylist_stats_t*>(scrolly.get_element(i));
+		stadt_t* city = element->get_city();
+
+		// add to clipboard
+		clipboard.printf( "%s\t", city->get_name() );
+		clipboard.printf( "%d\n", city->get_einwohner());
+	}
+
+	// tell user if successfull or not
+	if(  clipboard.len()>0  ) {
+		dr_copy( clipboard, clipboard.len() );
+		create_win( new news_img("Population data was copied to clipboard.\n"), w_time_delete, magic_none );
+	} else {
+		dbg->error("citylist_frame_t::copy_csv_format()", "There is nothing to copy.\n");
+	}
 }
 
 
@@ -236,10 +295,33 @@ void citylist_frame_t::draw(scr_coord pos, scr_size size)
 {
 	welt->update_history();
 
-	if(  world()->get_cities().get_count() != old_city_count  ) {
+	if(  world()->get_cities().get_count() != old_city_count  ||  strcmp(last_name_filter, name_filter)  ) {
 		fill_list();
 	}
 	update_label();
 
 	gui_frame_t::draw(pos, size);
+}
+
+
+void citylist_frame_t::rdwr(loadsave_t* file)
+{
+	scr_size size = get_windowsize();
+	sint16 sort_mode = citylist_stats_t::sort_mode;
+
+	size.rdwr(file);
+	scrolly.rdwr(file);
+	year_month_tabs.rdwr(file);
+	main.rdwr(file);
+	filterowner.rdwr(file);
+	sortedby.rdwr(file);
+	file->rdwr_str(name_filter, lengthof(name_filter));
+	file->rdwr_short(sort_mode);
+	if (file->is_loading()) {
+		citylist_stats_t::sort_mode = (citylist_stats_t::sort_mode_t)sort_mode;
+		bool reverse = citylist_stats_t::sort_mode <= citylist_stats_t::SORT_MODES;
+		sorteddir.pressed = reverse;
+		fill_list();
+		set_windowsize(size);
+	}
 }

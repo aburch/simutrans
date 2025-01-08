@@ -10,25 +10,21 @@
 #include "obj_reader.h"
 
 
-class vehicle_reader_t : public obj_reader_t {
-	static vehicle_reader_t the_instance;
-
-	vehicle_reader_t() { register_reader(); }
+class vehicle_reader_t : public obj_reader_t
+{
+	OBJ_READER_DEF(vehicle_reader_t, obj_vehicle, "vehicle");
 
 protected:
+	/// @copydoc obj_reader_t::register_obj
 	void register_obj(obj_desc_t*&) OVERRIDE;
+
+	/// @copydoc obj_reader_t::successfully_loaded
 	bool successfully_loaded() const OVERRIDE;
 
 public:
-	static vehicle_reader_t*instance() { return &the_instance; }
-
-	obj_type get_type() const OVERRIDE { return obj_vehicle; }
-	char const* get_type_name() const OVERRIDE { return "vehicle"; }
-
-	/**
-	 * Read a node. Does version check and compatibility transformations.
-	 */
-	obj_desc_t* read_node(FILE*, obj_node_info_t&) OVERRIDE;
+	/// @copydoc obj_reader_t::read_node
+	obj_desc_t *read_node(FILE *fp, obj_node_info_t &node) OVERRIDE;
 };
+
 
 #endif

@@ -13,9 +13,14 @@
 #include "obj_pak_exception.h"
 #include "../image.h"
 #include "../../macros.h"
-#include "../../utils/dr_rdpng.h"
 #include "../../utils/simstring.h"
 #include "../../simdebug.h"
+#include "../../io/raw_image.h"
+
+#ifndef _WIN32
+#include <dirent.h>
+#include <sys/types.h>
+#endif
 
 
 struct dimension
@@ -26,31 +31,44 @@ struct dimension
 	int ymax;
 };
 
-static int special_hist[SPECIAL];
-
 
 std::string image_writer_t::last_img_file;
 
-unsigned image_writer_t::width;
-unsigned image_writer_t::height;
-unsigned char* image_writer_t::block = NULL;
+raw_image_t image_writer_t::input_img;
 int image_writer_t::img_size = 64;
-
-
-void image_writer_t::dump_special_histogramm()
-{
-	for(int i = 0; i < SPECIAL; i++) {
-		printf("%2d) 0x%06x : %d\n", i, image_t::rgbtab[i], special_hist[i]);
-	}
-}
 
 
 uint32 image_writer_t::block_getpix(int x, int y)
 {
-	return (image_writer_t::block[y * width * 4 + x * 4 + 0]<<24) +
-		(image_writer_t::block[y * width * 4 + x * 4 + 1] << 16) +
-		(image_writer_t::block[y * width * 4 + x * 4 + 2] <<  8) +
-		(image_writer_t::block[y * width * 4 + x * 4 + 3] <<  0);
+	const uint8 *pixel_data = input_img.access_pixel(x, y);
+
+	switch (input_img.get_format()) {
+		case raw_image_t::FMT_GRAY8: {
+			const uint8 gray_level = pixel_data[0];
+			return
+				gray_level <<  0 |
+				gray_level <<  8 |
+				gray_level << 16;
+		}
+		case raw_image_t::FMT_RGBA8888: {
+			const uint32 pixel =
+				(pixel_data[2] <<  0) + // B
+				(pixel_data[1] <<  8) + // G
+				(pixel_data[0] << 16) + // R
+				(pixel_data[3] << 24);  // A
+
+			// invert alpha channel, we want 0 == opaque
+			return pixel ^ 0xFF000000;
+		}
+		case raw_image_t::FMT_RGB888: {
+			return
+				(pixel_data[2] <<  0) | // B
+				(pixel_data[1] <<  8) | // G
+				(pixel_data[0] << 16);  // R
+		}
+		default:
+			dbg->fatal("image_writer_t::block_getpix", "Unsupported input image format");
+	}
 }
 
 
@@ -106,13 +124,11 @@ static uint16 pixrgb_to_pixval(uint32 rgb)
 }
 
 
-
 // true if transparent
 inline bool is_transparent( const uint32 pix )
 {
 	return (pix & 0x00FFFFFF) == SPECIAL_TRANSPARENT  ||  (pix >= ALPHA_THRESHOLD);
 }
-
 
 
 static void init_dim(uint32 *image, dimension *dim, int img_size)
@@ -241,20 +257,86 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 }
 
 
-
-bool image_writer_t::block_load(const char* fname)
+bool image_writer_t::block_load(const char *fname)
 {
-	// The last png-file is cached
-	if(  last_img_file == fname  ||  load_block(&block, &width, &height, fname, img_size)  ) {
+	// The last image file is cached
+	// Note that this method accepts any file name if the content has a supported format,
+	// even though makeobj only supports image file names with a ".png" suffix.
+	// See image_writer_t::write_obj for details.
+	if(  last_img_file == fname  ) {
+		return true;
+	}
+	else if (load_image_from_file(fname)) {
+		if ((input_img.get_width()%img_size != 0) || (input_img.get_height()%img_size != 0)) {
+			dbg->error("image_writer_t::block_load", "Cannot load image file '%s': "
+				"Size not divisible by %d.", fname, img_size);
+			last_img_file = "";
+			return false;
+		}
+
 		last_img_file = fname;
 		return true;
 	}
-	else {
-		last_img_file = "";
-		return false;
-	}
+
+	// error message is handled by image_writer_t::write_obj
+	last_img_file = "";
+	return false;
 }
 
+
+bool image_writer_t::load_image_from_file(const char* fname)
+{
+	if (input_img.read_from_file(fname)) {
+		return true;
+	}
+
+	// Not an exact match, try to case-insensitive search.
+#ifndef _WIN32
+	std::string actual_path;
+	size_t len = strlen(fname);
+	actual_path.reserve(len);
+	const char * sep_beg = fname;
+	const char * sep_end = sep_beg + strspn(sep_beg, "/");
+	if (sep_end == sep_beg) {
+		// relative
+		actual_path = "./";
+	}
+
+	char const * end = fname + len;
+
+	std::string name;
+	while (true) {
+		actual_path.insert(actual_path.end(), sep_beg, sep_end);
+		sep_beg = sep_end + strcspn(sep_end, "/");
+		if (sep_beg == sep_end) {
+			break;
+		}
+		name.assign(sep_end, sep_beg);
+		DIR * dir = opendir(actual_path.c_str());
+		if (!dir) {
+			break;
+		}
+		struct dirent * ent = NULL;
+		while ((ent = readdir(dir)) != NULL) {
+			if (!STRICMP(ent->d_name, name.c_str())) {
+				actual_path += ent->d_name;
+				break;
+			}
+		}
+		closedir(dir);
+		if (!ent) {
+			break;
+		}
+
+		if (sep_beg == end) {
+			return input_img.read_from_file(actual_path.c_str());
+		}
+		sep_end = sep_beg + strspn(sep_beg, "/");
+	}
+#endif
+
+	return false;
+}
 
 
 /* the syntax for image the string is
@@ -303,7 +385,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, std::string an_i
 		}
 		numkey = numkey.substr( i+1, std::string::npos );
 
-		imagekey = root_writer_t::get_inpath() + imagekey.substr( 0, imagekey.size()-numkey.size() - 1 ) +  ".png";
+		imagekey = root_writer_t::get_inpath() + imagekey.substr( 0, imagekey.size()-numkey.size() - 1 ) + ".png";
 
 		row = atoi(numkey.c_str());
 
@@ -331,10 +413,10 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, std::string an_i
 		}
 
 		if (col == -1) {
-			col = row % (width / img_size);
-			row = row / (width / img_size);
+			col = row % (input_img.get_width()  / img_size);
+			row = row / (input_img.get_height() / img_size);
 		}
-		if (col >= (int)(width / img_size) || row >= (int)(height / img_size)) {
+		if (col >= (int)(input_img.get_width() / img_size) || row >= (int)(input_img.get_height() / img_size)) {
 			char reason[1024];
 			sprintf(reason, "invalid image number in %s.%s", imagekey.c_str(), numkey.c_str());
 			throw obj_pak_exception_t("image_writer_t", reason);

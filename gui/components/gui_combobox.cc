@@ -55,6 +55,14 @@ gui_combobox_t::gui_combobox_t(gui_scrolled_list_t::item_compare_func cmp) :
  */
 bool gui_combobox_t::infowin_event(const event_t *ev)
 {
+	if( !(bt_next.enabled() || bt_prev.enabled()) ) {
+		// no infowind events if disabled
+		if(  droplist.is_visible()  ) {
+			close_box();
+		}
+		return false;
+	}
+
 	if(  !droplist.is_visible()  ) {
 DBG_MESSAGE("event","%d,%d",ev->cx, ev->cy);
 		if(  bt_prev.getroffen(ev->cx, ev->cy)  ) {
@@ -81,7 +89,7 @@ DBG_MESSAGE("event","HOWDY!");
 			return true;
 		}
 	}
-	else if(  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)  ) {
+	else if(  (IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))  &&  droplist.getroffen(ev->mx + get_pos().x, ev->my + get_pos().y)  ) {
 		// scroll the list
 		droplist.infowin_event(ev);
 		return true;
@@ -152,8 +160,8 @@ DBG_MESSAGE("event","HOWDY!");
 		}
 		else if (droplist.is_visible()) {
 			event_t ev2 = *ev;
-			scr_coord diff = droplist.get_pos() - gui_component_t::get_pos();
-			translate_event(&ev2, -diff.x, -diff.y);
+			const scr_coord diff = droplist.get_pos() - gui_component_t::get_pos();
+			ev2.move_origin(diff);
 
 			if( droplist.getroffen(ev->cx + pos.x, ev->cy + pos.y)  ) {
 				int old_selection = droplist.get_selection();
@@ -191,9 +199,9 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 	else {
 		// finally handle textinput
 		gui_scrolled_list_t::scrollitem_t *item = droplist.get_selected_item();
-		if(  item==NULL  ||  item->is_editable()) {
+		if(  item==NULL  ||  item->is_editable()  ) {
 			event_t ev2 = *ev;
-			translate_event(&ev2, -textinp.get_pos().x, -textinp.get_pos().y);
+			ev2.move_origin(textinp.get_pos());
 			return textinp.infowin_event(ev);
 		}
 	}
@@ -205,9 +213,10 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 bool gui_combobox_t::action_triggered( gui_action_creator_t *comp,value_t p)
 {
 	if (  comp == &droplist  ) {
-DBG_MESSAGE("gui_combobox_t::infowin_event()","scroll selected %i",p.i);
+		const int selection = (int)p.i;
+DBG_MESSAGE("gui_combobox_t::infowin_event()", "scroll selected %i", selection);
 		finish = true;
-		set_selection(p.i);
+		set_selection(selection);
 	}
 	else if (  comp == &textinp  ) {
 		rename_selected_item();
@@ -352,10 +361,10 @@ void gui_combobox_t::set_size(scr_size size)
 
 	droplist.request_size(scr_size(this->size.w, droplist.get_size().h));
 
-	textinp.set_size( scr_size( size.w - bt_prev.get_size().w - bt_next.get_size().w - D_H_SPACE, closed_size.h-D_V_SPACE/2  ) );
+	textinp.set_size( scr_size( size.w - bt_prev.get_size().w - bt_next.get_size().w - D_H_SPACE, closed_size.h ) );
 	set_pos(get_pos());
 
-	bt_prev.set_pos( scr_coord(0,(size.h-D_POS_BUTTON_HEIGHT)/2) );
+	bt_prev.set_pos( scr_coord(0,(size.h-D_ARROW_LEFT_HEIGHT)/2) );
 	textinp.align_to( &bt_prev, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( pos.x + D_H_SPACE / 2, pos.y ) );
 	bt_next.align_to( &textinp, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( -pos.x + D_H_SPACE / 2, -pos.y ) );
 }

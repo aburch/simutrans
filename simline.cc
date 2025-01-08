@@ -19,6 +19,9 @@
 #include "simconvoi.h"
 #include "convoihandle_t.h"
 #include "simlinemgmt.h"
+#include "gui/simwin.h"
+#include "gui/gui_frame.h"
+
 
 uint8 convoi_to_line_catgory_[convoi_t::MAX_CONVOI_COST] = {
 	LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_DISTANCE, LINE_MAXSPEED, LINE_WAYTOLL
@@ -95,7 +98,7 @@ simline_t::linetype simline_t::waytype_to_linetype(const waytype_t wt)
 		case tram_wt: return simline_t::tramline;
 		case narrowgauge_wt: return simline_t::narrowgaugeline;
 		case air_wt: return simline_t::airline;
-		default: return simline_t::MAX_LINE_TYPE;
+		default: return simline_t::line;
 	}
 }
 
@@ -121,6 +124,19 @@ void simline_t::set_schedule(schedule_t* schedule)
 		delete this->schedule;
 	}
 	this->schedule = schedule;
+}
+
+
+void simline_t::set_name(const char *new_name)
+{
+	name = new_name;
+
+	/// Update window title if window is open
+	gui_frame_t *line_info = win_get_magic((ptrdiff_t)self.get_rep());
+
+	if (line_info) {
+		line_info->set_name(name);
+	}
 }
 
 

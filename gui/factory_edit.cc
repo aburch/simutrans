@@ -29,19 +29,83 @@ tool_build_land_chain_t factory_edit_frame_t::land_chain_tool = tool_build_land_
 tool_city_chain_t factory_edit_frame_t::city_chain_tool = tool_city_chain_t();
 tool_build_factory_t factory_edit_frame_t::fab_tool = tool_build_factory_t();
 cbuffer_t factory_edit_frame_t::param_str;
+bool factory_edit_frame_t::sortreverse = false;
 
 
-static bool compare_fabrik_desc(const factory_desc_t* a, const factory_desc_t* b)
+static bool compare_factory_desc(const factory_desc_t* a, const factory_desc_t* b)
 {
 	int diff = strcmp( a->get_name(), b->get_name() );
-	return diff < 0;
+	return factory_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
 }
-
-static bool compare_factory_desc_trans(const factory_desc_t* a, const factory_desc_t* b)
+static bool compare_factory_desc_name(const factory_desc_t* a, const factory_desc_t* b)
 {
 	int diff = strcmp( translator::translate(a->get_name()), translator::translate(b->get_name()) );
-	return diff < 0;
+	if(  diff==0  ) {
+		diff = strcmp(a->get_name(), b->get_name());
+	}
+	return factory_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
 }
+static bool compare_factory_desc_level_pax(const factory_desc_t* a, const factory_desc_t* b)
+{
+	int diff = (a->get_pax_demand()  != 65535 ? a->get_pax_demand()  : a->get_pax_level())
+	          -(b->get_pax_demand()  != 65535 ? b->get_pax_demand()  : b->get_pax_level());
+	if ( diff == 0 ) {
+		diff = strcmp(a->get_name(), b->get_name());
+	}
+	return factory_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
+}
+static bool compare_factory_desc_level_mail(const factory_desc_t* a, const factory_desc_t* b)
+{
+	int diff = (a->get_mail_demand()  != 65535 ? a->get_mail_demand()  : a->get_pax_level()>>2)
+	          -(b->get_mail_demand()  != 65535 ? b->get_mail_demand()  : b->get_pax_level()>>2);
+	if ( diff == 0 ) {
+		diff = strcmp(a->get_name(), b->get_name());
+	}
+	return factory_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
+}
+static bool compare_factory_desc_date_intro(const factory_desc_t* a, const factory_desc_t* b)
+{
+	int diff = a->get_building()->get_intro_year_month() - b->get_building()->get_intro_year_month();
+	if ( diff == 0) {
+		diff = strcmp(a->get_name(), b->get_name());
+	}
+	return factory_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
+}
+static bool compare_factory_desc_date_retire(const factory_desc_t* a, const factory_desc_t* b)
+{
+	int diff = a->get_building()->get_retire_year_month() - b->get_building()->get_retire_year_month();
+	if ( diff == 0) {
+		diff = strcmp(a->get_name(), b->get_name());
+	}
+	return factory_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
+}
+static bool compare_factory_desc_size(const factory_desc_t* a, const factory_desc_t* b)
+{
+	koord a_koord = a->get_building()->get_size();
+	koord b_koord = b->get_building()->get_size();
+	int diff = a_koord.x * a_koord.y - b_koord.x * b_koord.y;
+	if(  diff==0  ) {
+		//same area - sort by side to seperate different shapes
+		diff = a_koord.x - b_koord.x;
+	}
+	if(  diff==0  ) {
+		diff = strcmp(a->get_name(), b->get_name());
+	}
+	return factory_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
+}
+static bool compare_factory_desc_goods_number(const factory_desc_t* a, const factory_desc_t* b)
+{
+	int diff = a->get_product_count() - b->get_product_count();
+	if(  diff==0  ) {
+		//same number of products - go by number of required goods
+		diff = a->get_supplier_count() - b->get_supplier_count();
+	}
+	if(  diff==0  ) {
+		diff = strcmp(a->get_name(), b->get_name());
+	}
+	return factory_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
+}
+
 
 factory_edit_frame_t::factory_edit_frame_t(player_t* player_) :
 	extend_edit_gui_t(translator::translate("factorybuilder"), player_),
@@ -52,14 +116,25 @@ factory_edit_frame_t::factory_edit_frame_t(player_t* player_) :
 
 	bt_city_chain.init( button_t::square_state, "Only city chains");
 	bt_city_chain.add_listener(this);
-	cont_right.add_component(&bt_city_chain);
+	cont_filter.add_component(&bt_city_chain);
 
 	bt_land_chain.init( button_t::square_state, "Only land chains");
 	bt_land_chain.add_listener(this);
-	cont_right.add_component(&bt_land_chain);
+	cont_filter.add_component(&bt_land_chain);
+
+	// add water to climate selection
+	cb_climates.new_component<gui_climates_item_t>(climate::water_climate);
+
+	// add to sorting selection
+	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_LEVEL_PAX);
+	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_LEVEL_MAIL);
+	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_DATE_INTRO);
+	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_DATE_RETIRE);
+	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_SIZE);
+	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_GOODS_NUMBER);
 
 	// rotation, production
-	gui_aligned_container_t *tbl = cont_right.add_table(2,2);
+	gui_aligned_container_t *tbl = cont_options.add_table(2,2);
 	tbl->new_component<gui_label_t>("Rotation");
 	tbl->add_component(&cb_rotation);
 	cb_rotation.add_listener(this);
@@ -70,9 +145,9 @@ factory_edit_frame_t::factory_edit_frame_t(player_t* player_) :
 	inp_production.set_limits(0,9999);
 	inp_production.add_listener( this );
 	tbl->add_component(&inp_production);
-	cont_right.end_table();
+	cont_options.end_table();
 
-	fill_list( is_show_trans_name );
+	fill_list();
 
 	reset_min_windowsize();
 }
@@ -80,13 +155,15 @@ factory_edit_frame_t::factory_edit_frame_t(player_t* player_) :
 
 
 // fill the current factory_list
-void factory_edit_frame_t::fill_list( bool translate )
+void factory_edit_frame_t::fill_list()
 {
 	const bool allow_obsolete = bt_obsolete.pressed;
-	const bool use_timeline = bt_timeline.pressed;
+	const bool use_timeline = bt_timeline.pressed | bt_timeline_custom.pressed;
 	const bool city_chain = bt_city_chain.pressed;
 	const bool land_chain = bt_land_chain.pressed;
-	const sint32 month_now = bt_timeline.pressed ? welt->get_current_month() : 0;
+	const sint32 month_now = bt_timeline.pressed ? welt->get_current_month() : bt_timeline_custom.pressed ? ni_timeline_year.get_value()*12 + ni_timeline_month.get_value()-1 : 0;
+	const uint8 sortedby = get_sortedby();
+	sortreverse = sort_order.pressed;
 
 	factory_list.clear();
 
@@ -96,21 +173,23 @@ void factory_edit_frame_t::fill_list( bool translate )
 		if(desc->get_distribution_weight()>0) {
 			// DistributionWeight=0 is obsoleted item, only for backward compatibility
 
-			if(!use_timeline  ||  (!desc->get_building()->is_future(month_now)  &&  (!desc->get_building()->is_retired(month_now)  ||  allow_obsolete))  ) {
-				// timeline allows for this
+			if( (!use_timeline  ||  (!desc->get_building()->is_future(month_now)  &&  (!desc->get_building()->is_retired(month_now)  ||  allow_obsolete)))
+				&&  ( desc->get_building()->get_allowed_climate_bits() & get_climate()) ) {
+				// timeline allows for this, and so does climates setting
 
-				if(city_chain) {
-					if (desc->get_placement() == factory_desc_t::City && desc->is_consumer_only()) {
-						factory_list.insert_ordered( desc, translate?compare_factory_desc_trans:compare_fabrik_desc );
+				if( ( city_chain  &&  (desc->get_placement() == factory_desc_t::City && desc->is_consumer_only() ) )
+				||  ( land_chain  &&  (desc->get_placement() != factory_desc_t::City && desc->is_consumer_only() ) )
+				||  (!city_chain  &&  !land_chain) ) {
+					switch(sortedby) {
+						case gui_sorting_item_t::BY_NAME_TRANSLATED:     factory_list.insert_ordered( desc, compare_factory_desc_name );           break;
+						case gui_sorting_item_t::BY_LEVEL_PAX:           factory_list.insert_ordered( desc, compare_factory_desc_level_pax );      break;
+						case gui_sorting_item_t::BY_LEVEL_MAIL:          factory_list.insert_ordered( desc, compare_factory_desc_level_mail );     break;
+						case gui_sorting_item_t::BY_DATE_INTRO:          factory_list.insert_ordered( desc, compare_factory_desc_date_intro );     break;
+						case gui_sorting_item_t::BY_DATE_RETIRE:         factory_list.insert_ordered( desc, compare_factory_desc_date_retire );    break;
+						case gui_sorting_item_t::BY_SIZE:                factory_list.insert_ordered( desc, compare_factory_desc_size );           break;
+						case gui_sorting_item_t::BY_GOODS_NUMBER:        factory_list.insert_ordered( desc, compare_factory_desc_goods_number );   break;
+						default:                                         factory_list.insert_ordered( desc, compare_factory_desc );
 					}
-				}
-				if(land_chain) {
-					if (desc->get_placement() != factory_desc_t::City && desc->is_consumer_only()) {
-						factory_list.insert_ordered( desc, translate?compare_factory_desc_trans:compare_fabrik_desc );
-					}
-				}
-				if(!city_chain  &&  !land_chain) {
-					factory_list.insert_ordered( desc, translate?compare_factory_desc_trans:compare_fabrik_desc );
 				}
 			}
 		}
@@ -121,10 +200,10 @@ void factory_edit_frame_t::fill_list( bool translate )
 	scl.set_selection(-1);
 	FOR(vector_tpl<factory_desc_t const*>, const i, factory_list) {
 		PIXVAL const color =
-			i->is_consumer_only() ? color_idx_to_rgb(COL_BLUE)       :
-			i->is_producer_only() ? color_idx_to_rgb(COL_DARK_GREEN) :
+			i->is_consumer_only() ? color_idx_to_rgb(COL_DARK_BLUE + env_t::gui_player_color_dark) :
+			i->is_producer_only() ? color_idx_to_rgb(40 + env_t::gui_player_color_dark)            :
 			SYSCOL_TEXT;
-		char const* const name = translate ? translator::translate(i->get_name()) : i->get_name();
+		char const* const name = get_sortedby()==gui_sorting_item_t::BY_NAME_OBJECT ?  i->get_name() : translator::translate(i->get_name());
 		scl.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(name, color);
 		if (i == fac_desc) {
 			scl.set_selection(scl.get_count()-1);
@@ -146,14 +225,14 @@ bool factory_edit_frame_t::action_triggered( gui_action_creator_t *comp,value_t 
 		if(bt_city_chain.pressed) {
 			bt_land_chain.pressed = 0;
 		}
-		fill_list( is_show_trans_name );
+		fill_list();
 	}
 	else if(  comp==&bt_land_chain  ) {
 		bt_land_chain.pressed ^= 1;
 		if(bt_land_chain.pressed) {
 			bt_city_chain.pressed = 0;
 		}
-		fill_list( is_show_trans_name );
+		fill_list();
 	}
 	else if( comp == &cb_rotation) {
 		change_item_info( scl.get_selection() );
@@ -307,6 +386,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 		building_image.init(NULL, 0);
 		fac_desc = NULL;
 		welt->set_tool( tool_t::general_tool[TOOL_QUERY], player );
+		buf.clear();
 	}
 	info_text.recalc_size();
 	reset_min_windowsize();
@@ -323,4 +403,18 @@ void factory_edit_frame_t::set_windowsize(scr_size size)
 	scr_coord_val w = max(cbs.w, nis.w);
 	cb_rotation.set_size(scr_size(w, cbs.h));
 	inp_production.set_size(scr_size(w, nis.h));
+}
+
+
+void factory_edit_frame_t::rdwr( loadsave_t *file ) {
+	uint8 button_pressed_flags = bt_city_chain.pressed | (bt_land_chain.pressed<<1);
+	file->rdwr_byte(button_pressed_flags);
+	bt_city_chain.pressed = button_pressed_flags & 1;
+	bt_land_chain.pressed = (button_pressed_flags>>1) & 1;
+
+	sint32 production_value = inp_production.get_value();
+	file->rdwr_long(production_value);
+	inp_production.set_value(production_value);
+
+	extend_edit_gui_t::rdwr(file);
 }

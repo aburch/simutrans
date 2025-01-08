@@ -7,55 +7,30 @@
 #define GUI_MESSAGE_STATS_T_H
 
 
-#include "components/gui_component.h"
+#include "components/gui_aligned_container.h"
+#include "components/gui_scrolled_list.h"
 #include "../simmesg.h"
-#include "../tpl/slist_tpl.h"
 
 
 /**
- * City list stats display
+ * Message display
  */
-class message_stats_t : public gui_world_component_t
+class message_stats_t : public gui_aligned_container_t, public gui_scrolled_list_t::scrollitem_t
 {
 private:
-	message_t *msg;
-	sint32 message_type;                              // message type for filtering; -1 indicates no filtering
-	uint32 last_count;
-	sint32 message_selected;
-	const slist_tpl<message_t::node *> *message_list; // points to the active message list (original or filtered)
-	slist_tpl<message_t::node *> filtered_messages;   // cache the list of messages belonging to a certain type
-
-	scr_size min_size;
+	const message_t::node *msg;
+	uint32 sortid; // sortid reflects the order in message_t
 
 public:
-	message_stats_t();
-	~message_stats_t() { filtered_messages.clear(); }
+	message_stats_t(const message_t::node *m, uint32 sid);
 
-	/**
-	 * Filter messages by type
-	 * @return whether there is a change in message filtering
-	 */
-	bool filter_messages(const sint32 msg_type);
+	const message_t::node* get_msg() const { return msg; }
 
-	bool infowin_event(event_t const*) OVERRIDE;
+	char const* get_text() const OVERRIDE { return msg->msg; }
 
-	/**
-	 * Recalc the size required to display everything and set size and min_size.
-	 */
-	void recalc_size();
+	bool infowin_event(const event_t * ev) OVERRIDE;
 
-	/**
-	 * Draw the component
-	 */
-	void draw(scr_coord offset) OVERRIDE;
-
-	scr_size get_max_size() const OVERRIDE {
-		return get_min_size();
-	}
-
-	scr_size get_min_size() const OVERRIDE {
-		return min_size;
-	}
+	static bool compare(const gui_component_t *a, const gui_component_t *b );
 };
 
 #endif

@@ -8,9 +8,7 @@ show_tooltips = 1
 
 # tooltip background color (+-1 around this index is used), taken from player-color table
 tooltip_background_color = 4
-
-# tooltip text color (240=black, 215=white)
-tooltip_text_color = 240
+tooltip_text_color       = #000000
 
 # delay before showing tooltip in ms (default 500ms)
 tooltip_delay = 500
@@ -18,17 +16,13 @@ tooltip_delay = 500
 # duration in ms during tooltip is visible (default 5000ms=5s)
 tooltip_duration = 5000
 
-# Color of cursor overlay, which is blended over marked ground tiles
-# The available colors and their numbers can be found on
-#    http://simutrans-germany.com/wiki/wiki/tiki-index.php?page=en_FactoryDef#mapcolor
-# Suggested values (155 is the default)
-# -- pak64, pak.german, pak128
-#cursor_overlay_color = 155
-# -- pak128.japan
-#cursor_overlay_color = 149
+##################################size stuff##################################
 
-# in default theme white text
-gui_text_highlight= #FFFFFF
+# maximum size of tool bars in tools (0 = no limit)
+# if more tools than allowed by height,
+# next and prev arrows for scrolling appears
+toolbar_max_width = 0
+toolbar_max_height = 0
 
 # larger icons too
 icon_width = 48
@@ -55,6 +49,60 @@ gui_edit_height = 22
 
 # request larger font size (the resulting spacing is about 15% larger due to decent)
 font_size = 16
+
+#################################colour stuff#################################
+
+gui_color_text           = #000000
+gui_color_text_highlight = #F8FCF8
+gui_color_text_shadow    = #000000
+gui_color_text_title     = #C0FC60
+gui_color_text_strong    = #C00000
+gui_color_text_minus     = #C00000
+gui_color_text_plus      = #000000
+gui_color_text_unused    = #F8FC00
+
+gui_color_edit_text          = #F8FCF8
+gui_color_edit_text_selected = #A8ACA8
+gui_color_edit_text_disabled = #606060
+gui_color_edit_background_selected = #404040
+gui_color_edit_beam          = #F8FCF8
+
+gui_color_chart_background  = #989898
+gui_color_chart_lines_zero  = #D8DCD8
+gui_color_chart_lines_odd   = #F8FCF8
+gui_color_chart_lines_even  = #686868
+
+gui_color_list_text_selected_focus         = #F8FCF8
+gui_color_list_text_selected_nofocus       = #C8C8C8
+gui_color_list_background_selected_focus   = #0000F8
+gui_color_list_background_selected_nofocus = #60A0F8
+gui_color_obsolete  = #0000F8
+gui_color_empty     = #F8FCF8
+
+gui_color_button_text          = #000000
+gui_color_button_text_disabled = #686868
+gui_color_button_text_selected = #000000
+gui_color_colored_button_text  = #000000
+gui_color_colored_button_text_selected = #F8FCF8
+gui_color_checkbox_text        = #000000
+gui_color_checkbox_text_disabled = #686868
+
+gui_color_ticker_background    = #B0B0B0
+gui_color_ticker_divider       = #000000
+gui_color_statusbar_text       = #000000
+gui_color_statusbar_background = #989898
+gui_color_statusbar_divider    = #D8DCD8
+
+gui_highlight_color = #D8DCD8
+gui_shadow_color    = #686868
+
+gui_color_loadingbar_inner    = #A8ACA8
+gui_color_loadingbar_progress = #0000F8
+
+cursor_overlay_color     = #F88000
+
+tooltip_background_color = #7094B8
+tooltip_text_color       = #000000
 
 ##################################window stuff##################################
 
@@ -85,20 +133,18 @@ default_window_title_color = #D74700
 
 # third (best together with 2nd):use different text color for bar
 # some colors are 215-white, 240-black 208-214- all shades of gray
-front_window_text_color = #FFFFFF
+front_window_text_color  = #FFFFFF
 bottom_window_text_color = #DDDDDD
 
 # How much shade for player colors (7 brightest 0 darkest)
 gui_player_color_bright = 4
 gui_player_color_dark = 1
 
-##################################size stuff##################################
+# make the chat window transparent in network games
+gui_chat_window_network_transparency = 25
 
-# maximum size of tool bars in tools (0 = no limit)
-# if more tools than allowed by height,
-# next and prev arrows for scrolling appears
-toolbar_max_width = 0
-toolbar_max_height = 0
+# if defined, use plain color for chat window in network games
+gui_color_chat_window_network_transparency = #EEEEEE
 
 ##################################pakstuff##################################
 

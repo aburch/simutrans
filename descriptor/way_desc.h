@@ -128,6 +128,25 @@ public:
 		return imglist->get_image_id( ribi );
 	}
 
+	image_id get_switch_ex_image_id(ribi_t::ribi ribi, uint8 season, bool nw, bool front = false) const
+	{
+		if (front  &&  !front_images) {
+			return IMG_EMPTY;
+		}
+		const uint16 n = image_list_base_index(season, front);
+		image_list_t const* const imglist = get_child<image_list_t>(n);
+		// only do this if extended switches are there
+		if(  imglist->get_count()>26  ) {
+			static uint8 ribi_to_extra[16] = {
+				255, 255, 255, 255, 255, 255, 255, 0,
+				255, 255, 255, 1, 255, 2, 3, 4
+			};
+			return imglist->get_image_id( ribi_to_extra[ribi]+26+(nw*5) );
+		}
+		// else return standard values
+		return imglist->get_image_id( ribi );
+	}
+
 	image_id get_slope_image_id(slope_t::type slope, uint8 season, bool front = false) const
 	{
 		if (front  &&  !front_images) {
@@ -194,6 +213,11 @@ public:
 	bool has_switch_image() const {
 		return get_child<image_list_t>(2)->get_count() > 16
 		||     get_child<image_list_t>(image_list_base_index(false, true))->get_count() > 16;
+	}
+
+	bool has_switch_ex_image() const {
+		return get_child<image_list_t>(2)->get_count() > 26
+		||     get_child<image_list_t>(image_list_base_index(false, true))->get_count() > 26;
 	}
 
 	/* true, if this tile is to be drawn as a normal thing */

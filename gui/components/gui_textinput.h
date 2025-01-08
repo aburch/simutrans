@@ -112,7 +112,7 @@ public:
 	void draw(scr_coord offset) OVERRIDE;
 
 	// x position of the current cursor (for IME purposes)
-	scr_coord_val get_current_cursor_x() { return calc_cursor_pos(head_cursor_pos); };
+	scr_coord_val get_current_cursor_x() { return calc_cursor_pos(head_cursor_pos); }
 
 	/**
 	 * Detect change of focus state and determine whether cursor should be displayed,

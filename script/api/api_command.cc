@@ -55,10 +55,10 @@ SQInteger command_constructor(HSQUIRRELVM vm)
 SQInteger param<call_tool_init>::push(HSQUIRRELVM vm, call_tool_init v)
 {
 	if (v.error) {
-		return sq_raise_error(vm, *v.error ? v.error : "Strange error occured");
+		return sq_raise_error(vm, *v.error ? v.error : "Strange error occurred");
 	}
 	// create tool, if necessary, delete on exit
-	std::auto_ptr<tool_t> our_tool;
+	std::unique_ptr<tool_t> our_tool;
 	tool_t *tool = v.tool;
 	if (tool == NULL) {
 		our_tool.reset(v.create_tool());
@@ -182,10 +182,10 @@ tool_t * call_tool_base_t::create_tool()
 SQInteger param<call_tool_work>::push(HSQUIRRELVM vm, call_tool_work v)
 {
 	if (v.error) {
-		return sq_raise_error(vm, *v.error ? v.error : "Strange error occured");
+		return sq_raise_error(vm, *v.error ? v.error : "Strange error occurred");
 	}
 	// create tool, if necessary, delete on exit
-	std::auto_ptr<tool_t> our_tool;
+	std::unique_ptr<tool_t> our_tool;
 	tool_t *tool = v.tool;
 	if (tool == NULL) {
 		our_tool.reset(v.create_tool());
@@ -220,7 +220,7 @@ SQInteger param<call_tool_work>::push(HSQUIRRELVM vm, call_tool_work v)
 	// set flags
 	tool->flags = flags;
 	// test work
-	if (tool->is_work_network_safe()  ||  (!v.twoclick  &&  tool->is_work_here_network_save(player, v.start))) {
+	if (tool->is_work_network_safe()  ||  (!v.twoclick  &&  tool->is_work_here_network_safe(player, v.start))) {
 		return sq_raise_error(vm, "Tool has no effects");
 	}
 	// two-click tool
@@ -228,7 +228,7 @@ SQInteger param<call_tool_work>::push(HSQUIRRELVM vm, call_tool_work v)
 		if (dynamic_cast<two_click_tool_t*>(tool)==NULL) {
 			return sq_raise_error(vm, "Cannot call this tool with two coordinates");
 		}
-		if (!tool->is_work_here_network_save(player, v.start)) {
+		if (!tool->is_work_here_network_safe(player, v.start)) {
 			return sq_raise_error(vm, "First click has side effects");
 		}
 	}
@@ -283,10 +283,19 @@ void* script_api::param<tool_t*>::tag()
 }
 
 
+const char* is_available(const obj_desc_timelined_t* desc)
+{
+	return desc->is_available(welt->get_timeline_year_month()) ? NULL : "Object not available (retired or future).";
+}
+
+
 call_tool_work build_way(player_t* pl, koord3d start, koord3d end, const way_desc_t* way, bool straight, bool keep_city_roads)
 {
 	if (way == NULL) {
 		return call_tool_work("No way provided");
+	}
+	if (const char* err = is_available(way)) {
+		return call_tool_work(err);
 	}
 	return call_tool_work(TOOL_BUILD_WAY | GENERAL_TOOL, way->get_name(), (straight ? 2 : 0) + (keep_city_roads ? 1 : 0), pl, start, end);
 }
@@ -296,6 +305,9 @@ call_tool_work build_wayobj(player_t* pl, koord3d start, koord3d end, const way_
 {
 	if (wayobj == NULL) {
 		return call_tool_work("No wayobj provided");
+	}
+	if (const char* err = is_available(wayobj)) {
+		return call_tool_work(err);
 	}
 	return call_tool_work(TOOL_BUILD_WAYOBJ | GENERAL_TOOL, wayobj->get_name(), 0, pl, start, end);
 }
@@ -317,6 +329,9 @@ call_tool_work build_station_rotation(player_t* pl, koord3d pos, const building_
 	}
 	if (building == NULL  ||  !building->is_transport_building()) {
 		return call_tool_work("No building provided");
+	}
+	if (const char* err = is_available(building)) {
+		return call_tool_work(err);
 	}
 	static cbuffer_t buf;
 	buf.clear();
@@ -344,6 +359,9 @@ call_tool_work build_depot(player_t* pl, koord3d pos, const building_desc_t* bui
 	if (building == NULL  ||  !building->is_depot()) {
 		return call_tool_work("No depot provided");
 	}
+	if (const char* err = is_available(building)) {
+		return call_tool_work(err);
+	}
 	return call_tool_work(TOOL_BUILD_DEPOT | GENERAL_TOOL, building->get_name(), 0, pl, pos);
 }
 
@@ -352,6 +370,9 @@ call_tool_work build_bridge(player_t* pl, koord3d start, koord3d end, const brid
 	if (bridge == NULL) {
 		return call_tool_work("No bridge provided");
 	}
+	if (const char* err = is_available(bridge)) {
+		return call_tool_work(err);
+	}
 	return call_tool_work(TOOL_BUILD_BRIDGE | GENERAL_TOOL, bridge->get_name(), 2, pl, start, end);
 }
 
@@ -359,6 +380,9 @@ call_tool_work build_bridge_at(player_t* pl, koord3d start, const bridge_desc_t*
 {
 	if (bridge == NULL) {
 		return call_tool_work("No bridge provided");
+	}
+	if (const char* err = is_available(bridge)) {
+		return call_tool_work(err);
 	}
 	return call_tool_work(TOOL_BUILD_BRIDGE | GENERAL_TOOL, bridge->get_name(), 0, pl, start);
 }
@@ -395,9 +419,36 @@ call_tool_work build_sign_at(player_t* pl, koord3d start, const roadsign_desc_t*
 	if (sign == NULL) {
 		return call_tool_work("No sign provided");
 	}
+	if (const char* err = is_available(sign)) {
+		return call_tool_work(err);
+	}
 	return call_tool_work(TOOL_BUILD_ROADSIGN | GENERAL_TOOL, sign->get_name(), 0, pl, start);
 }
 
+call_tool_work change_climate_at(player_t* pl, koord3d start, int climate)
+{
+	if (climate < water_climate || climate >= MAX_CLIMATES) {
+		return call_tool_work("Invalid climate number provided");
+	}
+	// communicate per default_param
+	static cbuffer_t param;
+	param.clear();
+	param.printf("%d", climate);
+	return call_tool_work(TOOL_SET_CLIMATE | GENERAL_TOOL, param, 0, pl, start, start);
+}
+
+
+call_tool_work lower_raise(player_t* pl, koord3d pos, bool lower)
+{
+	// need to transform coordinate to grid coordinates
+	switch(coordinate_transform_t::get_rotation()) {
+		case 1: pos += koord(1,0); break;
+		case 2: pos += koord(1,1); break;
+		case 3: pos += koord(0,1); break;
+		default:;
+	}
+	return call_tool_work((lower ? TOOL_LOWER_LAND : TOOL_RAISE_LAND) | GENERAL_TOOL, NULL, 0, pl, pos);
+}
 
 void export_commands(HSQUIRRELVM vm)
 {
@@ -561,6 +612,26 @@ void export_commands(HSQUIRRELVM vm)
 	 * @param wayobj type of wayobj to be built
 	 */
 	STATIC register_method(vm, build_wayobj, "build_wayobj", false, true);
+	/**
+	 * Change climate of tile
+	 * @param pl player to pay for the work
+	 * @param pos coordinate of tile
+	 * @param climate new climate, possible values see @ref climates
+	 */
+	STATIC register_method(vm, change_climate_at, "change_climate_at", false, true);
+
+	/**
+	 * Lower grid point
+	 * @param pl player to pay for the work
+	 * @param pos coordinate of tile, grid point in nw corner will be lowered
+	 */
+	STATIC register_method_fv(vm, lower_raise, "grid_lower", freevariable<bool>(true), false, true);
+	/**
+	 * Raise grid point
+	 * @param pl player to pay for the work
+	 * @param pos coordinate of tile, grid point in nw corner will be lowered
+	 */
+	STATIC register_method_fv(vm, lower_raise, "grid_raise", freevariable<bool>(false), false, true);
 
 	end_class(vm);
 }

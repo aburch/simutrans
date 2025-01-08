@@ -27,7 +27,14 @@ class goods_desc_t;
 class goods_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
-	enum sort_mode_t { unsortiert=0, nach_name=1, nach_gewinn=2, nach_bonus=3, nach_catg=4, SORT_MODES=5 };
+	enum sort_mode_t {
+		unsortiert  = 0,
+		nach_name   = 1,
+		nach_gewinn = 2,
+		nach_bonus  = 3,
+		nach_catg   = 4,
+		SORT_MODES  = 5
+	};
 	static const char *sort_text[SORT_MODES];
 
 	// Variables used for remembering last state of window when closed.
@@ -64,7 +71,7 @@ private:
 	cbuffer_t speed_message;
 	vector_tpl<const goods_desc_t*> good_list;
 
-	button_t sortedby;
+	gui_combobox_t sortedby;
 	button_t sorteddir;
 
 	gui_numberinput_t speed;

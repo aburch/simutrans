@@ -19,14 +19,19 @@
 #include "../simmenu.h"
 #include "../player/simplay.h"
 #include "../utils/simstring.h"
+#include "../sys/simsys.h"
 
 #include "gui_theme.h"
 #include "themeselector.h"
 #include "loadfont_frame.h"
 #include "simwin.h"
 
+// display text label in player colors
+void display_text_label(sint16 xpos, sint16 ypos, const char* text, const player_t *player, bool dirty); // grund.cc
+
 enum {
 	IDBTN_SCROLL_INVERSE,
+	IDBTN_IGNORE_NUMLOCK,
 	IDBTN_PEDESTRIANS_AT_STOPS,
 	IDBTN_PEDESTRIANS_IN_TOWNS,
 	IDBTN_DAY_NIGHT_CHANGE,
@@ -44,6 +49,7 @@ enum {
 	IDBTN_SHOW_THEMEMANAGER,
 	IDBTN_SIMPLE_DRAWING,
 	IDBTN_CHANGE_FONT,
+	IDBTN_INFINITE_SCROLL,
 	IDBTN_RIBI_ARROW,
 	IDBTN_ONEWAY_RIBI_ONLY,
 	COLORS_MAX_BUTTONS, 
@@ -53,6 +59,7 @@ static button_t buttons[COLORS_MAX_BUTTONS];
 
 /**
 * class to visualize station names
+	IDBTN_SHOW_FACTORY_STORAGE,
 */
 class gui_label_stationname_t : public gui_label_t
 {
@@ -64,28 +71,10 @@ public:
 	{
 		scr_coord p = pos + offset;
 
-		FLAGGED_PIXVAL pc = welt->get_active_player() ? color_idx_to_rgb(welt->get_active_player()->get_player_color1()+3) : color_idx_to_rgb(COL_ORANGE);
+		const player_t* player = welt->get_active_player();
 		const char *text = get_text_pointer();
 
-		char ddd[ 16 ];
-		sprintf( ddd, "%d", env_t::show_names );
-		display_proportional_rgb( p.x, p.y + get_size().h/2, ddd, 0, color_idx_to_rgb(COL_BLACK), 1 );
-		p.x += 20;
-		switch( env_t::show_names>>2 ) {
-		case 0:
-			if(  env_t::show_names & 1  ) {
-				display_ddd_proportional_clip( p.x, p.y + get_size().h/2, proportional_string_width(text)+7, 0, pc, color_idx_to_rgb(COL_BLACK), text, 1 );
-			}
-			break;
-		case 1:
-			display_outline_proportional_rgb( p.x, p.y, pc+1, color_idx_to_rgb(COL_BLACK), text, 1 );
-			break;
-		case 2:
-			display_outline_proportional_rgb( p.x + LINESPACE + D_H_SPACE, p.y, color_idx_to_rgb(COL_YELLOW), color_idx_to_rgb(COL_BLACK), text, 1 );
-			display_ddd_box_clip_rgb(         p.x,                     p.y,   LINESPACE,   LINESPACE,   pc-2, pc+2 );
-			display_fillbox_wh_clip_rgb(      p.x+1,                   p.y+1, LINESPACE-2, LINESPACE-2, pc,   true);
-			break;
-		}
+		display_text_label(p.x, p.y, text, player, true);
 	}
 
 	scr_size get_min_size() const OVERRIDE
@@ -93,7 +82,6 @@ public:
 		return gui_label_t::get_min_size() + scr_size(LINESPACE + D_H_SPACE, 4);
 	}
 };
-
 
 
 gui_settings_t::gui_settings_t()
@@ -107,9 +95,54 @@ gui_settings_t::gui_settings_t()
 	buttons[ IDBTN_CHANGE_FONT ].init( button_t::roundbox_state | button_t::flexible, "Select display font" );
 	add_component( buttons + IDBTN_CHANGE_FONT );
 
-	// add controls to info container
-	add_table(2,4);
+	// screen scale number input
+	add_table(3, 0);
 	set_alignment(ALIGN_LEFT);
+	{
+		new_component<gui_label_t>("Screen scale: ");
+
+		screen_scale_numinp.init(dr_get_screen_scale(), 25, 400, 25);
+		screen_scale_numinp.add_listener(this);
+		add_component(&screen_scale_numinp);
+
+		screen_scale_auto.init(button_t::roundbox_state, "Auto");
+		screen_scale_auto.add_listener(this);
+		add_component(&screen_scale_auto);
+	}
+	end_table();
+	
+	// add controls to info container
+	add_table(2,5);
+	set_alignment(ALIGN_LEFT);
+
+	// position of menu
+	new_component<gui_label_t>("Toolbar position:");
+	switch (env_t::menupos) {
+		case MENU_TOP: toolbar_pos.init(button_t::arrowup, NULL); break;
+		case MENU_LEFT: toolbar_pos.init(button_t::arrowleft, NULL); break;
+		case MENU_BOTTOM: toolbar_pos.init(button_t::arrowdown, NULL); break;
+		case MENU_RIGHT: toolbar_pos.init(button_t::arrowright, NULL); break;
+	}
+	add_component(&toolbar_pos);
+
+	fullscreen.init( button_t::square_state, "Fullscreen (changed after restart)" );
+	fullscreen.pressed = ( dr_get_fullscreen() == FULLSCREEN );
+	fullscreen.enable(dr_has_fullscreen());
+	add_component( &fullscreen, 2 );
+
+	borderless.init( button_t::square_state, "Borderless (disabled on fullscreen)" );
+	borderless.enable ( dr_get_fullscreen() != FULLSCREEN );
+	borderless.pressed = ( dr_get_fullscreen() == BORDERLESS );
+	add_component( &borderless, 2 );
+
+	reselect_closes_tool.init( button_t::square_state, "Reselect closes tools" );
+	reselect_closes_tool.pressed = env_t::reselect_closes_tool;
+	add_component( &reselect_closes_tool, 2 );
+	
+	put_below_others.init( button_t::square_state, "Put new toolbar below others" );
+	put_below_others.pressed = env_t::put_new_toolbar_below_others;
+	add_component( &put_below_others, 2 );
+
 	// Frame time label
 	new_component<gui_label_t>("Frame time:");
 	frame_time_value_label.buf().printf(" 9999 ms");
@@ -130,7 +163,6 @@ gui_settings_t::gui_settings_t()
 	simloops_value_label.buf().printf(" 999.9");
 	simloops_value_label.update();
 	add_component( &simloops_value_label );
-	end_table();
 }
 
 void gui_settings_t::draw(scr_coord offset)
@@ -172,10 +204,28 @@ void gui_settings_t::draw(scr_coord offset)
 }
 
 
+bool gui_settings_t::action_triggered(gui_action_creator_t *comp, value_t)
+{
+	if (comp == &screen_scale_numinp) {
+		const sint16 new_value = screen_scale_numinp.get_value();
+		env_t::display_scale_percent = new_value;
+		dr_set_screen_scale(new_value);
+	}
+	else if (comp == &screen_scale_auto) {
+		dr_set_screen_scale(-1);
+		const sint16 screen_scale = dr_get_screen_scale();
+		env_t::display_scale_percent = screen_scale;
+		screen_scale_numinp.set_value(screen_scale);
+	}
+
+	return true;
+}
+
+
 map_settings_t::map_settings_t()
 {
-	set_table_layout( 1, 0 );
-	add_table( 2, 0 );
+	set_table_layout( 2, 0 );
+
 	// Show grid checkbox
 	buttons[ IDBTN_SHOW_GRID ].init( button_t::square_state, "show grid" );
 	add_component( buttons + IDBTN_SHOW_GRID, 2 );
@@ -211,6 +261,16 @@ map_settings_t::map_settings_t()
 	buttons[ IDBTN_SCROLL_INVERSE ].init( button_t::square_state, "4LIGHT_CHOOSE" );
 	add_component( buttons + IDBTN_SCROLL_INVERSE, 2 );
 
+	// Scroll infinite checkbox
+	buttons[IDBTN_INFINITE_SCROLL].init(button_t::square_state, "Infinite mouse scrolling");
+	buttons[IDBTN_INFINITE_SCROLL].set_tooltip("Infinite scrolling using mouse");
+	add_component(buttons + IDBTN_INFINITE_SCROLL, 2);
+
+	// Numpad key
+	buttons[ IDBTN_IGNORE_NUMLOCK ].init( button_t::square_state, "Num pad keys always move map" );
+	buttons[ IDBTN_IGNORE_NUMLOCK ].pressed = env_t::numpad_always_moves_map;
+	add_component( buttons + IDBTN_IGNORE_NUMLOCK, 2 );
+
 	// Scroll speed label
 	new_component<gui_label_t>( "3LIGHT_CHOOSE" );
 
@@ -220,13 +280,25 @@ map_settings_t::map_settings_t()
 	scrollspeed.add_listener( this );
 	add_component( &scrollspeed );
 
-	// Toggle simple drawing for debugging
 #ifdef DEBUG
+	// Toggle simple drawing for debugging
 	buttons[IDBTN_SIMPLE_DRAWING].init(button_t::square_state, "Simple drawing");
 	add_component(buttons+IDBTN_SIMPLE_DRAWING, 2);
 #endif
 
-	end_table();
+	// Set date format
+	new_component<gui_label_t>( "Date format" );
+	time_setting.set_focusable( false );
+	uint8 old_show_month = env_t::show_month;
+	sint32 current_tick = world()->get_ticks();
+	for( env_t::show_month = 0; env_t::show_month<8; env_t::show_month++ ) {
+		tstrncpy( time_str[env_t::show_month], tick_to_string( current_tick ), 64 );
+		time_setting.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( time_str[env_t::show_month], SYSCOL_TEXT );
+	}
+	env_t::show_month = old_show_month;
+	time_setting.set_selection( old_show_month );
+	add_component( &time_setting );
+	time_setting.add_listener( this );
 }
 
 bool map_settings_t::action_triggered( gui_action_creator_t *comp, value_t v )
@@ -236,11 +308,11 @@ bool map_settings_t::action_triggered( gui_action_creator_t *comp, value_t v )
 		env_t::daynight_level = (sint8)v.i;
 	}
 	// Scroll speed edit
-	if( &scrollspeed == comp ) {
+	else if( &scrollspeed == comp ) {
 		env_t::scroll_multi = (sint16)(buttons[ IDBTN_SCROLL_INVERSE ].pressed ? -v.i : v.i);
 	}
 	// underground slice edit
-	if( comp == &inp_underground_level ) {
+	else if( comp == &inp_underground_level ) {
 		if( grund_t::underground_mode == grund_t::ugm_level ) {
 			grund_t::underground_level = inp_underground_level.get_value();
 
@@ -248,13 +320,16 @@ bool map_settings_t::action_triggered( gui_action_creator_t *comp, value_t v )
 			world()->update_underground();
 		}
 	}
+	else if( comp == &time_setting ) {
+		env_t::show_month = v.i;
+		return true;
+	}
 	return true;
 }
 
 transparency_settings_t::transparency_settings_t()
 {
-	set_table_layout( 1, 0 );
-	add_table( 2, 0 );
+	set_table_layout( 2, 0 );
 
 	// Transparent instead of hidden checkbox
 	buttons[ IDBTN_TRANSPARENT_INSTEAD_OF_HIDDEN ].init( button_t::square_state, "hide transparent" );
@@ -283,7 +358,15 @@ transparency_settings_t::transparency_settings_t()
 	cursor_hide_range.add_listener( this );
 	add_component( &cursor_hide_range );
 
-	end_table();
+	new_component<gui_label_t>( "Industry overlay" )->set_tooltip( translator::translate( "Display bars above factory to show the status" ) );
+	factory_tooltip.set_focusable( false );
+	factory_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "Do not show" ), SYSCOL_TEXT );
+	factory_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "On mouseover" ), SYSCOL_TEXT );
+	factory_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "Served by me" ), SYSCOL_TEXT );
+	factory_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "Show always" ), SYSCOL_TEXT );
+	factory_tooltip.set_selection( env_t::show_factory_storage_bar );
+	add_component( &factory_tooltip );
+	factory_tooltip.add_listener( this );
 }
 
 bool transparency_settings_t::action_triggered( gui_action_creator_t *comp, value_t v )
@@ -294,8 +377,14 @@ bool transparency_settings_t::action_triggered( gui_action_creator_t *comp, valu
 	}
 	// Hide building
 	if( &hide_buildings == comp ) {
-		env_t::hide_buildings = v.i;
+		env_t::hide_buildings = (uint8)v.i;
 		world()->set_dirty();
+	}
+	if( comp == &factory_tooltip ) {
+		env_t::show_factory_storage_bar = (uint8)v.i;
+		world()->set_dirty();
+
+		return true;
 	}
 	return true;
 }
@@ -311,8 +400,7 @@ void transparency_settings_t::draw( scr_coord offset )
 
 station_settings_t::station_settings_t()
 {
-	set_table_layout( 1, 0 );
-	add_table( 2, 0 );
+	set_table_layout( 2, 0 );
 
 	// Transparent station coverage
 	buttons[ IDBTN_TRANSPARENT_STATION_COVERAGE ].init( button_t::square_state, "transparent station coverage" );
@@ -338,14 +426,11 @@ station_settings_t::station_settings_t()
 	buttons[ IDBTN_SHOW_WAITING_BARS ].init( button_t::square_state, "show waiting bars" );
 	buttons[ IDBTN_SHOW_WAITING_BARS ].pressed = env_t::show_names & 2;
 	add_component( buttons + IDBTN_SHOW_WAITING_BARS, 2 );
-
-	end_table();
 }
 
 traffic_settings_t::traffic_settings_t()
 {
-	set_table_layout( 1, 0 );
-	add_table( 2, 0 );
+	set_table_layout( 2, 0 );
 
 	// Pedestrians in towns checkbox
 	buttons[IDBTN_PEDESTRIANS_IN_TOWNS].init(button_t::square_state, "6LIGHT_CHOOSE");
@@ -407,15 +492,13 @@ traffic_settings_t::traffic_settings_t()
 	buttons[IDBTN_ONEWAY_RIBI_ONLY].init(button_t::square_state, "show directions only for oneway roads");
 	buttons[IDBTN_ONEWAY_RIBI_ONLY].pressed = env_t::show_oneway_ribi_only;
 	add_component(buttons+IDBTN_ONEWAY_RIBI_ONLY, 2);
-
-	end_table();
 }
 
 bool traffic_settings_t::action_triggered( gui_action_creator_t *comp, value_t v )
 {
 	// Traffic density edit
 	if( &traffic_density == comp ) {
-		if( !env_t::networkmode || world()->get_active_player_nr() == 1 ) {
+		if( !env_t::networkmode || world()->get_active_player_nr() == PUBLIC_PLAYER_NR ) {
 			static char level[ 16 ];
 			sprintf( level, "%li", v.i );
 			tool_t::simple_tool[ TOOL_TRAFFIC_LEVEL & 0xFFF ]->set_default_param( level );
@@ -427,15 +510,15 @@ bool traffic_settings_t::action_triggered( gui_action_creator_t *comp, value_t v
 	}
 	// Convoy tooltip
 	if( &convoy_tooltip == comp ) {
-		env_t::show_vehicle_states = v.i;
+		env_t::show_vehicle_states = (uint8)v.i;
 	}
 
 	if( &follow_mode == comp ) {
-		env_t::follow_convoi_underground = v.i;
+		env_t::follow_convoi_underground = (uint8)v.i;
 	}
 
 	if( &money_booking == comp ) {
-		env_t::show_money_message = v.i;
+		env_t::show_money_message = (sint8)v.i;
 	}
 	return true;
 }
@@ -468,6 +551,11 @@ color_gui_t::color_gui_t() :
 	for( int i = 0; i < COLORS_MAX_BUTTONS; i++ ) {
 		buttons[ i ].add_listener( this );
 	}
+	gui_settings.toolbar_pos.add_listener( this );
+	gui_settings.fullscreen.add_listener( this );
+	gui_settings.borderless.add_listener( this );
+	gui_settings.reselect_closes_tool.add_listener(this);
+	gui_settings.put_below_others.add_listener(this);
 
 	set_resizemode(diagonal_resize);
 	set_min_windowsize( scr_size(D_DEFAULT_WIDTH,get_min_windowsize().h+map_settings.get_size().h) );
@@ -475,23 +563,76 @@ color_gui_t::color_gui_t() :
 	resize( scr_coord( 0, 0 ) );
 }
 
-bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t)
+bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t p)
 {
+	if(  comp == &gui_settings.toolbar_pos  ) {
+		env_t::menupos++;
+		env_t::menupos &= 3;
+		switch (env_t::menupos) {
+			case MENU_TOP: gui_settings.toolbar_pos.set_typ(button_t::arrowup); break;
+			case MENU_LEFT: gui_settings.toolbar_pos.set_typ(button_t::arrowleft); break;
+			case MENU_BOTTOM: gui_settings.toolbar_pos.set_typ(button_t::arrowdown); break;
+			case MENU_RIGHT: gui_settings.toolbar_pos.set_typ(button_t::arrowright); break;
+		}
+		welt->set_dirty();
+
+		// move all windows
+		event_t* ev = new event_t();
+		ev->ev_class = EVENT_SYSTEM;
+		ev->ev_code = SYSTEM_RELOAD_WINDOWS;
+		queue_event(ev);
+
+		return true;
+	}
+
+	if(  comp == &gui_settings.fullscreen  ) {
+		env_t::fullscreen = p.i==0 && dr_get_fullscreen()!=2 ? dr_get_fullscreen() : (sint16)FULLSCREEN;
+		gui_settings.fullscreen.pressed = !gui_settings.fullscreen.pressed;
+		gui_settings.borderless.pressed = false;
+		return true;
+	}
+
+	if(  comp == &gui_settings.borderless  ) {
+		env_t::fullscreen = dr_toggle_borderless();
+		gui_settings.borderless.pressed = dr_get_fullscreen();
+		gui_settings.fullscreen.pressed = false;
+		return true;
+	}
+
+	if(  comp == &gui_settings.reselect_closes_tool  ) {
+		env_t::reselect_closes_tool = !env_t::reselect_closes_tool;
+		gui_settings.reselect_closes_tool.pressed = env_t::reselect_closes_tool;
+		return true;
+	}
+	
+	if(  comp == &gui_settings.put_below_others  ) {
+		env_t::put_new_toolbar_below_others = !env_t::put_new_toolbar_below_others;
+		gui_settings.put_below_others.pressed = env_t::put_new_toolbar_below_others;
+		return true;
+	}
+
 	int i;
 	for(  i=0;  i<COLORS_MAX_BUTTONS  &&  comp!=buttons+i;  i++  ) { }
 
 	switch( i )
 	{
+	case IDBTN_IGNORE_NUMLOCK:
+		env_t::numpad_always_moves_map = !env_t::numpad_always_moves_map;
+		buttons[IDBTN_IGNORE_NUMLOCK].pressed = env_t::numpad_always_moves_map;
+		break;
 	case IDBTN_SCROLL_INVERSE:
 		env_t::scroll_multi = -env_t::scroll_multi;
 		break;
+	case IDBTN_INFINITE_SCROLL:
+		env_t::scroll_infinite ^= 1;
+		break;
 	case IDBTN_PEDESTRIANS_AT_STOPS:
-		if( !env_t::networkmode || welt->get_active_player_nr() == 1 ) {
+		if( !env_t::networkmode || welt->get_active_player_nr() == PUBLIC_PLAYER_NR ) {
 			welt->set_tool( tool_t::simple_tool[ TOOL_TOOGLE_PAX & 0xFFF ], welt->get_active_player() );
 		}
 		break;
 	case IDBTN_PEDESTRIANS_IN_TOWNS:
-		if( !env_t::networkmode || welt->get_active_player_nr() == 1 ) {
+		if( !env_t::networkmode || welt->get_active_player_nr() == PUBLIC_PLAYER_NR ) {
 			welt->set_tool( tool_t::simple_tool[ TOOL_TOOGLE_PEDESTRIANS & 0xFFF ], welt->get_active_player() );
 		}
 		break;
@@ -515,10 +656,8 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t)
 	case IDBTN_UNDERGROUND_VIEW:
 		// see simtool.cc::tool_show_underground_t::init
 		grund_t::set_underground_mode( buttons[ IDBTN_UNDERGROUND_VIEW ].pressed ? grund_t::ugm_none : grund_t::ugm_all, map_settings.inp_underground_level.get_value() );
-
 		// calc new images
 		welt->update_underground();
-
 		// renew toolbar
 		tool_t::update_toolbars();
 		break;
@@ -603,6 +742,7 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	buttons[IDBTN_SIMPLE_DRAWING].pressed = env_t::simple_drawing;
 	buttons[IDBTN_SIMPLE_DRAWING].enable(welt->is_paused());
 	buttons[IDBTN_SCROLL_INVERSE].pressed = env_t::scroll_multi < 0;
+	buttons[IDBTN_INFINITE_SCROLL].pressed = env_t::scroll_infinite;
 	buttons[IDBTN_DAY_NIGHT_CHANGE].pressed = env_t::night_shift;
 	buttons[IDBTN_SHOW_SLICE_MAP_VIEW].pressed = grund_t::underground_mode == grund_t::ugm_level;
 	buttons[IDBTN_UNDERGROUND_VIEW].pressed = grund_t::underground_mode == grund_t::ugm_all;
@@ -615,4 +755,15 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 
 	// All components are updated, now draw them...
 	gui_frame_t::draw(pos, size);
+}
+
+
+void color_gui_t::rdwr(loadsave_t *f)
+{
+	tabs.rdwr(f);
+	scrolly_gui.rdwr(f);
+	scrolly_map.rdwr(f);
+	scrolly_transparency.rdwr(f);
+	scrolly_station.rdwr(f);
+	scrolly_traffic.rdwr(f);
 }

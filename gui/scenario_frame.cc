@@ -29,7 +29,7 @@ scenario_frame_t::scenario_frame_t() : savegame_frame_t(NULL, true, NULL, false)
 	static cbuffer_t addons_scenario;
 
 	pakset_scenario.clear();
-	pakset_scenario.printf("%s%sscenario/", env_t::program_dir, env_t::objfilename.c_str());
+	pakset_scenario.printf("%s%sscenario/", env_t::data_dir, env_t::objfilename.c_str());
 
 	addons_scenario.clear();
 	addons_scenario.printf("addons/%sscenario/", env_t::objfilename.c_str());
@@ -66,7 +66,7 @@ bool scenario_frame_t::item_action(const char *fullpath)
 		create_win(new scenario_info_t(), w_info, magic_scenario_info);
 		tool_t::update_toolbars();
 		if(  env_t::server  ) {
-			welt->announce_server(0);
+			welt->announce_server(karte_t::SERVER_ANNOUNCE_HELLO);
 		}
 	}
 	else {

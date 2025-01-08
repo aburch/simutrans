@@ -7,10 +7,11 @@
 #define GUI_OPTIONEN_H
 
 
-class gui_frame_t;
-class action_listener_t;
-class button_t;
-class gui_action_creator_t;
+#include "simwin.h"
+#include "gui_frame.h"
+#include "components/action_listener.h"
+#include "components/gui_button.h"
+
 
 /*
  * Settings in the game
@@ -20,7 +21,7 @@ class gui_action_creator_t;
 class optionen_gui_t : public gui_frame_t, action_listener_t
 {
 	private:
-		button_t option_buttons[11];
+		button_t option_buttons[12];
 
 	public:
 		optionen_gui_t();
@@ -32,6 +33,10 @@ class optionen_gui_t : public gui_frame_t, action_listener_t
 		const char * get_help_filename() const OVERRIDE {return "options.txt";}
 
 		bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+		void rdwr(loadsave_t *) OVERRIDE {}
+
+		uint32 get_rdwr_id() OVERRIDE { return magic_optionen_gui_t; }
 };
 
 #endif

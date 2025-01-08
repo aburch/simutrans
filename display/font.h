@@ -94,7 +94,7 @@ private:
 	char fname[PATH_MAX];
 	sint16 linespace;
 	sint16 descent;
-
+public:	// for simgraph has_character()
 	std::vector<glyph_t> glyphs;
 };
 

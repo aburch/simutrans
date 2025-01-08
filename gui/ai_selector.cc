@@ -22,7 +22,7 @@ ai_selector_t::ai_selector_t(uint8 plnr_) : savegame_frame_t(NULL, true, NULL, f
 {
 	plnr = plnr_;
 	cbuffer_t buf;
-	buf.printf("%s/ai/", env_t::program_dir);
+	buf.printf("%s/ai/", env_t::data_dir);
 
 	this->add_path("addons/ai/");
 	this->add_path(buf);
@@ -53,8 +53,6 @@ bool ai_selector_t::item_action(const char *fullpath)
 		create_win(new news_img(err), w_info, magic_none);
 		return false; // keep window open
 	}
-
-	return true;
 }
 
 

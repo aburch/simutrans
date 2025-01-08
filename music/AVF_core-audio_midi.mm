@@ -6,6 +6,7 @@
  */
 
 #import "music.h"
+#include "../simdebug.h"
 
 #import <Foundation/NSArray.h>
 #import <Foundation/NSString.h>
@@ -44,7 +45,11 @@ void dr_play_midi(int const key)
 	if (currentPosition >= duration) {
 		[player setCurrentPosition: 0.0];
 	}
-	[player play: ^{}];
+	try {
+		[player play: ^{}];
+	} catch (NSException *e) {
+		dbg->warning("dr_play_midi()", "AVFoundation: Error playing midi");
+	}
 	nowPlaying = key;
 }
 
@@ -74,7 +79,7 @@ void dr_destroy_midi()
 	if (nowPlaying != -1) {
 		dr_stop_midi();
 	}
- }
+}
 
 
 bool dr_init_midi()

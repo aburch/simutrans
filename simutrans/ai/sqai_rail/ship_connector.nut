@@ -49,7 +49,7 @@ class ship_connector_t extends manager_t
 		local fd = fdest.get_tile_list()
 
 		if ( check_factory_links(fsrc, fdest, freight) >= 2 && phase == 0 ) {
-			gui.add_message_at(pl, "no build line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") to many links", world.get_time())
+			//gui.add_message_at(pl, "no build line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") to many links", world.get_time())
 			return r_t(RT_TOTAL_FAIL)
 		}
 
@@ -109,12 +109,27 @@ class ship_connector_t extends manager_t
 					local key
 					local err = null
 					{
-						key = coord3d_to_key(c_start[0])
-						if (key in c_harbour_tiles) {
-							err = build_harbour(c_harbour_tiles[key], c_start)
-						}
-					}
+						//if ( tile_x(c_start.x, c_start.y, c_start.z).is_empty() ) {
 
+						key = coord3d_to_key(c_start[0])
+
+						if (key in c_harbour_tiles) {
+							if ( c_harbour_tiles[key].get_halt() && c_harbour_tiles[key].get_halt().get_owner().nr == our_player_nr && c_harbour_tiles[key].find_object(mo_building) && c_harbour_tiles[key].find_object(mo_building).get_desc().get_type()==building_desc_x.station ) {
+								gui.add_message_at(our_player, "Cannot place any harbour at " + coord_to_string(c_harbour_tiles[key]) + " station exists", c_harbour_tiles[key])
+								// to do search new field
+								//c_start.clear()
+								//c_start = find_anchorage(c_harbour_tiles[key],  planned_station, planned_harbour_flat, c_harbour_tiles)
+								return r_t(RT_TOTAL_FAIL)
+							} else {
+								err = build_harbour(c_harbour_tiles[key], c_start)
+							}
+						}
+
+						/*key = coord3d_to_key(c_start[0])
+						if (key in c_harbour_tiles) {
+
+						}*/
+					}
 					// check station connection to factory or combined station
 
 
@@ -174,6 +189,28 @@ class ship_connector_t extends manager_t
 						//local err = command_x.build_road(pl, starts_field, c_depot, planned_way, false, true)
 					} else {
 						// depot already existing ?
+
+						local depot_tiles = []
+						local tile_range = 4
+						depot_tiles.append(tile_x(c_start[0].x-tile_range, c_start[0].y-tile_range, c_start[0].z))
+						depot_tiles.append(tile_x(c_start[0].x+tile_range, c_start[0].y-tile_range, c_start[0].z))
+						depot_tiles.append(tile_x(c_start[0].x-tile_range, c_start[0].y+tile_range, c_start[0].z))
+						depot_tiles.append(tile_x(c_start[0].x+tile_range, c_start[0].y+tile_range, c_start[0].z))
+						for ( local i = 0; i < depot_tiles.len(); i++ ) {
+							//gui.add_message_at(pl, "depot_tiles[i].is_water() " + coord_to_string(depot_tiles[i]) + " " + depot_tiles[i].is_water(), depot_tiles[i])
+							//gui.add_message_at(pl, "depot_tiles[i].is_empty() " + coord_to_string(depot_tiles[i]) + " " + depot_tiles[i].is_empty(), depot_tiles[i])
+							local tile_halt = ::halt_x.get_halt(depot_tiles[i], player_x(1))
+							if ( tile_halt != null ) {
+								//gui.add_message_at(pl, "tile_halt.get_halt() " + coord_to_string(depot_tiles[i]) + " " + tile_halt.get_halt(player_x(1)), depot_tiles[i])
+							}
+
+							if ( depot_tiles[i].is_water() && tile_halt == null && depot_tiles[i].get_objects().get_count()==0 ) { //
+								c_depot = depot_tiles[i]
+								//gui.add_message_at(pl, "depot tile " + coord_to_string(c_depot), c_depot)
+								break
+							}
+						}
+
 						if (c_depot.find_object(mo_depot_water) == null) {
 							// no: build
 							local err = command_x.build_depot(pl, c_depot, planned_depot )
@@ -225,7 +262,7 @@ class ship_connector_t extends manager_t
 					c.p_depot  = depot_x(c_depot.x, c_depot.y, c_depot.z)
 					c.p_line   = c_line
 					c.p_convoy = planned_convoy
-					c.p_count  = min(planned_convoy.nr_convoys, 3)
+					c.p_count  = min(planned_convoy.nr_convoys, 1) // 1 ship to begin
 					append_child(c)
 
 					local toc = get_ops_total();
@@ -236,6 +273,20 @@ class ship_connector_t extends manager_t
 					return r_t(RT_PARTIAL_SUCCESS)
 				}
 			case 9: // build station extension
+				{
+					// optimize way line save in c_route
+					//if ( tile_x(c_start.x, c_start.y, c_start.z).find_object(mo_building) != null && tile_x(c_end.x, c_end.y, c_end.z).find_object(mo_building) != null && c_route.len() > 0 ) {
+
+						// rename line
+						local line_name = c_line.get_name()
+						local str_search = ") " + translate("Line")
+						local st_names = c_line.get_schedule().entries
+						if ( line_name.find(str_search) != null ) {
+							local new_name = translate("Ship") + " " + translate(freight) + " " + st_names[0].get_halt(pl).get_name() + " - " + st_names[1].get_halt(pl).get_name()
+							c_line.set_name(new_name)
+						}
+					//}
+				}
 		}
 
 		if (finalize) {
@@ -275,7 +326,9 @@ class ship_connector_t extends manager_t
 					f_name[1] = "station"
 				}
 			}
-			gui.add_message_at(pl, pl.get_name() + " build ship line from " + f_name[0] + " (" + coord_to_string(c_start[0]) + ") to " + f_name[1] + " (" + coord_to_string(c_end[0]) + ")", c_start[0])
+			local msgtext = format(translate("%s build ship line from %s (%s) to %s (%s)"), pl.get_name(), f_name[0], coord_to_string(c_start[0]), f_name[1], coord_to_string(c_end[0]))
+			//gui.add_message_at(pl, pl.get_name() + " build ship line from " + f_name[0] + " (" + coord_to_string(c_start[0]) + ") to " + f_name[1] + " (" + coord_to_string(c_end[0]) + ")", c_start[0])
+			gui.add_message_at(pl, msgtext, c_start[0])
 		} else {
 			local st = halt_x.get_halt(c_start, pl)
 			local f_name = ["", ""]
@@ -296,7 +349,9 @@ class ship_connector_t extends manager_t
 					f_name[1] = "station"
 				}
 			}
-			gui.add_message_at(pl, pl.get_name() + " build ship line from " + f_name[0] + " (" + coord_to_string(c_start) + ") to " + f_name[1] + " (" + coord_to_string(c_end) + ")", c_start)
+			local msgtext = format(translate("%s build ship line from %s (%s) to %s (%s)"), pl.get_name(), f_name[0], coord_to_string(c_start), f_name[1], coord_to_string(c_end))
+			//gui.add_message_at(pl, pl.get_name() + " build ship line from " + f_name[0] + " (" + coord_to_string(c_start) + ") to " + f_name[1] + " (" + coord_to_string(c_end) + ")", c_start)
+			gui.add_message_at(pl, msgtext, c_start)
 		}
 
 		return r_t(RT_TOTAL_SUCCESS)
@@ -449,6 +504,7 @@ class ship_connector_t extends manager_t
 		print("Place harbour at " + coord3d_to_string(tile) + " to access " + coord3d_to_string(water) )
 
 		if ( tile.get_halt() && tile.get_halt().get_owner().nr == our_player_nr && tile.find_object(mo_building) && tile.find_object(mo_building).get_desc().get_type()==building_desc_x.station ) {
+			//
 			gui.add_message_at(our_player, "Cannot place any harbour at " + coord_to_string(tile) + " station exists", tile)
 			// to do search new field
 
@@ -649,7 +705,7 @@ class route_finder_water extends astar
 		}
 
 		if (route.len() > 0) {
-			return { start = route[ route.len()-1], end = route[0] }
+			return { start = route.top(), end = route[0] }
 		}
 
 		print("No water depot route found")

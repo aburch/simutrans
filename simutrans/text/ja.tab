@@ -12,7 +12,7 @@ m+10r.bdf
 #                             Language: ja Japanese                            #
 #                                Encoding: UTF-8                               #
 #                                Font: m+10r.bdf                               #
-#                            Date Created: 3.02 2020                           #
+#                           Date Created: 20.10 2020                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -230,7 +230,7 @@ Zughalt muss auf\nSchiene liegen!\n
 #___________________________________help_text___________________________________
 #___________________________________help_text___________________________________
 <h1>Index</h1><p>*: only english</p><p>General</p>%s<p>Usage</p>%s<p>Tools</p>%s<p>Start</p>%s<p>How to play</p>%s<p>Others:</p>%s
-<title>ヘルプ</title><h1>総合ヘルプ</h1><p>*：日本語ヘルプがまだありません。</p><p><it>Simutransについて</it></p>%1$s<p><it>使い方</it></p>%2$s<p><it>ゲームを始まる</it></p>%4$s<p><it>作動の仕方</it></p>%5$s<p><it>ツール</it></p>%3$s<p><it>その他のダイアログ</it></p>%6$s
+<title>ヘルプ</title><h1>総合ヘルプ</h1><p>*：未訳（英文で表示）</p><p><it>Simutransについて</it></p>%1$s<p><it>使い方</it></p>%2$s<p><it>ゲームの開始</it></p>%4$s<p><it>遊び方</it></p>%5$s<p><it>ツール</it></p>%3$s<p><it>その他のダイアログ</it></p>%6$s
 <title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n
 <title>キーボード ヘルプ</title><h1>キーボード ヘルプ</h1><p>キー割り当ての一覧表です。何も操作が割り当てられていないキーを押すと、<br>このキーボードヘルプウィンドウが開きます。</p><p>アルファベットの大文字と小文字は区別されます。大文字の場合は、<br>shiftキーを押しながらキーを押します。日本語入力は解除してください。</p><p><i>ウィンドウ操作</i><br>Backspace - すべてのウィンドウ/ツールバーを閉じます<br>Delete, ESC - アクティブなウィンドウ/ツールバーを閉じます<br>F1 - ヘルプウィンドウを開きます</p><p><i>ゲーム画面のスクロール</i>　（数字キー、矢印キー）<br>1,2,3,4,6,7,8,9 - ゲーム画面をスクロールします<br>↑,↓,→,← - ゲーム画面をスクロールします</p><p><i>ゲーム画面のズーム</i><br>＞,PageUp - ゲーム画面をズームインします<br>＜,PageDown - ゲーム画面をズームアウトします</p><p><i>[Ctrl]+道路/線路/トンネルツール</i><br>直線の道路/線路を敷設できます。<br>既存の道路/線路を、低速な道路/線路で置き換えます。<br>トンネルの入り口のみを建設します。</p><p><i>[Ctrl]+V</i><br>クリップボードからテキストを貼り付けます。(Windowsのみ)</p><p>以下の操作キーは「(pakフォルダ)/config/menuconf.tab」ファイル<br>で定義されています。このファイルを編集して、操作キーの割り当てを変更<br>したり、別のツールに、新たに操作キーを割り当てることができます。</p><p><i>現在の操作キー一覧</i><br></p>
 Color according to transport capacity left
@@ -361,6 +361,8 @@ Now %u clients connected.
 現在、 %u 名のプレーヤーが接続しています。
 On this map, you are not\nallowed to change player!\n
 このマップではプレイヤーの交代は認められ\nていません。
+overtaking
+車線
 Production of %s has been stopped:\n%s\n
 %s\n「%s」が\n製造中止になりました。
 Remove vehicle from map. Use with care!
@@ -379,8 +381,14 @@ Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
 現在借金があります。\n\nあと %d ヵ月以内に\n借金を返済してください。\n
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 %sに\n新しい記念碑が建立され、\n歓喜に沸く%i人の住民が\n見守る中、盛大な除幕式が\n行われました。
+#_________________________________program text__________________________________
+#_________________________________program text__________________________________
+vh_title
+乗り物一覧
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
+(%.2f$/km %.2f$/m)
+ (%.2f$/km %.2f$/月)
 (%i)-
 (%i)
 (in depot)
@@ -533,7 +541,7 @@ Add Stop
  追加
 Add stops for backward travel
 折り返して戻るための停車駅を追加します
-Air
+air_wt
 航空
 aircraft_tab
 貨物機
@@ -720,7 +728,7 @@ citybuilding builder
 CityLimit
 市域
 cl_title
-乗り物一覧
+編成一覧
 cl_txt_sort
 並び替え:
 Clear block reservation
@@ -754,7 +762,7 @@ clf_chk_ships
 clf_chk_spezial_filter
 特殊フィルター:
 clf_chk_stucked
-停滞中
+立ち往生
 clf_chk_trains
 列車
 clf_chk_trams
@@ -825,14 +833,16 @@ Copy Convoi
 編成をコピー
 Copy the selected convoi and its schedule or line
 選択した編成とそのスケジュール/路線を複製します
+Copy to clipboard
+クリップボードにコピー
 Cost
 輸送費
 cost for removal
 撤去費用: 
 Cost per unit
 単位あたりの輸送費
-Cost: %8s (%.2f$/km %.f$/m)\n
-費用: %s (%.2f㎞ %.2f月)\n
+Cost: %8s (%.2f$/km %.2f$/m)\n
+費用: %s (%.2f$㎞ %.2f$月)\n
 Cost: %8s (%.2f$/km)\n
 費用: %8s (%.2f$/km)\n
 Costs
@@ -911,6 +921,8 @@ Dock
 港
 Dock must be built on single slope!
 港は斜面沿いに造ってください！
+dp_title
+車庫一覧
 Du hast %d Monate Zeit, deine Schulden zurueckzuzahlen
 あと %d ヵ月以内に\n借金を返済してください。
 Durchsatz
@@ -1182,7 +1194,7 @@ Intro. date:
 invalid
 故障
 Invalid coordinate
-★高度が不正です★
+※無効な座標高度※
 isometric map
 回転して表示
 Jan.
@@ -1679,7 +1691,7 @@ Restore natural slope
 スロープを戻す
 Restwert:
 売却価格：
-Retire date 
+Retire date
 引退年月
 Retire. date:
 引退年月:
@@ -1783,8 +1795,12 @@ Show also vehicles no longer in production.
 生産を終了している乗り物も表示します。
 Show also vehicles that do not match for current action.
 このボタンをオフにすると、選択/連結できない乗り物を隠します
+Show contour
+等高線を表示
 Show even servers with wrong version or pakset
 リビジョンや種類が不明または異なるサーバーも表示する
+Show future
+登場予定の乗り物
 show grid
 グリッドを表示する
 Show industry

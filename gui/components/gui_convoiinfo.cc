@@ -42,7 +42,8 @@ public:
 		// we will use their images offsets and width to shift them to their correct position
 		// this should work with any vehicle size ...
 		scr_size s(0,0);
-		for(unsigned i=0; i<cnv->get_vehicle_count();i++) {
+		unsigned count = cnv.is_bound() ? cnv->get_vehicle_count() : 0;
+		for(unsigned i=0; i<count; i++) {
 			scr_coord_val x, y, w, h;
 			const image_id image = cnv->get_vehikel(i)->get_loaded_image();
 			display_get_base_image_offset(image, &x, &y, &w, &h );
@@ -117,7 +118,8 @@ bool gui_convoiinfo_t::infowin_event(const event_t *ev)
 	if(cnv.is_bound()) {
 		// check whether some child must handle this!
 		event_t ev2 = *ev;
-		translate_event(&ev2, -container_next_halt->get_pos().x, -container_next_halt->get_pos().y);
+		ev2.move_origin(container_next_halt->get_pos());
+
 		if( container_next_halt->infowin_event( &ev2 ) ) {
 			return true;
 		}

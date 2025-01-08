@@ -12,11 +12,13 @@ rect_t::rect_t() :
 {
 }
 
+
 rect_t::rect_t(koord const origin, koord const size) :
 	origin(origin),
 	size(size)
 {
 }
+
 
 rect_t::rect_t(koord const origin, sint16 const x, sint16 const y) :
 	origin(origin),
@@ -24,9 +26,6 @@ rect_t::rect_t(koord const origin, sint16 const x, sint16 const y) :
 {
 }
 
-rect_t::~rect_t()
-{
-}
 
 size_t rect_t::fragment_difference(rect_t const &remove, rect_t *const result, size_t const result_length) const
 {
@@ -90,6 +89,7 @@ size_t rect_t::fragment_difference(rect_t const &remove, rect_t *const result, s
 	return (size_t) (fragment - result);
 }
 
+
 void rect_t::mask(rect_t const &mask_rect)
 {
 	koord extent = origin + size;
@@ -107,20 +107,24 @@ void rect_t::mask(rect_t const &mask_rect)
 	}
 }
 
+
 bool rect_t::has_no_area() const
 {
 	return size == koord(0, 0);
 }
+
 
 void rect_t::discard_area()
 {
 	size = koord(0, 0);
 }
 
+
 bool rect_t::operator==(rect_t const &rhs) const
 {
 	return origin == rhs.origin && size == rhs.size;
 }
+
 
 bool rect_t::operator!=(rect_t const &rhs) const
 {

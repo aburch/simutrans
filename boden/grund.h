@@ -48,27 +48,27 @@ class wayobj_t;
 class zeiger_t;
 
 template<typename T> struct map_obj {};
-template<> struct map_obj<air_vehicle_t>    { static const obj_t::typ code = obj_t::air_vehicle;    };
-template<> struct map_obj<baum_t>        { static const obj_t::typ code = obj_t::baum;        };
-template<> struct map_obj<bruecke_t>     { static const obj_t::typ code = obj_t::bruecke;     };
-template<> struct map_obj<crossing_t>    { static const obj_t::typ code = obj_t::crossing;    };
-template<> struct map_obj<field_t>       { static const obj_t::typ code = obj_t::field;       };
-template<> struct map_obj<pedestrian_t>  { static const obj_t::typ code = obj_t::pedestrian;  };
-template<> struct map_obj<gebaeude_t>    { static const obj_t::typ code = obj_t::gebaeude;    };
-template<> struct map_obj<groundobj_t>   { static const obj_t::typ code = obj_t::groundobj;   };
-template<> struct map_obj<label_t>       { static const obj_t::typ code = obj_t::label;       };
-template<> struct map_obj<leitung_t>     { static const obj_t::typ code = obj_t::leitung;     };
-template<> struct map_obj<pillar_t>      { static const obj_t::typ code = obj_t::pillar;      };
-template<> struct map_obj<pumpe_t>       { static const obj_t::typ code = obj_t::pumpe;       };
-template<> struct map_obj<roadsign_t>    { static const obj_t::typ code = obj_t::roadsign;    };
-template<> struct map_obj<senke_t>       { static const obj_t::typ code = obj_t::senke;       };
-template<> struct map_obj<signal_t>      { static const obj_t::typ code = obj_t::signal;      };
-template<> struct map_obj<private_car_t> { static const obj_t::typ code = obj_t::road_user;   };
-template<> struct map_obj<road_vehicle_t>  { static const obj_t::typ code = obj_t::road_vehicle;   };
-template<> struct map_obj<tunnel_t>      { static const obj_t::typ code = obj_t::tunnel;      };
-template<> struct map_obj<wayobj_t>      { static const obj_t::typ code = obj_t::wayobj;      };
-template<> struct map_obj<weg_t>         { static const obj_t::typ code = obj_t::way;         };
-template<> struct map_obj<zeiger_t>      { static const obj_t::typ code = obj_t::zeiger;      };
+template<> struct map_obj<air_vehicle_t>  { static const obj_t::typ code = obj_t::air_vehicle;  };
+template<> struct map_obj<baum_t>         { static const obj_t::typ code = obj_t::baum;         };
+template<> struct map_obj<bruecke_t>      { static const obj_t::typ code = obj_t::bruecke;      };
+template<> struct map_obj<crossing_t>     { static const obj_t::typ code = obj_t::crossing;     };
+template<> struct map_obj<field_t>        { static const obj_t::typ code = obj_t::field;        };
+template<> struct map_obj<pedestrian_t>   { static const obj_t::typ code = obj_t::pedestrian;   };
+template<> struct map_obj<gebaeude_t>     { static const obj_t::typ code = obj_t::gebaeude;     };
+template<> struct map_obj<groundobj_t>    { static const obj_t::typ code = obj_t::groundobj;    };
+template<> struct map_obj<label_t>        { static const obj_t::typ code = obj_t::label;        };
+template<> struct map_obj<leitung_t>      { static const obj_t::typ code = obj_t::leitung;      };
+template<> struct map_obj<pillar_t>       { static const obj_t::typ code = obj_t::pillar;       };
+template<> struct map_obj<pumpe_t>        { static const obj_t::typ code = obj_t::pumpe;        };
+template<> struct map_obj<roadsign_t>     { static const obj_t::typ code = obj_t::roadsign;     };
+template<> struct map_obj<senke_t>        { static const obj_t::typ code = obj_t::senke;        };
+template<> struct map_obj<signal_t>       { static const obj_t::typ code = obj_t::signal;       };
+template<> struct map_obj<private_car_t>  { static const obj_t::typ code = obj_t::road_user;    };
+template<> struct map_obj<road_vehicle_t> { static const obj_t::typ code = obj_t::road_vehicle; };
+template<> struct map_obj<tunnel_t>       { static const obj_t::typ code = obj_t::tunnel;       };
+template<> struct map_obj<wayobj_t>       { static const obj_t::typ code = obj_t::wayobj;       };
+template<> struct map_obj<weg_t>          { static const obj_t::typ code = obj_t::way;          };
+template<> struct map_obj<zeiger_t>       { static const obj_t::typ code = obj_t::zeiger;       };
 
 
 template<typename T> static inline T* obj_cast(obj_t* const d)
@@ -87,7 +87,6 @@ template<typename T> static inline T* obj_cast(obj_t* const d)
  * ist_natur(), is_water(), hat_wegtyp(), ist_bruecke().
  * In dieser Basisklasse sind alle Eigenschaften false, sie werden erst
  * in den Subklassen redefiniert.</p>
-
  */
 class grund_t
 {
@@ -97,14 +96,14 @@ public:
 	 */
 	enum flag_values {
 		keine_flags    = 0,
-		dirty          = (1<<0), ///< was changed => redraw full
-		is_kartenboden = (1<<1),
-		has_text       = (1<<2),
-		marked         = (1<<3), ///< will have a frame
-		draw_as_obj    = (1<<4), ///< is a slope etc => draw as one
-		is_halt_flag   = (1<<5), ///< is a part of a halt
-		has_way1       = (1<<6),
-		has_way2       = (1<<7)
+		dirty          = 1 << 0, ///< was changed => redraw full
+		is_kartenboden = 1 << 1,
+		has_text       = 1 << 2,
+		marked         = 1 << 3, ///< will have a frame
+		draw_as_obj    = 1 << 4, ///< is a slope etc => draw as one
+		is_halt_flag   = 1 << 5, ///< is a part of a halt
+		has_way1       = 1 << 6,
+		has_way2       = 1 << 7
 	};
 
 	/**
@@ -220,7 +219,6 @@ public:
 		set_flag(dirty);
 	}
 
-
 protected:
 	/**
 	* Pointer to the world of this ground. Static to conserve space.
@@ -235,7 +233,14 @@ protected:
 	virtual void calc_image_internal(const bool calc_only_snowline_change) = 0;
 
 public:
-	enum typ { boden = 1, wasser, fundament, tunnelboden, brueckenboden, monorailboden };
+	enum typ {
+		boden = 1,
+		wasser,
+		fundament,
+		tunnelboden,
+		brueckenboden,
+		monorailboden
+	};
 
 	grund_t(koord3d pos);
 
@@ -268,7 +273,14 @@ public:
 	* Updates snowline dependent grund_t (and derivatives) - none are season dependent
 	* Updates season and or snowline dependent objects
 	*/
-	void check_season_snowline(const bool season_change, const bool snowline_change) { if(  snowline_change  ) { calc_image_internal( snowline_change ); } objlist.check_season( season_change  &&  !snowline_change ); }
+	void check_season_snowline(const bool season_change, const bool snowline_change)
+	{
+		if(  snowline_change  ) {
+			calc_image_internal( snowline_change );
+		}
+
+		objlist.check_season( season_change  &&  !snowline_change );
+	}
 
 	/**
 	 * Updates images after change of underground mode.
@@ -338,10 +350,9 @@ public:
 	void open_info_window();
 
 	/**
-	* Gibt die Farbe des Beschreibungstexthintergrundes zuurck
-	* @return die Farbe des Beschreibungstexthintergrundes.
-	*/
-	FLAGGED_PIXVAL text_farbe() const;
+	 * @return player that owns the label to show it in player's colors
+	 */
+	const player_t* get_label_owner() const;
 
 	/**
 	 * Sets the label text (by copying it)
@@ -585,8 +596,8 @@ public:
 
 	template<typename T> T* find(uint start = 0) const { return static_cast<T*>(objlist.suche(map_obj<T>::code, start)); }
 
-	uint8  obj_add(obj_t *obj) { return objlist.add(obj); }
-	uint8 obj_remove(const obj_t* obj) { return objlist.remove(obj); }
+	bool obj_add(obj_t *obj) { return objlist.add(obj); }
+	bool obj_remove(const obj_t* obj) { return objlist.remove(obj); }
 	bool obj_loesche_alle(player_t *player) { return objlist.loesche_alle(player,offsets[flags/has_way1]); }
 	bool obj_ist_da(const obj_t* obj) const { return objlist.ist_da(obj); }
 	obj_t * obj_bei(uint8 n) const { return objlist.bei(n); }
@@ -610,6 +621,10 @@ public:
 	* Falls es hier ein Depot gibt, dieses zurueckliefern
 	*/
 	depot_t *get_depot() const;
+
+	// Returns if there is a depot on this tile.
+	// This implementation is faster than get_depot() != NULL.
+	bool has_depot() const;
 
 	/*
 	* Interface zur Abfrage der Wege
@@ -637,10 +652,12 @@ public:
 			if(wt == typ || (typ == any_wt && wt > 0)) {
 				return w;
 			}
-			// try second way (if exists)
-			if (weg_t* const w = get_weg_nr(1)) {
-				if(w->get_waytype()==typ) {
-					return w;
+			if (flags & has_way2) {
+				// try second way (if exists)
+				if (weg_t* const w = get_weg_nr(1)) {
+					if (w->get_waytype() == typ) {
+						return w;
+					}
 				}
 			}
 		}
@@ -821,8 +838,15 @@ public:
 	 */
 	bool remove_everything_from_way(player_t *player,waytype_t wt,ribi_t::ribi ribi_rem);
 
+	/// @returns true if this is a dummy ground that is only there for UI purposes
+	/// (previews for bridges, elevated ways and tunnels)
+	bool is_dummy_ground() const;
+
 	void* operator new(size_t s);
 	void  operator delete(void* p, size_t s);
+
+	bool is_use_track_wt_ex_image(ribi_t::ribi backward_ribi);
+	bool is_use_wayobj_ex_image(ribi_t::ribi backward_ribi);
 
 };
 

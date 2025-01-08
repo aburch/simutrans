@@ -16,6 +16,8 @@
 
 #include <zlib.h>
 #include "../../tpl/inthashtable_tpl.h"
+#include "../../tpl/array_tpl.h"
+
 
 // if without graphics backend, do not copy any pixel
 #if COLOUR_DEPTH != 0
@@ -26,23 +28,26 @@
 
 obj_desc_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	ALLOCA(char, desc_buf, node.size);
-	image_t* desc=NULL;
-
-	// Read data
-	fread(desc_buf, node.size, 1, fp);
-	char * p = desc_buf+6;
+	array_tpl<char> desc_buf(node.size);
+#if COLOUR_DEPTH != 0
+	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
+		return NULL;
+	}
+#else
+	fread(desc_buf.begin(), node.size, 1, fp);
+#endif
+	char *p = desc_buf.begin()+6;
 
 	// always zero in old version, since length was always less than 65535
 	// because a node could not hold more data
 	uint8 version = decode_uint8(p);
-	p = desc_buf;
+	p = desc_buf.begin();
 
 #if COLOUR_DEPTH != 0
-	desc = new image_t();
+	image_t *desc = new image_t();
 #else
 	// reserve space for one single pixel and initialize data
-	desc = image_t::create_single_pixel();
+	image_t *desc = image_t::create_single_pixel();
 #endif
 
 	if(version==0) {
@@ -59,7 +64,7 @@ obj_desc_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		//DBG_DEBUG("image_t::read_node()","x,y=%d,%d  w,h=%d,%d, len=%i",desc->x,desc->y,desc->w,desc->h, desc->len);
 
 		uint16* dest = desc->data;
-		p = desc_buf+12;
+		p = desc_buf.begin()+12;
 
 		if (desc->h > 0) {
 			for (uint i = 0; i < desc->len; i++) {
@@ -123,9 +128,15 @@ adjust_image:
 	}
 	if(  desc->len > 0  ) {
 		desc->len = 4;
+		memset(desc->data, 0, desc->len*sizeof(PIXVAL));
 	}
 	desc->x = 0;
 	desc->y = 0;
+#else
+	if (!image_has_valid_data(desc)) {
+		delete desc;
+		return NULL;
+	}
 #endif
 
 	// check for left corner
@@ -133,15 +144,40 @@ adjust_image:
 		// find left border
 		uint16 left = 255;
 		uint16 *dest = desc->data;
+		uint16 *end  = desc->data + desc->len;
+
 		for( uint8 y=0;  y<desc->h;  y++  ) {
+#if COLOUR_DEPTH != 0
+			if (dest >= end) {
+				delete desc;
+				return NULL;
+			}
+			left = min(left, *dest);
+#else
+
 			if(*dest<left) {
 				left = *dest;
 			}
+#endif
+
 			// skip rest of the line
 			do {
 				dest++;
+#if COLOUR_DEPTH != 0
+				if (dest >= end) {
+					delete desc;
+					return NULL;
+				}
+#endif
 				dest += *dest + 1;
-			} while (*dest);
+#if COLOUR_DEPTH != 0
+				if (dest >= end) {
+					delete desc;
+					return NULL;
+				}
+#endif
+			} while (*dest != 0);
+
 			dest++; // skip trailing zero
 		}
 
@@ -149,6 +185,7 @@ adjust_image:
 			dbg->warning( "image_reader_t::read_node()","left(%i)<x(%i) (may be intended)", left, desc->x );
 		}
 
+		/// No need to check for valid dest pointer here, the code has the same structure as above
 		dest = desc->data;
 		for( uint8 y=0;  y<desc->h;  y++  ) {
 			*dest -= left;
@@ -156,7 +193,7 @@ adjust_image:
 			do {
 				dest++;
 				dest += *dest + 1;
-			} while (*dest);
+			} while (*dest != 0);
 			dest++; // skip trailing zero
 		}
 	}
@@ -198,4 +235,34 @@ adjust_image:
 	}
 
 	return desc;
+}
+
+
+#define TRANSPARENT_RUN (0x8000u)
+
+bool image_reader_t::image_has_valid_data(image_t *image_in) const
+{
+	PIXVAL *src = image_in->data;
+	PIXVAL *end = image_in->data + image_in->len;
+
+	for( int y = 0;  y < image_in->h;  ++y  ) {
+		// decode line
+		uint16 runlen = *src++;
+		do {
+			if (src >= end) {
+				return false;
+			}
+
+			runlen = *src++ & ~TRANSPARENT_RUN;
+			src += runlen;
+
+			if (src >= end) {
+				return false;
+			}
+
+			runlen = *src++;
+		} while(  runlen!=0  ); // end of row: runlen == 0
+	}
+
+	return src == end;
 }

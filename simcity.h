@@ -7,7 +7,7 @@
 #define SIMCITY_H
 
 
-#include "simobj.h"
+#include "obj/simobj.h"
 #include "obj/gebaeude.h"
 
 #include "tpl/vector_tpl.h"
@@ -31,7 +31,7 @@ class way_desc_t;
 #define PAX_DESTINATIONS_SIZE (256) // size of the minimap (sparse array)
 
 enum city_cost {
-	HIST_CITICENS=0,       // total people
+	HIST_CITIZENS = 0,     // total people
 	HIST_GROWTH,           // growth (just for convenience)
 	HIST_BUILDING,         // number of buildings
 	HIST_CITYCARS,         // number of citycars generated
@@ -323,7 +323,12 @@ private:
 	 */
 	void step_grow_city(bool new_town = false);
 
-	enum pax_return_type { no_return, factory_return, tourist_return, city_return };
+	enum pax_return_type {
+		no_return,
+		factory_return,
+		tourist_return,
+		city_return
+	};
 
 	/**
 	 * verteilt die Passagiere auf die Haltestellen
@@ -394,8 +399,8 @@ private:
 	 * Updates city limits: tile at @p pos belongs to city.
 	 * @warning Do not call this during multithreaded loading!
 	 */
-	void pruefe_grenzen(koord pos);
-	
+	void pruefe_grenzen(koord pos, koord extend);
+
 	static bool process_city_street(grund_t& gr, const way_desc_t* cr);
 
 public:
@@ -467,15 +472,13 @@ public:
 	 * Erzeugt eine neue City auf Planquadrat (x,y) die dem Spieler sp
 	 * gehoert.
 	 * @param player The owner of the city
-	 * @param x x-Planquadratkoordinate
-	 * @param y y-Planquadratkoordinate
-	 * @param number of citizens
+	 * @param pos Planquadratkoordinate
+	 * @param citizens number of citizens
 	 */
 	stadt_t(player_t* player, koord pos, sint32 citizens);
 
 	/**
 	 * Erzeugt eine neue City nach Angaben aus der Datei file.
-	 * @param welt Die Karte zu der die City gehoeren soll.
 	 * @param file Zeiger auf die Datei mit den Citybaudaten.
 	 * @see stadt_t::speichern()
 	 */
@@ -561,14 +564,12 @@ public:
 	koord get_center() const { return lo/2 + ur/2; }
 
 	/**
-	 * Erzeugt ein Array zufaelliger Startkoordinaten,
-	 * die fuer eine Citygruendung geeignet sind.
-	 * @param wl Die Karte auf der die City gegruendet werden soll.
-	 * @param count die Anzahl der zu liefernden Koordinaten
-	 * @param old_x, old_y: Generate no cities in (0,0) - (old_x, old_y)
+	 * Generates an array of random coordinates suitable for creating cities.
+	 * Do not consider coordinates in (0,0) - (old_x, old_y)
+	 * (leave @p old_x and @p old_y 0 to generate cities on the whole map).
+	 * @param count how many cities to generate
 	 */
 	static vector_tpl<koord> *random_place(sint32 count, sint16 old_x, sint16 old_y);
-	// geeigneten platz zur Citygruendung durch Zufall ermitteln
 
 	void open_info_window();
 };

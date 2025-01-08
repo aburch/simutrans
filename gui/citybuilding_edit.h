@@ -8,6 +8,7 @@
 
 
 #include "extend_edit.h"
+#include "simwin.h"
 
 #include "components/gui_building.h"
 #include "../utils/cbuffer_t.h"
@@ -33,12 +34,15 @@ private:
 	button_t bt_com;
 	button_t bt_ind;
 
-	void fill_list( bool translate ) OVERRIDE;
+	void fill_list() OVERRIDE;
+	void put_item_in_list( const building_desc_t* desc );
 
 	void change_item_info( sint32 i ) OVERRIDE;
 
 public:
 	citybuilding_edit_frame_t(player_t* player);
+
+	static bool sortreverse;
 
 	/**
 	* in top-level windows the name is displayed in titlebar
@@ -53,6 +57,10 @@ public:
 	const char* get_help_filename() const OVERRIDE { return "citybuilding_build.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+	uint32 get_rdwr_id() OVERRIDE { return magic_citybuilding_edit; }
+
+	void rdwr( loadsave_t *file ) OVERRIDE;
 };
 
 #endif

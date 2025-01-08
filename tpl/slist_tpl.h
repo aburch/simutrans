@@ -54,41 +54,42 @@ public:
 	 */
 	class iterator
 	{
-		public:
-			typedef std::forward_iterator_tag iterator_category;
-			typedef T                         value_type;
-			typedef ptrdiff_t                 difference_type;
-			typedef value_type*               pointer;
-			typedef value_type&               reference;
+	public:
+		typedef std::forward_iterator_tag iterator_category;
+		typedef T                         value_type;
+		typedef ptrdiff_t                 difference_type;
+		typedef value_type*               pointer;
+		typedef value_type&               reference;
 
-			iterator() : ptr(), pred() {}
+		iterator() : ptr(), pred() {}
 
-			pointer   operator ->() const { return &ptr->data; }
-			reference operator *()  const { return ptr->data;  }
+		pointer   operator ->() const { return &ptr->data; }
+		reference operator *()  const { return ptr->data;  }
 
-			iterator& operator ++()
-			{
-				pred = ptr;
-				ptr  = ptr->next;
-				return *this;
-			}
+		iterator& operator ++()
+		{
+			pred = ptr;
+			ptr  = ptr->next;
+			return *this;
+		}
 
-			iterator operator ++(int)
-			{
-				iterator const old = *this;
-				++*this;
-				return old;
-			}
+		iterator operator ++(int)
+		{
+			iterator const old = *this;
+			++*this;
+			return old;
+		}
 
-			bool operator ==(iterator const& o) const { return ptr == o.ptr; }
-			bool operator !=(iterator const& o) const { return ptr != o.ptr; }
+		bool operator ==(iterator const& o) const { return ptr == o.ptr; }
+		bool operator !=(iterator const& o) const { return ptr != o.ptr; }
 
-		private:
-			iterator(node_t* ptr_, node_t* pred_) : ptr(ptr_), pred(pred_) {}
+	private:
+		iterator(node_t* ptr_, node_t* pred_) : ptr(ptr_), pred(pred_) {}
 
-			node_t* ptr;
-			node_t* pred;
+		node_t* ptr;
+		node_t* pred;
 
+	private:
 		friend class slist_tpl;
 		friend class const_iterator;
 	};
@@ -99,37 +100,38 @@ public:
 	 */
 	class const_iterator
 	{
-		public:
-			typedef std::forward_iterator_tag iterator_category;
-			typedef T                         value_type;
-			typedef ptrdiff_t                 difference_type;
-			typedef T const*                  pointer;
-			typedef T const&                  reference;
+	public:
+		typedef std::forward_iterator_tag iterator_category;
+		typedef T                         value_type;
+		typedef ptrdiff_t                 difference_type;
+		typedef T const*                  pointer;
+		typedef T const&                  reference;
 
-			const_iterator() : ptr() {}
+		const_iterator() : ptr() {}
 
-			const_iterator(const iterator& o) : ptr(o.ptr) {}
+		const_iterator(const iterator& o) : ptr(o.ptr) {}
 
-			pointer   operator ->() const { return &ptr->data; }
-			reference operator *()  const { return ptr->data;  }
+		pointer   operator ->() const { return &ptr->data; }
+		reference operator *()  const { return ptr->data;  }
 
-			const_iterator& operator ++() { ptr = ptr->next; return *this; }
+		const_iterator& operator ++() { ptr = ptr->next; return *this; }
 
-			const_iterator operator ++(int)
-			{
-				const_iterator const old = *this;
-				++*this;
-				return old;
-			}
+		const_iterator operator ++(int)
+		{
+			const_iterator const old = *this;
+			++*this;
+			return old;
+		}
 
-			bool operator ==(const_iterator const& o) const { return ptr == o.ptr; }
-			bool operator !=(const_iterator const& o) const { return ptr != o.ptr; }
+		bool operator ==(const_iterator const& o) const { return ptr == o.ptr; }
+		bool operator !=(const_iterator const& o) const { return ptr != o.ptr; }
 
-		private:
-			explicit const_iterator(node_t* ptr_) : ptr(ptr_) {}
+	private:
+		explicit const_iterator(node_t* ptr_) : ptr(ptr_) {}
 
-			const node_t* ptr;
+		const node_t* ptr;
 
+	private:
 		friend class slist_tpl;
 	};
 

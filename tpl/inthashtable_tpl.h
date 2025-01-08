@@ -38,11 +38,6 @@ public:
 		return (uint32)key;
 	}
 
-	static void dump(const key_t key)
-	{
-		printf("%d", (int)key);
-	}
-
 	static diff_type comp(key_t key1, key_t key2)
 	{
 		return key1 - key2;

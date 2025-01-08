@@ -12,6 +12,8 @@
 #include "../obj_node_info.h"
 #include "building_reader.h"
 #include "../../network/pakset_info.h"
+#include "../../tpl/array_tpl.h"
+
 
 /**
  * Old building types, for compatibility ...
@@ -21,24 +23,28 @@ struct old_btyp
 	/**
 	 * From type "unknown" also come special buildings e.q. Townhall
 	 */
-	enum typ {wohnung, gewerbe, industrie, unknown};
+	enum typ {
+		wohnung,
+		gewerbe,
+		industrie,
+		unknown
+	};
 };
 
 obj_desc_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	ALLOCA(char, desc_buf, node.size);
-
-	building_tile_desc_t *desc = new building_tile_desc_t();
-
-	// Read data
-	fread(desc_buf, node.size, 1, fp);
-
-	char * p = desc_buf;
+	array_tpl<char> desc_buf(node.size);
+	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
+		return NULL;
+	}
+	char *p = desc_buf.begin();
 
 	// old versions of PAK files have no version stamp.
 	// But we know, the highest bit was always cleared.
 	const uint16 v = decode_uint16(p);
 	const int version = (v & 0x8000)!=0 ? v&0x7FFF : 0;
+
+	building_tile_desc_t *desc = new building_tile_desc_t();
 
 	if(version == 2) {
 //  DBG_DEBUG("tile_reader_t::read_node()","version=1");
@@ -176,15 +182,18 @@ void building_reader_t::register_obj(obj_desc_t *&data)
 	}
 	// after this point all building_desc_t's have type in building_desc_t::btype
 
-	// allowed layouts are 1,2,4,8,16, where 8,16 is reserved for stations
-	uint8 l = desc->type == building_desc_t::generic_stop ? 16 : 4;
-	while (l > 0) {
-		if ((desc->layouts & l) != 0  &&  (desc->layouts != l)) {
-			dbg->error( "building_reader_t::register_obj()", "Building %s has %i layouts (illegal) => set to %i", desc->get_name(), desc->layouts, l );
-			desc->layouts = l;
-			break;
+	// allowed layouts are 1,2,4,8,16,48 where 8,16,48 is reserved for stations
+	const bool is_diagonal_supporting_station = (desc->type == building_desc_t::generic_stop &&  desc->layouts == 48);
+	if(  !is_diagonal_supporting_station  ) {
+		uint8 l = desc->type == building_desc_t::generic_stop ? 16 : 4;
+		while (l > 0) {
+			if ((desc->layouts & l) != 0  &&  (desc->layouts != l)) {
+				dbg->error( "building_reader_t::register_obj()", "Building %s has %i layouts (illegal) => set to %i", desc->get_name(), desc->layouts, l );
+				desc->layouts = l;
+				break;
+			}
+			l >>= 1;
 		}
-		l >>= 1;
 	}
 
 	if(  desc->allow_underground == 255  ) {
@@ -213,20 +222,19 @@ bool building_reader_t::successfully_loaded() const
 
 obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	ALLOCA(char, desc_buf, node.size);
+	array_tpl<char> desc_buf(node.size);
+	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
+		return NULL;
+	}
+	char * p = desc_buf.begin();
 
-	building_desc_t *desc = new building_desc_t();
-
-	// Read data
-	fread(desc_buf, node.size, 1, fp);
-
-	char * p = desc_buf;
 	// old versions of PAK files have no version stamp.
 	// But we know, the highest bit was always cleared.
 	const uint16 v = decode_uint16(p);
 	const int version = (v & 0x8000)!=0 ? v&0x7FFF : 0;
 
 	old_btyp::typ btyp;
+	building_desc_t *desc = new building_desc_t();
 
 	if(version == 10) {
 		// preservation date added
@@ -237,7 +245,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->size.x = decode_uint16(p);
 		desc->size.y = decode_uint16(p);
 		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = (climate_bits)decode_uint16(p);
+		desc->allowed_climates = (climate_bits)(decode_uint16(p) & ALL_CLIMATES);
 		desc->enables = decode_uint8(p);
 		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
@@ -260,7 +268,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->size.x = decode_uint16(p);
 		desc->size.y = decode_uint16(p);
 		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = (climate_bits)decode_uint16(p);
+		desc->allowed_climates = (climate_bits)(decode_uint16(p) & ALL_CLIMATES);
 		desc->enables = decode_uint8(p);
 		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
@@ -282,7 +290,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->size.x = decode_uint16(p);
 		desc->size.y = decode_uint16(p);
 		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = (climate_bits)decode_uint16(p);
+		desc->allowed_climates = (climate_bits)(decode_uint16(p) & ALL_CLIMATES);
 		desc->enables = decode_uint8(p);
 		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
@@ -301,7 +309,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->size.x = decode_uint16(p);
 		desc->size.y = decode_uint16(p);
 		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = (climate_bits)decode_uint16(p);
+		desc->allowed_climates = (climate_bits)(decode_uint16(p) & ALL_CLIMATES);
 		desc->enables = decode_uint8(p);
 		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
@@ -319,7 +327,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->size.x = decode_uint16(p);
 		desc->size.y = decode_uint16(p);
 		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = (climate_bits)decode_uint16(p);
+		desc->allowed_climates = (climate_bits)(decode_uint16(p) & ALL_CLIMATES);
 		desc->enables = decode_uint8(p);
 		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
@@ -336,7 +344,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->size.x = decode_uint16(p);
 		desc->size.y = decode_uint16(p);
 		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = (climate_bits)0xFFFE; // all but water
+		desc->allowed_climates = all_but_water_climate; // all but water
 		desc->enables = decode_uint8(p);
 		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
@@ -353,7 +361,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->size.x = decode_uint16(p);
 		desc->size.y = decode_uint16(p);
 		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = (climate_bits)0xFFFE; // all but water
+		desc->allowed_climates = all_but_water_climate; // all but water
 		desc->enables = 0x80;
 		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
@@ -370,7 +378,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->size.x = decode_uint16(p);
 		desc->size.y = decode_uint16(p);
 		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = (climate_bits)0xFFFE; // all but water
+		desc->allowed_climates = all_but_water_climate; // all but water
 		desc->enables = 0x80;
 		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
@@ -392,7 +400,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->size.x = decode_uint16(p);
 		desc->size.y = decode_uint16(p);
 		desc->layouts = decode_uint32(p);
-		desc->allowed_climates = (climate_bits)0xFFFE; // all but water
+		desc->allowed_climates = all_but_water_climate; // all but water
 		desc->enables = 0x80;
 		desc->flags = (building_desc_t::flag_t)decode_uint32(p);
 		desc->distribution_weight = 100;

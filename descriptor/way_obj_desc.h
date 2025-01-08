@@ -57,7 +57,25 @@ public:
 				255, 255, 255, 255, 255, 255, 255, 0,
 				255, 255, 255, 1, 255, 2, 3, 4
 			};
-			return imglist->get_image_id( ribi_to_extra[ribi]+16+(nw*5) );
+			return ribi < 16 ? imglist->get_image_id( ribi_to_extra[ribi]+16+(nw*5) )  : IMG_EMPTY;
+		}
+		// else return standard values
+		return imglist->get_image_id( ribi );
+	}
+
+	image_id get_crossing_image_ex_id(ribi_t::ribi ribi, bool nw, bool front = false) const
+	{
+		if(  front  &&  !get_child<image_list_t>(2)->get_count()  ) {
+			return IMG_EMPTY;
+		}
+		image_list_t const* const imglist = get_child<image_list_t>(3-front);
+		// only do this if extended switches are there
+		if(  imglist->get_count()>26  ) {
+			static uint8 ribi_to_extra[16] = {
+				255, 255, 255, 255, 255, 255, 255, 0,
+				255, 255, 255, 1, 255, 2, 3, 4
+			};
+			return ribi < 16 ? imglist->get_image_id( ribi_to_extra[ribi]+26+(nw*5) )  : IMG_EMPTY;
 		}
 		// else return standard values
 		return imglist->get_image_id( ribi );
@@ -171,6 +189,16 @@ public:
 			return true;
 		}
 		return false;
+	}
+
+	bool has_switch_image() const {
+		return get_child<image_list_t>(2)->get_image_id(16) != IMG_EMPTY
+		||     get_child<image_list_t>(3)->get_image_id(16) != IMG_EMPTY;
+	}
+
+	bool has_switch_ex_image() const {
+		return get_child<image_list_t>(2)->get_image_id(26) != IMG_EMPTY
+		||     get_child<image_list_t>(3)->get_image_id(26) != IMG_EMPTY;
 	}
 
 	/**

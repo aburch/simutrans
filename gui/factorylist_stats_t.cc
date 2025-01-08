@@ -15,7 +15,7 @@
 #include "../utils/simstring.h"
 
 
-int factorylist_stats_t::sort_mode = factorylist::by_name;
+sint16 factorylist_stats_t::sort_mode = factorylist::by_name;
 bool factorylist_stats_t::reverse = false;
 
 

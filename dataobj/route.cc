@@ -174,7 +174,6 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	queue.insert(tmp);
 
 	bool target_reached = false;
-	sint16 coupling_steps = 0;
 	do {
 		// this is too expensive to be called each step
 		if((step & 4095) == 0) {
@@ -196,7 +195,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		bool already_there;
 		if(  coupling  ) {
 			// find place to do a coupling.
-			already_there = tdriver->is_coupling_target( gr, tmp->parent==NULL ? NULL : tmp->parent->gr, coupling_steps );
+			already_there = tdriver->is_coupling_target( gr, tmp->parent==NULL ? NULL : tmp->parent->gr);
 		} else {
 			// normal routine.
 			already_there = tdriver->is_target( gr, tmp->parent==NULL ? NULL : tmp->parent->gr );
@@ -211,10 +210,10 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		const ribi_t::ribi ribi =  tdriver->get_ribi(gr)  &  ( ~ribi_t::reverse_single(tmp->ribi_from) );
 		for(  int r=0;  r<4;  r++  ) {
 			// a way goes here, and it is not marked (i.e. in the closed list)
-			grund_t* to;
-			if(  (ribi & ribi_t::nsew[r] )!=0 // do not go backwards
-			    && koord_distance(start, gr->get_pos() + koord::nsew[r])<max_depth // not too far away
-			    && gr->get_neighbour(to, wegtyp, ribi_t::nsew[r])  // is connected
+			grund_t* to = NULL;
+			if(  (ribi & ribi_t::nesw[r] )!=0 // do not go backwards
+			    && koord_distance(start, gr->get_pos() + koord::nesw[r])<max_depth // not too far away
+			    && gr->get_neighbour(to, wegtyp, ribi_t::nesw[r])  // is connected
 			    && !marker.is_marked(to) // not already tested
 			    && tdriver->check_next_tile(to, true) // can be driven on
 			) {
@@ -225,10 +224,10 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				k->gr = to;
 				k->count = tmp->count+1;
 				k->f = 0;
-				k->g = tmp->g + tdriver->get_cost(to, to->get_weg(wegtyp), max_khm, ribi_t::nsew[r]);
-				k->ribi_from = ribi_t::nsew[r];
+				k->g = tmp->g + tdriver->get_cost(to, to->get_weg(wegtyp), max_khm, ribi_t::nesw[r]);
+				k->ribi_from = ribi_t::nesw[r];
 
-				uint8 current_dir = ribi_t::nsew[r];
+				uint8 current_dir = ribi_t::nesw[r];
 				if(tmp->parent!=NULL) {
 					current_dir |= tmp->ribi_from;
 					if(tmp->dir!=current_dir) {
@@ -326,7 +325,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	 * Reference:
 	 *  Harabor D. and Grastien A. 2011. Online Graph Pruning for Pathfinding on Grid Maps.
 	 *  In Proceedings of the 25th National Conference on Artificial Intelligence (AAAI), San Francisco, USA.
-	 *  http://users.cecs.anu.edu.au/~dharabor/data/papers/harabor-grastien-aaai11.pdf
+	 *  https://users.cecs.anu.edu.au/~dharabor/data/papers/harabor-grastien-aaai11.pdf
 	 */
 	const bool use_jps     = tdriver->get_waytype()==water_wt;
 
@@ -676,6 +675,12 @@ void route_t::postprocess_water_route(karte_t *welt)
 }
 
 
+bool is_way_bend(koord3d pos, waytype_t waytype) {
+	const grund_t* gr = world()->lookup(pos);
+	const weg_t* way = gr ? gr->get_weg(waytype) : NULL;
+	return way ? ribi_t::is_bend(way->get_ribi_unmasked()) : false;
+}
+
 
 /**
  * searches route, uses intern_calc_route() for distance between stations
@@ -690,7 +695,7 @@ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, c
 #ifdef DEBUG_ROUTES
 	const uint32 ms = dr_time();
 #endif
-	bool ok = intern_calc_route(welt, start, ziel, tdriver, max_khm, 0xFFFFFFFFul );
+	const bool ok = intern_calc_route(welt, start, ziel, tdriver, max_khm, 0xFFFFFFFFul );
 #ifdef DEBUG_ROUTES
 	if(tdriver->get_waytype()==water_wt) {
 		DBG_DEBUG("route_t::calc_route()", "route from %d,%d to %d,%d with %i steps in %u ms found.", start.x, start.y, ziel.x, ziel.y, route.get_count()-1, dr_time()-ms );
@@ -698,7 +703,7 @@ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, c
 #endif
 
 	INT_CHECK("route 343");
-
+	
 	if( !ok ) {
 		DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x, start.y, ziel.x, ziel.y);
 		// no route found
@@ -706,51 +711,68 @@ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, c
 		route.append(start); // just to be safe
 		return no_route;
 	}
-	// advance so all convoi fits into a halt (only set for trains and cars)
-	else if(  max_len>1  ) {
 
-		// we need a halt of course ...
-		halthandle_t halt = welt->lookup(start)->get_halt();
-		if(  halt.is_bound()  ) {
+	// advance so all convoi fits into a halt (only set for trains and cars
+	const halthandle_t halt = welt->lookup(start)->get_halt();
+	const vehicle_t* vehicle = dynamic_cast<vehicle_t*>(tdriver);
+	if(  max_len>1  &&  halt.is_bound()  &&  route.get_count()>=2  &&  vehicle  ) {
+		// For here, we define 512 (VEHICLE_STEPS_PER_TILE * 2) steps for one tile.
+		const uint32 straight_tile_steps = VEHICLE_STEPS_PER_TILE << 1;
+		const uint32 diagonal_tile_steps = vehicle_base_t::diagonal_vehicle_steps_per_tile << 1;
+		// When the front or back tile is diagonal, we can use only half of its length as a stop.
+		const uint32 half_diagonal_tile_steps = vehicle_base_t::diagonal_vehicle_steps_per_tile;
+		const uint32 max_length_in_steps = max_len << 5; // convert 16 to 512
+		const waytype_t waytype = tdriver->get_waytype();
 
-			// first: find out how many tiles I am already in the station
-			for(  size_t i = route.get_count();  i-- != 0  &&  max_len != 0  &&  halt == haltestelle_t::get_halt(route[i], NULL);  --max_len) {
+		bool is_front_diagonal = is_way_bend(route.back(), waytype);
+		
+		// first: find out how many vehicle steps I am already in the station
+		const ribi_t::ribi last_dir = ribi_type(route.back() - route[route.get_count()-2]);
+		uint32 steps_covered_by_station = vehicle->get_convoi()->calc_available_halt_length_in_vehicle_steps(route.back(), last_dir) << 1;
+		
+		// and now go forward, if possible
+		grund_t* gr_loop = world()->lookup(route.back());
+		weg_t* way_loop = gr_loop->get_weg(waytype);
+		
+		while(  steps_covered_by_station < max_length_in_steps  ) {
+			// estimate the next pos
+			const ribi_t::ribi ribi_back = ribi_type(route[route.get_count()-2] - route.back());
+			// Use the masked ribi of the way here, considering oneway signs or signals.
+			const ribi_t::ribi open_dir = way_loop->get_ribi() & ~ribi_back;
+			if(  !ribi_t::is_single(open_dir)  ||
+			  !gr_loop->get_neighbour(gr_loop, waytype, open_dir)  ||
+				gr_loop->get_halt() != halt  ||
+				!tdriver->check_next_tile(gr_loop)
+		    ) 
+			{ 
+				// We cannot go foward anymore.
+				break;
 			}
-
-			// and now go forward, if possible
-			if(  max_len>0  ) {
-
-				const uint32 max_n = route.get_count()-1;
-				const koord3d zv = route[max_n] - route[max_n - 1];
-				const int ribi = ribi_type(zv);
-
-				grund_t *gr = welt->lookup(start);
-				const waytype_t wegtyp = tdriver->get_waytype();
-				ribi_t::ribi way_ribi  = tdriver->get_ribi(gr);
-
-				while(  max_len>0  &&  ((way_ribi & ribi) != 0)  &&  gr->get_neighbour(gr,wegtyp,ribi)  &&  gr->get_halt()==halt
-					&&   tdriver->check_next_tile(gr)) {
-					// Do not go on a tile, where a oneway sign forbids going.
-					// This saves time and fixed the bug, that a oneway sign on the final tile was ignored.
-					ribi_t::ribi go_dir=gr->get_weg(wegtyp)->get_ribi_maske();
-					if(  (ribi&go_dir)!=0  ) {
-						break;
-					}
-					route.append(gr->get_pos());
-					max_len--;
-					way_ribi = tdriver->get_ribi(gr);
-				}
-				// station too short => warning!
-				if(  max_len>0  ) {
-					return valid_route_halt_too_short;
-				}
+			way_loop = gr_loop->get_weg(waytype);
+			if(  !way_loop  ) { break; }
+			
+			// We can go forward. We add the pos and calculate steps_covered_by_station.
+			route.append(gr_loop->get_pos());
+			if(  is_front_diagonal  ) {
+				// use full length of the diagonal tile for the previousely front tile.
+				steps_covered_by_station += diagonal_tile_steps - half_diagonal_tile_steps;
 			}
+			const bool is_diagonal = ribi_t::is_bend(way_loop->get_ribi_unmasked());
+			if(  is_diagonal  ) {
+				steps_covered_by_station += half_diagonal_tile_steps;
+			} else {
+				steps_covered_by_station += straight_tile_steps;
+			}
+			is_front_diagonal = is_diagonal;
+		}
+		
+		if(  steps_covered_by_station < max_length_in_steps  ) {
+			// station too short => warning!
+			return valid_route_halt_too_short;
 		}
 	}
 	return valid_route;
 }
-
-
 
 
 void route_t::rdwr(loadsave_t *file)
@@ -774,4 +796,42 @@ void route_t::rdwr(loadsave_t *file)
 			route[i].rdwr(file);
 		}
 	}
+}
+
+
+koord3d route_t::opposite_pos_of_route_starting(waytype_t waytype) const {
+	if(  get_count()<2  ) {
+		return koord3d::invalid;
+	}
+	const grund_t* gr = world()->lookup(route.front());
+	const weg_t* way = gr ? gr->get_weg(waytype) : NULL;
+	if(  !way  ) { return koord3d::invalid; }
+	
+	const ribi_t::ribi first_to_second_dir = ribi_type(route.front(), route[1]);
+	const ribi_t::ribi open_dir = way->get_ribi_unmasked() & (~first_to_second_dir);
+	grund_t* gr_prev;
+	if(  !ribi_t::is_single(open_dir)  ||  !gr->get_neighbour(gr_prev, waytype, open_dir)  ) {
+		// The way diverges here.
+		return koord3d::invalid; 
+	}
+	return gr_prev->get_pos();
+}
+
+
+koord3d route_t::opposite_pos_of_route_ending(waytype_t waytype) const {
+	if(  get_count()<2  ) {
+		return koord3d::invalid;
+	}
+	const grund_t* gr = world()->lookup(route.back());
+	const weg_t* way = gr ? gr->get_weg(waytype) : NULL;
+	if(  !way  ) { return koord3d::invalid; }
+	
+	const ribi_t::ribi last_to_second_last_dir = ribi_type(route.back(), route[route.get_count()-2]);
+	const ribi_t::ribi open_dir = way->get_ribi_unmasked() & (~last_to_second_last_dir);
+	grund_t* gr_next;
+	if(  !ribi_t::is_single(open_dir)  ||  !gr->get_neighbour(gr_next, waytype, open_dir)  ) {
+		// The way diverges here.
+		return koord3d::invalid; 
+	}
+	return gr_next->get_pos();
 }

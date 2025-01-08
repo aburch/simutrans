@@ -9,10 +9,34 @@
  *
  * @section api-trunk Current trunk
  *
- * - Feature: scripted tools
+ * - Added @ref command_x::grid_lower, @ref command_x::grid_raise
+ * - Added @ref settings::has_double_slopes, @ref settings::get_way_height_clearance
+ * - Added @ref tile_x::is_crossing
+ * - Added @ref world_x::generate_goods to generate passengers, mail or freight (scenario only)
+ * - Added @ref change_climate_at
+ * - Added @ref convoy_x::change_schedule
+ * - Added tool_ids::tool_build_groundobj
+ * - Changed building_desc_x::get_available_stations to accept wt_all
+ * - Added @ref bridge_x, @ref tunnel_x
+ * - Added @ref factory_x::get_fields_list, @ref world::get_label_list
+ * - Added @ref schedule_x::current.
+ * - Added @ref change_climate_at
+ *
+ * @section api-123 Release 123.0
+ *
+ * - Changed scripted tools: work, do_work, mark_tiles have additional parameter to send state of ctrl/shift keys
+ * - Added @ref factory_desc_x
+ * - Added @ref way_x::get_max_speed
  * - Added @ref wayobj_desc_x, @ref wayobj_x, @ref command_x::build_wayobj to work with way-objects
  * - Added @ref factory_x::get_raw_name
  * - Added @ref tree_desc_x::get_price, @ref command_x::slope_get_price
+ * - Added @ref way_x::get_transported_goods, @ref way_x::get_convoys_passed
+ * - Added @ref tile_x::get_way, @ref tile_x::get_depot
+ * - Added @ref get_pakset_name, @ref player_x::get_type
+ *
+ * @section api-122 Release 122.0
+ *
+ * - Feature: scripted tools
  * - Added @ref debug::pause, @ref debug::set_pause_on_error
  * - Added more tool ids
  * - Added @ref convoy_x::is_waiting, @ref convoy_x::is_loading
@@ -29,7 +53,7 @@
  * - Added fields: @ref field_x
  * - Added powerlines: @ref powerline_x, @ref transformer_x, @ref factory_x::get_transformer, @ref factory_x::is_transformer_connected
  *
- * @section api-121 Release 120.1
+ * @section api-121 Release 121.0
  *
  * - Added functions to mark tiles, see @ref tile_x::mark
  * - Added @ref convoy_x::is_schedule_editor_open

@@ -22,14 +22,13 @@ public:
 	nwc_scenario_t() : network_command_t(NWC_SCENARIO), what(UNKNOWN), won(0), lost(0), function(NULL), result(NULL)  { }
 	bool execute(karte_t *) OVERRIDE;
 	void rdwr() OVERRIDE;
-	const char* get_name() OVERRIDE { return "nwc_scenario_t";}
 
 	enum {
 		UNKNOWN,
 		CALL_SCRIPT,        /// client asks for an update
 		CALL_SCRIPT_ANSWER, /// client wants string, server sends string
 		UPDATE_WON_LOST,    /// update win/lose flags of the scenario
-		OPEN_SCEN_WIN,      /// open scenario info window
+		OPEN_SCEN_WIN       /// open scenario info window
 	};
 	uint16 what;
 
@@ -44,7 +43,7 @@ public:
 	/**
 	 * Callback method: sends answer back to client.
 	 * @param function result of this function is returned
-	 * @param client to send result to
+	 * @param client_id to send result to
 	 * @returns dummy boolean value
 	 */
 	static bool record_result(const char* function, plainstring result, uint32 client_id);
@@ -67,7 +66,6 @@ public:
 	void do_command(karte_t *) OVERRIDE;
 	void rdwr() OVERRIDE;
 	network_broadcast_world_command_t* clone(karte_t *) OVERRIDE;
-	const char* get_name() OVERRIDE { return "nwc_scenario_rules_t";}
 
 	scenario_t::forbidden_t *rule;
 	bool forbid;

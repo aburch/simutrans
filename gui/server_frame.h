@@ -38,7 +38,7 @@ private:
 	button_t show_mismatched, show_offline;
 	gui_label_t pak_version;
 	gui_label_buf_t revision, date, label_size;
-#if DEBUG>=4
+#if MSG_LEVEL>=4
 	gui_label_buf_t pakset_checksum;
 #endif
 	gui_minimap_t *map;
@@ -53,11 +53,26 @@ private:
 	private:
 		cbuffer_t servername;
 		cbuffer_t serverdns;
+		cbuffer_t server_altdns;
 		bool status;
 	public:
-		server_scrollitem_t (const cbuffer_t& name, const cbuffer_t& dns, bool status, PIXVAL col) : gui_scrolled_list_t::const_text_scrollitem_t( NULL, col ), servername( name ), serverdns( dns ), status( status ) { servername.append( " (" ); servername.append( serverdns.get_str() ); servername.append( ")" ); }
+		server_scrollitem_t (const cbuffer_t& name, const cbuffer_t& dns, const cbuffer_t& altdns, bool status, PIXVAL col) :
+			gui_scrolled_list_t::const_text_scrollitem_t( NULL, col ),
+			servername( name ), serverdns( dns ),
+			server_altdns(altdns),
+			status( status )
+		{
+			servername.append( " (" );
+			servername.append( serverdns.get_str() );
+			if (  server_altdns.len() > 0  ) {
+				servername.append(" or ");
+				servername.append(server_altdns.get_str());
+			}
+			servername.append(")");
+		}
 		char const* get_text () const OVERRIDE { return servername.get_str(); }
-		char const* get_dns () const { return serverdns.get_str(); }
+		char const* get_dns() const { return serverdns.get_str(); }
+		char const* get_altdns() const { return server_altdns.get_str(); }
 		void set_text (char const* newtext) OVERRIDE { servername.clear(); servername.append( newtext ); serverdns.clear(); serverdns.append( newtext ); }
 		bool online () { return status; }
 	};
@@ -77,7 +92,10 @@ private:
 	 * Display depends on the state of the show_mismatched and
 	 * show_offline checkboxes
 	 */
-	bool update_serverlist ();
+	void update_serverlist ();
+	
+	void update_serverlist_threaded();
+	void handle_serverlist_request_result(cbuffer_t);
 
 public:
 	server_frame_t();

@@ -39,7 +39,7 @@ private:
 	/**
 	 * Computes total size of table from row heights and column widths.
 	 */
-	scr_size get_size(vector_tpl<scr_coord_val>& col_w, vector_tpl<scr_coord_val>& row_h) const;
+	scr_size get_size(const vector_tpl<scr_coord_val>& col_w, const vector_tpl<scr_coord_val>& row_h) const;
 
 	/**
 	 * If size is larger than min-size, then distribute
@@ -134,8 +134,12 @@ public:
 	C* new_component_span(uint span) { C* comp = new C(); take_component(comp, span); return comp; }
 	template<class C, class A1>
 	C* new_component_span(const A1& a1, uint span) { C* comp = new C(a1); take_component(comp, span); return comp; }
+	template<class C, class A1, class A2>
+	C* new_component_span(const A1& a1, const A2& a2, uint span) { C* comp = new C(a1, a2); take_component(comp, span); return comp; }
 	template<class C, class A1, class A2, class A3>
 	C* new_component_span(const A1& a1, const A2& a2, const A3& a3, uint span) { C* comp = new C(a1, a2, a3); take_component(comp, span); return comp; }
+	template<class C, class A1, class A2, class A3, class A4>
+	C* new_component_span(const A1& a1, const A2& a2, const A3& a3, const A4& a4, uint span) { C* comp = new C(a1, a2, a3, a4); take_component(comp, span); return comp; }
 
 	/**
 	 * Removes all components in the Container.

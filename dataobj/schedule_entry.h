@@ -7,6 +7,8 @@
 #define DATAOBJ_SCHEDULE_ENTRY_H
 
 #define NUM_ARRIVAL_TIME_STORED 5
+#define NUM_WAITING_TIME_STORED 5
+#define NUM_STOPPING_TIME_STORED 5
 
 #include "koord3d.h"
 
@@ -17,12 +19,12 @@ struct schedule_entry_t
 {
 public:
 	schedule_entry_t() {
-		// journey time is not loaded or saved.
 		init_journey_time();
-		at_index = 0;
+		init_waiting_time();
+		init_convoy_stopping_time();
 	}
 
-	schedule_entry_t(koord3d const& pos, uint const minimum_loading, uint16 const waiting_time_shift, uint8 const stop_flags) :
+	schedule_entry_t(koord3d const& pos, uint const minimum_loading, uint16 const waiting_time_shift, uint16 const stop_flags) :
 		pos(pos),
 		minimum_loading(minimum_loading),
 		waiting_time_shift(waiting_time_shift),
@@ -31,7 +33,8 @@ public:
 		spacing = 1;
 		spacing_shift = delay_tolerance = 0;
 		init_journey_time();
-		at_index = 0;
+		init_waiting_time();
+		init_convoy_stopping_time();
 	}
 
 	enum {
@@ -43,6 +46,9 @@ public:
 		WAIT_FOR_TIME     = 1U << 4, // The convoy waits for the departure time.
 		UNLOAD_ALL        = 1U << 5, // The convoy unloads all loads here.
 		LOAD_BEFORE_DEP   = 1U << 6, // The convoy loads just before the departure.
+		TRANSFER_INTERVAL = 1U << 7,
+		REVERSE_CONVOY	  = 1U << 8, // convoy reverses the order of its vehicles.
+		REVERSE_COUPLING  = 1U << 9, // The convoy reverses the parent-child relationship of the convoy coupling.
 	};
 
 	/**
@@ -65,24 +71,54 @@ public:
 	uint16 spacing, spacing_shift, delay_tolerance;
 	
 	/*
-	 * store last 3 journey time of this stop.
+	 * store last 5 journey time of this stop.
+	 * This is the time between the arrival at the previous stop and the arrival at this stop.
 	 * time = 0 means that journey time is not registered.
-	 * journey times are not saved to reduce save/load time.
 	 */
 	uint32 journey_time[NUM_ARRIVAL_TIME_STORED];
-	uint8 at_index; // which index of journey_time should be overwritten next.
+	uint8 jt_at_index; // which index of journey_time should be overwritten next.
+
+	/*
+	 * store last 5 average waiting times of goods to be loaded at this stop.
+	 * time = 0 means that waiting time is not registered.
+	 */
+	uint32 waiting_time[NUM_WAITING_TIME_STORED];
+	uint8 wt_at_index; // which index of waiting_time should be overwritten next.
+
+
+	/*
+	 * store last 5 convoy stopping times at this stop.
+	 * time = 0 means that stopping time is not registered.
+	 */
+	uint32 convoy_stopping_time[NUM_STOPPING_TIME_STORED];
+	uint8 cs_at_index; // which index of convoy_stopping_time should be overwritten next.
 	
 private:
-	uint8 stop_flags;
+	uint16 stop_flags;
 	
 	void init_journey_time() {
-		for(uint8 i=0; i<NUM_ARRIVAL_TIME_STORED; i++) {
+		jt_at_index = 0;
+		for(uint8 i = 0; i < NUM_ARRIVAL_TIME_STORED; i++) {
 			journey_time[i] = 0;
+		}
+	}
+
+	void init_waiting_time() {
+		wt_at_index = 0;
+		for(uint8 i = 0; i < NUM_WAITING_TIME_STORED; i++) {
+			waiting_time[i] = 0;
+		}
+	}
+
+	void init_convoy_stopping_time() {
+		cs_at_index = 0;
+		for(uint8 i = 0; i < NUM_STOPPING_TIME_STORED; i++) {
+			convoy_stopping_time[i] = 0;
 		}
 	}
 	
 public:
-	uint8 get_coupling_point() const { return (stop_flags&0x03); }
+	uint16 get_coupling_point() const { return (stop_flags&0x0003); }
 	void set_wait_for_coupling() { stop_flags |= WAIT_FOR_COUPLING; stop_flags &= ~TRY_COUPLING; }
 	void set_try_coupling() { stop_flags |= TRY_COUPLING; stop_flags &= ~WAIT_FOR_COUPLING; }
 	void reset_coupling() { stop_flags &= ~TRY_COUPLING; stop_flags &= ~WAIT_FOR_COUPLING; }
@@ -96,19 +132,28 @@ public:
 	void set_wait_for_time(bool y) { y ? stop_flags |= WAIT_FOR_TIME : stop_flags &= ~WAIT_FOR_TIME; }
 	bool is_load_before_departure() const { return (stop_flags&LOAD_BEFORE_DEP)>0; }
 	void set_load_before_departure(bool y) { y ? stop_flags |= LOAD_BEFORE_DEP : stop_flags &= ~LOAD_BEFORE_DEP; }
-	uint8 get_stop_flags() const { return stop_flags; }
-	void set_stop_flags(uint8 f) { stop_flags = f; }
+	bool is_transfer_interval() const { return (stop_flags&TRANSFER_INTERVAL)>0; }
+	void set_transfer_interval(bool y) { y ? stop_flags |= TRANSFER_INTERVAL : stop_flags &= ~TRANSFER_INTERVAL; }
+	bool is_reverse_convoy() const { return (stop_flags&REVERSE_CONVOY)>0; }
+	void set_reverse_convoy(bool y) { y ? stop_flags |= REVERSE_CONVOY : stop_flags&= ~REVERSE_CONVOY; }
+	bool is_reverse_convoi_coupling() const { return (stop_flags&REVERSE_COUPLING)>0; } 
+	void set_reverse_convoi_coupling(bool y) { y ? stop_flags |= REVERSE_COUPLING : stop_flags &= ~REVERSE_COUPLING; }
+	uint16 get_stop_flags() const { return stop_flags; }
+	void set_stop_flags(uint16 f) { stop_flags = f; }
 	
 	void set_spacing(uint16 a, uint16 b, uint16 c) {
 		spacing = a;
 		spacing_shift = b;
 		delay_tolerance = c;
 	}
+
+	void push_journey_time(uint32 time);
+	void push_waiting_time(uint32 time);
+	void push_convoy_stopping_time(uint32 time);
 	
-	void push_journey_time(uint32 t) {
-		journey_time[at_index] = t;
-		at_index = (at_index+1)%NUM_ARRIVAL_TIME_STORED;
-	}
+	uint32 get_median_journey_time() const;
+	uint32 get_average_waiting_time() const;
+	uint32 get_median_convoy_stopping_time() const;
 	
 	bool operator ==(const schedule_entry_t &a) {
 		return a.pos == this->pos

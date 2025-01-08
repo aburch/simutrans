@@ -26,8 +26,33 @@
 #include "help_frame.h"
 #include "components/gui_divider.h"
 
+#include <thread>
+#include <mutex>
+
 static char nick_buf[256];
-char server_frame_t::newserver_name[2048] = "";
+
+// char server_frame_t::newserver_name[2048];
+
+// static buffer for updating the server list asynchronously
+static std::mutex server_frame_draw_mutex;
+struct {
+	server_frame_t* window;
+	cbuffer_t network_buf;
+} typedef server_list_request_result_t;
+// DO NOT access _server_list_result directly! Always use setter/getter functions.
+static server_list_request_result_t _server_list_result{ NULL, cbuffer_t() };
+
+void set_server_list_result(server_list_request_result_t r) {
+	std::unique_lock<std::mutex> lk(server_frame_draw_mutex);
+	_server_list_result = r;
+}
+
+server_list_request_result_t pop_server_list_result() {
+	std::unique_lock<std::mutex> lk(server_frame_draw_mutex);
+	server_list_request_result_t result = _server_list_result;
+	_server_list_result = server_list_request_result_t{ NULL, cbuffer_t() };
+	return result;
+}
 
 class gui_minimap_t : public gui_component_t
 {
@@ -60,11 +85,12 @@ public:
 server_frame_t::server_frame_t() :
 	gui_frame_t( translator::translate("Game info") ),
 	gi(welt),
+	custom_valid(false),
 	serverlist( gui_scrolled_list_t::listskin, gui_scrolled_list_t::scrollitem_t::compare ),
 	game_text(&buf)
 {
 	map = new gui_minimap_t();
-	update_info();
+	// update_info();
 	map->set_gameinfo(&gi);
 
 	set_table_layout(1,0);
@@ -101,7 +127,7 @@ server_frame_t::server_frame_t() :
 		add_table(2,1);
 		{
 			// Add server input/button
-			addinput.set_text( newserver_name, sizeof( newserver_name ) );
+			addinput.set_text( env_t::newserver_name, sizeof( env_t::newserver_name ) );
 			addinput.add_listener( this );
 			add_component( &addinput );
 
@@ -117,7 +143,7 @@ server_frame_t::server_frame_t() :
 	show_mismatched.pressed = gi.get_game_engine_revision() == 0;
 
 	add_component( &pak_version );
-#if DEBUG>=4
+#if MSG_LEVEL>=4
 	add_component( &pakset_checksum );
 #endif
 	new_component<gui_divider_t>();
@@ -178,6 +204,27 @@ server_frame_t::server_frame_t() :
 		end_table();
 	}
 
+	if (  env_t::newserver_name[0] != '\0'  ) {
+		join.disable();
+
+		dbg->warning("action_triggered()", "newserver_name: %s", env_t::newserver_name);
+
+		display_show_load_pointer(1);
+		const char *err = network_gameinfo( env_t::newserver_name, &gi );
+		if (  err == NULL  ) {
+			custom_valid = true;
+			update_info();
+		}
+		else {
+			custom_valid = false;
+			join.disable();
+			update_info();
+			// update_error( "Server did not respond!" );
+		}
+		display_show_load_pointer(0);
+		serverlist.set_selection( -1 );
+	}
+	
 	set_resizemode( diagonal_resize );
 	reset_min_windowsize();
 }
@@ -261,7 +308,7 @@ PIXVAL server_frame_t::update_info()
 	pak_version.set_text( gi.get_pak_name() );
 	pak_version.set_color( pakset_match ? SYSCOL_TEXT : SYSCOL_OBSOLETE );
 
-#if DEBUG>=4
+#if MSG_LEVEL>=4
 	pakset_checksum.buf().printf("%s %s",translator::translate( "Pakset checksum:" ), gi.get_pakset_checksum().get_str(8));
 	pakset_checksum.update();
 	pakset_checksum.set_color( pakset_match ? SYSCOL_TEXT : SYSCOL_TEXT_STRONG );
@@ -276,8 +323,36 @@ PIXVAL server_frame_t::update_info()
 }
 
 
-bool server_frame_t::update_serverlist ()
+void server_frame_t::update_serverlist ()
 {
+	update_error("Fetching server list...");
+	std::thread thd(&server_frame_t::update_serverlist_threaded, this);
+	thd.detach();
+}
+
+
+void server_frame_t::update_serverlist_threaded () {
+	// Download game listing from listings server into memory
+	cbuffer_t network_buf;
+
+	if(  const char *err = network_http_get( ANNOUNCE_SERVER, ANNOUNCE_LIST_URL, network_buf )  ) {
+		dbg->error( "server_frame_t::update_serverlist", "could not download list: %s", err );
+		return;
+	}
+
+	set_server_list_result(server_list_request_result_t{this, network_buf});
+}
+
+
+void server_frame_t::handle_serverlist_request_result(cbuffer_t network_buf) {
+	buf.clear();
+	
+	// Parse listing into CSV_t object
+	CSV_t csvdata( network_buf.get_str() );
+	int ret;
+
+	dbg->message( "server_frame_t::update_serverlist", "CSV_t: %s", csvdata.get_str() );
+
 	// Based on current dialog settings, should we show mismatched servers or not
 	uint revision = 0;
 	const char* pakset = NULL;
@@ -287,20 +362,6 @@ bool server_frame_t::update_serverlist ()
 		revision = current.get_game_engine_revision();
 		pakset   = current.get_pak_name();
 	}
-
-	// Download game listing from listings server into memory
-	cbuffer_t buf;
-
-	if(  const char *err = network_http_get( ANNOUNCE_SERVER, ANNOUNCE_LIST_URL, buf )  ) {
-		dbg->error( "server_frame_t::update_serverlist", "could not download list: %s", err );
-		return false;
-	}
-
-	// Parse listing into CSV_t object
-	CSV_t csvdata( buf.get_str() );
-	int ret;
-
-	dbg->message( "server_frame_t::update_serverlist", "CSV_t: %s", csvdata.get_str() );
 
 	// For each listing entry, determine if it matches the version supplied to this function
 	do {
@@ -360,6 +421,8 @@ bool server_frame_t::update_serverlist ()
 			}
 		}
 
+		serverdns2.clear();
+
 		// Fifth field is server online/offline status (use for colour-coding)
 		cbuffer_t serverstatus;
 		ret = csvdata.get_next_field( serverstatus );
@@ -368,6 +431,10 @@ bool server_frame_t::update_serverlist ()
 		uint32 status = 0;
 		if(  ret > 0  ) {
 			status = atol( serverstatus.get_str() );
+
+			// sixth field on new list the alt dns, if there is one
+			ret = csvdata.get_next_field(serverdns2);
+			dbg->message("server_frame_t::update_serverlist", "altdns: %s", serverdns2.get_str());
 		}
 
 		// Only show offline servers if the checkbox is set
@@ -376,7 +443,7 @@ bool server_frame_t::update_serverlist ()
 			if(  pakset  &&  !strstart( serverpakset.get_str(), pakset )  ) {
 				color = SYSCOL_OBSOLETE;
 			}
-			serverlist.new_component<server_scrollitem_t>( servername, serverdns, status, color ) ;
+			serverlist.new_component<server_scrollitem_t>( servername, serverdns, serverdns2, status, color );
 			dbg->message( "server_frame_t::update_serverlist", "Appended %s (%s) to list", servername.get_str(), serverdns.get_str() );
 		}
 
@@ -388,8 +455,6 @@ bool server_frame_t::update_serverlist ()
 
 	set_dirty();
 	resize(scr_size(0, 0));
-
-	return true;
 }
 
 
@@ -414,6 +479,11 @@ bool server_frame_t::action_triggered (gui_action_creator_t *comp, value_t p)
 			if(  item->online()  ) {
 				display_show_load_pointer(1);
 				const char *err = network_gameinfo( ((server_scrollitem_t*)serverlist.get_element( p.i ))->get_dns(), &gi );
+				if(  err  &&  *((server_scrollitem_t*)serverlist.get_element(p.i))->get_altdns()  ) {
+					item->set_color(MONEY_MINUS);
+					update_error(err);
+					err = network_gameinfo(((server_scrollitem_t*)serverlist.get_element(p.i))->get_altdns(), &gi);
+				}
 				if(  err == NULL  ) {
 					item->set_color( update_info() );
 				}
@@ -430,13 +500,13 @@ bool server_frame_t::action_triggered (gui_action_creator_t *comp, value_t p)
 		}
 	}
 	else if (  &add == comp  ||  &addinput ==comp  ) {
-		if (  newserver_name[0] != '\0'  ) {
+		if (  env_t::newserver_name[0] != '\0'  ) {
 			join.disable();
 
-			dbg->warning("action_triggered()", "newserver_name: %s", newserver_name);
+			dbg->warning("action_triggered()", "newserver_name: %s", env_t::newserver_name);
 
 			display_show_load_pointer(1);
-			const char *err = network_gameinfo( newserver_name, &gi );
+			const char *err = network_gameinfo( env_t::newserver_name, &gi );
 			if (  err == NULL  ) {
 				custom_valid = true;
 				update_info();
@@ -493,7 +563,7 @@ bool server_frame_t::action_triggered (gui_action_creator_t *comp, value_t p)
 		// If we have a valid custom server entry, connect to that
 		else if (  custom_valid  ) {
 			display_show_load_pointer(1);
-			filename += newserver_name;
+			filename += env_t::newserver_name;
 			destroy_win( this );
 			welt->load( filename.c_str() );
 			display_show_load_pointer(0);
@@ -513,7 +583,7 @@ bool server_frame_t::action_triggered (gui_action_creator_t *comp, value_t p)
 				network_compare_pakset_with_server( ((server_scrollitem_t*)serverlist.get_selected_item())->get_dns(), msg );
 			}
 			else if (  custom_valid  ) {
-				network_compare_pakset_with_server( newserver_name, msg );
+				network_compare_pakset_with_server( env_t::newserver_name, msg );
 			}
 			else {
 				dbg->error( "server_frame_t::action_triggered()", "find_mismatch pressed without valid selection or custom server entry" );
@@ -535,6 +605,11 @@ void server_frame_t::draw (scr_coord pos, scr_size size)
 	// update nickname if necessary
 	if (  get_focus() != &nick  &&  env_t::nickname != nick_buf  ) {
 		tstrncpy( nick_buf, env_t::nickname.c_str(), min( lengthof( nick_buf ), env_t::nickname.length() + 1 ) );
+	}
+
+	server_list_request_result_t server_list_result = pop_server_list_result();
+	if(  server_list_result.window==this  ) {
+		handle_serverlist_request_result(server_list_result.network_buf);
 	}
 
 	gui_frame_t::draw( pos, size );

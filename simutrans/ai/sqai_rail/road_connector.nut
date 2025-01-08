@@ -21,6 +21,9 @@ class road_connector_t extends manager_t
 	c_sched = null
 	c_line  = null
 	c_cnv   = null
+	c_generate_start = 0 // compute start/end ourselves
+	c_generate_end   = 0
+	c_trial_route    = 0 // we tried to build route & stations several times
 
 	// print messages box
 	// 1 = way
@@ -40,24 +43,45 @@ class road_connector_t extends manager_t
 		local pl = our_player
 		local tic = get_ops_total();
 
+		c_generate_start = c_start == null
+		c_generate_end   = c_end   == null
+
 		local fs = fsrc.get_tile_list()
 		local fd = fdest.get_tile_list()
 
 		if ( check_factory_links(fsrc, fdest, freight) >= 2 && phase == 0 ) {
-			gui.add_message_at(pl, "no build line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") to many links", world.get_time())
-			return r_t(RT_TOTAL_FAIL)
+			//gui.add_message_at(pl, "no build line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") to many links", world.get_time())
+			return r_t(RT_TOTAL_FAIL) //
+		} else {
+			//gui.add_message_at(pl, "check line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") " + freight, world.get_time())
+			local st_dock = search_station(c_start, wt_water, 1)
+			if ( !check_factory_link_line(fsrc, fdest, freight) && !st_dock ) {
+				return r_t(RT_TOTAL_FAIL)
+			}
 		}
 
 		switch(phase) {
-			case 0: // find places for stations
+			case 0:  // station places
 				if ( print_message_box > 0 ) {
 					gui.add_message_at(our_player, "______________________ build road ______________________", world.get_time())
 					gui.add_message_at(pl, " line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", world.get_time())
 				}
-				if (c_start == null) {
+				// count trials, and fail if necessary
+				if (c_trial_route > 3) {
+					print("Route building failed " + c_trial_route + " times.")
+					gui.add_message_at(pl, "Failed to complete route from  " + coord_to_string(fsrc) + " to " + coord_to_string(fdest) + " after " + c_trial_route + " attempts", fsrc)
+					return error_handler()
+				}
+				c_trial_route++
+				// make arrays if necessary
+				if (type(c_start) == "instance") { c_start = [c_start] }
+				if (type(c_end)   == "instance") { c_end   = [c_end]   }
+
+				// find places for stations
+				if (c_generate_start) {
 					c_start = ::finder.find_station_place(fsrc, fdest)
 				}
-				if (c_start  &&  c_end == null) {
+				if (c_generate_end) {
 					c_end   = ::finder.find_station_place(fdest, c_start, finalize)
 				}
 
@@ -72,14 +96,75 @@ class road_connector_t extends manager_t
 				{
 					sleep()
 					local d = pl.get_current_cash();
+
+					// test route for calculate cost
+					local calc_route = test_route(our_player, c_start, c_end, planned_way)
+					//gui.add_message_at(our_player, "distance " + distance, world.get_time())
+					if ( calc_route == "No route" ) {
+						return error_handler()
+					}
+					//gui.add_message_at(our_player, "calc route " + coord3d_to_string(c_start[0]) +  " to " + coord3d_to_string(c_end[0]) + ": way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time())
+
+					sleep()
+					local build_cost = (calc_route.routes.len() * planned_way.get_cost()) + (planned_station.get_cost()*2) + planned_depot.get_cost() + (calc_route.bridge_lens * calc_route.bridge_obj.get_cost())
+					local cost_monthly = (calc_route.routes.len() * planned_way.get_maintenance()) + (planned_station.get_maintenance()*2) + planned_depot.get_maintenance() + (calc_route.bridge_lens * calc_route.bridge_obj.get_maintenance())
+					build_cost = build_cost/100
+
+					build_cost = build_cost + (calc_route.tiles_tree * (tree_desc_x.get_price()/100))
+
+					//gui.add_message_at(pl, "tree remove cost: " + tree_desc_x.get_price(), world.get_time())
+
+					//gui.add_message_at(pl, "cash: " + pl.get_current_cash() + " build cost: " + build_cost + " montly cost: " + (cost_monthly/100), world.get_time())
+					cost_monthly = (cost_monthly/100)+(pl.get_current_maintenance()/100)
+					//gui.add_message_at(pl, "cash: " + pl.get_current_cash() + " current maintenance: " + pl.get_current_maintenance(), world.get_time())
+					//gui.add_message_at(pl, " montly cost new: " + cost_monthly, world.get_time())
+
+					sleep()
+					// if combined station from ship
+					local cash = pl.get_current_cash()
+					local st_dock = search_station(calc_route.routes[calc_route.routes.len()-1], wt_water, 1)
+					if ( st_dock ) {
+						local st = halt_x.get_halt(st_dock[0], our_player)
+						if ( st ) {
+							local fl_st = st.get_factory_list()
+							if ( fl_st.len() == 0 ) {
+								cash = our_player.get_current_net_wealth()
+								//gui.add_message_at(our_player, "combined station -> get_current_net_wealth() " + our_player.get_current_net_wealth(), world.get_time())
+							} else {
+
+							}
+						}
+					}
+
+					if ( (cash-build_cost) < (cost_monthly*4) ) {
+						//gui.add_message_at(pl, "Way construction cost to height: cash: " + pl.get_current_cash() + " build cost: " + build_cost, world.get_time())
+						industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_missing)
+
+						return error_handler()
+					}
+
+					if ( !planned_way.is_available(world.get_time()) ) {
+						planned_way = find_object("way", wt_road, planned_way.get_topspeed())
+					}
+
 					local err = construct_road(pl, c_start, c_end, planned_way )
 					print("Way construction cost: " + (d-pl.get_current_cash()) )
-					if (err && c_start.len()>0  &&  c_end.len()>0) {
-						print("Failed to build way from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]))
-						return error_handler()
-					} else if (err) {
-						print("Failed to build way from " + coord_to_string(c_start) + " to " + coord_to_string(c_end))
-						return error_handler()
+					if (err) {
+
+						if ( c_start.len()>0  &&  c_end.len()>0) {
+							print("Failed to build way from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]))
+						} else if (err) {
+							print("Failed to build way from " + coord_to_string(c_start) + " to " + coord_to_string(c_end))
+						}
+
+						if (err == "No route") {
+							print("No route found from " + coord_to_string(c_start[0])+ " to " + coord_to_string(c_end[0]))
+							// no point to try again
+							return error_handler()
+						}
+						// try again
+						return restart_with_phase0()
+
 					}
 					if ( print_message_box == 1 ) { gui.add_message_at(our_player, "Build road from " + coord_to_string(c_start) + " to " + coord_to_string(c_end), world.get_time()) }
 					phase ++
@@ -88,37 +173,51 @@ class road_connector_t extends manager_t
 				{
 					local err = command_x.build_station(pl, c_start, planned_station )
 					if (err) {
-						print("Failed to build station at " + coord_to_string(c_start))
+						if (debug) gui.add_message_at(pl, "Failed to build road station at  " + coord_to_string(c_start) + " [" + err + "]", c_start)// try again
 						if ( print_message_box == 2 ) { gui.add_message_at(pl, "Failed to build road station at  " + coord_to_string(c_start) + " error " + err, world.get_time()) }
-						return error_handler()
+						return restart_with_phase0()
+					}
+					else {
+						c_generate_start = false // station build, do not search for another place
 					}
 					local err = command_x.build_station(pl, c_end, planned_station )
 					if (err) {
-						//gui.add_message_at(pl, "Failed to build road station at  " + coord_to_string(c_end) + " error " + err, world.get_time())
-						print("Failed to build station at " + coord_to_string(c_end))
-						return error_handler()
+					if (debug) gui.add_message_at(pl, "Failed to build road station at  " + coord_to_string(c_end) + " [" + err + "]", c_end)
+						// try again
+						return restart_with_phase0()
 					}
+					else {
+						c_generate_end = false // station build, do not search for another place
+					}
+
 					if (finalize) {
 						// store place of unload station for future use
 						local fs = ::station_manager.access_freight_station(fdest)
 						if (fs.road_unload == null) {
 							fs.road_unload = c_end
-
-							print( recursive_save({unload = c_end}, "\t\t\t", []) )
 						}
 					}
+					if (debug  &&  c_trial_route>1) {
+						gui.add_message_at(pl, "Completed route from  " + coord_to_string(c_start) + " to " + coord_to_string(c_end) + " after " + c_trial_route + " attempts", c_end)
+					}
 					if ( print_message_box == 2 ) { gui.add_message_at(our_player, "Build station on " + coord_to_string(c_start) + " and " + coord_to_string(c_end), world.get_time()) }
-					phase ++
+					phase += 3
 				}
 			case 3: // find depot place
 				{
-
-					//local err = construct_road_to_depot(pl, c_start, planned_way)
-					//if (err) {
-					//	print("Failed to build depot access from " + coord_to_string(c_start))
-					//	return error_handler()
-					//}
-					phase += 2
+					/*
+					local trial = 0
+					local err = null
+					do { // try 3x to find road to suitable depot spot
+						err = construct_road_to_depot(pl, c_start, planned_way)
+						trial ++
+					} while (err != null  &&  err != "No route"  &&  trial < 3)
+					if (err) {
+						print("Failed to build depot access from " + coord_to_string(c_start))
+						return error_handler()
+					}
+					*/
+					//phase += 2
 				}
 			case 5: // build depot
 				{
@@ -150,11 +249,20 @@ class road_connector_t extends manager_t
 						err = command_x.build_road(pl, starts_field, c_depot, planned_way, false, true)
 						//err = construct_road(our_player, station_to_depot, c_depot, planned_way)
 					} else {
-						local i = c_route.len() - 5
-						local err = construct_road_to_depot(pl, c_route[i], planned_way) //c_start
+						local i = c_route.len()-1
+						if ( i > 4 ) { i -= 4 }
+
+						local trial = 0
+						local err = null
+						do { // try 3x to find road to suitable depot spot
+							err = construct_road_to_depot(pl, c_route[i], planned_way)
+							trial ++
+						} while (err != null  &&  err != "No route"  &&  trial < 3)
+
 						if (err) {
-							print("Failed to build depot access from " + coord_to_string(c_start))
-							return error_handler()
+							// we do not like to fail at this phase, try to find another spot
+							phase = 3
+							return r_t(RT_PARTIAL_SUCCESS)
 						}
 
 						// depot already existing ?
@@ -215,6 +323,8 @@ class road_connector_t extends manager_t
 
 					local toc = get_ops_total();
 					print("road_connector wasted " + (toc-tic) + " ops")
+					c_generate_start = c_start == null
+					c_generate_end   = c_end   == null
 
 					phase ++
 
@@ -223,9 +333,20 @@ class road_connector_t extends manager_t
 			case 9: // build station extension
 				{
 					// optimize way line save in c_route
-					if ( tile_x(c_start.x, c_start.y, c_start.z).find_object(mo_building) != null && tile_x(c_end.x, c_end.y, c_end.z).find_object(mo_building) != null ) {
+					if ( tile_x(c_start.x, c_start.y, c_start.z).find_object(mo_building) != null && tile_x(c_end.x, c_end.y, c_end.z).find_object(mo_building) != null && c_route.len() > 0 ) {
 						// tile c_start ans c_end have station
-						optimize_way_line(c_route, wt_road)
+						if (our_player.get_current_cash() > 50000) {
+							//optimize_way_line(c_route, wt_road)
+						}
+
+						// rename line
+						local line_name = c_line.get_name()
+						local str_search = ") " + translate("Line")
+						local st_names = c_line.get_schedule().entries
+						if ( line_name.find(str_search) != null ) {
+							local new_name = translate("road") + " " + translate(freight) + " " + st_names[0].get_halt(pl).get_name() + " - " + st_names[1].get_halt(pl).get_name()
+							c_line.set_name(new_name)
+						}
 					}
 				}
 		}
@@ -262,9 +383,19 @@ class road_connector_t extends manager_t
 				f_name[1] = "station"
 			}
 		}
-		gui.add_message_at(pl, pl.get_name() + " build road line from " + f_name[0] + " (" + coord_to_string(cs) + ") to " + f_name[1] + " (" + coord_to_string(ce) + ")", c_start)
+		local msgtext = format(translate("%s build road line from %s (%s) to %s (%s)"), pl.get_name(), f_name[0], coord_to_string(cs), f_name[1], coord_to_string(ce))
+		//gui.add_message_at(pl, pl.get_name() + " build road line from " + f_name[0] + " (" + coord_to_string(cs) + ") to " + f_name[1] + " (" + coord_to_string(ce) + ")", c_start)
+		gui.add_message_at(pl, msgtext, c_start)
 
 		return r_t(RT_TOTAL_SUCCESS)
+	}
+
+	function restart_with_phase0()
+	{
+		if (c_generate_start) { c_start = null }
+		if (c_generate_end  ) { c_end   = null }
+		phase = 0
+		return r_t(RT_PARTIAL_SUCCESS)
 	}
 
 	function error_handler()
@@ -368,11 +499,10 @@ class depot_pathfinder extends astar_builder
 			for (local i = 1; i<route.len(); i++) {
 				local err = command_x.build_way(our_player, route[i-1], route[i], way, false )
 				if (err) {
-					gui.add_message_at(our_player, "Failed to build road from  " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
 					return { err =  err }
 				}
 			}
-			return { start = route[ route.len()-1], end = route[0] }
+			return { start = route.top(), end = route[0] }
 		}
 		print("No route found")
 		return { err =  "No route" }

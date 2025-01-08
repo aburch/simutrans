@@ -34,7 +34,7 @@ private:
 	player_t *player, *old_player;
 
 	button_t bt_new_line, bt_edit_line, bt_delete_line, bt_withdraw_line;
-	button_t bt_copy_line, bt_show_journey_time;
+	button_t bt_copy_line, bt_show_journey_time, bt_goods_waiting_time;
 	gui_scrolled_list_t scl, scrolly_convois, scrolly_haltestellen;
 	gui_speedbar_t filled_bar;
 	gui_textinput_t inp_name, inp_filter;
@@ -43,7 +43,7 @@ private:
 	button_t filterButtons[MAX_LINE_COST];
 	gui_tab_panel_t tabs;
 
-	gui_combobox_t freight_type_c;
+	gui_combobox_t freight_type_c, sort_type_c;
 
 	sint32 selection, capacity, load, loadfactor;
 
@@ -76,6 +76,7 @@ private:
 	vector_tpl<const goods_desc_t *> viewable_freight_types;
 	bool is_matching_freight_catg( const minivec_tpl<uint8> &goods_catg_index );
 
+	uint8 current_sort_mode;
 	void build_line_list(int filter);
 
 public:

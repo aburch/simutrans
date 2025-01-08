@@ -77,7 +77,7 @@ SQInstructionDesc g_InstrDesc[]={
 #endif
 void DumpLiteral(SQObjectPtr &o)
 {
-	switch(sqtype(o)){
+	switch(sq_type(o)){
 		case OT_STRING: scprintf(_SC("\"%s\""),_stringval(o));break;
 		case OT_FLOAT: scprintf(_SC("{%f}"),_float(o));break;
 		case OT_INTEGER: scprintf(_SC("{") _PRINT_INT_FMT _SC("}"),_integer(o));break;
@@ -120,7 +120,7 @@ void SQFuncState::Dump(SQFunctionProto *func)
 	scprintf(_SC("SQInstruction sizeof %d\n"),(SQInt32)sizeof(SQInstruction));
 	scprintf(_SC("SQObject sizeof %d\n"), (SQInt32)sizeof(SQObject));
 	scprintf(_SC("--------------------------------------------------------------------\n"));
-	scprintf(_SC("*****FUNCTION [%s]\n"),sqtype(func->_name)==OT_STRING?_stringval(func->_name):_SC("unknown"));
+	scprintf(_SC("*****FUNCTION [%s]\n"),sq_type(func->_name)==OT_STRING?_stringval(func->_name):_SC("unknown"));
 	scprintf(_SC("-----LITERALS\n"));
 	SQObjectPtr refidx,key,val;
 	SQInteger idx;
@@ -238,7 +238,7 @@ SQInteger SQFuncState::GetConstant(const SQObject &cons)
 	return _integer(val);
 }
 
-void SQFuncState::SetIntructionParams(SQInteger pos,SQInteger arg0,SQInteger arg1,SQInteger arg2,SQInteger arg3)
+void SQFuncState::SetInstructionParams(SQInteger pos,SQInteger arg0,SQInteger arg1,SQInteger arg2,SQInteger arg3)
 {
 	_instructions[pos]._arg0=(unsigned char)*((SQUnsignedInteger *)&arg0);
 	_instructions[pos]._arg1=(SQInt32)*((SQUnsignedInteger *)&arg1);
@@ -246,7 +246,7 @@ void SQFuncState::SetIntructionParams(SQInteger pos,SQInteger arg0,SQInteger arg
 	_instructions[pos]._arg3=(unsigned char)*((SQUnsignedInteger *)&arg3);
 }
 
-void SQFuncState::SetIntructionParam(SQInteger pos,SQInteger arg,SQInteger val)
+void SQFuncState::SetInstructionParam(SQInteger pos,SQInteger arg,SQInteger val)
 {
 	switch(arg){
 		case 0:_instructions[pos]._arg0=(unsigned char)*((SQUnsignedInteger *)&val);break;
@@ -290,7 +290,7 @@ SQInteger SQFuncState::PopTarget()
 	SQUnsignedInteger npos=_targetstack.back();
 	assert(npos < _vlocals.size());
 	SQLocalVarInfo &t = _vlocals[npos];
-	if(sqtype(t._name)==OT_NULL){
+	if(sq_type(t._name)==OT_NULL){
 		_vlocals.pop_back();
 	}
 	_targetstack.pop_back();
@@ -322,7 +322,7 @@ void SQFuncState::SetStackSize(SQInteger n)
 	while(size>n){
 		size--;
 		SQLocalVarInfo lvi = _vlocals.back();
-		if(sqtype(lvi._name)!=OT_NULL){
+		if(sq_type(lvi._name)!=OT_NULL){
 			if(lvi._end_op == UINT_MINUS_ONE) { //this means is an outer
 				_outers--;
 			}
@@ -346,7 +346,7 @@ bool SQFuncState::IsConstant(const SQObject &name,SQObject &e)
 bool SQFuncState::IsLocal(SQUnsignedInteger stkpos)
 {
 	if(stkpos>=_vlocals.size())return false;
-	else if(sqtype(_vlocals[stkpos]._name)!=OT_NULL)return true;
+	else if(sq_type(_vlocals[stkpos]._name)!=OT_NULL)return true;
 	return false;
 }
 
@@ -369,7 +369,7 @@ SQInteger SQFuncState::GetLocalVariable(const SQObject &name)
 	SQInteger locals=_vlocals.size();
 	while(locals>=1){
 		SQLocalVarInfo &lvi = _vlocals[locals-1];
-		if(sqtype(lvi._name)==OT_STRING && _string(lvi._name)==_string(name)){
+		if(sq_type(lvi._name)==OT_STRING && _string(lvi._name)==_string(name)){
 			return locals-1;
 		}
 		locals--;
@@ -481,7 +481,6 @@ void SQFuncState::AddInstruction(SQInstruction &i)
 		break;
 		case _OP_GET:
 			if( pi.op == _OP_LOAD && pi._arg0 == i._arg2 && (!IsLocal(pi._arg0))){
-				pi._arg1 = pi._arg1;
 				pi._arg2 = (unsigned char)i._arg1;
 				pi.op = _OP_GETK;
 				pi._arg0 = i._arg0;
@@ -493,7 +492,6 @@ void SQFuncState::AddInstruction(SQInstruction &i)
 			if( pi.op == _OP_LOAD  && pi._arg0 == i._arg1 && (!IsLocal(pi._arg0))){
 				pi.op = _OP_PREPCALLK;
 				pi._arg0 = i._arg0;
-				pi._arg1 = pi._arg1;
 				pi._arg2 = i._arg2;
 				pi._arg3 = i._arg3;
 				return;
@@ -511,7 +509,6 @@ void SQFuncState::AddInstruction(SQInstruction &i)
 			if(aat != -1 && pi._arg0 == i._arg1 && (!IsLocal(pi._arg0))){
 				pi.op = _OP_APPENDARRAY;
 				pi._arg0 = i._arg0;
-				pi._arg1 = pi._arg1;
 				pi._arg2 = (unsigned char)aat;
 				pi._arg3 = MAX_FUNC_STACKSIZE;
 				return;
@@ -553,7 +550,6 @@ void SQFuncState::AddInstruction(SQInstruction &i)
 			{
 				pi.op = i.op;
 				pi._arg0 = i._arg0;
-				pi._arg1 = pi._arg1;
 				pi._arg2 = i._arg2;
 				pi._arg3 = MAX_FUNC_STACKSIZE;
 				return;

@@ -17,9 +17,9 @@ BUILDCONFIG_FILES := common.mk Makefile config.$(CFG)
 .SUFFIXES: .rc
 
 ifeq ($(VERBOSE),)
-  Q = @
+  Q := @
 else
-  Q =
+  Q :=
 endif
 
 simutrans: $(PROGDIR)/$(PROG)

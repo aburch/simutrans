@@ -6,6 +6,7 @@
 #ifndef GUI_MESSAGE_OPTION_T_H
 #define GUI_MESSAGE_OPTION_T_H
 
+
 #include "../simmesg.h"
 #include "simwin.h"
 
@@ -13,7 +14,6 @@
 #include "components/action_listener.h"
 #include "components/gui_button.h"
 #include "components/gui_label.h"
-#include "components/gui_image.h"
 #include "../utils/cbuffer_t.h"
 
 
@@ -24,7 +24,6 @@ class message_option_t : public gui_frame_t, private action_listener_t
 private:
 	button_t buttons[4*message_t::MAX_MESSAGE_TYPE];
 	gui_label_t text_lbl[message_t::MAX_MESSAGE_TYPE];
-	gui_image_t legend;
 	sint32 ticker_msg, window_msg, auto_msg, ignore_msg;
 	char option_texts[message_t::MAX_MESSAGE_TYPE][MAX_MESSAGE_OPTION_TEXTLEN];
 

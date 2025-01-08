@@ -6,7 +6,7 @@
 #include "simwin.h"
 #include "message_frame_t.h"
 #include "message_option_t.h"
-#include "components/action_listener.h"
+#include "message_stats_t.h"
 
 #include "../simworld.h"
 #include "../simmenu.h"
@@ -51,10 +51,11 @@ static char const* const tab_strings[]=
 
 message_frame_t::message_frame_t() :
 	gui_frame_t( translator::translate("Mailbox") ),
-	stats(),
-	scrolly(&stats)
+	scrolly(gui_scrolled_list_t::windowskin, message_stats_t::compare)
 {
 	ibuf[0] = 0;
+	last_count = 0;
+	message_type = -1;
 
 	set_table_layout(1,0);
 
@@ -79,9 +80,6 @@ message_frame_t::message_frame_t() :
 	}
 	end_table();
 
-	scrolly.set_show_scroll_x(true);
-	scrolly.set_scroll_amount_y(LINESPACE+1);
-
 	// add tabs for classifying messages
 	tabs.add_tab( &scrolly, translator::translate("All") );
 	tab_categories.append( -1 );
@@ -102,16 +100,55 @@ message_frame_t::message_frame_t() :
 	add_component(&tabs);
 
 	set_resizemode(diagonal_resize);
-	if(  env_t::networkmode  ) {
-		set_transparent( env_t::chat_window_transparency, color_idx_to_rgb(COL_WHITE) );
+	if(  env_t::networkmode  && env_t::chat_window_transparency!=100  ) {
+		set_transparent( 100-env_t::chat_window_transparency, gui_theme_t::gui_color_chat_window_network_transparency );
+		scrolly.set_skin_type(gui_scrolled_list_t::transparent);
 	}
+
+	fill_list();
 
 	reset_min_windowsize();
 	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_DEFAULT_HEIGHT));
 }
 
 
-/* triggered, when button clicked; only single button registered, so the action is clear ... */
+void message_frame_t::fill_list()
+{
+	uint32 id = 0;
+	scrolly.clear_elements();
+	FOR( slist_tpl<message_t::node*>, const i, welt->get_message()->get_list() ) {
+		scrolly.new_component<message_stats_t>(i, id++);
+	}
+
+	last_count = welt->get_message()->get_list().get_count();
+
+	// trigger filtering
+	sint32 t = message_type;
+	message_type = -1;
+	// filter & sort
+	filter_list(t);
+
+	scrolly.set_size( scrolly.get_size());
+}
+
+
+void message_frame_t::filter_list(sint32 type)
+{
+	if (type != message_type) {
+		for(int i=0, end=scrolly.get_count(); i<end; i++) {
+			message_stats_t *a = dynamic_cast<message_stats_t*>(scrolly.get_element(i));
+			// message type filtering controls visibility
+			if (a) {
+				a->set_visible(type == -1  ||  a->get_msg()->get_type_shifted() & type);
+			}
+		}
+		message_type = type;
+	}
+	scrolly.sort(0);
+	scrolly.set_size( scrolly.get_size());
+}
+
+
 bool message_frame_t::action_triggered( gui_action_creator_t *comp, value_t v )
 {
 	if(  comp==&option_bt  ) {
@@ -154,11 +191,18 @@ bool message_frame_t::action_triggered( gui_action_creator_t *comp, value_t v )
 	}
 	else if(  comp==&tabs  ) {
 		// filter messages by type where necessary
-		if(  stats.filter_messages( tab_categories[v.i] )  ) {
-			scrolly.set_scroll_position(0, 0);
-		}
+		filter_list(tab_categories[v.i]);
 	}
 	return true;
+}
+
+
+void message_frame_t::draw(scr_coord pos, scr_size size)
+{
+	if(  welt->get_message()->get_list().get_count() != last_count  ) {
+		fill_list();
+	}
+	gui_frame_t::draw(pos, size);
 }
 
 
@@ -173,7 +217,7 @@ void message_frame_t::rdwr(loadsave_t *file)
 	file->rdwr_str( ibuf, lengthof(ibuf) );
 
 	if(  file->is_loading()  ) {
-		stats.filter_messages( tab_categories[tabs.get_active_tab_index()] );
+		fill_list();
 
 		reset_min_windowsize();
 		set_windowsize(size);

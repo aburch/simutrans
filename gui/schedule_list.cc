@@ -12,6 +12,7 @@
 #include "line_item.h"
 #include "simwin.h"
 #include "journey_time_info.h"
+#include "goods_waiting_time.h"
 
 #include "../simcolor.h"
 #include "../simdepot.h"
@@ -100,7 +101,9 @@ static uint8 statistic_type[MAX_LINE_COST] = {
 	MONEY
 };
 
-static int current_sort_mode = 0;
+#define MAX_SORT_IDX (4)
+static uint8 idx_to_sort_mode[MAX_SORT_IDX] = { line_scrollitem_t::SORT_BY_NAME, line_scrollitem_t::SORT_BY_PROFIT, line_scrollitem_t::SORT_BY_TRANSPORTED, line_scrollitem_t::SORT_BY_CONVOIS };
+static const char *idx_to_sort_text[MAX_SORT_IDX] = { "Name", "Revenue", "Transported", "Number of convois" };
 
 #define SCL_HEIGHT (15*LINESPACE)
 #define RIGHT_COLUMN_OFFSET (D_MARGIN_LEFT+3*D_BUTTON_WIDTH+2*D_H_SPACE+2*D_H_SPACE)
@@ -127,6 +130,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	old_schedule_filter[0] = 0;
 	last_schedule = NULL;
 	old_player = NULL;
+	current_sort_mode = 0;
 
 	// add components
 	// first column: scrolled list of all lines
@@ -191,6 +195,15 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	add_component(&inp_filter);
 
 	sint16 bt_y = D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT+D_V_SPACE ;
+
+	// sort by what
+	for( int i=0; i<MAX_SORT_IDX;  i++ ) {
+		sort_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate(idx_to_sort_text[i]), SYSCOL_TEXT) ;
+	}
+	sort_type_c.set_selection(current_sort_mode);
+	sort_type_c.set_focusable( true );
+	sort_type_c.add_listener( this );
+	add_component(&sort_type_c);
 
 	// freight type filter
 	viewable_freight_types.append(NULL);
@@ -298,6 +311,15 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	bt_show_journey_time.disable();
 	add_component(&bt_show_journey_time);
 
+	bt_goods_waiting_time.init(button_t::roundbox, "Waiting Time",
+		scr_coord(RIGHT_COLUMN_OFFSET+2*D_BUTTON_WIDTH+2*D_H_SPACE, bt_y),
+		scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_goods_waiting_time.set_tooltip("Show goods waiting times at stations.");
+	bt_goods_waiting_time.set_visible(false);
+	bt_goods_waiting_time.add_listener(this);
+	bt_goods_waiting_time.disable();
+	add_component(&bt_goods_waiting_time);
+
 	//CHART
 	chart.set_dimension(12, 1000);
 	chart.set_pos( scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP) );
@@ -393,7 +415,8 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 		tool_t *tmp_tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
 		cbuffer_t buf;
 		int type = tabs_to_lineindex[tabs.get_active_tab_index()];
-		buf.printf( "c,0,%i,0,0|%i|", type, type );
+		const sint64 departure_group_slot_id = schedule_t::issue_new_departure_slot_group_id();
+		buf.printf( "c,0,%i,0,0|%lli|%i|", type, departure_group_slot_id, type );
 		tmp_tool->set_default_param(buf);
 		welt->set_tool( tmp_tool, player );
 		// since init always returns false, it is safe to delete immediately
@@ -429,6 +452,11 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 	else if(  comp == &bt_show_journey_time  ) {
 		if(  line.is_bound()  ) {
 			create_win( new gui_journey_time_info_t(line, player), w_info, (ptrdiff_t)line.get_rep() );
+		}
+	}
+	else if(  comp == &bt_goods_waiting_time  ) {
+		if(  line.is_bound()  ) {
+			create_win( new gui_goods_waiting_time_t(line, player), w_info, (ptrdiff_t)line.get_rep() );
 		}
 	}
 	else if(  comp == &tabs  ) {
@@ -655,7 +683,7 @@ void schedule_list_gui_t::build_line_list(int filter)
 
 	FOR(vector_tpl<linehandle_t>, const l, lines) {
 		// search name
-		if(  utf8caseutf8(l->get_name(), schedule_filter)  ) {
+		if(  !*schedule_filter  ||  utf8caseutf8(l->get_name(), schedule_filter)  ) {
 			// match good category
 			if(  is_matching_freight_catg( l->get_goods_catg_index() )  ) {
 				scl.new_component<line_scrollitem_t>(l);
@@ -665,8 +693,9 @@ void schedule_list_gui_t::build_line_list(int filter)
 			}
 		}
 	}
-
 	scl.set_selection( sel );
+
+	current_sort_mode = idx_to_sort_mode[ sort_type_c.get_selection() ];
 	line_scrollitem_t::sort_mode = (line_scrollitem_t::sort_modes_t)current_sort_mode;
 	scl.sort( 0 );
 	scl.set_size(scl.get_size());
@@ -713,6 +742,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		bt_edit_line.enable();
 		bt_copy_line.enable();
 		bt_show_journey_time.enable();
+		bt_goods_waiting_time.enable();
 
 		bt_withdraw_line.pressed = new_line->get_withdraw();
 
@@ -763,6 +793,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		bt_edit_line.disable();
 		bt_copy_line.disable();
 		bt_show_journey_time.disable();
+		bt_goods_waiting_time.disable();
 		for(  int i=0; i<MAX_LINE_COST; i++  )  {
 			chart.hide_curve(i);
 		}
@@ -778,6 +809,8 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 	line = new_line;
 	bt_withdraw_line.set_visible( line.is_bound() );
 	bt_show_journey_time.set_visible( line.is_bound() );
+	const bool is_tbgr_enabled = world()->get_settings().get_goods_routing_policy()==goods_routing_policy_t::GRP_FIFO_ET;
+	bt_goods_waiting_time.set_visible( is_tbgr_enabled  &&  line.is_bound() );
 
 	reset_line_name();
 }

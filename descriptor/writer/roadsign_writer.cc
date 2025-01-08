@@ -4,6 +4,7 @@
  */
 
 #include <string>
+#include <vector>
 #include "../../dataobj/tabfile.h"
 #include "../roadsign_desc.h"
 #include "obj_node.h"
@@ -13,7 +14,68 @@
 #include "get_waytype.h"
 #include "skin_writer.h"
 
-using std::string;
+
+static const char* private_sign_directions[] = {"ns", "ew"};
+static const char* traffic_light_directions[] = {"n", "s", "e", "w", "ne", "sw", "se", "nw"};
+static const char* general_sign_directions[] = {"n", "s", "e", "w"};
+
+// parse "image[direction][state]" syntax
+void parse_images_2d(slist_tpl<std::string>& keys, tabfileobj_t& obj, roadsign_desc_t::types flags)
+{
+	const char** directions;
+	uint8 dir_cnt; // how many directions are there?
+	if(  flags&roadsign_desc_t::PRIVATE_ROAD  ) {
+		directions = private_sign_directions;
+		dir_cnt = lengthof(private_sign_directions);
+	}
+	else if(  *obj.get("image[ne][0]")  ) {
+		// Assume this is a traffic light.
+		directions = traffic_light_directions;
+		dir_cnt = lengthof(traffic_light_directions);
+	}
+	else {
+		// Normal road sign or railway signal
+		directions = general_sign_directions;
+		dir_cnt = lengthof(general_sign_directions);
+	}
+	
+	for(  uint8 state=0;  state<8;  state++  ) {
+		for(  uint8 idx = 0;  idx < dir_cnt;  idx++  ) {
+			char buf[64];
+			sprintf(buf, "image[%s][%i]", directions[idx], state);
+			const char* img = obj.get(buf);
+			if(  !*img  ){
+				if(  state>(dir_cnt==2)  &&  idx==0  ) {
+					// Assume all further state numbers are invalid.
+					return;
+				}
+				// image in the middle is missing => fatal error
+				dbg->fatal("roadsign_writer", "%s is missing!", buf);
+			}
+			// append image number
+			keys.append(img);
+		}	
+	}
+}
+
+
+// parse "image[number]" syntax
+void parse_images_numbered(slist_tpl<std::string>& keys, tabfileobj_t& obj)
+{
+	for (int i = 0; i < 32; i++) {
+		char buf[40];
+		sprintf(buf, "image[%i]", i);
+		const char *str = obj.get(buf);
+		// make sure, there are always 4, 8, 12, ... images (for all directions)
+		if(  !*str  ) {
+			if(  i % 4  ) {
+				dbg->fatal("roadsign_writer", "image count is %d but must be multiple of 4!", i);
+			}
+			break;
+		}
+		keys.append(str);
+	}
+}
 
 void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
@@ -70,29 +132,27 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	write_head(fp, node, obj);
 
 	// add the images
-	slist_tpl<string> keys;
-	string str;
-
-	for (int i = 0; i < 24; i++) {
-		char buf[40];
-
-		sprintf(buf, "image[%i]", i);
-		str = obj.get(buf);
-		// make sure, there are always 4, 8, 12, ... images (for all directions)
-		if (str.empty() && i % 4 == 0) {
-			break;
-		}
-		keys.append(str);
+	slist_tpl<std::string> keys;
+	
+	if(  *obj.get("image[0]")  ) {
+		// image[0] is defined. 
+		// assume that images are defined in image[number] syntax.
+		parse_images_numbered(keys, obj);
+	}
+	else {
+		// image[0] is not defined.
+		// assume that images are defined in image[direction][state] syntax.
+		parse_images_2d(keys, obj, flags);
 	}
 	imagelist_writer_t::instance()->write_obj(fp, node, keys);
 
 	// probably add some icons, if defined
-	slist_tpl<string> cursorkeys;
+	slist_tpl<std::string> cursorkeys;
 
-	string c = string(obj.get("cursor")), i=string(obj.get("icon"));
+	const char *c = obj.get("cursor"), *i=obj.get("icon");
 	cursorkeys.append(c);
 	cursorkeys.append(i);
-	if (!c.empty() || !i.empty()) {
+	if (*c || *i) {
 		cursorskin_writer_t::instance()->write_obj(fp, node, obj, cursorkeys);
 	}
 

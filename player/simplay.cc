@@ -106,13 +106,12 @@ void player_t::book_construction_costs(player_t * const player, const sint64 amo
 
 sint64 player_t::add_maintenance(sint64 change, waytype_t const wt)
 {
-	int tmp = 0;
 #ifdef MULTI_THREAD
-		pthread_mutex_lock( &load_mutex  );
+	pthread_mutex_lock( &load_mutex );
 #endif
-	tmp = finance->book_maintenance(change, wt);
+	const sint64 tmp = finance->book_maintenance(change, wt);
 #ifdef MULTI_THREAD
-		pthread_mutex_unlock( &load_mutex  );
+	pthread_mutex_unlock( &load_mutex );
 #endif
 	return tmp;
 }
@@ -221,7 +220,7 @@ void player_t::display_messages()
 
 	FOR(slist_tpl<income_message_t*>, const m, messages) {
 
-		const scr_coord scr_pos = vp->get_screen_coord(koord3d(m->pos,welt->lookup_hgt(m->pos)),koord(0,m->alter >> 4));
+		const scr_coord scr_pos = vp->get_screen_coord(koord3d(m->pos,welt->lookup_hgt(m->pos)),koord(0,m->alter >> 4)) + scr_coord((get_tile_raster_width()-display_calc_proportional_string_len_width(m->str, 0x7FFF))/2,0);
 
 		display_shadow_proportional_rgb( scr_pos.x, scr_pos.y, PLAYER_FLAG|color_idx_to_rgb(player_color_1+3), color_idx_to_rgb(COL_BLACK), m->str, true);
 		if(  m->pos.x < 3  ||  m->pos.y < 3  ) {
@@ -411,7 +410,7 @@ void player_t::calc_assets()
 
 	// all vehikels stored in depot not part of a convoi
 	FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
-		if(  depot->get_player_nr() == player_nr  ) {
+		if(  depot->get_owner_nr() == player_nr  ) {
 			FOR(slist_tpl<vehicle_t*>, const veh, depot->get_vehicle_list()) {
 				sint64 restwert = veh->calc_sale_value();
 				assets[TT_ALL] += restwert;
@@ -578,6 +577,7 @@ void player_t::ai_bankrupt()
 								break;
 							case obj_t::gebaeude:
 								hausbauer_t::remove( this, (gebaeude_t *)obj );
+								gr = plan->get_boden_bei(b); // fundament has now been replaced by normal ground
 								break;
 							case obj_t::way:
 							{
@@ -959,5 +959,5 @@ bool player_t::can_afford(sint64 cost) const
 
 bool player_t::is_public_service() const
 {
-	return get_player_nr() == 1;
+	return get_player_nr() == PUBLIC_PLAYER_NR;
 }

@@ -4,7 +4,7 @@
  */
 
 #include <stdio.h>
-#include <cmath>
+#include <time.h>
 
 #include "../simdebug.h"
 #include "../gui/simwin.h"
@@ -23,6 +23,7 @@
 #include "../simdepot.h"
 #include "loadsave.h"
 #include "translator.h"
+#include "../utils/simrandom.h"
 
 #include "schedule.h"
 
@@ -38,7 +39,6 @@ void schedule_t::copy_from(const schedule_t *src)
 	// make sure, we can access both
 	if(  src==NULL  ) {
 		dbg->fatal("schedule_t::copy_to()","cannot copy from NULL");
-		return;
 	}
 	entries.clear();
 	FOR(minivec_tpl<schedule_entry_t>, const& i, src->entries) {
@@ -49,6 +49,8 @@ void schedule_t::copy_from(const schedule_t *src)
 	editing_finished = src->is_editing_finished();
 	flags = src->get_flags();
 	max_speed = src->get_max_speed();
+	departure_slot_group_id = src->get_departure_slot_group_id();
+	additional_base_waiting_time = src->get_additional_base_waiting_time();
 }
 
 
@@ -117,16 +119,15 @@ halthandle_t schedule_t::get_prev_halt( player_t *player ) const
 }
 
 
-bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint16 waiting_time_shift, uint8 coupling_point )
+bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint16 waiting_time_shift, uint16 stop_flags)
 {
 	// stored in minivec, so we have to avoid adding too many
 	if(  entries.get_count()>=254  ) {
 		create_win( new news_img("Maximum 254 stops\nin a schedule!\n"), w_time_delete, magic_none);
 		return false;
 	}
-
 	if(  is_stop_allowed(gr)  ) {
-		entries.insert_at(current_stop, schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, coupling_point));
+		entries.insert_at(current_stop, schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, stop_flags));
 		current_stop ++;
 		make_current_stop_valid();
 		return true;
@@ -140,16 +141,15 @@ bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint16 waiting
 
 
 
-bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint16 waiting_time_shift, uint8 coupling_point)
+bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint16 waiting_time_shift, uint16 stop_flags)
 {
 	// stored in minivec, so we have to avoid adding too many
 	if(entries.get_count()>=254) {
 		create_win( new news_img("Maximum 254 stops\nin a schedule!\n"), w_time_delete, magic_none);
 		return false;
 	}
-
 	if(is_stop_allowed(gr)) {
-		entries.append(schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, coupling_point), 4);
+		entries.append(schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, stop_flags), 4);
 		return true;
 	}
 	else {
@@ -228,6 +228,16 @@ void schedule_t::rdwr(loadsave_t *file)
 		max_speed = 0;
 	}
 
+	if(  file->get_OTRP_version()>=34  ) {
+		file->rdwr_longlong(departure_slot_group_id);
+	} else {
+		departure_slot_group_id = issue_new_departure_slot_group_id();
+	}
+
+	if(  file->get_OTRP_version()>=40  ) {
+		file->rdwr_long(additional_base_waiting_time);
+	}
+
 	if(file->is_version_less(99, 12)) {
 		for(  uint8 i=0; i<size; i++  ) {
 			koord3d pos;
@@ -264,7 +274,12 @@ void schedule_t::rdwr(loadsave_t *file)
 					}
 				}
 			}
-			if(file->get_OTRP_version()>=22) {
+			if(file->get_OTRP_version()>=41) {
+				uint16 flags = entries[i].get_stop_flags();
+				file->rdwr_short(flags);
+				entries[i].set_stop_flags(flags);
+			}
+			else if(file->get_OTRP_version()>=22) {
 				uint8 flags = entries[i].get_stop_flags();
 				file->rdwr_byte(flags);
 				entries[i].set_stop_flags(flags);
@@ -290,6 +305,25 @@ void schedule_t::rdwr(loadsave_t *file)
 			} else {
 				entries[i].spacing = 1;
 				entries[i].spacing_shift = entries[i].delay_tolerance = 0;
+			}
+			if(file->get_OTRP_version()>=36) {
+				// read and write journey times
+				file->rdwr_byte(entries[i].jt_at_index);
+				for(uint8 j=0; j<NUM_ARRIVAL_TIME_STORED; j++) {
+					file->rdwr_long(entries[i].journey_time[j]);
+				}
+				// read and write waiting times
+				file->rdwr_byte(entries[i].wt_at_index);
+				for(uint8 j=0; j<NUM_WAITING_TIME_STORED; j++) {
+					file->rdwr_long(entries[i].waiting_time[j]);
+				}
+			}
+			if(file->get_OTRP_version()>=37) {
+				// read and write convoy stopping times
+				file->rdwr_byte(entries[i].cs_at_index);
+				for(uint8 j=0; j<NUM_STOPPING_TIME_STORED; j++) {
+					file->rdwr_long(entries[i].convoy_stopping_time[j]);
+				}
 			}
 		}
 	}
@@ -443,7 +477,7 @@ void schedule_t::add_return_way()
 void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 {
 	uint32 s = current_stop + (flags<<8) + (max_speed<<16);
-	buf.printf("%u|%d|", s, (int)get_type());
+	buf.printf("%u|%ld|%u|%d|", s, departure_slot_group_id, additional_base_waiting_time, (int)get_type());
 	FOR(minivec_tpl<schedule_entry_t>, const& i, entries) {
 		buf.printf("%s,%i,%i,%i,%i,%i,%i|", i.pos.get_str(), (int)i.minimum_loading, (int)i.waiting_time_shift, i.get_stop_flags(), i.spacing, i.spacing_shift, i.delay_tolerance);
 	}
@@ -470,7 +504,27 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 		p++;
 	}
 	if(  *p!='|'  ) {
-		dbg->error( "schedule_t::sscanf_schedule()","incomplete entry termination!" );
+		dbg->error( "schedule_t::sscanf_schedule()","incomplete entry termination for current_stop!" );
+		return false;
+	}
+	p++;
+	// then departure_slot_group_id
+	departure_slot_group_id = atoll( p );
+	while(  *p  &&  *p!='|'  ) {
+		p++;
+	}
+	if(  *p!='|'  ) {
+		dbg->error( "schedule_t::sscanf_schedule()","incomplete entry termination for departure_slot_group_id!" );
+		return false;
+	}
+	p++;
+	// then additional_base_waiting_time
+	additional_base_waiting_time = atoi( p );
+	while(  *p  &&  *p!='|'  ) {
+		p++;
+	}
+	if(  *p!='|'  ) {
+		dbg->error( "schedule_t::sscanf_schedule()","incomplete entry termination for additional_base_waiting_time!" );
 		return false;
 	}
 	p++;
@@ -519,7 +573,7 @@ void construct_schedule_entry_attributes(cbuffer_t& buf, schedule_entry_t const&
 	uint8 cnt = 1;
 	char str[10];
 	str[0] = '[';
-	const uint8 flag = entry.get_stop_flags();
+	const uint16 flag = entry.get_stop_flags();
 	if(  flag&schedule_entry_t::WAIT_FOR_COUPLING  ) {
 		str[cnt] = 'W';
 		cnt++;
@@ -540,8 +594,20 @@ void construct_schedule_entry_attributes(cbuffer_t& buf, schedule_entry_t const&
 		str[cnt] = 'A';
 		cnt++;
 	}
-	if(  flag&schedule_entry_t::WAIT_FOR_TIME  &&  flag&schedule_entry_t::LOAD_BEFORE_DEP  ) {
+	if(  (flag&schedule_entry_t::WAIT_FOR_TIME  ||  entry.waiting_time_shift > 0)  &&  flag&schedule_entry_t::LOAD_BEFORE_DEP  ) {
 		str[cnt] = 'B';
+		cnt++;
+	}
+	if(  flag&schedule_entry_t::TRANSFER_INTERVAL  ) {
+		str[cnt] = 'I';
+		cnt++;
+	}
+	if(  entry.is_reverse_convoy()  ) {
+		str[cnt] = 'R';
+		cnt++;
+	}
+	if(  entry.is_reverse_convoi_coupling()  ) {
+		str[cnt] = 'T';
 		cnt++;
 	}
 	// there are at least one attributes.
@@ -620,17 +686,17 @@ void schedule_t::set_delay_tolerance_for_all(uint16 v) {
 	}
 }
 
-schedule_entry_t* schedule_t::access_corresponding_entry(schedule_t* other, uint8 n) {
+sint16 schedule_t::get_corresponding_entry_index(const schedule_t* other, uint8 n) const {
 	if(  n >= other->get_count()  ) {
 		// out of range;
 		dbg->error("schedule_t::access_corresponding_entry", "index %d is out of range %d", n, other->get_count());
-		return NULL;
+		return -1;
 	}
 	uint8 o_idx = n;
 	// count the number of depot entries
 	for(uint8 i=0; i<n; i++) {
 		grund_t* gr = world()->lookup(other->entries[i].pos);
-		if(  gr  &&  gr->get_depot()  ) {
+		if(  gr  &&  gr->has_depot()  ) {
 			// this entry is a depot entry
 			o_idx -= 1;
 		}
@@ -639,17 +705,17 @@ schedule_entry_t* schedule_t::access_corresponding_entry(schedule_t* other, uint
 	uint8 k = 0;
 	while(  h<get_count()  ) {
 		grund_t* gr = world()->lookup(entries[h].pos);
-		if(  !gr  ||  !gr->get_depot()  ) {
+		if(  !gr  ||  !gr->has_depot()  ) {
 			// this entry is not a depot entry
 			if(  k==o_idx  ) {
-				return &entries[h];
+				return h;
 			}
 			k++;
 		}
 		h++;
 	}
 	dbg->error("schedule_t::access_corresponding_entry", "corresponding entry not found.");
-	return NULL;
+	return -1;
 }
 
 uint8 schedule_t::get_current_stop_exluding_depot() const {
@@ -663,4 +729,68 @@ uint8 schedule_t::get_current_stop_exluding_depot() const {
 		}
 	}
 	return idx;
+}
+
+
+void schedule_t::get_schedule_flag_text(cbuffer_t& buf, schedule_t* schedule)
+{
+	uint8 cnt = 1;
+	char str[10];
+	str[0] = '[';
+	const uint8 flag = schedule->get_flags();
+	if(  flag & schedule_t::TEMPORARY  ) {
+		str[cnt] = 'T';
+		cnt++;
+	}
+	if(  flag & schedule_t::FULL_LOAD_ACCELERATION  ) {
+		str[cnt] = 'R';
+		cnt++;
+	}
+	if(  flag & schedule_t::FULL_LOAD_TIME  ) {
+		str[cnt] = 'G';
+		cnt++;
+	}
+	if(  cnt>1  ) {
+		str[cnt] = ']';
+		str[cnt+1] = ' ';
+		str[cnt+2] = '\0';
+		buf.append(str);
+	}
+}
+
+void schedule_t::set_new_departure_slot_group_id() {
+	departure_slot_group_id = issue_new_departure_slot_group_id();
+}
+
+
+static uint32 departure_slot_group_id_random = 12345678 + (uint32)time( NULL );
+
+
+sint64 schedule_t::issue_new_departure_slot_group_id() {
+	// issue_new_departure_slot_group_id() has to have its own random number generator
+	// because this function is called only on local machine in network games.
+	// Using simrand() here results in a desync.
+	departure_slot_group_id_random *= 3141592621u;
+	const uint32 num_1 = ++departure_slot_group_id_random;
+	departure_slot_group_id_random *= 3141592621u;
+	const sint64 num_2 = ++departure_slot_group_id_random;
+	return ((num_2 & 0x7FFFFFFF) << 32) | num_1;
+}
+
+
+uint32 schedule_t::get_median_journey_time(uint8 index, uint32 max_speed_kmh) const {
+	const uint32 entry_journey_time = entries[index].get_median_journey_time();
+	if(  entry_journey_time>0  ) {
+		return entry_journey_time;
+	}
+	// No journey time record is available. Calculate Euclid distance / max_speed.
+	const koord3d pos = entries[index].pos;
+	const koord3d prev_pos = entries[(index+entries.get_count()-1)%entries.get_count()].pos;
+
+	/* calculate the time needed:
+	 *   tiles << (8+12) / (kmh_to_speed(max_kmh) = ticks
+	 * (derived from gui_departure_board_t::calc_ticks_until_arrival())
+	 */
+	const uint32 max_speed = max(kmh_to_speed(max_speed_kmh), 1);
+	return (koord_distance(pos, prev_pos) << 20) / max_speed;
 }

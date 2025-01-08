@@ -90,6 +90,9 @@ public:
 	void show_lineinfo(player_t *player, linehandle_t line);
 
 	vector_tpl<linehandle_t> const& get_line_list() const { return all_managed_lines; }
+	
+	// It changes only the owner of lines. The owner of convoy is not changed.
+	void change_owner_for_all_line(player_t *new_player);
 
 private:
 	vector_tpl<linehandle_t> all_managed_lines;

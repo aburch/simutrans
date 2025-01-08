@@ -12,7 +12,6 @@
 #include <stdio.h>
 
 #include "simsys.h"
-#include "simsys_w32_png.h"
 
 #include "../macros.h"
 #include "../simversion.h"
@@ -79,6 +78,7 @@ static Uint8 blank_cursor[] = {
 static SDL_Surface *screen;
 static int width = 16;
 static int height = 16;
+static sint16 fullscreen = WINDOWED;
 
 // switch on is a little faster (<3%)
 static int async_blit = 0;
@@ -130,11 +130,61 @@ static int num_SDL_Rects = 0;
 static SDL_Rect SDL_Rects[MAX_SDL_RECTS];
 #endif
 
+// When using -autodpi, attempt to scale things on screen to this DPI value
+#define TARGET_DPI (96)
+
+#define SCALE_SHIFT_X 5
+#define SCALE_SHIFT_Y 5
+
+#define SCALE_NEUTRAL_X (1 << SCALE_SHIFT_X)
+#define SCALE_NEUTRAL_Y (1 << SCALE_SHIFT_Y)
+
+sint32 x_scale = SCALE_NEUTRAL_X;
+sint32 y_scale = SCALE_NEUTRAL_Y;
+
+#define SCREEN_RESCALE_X(x) (((x) * SCALE_NEUTRAL_X) / x_scale)
+#define SCREEN_RESCALE_Y(y) (((y) * SCALE_NEUTRAL_Y) / y_scale)
+
 // no autoscaling yet
-bool dr_auto_scale(bool)
+bool dr_set_screen_scale(sint16 /*scale_percent*/)
 {
+#ifdef __ANDROID__
+	// SDL 1.2 does not support scaling, but the libSDL Android rendering layer
+	// can stretch a rendered screensize to fit the full screen.
+	// Hence zoom scaling is achieved by rendering a lower resolution;
+	// dr_query_screen_resolution will therefore return a smaller resolution.
+
+	// SDL 1.2 does not provide device dpi retrieval; this number is based
+	// on average dpi of medium-end smartphones on market
+	const int DEVICE_DPI = 400;
+
+	// Touch screen UX best practice recommends button size of 42px at dpi 96 (~11 mm)
+	// non-large themes have button size of 32px at dpi 96
+	// large-theme have button size of 48px at dpi 96
+	// However, default target DPI of 96 is fine for computer screen,
+	// but not for mobile devices. A target dpi of 96 with a 6 inch screen
+	// does not give enough resolution to display information, hence we must
+	// target a higher dpi such as 192 to have enough screen estate, and
+	// reach playable resolution. At 192 dpi, buttons are best in the
+	// range 64-96 px so a new theme is preferrable.
+	const int MOBILE_TARGET_DPI = TARGET_DPI * 2;
+
+	x_scale = SCALE_NEUTRAL_X * DEVICE_DPI / MOBILE_TARGET_DPI;
+	y_scale = SCALE_NEUTRAL_Y * DEVICE_DPI / MOBILE_TARGET_DPI;
 	return false;
+#else
+	x_scale = SCALE_NEUTRAL_X;
+	y_scale = SCALE_NEUTRAL_Y;
+	return false;
+#endif
 }
+
+
+sint16 dr_get_screen_scale()
+{
+	return 100;
+}
+
 
 /*
  * Hier sind die Basisfunktionen zur Initialisierung der
@@ -144,7 +194,7 @@ bool dr_auto_scale(bool)
 bool dr_os_init(const int* parameter)
 {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) != 0) {
-		fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());
+		dbg->error("dr_os_init(SDL)", "Couldn't initialize SDL: %s", SDL_GetError());
 		return false;
 	}
 
@@ -185,12 +235,16 @@ resolution dr_query_screen_resolution()
 		res.h = 560;
 	}
 #endif
+#ifdef __ANDROID__
+	res.w = SCREEN_RESCALE_X(res.w);
+	res.h = SCREEN_RESCALE_Y(res.h);
+#endif
 	return res;
 }
 
 
 // open the window
-int dr_os_open(int w, int const h, int const fullscreen)
+int dr_os_open(int w, int const h, sint16 fs)
 {
 #ifdef MULTI_THREAD
 	// init barrier
@@ -203,7 +257,7 @@ int dr_os_open(int w, int const h, int const fullscreen)
 
 	redraw_param.ready = false;
 	if(  pthread_create( &(redraw_param.thread), &attr, redraw_thread, (void*)&redraw_param )  ) {
-		fprintf(stderr, "dr_os_open(): cannot multithread\n");
+		dbg->error("dr_os_open(SDL)", "pthread_create failed, cannot multithread.");
 		return 0;
 	}
 
@@ -212,15 +266,18 @@ int dr_os_open(int w, int const h, int const fullscreen)
 
 	Uint32 flags = async_blit ? SDL_ASYNCBLIT : 0;
 
+#ifndef __ANDROID__ // Android does not support video mode with w above max screen width
 	// some cards need those alignments
 	// especially 64bit want a border of 8bytes
 	w = (w + 15) & 0x7FF0;
 	if(  w<=0  ) {
 		w = 16;
 	}
+#endif
 
 	width = w;
 	height = h;
+	fullscreen = fs;
 
 	flags |= (fullscreen ? SDL_FULLSCREEN : SDL_RESIZABLE);
 	if(  use_hw  ) {
@@ -232,17 +289,16 @@ int dr_os_open(int w, int const h, int const fullscreen)
 	screen = SDL_SetVideoMode( w, h, COLOUR_DEPTH, flags );
 	SDL_putenv("SDL_VIDEO_CENTERED="); // clear flag so it doesn't continually recenter upon resizing the window
 	if(  screen == NULL  ) {
-		fprintf(stderr, "Couldn't open the window: %s\n", SDL_GetError());
+		dbg->error("dr_os_open(SDL)", "Couldn't open the window: %s", SDL_GetError());
 		return 0;
 	}
-	else {
-		const SDL_VideoInfo* vi = SDL_GetVideoInfo();
-		char driver_name[128];
-		SDL_VideoDriverName( driver_name, lengthof(driver_name) );
-		fprintf(stderr, "SDL_driver=%s, hw_available=%i, video_mem=%i, blit_sw=%i, bpp=%i, bytes=%i\n", driver_name, vi->hw_available, vi->video_mem, vi->blit_sw, vi->vfmt->BitsPerPixel, vi->vfmt->BytesPerPixel );
-		fprintf(stderr, "Screen Flags: requested=%x, actual=%x\n", flags, screen->flags );
-	}
-	printf("dr_os_open(SDL): SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)\n", screen->w, screen->h, w, h );
+
+	const SDL_VideoInfo* vi = SDL_GetVideoInfo();
+	char driver_name[128];
+	SDL_VideoDriverName( driver_name, lengthof(driver_name) );
+	dbg->debug("dr_os_open(SDL)", "SDL_driver=%s, hw_available=%i, video_mem=%i, blit_sw=%i, bpp=%i, bytes=%i\n", driver_name, vi->hw_available, vi->video_mem, vi->blit_sw, vi->vfmt->BitsPerPixel, vi->vfmt->BytesPerPixel );
+	dbg->debug("dr_os_open(SDL)", "Screen Flags: requested=%x, actual=%x\n", flags, screen->flags );
+	dbg->debug("dr_os_open(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)\n", screen->w, screen->h, w, h );
 
 	SDL_EnableUNICODE(true);
 	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -303,21 +359,22 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 		height = h;
 
 		screen = SDL_SetVideoMode(w, h, COLOUR_DEPTH, flags);
-		printf("textur_resize()::screen=%p\n", screen);
+
 		if (screen) {
 			DBG_MESSAGE("dr_textur_resize(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h);
 		}
-		else {
-			if (dbg) {
-				dbg->warning("dr_textur_resize(SDL)", "screen is NULL. Good luck!");
-			}
+		else if (dbg) {
+			dbg->error("dr_textur_resize(SDL)", "screen is NULL. Good luck!");
 		}
 		fflush(NULL);
 	}
+
 	*textur = (unsigned short*)screen->pixels;
+
 #ifdef MULTI_THREAD
 	pthread_mutex_unlock( &redraw_mutex );
 #endif
+
 	return w;
 }
 
@@ -423,23 +480,6 @@ void set_pointer(int loading)
 }
 
 
-/**
- * Some wrappers can save screenshots.
- * @return 1 on success, 0 if not implemented for a particular wrapper and -1
- *         in case of error.
- */
-int dr_screenshot(const char *filename, int x, int y, int w, int h)
-{
-#ifdef WIN32
-	if(  dr_screenshot_png(filename, w, h, width, ((unsigned short *)(screen->pixels))+x+y*width, screen->format->BitsPerPixel )  ) {
-		return 1;
-	}
-#endif
-	(void)(x+y+w+h);
-	return SDL_SaveBMP(SDL_GetVideoSurface(), filename) == 0 ? 1 : -1;
-}
-
-
 /*
  * Hier sind die Funktionen zur Messageverarbeitung
  */
@@ -449,8 +489,8 @@ static inline unsigned int ModifierKeys()
 	SDLMod mod = SDL_GetModState();
 
 	return
-		(mod & KMOD_SHIFT ? 1 : 0) |
-		(mod & KMOD_CTRL  ? 2 : 0);
+		((mod & KMOD_SHIFT) ? SIM_MOD_SHIFT : SIM_MOD_NONE) |
+		((mod & KMOD_CTRL)  ? SIM_MOD_CTRL  : SIM_MOD_NONE);
 }
 
 
@@ -463,20 +503,12 @@ static int conv_mouse_buttons(Uint8 const state)
 }
 
 
-static void internal_GetEvents(bool const wait)
+static void internal_GetEvents()
 {
 	SDL_Event event;
 	event.type = 1;
 
-	if (wait) {
-		int n;
-
-		do {
-			SDL_WaitEvent(&event);
-			n = SDL_PollEvent(NULL);
-		} while (n != 0 && event.type == SDL_MOUSEMOTION);
-	}
-	else {
+	{
 		int n;
 		bool got_one = false;
 
@@ -503,8 +535,8 @@ static void internal_GetEvents(bool const wait)
 		case SDL_VIDEORESIZE:
 			sys_event.type = SIM_SYSTEM;
 			sys_event.code = SYSTEM_RESIZE;
-			sys_event.size_x = event.resize.w;
-			sys_event.size_y = event.resize.h;
+			sys_event.new_window_size_w = event.resize.w;
+			sys_event.new_window_size_h = event.resize.h;
 			printf("expose: x=%i, y=%i\n", sys_event.mx, sys_event.my);
 			break;
 
@@ -656,16 +688,7 @@ static void internal_GetEvents(bool const wait)
 
 void GetEvents()
 {
-	internal_GetEvents(true);
-}
-
-
-void GetEventsNoWait()
-{
-	sys_event.type = SIM_NOEVENT;
-	sys_event.code = 0;
-
-	internal_GetEvents(false);
+	internal_GetEvents();
 }
 
 
@@ -701,6 +724,26 @@ void dr_stop_textinput()
 
 void dr_notify_input_pos(int, int)
 {
+}
+
+const char* dr_get_locale()
+{
+	return NULL;
+}
+
+bool dr_has_fullscreen()
+{
+	return true;
+}
+
+sint16 dr_get_fullscreen()
+{
+	return fullscreen;
+}
+
+sint16 dr_toggle_borderless()
+{
+	return fullscreen;
 }
 
 #ifdef _MSC_VER

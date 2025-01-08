@@ -7,7 +7,7 @@
 
 #include "../simunits.h"
 #include "../simdebug.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../display/simimg.h"
 #include "../player/simplay.h"
 #include "../simtool.h"
@@ -37,6 +37,8 @@
 
 #include "roadsign.h"
 #include "signal.h"
+
+#include "wayobj.h"
 
 
 const roadsign_desc_t *roadsign_t::default_signal=NULL;
@@ -78,8 +80,10 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 	state = 0;
 	ticks_ns = ticks_ow = 16;
 	ticks_offset = 0;
+	ticks_yellow_ns = ticks_yellow_ow = 2;
 	lane_affinity = 4;
 	guide_signal = false;
+	ticks_yellow_ns = ticks_yellow_ow = 2;
 	set_owner( player );
 	if(  desc->is_private_way()  ) {
 		// init ownership of private ways
@@ -118,7 +122,7 @@ roadsign_t::~roadsign_t()
 				}
 			}
 			else {
-				dbg->error("roadsign_t::~roadsign_t()","roadsign_t %p was deleted but ground has no way of type %d!", desc->get_wtyp() );
+				dbg->error("roadsign_t::~roadsign_t()","roadsign_t %p was deleted but ground has no way of type %d!", this, desc->get_wtyp() );
 			}
 		}
 	}
@@ -142,6 +146,18 @@ void roadsign_t::set_dir(ribi_t::ribi dir)
 			// set mask, if it is a single way ...
 			weg->count_sign();
 			weg->set_ribi_maske(calc_mask());
+#if COLOUR_DEPTH != 0 && MULTI_THREAD != 0
+			grund_t *to;
+			for(int r = 0; r < 4; r++) {
+				if(  welt->lookup(get_pos())->get_neighbour(to, track_wt, ribi_t::nesw[r])  ) {
+					to->get_weg(track_wt)->calc_image();
+
+					if(wayobj_t *wo = to->get_wayobj(track_wt)) {
+						wo->calc_image();
+					}
+				}
+			}
+#endif
 DBG_MESSAGE("roadsign_t::set_dir()","ribi %i",dir);
 		}
 	}
@@ -182,7 +198,7 @@ void roadsign_t::show_info()
 			create_win(new onewaysign_info_t(this, intersection_pos), w_info, (ptrdiff_t)this );
 		}
 	}
-	else if(  desc->is_signal_type()  &&  desc->is_choose_sign()  ) {
+	else if(  desc->is_signal_type()  ) {
 		// this should be a signal.
 		signal_t* s = dynamic_cast<signal_t*>(this);
 		if(  !s  ) {
@@ -213,6 +229,7 @@ void roadsign_t::info(cbuffer_t & buf) const
 			buf.printf("%s%d", translator::translate("\nminimum speed:"), speed_to_kmh(desc->get_min_speed()));
 		}
 		buf.printf("%s%u\n", translator::translate("\ndirection:"), dir);
+
 		if(  automatic  ) {
 			buf.append(translator::translate("\nSet phases:"));
 		}
@@ -221,9 +238,12 @@ void roadsign_t::info(cbuffer_t & buf) const
 		}
 	}
 
-	if (char const* const maker = desc->get_copyright()) {
-		buf.append("\n");
-		buf.printf(translator::translate("Constructed by %s"), maker);
+	if (!automatic) {
+		if (char const* const maker = desc->get_copyright()) {
+			buf.append("\n");
+			buf.printf(translator::translate("Constructed by %s"), maker);
+		}
+		// extra treatment of trafficlights & private signs, author will be shown by those windows themselves
 	}
 }
 
@@ -392,7 +412,7 @@ void roadsign_t::calc_image()
 		weg_t *str=gr->get_weg(road_wt);
 		if(str) {
 			const uint8 weg_dir = str->get_ribi_unmasked();
-			const uint8 direction = (dir&ribi_t::north)!=0;
+			const uint8 direction = desc->get_count()>16 ? (state&2) + ((state+1) & 1) : (state+1) & 1;
 
 			// other front/back images for left side ...
 			if(  left_offsets  ) {
@@ -486,14 +506,37 @@ sync_result roadsign_t::sync_step(uint32 /*delta_t*/)
 		set_image( desc->get_image_id(image) );
 	}
 	else {
-		// change every ~32s
-		// Must not overflow if ticks_ns+ticks_ow=256
-		uint32 ticks = ((welt->get_ticks()>>10)+ticks_offset) % ((uint32)ticks_ns+(uint32)ticks_ow);
+		// Must not overflow if ticks_ns+ticks_ow+ticks_yellow_ns+ticks_yellow_ow=256
+        uint32 ticks = ((welt->get_ticks()>>10)+ticks_offset) % ((uint32)ticks_ns+(uint32)ticks_ow+(uint32)ticks_yellow_ns+(uint32)ticks_yellow_ow);
 
-		uint8 new_state = (ticks >= ticks_ns);
+		uint8 new_state = 0;
+		//traffic light transition: e-w dir -> yellow e-w -> n-s dir -> yellow n-s -> ...
+		if(  ticks < ticks_ns  ) {
+		  new_state = 0;
+		}
+		else if(  ticks < ticks_ns+ticks_yellow_ns  ) {
+		  new_state = 2;
+		}
+		else if(  ticks < ticks_ns+ticks_yellow_ns+ticks_ow  ) {
+		  new_state = 1;
+		}
+		else {
+		  new_state = 3;
+		}
+
 		if(state!=new_state) {
 			state = new_state;
-			dir = (new_state==0) ? ribi_t::northsouth : ribi_t::eastwest;
+			switch(new_state) {
+			case 0:
+			  dir = ribi_t::northsouth;
+			  break;
+			case 1:
+			  dir = ribi_t::eastwest;
+			  break;
+			default: // yellow state
+			  dir = ribi_t::none;
+			  break;
+			}
 			calc_image();
 		}
 	}
@@ -506,15 +549,19 @@ void roadsign_t::rotate90()
 	// only meaningful for traffic lights
 	obj_t::rotate90();
 	if(automatic  &&  !desc->is_private_way()) {
-		state = (state+1)&1;
-		if (ticks_offset >= ticks_ns) {
+	  state = (state&2/*whether yellow*/) + ((state+1)&1);
+		if(  ticks_offset >= ticks_ns  ) {
 			ticks_offset -= ticks_ns;
-		} else {
+		}
+		else {
 			ticks_offset += ticks_ow;
 		}
 		uint8 temp = ticks_ns;
 		ticks_ns = ticks_ow;
 		ticks_ow = temp;
+		temp = ticks_yellow_ns;
+		ticks_yellow_ns = ticks_yellow_ow;
+		ticks_yellow_ow = temp;
 
 		trafficlight_info_t *const trafficlight_win = dynamic_cast<trafficlight_info_t *>( win_get_magic( (ptrdiff_t)this ) );
 		if(  trafficlight_win  ) {
@@ -537,12 +584,12 @@ void roadsign_t::display_after(int xpos, int ypos, bool ) const
 		xpos += tile_raster_scale_x( after_xoffset, raster_width );
 		ypos += tile_raster_scale_y( after_yoffset, raster_width );
 		// draw with owner
-		if(  get_player_nr() != PLAYER_UNOWNED  ) {
+		if(  get_owner_nr() != PLAYER_UNOWNED  ) {
 			if(  obj_t::show_owner  ) {
 				display_blend( foreground_image, xpos, ypos, 0, color_idx_to_rgb(get_owner()->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty  CLIP_NUM_PAR);
 			}
 			else {
-				display_color( foreground_image, xpos, ypos, get_player_nr(), true, get_flag(obj_t::dirty)  CLIP_NUM_PAR);
+				display_color( foreground_image, xpos, ypos, get_owner_nr(), true, get_flag(obj_t::dirty)  CLIP_NUM_PAR);
 			}
 		}
 		else {
@@ -550,6 +597,7 @@ void roadsign_t::display_after(int xpos, int ypos, bool ) const
 		}
 	}
 }
+
 
 
 void roadsign_t::rdwr(loadsave_t *file)
@@ -590,6 +638,14 @@ void roadsign_t::rdwr(loadsave_t *file)
 		// previousely, manual open direction of a traffic light
 		uint8 dummy;
 		file->rdwr_byte(dummy);
+	}
+
+	if( file->is_version_atleast(122,2)  ||  file->get_OTRP_version() >= 30  ) {
+		file->rdwr_byte(ticks_yellow_ns);
+		file->rdwr_byte(ticks_yellow_ow);
+	}
+	else if( file->is_loading() ){
+		ticks_yellow_ns = ticks_yellow_ow = 0;
 	}
 
 	dummy = state;

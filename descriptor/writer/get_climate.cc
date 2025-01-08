@@ -44,6 +44,10 @@ climate_bits get_climate_bits(const char* climate_str)
 				break;
 			}
 		}
+		// allow "sea" as synonym for water
+		if(  uv16 ==  0  &&  STRICMP(end,"sea") == 0) {
+			uv16 |= 1;
+		}
 	} while (*c > 0 && *c != '#');
 
 	return (climate_bits)uv16;

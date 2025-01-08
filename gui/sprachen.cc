@@ -9,8 +9,10 @@
 #include "../pathes.h"
 #include "../display/simimg.h"
 #include "../simskin.h"
+#include "../simmenu.h"
 #include "../descriptor/skin_desc.h"
 #include "sprachen.h"
+#include "simwin.h"
 #include "components/gui_image.h"
 #include "components/gui_divider.h"
 
@@ -20,6 +22,7 @@
 #include "../dataobj/translator.h"
 #include "../sys/simsys.h"
 #include "../utils/simstring.h"
+#include "../simworld.h"
 
 
 int sprachengui_t::cmp_language_button(sprachengui_t::language_button_t a, sprachengui_t::language_button_t b)
@@ -31,8 +34,10 @@ int sprachengui_t::cmp_language_button(sprachengui_t::language_button_t a, sprac
  * Causes the required fonts for currently selected
  * language to be loaded
  */
-void sprachengui_t::init_font_from_lang(bool reload_font)
+void sprachengui_t::init_font_from_lang()
 {
+	bool reload_font = !has_character( translator::get_lang()->highest_character );
+
 	// the real fonts for the current language
 	std::string old_font = env_t::fontname;
 
@@ -46,7 +51,7 @@ void sprachengui_t::init_font_from_lang(bool reload_font)
 
 	if(  reload_font  ) {
 		// load large font
-		dr_chdir( env_t::program_dir );
+		dr_chdir( env_t::data_dir );
 		bool ok = false;
 		char prop_font_file_name[4096];
 		tstrncpy( prop_font_file_name, prop_font_file, lengthof(prop_font_file_name) );
@@ -84,7 +89,7 @@ void sprachengui_t::init_font_from_lang(bool reload_font)
 		p = "";
 		v = 1e99;
 	}
-	set_large_amout(p,v);
+	set_large_amount(p,v);
 }
 
 
@@ -111,7 +116,7 @@ sprachengui_t::sprachengui_t() :
 	new_component_span<gui_divider_t>(2);
 
 	const translator::lang_info* lang = translator::get_langs();
-	dr_chdir( env_t::program_dir );
+	dr_chdir( env_t::data_dir );
 
 	for (int i = 0; i < translator::get_language_count(); ++i, ++lang) {
 		button_t* b = new button_t();
@@ -129,7 +134,7 @@ sprachengui_t::sprachengui_t() :
 			std::string fname = FONT_PATH_X;
 			fname += prop_font_file_name;
 #if 1
-			// we are onlz checking the existence of the file
+			// we are only checking the existence of the file
 			num_loaded = false;
 			if(  FILE *fnt = dr_fopen(fname.c_str(), "rb")  ) {
 				num_loaded = true;
@@ -192,8 +197,20 @@ bool sprachengui_t::action_triggered( gui_action_creator_t *comp, value_t)
 
 		if(b == comp) {
 			b->pressed = true;
-			translator::set_language(buttons[i].id);
-			init_font_from_lang(true);
+
+			translator::set_language( buttons[i].id );
+			init_font_from_lang();
+			destroy_all_win( true );
+
+			event_t* ev = new event_t();
+			ev->ev_class = EVENT_SYSTEM;
+			ev->ev_code = SYSTEM_RELOAD_WINDOWS;
+			queue_event( ev );
+
+			if (world()) {
+				// must not update non-existent toolbars
+				tool_t::update_toolbars();
+			}
 		}
 		else {
 			b->pressed = false;

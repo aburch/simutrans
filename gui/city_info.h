@@ -22,6 +22,7 @@
 class stadt_t;
 template <class T> class sparse_tpl;
 class gui_city_minimap_t;
+class tool_change_city_of_building_t;
 
 /**
  * Window containing information about a city.
@@ -35,7 +36,9 @@ private:
 
 	gui_textinput_t name_input;    ///< Input field where the name of the city can be changed
 	button_t allow_growth;         ///< Checkbox to enable/disable city growth
-	button_t highlight;
+	button_t highlight;			   ///< highlight button
+	bool highlighted = false;      ///< is currently highlighted
+	static stadt_t* highlighted_city; ///< Which city is highlighted
 	gui_label_buf_t lb_size, lb_buildings, lb_border, lb_unemployed, lb_homeless;
 
 	gui_tab_panel_t year_month_tabs;
@@ -45,6 +48,10 @@ private:
 	gui_city_minimap_t *pax_map;
 
 	gui_button_to_chart_array_t button_to_chart;
+
+	
+	static tool_change_city_of_building_t* citybuilding_tool;
+	static cbuffer_t param_str;
 
 	/// Renames the city to the name given in the text input field
 	void rename_city();
@@ -77,6 +84,12 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	void update_data();
+
+	// get city pointer
+	stadt_t* get_city() { return city; };
+
+	// is highlighted?
+	bool is_highlighted() { return highlight.pressed; };
 
 	/**
 	 * Does this window need a min size button in the title bar?

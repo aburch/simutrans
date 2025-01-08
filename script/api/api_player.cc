@@ -16,6 +16,7 @@
 #include "../../simline.h"
 #include "../../simmenu.h"
 #include "../../simworld.h"
+#include "../../dataobj/schedule.h"
 
 
 using namespace script_api;
@@ -100,7 +101,8 @@ call_tool_init player_create_line(player_t *player, waytype_t wt)
 	}
 	// build param string (see schedule_list_gui_t::action_triggered)
 	cbuffer_t buf;
-	buf.printf( "c,0,%i,0,0|%i|", lt, lt);
+	const sint64 departure_group_slot_id = schedule_t::issue_new_departure_slot_group_id();
+	buf.printf( "c,0,%i,0,0|%lli|%i|", lt, departure_group_slot_id, lt );
 	return call_tool_init(TOOL_CHANGE_LINE | SIMPLE_TOOL, buf, 0, player);
 }
 
@@ -303,6 +305,10 @@ void export_player(HSQUIRRELVM vm, bool scenario)
 	 * @ingroup game_cmd
 	 */
 	register_method(vm, &player_create_line, "create_line", true);
+	/**
+	 * Returns player type: 1 = human, 2,3 = old c++ AI, 4 = scripted AI
+	 */
+	register_method(vm, &player_t::get_ai_id, "get_type");
 
 	end_class(vm);
 }

@@ -12,18 +12,52 @@
 
 
 grund_info_t::grund_info_t(const grund_t* gr_) :
-	base_infowin_t(translator::translate(gr_->get_name())),
+	gui_frame_t("", NULL),
 	gr(gr_),
-	view(gr_->get_pos(), scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) ))
+	view(gr_->get_pos(), scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) )),
+	textarea(&buf),
+	textarea2(&buf)
 {
 	const obj_t *const d = gr->obj_bei(0);
 	if (  d!=NULL  ) {
 		set_owner( d->get_owner() );
 	}
 	buf.clear();
-	gr->info(buf);
-	set_embedded(&view);
+
+	set_table_layout(1, 0);
+	set_alignment(ALIGN_CENTER_H);
+	add_table(2, 1)->set_alignment(ALIGN_LEFT | ALIGN_TOP);
+	{
+		add_component(&textarea);
+		add_component(&view);
+	}
+	end_table();
+	add_component(&textarea2);
+	recalc_size();
 }
+
+
+void grund_info_t::recalc_size()
+{
+	textarea.set_buf(&buf);
+	scr_size sz = textarea.get_size();
+	if (sz.w == 0) {
+		textarea.set_visible(false);
+		textarea2.set_visible(false);
+	}
+	else if(sz.h==LINESPACE) {
+		textarea.set_visible(false);
+		textarea2.set_size(sz);
+		textarea2.set_visible(true);
+	}
+	else {
+		textarea.set_visible(true);
+		textarea2.set_visible(false);
+	}
+	reset_min_windowsize();
+	set_windowsize(get_min_windowsize());
+}
+
 
 
 /**
@@ -39,7 +73,7 @@ void grund_info_t::draw(scr_coord pos, scr_size size)
 	if (  d!=NULL  ) {
 		set_owner( d->get_owner() );
 	}
-	base_infowin_t::set_name( translator::translate(gr->get_name()) );
+	gui_frame_t::set_name( translator::translate(gr->get_name()) );
 
 	const cbuffer_t old_buf(buf);
 	buf.clear();
@@ -48,7 +82,7 @@ void grund_info_t::draw(scr_coord pos, scr_size size)
 		recalc_size();
 	}
 
-	base_infowin_t::draw(pos, size);
+	gui_frame_t::draw(pos, size);
 }
 
 

@@ -11,11 +11,19 @@
 #include "components/gui_textarea.h"
 #include "../utils/cbuffer_t.h"
 
+class pakselector_install_action_t : public action_listener_t
+{
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+};
+
 class pakselector_t : public savegame_frame_t
 {
 protected:
 	cbuffer_t      notice_buffer;
 	gui_textarea_t notice_label;
+	button_t       installbutton;
+
+	pakselector_install_action_t ps;
 
 	const char *get_info    ( const char *filename ) OVERRIDE;
 	bool        check_file  ( const char *filename, const char *suffix ) OVERRIDE;

@@ -1,4 +1,5 @@
 revision  URL
+9490
 9498  https://github.com/aburch/simutrans/commit/f3a24143e5efa86f70fe3e402db66b955524b558
 9506  https://github.com/aburch/simutrans/commit/afa34316f08de7c27e8405d83d2dc48865c6d63c
 9514  https://github.com/aburch/simutrans/commit/809ffc7b26475d502d60ed82c1e656def0b20850
@@ -20,3 +21,24 @@ revision  URL
 9554
 9555
 9568
+9578
+9579
+9651
+9709
+9758
+9791
+9887
+9950
+9951
+9952
+9965
+9966
+9981
+9983
+10012
+10036
+10075
+10077
+10078
+10102
+10128

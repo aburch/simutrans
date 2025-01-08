@@ -11,11 +11,14 @@
 
 #include "../simcolor.h"
 #include "../tpl/stringhashtable_tpl.h"
+#include "../tpl/vector_tpl.h"
+
 
 class tabfileobj_t;
 class koord;
 class scr_coord;
 class scr_size;
+
 
 class obj_info_t
 {
@@ -57,7 +60,7 @@ public:
 	 * Read an entire object from the open file.
 	 *
 	 * @return bool false, if empty object or eof
-	 * @param &objinfo  will receive the object info
+	 * @param[out] objinfo  will receive the object info
 	 */
 	bool read(tabfileobj_t &objinfo, FILE *fp = NULL);
 
@@ -101,6 +104,8 @@ private:
 
 private:
 	FILE *file;
+
+	int current_line_number;
 };
 
 
@@ -168,19 +173,22 @@ public:
 	int get_int(const char *key, int def);
 
 	/**
+	 * Get an int value. If the value is not between @p min_value and @p max_value, a warning
+	 * is emitted and the value is clamped to either @p min_value or @p max_value.
+	 */
+	int get_int_clamped(const char *key, int def, int min_value, int max_value);
+
+	/**
 	 * Get an sint64 (actually uses double, thus only 48 bits are retrievable)
 	 */
 	sint64 get_int64(const char *key, sint64 def);
 
 	/**
 	 * Parses a value with the format "<num 1>,<num 2>,..,<num N>"
-	 * and returns an allocated int[N + 1] with
-	 * N at pos. 0, <num 1> at pos 1, etc.
-	 * Do not forget to "delete []" the returned value.
-	 * @return at least an int[1], never NULL.
+	 * and returns a vector with these values.
 	 */
-	int *get_ints(const char *key);
-	sint64 *get_sint64s(const char *key);
+	vector_tpl<int> get_ints(const char *key);
+	vector_tpl<sint64> get_sint64s(const char *key);
 };
 
 #endif

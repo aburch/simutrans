@@ -15,8 +15,12 @@
 #include "../../simworld.h"
 #include "../../boden/wasser.h"
 
+#include "../../simconvoi.h"
+#include "../../vehicle/simvehicle.h"
+
 namespace script_api {
 	declare_enum_param(grund_t::flag_values, uint8, "flags");
+	declare_specialized_param(depot_t*, "t|x|y", "depot_x");
 };
 
 using namespace script_api;
@@ -109,6 +113,23 @@ vector_tpl<halthandle_t> const& square_get_halt_list(planquadrat_t *plan)
 	return list;
 }
 
+vector_tpl<convoihandle_t> const get_convoy_list(grund_t* gr)
+{
+	static vector_tpl<convoihandle_t> list;
+	list.clear();
+
+	for( uint8 n = 0; n<gr->get_top(); n++) {
+		obj_t* obj = gr->obj_bei( n );
+		if( vehicle_t* veh = dynamic_cast<vehicle_t*>(obj) ) {
+			convoihandle_t cnv;
+			if( veh->get_convoi() ) {
+				list.append_unique( veh->get_convoi()->self );
+			}
+		}
+	}
+	return list;
+}
+
 void export_tiles(HSQUIRRELVM vm)
 {
 	/**
@@ -147,6 +168,9 @@ void export_tiles(HSQUIRRELVM vm)
 	register_method(vm, &grund_t::suche_obj, "find_object");
 	/**
 	 * Remove object of given type from the tile.
+	 * Type @p type must be one of the following: ::mo_label, ::mo_pedestrian, ::mo_city_car, ::mo_powerline, ::mo_transformer_s,
+	 *  ::mo_transformer_c, ::mo_signal, ::mo_roadsign, ::mo_wayobj, ::mo_tunnel, ::mo_bridge, ::mo_field, ::mo_building, ::mo_depot_rail.
+	 * Setting @p type to ::mo_depot_rail deletes depots of every type.
 	 * @param pl player that pays for removal
 	 * @param type object type
 	 * @returns null upon success, an error message otherwise
@@ -220,7 +244,12 @@ void export_tiles(HSQUIRRELVM vm)
 	 * @returns true if there is are two ways on the tile
 	 */
 	register_method<bool (grund_t::*)() const>(vm, &grund_t::has_two_ways, "has_two_ways");
-
+	/**
+	 * Returns way_x object on this tile of way type @p wt if present
+	 * @param wt waytype
+	 * @returns way object or null
+	 */
+	register_method(vm, &grund_t::get_weg, "get_way");
 	/**
 	 * Return directions in which ways on this tile go. One-way signs are ignored here.
 	 * @param wt waytype
@@ -250,6 +279,11 @@ void export_tiles(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &get_neighbour, "get_neighbour", true);
 	/**
+	 * Returns depot_x object on this tile if any depot is present.
+	 * @returns depot object or null
+	 */
+	register_method(vm, &grund_t::get_depot, "get_depot");
+	/**
 	 * Checks whether player can delete all objects on the tile.
 	 * @param pl player
 	 * @return error message or null if player can delete everything
@@ -269,6 +303,12 @@ void export_tiles(HSQUIRRELVM vm)
 	/// Mark tile.
 	register_method_fv(vm, &grund_t::set_flag, "mark", freevariable<uint8>(grund_t::marked));
 	//@}
+
+	/**
+	 * @return convoy list by tile
+	 */
+	register_method(vm, &get_convoy_list, "get_convoys", true);
+
 #ifdef SQAPI_DOC // document members
 	/**
 	 * List to iterate through all objects on this tile.

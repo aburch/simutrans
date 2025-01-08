@@ -9,6 +9,7 @@ class factorysearcher_t extends manager_t
 	froot = null    // factory_x, complete this tree
 	method = -1
 	factory_iterator = null
+	factory_list     = null
 
 	constructor()
 	{
@@ -33,12 +34,33 @@ class factorysearcher_t extends manager_t
 
 	function factory_iteration()
 	{
-		local list = factory_list_x()
-		foreach(factory in list) {
+		factory_list = []
+		// copy list of end-consumers
+		foreach(factory in factory_list_x()) {
 			if (factory.output.len() == 0) {
-				yield factory
+				factory_list.append(factory)
 			}
 		}
+		// shuffle
+		for(local i=0; i<factory_list.len(); i++) {
+			local j = myrand(factory_list.len())
+			// swap
+			local f = factory_list[i]
+			factory_list[i] = factory_list[j]
+			factory_list[j] = f
+		}
+		// now iterate
+		foreach (factory in factory_list) {
+			yield factory
+		}
+	}
+
+	function _save()
+	{
+		// dont save the list, generate new one
+		factory_iterator = null
+		factory_list     = null
+		return base._save()
 	}
 
 	function work()
@@ -94,20 +116,16 @@ class factorysearcher_t extends manager_t
 		}
 		else {
 			// demand-driven method
-
-			// plan root tree
-			if (froot  &&  plan_increase_consumption(froot) <= 0) {
-				froot = null
+			if (froot == null) {
+				froot = get_next_end_consumer()
 			}
 
-			// determine new root
-			if (froot == null) {
-				local fab
-				if (fab = get_next_end_consumer()) {
-					local n = plan_increase_consumption(fab)
-
-					return r_t( n>0  ? RT_PARTIAL_SUCCESS : RT_SUCCESS)
+			if (froot) {
+				local n = plan_increase_consumption(froot)
+				if (n==0  &&  count_missing_factories(froot) <= 0) {
+					froot = null
 				}
+				return r_t( n>0  ? RT_PARTIAL_SUCCESS : RT_SUCCESS)
 			}
 		}
 		return r_t(RT_SUCCESS)
@@ -157,6 +175,7 @@ class factorysearcher_t extends manager_t
 			// test for in-storage or in-transit goods
 			local st = islot.get_storage()
 			local it = islot.get_in_transit()
+			//gui.add_message_at(our_player, "### " + fab.get_name() + " ## " + good + " ## get_storage() " + st[0] + " get_in_transit() " + it[0], world.get_time())
 			if (st[0] + st[1] + it[0] + it[1] > 0) {
 				// something stored/in-transit in last and current month
 				// no need to search for more supply
@@ -198,6 +217,7 @@ class factorysearcher_t extends manager_t
 
 			if (!g_complete  &&  !end_consumer) {
 				dbgprint(indent + "No supply of " + good + " for " + fab.get_name())
+				//gui.add_message_at(our_player, " No supply of  " + good + " for " + fab.get_name(), world.get_time())
 				// no suppliers for this good
 				return -1
 			}
@@ -212,6 +232,9 @@ class factorysearcher_t extends manager_t
 				}
 			}
 			dbgprint(indent + "Supply of " + good + " for " + fab.get_name() + " has " + g_count + " missing links")
+			if ( g_count > 0 ) {
+				//gui.add_message_at(our_player, " Supply of  " + good + " for " + fab.get_name() + " has " + g_count + " missing links", world.get_time())
+			}
 		}
 
 		if (end_consumer  &&  !g_atleastone) {
@@ -481,4 +504,159 @@ class factorysearcher_t extends manager_t
 			}
 		}
 	}
+}
+
+/*
+ *	check factory chain befor build link
+ *
+ *	return false 	= no build link
+ *	return true 	= build link
+ */
+function check_factory_link_line(f_src, f_dest, t_good) {
+
+	local print_message_box = 0
+
+	local good_list_in = [];
+	local g_count_in = 0
+		foreach(good, islot in f_dest.input) {
+
+			// test for in-storage or in-transit goods
+			local st = islot.get_storage()
+			local it = islot.get_in_transit()
+			//gui.add_message_at(our_player, "### " + fab.get_name() + " ## " + good + " ## get_storage() " + st[0] + " get_in_transit() " + it[0], world.get_time())
+			if (st[0] + st[1] + it[0] + it[1] > 0) {
+				// something stored/in-transit in last and current month
+				// no need to search for more supply
+				good_list_in.append({ g = good, t = 1 })
+				g_count_in++
+			} else {
+				good_list_in.append({ g = good, t = 0 })
+			}
+		}
+
+	local o = true
+	for ( local i = 0; i < good_list_in.len(); i++ ) {
+		//gui.add_message_at(our_player, " good in  " + good_list_in[i].g + " connect " + good_list_in[i].t, world.get_time())
+		if ( good_list_in[i].g == t_good && good_list_in[i].t == 1 && good_list_in.len() >= g_count_in ) {
+			// check all goods connect yes
+			o = false
+		}
+	}
+
+	// check consumers
+	if ( !o ) {
+		if ( f_dest.output.len() > 0 ) {
+			// test connect next consumer fab
+			local consumers = [];
+			foreach(c in f_dest.get_consumers()) {
+				consumers.append( factory_x(c.x, c.y) );
+			}
+			// list output goods
+			local good_list_out = [];
+			foreach(good, islot in f_dest.output) {
+				good_list_out.append(good)
+			}
+			/*
+			// 1 consumer
+			if ( consumers.len() == 1 ) {
+				for ( local j = 0; j < good_list_out.len(); j++ ) {
+					if ( check_factory_links(f_dest, consumers[0], good_list_out[j]) == 0 ) {
+						o = false
+					}
+				}
+			}*/
+
+			if ( consumers.len() > 0 ) {
+				for ( local j = 0; j < good_list_out.len(); j++ ) {
+					local consumers_links = 0
+					for ( local i = 0; i < consumers.len(); i++ ) {
+						if ( check_factory_links(f_dest, consumers[i], good_list_out[j]) == 0 ) {
+
+							if ( print_message_box == 1 ) { gui.add_message_at(our_player, " link check consumers " + consumers[i].get_name() + " good " + good_list_out[j], world.get_time()) }
+
+							// test to other supliers for this good
+							g_count_in = 0
+							foreach(good, islot in consumers[i].input) {
+								//if ( good == t_good ) {
+								if ( good == good_list_out[j] ) {
+									if ( print_message_box == 1 ) { gui.add_message_at(our_player, " consumers " + consumers[i].get_name() + " good " + good, world.get_time()) }
+									// test for in-storage or in-transit goods
+									local st = islot.get_storage()
+									local it = islot.get_in_transit()
+									//gui.add_message_at(our_player, "### " + fab.get_name() + " ## " + good + " ## get_storage() " + st[0] + " get_in_transit() " + it[0], world.get_time())
+									if (st[0] + st[1] + it[0] + it[1] > 0 && good_list_out[j] == good) {
+										if ( print_message_box == 1 ) { gui.add_message_at(our_player, " good_list_out[j] " + good_list_out[j] + " good " + good, world.get_time()) }
+										// something stored/in-transit in last and current month
+										// no need to search for more supply
+										g_count_in++
+									}
+
+									local suppliers = [];
+									foreach(c in consumers[i].get_suppliers()) {
+										suppliers.append( factory_x(c.x, c.y) );
+									}
+									if ( print_message_box == 1 ) { gui.add_message_at(our_player, " suppliers " + consumers[i].get_name() + " count " + suppliers.len(), world.get_time()) }
+
+									for ( local k = 0; k < suppliers.len(); k++ ) {
+										if ( check_factory_links(consumers[i], suppliers[k], good_list_out[j]) > 0 ) {
+											consumers_links++
+										}
+
+										foreach(good, islot in suppliers[k].input) {
+											//if ( good_list_out[j] == good ) {
+												if ( print_message_box == 1 ) { gui.add_message_at(our_player, " supplier " + suppliers[k].get_name() + " good " + good, world.get_time()) }
+												// test for in-storage or in-transit goods
+												local st = islot.get_storage()
+												local it = islot.get_in_transit()
+												//gui.add_message_at(our_player, "### " + suppliers[k].get_name() + " ## " + good + " ## get_storage() " + st[0] + " get_in_transit() " + it[0], world.get_time())
+												if (st[0] + st[1] + it[0] + it[1] > 0 ) {
+													if ( print_message_box == 1 ) { gui.add_message_at(our_player, "### " + suppliers[k].get_name() + " ## " + good + " ## get_storage() st[0] " + st[0] + " get_in_transit() it[0] " + it[0], world.get_time()) }
+													// something stored/in-transit in last and current month
+													// no need to search for more supply
+													g_count_in++
+												}
+											//}
+										}
+									}
+
+									//}
+
+
+									if ( print_message_box == 1 ) { gui.add_message_at(our_player, " g_count_in " + g_count_in + " consumers_links " + consumers_links, world.get_time()) }
+									if ( g_count_in > 0 && consumers_links == 0 ) {
+										o = false
+										//::debug.pause()
+									}
+								}
+							}
+
+						} else {
+							// all supplier and consumer for planned good connected
+							// build second link supplier for this good
+							o = true
+						}
+					}
+				}
+			}
+
+							/*
+
+
+							if ( g_count_in > 0 ) {
+								o = false
+							}*/
+
+		} else {
+			o = true
+		}
+	}
+
+	//gui.add_message_at(our_player, "check_factory_link_line() return " + o, world.get_time())
+	return o
+
+
+	//get_delivered()
+	//get_consumers()
+	//get_suppliers()
+
 }

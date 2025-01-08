@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                            Language: pt Portugues                            #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 3.02 2020                           #
+#                           Date Created: 20.10 2020                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -483,7 +483,7 @@ Add Stop
 Adicionar
 Add stops for backward travel
 Adiciona as mesmas paradas no sentido contrário
-Air
+air_wt
 Aviões
 aircraft_tab
 Cargueiros
@@ -765,8 +765,8 @@ Copy the selected convoi and its schedule or line
 Compra um veículo igual e com programação igual
 cost for removal
 \nCusto de remoção: 
-Cost: %8s (%.2f$/km %.f$/m)\n
-Custo: %8s (%.2f$/km %.f$/m)\n
+Cost: %8s (%.2f$/km %.2f$/m)\n
+Custo: %8s (%.2f$/km %.2f$/m)\n
 Cost: %8s (%.2f$/km)\n
 Custo: %8s (%.2f$/km)\n
 Costs

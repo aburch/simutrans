@@ -71,7 +71,7 @@ void script_vm_t::errorfunc(HSQUIRRELVM vm, const SQChar *s_, ...)
 	if (strcmp(s, "<error>")==0) {
 		// start of error message
 		buf.clear();
-		buf.printf("<st>An error occured within a script!</st><br>\n");
+		buf.printf("<st>An error occurred within a script!</st><br>\n");
 	}
 	else if (strcmp(s, "</error>")==0) {
 		// end of error message
@@ -120,7 +120,7 @@ script_vm_t::script_vm_t(const char* include_path_, const char* log_name)
 	// create thread, and put it into registry-table
 	sq_pushregistrytable(vm);
 	sq_pushstring(vm, "thread", -1);
-	thread = sq_newthread(vm, 100);
+	thread = sq_newthread(vm, 1024);
 	sq_newslot(vm, -3, false);
 	register_vm(thread);
 	// create queue array

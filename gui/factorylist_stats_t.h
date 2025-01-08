@@ -17,7 +17,19 @@ class fabrik_t;
 
 
 namespace factorylist {
-	enum sort_mode_t { by_name=0, by_available, by_output, by_maxprod, by_status, by_power, SORT_MODES, by_input, by_transit,  }; // the last two not used
+	enum sort_mode_t {
+		by_name = 0,
+		by_available,
+		by_output,
+		by_maxprod,
+		by_status,
+		by_power,
+		SORT_MODES,
+
+		// the last two are unused
+		by_input,
+		by_transit
+	};
 };
 
 /**
@@ -34,7 +46,7 @@ private:
 
 	void update_label();
 public:
-	static int sort_mode;
+	static sint16 sort_mode;
 	static bool reverse;
 
 	factorylist_stats_t(fabrik_t *);

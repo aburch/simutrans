@@ -9,24 +9,19 @@
 
 #include "obj_reader.h"
 
-class bridge_reader_t : public obj_reader_t {
-	static bridge_reader_t the_instance;
 
-	bridge_reader_t() { register_reader(); }
+class bridge_reader_t : public obj_reader_t
+{
+	OBJ_READER_DEF(bridge_reader_t, obj_bridge, "bridge");
+
 protected:
-	void register_obj(obj_desc_t*&) OVERRIDE;
+	/// @copydoc obj_reader_t::register_obj
+	void register_obj(obj_desc_t *&desc) OVERRIDE;
 
 public:
-	static bridge_reader_t*instance() { return &the_instance; }
-
-	/**
-	 * Read a bridge info node. Does version check and
-	 * compatibility transformations.
-	 */
-	obj_desc_t* read_node(FILE*, obj_node_info_t&) OVERRIDE;
-
-	obj_type get_type() const OVERRIDE { return obj_bridge; }
-	char const* get_type_name() const OVERRIDE { return "bridge"; }
+	/// @copydoc obj_reader_t::read_node
+	obj_desc_t *read_node(FILE *fp, obj_node_info_t &node) OVERRIDE;
 };
+
 
 #endif

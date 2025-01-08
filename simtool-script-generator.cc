@@ -291,7 +291,7 @@ char const* tool_generate_script_t::do_work(player_t* , const koord3d &start, co
 
 bool tool_generate_script_t::save_script(const char* fullpath) const {
 	cbuffer_t dir_buf;
-	dir_buf.printf("%sgenerated-scripts", env_t::program_dir);
+	dir_buf.printf("%sgenerated-scripts", env_t::data_dir);
 	dr_mkdir(dir_buf.get_str());
   FILE* file;
   file = dr_fopen(fullpath, "w");

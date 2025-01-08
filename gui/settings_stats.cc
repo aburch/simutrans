@@ -63,6 +63,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	INIT_INIT
 
 	// combobox for savegame version
+	savegame.clear_elements();
 	for(  uint32 i=0;  i<lengthof(version);  i++  ) {
 		savegame.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( version[i]+2, SYSCOL_TEXT ) ;
 		if(  strcmp(version[i],env_t::savegame_version_str)==0  ) {
@@ -212,6 +213,13 @@ void settings_display_stats_t::read(settings_t* const)
 	READ_BOOL_VALUE( env_t::player_finance_display_account );
 }
 
+static char const * const goods_routing_policy_string[] =
+{
+	"loading nearest first, routing with route cost",
+	"loading in arrival order, routing with route cost",
+	"loading in arrival order, routing with estimated time"
+};
+
 void settings_routing_stats_t::init(settings_t const* const sets)
 {
 	INIT_INIT
@@ -244,8 +252,20 @@ void settings_routing_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "routecost_halt", sets->routecost_halt, 1, 250, 1, false );
 	SEPERATOR
 	INIT_BOOL( "advance_to_end", sets->get_advance_to_end() );
-	INIT_BOOL( "first_come_first_serve", sets->get_first_come_first_serve() );
-
+	// combobox for trees generator
+	goods_routing_policy.clear_elements();
+	for(  uint32 i=0;  i<lengthof(goods_routing_policy_string);  i++  ) {
+		goods_routing_policy.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( goods_routing_policy_string[i], SYSCOL_TEXT ) ;
+	}
+	goods_routing_policy.set_selection( sets->get_goods_routing_policy() );
+	goods_routing_policy.set_focusable( false );
+	add_component( &goods_routing_policy, 2);
+	INIT_NUM( "waiting_limit_for_first_come_first_serve", sets->get_waiting_limit_for_first_come_first_serve(), 100, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
+	SEPERATOR
+	INIT_NUM ( "base_waiting_ticks_for_rail_convoi", sets->base_waiting_ticks_for_rail_convoi, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
+	INIT_NUM ( "base_waiting_ticks_for_road_convoi", sets->base_waiting_ticks_for_road_convoi, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
+	INIT_NUM ( "base_waiting_ticks_for_ship_convoi", sets->base_waiting_ticks_for_ship_convoi, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
+	INIT_NUM ( "base_waiting_ticks_for_air_convoi", sets->base_waiting_ticks_for_air_convoi, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
 	INIT_END
 }
 
@@ -280,7 +300,13 @@ void settings_routing_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->routecost_wait );
 	READ_NUM_VALUE( sets->routecost_halt );
 	READ_BOOL_VALUE( sets->advance_to_end );
-	READ_BOOL_VALUE( sets->first_come_first_serve);
+	sets->goods_routing_policy = (goods_routing_policy_t)::clamp(goods_routing_policy.get_selection(), (int)GRP_NF_RC, (int)GRP_FIFO_ET );
+	READ_NUM_VALUE( sets->waiting_limit_for_first_come_first_serve );
+
+	READ_NUM_VALUE( sets->base_waiting_ticks_for_rail_convoi );
+	READ_NUM_VALUE( sets->base_waiting_ticks_for_road_convoi );
+	READ_NUM_VALUE( sets->base_waiting_ticks_for_ship_convoi );
+	READ_NUM_VALUE( sets->base_waiting_ticks_for_air_convoi );
 }
 
 
@@ -533,7 +559,9 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	INIT_NUM_NEW( "Map roughness", mountain_roughness_start, 0, min(10, 11-((mountain_height_start+99)/100)), gui_numberinput_t::AUTOLINEAR, false );
 
 	SEPERATOR
+	INIT_NUM_NEW( "Wind direction", sets->wind_direction, 0, 3, 1, true );
 	// combobox for climate generator
+	climate_generate.clear_elements();
 	for(  uint32 i=0;  i<lengthof(climate_generate_string);  i++  ) {
 		climate_generate.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( climate_generate_string[i], SYSCOL_TEXT ) ;
 	}
@@ -553,6 +581,8 @@ void settings_climates_stats_t::init(settings_t* const sets)
 		}
 	}
 	end_table();
+	new_component<gui_empty_t>();
+
 	INIT_NUM_NEW( "climate area percentage", sets->get_patch_size_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 
 	SEPERATOR
@@ -567,12 +597,13 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	// the following are independent and thus need no listener
 	SEPERATOR
 	// combobox for trees generator
+	tree_generate.clear_elements();
 	for(  uint32 i=0;  i<lengthof(tree_generate_string);  i++  ) {
 		tree_generate.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( tree_generate_string[i], SYSCOL_TEXT ) ;
 	}
-	tree_generate.set_selection( sets->get_tree() );
+	tree_generate.set_selection( sets->get_tree_distribution() );
 	tree_generate.set_focusable( false );
-	add_component( &tree_generate );
+	add_component( &tree_generate, 2);
 	INIT_NUM_NEW( "forest_base_size", sets->get_forest_base_size(), 10, 255, 1, false );
 	INIT_NUM_NEW( "forest_map_size_divisor", sets->get_forest_map_size_divisor(), 2, 255, 1, false );
 	INIT_NUM_NEW( "forest_count_divisor", sets->get_forest_count_divisor(), 2, 255, 1, false );
@@ -588,11 +619,12 @@ void settings_climates_stats_t::init(settings_t* const sets)
 void settings_climates_stats_t::read(settings_t* const sets)
 {
 	sets->climate_generator = (settings_t::climate_generate_t)max( 0, climate_generate.get_selection() );
-	sets->tree = max( 0, tree_generate.get_selection() );
+	sets->tree_distribution = ::clamp(tree_generate.get_selection(), (int)settings_t::TREE_DIST_NONE, (int)settings_t::TREE_DIST_COUNT-1 );
 	READ_INIT
 	READ_NUM_VALUE_NEW( env_t::pak_height_conversion_factor );
 	READ_NUM_VALUE_NEW( sets->groundwater );
 	READ_NUM_VALUE_NEW( sets->max_mountain_height );
+	READ_NUM_VALUE_NEW( sets->wind_direction );
 	double n = 0;
 	READ_NUM_VALUE_NEW( n );
 	if(  new_world  ) {

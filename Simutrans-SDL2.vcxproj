@@ -5,19 +5,33 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Stable|Win32">
       <Configuration>Stable</Configuration>
       <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Stable|x64">
+      <Configuration>Stable</Configuration>
+      <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E74757E8-C2FD-44AD-87BD-3D55F4709484}</ProjectGuid>
     <RootNamespace>Simutrans</RootNamespace>
     <ProjectName>Simutrans SDL2</ProjectName>
+    <VcpkgTriplet Condition="'$(Platform)'=='Win32'">x86-windows-static</VcpkgTriplet>
+    <VcpkgTriplet Condition="'$(Platform)'=='x64'">x64-windows-static</VcpkgTriplet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -61,14 +75,15 @@
       <WarningLevel>Level3</WarningLevel>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <DisableSpecificWarnings>4250;4373;4800;4996</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4250;4373;4800;4996;26812;26451</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <OptimizeReferences>true</OptimizeReferences>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
       <SubSystem>Windows</SubSystem>
-      <TargetMachine>MachineX86</TargetMachine>
+      <TargetMachine>
+	  </TargetMachine>
     </Link>
     <Manifest>
       <EnableDPIAwareness>true</EnableDPIAwareness>
@@ -79,11 +94,11 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>USE_ZSTD;USE_UPNP;USE_FREETYPE;COLOUR_DEPTH=16;MULTI_THREAD=1;MSG_LEVEL=3;DEBUG=3;REVISION_FROM_FILE;NOMINMAX;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libzstd_static.lib;SDL2main.lib;SDL2.lib;kernel32.lib;user32.lib;shell32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;imm32.lib;libbz2.lib;libpthreadVC3d.lib;miniupnpc.lib;freetype.lib</AdditionalDependencies>
+      <AdditionalDependencies>libzstd_static.lib;SDL2main.lib;SDL2.lib;kernel32.lib;user32.lib;shell32.lib;winmm.lib;zlibstat.lib;libpng16.lib;advapi32.lib;ws2_32.lib;imm32.lib;libbz2.lib;libpthreadVC3.lib;miniupnpc.lib;freetype.lib</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmtd.lib</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
@@ -108,6 +123,13 @@
       <Command>cscript.exe //Nologo revision.jse</Command>
       <Message>Obtain SVN revision number</Message>
     </PreBuildEvent>
+    <ClCompile>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</MultiProcessorCompilation>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <LargeAddressAware Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LargeAddressAware>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release' Or '$(Configuration)'=='Stable'">
     <ClCompile>
@@ -115,12 +137,18 @@
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</MultiProcessorCompilation>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</MultiProcessorCompilation>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Stable|Win32'">true</MultiProcessorCompilation>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Stable|x64'">true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libzstd_static.lib;SDL2main.lib;SDL2.lib;kernel32.lib;user32.lib;shell32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;imm32.lib;libbz2.lib;libpthreadVC3.lib;miniupnpc.lib;freetype.lib</AdditionalDependencies>
+      <AdditionalDependencies>libzstd_static.lib;SDL2main.lib;SDL2.lib;kernel32.lib;user32.lib;shell32.lib;winmm.lib;zlibstat.lib;libpng16.lib;advapi32.lib;ws2_32.lib;imm32.lib;libbz2.lib;libpthreadVC3.lib;miniupnpc.lib;freetype.lib</AdditionalDependencies>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LargeAddressAware Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</LargeAddressAware>
+      <LargeAddressAware Condition="'$(Configuration)|$(Platform)'=='Stable|Win32'">true</LargeAddressAware>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -129,10 +157,6 @@
     <ClCompile Include="sound\sdl2_sound.cc" />
     <ClCompile Include="sys\clipboard_s2.cc" />
     <ClCompile Include="sys\simsys_s2.cc" />
-    <ClCompile Include="sys\simsys_w32_png.cc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="sys\simsys_w32_png.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

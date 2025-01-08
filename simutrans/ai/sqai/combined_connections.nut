@@ -263,8 +263,9 @@ class amphibious_pathfinder_t extends astar
 	{
 		local pos = coord(cnode.x, cnode.y)
 
-		for(local d0 = 1; d0<16; d0*=2) {
-			for (local d = d0; d <= 3*d0; d+=2*d0) {
+		for(local d = 1; d<16; d++) {
+			// test all 8 neighbouring tiles
+			if (!dir.is_threeway(d)) {
 
 				local c = pos + dir.to_coord(d)
 

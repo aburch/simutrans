@@ -26,10 +26,11 @@
 #include "../pathes.h"
 #include "../simevent.h"
 #include "../utils/simstring.h"
+#include "../simdebug.h"
 #include "../simevent.h"
 
-
 #ifdef _WIN32
+#	include <locale>
 #	include <windows.h>
 #	include <winbase.h>
 #	include <shellapi.h>
@@ -46,11 +47,16 @@
 #	if !defined __AMIGA__ && !defined __BEOS__
 #		include <unistd.h>
 #	endif
+#	ifdef __ANDROID__
+#		include <SDL2/SDL.h>
+#	endif
 #endif
 
+#ifdef MULTI_THREAD
+#include <pthread.h>
+#endif
 
-
-struct sys_event sys_event;
+sys_event_t sys_event;
 
 
 #ifdef _WIN32
@@ -135,6 +141,28 @@ int get_mouse_y()
 
 
 
+uint8 dr_get_max_threads()
+{
+	uint8 max_threads = 0;
+#ifdef MULTI_THREAD
+#if 0
+	// does not work when crosscompile with mingw!
+	max_threads = std::thread::hardware_concurrency();
+#endif
+	if(max_threads==0) {
+#ifdef _WIN32
+		SYSTEM_INFO sysinfo;
+		GetSystemInfo(&sysinfo);
+		max_threads = (uint8)sysinfo.dwNumberOfProcessors;
+#else
+		max_threads = sysconf(_SC_NPROCESSORS_ONLN);
+#endif
+	}
+#endif
+	return max(max_threads,1);
+}
+
+
 int dr_mkdir(char const* const path)
 {
 #ifdef _WIN32
@@ -172,7 +200,7 @@ bool dr_movetotrash(const char *path)
 
 	// Initalize file operation structure.
 	SHFILEOPSTRUCTW  FileOp;
-	FileOp.hwnd = NULL;
+	FileOp.hwnd = GetActiveWindow();
 	FileOp.wFunc = FO_DELETE;
 	FileOp.pFrom = full_wpath;
 	FileOp.pTo = NULL;
@@ -182,6 +210,8 @@ bool dr_movetotrash(const char *path)
 	int success = SHFileOperationW(&FileOp);
 
 	delete[] full_wpath;
+
+	BringWindowToTop(FileOp.hwnd);
 
 	return success;
 #else
@@ -362,14 +392,17 @@ char const *dr_query_homedir()
 	BPath userDir;
 	find_directory(B_USER_DIRECTORY, &userDir);
 	sprintf(buffer, "%s/simutrans", userDir.Path());
+#elif defined __ANDROID__
+	tstrncpy(buffer,SDL_GetPrefPath("Simutrans Team","simutrans"),lengthof(buffer));
 #else
 	sprintf(buffer, "%s/simutrans", getenv("HOME"));
 #endif
 
 	// create directory and subdirectories
 	dr_mkdir(buffer);
+#ifndef __ANDROID__
 	strcat(buffer, PATH_SEPARATOR);
-
+#endif
 	return buffer;
 }
 
@@ -934,7 +967,7 @@ const char *dr_get_locale_string()
 	}
 	return NULL;
 }
-#elif __HAIKU__
+#elif defined(__HAIKU__) && __HAIKU__
 #include <Message.h>
 #include <LocaleRoster.h>
 
@@ -973,28 +1006,31 @@ const char *dr_get_locale_string()
 #endif
 
 
-
 void dr_fatal_notify(char const* const msg)
 {
+	fprintf(stderr, "dr_fatal_notify: ERROR: %s\n", msg);
+
 #ifdef _WIN32
 	MessageBoxA(0, msg, "Fatal Error", MB_ICONEXCLAMATION);
-#else
-	fputs(msg, stderr);
+#endif
+
+#ifdef __ANDROID__
+	dbg->error(__FUNCTION__, msg);
 #endif
 }
 
 /**
  * Open a program/starts a script to download pak sets from sourceforge
- * @param path_to_program : actual simutrans pakfile directory
+ * @param data_dir : actual simutrans pakfile directory
  * @return false, if nothing was downloaded
  */
-bool dr_download_pakset( const char *path_to_program, bool portable )
+bool dr_download_pakset( const char *data_dir, bool portable )
 {
 #ifdef _WIN32
 	std::string param(portable ? "/P /D=" : "/D=");
-	param.append(path_to_program);
+	param.append(data_dir);
 	U16View const wparam(param.c_str());
-	U16View const wpath_to_program(path_to_program);
+	U16View const wpath_to_program(data_dir);
 
 	SHELLEXECUTEINFOW shExInfo;
 	shExInfo.cbSize = sizeof(shExInfo);
@@ -1021,8 +1057,10 @@ bool dr_download_pakset( const char *path_to_program, bool portable )
 	(void)portable;
 
 	char command[2048];
-	sprintf(command, "%s/get_pak.sh", path_to_program);
-	system( command );
+	dr_chdir( data_dir );
+	sprintf(command, "%s/get_pak.sh", data_dir);
+	const int retval = system( command );
+	dbg->debug("dr_download_pakset", "Command '%s' returned %d", command, retval);
 	return true;
 #endif
 }
@@ -1030,6 +1068,9 @@ bool dr_download_pakset( const char *path_to_program, bool portable )
 
 int sysmain(int const argc, char** const argv)
 {
+	sys_event.type = SIM_NOEVENT;
+	sys_event.code = 0;
+
 #ifdef _WIN32
 	// Guess required buffer length, if too small then dynamically expand up to around 65536 characters.
 	// It is unlikely this loop will ever run more than once in practice but is required to cover flaws with the API.

@@ -9,14 +9,13 @@
 class signal_t;
 
 /**
- * Info window for factories
- * @author Hj. Malthaner
+ * Info window for railway signals
  */
 class signal_info_t : public obj_infowin_t, public action_listener_t
 {
 	private:
 		signal_t* signal;
-		button_t bt;
+		button_t bt_require_parent, bt_remove_signal;
 
 	public:
 		signal_info_t(signal_t*);

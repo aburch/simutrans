@@ -45,6 +45,11 @@ private:
 	 * Processes a user event on the map, like a keyclick, or a mouse event.
 	 */
 	void interactive_event(const event_t &ev);
+	
+	/**
+	 * Zoom in/out the view.
+	 */
+	void zoom_view(const event_t &ev, const bool isOut);
 
 	/**
 	 * Processes a single event.

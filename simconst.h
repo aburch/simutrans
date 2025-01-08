@@ -15,6 +15,13 @@
 // color depth (default assumes RGB565), undefine only for rgb555 builds!
 //#define RGB555
 
+// some clients had no goof IP6 support (or maybe useful for debugging)
+//#define USE_IP4_ONLY
+
+// server can try a lookup of the own name (may get wrong one if more than one IP for this host)
+//#define LOOKUP_OWN_IP_NAME
+
+
 // number of player
 #define MAX_PLAYER_COUNT (16)
 #define PLAYER_UNOWNED (15)
@@ -26,9 +33,6 @@
 
 /* crossconnect industry and half heights like openTTD */
 //#define OTTD_LIKE
-
-/* single height is only 8 pixel (default 16) */
-//#define HALF_HEIGHT
 
 /* construct automatic bridges also as active player */
 //#define AUTOMATIC_BRIDGES
@@ -50,9 +54,6 @@
  * Some routines, eg for drawing, can have low level C++ implementations that might perform better on certain platforms */
 #define LOW_LEVEL
 
-// The wind (i.e. approach direction) is random all over the map (not recommended, since it confuses players)
-//#define USE_DIFFERENT_WIND
-
 // define this for automatically joining stations next to a public stop with it
 //#define AUTOJOIN_PUBLIC
 
@@ -62,6 +63,8 @@
 // Maximum number of threads
 #define MAX_THREADS (12)
 
+// Use own routines for downloading paks and installing (requires libzip and libcurl)
+//#define USE_OWN_PAKINSTALL
 
 /*********************** Useful things for debugging ... ********************/
 
@@ -99,8 +102,6 @@
 // These must be changed (along with lots of other code) if OBJECT_OFFSET_STEPS is changed.
 #define tile_raster_scale_x(v, rw)   (((v)*(rw)) >> 6)
 #define tile_raster_scale_y(v, rh)   (((v)*(rh)) >> 6)
-
-#define INVALID_INDEX (65530u)
 
 // offsets for mouse pointer
 #define Z_PLAN (4)

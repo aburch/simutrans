@@ -7,6 +7,7 @@
 #define SQSTD_STREAM_TYPE_TAG 0x80000000
 
 struct SQStream {
+	virtual ~SQStream() {}
 	virtual SQInteger Read(void *buffer, SQInteger size) = 0;
 	virtual SQInteger Write(void *buffer, SQInteger size) = 0;
 	virtual SQInteger Flush() = 0;
@@ -15,7 +16,6 @@ struct SQStream {
 	virtual SQInteger Seek(SQInteger offset, SQInteger origin) = 0;
 	virtual bool IsValid() = 0;
 	virtual bool EOS() = 0;
-	virtual ~SQStream() { /* happy compiler */ }
 };
 
 extern "C" {

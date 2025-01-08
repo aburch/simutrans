@@ -8,7 +8,7 @@
 /** @file api_const.cc exports constants */
 
 #include "../api_param.h"
-#include "../../simobj.h"
+#include "../../obj/simobj.h"
 #include "../../simmenu.h"
 #include "../../simunits.h"
 
@@ -131,6 +131,14 @@ void export_global_constants(HSQUIRRELVM vm)
 	/// open map enlargement window
 	enum_slot(vm, "dialog_enlarge_map", DIALOG_ENLARGE_MAP | DIALOGE_TOOL);
 
+	end_enum();
+
+	/**
+	 * Flags for scripted tools.
+	 */
+	begin_enum("tool_flags");
+	enum_slot(vm, "shift_pressed", tool_t::WFL_SHIFT);
+	enum_slot(vm, "ctrl_pressed",  tool_t::WFL_CTRL);
 	end_enum();
 
 	/**

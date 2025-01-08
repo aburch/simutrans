@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                            Language: id Indonesia                            #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 3.02 2020                           #
+#                           Date Created: 20.10 2020                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -197,8 +197,6 @@ Stasiun kereta\nhanya dapat dibangun\ndi atas rel kereta.\n
 #___________________________________help_text___________________________________
 <h1>Index</h1><p>*: only english</p><p>General</p>%s<p>Usage</p>%s<p>Tools</p>%s<p>Start</p>%s<p>How to play</p>%s<p>Others:</p>%s
 <title>Help</title><h1>Help Index</h1><p><it>About Simutrans</it></p>%1$s<p><it>How to use</it></p>%2$s<p><it>How to start a game</it></p>%4$s<p><it>How to play</it></p>%5$s<p><it>Tools</it></p>%3$s<p><it>Others windows</it></p>%6$s
-<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n
-<title>Keyboard Binding</title>\n<h1><strong>Keyboard Help</strong></h1>\n<p>\n<strong>Keyboard Help</strong> shows functions for various key presses on the keyboard.\n</p>\n<p>\n<strong>Keyboard Help</strong> opens when an unassigned key is pressed or from <a href="general.txt">General Help</a>.\n</p>\n<p>\nKey presses are case sensitive (use [<em>Shift</em>] for upper-case letters).\n</p>\n<p>\nKeys with assigned functions include:\n</p>\n<p>\n[<em>Arrow Keys</em>]: scroll game-view in direction of arrow.<br>\n[<em>Backspace</em>]: close all windows, toolbars and help-texts in game-view.<br>\n[<em>Delete</em>], or [<em>Escape</em>]: close top window, toolbar or help-text in game-view.<br>\n[<em>Enter</em>], or [<em>Return</em>]: used to confirm actions.<br>\n[<em>Page-Up</em>], or [<em>></em>]: zoom-in game-view.<br>\n[<em>Page-Down</em>], or [<em> less than symbol</em>]: zoom-out game-view.\n[<em>F1</em>]: open <a href="general.txt">Simutrans Help</a>.<br></p>\n<p>\n[<em>1</em>]: scroll game-view south-wards.<br>\n[<em>2</em>]: scroll game-view south-east-wards.<br>\n[<em>3</em>]: scroll game-view east-wards.<br>\n[<em>4</em>]: scroll game-view south-west-wards.<br>\n[<em>6</em>]: scroll game-view north-east-wards.<br>\n[<em>7</em>]: scroll game-view west-wards.<br>\n[<em>8</em>]: scroll game-view north-west-wards.<br>\n[<em>9</em>]: scroll game-view north-wards.\n</p>\n<p>\n[<em>Shift</em>] + <a href="mouse.txt">mouse</a>: used on <a href="map.txt">Map</a> to see links in <a href="industry_info.txt">Industry Supply Chain</a>.<br>\n[<em>CTRL</em>] + tool: build slower roads and tracks over faster ones; or build straighter (more direct) roads and tracks.<br>\n</p>
 Decrease water height
 Menurunkan air sebanyak satu tingkat
 Highlight railroad tracks
@@ -479,7 +477,7 @@ Add Stop
 Tambah pemberhentian
 Add stops for backward travel
 Tambah pemberhentian untuk perjalanan balik.
-Air
+air_wt
 Pesawat
 aircraft_tab
 Pesawat kargo
@@ -759,8 +757,8 @@ Copy the selected convoi and its schedule or line
 Salin konvoi yang dipilih beserta rute/jadwalnya
 cost for removal
 Biaya untuk menghapus
-Cost: %8s (%.2f$/km %.f$/m)\n
-Harga: %s (%.2f$/km %.2fm)\n
+Cost: %8s (%.2f$/km %.2f$/m)\n
+Harga: %s (%.2f$/km %.2f$/m)\n
 Cost: %8s (%.2f$/km)\n
 Biaya: %8s (%.2f$/km)\n
 Costs

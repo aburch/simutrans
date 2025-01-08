@@ -13,6 +13,6 @@ echo "USE_ZSTD = 1" >>config.default
 echo "USE_FREETYPE = 1" >>config.default
 echo "WITH_REVISION = $(svn info --show-item revision svn://servers.simutrans.org/simutrans)" >>config.default
 echo "AV_FOUNDATION = 1" >>config.default
-echo "FLAGS = -std=c++11" >>config.default
+echo "FLAGS = -std=c++20" >>config.default
 make -j
 mv build/default/sim sim-mac-OTRP

@@ -3,28 +3,30 @@
  * (see LICENSE.txt)
  */
 
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "simdebug.h"
-#include "display/simimg.h"
-#include "simcolor.h"
-#include "display/simgraph.h"
-#include "display/viewport.h"
-#include "gui/simwin.h"
-#include "player/simplay.h"
 #include "simobj.h"
-#include "simworld.h"
-#include "obj/baum.h"
-#include "vehicle/simvehicle.h"
-#include "dataobj/translator.h"
-#include "dataobj/loadsave.h"
-#include "dataobj/repositioning.h"
-#include "boden/grund.h"
-#include "gui/obj_info.h"
-#include "utils/cbuffer_t.h"
-#include "utils/simstring.h"
+
+#include "baum.h"
+
+#include "../boden/grund.h"
+#include "../dataobj/loadsave.h"
+#include "../dataobj/translator.h"
+#include "../dataobj/repositioning.h"
+#include "../display/simgraph.h"
+#include "../display/simimg.h"
+#include "../display/viewport.h"
+#include "../player/simplay.h"
+#include "../gui/obj_info.h"
+#include "../gui/simwin.h"
+#include "../vehicle/simvehicle.h"
+#include "../simcolor.h"
+#include "../simdebug.h"
+#include "../simworld.h"
+#include "../utils/cbuffer_t.h"
+#include "../utils/simstring.h"
+
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 
 /**
@@ -133,7 +135,7 @@ void obj_t::info(cbuffer_t & buf) const
 	char              translation[256];
 	char const* const owner =
 		owner_n == 1              ? translator::translate("Eigenbesitz\n")   :
-		owner_n == PLAYER_UNOWNED ? translator::translate("Kein Besitzer\n") :
+		owner_n == PLAYER_UNOWNED ? "" : // was translator::translate("Kein Besitzer\n") :
 		get_owner()->get_name();
 	tstrncpy(translation, owner, lengthof(translation));
 	// remove trailing linebreaks etc.
@@ -321,7 +323,7 @@ void obj_t::mark_image_dirty(image_id image, sint16 yoff) const
 		display_mark_img_dirty( image, scr_pos.x + xpos, scr_pos.y + ypos + yoff);
 
 		// too close to border => set dirty to be sure (smoke, skyscrapers, birds, or the like)
-		KOORD_VAL xbild, ybild, wbild, hbild;
+		scr_coord_val xbild = 0, ybild = 0, wbild = 0, hbild = 0;
 		display_get_image_offset( image, &xbild, &ybild, &wbild, &hbild );
 		const sint16 distance_to_border = 3 - (yoff+get_yoff()+ybild)/(rasterweite/4);
 		if(  pos.x <= distance_to_border  ||  pos.y <= distance_to_border  ) {

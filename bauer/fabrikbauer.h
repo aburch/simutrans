@@ -128,7 +128,6 @@ private:
 	/**
 	 * Checks if the site at @p pos is suitable for construction.
 	 * @param size Size of the building site
-	 * @param water true to search on water
 	 * @param cl allowed climates
 	 */
 	static bool check_construction_site(koord pos, koord size, factory_desc_t::site_t site, bool is_factory, climate_bits cl);

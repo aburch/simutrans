@@ -7,7 +7,7 @@
 
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../display/simimg.h"
 
 #include "../descriptor/crossing_desc.h"
@@ -117,7 +117,9 @@ void crossing_t::rdwr(loadsave_t *file)
 	// variables ... attention, logic now in crossing_logic_t
 	state = logic==NULL ? crossing_logic_t::CROSSING_INVALID : logic->get_state();
 	file->rdwr_byte(state);
+	state = clamp<uint8>(state, 0, crossing_logic_t::NUM_CROSSING_STATES-1);
 	file->rdwr_byte(ns);
+
 	if(file->is_version_less(99, 16)) {
 		uint32 ldummy=0;
 		uint8 bdummy=0;
@@ -149,7 +151,7 @@ void crossing_t::rdwr(loadsave_t *file)
 		desc = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2, speedlimit0, speedlimit1, welt->get_timeline_year_month());
 		if(desc==NULL) {
 			dbg->warning("crossing_t::rdwr()","requested for waytypes %i and %i not available, try to load object without timeline", w1, w2 );
-			desc = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2, speedlimit0, speedlimit1, 0);
+			desc = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2, 0, 0, 0);
 		}
 		if(desc==NULL) {
 			dbg->fatal("crossing_t::rdwr()","requested for waytypes %i and %i but nothing defined!", w1, w2 );
@@ -193,7 +195,7 @@ void crossing_t::finish_rd()
 // players can remove public owned ways
 const char *crossing_t::is_deletable(const player_t *player)
 {
-	if (get_player_nr()==welt->get_public_player()->get_player_nr()) {
+	if (get_owner_nr()==PUBLIC_PLAYER_NR) {
 		return NULL;
 	}
 	else {

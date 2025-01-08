@@ -7,9 +7,14 @@
 #define SYS_SIMSYS_H
 
 
-#include <stddef.h>
 #include "../simtypes.h"
+
+#ifndef NETTOOL
 #include <zlib.h>
+#endif
+
+#include <cstddef>
+#include <stdio.h>
 
 // Provide chdir().
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -43,29 +48,42 @@
 
 /* Global Variable for message processing */
 
-struct sys_event
+struct sys_event_t
 {
 	unsigned long type;
 	union {
 		unsigned long code;
 		void *ptr;
 	};
-	int mx;                  /* es sind negative Koodinaten mgl */
-	int my;
-	int mb;
-	/**
-	 * new window size for SYSTEM_RESIZE
-	 */
-	int size_x, size_y;
-	unsigned int key_mod; /* key mod, like ALT, STRG, SHIFT */
+	sint32 mx;                  /* es sind negative Koodinaten mgl */
+	sint32 my;
+	uint16 mb;
+
+	/// new window size for SYSTEM_RESIZE
+	uint16 new_window_size_w;
+	uint16 new_window_size_h;
+
+	unsigned int key_mod; /* key mod, like ALT, CTRL, SHIFT */
 };
 
-extern struct sys_event sys_event;
+enum { WINDOWED, FULLSCREEN, BORDERLESS };
+
+extern sys_event_t sys_event;
 
 extern char const PATH_SEPARATOR[];
 
-// scale according to dpi setting
-bool dr_auto_scale(bool);
+
+/// @param scale_percent
+///   Possible values:
+///     -1:    auto (scale according to screen DPI setting)
+///      0:    off (default 1:1 scale)
+///     other: specific scaling, in percent
+///     < -1:  invalid
+bool dr_set_screen_scale(sint16 scale_percent);
+
+/// @returns Relative size of the virtual display, in percent
+sint16 dr_get_screen_scale();
+
 
 bool dr_os_init(int const* parameter);
 
@@ -77,7 +95,7 @@ struct resolution
 };
 resolution dr_query_screen_resolution();
 
-int dr_os_open(int w, int h, int fullscreen);
+int dr_os_open(int w, int h, sint16 fullscreen);
 void dr_os_close();
 
 // returns the locale; NULL if unknown
@@ -115,8 +133,10 @@ char *dr_getcwd(char *buf, size_t size);
 // Functions the same as fopen except filename must be UTF-8 encoded.
 FILE *dr_fopen(const char *filename, const char *mode);
 
+#ifndef NETTOOL
 // Functions the same as gzopen except path must be UTF-8 encoded.
 gzFile dr_gzopen(const char *path, const char *mode);
+#endif
 
 // Functions the same as stat except path must be UTF-8 encoded.
 int dr_stat(const char *path, struct stat *buf);
@@ -148,7 +168,7 @@ void show_pointer(int yesno);
 
 void set_pointer(int loading);
 
-void move_pointer(int x, int y);
+bool move_pointer(int x, int y);
 
 int get_mouse_x();
 int get_mouse_y();
@@ -156,20 +176,14 @@ int get_mouse_y();
 void ex_ord_update_mx_my();
 
 void GetEvents();
-void GetEventsNoWait();
+
+uint8 dr_get_max_threads();
 
 uint32 dr_time();
 void dr_sleep(uint32 millisec);
 
 // error message in case of fatal events
 void dr_fatal_notify(char const* msg);
-
-/**
- * Some wrappers can save screenshots.
- * @return 1 on success, 0 if not implemented for a particular wrapper and -1
- *         in case of error.
- */
-int dr_screenshot(const char *filename, int x, int y, int w, int h);
 
 /**
  * Copy text to the clipboard
@@ -187,12 +201,12 @@ void dr_copy(const char *source, size_t length);
 size_t dr_paste(char *target, size_t max_length);
 
 /**
- * Open a program/starts a script to download pak sets from sourceforge
- * @param path_to_program : actual simutrans pakfile directory
- * @param portabel : true if local files to be save in simutransdir
+ * Open a program/starts a script to download pak sets.
+ * @param data_dir : The current simutrans data directory (usually the same as env_t::data_dir)
+ * @param portable : true if local files to be save in simutransdir
  * @return false, if nothing was downloaded
  */
-bool dr_download_pakset( const char *path_to_program, bool portable );
+bool dr_download_pakset( const char *data_dir, bool portable );
 
 /**
  * Shows the touch keyboard when using systems without a hardware keyboard.
@@ -210,6 +224,26 @@ void dr_stop_textinput();
  * Inform the IME of a ideal place to open its popup.
  */
 void dr_notify_input_pos(int x, int y);
+
+///  returns current two byte languange ID
+const char* dr_get_locale();
+
+/// true, if there is a hardware fullcreen mode
+bool dr_has_fullscreen();
+
+/**
+ * @return
+ *  0: if windowed
+ *  1: if fullscreen
+ *  2: if borderless fullscreen
+ */
+sint16 dr_get_fullscreen();
+
+/**
+ * Toggle between borderless and windowed mode
+ * @return the fullscreen state after the toggle
+ */
+sint16 dr_toggle_borderless();
 
 int sysmain(int argc, char** argv);
 

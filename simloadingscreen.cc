@@ -67,9 +67,9 @@ void loadingscreen_t::display()
 	const int half_width = width>>1;
 	const int quarter_width = width>>2;
 	const int half_height = display_get_height()>>1;
-	KOORD_VAL const bar_height = max(LINESPACE + 10, 20);
-	KOORD_VAL const bar_y = half_height - bar_height / 2 + 1;
-	KOORD_VAL const bar_text_y = half_height - LINESPACE / 2 + 1;
+	scr_coord_val const bar_height = max(LINESPACE + 10, 20);
+	scr_coord_val const bar_y = half_height - bar_height / 2 + 1;
+	scr_coord_val const bar_text_y = half_height - LINESPACE / 2 + 1;
 
 	const int bar_len = max_progress>0 ? (int) ( ((double)progress*(double)half_width)/(double)max_progress ) : 0;
 
@@ -114,7 +114,7 @@ void loadingscreen_t::set_progress( uint32 progress )
 	if(  ev->ev_class == EVENT_SYSTEM  ) {
 		if(  ev->ev_code == SYSTEM_RESIZE  ) {
 			// main window resized
-			simgraph_resize( ev->size_x, ev->size_y );
+			simgraph_resize( ev->new_window_size );
 			display_fillbox_wh_rgb( 0, 0, ev->mx, ev->my, color_idx_to_rgb(COL_BLACK), true );
 			display_logo();
 			// queue the event anyway, so the viewport is correctly updated on world resume (screen will be resized again).

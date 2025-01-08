@@ -26,6 +26,7 @@
 #include "../simcity.h"
 #include "../simdebug.h"
 #include "../simdepot.h"
+#include "../simfab.h"
 #include "../simhalt.h"
 #include "../utils/simrandom.h"
 #include "../simtool.h"
@@ -163,7 +164,7 @@ bool hausbauer_t::successfully_loaded()
 				break;
 			case building_desc_t::city_com:
 				if(  desc->get_x()*desc->get_y() > 9  ) {
-					dbg->fatal( "hausbauer_t::successfully_loaded()", "maximum city building size (3x3) but %s is (%sx%i)", desc->get_name(), desc->get_x(), desc->get_y() );
+					dbg->fatal( "hausbauer_t::successfully_loaded()", "maximum city building size (3x3) but %s is (%ix%i)", desc->get_name(), desc->get_x(), desc->get_y() );
 				}
 				if(  desc->get_x()*desc->get_y() > largest_city_building_area  ) {
 					largest_city_building_area = desc->get_x()*desc->get_y();
@@ -322,13 +323,6 @@ void hausbauer_t::new_world()
 void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 {
 	const building_tile_desc_t *tile  = gb->get_tile();
-	const building_desc_t *bdsc = tile->get_desc();
-	const uint8 layout = tile->get_layout();
-
-	// get start position and size
-	const koord3d pos = gb->get_pos() - koord3d( tile->get_offset(), 0 );
-	koord size = tile->get_desc()->get_size( layout );
-	koord k;
 
 	if(  tile->get_desc()->get_type() == building_desc_t::headquarters  ) {
 		gb->get_owner()->add_headquarter( 0, koord::invalid );
@@ -337,31 +331,26 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 		unbuilt_monuments.append_unique(tile->get_desc());
 	}
 
+	// iterate over all places to check if there is already an open window
+	static vector_tpl<grund_t *> gb_tiles;
+	gb->get_tile_list( gb_tiles );
+
 	// then remove factory
 	fabrik_t *fab = gb->get_fabrik();
 	if(fab) {
-		// first remove fabrik_t pointers
-		for(k.y = 0; k.y < size.y; k.y ++) {
-			for(k.x = 0; k.x < size.x; k.x ++) {
-				grund_t *gr = welt->lookup(koord3d(k,0)+pos);
-				// for buildings with holes the hole could be on a different height ->gr==NULL
-				if (gr) {
-					gebaeude_t *gb_part = gr->find<gebaeude_t>();
-					if(gb_part) {
-						// there may be buildings with holes, so we only remove our building!
-						if(gb_part->get_tile()  ==  bdsc->get_tile(layout, k.x, k.y)) {
-							gb_part->set_fab( NULL );
-							planquadrat_t *plan = welt->access( k+pos.get_2d() );
-							for (size_t i = plan->get_haltlist_count(); i-- != 0;) {
-								halthandle_t halt = plan->get_haltlist()[i];
-								halt->remove_fabriken( fab );
-								plan->remove_from_haltlist( halt );
-							}
-						}
-					}
-				}
+		FOR( vector_tpl<grund_t*>, gr, gb_tiles ) {
+			const koord3d pos = gr->get_pos();
+			planquadrat_t *plan = welt->access( pos.get_2d() );
+			gebaeude_t* gb_part = gr->find<gebaeude_t>();
+			gb_part->set_fab( NULL );
+
+			for (size_t i = plan->get_haltlist_count(); i-- != 0;) {
+				halthandle_t halt = plan->get_haltlist()[i];
+				halt->remove_fabriken( fab );
+				plan->remove_from_haltlist( halt );
 			}
 		}
+
 		// tell players of the deletion
 		for(uint8 i=0; i<MAX_PLAYER_COUNT; i++) {
 			player_t *player = welt->get_player(i);
@@ -369,116 +358,101 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 				player->notify_factory(player_t::notify_delete, fab);
 			}
 		}
+
 		// remove all transformers
-		for(k.y = -1; k.y < size.y+1;  k.y ++) {
-			for(k.x = -1; k.x < size.x+1;  k.x ++) {
-				grund_t *gr = NULL;
-				if (0<=k.x  &&  k.x<size.x  &&  0<=k.y  &&  k.y<size.y) {
-					// look below factory
-					gr = welt->lookup(koord3d(k,-1) + pos);
-				}
-				else {
-					// find transformers near factory
-					gr = welt->lookup_kartenboden(k + pos.get_2d());
-				}
-				if (gr) {
-					senke_t *sk = gr->find<senke_t>();
-					if (  sk  &&  sk->get_factory()==fab  ) {
-						sk->mark_image_dirty(sk->get_image(), 0);
-						delete sk;
-					}
-					pumpe_t* pp = gr->find<pumpe_t>();
-					if (  pp  &&  pp->get_factory()==fab  ) {
-						pp->mark_image_dirty(pp->get_image(), 0);
-						delete pp;
-					}
-					// remove tunnel
-					if(  (sk!=NULL ||  pp!=NULL)  &&  gr->ist_im_tunnel()  &&  gr->get_top()<=1  ) {
-						if (tunnel_t *t = gr->find<tunnel_t>()) {
-							t->cleanup( t->get_owner() );
-							delete t;
-						}
-						const koord p = gr->get_pos().get_2d();
-						welt->lookup_kartenboden(p)->clear_flag(grund_t::marked);
-						// remove ground
-						welt->access(p)->boden_entfernen(gr);
-						delete gr;
-					}
-				}
+		while(1) {
+			vector_tpl<leitung_t*>const& trans = fab->get_transformers();
+			if( trans.empty() ) {
+				break;
 			}
+			leitung_t* sk = trans[0];
+			sk->mark_image_dirty( sk->get_image(), 0 );
+			delete sk;
 		}
 		// cleared transformers successfully, now remove factory.
 		welt->rem_fab(fab);
 	}
 
+	vector_tpl<boden_t*>recalc_boden;
+
 	// delete our house only
-	for(k.y = 0; k.y < size.y; k.y ++) {
-		for(k.x = 0; k.x < size.x; k.x ++) {
-			grund_t *gr = welt->lookup(koord3d(k,0)+pos);
-			if(gr) {
-				gebaeude_t *gb_part = gr->find<gebaeude_t>();
-				// there may be buildings with holes, so we only remove our building!
-				if(  gb_part  &&  gb_part->get_tile()==bdsc->get_tile(layout, k.x, k.y)  ) {
-					// ok, now we can go on with deletion
-					gb_part->cleanup( player );
-					delete gb_part;
-					// if this was a station building: delete ground
-					if(gr->get_halt().is_bound()) {
-						haltestelle_t::remove(player, gr->get_pos());
-					}
-					// and maybe restore land below
-					if(gr->get_typ()==grund_t::fundament) {
-						const koord newk = k+pos.get_2d();
-						sint8 new_hgt;
-						const uint8 new_slope = welt->recalc_natural_slope(newk,new_hgt);
-						// test for ground at new height
-						const grund_t *gr2 = welt->lookup(koord3d(newk,new_hgt));
-						if(  (gr2==NULL  ||  gr2==gr) &&  new_slope!=slope_t::flat  ) {
-							// and for ground above new sloped tile
-							gr2 = welt->lookup(koord3d(newk, new_hgt+1));
-						}
-						bool ground_recalc = true;
-						if(  gr2  &&  gr2!=gr  ) {
-							// there is another ground below or above
-							// => do not change height, keep foundation
-							welt->access(newk)->kartenboden_setzen( new boden_t( gr->get_pos(), slope_t::flat ) );
-							ground_recalc = false;
-						}
-						else if(  new_hgt <= welt->get_water_hgt(newk)  &&  new_slope == slope_t::flat  ) {
-							wasser_t* sea = new wasser_t( koord3d( newk, new_hgt) );
-							welt->access(newk)->kartenboden_setzen( sea );
-							welt->calc_climate( newk, true );
-							sea->recalc_water_neighbours();
-						}
-						else {
-							if(  gr->get_grund_hang() == new_slope  ) {
-								ground_recalc = false;
-							}
-							welt->access(newk)->kartenboden_setzen( new boden_t( koord3d( newk, new_hgt ), new_slope ) );
-							// climate is stored in planquadrat, and hence automatically preserved
-						}
-						// there might be walls from foundations left => thus some tiles may need to be redrawn
-						if(ground_recalc) {
-							if(grund_t *gr = welt->lookup_kartenboden(newk+koord::east)) {
-								gr->calc_image();
-							}
-							if(grund_t *gr = welt->lookup_kartenboden(newk+koord::south)) {
-								gr->calc_image();
-							}
-							welt->set_grid_hgt( pos.get_2d(), pos.z+corner_nw(new_slope) );
-						}
-					}
-					else if (wasser_t* sea = dynamic_cast<wasser_t*>(gr)) {
-						sea->recalc_water_neighbours();
-					}
+	FOR( vector_tpl<grund_t*>, gr, gb_tiles ) {
+		const koord3d pos = gr->get_pos();
+		gebaeude_t* gb_part = gr->find<gebaeude_t>();
+		gb_part->cleanup( player );
+		delete gb_part;
+
+		// if this was a station building: delete ground
+		if(gr->get_halt().is_bound()) {
+			haltestelle_t::remove(player, pos);
+		}
+
+		// and maybe restore land below
+		if(gr->get_typ()==grund_t::fundament) {
+			const koord newk = pos.get_2d();
+			sint8 new_hgt;
+			uint8 new_slope;
+			welt->get_height_slope_from_grid(newk, new_hgt, new_slope);
+
+			// test for ground at new height
+			const grund_t *gr2 = welt->lookup(koord3d(newk,new_hgt));
+
+			if(  (gr2==NULL  ||  gr2==gr) &&  new_slope!=slope_t::flat  ) {
+				// and for ground above new sloped tile
+				gr2 = welt->lookup(koord3d(newk, new_hgt+1));
+				if(  gr==0  && slope_t::max_diff(new_slope) == 2  ) {
+					gr2 = welt->lookup(koord3d(newk, new_hgt + 2));
 				}
 			}
+
+			if(  gr2  &&  gr2!=gr  ) {
+				// there is another ground below or above
+				// => do not change height, keep foundation
+				welt->access(newk)->kartenboden_setzen( new boden_t( pos, slope_t::flat ) );
+			}
+			else {
+				boden_t* bd = new boden_t(koord3d(newk, new_hgt), new_slope);
+				welt->access(newk)->kartenboden_setzen(bd);
+				recalc_boden.append(bd);
+			}
+		}
+		else if (wasser_t* sea = dynamic_cast<wasser_t*>(gr)) {
+			sea->recalc_water_neighbours();
 		}
 	}
+
+	FOR(vector_tpl<boden_t *>, gr, recalc_boden) {
+		// the grid height might not be fully appropriate, so now we checlk for superflous walls
+		const koord newk = gr->get_pos().get_2d();
+		sint8 new_hgt = gr->get_pos().z;
+		const uint8 new_slope = welt->recalc_natural_slope(newk, new_hgt);
+
+		if (new_hgt < welt->get_water_hgt(newk) || (new_hgt == welt->get_water_hgt(newk) && new_slope == slope_t::flat)) {
+			wasser_t* sea = new wasser_t(koord3d(newk, new_hgt));
+			welt->access(newk)->kartenboden_setzen(sea);
+			welt->calc_climate(newk, true);
+			sea->recalc_water_neighbours();
+		}
+		else {
+			boden_t* bd = new boden_t(koord3d(newk, new_hgt), new_slope);
+			welt->access(newk)->kartenboden_setzen(bd);
+			// climate is stored in planquadrat, and hence automatically preserved
+		}
+
+		// there might be walls from foundations left => thus some tiles may need to be redrawn
+		if (grund_t* gr = welt->lookup_kartenboden(newk + koord::east)) {
+			gr->calc_image();
+		}
+		if (grund_t* gr = welt->lookup_kartenboden(newk + koord::south)) {
+			gr->calc_image();
+		}
+		welt->set_grid_hgt(newk, new_hgt + corner_nw(new_slope));
+	}
+
 }
 
 
-gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, const building_desc_t* desc, void* param)
+gebaeude_t* hausbauer_t::build(player_t* player, koord pos, int org_layout, const building_desc_t* desc, void* param)
 {
 	gebaeude_t* first_building = NULL;
 	koord k;
@@ -487,6 +461,31 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 	uint8 layout = desc->adjust_layout(org_layout);
 	dim = desc->get_size(org_layout);
 	bool needs_ground_recalc = false;
+
+	sint8 base_h = -128;
+	if( dim.y+dim.x > 2 ) {
+		for( k.y = 0; k.y < dim.y; k.y++ ) {
+			for( k.x = 0; k.x < dim.x; k.x++ ) {
+				if( grund_t* gr = welt->lookup_kartenboden( pos + k ) ) {
+					base_h = max( base_h, gr->get_hoehe() );
+					if( gr->get_hoehe()!=base_h  &&  welt->lookup( koord3d( pos+k, base_h ) ) ) {
+						// there is already a ground here!
+						dbg->error("hausbauer_t::build","Will create new ground at (%s) where there is ground above!", pos.get_str() );
+					}
+				}
+				else {
+					return NULL;
+				}
+			}
+		}
+	}
+	else {
+		// single tile
+		grund_t* gr = welt->lookup_kartenboden( pos + k );
+		base_h = gr->get_hoehe() + +slope_t::max_diff( gr->get_grund_hang() );
+
+	}
+	// now we must raise all grounds to base_h during construction
 
 	for(k.y = 0; k.y < dim.y; k.y ++) {
 		for(k.x = 0; k.x < dim.x; k.x ++) {
@@ -503,7 +502,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 						DBG_MESSAGE("hausbauer_t::build()","get_tile() empty at %i,%i",k.x,k.y);
 				continue;
 			}
-			gebaeude_t *gb = new gebaeude_t(pos + k, player, tile);
+			gebaeude_t *gb = new gebaeude_t(koord3d(pos + k,base_h), player, tile);
 			if (first_building == NULL) {
 				first_building = gb;
 			}
@@ -517,7 +516,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 				gb->add_alter(10000);
 			}
 
-			grund_t *gr = welt->lookup_kartenboden(pos.get_2d() + k);
+			grund_t *gr = welt->lookup_kartenboden(pos + k);
 			if(gr->is_water()) {
 				gr->obj_add(gb);
 			}
@@ -546,9 +545,9 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 				}
 
 				// build new foundation
-				needs_ground_recalc |= gr->get_grund_hang()!=slope_t::flat;
-				grund_t *gr2 = new fundament_t(gr->get_pos(), gr->get_grund_hang());
-				welt->access(gr->get_pos().get_2d())->boden_ersetzen(gr, gr2);
+				needs_ground_recalc |= gr->get_grund_hang()!=slope_t::flat  ||  gr->get_hoehe()!=base_h;
+				grund_t *gr2 = new fundament_t( koord3d(pos+k,base_h), slope_t::flat);
+				welt->access(pos+k)->boden_ersetzen(gr, gr2);
 				gr = gr2;
 //DBG_DEBUG("hausbauer_t::build()","ground count now %i",gr->obj_count());
 				gr->obj_add( gb );
@@ -558,10 +557,10 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 					gr->obj_add(keptobjs[i]);
 				}
 
-				if(needs_ground_recalc  &&  welt->is_within_limits(pos.get_2d()+k+koord(1,1))  &&  (k.y+1==dim.y  ||  k.x+1==dim.x)) {
-					welt->lookup_kartenboden(pos.get_2d()+k+koord(1,0))->calc_image();
-					welt->lookup_kartenboden(pos.get_2d()+k+koord(0,1))->calc_image();
-					welt->lookup_kartenboden(pos.get_2d()+k+koord(1,1))->calc_image();
+				if(needs_ground_recalc  &&  welt->is_within_limits(pos+k+koord(1,1))  &&  (k.y+1==dim.y  ||  k.x+1==dim.x)) {
+					welt->lookup_kartenboden(pos+k+koord(1,0))->calc_image();
+					welt->lookup_kartenboden(pos+k+koord(0,1))->calc_image();
+					welt->lookup_kartenboden(pos+k+koord(1,1))->calc_image();
 				}
 			}
 			gb->set_pos( gr->get_pos() );
@@ -638,15 +637,24 @@ gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d
 			}
 			if(  gb  &&  gb->get_tile()->get_desc()->is_transport_building()  ) {
 				corner_layout &= ~2; // clear near bit
-				if(gb->get_tile()->get_desc()->get_all_layouts()>4) {
-					koord xy = gb->get_tile()->get_offset();
-					uint8 layoutbase = gb->get_tile()->get_layout();
-
-					if((layoutbase & 1) == (layout & 1)) {
-						layoutbase &= 0xb; // clear near bit on neighbour
-						gb->set_tile( gb->get_tile()->get_desc()->get_tile(layoutbase, xy.x, xy.y), false );
+				const koord xy = gb->get_tile()->get_offset();
+				uint8 layoutbase = gb->get_tile()->get_layout();
+				if(  layoutbase>=16  ) {
+					if(  (layoutbase & 0x30) == 0x10  ) {
+						// vertical diagonal. 010->000, 011->001
+						layoutbase &= ~2;
+					} 
+					else if(  (layoutbase & 6) != 6  ) {
+						// horizontal diagonal. 011->001, 101->001
+						layoutbase &= ~6;
 					}
 				}
+				else if(  gb->get_tile()->get_desc()->get_all_layouts()>4  ) {
+					if((layoutbase & 1) == (layout & 1)) {
+						layoutbase &= 0xb; // clear near bit on neighbour
+					}
+				}
+				gb->set_tile( gb->get_tile()->get_desc()->get_tile(layoutbase, xy.x, xy.y), false );
 			}
 		}
 
@@ -669,15 +677,24 @@ gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb  &&  gb->get_tile()->get_desc()->is_transport_building()) {
 				corner_layout &= ~4; // clear far bit
-
-				if(gb->get_tile()->get_desc()->get_all_layouts()>4) {
-					koord xy = gb->get_tile()->get_offset();
-					uint8 layoutbase = gb->get_tile()->get_layout();
-					if((layoutbase & 1) == (layout & 1)) {
-						layoutbase &= 0xd; // clear far bit on neighbour
-						gb->set_tile( gb->get_tile()->get_desc()->get_tile(layoutbase, xy.x, xy.y), false );
+				const koord xy = gb->get_tile()->get_offset();
+				uint8 layoutbase = gb->get_tile()->get_layout();
+				if(  layoutbase>=16  ) {
+					if(  (layoutbase & 0x30) == 0x10  ) {
+						// vertical diagonal. 100->000, 101->001
+						layoutbase &= ~4;
+					} 
+					else if(  (layoutbase & 6) != 6  ) {
+						// horizontal diagonal. 010->000, 100->100
+						layoutbase &= ~6;
 					}
 				}
+				else if(gb->get_tile()->get_desc()->get_all_layouts()>4) {
+					if((layoutbase & 1) == (layout & 1)) {
+						layoutbase &= 0xd; // clear far bit on neighbour
+					}
+				}
+				gb->set_tile( gb->get_tile()->get_desc()->get_tile(layoutbase, xy.x, xy.y), false );
 			}
 		}
 	}
@@ -687,7 +704,106 @@ gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d
 		built_layout = (corner_layout | (built_layout&9) ) % desc->get_all_layouts();
 	}
 
-	const building_tile_desc_t *tile = desc->get_tile(built_layout, 0, 0);
+	return build_station_extension_depot_with_complete_layout_bits(player, pos, built_layout, desc, param);
+}
+
+
+gebaeude_t* hausbauer_t::build_station_on_diagonal_way(player_t* player, koord3d pos, const building_desc_t* desc, const ribi_t::ribi way_connection, halthandle_t halt) {
+	const grund_t* bd = world()->lookup(pos);
+	
+	// bits (Note that it's quite different from for straight way.)
+	// (1<<0) ... way connected direction. 0 - contains east (ne/se), 1 - contains west (ws/wn)
+	// (1<<1), (1<<2) ... connection of platform. 
+	// 00 - combined, 01 - end to up/left direction, 10 - end to down/right direction, 11 - single tile
+	// (1<<3) ... front/back. 0 - front, 1 - back.
+	// (1<<4), (1<<5) ... (00 - straight way), 01 - vertical, 10 - horizontal
+	
+	// calculate (1<<4), (1<<5)
+	const uint16 diagonal_direction_bits = (way_connection == ribi_t::northeast || way_connection == ribi_t::southwest) ? 0x10 : 0x20;
+	
+	// calculate (1<<0)
+	const uint16 way_connection_dir_bits = way_connection & ribi_t::west ? 1 : 0;
+	
+	// calculate neighbour_diagonal_stops
+	const sint8 offset = bd->get_hoehe()+bd->get_weg_yoff()/TILE_HEIGHT_STEP;
+	grund_t *gr;
+	gebaeude_t* neighbour_diagonal_stops[] = {NULL, NULL, NULL, NULL};
+	const koord pos_2d = bd->get_pos().get_2d();
+	for(  unsigned i=0;  i<4;  i++  ) {
+		// oriented buildings here - get neighbouring layouts
+		gr = world()->lookup(koord3d(pos_2d+koord::nesw[i],offset));
+		if(  !gr  ) {
+			// check whether bridge end tile
+			grund_t * gr_off1 = world()->lookup(koord3d(pos_2d+koord::nesw[i],offset-1));
+			grund_t * gr_off2 = world()->lookup(koord3d(pos_2d+koord::nesw[i],offset-2));
+			if(gr_off1 && gr_off1->get_weg_yoff()/TILE_HEIGHT_STEP == 1) {
+				gr = gr_off1;
+			}
+			else if(gr_off2 && gr_off2->get_weg_yoff()/TILE_HEIGHT_STEP == 2) {
+				gr = gr_off2;
+			}
+		}
+		if(  !gr  ||  !gr->get_halt().is_bound()  ) {
+			continue;
+		}
+		// check, if there is an oriented stop
+		gebaeude_t* gb = gr->find<gebaeude_t>();
+		if(  gb==NULL  ) {
+			continue;
+		}
+		const building_desc_t::btype gb_type = gb->get_tile()->get_desc()->get_type();
+		if(  gb_type==building_desc_t::generic_stop  ) {
+			neighbour_diagonal_stops[i] = gb;
+		}
+	}
+	
+	// calculate (1<<1), (1<<2), (1<<3)
+	// check connected direction
+	const uint8 up_left_directions = (diagonal_direction_bits == 0x10) ? ribi_t::northwest: ribi_t::southwest;
+	uint8 corner_bits = 3; // (1<<1), (1<<2), will be left shifted. Use the isolated image by default.
+	uint8 front_back_bit = 0; // (1<<3)
+	for(  unsigned i=0;  i<4;  i++  ) {
+		if(  (ribi_t::nesw[i] & way_connection) == 0  ) { continue; }
+		gebaeude_t* gb = neighbour_diagonal_stops[i];
+		if(  !gb  ) { continue; }
+		const bool is_up_left_dir = (up_left_directions & ribi_t::nesw[i]) > 0;
+		corner_bits &= ~(is_up_left_dir ? 1 : 2);
+		
+		// clear adjoining stop connection bits on neighbour
+		const uint32 gb_desc_all_layouts = gb->get_tile()->get_desc()->get_all_layouts();
+		koord xy = gb->get_tile()->get_offset();
+		uint8 layoutbase = gb->get_tile()->get_layout();
+		if(  layoutbase >= 16  ) {
+			// gb is a stop on a diagonal way.
+			layoutbase &= ~(is_up_left_dir ? 4 : 2);
+			gb->set_tile( gb->get_tile()->get_desc()->get_tile(layoutbase, xy.x, xy.y), false );
+			front_back_bit = layoutbase & (1<<3);
+		} else if(  gb_desc_all_layouts >= 8  ) {
+			// for a stop on a straight way, just change adjoining stop connection bits.
+			layoutbase &= ~((ribi_t::nesw[i] & ribi_t::southeast) ? 4 : 2);
+			gb->set_tile( gb->get_tile()->get_desc()->get_tile(layoutbase, xy.x, xy.y), false );
+		}
+	}
+	
+	// check not connected direction
+	if(  corner_bits == 3  ) {
+		for(  unsigned i=0;  i<4;  i++  ) {
+			if(  (ribi_t::nesw[i] & way_connection) > 0  ) { continue; }
+			const gebaeude_t* gb = neighbour_diagonal_stops[i];
+			if(  !gb  ) { continue; }
+			const bool gb_is_back_image = (gb->get_tile()->get_layout() & 8) > 0;
+			front_back_bit = gb_is_back_image ? 0 : 8;
+		}
+	}
+	
+	const uint8 layout = diagonal_direction_bits | front_back_bit | (corner_bits << 1) | way_connection_dir_bits;
+	return build_station_extension_depot_with_complete_layout_bits(player, pos, layout, desc, &halt);
+}
+
+
+gebaeude_t *hausbauer_t::build_station_extension_depot_with_complete_layout_bits(player_t *player, koord3d pos, int layout_bits, const building_desc_t *desc, void *param)
+{
+	const building_tile_desc_t *tile = desc->get_tile(layout_bits, 0, 0);
 	gebaeude_t *gb;
 	if(  desc->get_type() == building_desc_t::depot  ) {
 		switch(  desc->get_extra()  ) {
@@ -717,7 +833,6 @@ gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d
 				break;
 			default:
 				dbg->fatal("hausbauer_t::build_station_extension_depot()","waytpe %i has no depots!", desc->get_extra() );
-				break;
 		}
 	}
 	else {
@@ -757,18 +872,26 @@ gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d
 
 const building_tile_desc_t *hausbauer_t::find_tile(const char *name, int org_idx)
 {
-	int idx = org_idx;
-	const building_desc_t *desc = desc_table.get(name);
-	if(desc) {
-		const int size = desc->get_y()*desc->get_x();
-		if(  idx >= desc->get_all_layouts()*size  ) {
-			idx %= desc->get_all_layouts()*size;
-			DBG_MESSAGE("gebaeude_t::rdwr()","%s using tile %i instead of %i",name,idx,org_idx);
-		}
-		return desc->get_tile(idx);
+	if (org_idx < 0) {
+		return NULL;
 	}
-//	DBG_MESSAGE("hausbauer_t::find_tile()","\"%s\" not in hashtable",name);
-	return NULL;
+
+	const building_desc_t *desc = desc_table.get(name);
+
+	if(!desc) {
+		// DBG_MESSAGE("hausbauer_t::find_tile()","\"%s\" not in hashtable",name);
+		return NULL;
+	}
+
+	const int size = desc->get_y()*desc->get_x();
+	int idx = org_idx;
+
+	if(  idx >= desc->get_all_layouts()*size  ) {
+		idx %= desc->get_all_layouts()*size;
+		DBG_MESSAGE("gebaeude_t::rdwr()","%s using tile %i instead of %i",name,idx,org_idx);
+	}
+
+	return desc->get_tile(idx);
 }
 
 
@@ -842,7 +965,7 @@ const building_desc_t* hausbauer_t::get_special(uint32 bev, building_desc_t::bty
 /**
  * Tries to find a matching house desc from @p list.
  * This method will never return NULL if there is at least one valid entry in the list.
- * @param level the minimum level of the house/station
+ * @param start_level the minimum level of the house/station
  * @param cl allowed climates
  */
 static const building_desc_t* get_city_building_from_list(const vector_tpl<const building_desc_t*>& list, int start_level, uint16 time, climate cl, uint32 clusters, koord minsize, koord maxsize )
@@ -854,16 +977,13 @@ static const building_desc_t* get_city_building_from_list(const vector_tpl<const
 	const building_desc_t *desc_at_least=NULL;
 	FOR(vector_tpl<building_desc_t const*>, const desc, list) {
 		const int thislevel = desc->get_level();
-		if (thislevel > start_level + 6) {
-			break;
-		}
 		if( thislevel > level ) {
 			if (selections.empty()) {
 				// Nothing of the correct level. Continue with search on a higher level.
 				level = thislevel;
 			}
 			else {
-				// We already found something of the correct level or the jump is too big; stop
+				// We already found something of the correct or an higher level; stop
 				break;
 			}
 		}

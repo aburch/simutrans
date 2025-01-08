@@ -5,13 +5,13 @@
 
 #include "kennfarbe.h"
 #include "../simworld.h"
-#include "../descriptor/skin_desc.h"
 #include "../simskin.h"
 #include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 #include "../player/simplay.h"
 #include "components/gui_label.h"
 #include "components/gui_image.h"
+#include "../simtool.h"
 
 /**
  * Buttons forced to be square ...
@@ -22,9 +22,12 @@ class choose_color_button_t : public button_t
 public:
 	choose_color_button_t() : button_t()
 	{
-		w = max(D_BUTTON_HEIGHT, display_get_char_width('X'));
+		w = max(D_BUTTON_HEIGHT, display_get_char_width('X') + D_BUTTON_PADDINGS_X);
 	}
-	scr_size get_min_size() const OVERRIDE { return scr_size(w,w); }
+	scr_size get_min_size() const OVERRIDE
+	{
+		return scr_size(w, D_BUTTON_HEIGHT);
+	}
 };
 
 
@@ -102,9 +105,16 @@ bool farbengui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 				player_color_1[j]->pressed = false;
 			}
 			player_color_1[i]->pressed = true;
-			player->set_player_color( i*8, player->get_player_color2() );
-			env_t::default_settings.set_default_player_color(player->get_player_nr(), player->get_player_color1(), player->get_player_color2());
+			//env_t::default_settings.set_default_player_color(player->get_player_nr(), player->get_player_color1(), player->get_player_color2());
 
+			// re-colour a player
+			cbuffer_t buf;
+			buf.printf( "1%u,%i", player->get_player_nr(), i*8);
+			tool_t *w = create_tool( TOOL_RECOLOUR_TOOL | SIMPLE_TOOL );
+			w->set_default_param( buf );
+			world()->set_tool( w, player );
+			// since init always returns false, it is save to delete immediately
+			delete w;
 			return true;
 		}
 
@@ -114,9 +124,16 @@ bool farbengui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 				player_color_2[j]->pressed = false;
 			}
 			player_color_2[i]->pressed = true;
-			player->set_player_color( player->get_player_color1(), i*8 );
-			env_t::default_settings.set_default_player_color(player->get_player_nr(), player->get_player_color1(), player->get_player_color2());
+			//env_t::default_settings.set_default_player_color(player->get_player_nr(), player->get_player_color1(), player->get_player_color2());
 
+			// re-colour a player
+			cbuffer_t buf;
+			buf.printf( "2%u,%i", player->get_player_nr(), i*8);
+			tool_t *w = create_tool( TOOL_RECOLOUR_TOOL | SIMPLE_TOOL );
+			w->set_default_param( buf );
+			world()->set_tool( w, player );
+			// since init always returns false, it is save to delete immediately
+			delete w;
 			return true;
 		}
 

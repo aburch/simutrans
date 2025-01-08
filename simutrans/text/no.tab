@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                              Language: no Norsk                              #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 3.02 2020                           #
+#                           Date Created: 20.10 2020                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -191,7 +191,7 @@ Add Stop
 Legg til
 Add stops for backward travel
 Legg til stopp på veien tilbake.
-Air
+air_wt
 Fly
 aircraft_tab
 Frakt

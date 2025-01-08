@@ -23,12 +23,14 @@ void script_api::register_function(HSQUIRRELVM vm, SQFUNCTION funcptr, const cha
 }
 
 static FILE* file = NULL;
+static const char* suffix = NULL;
 
-void script_api::start_squirrel_type_logging(const char* suffix)
+void script_api::start_squirrel_type_logging(const char* s)
 {
 	if (env_t::verbose_debug < 2) {
 		return;
 	}
+	suffix = s;
 	cbuffer_t buf;
 	buf.printf("squirrel_types_%s.awk", suffix);
 	file = dr_fopen(buf, "w");
@@ -49,6 +51,7 @@ void script_api::end_squirrel_type_logging()
 		fprintf(file, "}\n");
 		fclose(file);
 		file = NULL;
+		suffix = NULL;
 	}
 }
 
@@ -62,7 +65,8 @@ void script_api::set_squirrel_type_class(const char* classname)
 void script_api::log_squirrel_type(std::string classname, const char* name, std::string squirrel_type)
 {
 	if (file) {
-		fprintf(file, "\texport_types[\"%s::%s\"] = \"%s\"\n",
+		fprintf(file, "\texport_types_%s[\"%s::%s\"] = \"%s\"\n",
+			suffix ? suffix : "",
 			classname.compare(param<void_t>::squirrel_type()) == 0 ? current_class.c_str() : classname.c_str(),
 			name,
 			squirrel_type.c_str()

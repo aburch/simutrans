@@ -19,8 +19,6 @@ class gui_scrollpane_t : public gui_component_t
 {
 private:
 	scr_size old_comp_size;
-	scr_size cached_min_size;
-	scr_size cached_max_size;
 
 	/**
 	 * Scrollbar X/Y
@@ -31,7 +29,6 @@ private:
 	bool b_show_scroll_y:1;
 	bool b_has_size_corner:1;
 	bool maximize:1;
-	bool take_cached_size:1;
 
 	// for oversized entries
 	scr_coord_val max_width;
@@ -46,7 +43,7 @@ protected:
 
 public:
 	/**
-	 * @param comp, the scrolling component
+	 * @param comp the scrolling component
 	 */
 	gui_scrollpane_t(gui_component_t *comp, bool b_scroll_x = false, bool b_scroll_y = true);
 
@@ -55,7 +52,7 @@ public:
 	/**
 	* this is the maximum width a scrollbar requests as minimum size
 	* default is the stadard width of a dialoge (4*button width+3*space)
-	* @param width, the minimum width it should strech to
+	* @param width the minimum width it should strech to
 	*/
 	virtual void set_min_width( scr_coord_val width ) { max_width = width; }
 

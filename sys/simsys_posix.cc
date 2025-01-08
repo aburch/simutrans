@@ -29,11 +29,18 @@ static bool sigterm_received = false;
 #error "Posix only compiles with color depth=0"
 #endif
 
-// no autoscaling as we have no display ...
-bool dr_auto_scale(bool)
+bool dr_set_screen_scale(sint16)
 {
+	// no autoscaling as we have no display ...
 	return false;
 }
+
+
+sint16 dr_get_screen_scale()
+{
+	return 100;
+}
+
 
 bool dr_os_init(const int*)
 {
@@ -50,7 +57,7 @@ resolution dr_query_screen_resolution()
 }
 
 // open the window
-int dr_os_open(int, int, int)
+int dr_os_open(int, int, sint16)
 {
 	return 1;
 }
@@ -90,40 +97,23 @@ void dr_textur(int, int, int, int)
 {
 }
 
-void move_pointer(int, int)
+bool move_pointer(int, int)
 {
+	return false;
 }
 
 void set_pointer(int)
 {
 }
 
-int dr_screenshot(const char *,int,int,int,int)
-{
-	return -1;
-}
-
-static inline unsigned int ModifierKeys()
-{
-	return 0;
-}
-
 void GetEvents()
- {
-	if(  sigterm_received  ) {
-		sys_event.type = SIM_SYSTEM;
-		sys_event.code = SYSTEM_QUIT;
-	}
- }
-
-
-void GetEventsNoWait()
 {
 	if(  sigterm_received  ) {
 		sys_event.type = SIM_SYSTEM;
 		sys_event.code = SYSTEM_QUIT;
 	}
 }
+
 
 void show_pointer(int)
 {
@@ -190,6 +180,26 @@ static void posix_sigterm(int)
 	sigterm_received = 1;
 }
 
+
+const char* dr_get_locale()
+{
+	return "";
+}
+
+bool dr_has_fullscreen()
+{
+	return false;
+}
+
+sint16 dr_get_fullscreen()
+{
+	return 0;
+}
+
+sint16 dr_toggle_borderless()
+{
+	return 0;
+}
 
 int main(int argc, char **argv)
 {

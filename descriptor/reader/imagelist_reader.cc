@@ -10,21 +10,19 @@
 
 #include "imagelist_reader.h"
 #include "../obj_node_info.h"
+#include "../../tpl/array_tpl.h"
 
 
 obj_desc_t * imagelist_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	ALLOCA(char, desc_buf, node.size);
+	array_tpl<char> desc_buf(node.size);
+	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
+		return NULL;
+	}
+	char *p = desc_buf.begin();
 
 	image_list_t *desc = new image_list_t();
-
-	// Read data
-	fread(desc_buf, node.size, 1, fp);
-	char * p = desc_buf;
-
 	desc->count = decode_uint16(p);
-
-//	DBG_DEBUG("imagelist_reader_t::read_node()", "count=%d data read (node.size=%i)",desc->count, node.size);
 
 	return desc;
 }

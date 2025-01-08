@@ -251,7 +251,8 @@ incompatible sound drivers. This is a problem especially in 64 bit Linux.
 -singleuser
 
 Will not search for files in your home directory. Simutrans will
-write all files in its program directory, which must not be write
+write all files in its data directory (usually the same directory
+as the directory containing the executable), which must not be write
 protected.
 
 
@@ -309,7 +310,7 @@ only supported on Linux/X-Windows.
 If you run into problems, or if you have questions, please visit the
 feedback forum:
 
-http://forum.simutrans.com/
+https://forum.simutrans.com/
 
 
 
@@ -325,7 +326,7 @@ if you send reports by email.
 There are some Simutrans related web pages, you may want to visit them:
 
 The official Simutrans home page:
-http://www.simutrans.com
+https://www.simutrans.com
 
 This readme file was written by Hansjörg Malthaner, November 2000,
 Updated 8-Sep-2010 by Markus Pristovsek

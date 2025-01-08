@@ -8,6 +8,8 @@
 #include <time.h>
 #include "simrandom.h"
 #include "../sys/simsys.h"
+#include "../dataobj/loadsave.h"
+
 
 /* This is the mersenne random generator: More random and faster! */
 
@@ -18,8 +20,8 @@
 #define UPPER_MASK 0x80000000UL /* most significant w-r bits */
 #define LOWER_MASK 0x7fffffffUL /* least significant r bits */
 
-static unsigned long mersenne_twister[MERSENNE_TWISTER_N]; // the array for the state vector
-static int mersenne_twister_index = MERSENNE_TWISTER_N + 1; // mersenne_twister_index==N+1 means mersenne_twister[N] is not initialized
+static uint32 mersenne_twister[MERSENNE_TWISTER_N]; // the array for the state vector
+static uint32 mersenne_twister_index = MERSENNE_TWISTER_N + 1; // mersenne_twister_index==N+1 means mersenne_twister[N] is not initialized
 
 static uint8 random_origin = 0;
 
@@ -87,7 +89,7 @@ uint32 simrand_plain()
 
 	/* Tempering */
 	y ^= (y >> 11);
-	y ^= (y << 7) & 0x9d2c5680UL;
+	y ^= (y <<  7) & 0x9d2c5680UL;
 	y ^= (y << 15) & 0xefc60000UL;
 	y ^= (y >> 18);
 
@@ -104,6 +106,20 @@ uint32 simrand(const uint32 max)
 		return 0;
 	}
 	return simrand_plain() % max;
+}
+
+
+void simrand_rdwr(loadsave_t *file)
+{
+	xml_tag_t t(file, "simrand");
+
+	// rdwr index
+	file->rdwr_long(mersenne_twister_index);
+
+	// rdwr state vector
+	for (uint32 i=0; i<MERSENNE_TWISTER_N; ++i) {
+		file->rdwr_long(mersenne_twister[i]);
+	}
 }
 
 
@@ -125,7 +141,7 @@ uint16 get_random_mode()
 }
 
 
-static uint32 async_rand_seed = 12345678 + time( NULL ); // Do not use dr_time(). It returns 0 on program startup for some platforms (SDL).
+static uint32 async_rand_seed = 12345678 + (uint32)time( NULL ); // Do not use dr_time(). It returns 0 on program startup for some platforms (SDL).
 
 /* simpler simrand for anything not game critical (like UI) */
 uint32 sim_async_rand( uint32 max )

@@ -16,7 +16,7 @@
 
 
 /**
- * @param comp, the scrolling component
+ * @param comp the scrolling component
  */
 gui_scrollpane_t::gui_scrollpane_t(gui_component_t *comp, bool b_scroll_x, bool b_scroll_y) :
 	scroll_x(scrollbar_t::horizontal),
@@ -31,7 +31,6 @@ gui_scrollpane_t::gui_scrollpane_t(gui_component_t *comp, bool b_scroll_x, bool 
 	b_has_size_corner = true;
 
 	old_comp_size = scr_size::invalid;
-	take_cached_size = false;
 	maximize = false;
 }
 
@@ -39,7 +38,7 @@ gui_scrollpane_t::gui_scrollpane_t(gui_component_t *comp, bool b_scroll_x, bool 
 scr_size gui_scrollpane_t::get_min_size() const
 {
 	// request width of largest element, but leave enough space for scrollbars
-	scr_size csize = take_cached_size ? cached_min_size : comp->get_min_size();
+	scr_size csize = comp->get_min_size();
 	csize.w = max( csize.w, scroll_x.get_min_size().w );
 	csize.w = min( csize.w, max_width );
 	csize.h = min( csize.h, scroll_y.get_min_size().h );
@@ -48,8 +47,7 @@ scr_size gui_scrollpane_t::get_min_size() const
 
 scr_size gui_scrollpane_t::get_max_size() const
 {
-	scr_size csize = take_cached_size ? cached_max_size : comp->get_max_size();
-	return csize;
+	return comp->get_max_size();
 }
 
 
@@ -110,12 +108,8 @@ void gui_scrollpane_t::set_size(scr_size size)
 		c_size.w -= scroll_y.get_size().w;
 	}
 
-	cached_min_size = comp->get_min_size();
-	cached_max_size = comp->get_max_size();
-	take_cached_size = false; // disabled, there is no proper way to check whether cache is still valid
-
-	c_size.clip_lefttop( cached_min_size );
-	c_size.clip_rightbottom( cached_max_size );
+	c_size.clip_lefttop( comp->get_min_size() );
+	c_size.clip_rightbottom( comp->get_max_size() );
 	comp->set_size(c_size);
 
 	recalc_sliders(size);
@@ -126,7 +120,7 @@ void gui_scrollpane_t::set_size(scr_size size)
 scr_size gui_scrollpane_t::request_size(scr_size request)
 {
 	// do not enlarge past max size of comp
-	scr_size cmax = take_cached_size ? cached_max_size : comp->get_max_size();
+	scr_size cmax = comp->get_max_size();
 	if (cmax.w  < request.w - comp->get_pos().x  &&  cmax.h < request.h - comp->get_pos().y) {
 		request = cmax;
 	}
@@ -140,28 +134,24 @@ scr_size gui_scrollpane_t::request_size(scr_size request)
  */
 bool gui_scrollpane_t::infowin_event(const event_t *ev)
 {
+	bool swallow = false;
 	if(   (b_show_scroll_y  &&  scroll_y.is_visible())  &&  ev->ev_class!=EVENT_KEYBOARD  &&  (scroll_y.getroffen(ev->mx, ev->my) || scroll_y.getroffen(ev->cx, ev->cy)) ) {
 		event_t ev2 = *ev;
-		translate_event(&ev2, -scroll_y.get_pos().x, -scroll_y.get_pos().y);
+		ev2.move_origin(scroll_y.get_pos());
 		return scroll_y.infowin_event(&ev2);
 	}
 	else if(  (b_show_scroll_x  &&  scroll_x.is_visible())  &&  ev->ev_class!=EVENT_KEYBOARD  &&  (scroll_x.getroffen(ev->mx, ev->my) || scroll_x.getroffen(ev->cx, ev->cy))) {
 		event_t ev2 = *ev;
-		translate_event(&ev2, -scroll_x.get_pos().x, -scroll_x.get_pos().y);
+		ev2.move_origin(scroll_x.get_pos());
 		return scroll_x.infowin_event(&ev2);
-	}
-	else if((IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))  &&  (((b_show_scroll_y  &&  scroll_y.is_visible())  &&  !IS_SHIFT_PRESSED(ev))  ||  ((b_show_scroll_x  &&  scroll_x.is_visible())  &&  IS_SHIFT_PRESSED(ev)))) {
-		// otherwise these events are only registered where directly over the scroll region
-		// (and sometime even not then ... )
-		return IS_SHIFT_PRESSED(ev) ? scroll_x.infowin_event(ev) : scroll_y.infowin_event(ev);
 	}
 	else if(  ev->ev_class<EVENT_CLICK  ||  (ev->mx>=0 &&  ev->my>=0  &&  ev->mx<=size.w  &&  ev->my<=size.h)  ) {
 		// since we get can grab the focus to get keyboard events, we must make sure to handle mouse events only if we are hit
 
 		// translate according to scrolled position
-		bool swallow;
 		event_t ev2 = *ev;
-		translate_event(&ev2, scroll_x.get_knob_offset() - comp->get_pos().x, scroll_y.get_knob_offset() - comp->get_pos().y);
+		const scr_coord offset(scroll_x.get_knob_offset(), scroll_y.get_knob_offset());
+		ev2.move_origin(comp->get_pos() - offset);
 
 		gui_component_t *focused = get_focus();
 		// hand event to component
@@ -177,9 +167,18 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 		if(  old_comp_size!=comp->get_size()  ) {
 			recalc_sliders(get_size());
 		}
-		return swallow;
 	}
-	return false;
+
+	// now process wheel-events that are not swallowed by component, scroll the pane
+	if (!swallow) {
+		if((IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))
+			&&  (((b_show_scroll_y  &&  scroll_y.is_visible())  &&  !IS_SHIFT_PRESSED(ev))  ||  ((b_show_scroll_x  &&  scroll_x.is_visible())  &&  IS_SHIFT_PRESSED(ev)))) {
+			// otherwise these events are only registered where directly over the scroll region
+			// (and sometime even not then ... )
+			return IS_SHIFT_PRESSED(ev) ? scroll_x.infowin_event(ev) : scroll_y.infowin_event(ev);
+		}
+	}
+	return swallow;
 }
 
 

@@ -10,7 +10,7 @@
 class karte_t;
 
 #include "../descriptor/bridge_desc.h"
-#include "../simobj.h"
+#include "simobj.h"
 
 /**
  * Bridges (visible)
@@ -20,6 +20,8 @@ class bruecke_t : public obj_no_info_t
 private:
 	const bridge_desc_t *desc;
 	bridge_desc_t::img_t img;
+
+	void fix_ramp_desc_if_needed(const grund_t*);
 
 protected:
 	void rdwr(loadsave_t *file) OVERRIDE;

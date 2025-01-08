@@ -45,18 +45,15 @@ public:
 	 * size of borders around the whole area (there are no borders around
 	 * individual images)
 	 */
-	enum { BORDER = 4 };
+	enum {
+		BORDER = 4
+	};
 
 private:
 	vector_tpl<image_data_t*> *images;
 
 	scr_coord grid;
 	scr_coord placement;
-
-	/**
-	 * Rows or columns?
-	 */
-	int use_rows;
 
 	/**
 	 * Player number to obtain player color used to display the images.

@@ -9,7 +9,6 @@
 
 #include "../dataobj/koord3d.h"
 #include "../simtypes.h"
-#include "../gui/depot_frame.h"
 #include <string>
 
 class vehicle_t;
@@ -35,7 +34,8 @@ public:
 		sb_price,
 		sb_cost,
 		sb_cost_per_unit,
-		sb_speed, sb_power,
+		sb_speed,
+		sb_power,
 		sb_weight,
 		sb_intro_date,
 		sb_retire_date,

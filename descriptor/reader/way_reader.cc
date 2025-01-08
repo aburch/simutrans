@@ -14,6 +14,7 @@
 #include "way_reader.h"
 #include "../obj_node_info.h"
 #include "../../network/pakset_info.h"
+#include "../../tpl/array_tpl.h"
 
 
 void way_reader_t::register_obj(obj_desc_t *&data)
@@ -37,17 +38,16 @@ bool way_reader_t::successfully_loaded() const
 
 obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	ALLOCA(char, desc_buf, node.size);
-
-	way_desc_t *desc = new way_desc_t();
-
-	// Read data
-	fread(desc_buf, node.size, 1, fp);
-	char * p = desc_buf;
+	array_tpl<char> desc_buf(node.size);
+	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
+		return NULL;
+	}
+	char *p = desc_buf.begin();
 
 	// old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.
 	int version = 0;
+	way_desc_t *desc = new way_desc_t();
 
 	if(node.size == 0) {
 		// old node, version 0, compatibility code

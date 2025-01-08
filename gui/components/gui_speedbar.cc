@@ -72,6 +72,12 @@ void gui_routebar_t::set_base(sint32 base)
 	this->base = base != 0 ? base : 1;
 }
 
+void gui_routebar_t::set_reservation(const sint32 *value, PIXVAL color)
+{
+	reserve_value = value;
+	reserved_color= color;
+}
+
 void gui_routebar_t::init(const sint32 *value, uint8 state)
 {
 	this->value = value;
@@ -99,7 +105,10 @@ void gui_routebar_t::draw(scr_coord offset)
 		display_vline_wh_clip_rgb(offset.x + h/2 + w*i/4, offset.y+i%2, h-(i%2)*2, color_idx_to_rgb(col), true);
 	}
 	sint32 const to = min(*value, base) * w / base;
-
+	if (reserve_value  &&  *reserve_value) {
+		sint32 const reserved_to = min(*reserve_value, base) * w / base;
+		display_fillbox_wh_clip_rgb(offset.x + h / 2, offset.y + h / 2 - 1, reserved_to, 3, reserved_color, true);
+	}
 	display_fillbox_wh_clip_rgb(offset.x+h/2, offset.y+h/2-1, to, 3, color_idx_to_rgb(43), true);
 
 	switch (state)
@@ -115,7 +124,8 @@ void gui_routebar_t::draw(scr_coord offset)
 			break;
 		case 0:
 		default:
-			display_right_triangle_rgb(offset.x + to, offset.y, h, color_idx_to_rgb(COL_GREEN), true);
+			display_fillbox_wh_clip_rgb( offset.x+h/2, offset.y + 1, to-2, h - 2, color_idx_to_rgb( COL_GREEN ), true );
+			display_right_triangle_rgb(offset.x + to, offset.y, h, color_idx_to_rgb(COL_MAGENTA), true);
 			break;
 	}
 }

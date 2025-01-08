@@ -15,7 +15,7 @@ static pthread_mutex_t senke_list_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "leitung2.h"
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../player/simplay.h"
 #include "../display/simimg.h"
 #include "../simfab.h"
@@ -66,12 +66,12 @@ int leitung_t::gimme_neighbours(leitung_t **conn)
 		// get next connected tile (if there)
 		grund_t *gr;
 		conn[i] = NULL;
-		if(  (ribi & ribi_t::nsew[i])  &&  gr_base->get_neighbour( gr, invalid_wt, ribi_t::nsew[i] ) ) {
+		if(  (ribi & ribi_t::nesw[i])  &&  gr_base->get_neighbour( gr, invalid_wt, ribi_t::nesw[i] ) ) {
 			leitung_t *lt = gr->get_leitung();
 			// check that we can connect to the other tile: correct slope,
 			// both ground or both tunnel or both not tunnel
 			bool const ok = (gr->ist_karten_boden()  &&  gr_base->ist_karten_boden())  ||  (gr->ist_tunnel()==gr_base->ist_tunnel());
-			if(  lt  &&  (ribi_t::backward(ribi_t::nsew[i]) & get_powerline_ribi(gr))  &&  ok  ) {
+			if(  lt  &&  (ribi_t::backward(ribi_t::nesw[i]) & get_powerline_ribi(gr))  &&  ok  ) {
 				const player_t *owner = get_owner();
 				const player_t *other = lt->get_owner();
 				const player_t *super = welt->get_public_player();
@@ -89,7 +89,7 @@ int leitung_t::gimme_neighbours(leitung_t **conn)
 fabrik_t *leitung_t::suche_fab_4(const koord pos)
 {
 	for(int k=0; k<4; k++) {
-		fabrik_t *fab = fabrik_t::get_fab( pos+koord::nsew[k] );
+		fabrik_t *fab = fabrik_t::get_fab( pos+koord::nesw[k] );
 		if(fab) {
 			return fab;
 		}
@@ -103,6 +103,7 @@ leitung_t::leitung_t(loadsave_t *file) : obj_t()
 	image = IMG_EMPTY;
 	set_net(NULL);
 	ribi = ribi_t::none;
+	is_transformer = false;
 	rdwr(file);
 }
 
@@ -113,6 +114,7 @@ leitung_t::leitung_t(koord3d pos, player_t *player) : obj_t(pos)
 	set_net(NULL);
 	set_owner( player );
 	set_desc(way_builder_t::leitung_desc);
+	is_transformer = false;
 }
 
 
@@ -154,9 +156,7 @@ leitung_t::~leitung_t()
 		if(neighbours==0) {
 			delete net;
 		}
-		if(!gr->ist_tunnel()) {
-			player_t::add_maintenance(get_owner(), -desc->get_maintenance(), powerline_wt);
-		}
+		player_t::add_maintenance(get_owner(), -get_maintenance(), powerline_wt);
 	}
 }
 
@@ -312,8 +312,8 @@ void leitung_t::calc_neighbourhood()
 	if(gimme_neighbours(conn)>0) {
 		for( uint8 i=0;  i<4 ;  i++  ) {
 			if(conn[i]  &&  conn[i]->get_net()==get_net()) {
-				ribi |= ribi_t::nsew[i];
-				conn[i]->add_ribi(ribi_t::backward(ribi_t::nsew[i]));
+				ribi |= ribi_t::nesw[i];
+				conn[i]->add_ribi(ribi_t::backward(ribi_t::nesw[i]));
 				conn[i]->calc_image();
 			}
 		}
@@ -358,7 +358,7 @@ void leitung_t::finish_rd()
 	grund_t *gr = welt->lookup(get_pos());
 	assert(gr); (void)gr;
 
-	player_t::add_maintenance(get_owner(), desc->get_maintenance(), powerline_wt);
+	player_t::add_maintenance(get_owner(), get_maintenance(), powerline_wt);
 }
 
 void leitung_t::rdwr(loadsave_t *file)
@@ -395,6 +395,10 @@ void leitung_t::rdwr(loadsave_t *file)
 					if(desc==NULL) {
 						welt->add_missing_paks( bname, karte_t::MISSING_WAY );
 						desc = way_builder_t::leitung_desc;
+
+						if (!desc) {
+							dbg->fatal("leitung_t::rdwr", "Trying to load powerline but pakset has none!");
+						}
 					}
 					dbg->warning("leitung_t::rdwr()", "Unknown powerline %s replaced by %s", bname, desc->get_name() );
 				}
@@ -413,10 +417,21 @@ void leitung_t::rdwr(loadsave_t *file)
 // players can remove public owned powerlines
 const char *leitung_t::is_deletable(const player_t *player)
 {
-	if(  get_player_nr()==welt->get_public_player()->get_player_nr()  &&  player  ) {
+	if(  get_owner_nr()==PUBLIC_PLAYER_NR  &&  player  ) {
 		return NULL;
 	}
 	return obj_t::is_deletable(player);
+}
+
+
+sint64 leitung_t::get_maintenance() const
+{
+	if (!is_transformer) {
+		return desc->get_maintenance();
+	}
+	else {
+		return -welt->get_settings().cst_maintain_transformer;
+	}
 }
 
 
@@ -443,6 +458,7 @@ pumpe_t::pumpe_t(loadsave_t *file ) : leitung_t( koord3d::invalid, NULL )
 {
 	fab = NULL;
 	power_supply = 0;
+	is_transformer = true;
 	rdwr( file );
 }
 
@@ -451,6 +467,7 @@ pumpe_t::pumpe_t(koord3d pos, player_t *player) : leitung_t(pos, player)
 {
 	fab = NULL;
 	power_supply = 0;
+	is_transformer = true;
 	player_t::book_construction_costs(player, welt->get_settings().cst_transformer, get_pos().get_2d(), powerline_wt);
 }
 
@@ -458,14 +475,13 @@ pumpe_t::pumpe_t(koord3d pos, player_t *player) : leitung_t(pos, player)
 pumpe_t::~pumpe_t()
 {
 	if(fab) {
-		fab->set_transformer_connected(NULL);
+		fab->remove_transformer_connected(this);
 		fab = NULL;
 	}
 	if(  net != NULL  ) {
 		net->sub_supply(power_supply);
 	}
 	pumpe_list.remove( this );
-	player_t::add_maintenance(get_owner(), (sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 }
 
 void pumpe_t::step(uint32 delta_t)
@@ -526,7 +542,8 @@ sint32 pumpe_t::get_power_consumption() const
 	return p->get_normal_demand();
 }
 
-void pumpe_t::rdwr(loadsave_t * file) {
+void pumpe_t::rdwr(loadsave_t * file)
+{
 	xml_tag_t d( file, "pumpe_t" );
 
 	leitung_t::rdwr(file);
@@ -537,10 +554,10 @@ void pumpe_t::rdwr(loadsave_t * file) {
 	}
 }
 
+
 void pumpe_t::finish_rd()
 {
 	leitung_t::finish_rd();
-	player_t::add_maintenance(get_owner(), -(sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 
 	assert(get_net());
 
@@ -555,26 +572,26 @@ void pumpe_t::finish_rd()
 		}
 		if(  fab  ) {
 			// only add when factory there
-			fab->set_transformer_connected(this);
+			fab->add_transformer_connected(this);
 		}
 	}
 
 #ifdef MULTI_THREAD
 	pthread_mutex_lock( &pumpe_list_mutex );
-#endif
 	pumpe_list.insert( this );
-#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &pumpe_list_mutex );
-#endif
-#ifdef MULTI_THREAD
+
 	pthread_mutex_lock( &calc_image_mutex );
-#endif
 	set_image(skinverwaltung_t::pumpe->get_image_id(0));
 	is_crossing = false;
-#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &calc_image_mutex );
+#else
+	pumpe_list.insert( this );
+	set_image(skinverwaltung_t::pumpe->get_image_id(0));
+	is_crossing = false;
 #endif
 }
+
 
 void pumpe_t::info(cbuffer_t & buf) const
 {
@@ -626,6 +643,7 @@ void senke_t::step_all(uint32 delta_t)
 	}
 }
 
+
 senke_t::senke_t(loadsave_t *file) : leitung_t( koord3d::invalid, NULL )
 {
 	fab = NULL;
@@ -633,6 +651,7 @@ senke_t::senke_t(loadsave_t *file) : leitung_t( koord3d::invalid, NULL )
 	next_t = 0;
 	power_demand = 0;
 	energy_acc = 0;
+	is_transformer = true;
 
 	rdwr( file );
 
@@ -647,6 +666,7 @@ senke_t::senke_t(koord3d pos, player_t *player) : leitung_t(pos, player)
 	next_t = 0;
 	power_demand = 0;
 	energy_acc = 0;
+	is_transformer = true;
 
 	player_t::book_construction_costs(player, welt->get_settings().cst_transformer, get_pos().get_2d(), powerline_wt);
 
@@ -661,14 +681,13 @@ senke_t::~senke_t()
 
 	welt->sync.remove( this );
 	if(fab!=NULL) {
-		fab->set_transformer_connected(NULL);
+		fab->remove_transformer_connected(this);
 		fab = NULL;
 	}
 	if(  net != NULL  ) {
 		net->sub_demand(power_demand);
 	}
 	senke_list.remove( this );
-	player_t::add_maintenance(get_owner(), (sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 }
 
 void senke_t::step(uint32 delta_t)
@@ -790,6 +809,7 @@ sync_result senke_t::sync_step(uint32 delta_t)
 	return SYNC_OK;
 }
 
+
 void senke_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t d( file, "senke_t" );
@@ -801,12 +821,24 @@ void senke_t::rdwr(loadsave_t *file)
 		file->rdwr_longlong((sint64 &)energy_acc);
 		file->rdwr_long(power_demand);
 	}
+	else if (file->is_loading()) {
+		energy_acc = 0;
+		power_demand = 0;
+	}
+
+	if (file->is_version_atleast(122, 1)) {
+		file->rdwr_long(delta_sum);
+		file->rdwr_long(next_t);
+	}
+	else if (file->is_loading()) {
+		delta_sum = 0;
+		next_t = 0;
+	}
 }
 
 void senke_t::finish_rd()
 {
 	leitung_t::finish_rd();
-	player_t::add_maintenance(get_owner(), -(sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 
 	assert(get_net());
 
@@ -820,7 +852,7 @@ void senke_t::finish_rd()
 			fab = fabrik_t::get_fab(get_pos().get_2d());
 		}
 		if(  fab  ) {
-			fab->set_transformer_connected(this);
+			fab->add_transformer_connected(this);
 		}
 	}
 

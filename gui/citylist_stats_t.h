@@ -27,7 +27,14 @@ private:
 	gui_label_buf_t label;
 	void update_label();
 public:
-	enum sort_mode_t { SORT_BY_NAME=0, SORT_BY_SIZE, SORT_BY_GROWTH, SORT_MODES, SORT_REVERSE=0x80 };
+	enum sort_mode_t {
+		SORT_BY_NAME = 0,
+		SORT_BY_SIZE,
+		SORT_BY_GROWTH,
+		SORT_MODES,
+		SORT_REVERSE = 0x80
+	};
+
 	static sort_mode_t sort_mode;
 	static uint8 player_nr;
 
@@ -40,6 +47,9 @@ public:
 	bool is_valid() const OVERRIDE;
 	bool infowin_event(const event_t *) OVERRIDE;
 	void set_size(scr_size size) OVERRIDE;
+
+	// get city pointer from scrollitem
+	stadt_t* get_city() const { return city; };
 
 	static bool compare(const gui_component_t *a, const gui_component_t *b );
 };

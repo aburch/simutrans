@@ -3,19 +3,18 @@
  * (see LICENSE.txt)
  */
 
-#include <stdio.h>
-
 #include "../simdebug.h"
 #include "../simcity.h"
 #include "../simmenu.h"
 #include "../simworld.h"
 #include "../simcolor.h"
+#include "../simtool.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/environment.h"
 #include "../display/viewport.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 #include "../tpl/array2d_tpl.h"
+#include "../player/simplay.h"
 
 #include "city_info.h"
 #include "minimap.h"
@@ -26,6 +25,9 @@
 #define PAX_DEST_MIN_SIZE (16)      ///< minimum width/height of the minimap
 #define PAX_DEST_VERTICAL (4.0/3.0) ///< aspect factor where minimaps change to over/under instead of left/right
 
+tool_change_city_of_building_t* city_info_t::citybuilding_tool=new tool_change_city_of_building_t();
+cbuffer_t city_info_t::param_str;
+stadt_t* city_info_t::highlighted_city = nullptr;
 
 /**
  * Component to show both passenger destination minimaps
@@ -201,8 +203,12 @@ void city_info_t::init()
 		allow_growth.add_listener( this );
 		add_component(&allow_growth);
 
-		// add "change highlight button"
-		highlight.init( button_t::box_state_automatic | button_t::flexible, "Highlight");
+		// add "change highlight button" based on active player
+		if (welt->get_active_player_nr() == PUBLIC_PLAYER_NR) {
+			highlight.init( button_t::box_state_automatic | button_t::flexible, "Make building belong to");
+		} else {
+			highlight.init( button_t::box_state_automatic | button_t::flexible, "Highlight");
+		}
 		highlight.pressed = false;
 		highlight.add_listener( this );
 		add_component(&highlight);
@@ -280,9 +286,6 @@ city_info_t::~city_info_t()
 		}
 	}
 	city->stadtinfo_options = flags;
-
-	env_t::highlight_city = false;
-	env_t::highlighted_city = NULL;
 
 	welt->set_dirty();
 	welt->set_tool( tool_t::general_tool[TOOL_QUERY], welt->get_public_player());
@@ -389,6 +392,12 @@ void city_info_t::update_labels()
 
 	lb_unemployed.buf().printf("%s: %d", translator::translate("Unemployed"), c->get_unemployed()); lb_unemployed.update();
 	lb_homeless.buf().printf("%s: %d", translator::translate("Homeless"), c->get_homeless());       lb_homeless.update();
+
+	if (welt->get_active_player_nr() == PUBLIC_PLAYER_NR) {
+		highlight.set_text("Make building belong to");
+	} else {
+		highlight.set_text("Highlight");
+	}
 }
 
 
@@ -398,6 +407,9 @@ void city_info_t::draw(scr_coord pos, scr_size size)
 	chart.set_seed(welt->get_last_year());
 	update_labels();
 	gui_frame_t::draw(pos, size);
+
+	// update pressed if hightlighted city is this->city
+	highlight.pressed = highlighted_city == city;
 }
 
 
@@ -415,19 +427,29 @@ bool city_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		rename_city();
 	}
 	if(  comp==&highlight && highlight.pressed  ) {
-		env_t::highlight_city = true;
-		env_t::highlighted_city = city;
 
+		// make sure highlighted is true and button is pressed
+		highlighted_city = city;
+
+		param_str.clear();
+		param_str.printf("c%hi,%hi", city->get_pos().x, city->get_pos().y);
+		citybuilding_tool->set_default_param(param_str);
+
+		// set display dirty and select tool
 		welt->set_dirty();
-		welt->set_tool( tool_t::general_tool[TOOL_CHANGE_CITY_OF_CITYBUILDING], welt->get_public_player());
+		welt->set_background_dirty();
+		welt->set_tool( citybuilding_tool, welt->get_public_player());
 
 		return true;
 	}
-	else if (	comp==&highlight && !highlight.pressed	) {
-		env_t::highlight_city = false;
-		env_t::highlighted_city = NULL;
+	else if (  comp==&highlight && !highlight.pressed  ) {
 
+		// make sure highlighted is false and button is not pressed
+		highlighted_city = nullptr;
+
+		// set display dirty and deselect tool
 		welt->set_dirty();
+		welt->set_background_dirty();
 		welt->set_tool( tool_t::general_tool[TOOL_QUERY], welt->get_public_player());
 
 		return true;
@@ -489,6 +511,26 @@ void city_info_t::rdwr(loadsave_t *file)
 	button_to_chart.rdwr(file);
 
 	year_month_tabs.rdwr(file);
+
+	bool highlighted = false;
+	if (file->is_saving()) {
+		highlighted = is_highlighted();
+	}
+	file->rdwr_bool( highlighted );
+
+	highlight.pressed = highlighted;
+	highlighted_city = highlighted ? city : nullptr;
+
+	if (  city && highlighted  ) {
+		param_str.clear();
+		param_str.printf("c%hi,%hi", city->get_pos().x, city->get_pos().y);
+		citybuilding_tool->set_default_param(param_str);
+
+		// set display dirty and select tool
+		welt->set_dirty();
+		welt->set_background_dirty();
+		welt->set_tool( citybuilding_tool, welt->get_public_player());
+	}
 
 	if (city == NULL) {
 		destroy_win(this);

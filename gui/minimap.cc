@@ -14,6 +14,8 @@
 #include "../boden/grund.h"
 #include "../simfab.h"
 #include "../simcity.h"
+#include "fabrik_info.h"
+#include "simwin.h"
 #include "minimap.h"
 #include "schedule_gui.h"
 
@@ -213,7 +215,8 @@ void minimap_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints )
 		// conv can consist of only 1 vehicle, which has no cap (eg. locomotive)
 		// and we do not like to divide by zero, do we?
 		if(capacity > 0) {
-			colore_idx = severity_color[MAX_SEVERITY_COLORS-load * MAX_SEVERITY_COLORS / capacity];
+			const uint32 load_idx = clamp(load * MAX_SEVERITY_COLORS / capacity, 0, MAX_SEVERITY_COLORS-1);
+			colore_idx = severity_color[MAX_SEVERITY_COLORS-1 - load_idx];
 		}
 		else {
 			colore_idx = severity_color[MAX_SEVERITY_COLORS-1];
@@ -431,7 +434,7 @@ static void display_thick_line( scr_coord_val x1, scr_coord_val y1, scr_coord_va
 }
 
 
-static void line_segment_draw( waytype_t type, scr_coord start, uint8 start_offset, scr_coord end, uint8 end_offset, bool diagonal, PIXVAL colore )
+static void line_segment_draw( waytype_t type, scr_coord start, const uint8 start_offset, scr_coord end, const uint8 end_offset, bool start_diagonal, const PIXVAL colore )
 {
 	// airplanes are different, so we must check for them first
 	if(  type ==  air_wt  ) {
@@ -440,23 +443,7 @@ static void line_segment_draw( waytype_t type, scr_coord start, uint8 start_offs
 		draw_bezier_rgb( start.x + 1, start.y + 1, end.x + 1, end.y + 1, 50, 50, 50, 50, colore, 5, 5 );
 	}
 	else {
-		// add offsets
-		start.x += start_offset*3;
-		end.x += end_offset*3;
-		start.y += start_offset*3;
-		end.y += end_offset*3;
-		// due to isometric drawing, order may be swapped
-		if(  start.x > end.x  ) {
-			// but we need start.x <= end.x!
-			scr_coord temp = start;
-			start = end;
-			end = temp;
-			uint8 temp_offset = start_offset;
-			start_offset = end_offset;
-			end_offset = temp_offset;
-			diagonal ^= 1;
-		}
-		// now determine line style
+		// determine line style
 		uint8 thickness = 3;
 		bool dotted = false;
 		switch(  type  ) {
@@ -478,55 +465,45 @@ static void line_segment_draw( waytype_t type, scr_coord start, uint8 start_offs
 				thickness = 3;
 				dotted = true;
 		}
-		// start.x is always <= end.x ...
-		const int delta_y = end.y-start.y;
-		if(  (start.x-end.x)*delta_y == 0  ) {
-			// horizontal/vertical line
-			display_thick_line( start.x, start.y, end.x, end.y, colore, dotted, 5, 3, thickness );
+
+		// move to the correct locations
+		start.x += 3*start_offset;
+		start.y += 3*start_offset;
+		end.x	+= 3*end_offset;
+		end.y	+= 3*end_offset;
+
+		scr_coord delta = end-start;
+
+		// Reduce diagonal line overlap: Genereally respect the requested start_diagonal.
+		// In case of NW to SE lines, ignore the requested diagonal, if either start or end of the line has index 0
+		if(sgn(delta.x) * sgn(delta.y) == 1){
+			if(end_offset){
+				start_diagonal = true;
+			}
+			if(start_offset){
+				start_diagonal = false;
+			}
 		}
-		else {
-			// two segment
-			scr_coord mid;
-			int signum_y = delta_y/abs(delta_y);
-			// diagonal line to right bottom
-			if(  delta_y > 0  ) {
-				if(  end_offset  &&  !diagonal  ) {
-					// start with diagonal to avoid parallel lines
-					diagonal = true;
-				}
-				if(  start_offset  &&  diagonal  ) {
-					// end with diagonal to avoid parallel lines
-					diagonal = false;
-				}
-			}
-			// now draw a two segment line
-			if(  diagonal  ) {
-				// start with diagonal
-				if(  abs(delta_y) > end.x-start.x  ) {
-					mid.x = end.x;
-					mid.y = start.y + (end.x-start.x)*signum_y;
-				}
-				else {
-					mid.x = start.x + abs(delta_y);
-					mid.y = end.y;
-				}
-				display_thick_line( start.x, start.y, mid.x, mid.y, colore, dotted, 5, 3, thickness );
-				display_thick_line( mid.x, mid.y, end.x, end.y, colore, dotted, 5, 3, thickness );
-			}
-			else {
-				// end with diagonal
-				const int delta_y = end.y-start.y;
-				if(  abs(delta_y) > end.x-start.x  ) {
-					mid.x = start.x;
-					mid.y = end.y - (end.x-start.x)*signum_y;
-				}
-				else {
-					mid.x = end.x - abs(delta_y);
-					mid.y = start.y;
-				}
-				display_thick_line( start.x, start.y, mid.x, mid.y, colore, dotted, 5, 3, thickness );
-				display_thick_line( mid.x, mid.y, end.x, end.y, colore, dotted, 5, 3, thickness );
-			}
+
+
+		// We always start straight, then diagonal. If the other way round is desired, simply swap start and end.
+		if(start_diagonal ){
+			delta = delta*-1;
+			const scr_coord tmp = start;
+			start=end;
+			end=tmp;
+		}
+
+		const int d = min(abs(delta.x),abs(delta.y));//pick absolute of smallest component
+		const scr_coord diag = scr_coord(d*sgn(delta.x),d*sgn(delta.y));
+
+		const scr_coord mid=end-diag;
+
+		if(start!=mid) {
+			display_thick_line(start.x, start.y, mid.x, mid.y, colore, dotted, 5, 3, thickness);
+		}
+		if(mid!=end) {
+			display_thick_line(mid.x, mid.y, end.x, end.y, colore, dotted, 5, 3, thickness);
 		}
 	}
 }
@@ -536,11 +513,11 @@ static void line_segment_draw( waytype_t type, scr_coord start, uint8 start_offs
 scr_coord minimap_t::map_to_screen_coord(const koord &k) const
 {
 	assert(zoom_in ==1 || zoom_out ==1 );
-	sint32 x = (sint32)k.x * zoom_in;
-	sint32 y = (sint32)k.y * zoom_in;
+	scr_coord_val x = (scr_coord_val)k.x * zoom_in;
+    scr_coord_val y = (scr_coord_val)k.y * zoom_in;
 	if(isometric) {
 		// 45 rotate view
-		sint32 xrot = (sint32)world->get_size().y * zoom_in + x - y - 1;
+		scr_coord_val xrot = (scr_coord_val)world->get_size().y * zoom_in + x - y - 1;
 		y = ( x + y )/2;
 		x = xrot;
 	}
@@ -574,7 +551,7 @@ bool minimap_t::change_zoom_factor(bool magnify)
 		else {
 			// check here for maximum zoom-out, otherwise there will be integer overflows
 			// with large maps as we calculate with sint16 coordinates ...
-			int max_zoom_in = min( 32767 / (2*world->get_size_max()), 16);
+			const int max_zoom_in = min( INT_MAX / (2*world->get_size_max()), 16);
 			if(  zoom_in < max_zoom_in  ) {
 				zoom_in++;
 				zoomed = true;
@@ -775,8 +752,7 @@ PIXVAL minimap_t::calc_ground_color(const grund_t *gr)
 						case air_wt: color = COL_RUNWAY; break;
 						case monorail_wt:
 						default: // all other ways light red ...
-							color = 135; break;
-							break;
+							color = color_idx_to_rgb(135); break;
 					}
 				}
 				else {
@@ -1158,11 +1134,11 @@ const fabrik_t* minimap_t::get_factory_near( const koord, bool enlarge ) const
 {
 	const fabrik_t *fab = fabrik_t::get_fab(last_world_pos);
 	for(  int i=0;  i<4  && fab==NULL;  i++  ) {
-		fab = fabrik_t::get_fab( last_world_pos+koord::nsew[i] );
+		fab = fabrik_t::get_fab( last_world_pos+koord::nesw[i] );
 	}
 	if(  enlarge  ) {
 		for(  int i=0;  i<4  && fab==NULL;  i++  ) {
-			fab = fabrik_t::get_fab( last_world_pos+koord::nsew[i]*2 );
+			fab = fabrik_t::get_fab( last_world_pos+koord::nesw[i]*2 );
 		}
 	}
 	return fab;
@@ -1170,24 +1146,24 @@ const fabrik_t* minimap_t::get_factory_near( const koord, bool enlarge ) const
 
 
 // helper function for redraw: factory connections
-const fabrik_t* minimap_t::draw_factory_connections(const PIXVAL colour, const scr_coord pos) const
+const fabrik_t* minimap_t::draw_factory_connections(const fabrik_t* const fab, bool supplier_link, const scr_coord pos) const
 {
-	const fabrik_t* const fab = get_factory_near( last_world_pos, true );
 	if(fab) {
+		PIXVAL color = supplier_link ? color_idx_to_rgb(COL_RED) : color_idx_to_rgb(COL_WHITE);
 		scr_coord fabpos = map_to_screen_coord( fab->get_pos().get_2d() ) + pos;
-		const vector_tpl<koord>& lieferziele = event_get_last_control_shift() & 1 ? fab->get_suppliers() : fab->get_lieferziele();
+		const vector_tpl<koord>& lieferziele = supplier_link ? fab->get_suppliers() : fab->get_lieferziele();
 		FOR(vector_tpl<koord>, lieferziel, lieferziele) {
 			const fabrik_t * fab2 = fabrik_t::get_fab(lieferziel);
 			if (fab2) {
 				const scr_coord end = map_to_screen_coord( lieferziel ) + pos;
-				display_direct_line_rgb(fabpos.x, fabpos.y, end.x, end.y, colour);
+				display_direct_line_rgb(fabpos.x, fabpos.y, end.x, end.y, color);
 				display_fillbox_wh_clip_rgb(end.x, end.y, 3, 3, ((world->get_ticks() >> 10) & 1) == 0 ? color_idx_to_rgb(COL_RED) : color_idx_to_rgb(COL_WHITE), true);
 
 				scr_coord boxpos = end + scr_coord(10, 0);
 				const char * name = translator::translate(fab2->get_name());
-				int name_width = proportional_string_width(name)+8;
+				int name_width = proportional_string_width(name)+(LINESPACE/2);
 				boxpos.x = clamp( boxpos.x, pos.x, pos.x+get_size().w-name_width );
-				display_ddd_proportional_clip(boxpos.x, boxpos.y, name_width, 0, color_idx_to_rgb(5), color_idx_to_rgb(COL_WHITE), name, true);
+				display_ddd_proportional_clip(boxpos.x, boxpos.y, color_idx_to_rgb(5), color_idx_to_rgb(COL_WHITE), name, true);
 			}
 		}
 	}
@@ -1457,17 +1433,10 @@ void minimap_t::draw(scr_coord pos)
 		}
 		else if(  mode & MAP_TRANSFER  ) {
 			FOR( const vector_tpl<halthandle_t>, halt, haltestelle_t::get_alle_haltestellen() ) {
-				if(  halt->is_transfer(goods_manager_t::INDEX_PAS)  ||  halt->is_transfer(goods_manager_t::INDEX_MAIL)  ) {
-					stop_cache.append( halt );
-				}
-				else {
-					// good transfer?
-					bool transfer = false;
-					for(  int i=goods_manager_t::INDEX_NONE+1  &&  !transfer;  i<=goods_manager_t::get_max_catg_index();  i ++  ) {
-						transfer = halt->is_transfer( i );
-					}
-					if(  transfer  ) {
-						stop_cache.append( halt );
+				for (int catg = goods_manager_t::INDEX_PAS; catg != goods_manager_t::get_max_catg_index(); ++catg) {
+					if (catg != goods_manager_t::INDEX_NONE && halt->is_transfer(catg)) {
+						stop_cache.append(halt);
+						break;
 					}
 				}
 			}
@@ -1619,7 +1588,7 @@ void minimap_t::draw(scr_coord pos)
 	if(  display_station.is_bound()  ) {
 		scr_coord temp_stop = map_to_screen_coord( display_station->get_basis_pos() );
 		temp_stop = temp_stop + pos;
-		display_ddd_proportional_clip( temp_stop.x + 10, temp_stop.y + 7, proportional_string_width( display_station->get_name() ) + 8, 0, color_idx_to_rgb(display_station->get_owner()->get_player_color1()+3), color_idx_to_rgb(COL_WHITE), display_station->get_name(), false );
+		display_ddd_proportional_clip( temp_stop.x + 10, temp_stop.y + 7, color_idx_to_rgb(display_station->get_owner()->get_player_color1()+3), color_idx_to_rgb(COL_WHITE), display_station->get_name(), false );
 	}
 	max_waiting_change = new_max_waiting_change; // update waiting tendencies
 
@@ -1758,19 +1727,30 @@ void minimap_t::draw(scr_coord pos)
 
 	if(  !showing_schedule  ) {
 		// Add factory name tooltips and draw factory connections, if on a factory
-		const fabrik_t* const fab = (mode & MAP_FACTORIES)
-			? draw_factory_connections(event_get_last_control_shift() & 1 ? color_idx_to_rgb(COL_RED) : color_idx_to_rgb(COL_WHITE), pos)
-			: get_factory_near( last_world_pos, false );
-
+		const fabrik_t* const fab = get_factory_near(last_world_pos, (mode & MAP_FACTORIES));
 		if(fab) {
+			if (mode & MAP_FACTORIES) {
+				draw_factory_connections(fab,event_get_last_control_shift() & 1, pos);
+			}
 			scr_coord fabpos = map_to_screen_coord( fab->get_pos().get_2d() );
 			scr_coord boxpos = fabpos + scr_coord(10, 0);
 			const char * name = translator::translate(fab->get_name());
-			int name_width = proportional_string_width(name)+8;
+			int name_width = proportional_string_width(name)+(LINESPACE/2);
 			boxpos.x = clamp( boxpos.x, 0, 0+get_size().w-name_width );
 			boxpos += pos;
-			display_ddd_proportional_clip(boxpos.x, boxpos.y, name_width, 0, color_idx_to_rgb(10), color_idx_to_rgb(COL_WHITE), name, true);
+			display_ddd_proportional_clip(boxpos.x, boxpos.y, color_idx_to_rgb(10), color_idx_to_rgb(COL_WHITE), name, true);
 		}
+
+		for (uint32 i = 0; i < win_get_open_count(); i++) {
+			gui_frame_t *g = win_get_index(i);
+			if(g->get_rdwr_id()== magic_factory_info) {
+				// is a factory info window
+				const fabrik_t * const fab = dynamic_cast<fabrik_info_t *>(g)->get_factory();
+				draw_factory_connections(fab, true, pos);
+				draw_factory_connections(fab, false, pos);
+			}
+		}
+
 	}
 }
 

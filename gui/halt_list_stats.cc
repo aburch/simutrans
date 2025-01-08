@@ -52,14 +52,12 @@ bool halt_list_stats_t::infowin_event(const event_t *ev)
 halt_list_stats_t::halt_list_stats_t(halthandle_t h)
 {
 	halt = h;
-	set_table_layout(3,2);
+	set_table_layout(2,2);
+	set_spacing(scr_size(D_H_SPACE, 0));
 
 	gotopos.set_typ(button_t::posbutton_automatic);
 	gotopos.set_targetpos3d(halt->get_basis_pos3d());
 	add_component(&gotopos);
-
-	add_component(&indicator);
-	indicator.set_max_size(scr_size(D_INDICATOR_WIDTH,D_INDICATOR_HEIGHT));
 
 	add_table(2,1);
 	{
@@ -74,7 +72,7 @@ halt_list_stats_t::halt_list_stats_t(halthandle_t h)
 	// second row, skip posbutton
 	new_component<gui_empty_t>();
 
-	gui_aligned_container_t *table = add_table(3,1);
+	add_table(4,1);
 	{
 		add_component(&img_enabled[0]);
 		img_enabled[0].set_image(skinverwaltung_t::passengers->get_image_id(0), true);
@@ -86,13 +84,12 @@ halt_list_stats_t::halt_list_stats_t(halthandle_t h)
 		img_enabled[0].set_rigid(true);
 		img_enabled[1].set_rigid(true);
 		img_enabled[2].set_rigid(true);
+
+		add_component(&label_cargo);
+		halt->get_short_freight_info( label_cargo.buf() );
+		label_cargo.update();
 	}
 	end_table();
-	indicator.set_max_size(scr_size(table->get_min_size().w,D_INDICATOR_HEIGHT));
-
-	add_component(&label_cargo);
-	halt->get_short_freight_info( label_cargo.buf() );
-	label_cargo.update();
 }
 
 
@@ -106,13 +103,14 @@ const char* halt_list_stats_t::get_text() const
  */
 void halt_list_stats_t::draw(scr_coord offset)
 {
-	indicator.set_color(halt->get_status_farbe());
 	img_enabled[0].set_visible(halt->get_pax_enabled());
 	img_enabled[1].set_visible(halt->get_mail_enabled());
 	img_enabled[2].set_visible(halt->get_ware_enabled());
 
 	label_name.buf().append(halt->get_name());
 	label_name.update();
+	label_name.set_color(halt->get_status_farbe());
+	label_name.set_shadow(SYSCOL_TEXT,true);
 
 	halt->get_short_freight_info( label_cargo.buf() );
 	label_cargo.update();

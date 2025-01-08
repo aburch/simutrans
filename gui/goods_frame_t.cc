@@ -81,11 +81,16 @@ goods_frame_t::goods_frame_t() :
 	{
 		new_component<gui_label_t>("hl_txt_sort");
 
-		sortedby.init(button_t::roundbox, "");
+		sortedby.set_unsorted(); // do not sort
+		for (size_t i = 0; i < lengthof(sort_text); i++) {
+			sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
+		}
+		sortedby.set_selection(sortby);
 		sortedby.add_listener(this);
 		add_component(&sortedby);
 
-		sorteddir.init(button_t::roundbox, "");
+		sorteddir.init(button_t::sortarrow_state, "");
+		sorteddir.pressed = sortreverse;
 		sorteddir.add_listener(this);
 		add_component(&sorteddir);
 	}
@@ -239,8 +244,8 @@ void goods_frame_t::sort_list()
 	}
 
 	// update buttons
-	sortedby.set_text(sort_text[sortby]);
-	sorteddir.set_text(sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
+	sortedby.set_selection(sortby);
+	sorteddir.pressed = sortreverse;
 	filter_goods_toggle.pressed = filter_goods;
 	sort_row->set_size(sort_row->get_min_size());
 
@@ -265,11 +270,11 @@ void goods_frame_t::sort_list()
 /**
  * This method is called if an action is triggered
  */
-bool goods_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
+bool goods_frame_t::action_triggered( gui_action_creator_t *comp,value_t p)
 {
 	if(comp == &sortedby) {
 		// sort by what
-		sortby = (sort_mode_t)((int)(sortby+1)%(int)SORT_MODES);
+		sortby = (goods_frame_t::sort_mode_t)p.i;
 	}
 	else if(comp == &sorteddir) {
 		// order

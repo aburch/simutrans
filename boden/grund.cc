@@ -16,6 +16,7 @@
 #include "../player/simplay.h"
 #include "../gui/simwin.h"
 #include "../simworld.h"
+#include "../simfab.h"
 
 #include "../bauer/wegbauer.h"
 
@@ -40,6 +41,7 @@
 #include "../obj/signal.h"
 #include "../obj/tunnel.h"
 #include "../obj/wayobj.h"
+#include "../obj/zeiger.h"
 
 #include "../gui/ground_info.h"
 #include "../gui/minimap.h"
@@ -48,7 +50,7 @@
 
 #include "../utils/cbuffer_t.h"
 
-#include "../vehicle/simpeople.h"
+#include "../vehicle/pedestrian.h"
 
 #include "wege/kanal.h"
 #include "wege/maglev.h"
@@ -89,7 +91,7 @@ static inthashtable_tpl<uint64, char*> ground_texts;
 #define get_ground_text_key(k) ( (uint64)(k).x + ((uint64)(k).y << 16) + ((uint64)(k).z << 32) )
 
 // and the reverse operation
-#define get_ground_koord3d_key(key) koord3d( (key) & 0x00007FFF, ((key)>>16) & 0x00007fff, (key)>>32 )
+#define get_ground_koord3d_key(key) koord3d( (key) & 0x00007FFF, ((key)>>16) & 0x00007fff, (sint8)((key)>>32) )
 
 void grund_t::set_text(const char *text)
 {
@@ -128,31 +130,25 @@ const char *grund_t::get_text() const
 }
 
 
-FLAGGED_PIXVAL grund_t::text_farbe() const
+const player_t* grund_t::get_label_owner() const
 {
+	const player_t* player = NULL;
 	// if this ground belongs to a halt, the color should reflect the halt owner, not the ground owner!
 	// Now, we use the color of label_t owner
 	if(is_halt()  &&  find<label_t>()==NULL) {
 		// only halt label
 		const halthandle_t halt = get_halt();
-		const player_t *player=halt->get_owner();
-		if(player) {
-			return PLAYER_FLAG|color_idx_to_rgb(player->get_player_color1()+4);
-		}
+		player=halt->get_owner();
 	}
 	// else color according to current owner
 	else if(obj_bei(0)) {
-		const player_t *player = obj_bei(0)->get_owner(); // for cityhall
+		player = obj_bei(0)->get_owner(); // for cityhall
 		const label_t* l = find<label_t>();
 		if(l) {
 			player = l->get_owner();
 		}
-		if(player) {
-			return PLAYER_FLAG|color_idx_to_rgb(player->get_player_color1()+4);
-		}
 	}
-
-	return SYSCOL_TEXT_HIGHLIGHT;
+	return player;
 }
 
 
@@ -273,7 +269,7 @@ void grund_t::rdwr(loadsave_t *file)
 	// restore grid
 	if(  file->is_loading()  ) {
 		if( get_typ() == grund_t::boden  ||  get_typ() == grund_t::fundament  ) {
-			/* since those must be on the ground and broken grids occurred in the past 
+			/* since those must be on the ground and broken grids occurred in the past
 			 * (due to incorrect restoration of grid heights on house slopes)
 			 * we simply reset the grid height to our current height
 			 */
@@ -455,6 +451,10 @@ void grund_t::rdwr(loadsave_t *file)
 	// need to add a crossing for old games ...
 	if (file->is_loading()  &&  ist_uebergang()  &&  !find<crossing_t>(2)) {
 		const crossing_desc_t *cr_desc = crossing_logic_t::get_crossing( ((weg_t *)obj_bei(0))->get_waytype(), ((weg_t *)obj_bei(1))->get_waytype(), ((weg_t *)obj_bei(0))->get_max_speed(), ((weg_t *)obj_bei(1))->get_max_speed(), 0 );
+		if(cr_desc==NULL) {
+			dbg->warning("crossing_t::rdwr()","requested for waytypes %i and %i not available, try to load object without timeline", ((weg_t *)obj_bei(0))->get_waytype(), ((weg_t *)obj_bei(1))->get_waytype() );
+			cr_desc = crossing_logic_t::get_crossing( ((weg_t *)obj_bei(0))->get_waytype(), ((weg_t *)obj_bei(1))->get_waytype(), 0, 0, 0);
+		}
 		if(cr_desc==0) {
 			dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", ((weg_t *)obj_bei(0))->get_waytype(), ((weg_t *)obj_bei(1))->get_waytype() );
 		}
@@ -598,7 +598,7 @@ void grund_t::info(cbuffer_t& buf) const
 	if(!is_water()) {
 		if(flags&has_way1) {
 			// bridges / tunnels only carry dummy ways
-			if(!ist_tunnel()  &&  !ist_bruecke()) {
+			if(ist_tunnel()  ||  ist_bruecke()) {
 				buf.append(translator::translate(get_weg_nr(0)->get_name()));
 				buf.append("\n");
 			}
@@ -617,9 +617,8 @@ void grund_t::info(cbuffer_t& buf) const
 			}
 			if (maker) {
 				buf.printf(translator::translate("Constructed by %s"), maker);
-				buf.append("\n");
+				buf.append("\n\n");
 			}
-			buf.append("\n");
 			// second way
 			if(flags&has_way2) {
 				buf.append(translator::translate(get_weg_nr(1)->get_name()));
@@ -632,9 +631,8 @@ void grund_t::info(cbuffer_t& buf) const
 				}
 			}
 		}
+		buf.append(translator::translate(ground_desc_t::get_climate_name_from_bit(welt->get_climate(get_pos().get_2d()))));
 	}
-
-	buf.printf("%s\n%s", get_name(), translator::translate( ground_desc_t::get_climate_name_from_bit( welt->get_climate( get_pos().get_2d() ) ) ) );
 #if MSG_LEVEL >= 4
 	buf.printf("\nflags $%0X", flags );
 	buf.printf("\n\npos: (%s)",pos.get_str());
@@ -799,7 +797,7 @@ void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 
 	for(  size_t i=0;  i<grund_t::BACK_WALL_COUNT;  i++  ) {
 		// now enter the left/back two height differences
-		if(  const grund_t *gr=welt->lookup_kartenboden(k + koord::nsew[(i-1)&3])  ) {
+		if(  const grund_t *gr=welt->lookup_kartenboden(k + koord::nesw[(i+3)&3])  ) {
 			const uint8 back_height = min(corner_nw(slope_this),(i==0?corner_sw(slope_this):corner_ne(slope_this)));
 
 			const sint16 left_hgt=gr->get_disp_height()-back_height;
@@ -847,8 +845,8 @@ void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 					// ok, we need a fence here, if there is not a vertical bridgehead
 					weg_t const* w;
 					fence[i] = !(w = get_weg_nr(0)) || (
-						!(w->get_ribi_unmasked() & ribi_t::nsew[(i-1)&3]) &&
-						(!(w = get_weg_nr(1)) || !(w->get_ribi_unmasked() & ribi_t::nsew[(i-1)&3]))
+						!(w->get_ribi_unmasked() & ribi_t::nesw[(i+3)&3]) &&
+						(!(w = get_weg_nr(1)) || !(w->get_ribi_unmasked() & ribi_t::nesw[(i+3)&3]))
 					);
 
 					// no fences between water tiles or between invisible tiles
@@ -981,7 +979,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 				sint16 yoff = tile_raster_scale_y( -TILE_HEIGHT_STEP*back_height, raster_tile_width );
 				if(  back_image[i]  ) {
 					// Draw extra wall images for walls that cannot be represented by a image.
-					grund_t *gr = welt->lookup_kartenboden( k + koord::nsew[(i-1)&3] );
+					grund_t *gr = welt->lookup_kartenboden( k + koord::nesw[(i+3)&3] );
 					if(  gr  ) {
 						// for left we test corners 2 and 3 (east), for back we use 1 and 2 (south)
 						const slope_t::type gr_slope = gr->get_disp_slope();
@@ -1664,6 +1662,27 @@ void grund_t::display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is
 }
 
 
+// display text label in player colors using different styles set by env_t::show_names
+void display_text_label(sint16 xpos, sint16 ypos, const char* text, const player_t *player, bool dirty)
+{
+	sint16 pc = player ? player->get_player_color1()+4 : SYSCOL_TEXT_HIGHLIGHT;
+	switch( env_t::show_names >> 2 ) {
+		case 0:
+			display_ddd_proportional_clip( xpos, ypos, color_idx_to_rgb(pc), color_idx_to_rgb(COL_BLACK), text, dirty );
+			break;
+		case 1:
+			display_outline_proportional_rgb( xpos, ypos, color_idx_to_rgb(pc+3), color_idx_to_rgb(COL_BLACK), text, dirty );
+			break;
+		case 2: {
+			display_outline_proportional_rgb( xpos + LINESPACE + D_H_SPACE, ypos,   color_idx_to_rgb(COL_YELLOW), color_idx_to_rgb(COL_BLACK), text, dirty );
+			display_ddd_box_clip_rgb(         xpos,                         ypos,   LINESPACE,   LINESPACE,   color_idx_to_rgb(pc-2), PLAYER_FLAG|color_idx_to_rgb(pc+2) );
+			display_fillbox_wh_rgb(           xpos+1,                       ypos+1, LINESPACE-2, LINESPACE-2, color_idx_to_rgb(pc), dirty );
+			break;
+		}
+	}
+}
+
+
 void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 {
 	const bool dirty = get_flag(grund_t::dirty);
@@ -1677,21 +1696,10 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 			const sint16 raster_tile_width = get_tile_raster_width();
 			const int width = proportional_string_width(text)+7;
 			int new_xpos = xpos - (width-raster_tile_width)/2;
-			FLAGGED_PIXVAL pc = text_farbe();
 
-			switch( env_t::show_names >> 2 ) {
-				case 0:
-					display_ddd_proportional_clip( new_xpos, ypos, width, 0, pc, color_idx_to_rgb(COL_BLACK), text, dirty );
-					break;
-				case 1:
-					display_outline_proportional_rgb( new_xpos, ypos-(LINESPACE/2), pc+3, color_idx_to_rgb(COL_BLACK), text, dirty );
-					break;
-				case 2:
-					display_outline_proportional_rgb( new_xpos + LINESPACE + D_H_SPACE, ypos-(LINESPACE/2), color_idx_to_rgb(COL_YELLOW), color_idx_to_rgb(COL_BLACK), text, dirty );
-					display_ddd_box_clip_rgb( new_xpos, ypos-(LINESPACE/2), LINESPACE, LINESPACE, pc-2, pc+2 );
-					display_fillbox_wh_rgb( new_xpos+1, ypos-(LINESPACE/2)+1, LINESPACE-2, LINESPACE-2, pc, dirty );
-					break;
-			}
+			const player_t* owner = get_label_owner();
+
+			display_text_label(new_xpos, ypos, text, owner, dirty);
 		}
 
 		// display station waiting information/status
@@ -1699,6 +1707,66 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 			const halthandle_t halt = get_halt();
 			if(halt.is_bound()  &&  halt->get_basis_pos3d()==pos) {
 				halt->display_status(xpos, ypos);
+			}
+		}
+	}
+
+	if( env_t::show_factory_storage_bar ) {
+		if( gebaeude_t *gb=find<gebaeude_t>() ) {
+			if(  fabrik_t* fab = gb->get_fabrik()  ) {
+				if( env_t::show_factory_storage_bar == 1  &&  welt->get_zeiger()->get_pos() == get_pos() ) {
+					const sint16 raster_tile_width = get_tile_raster_width();
+					const char* text = fab->get_name();
+					const int width = proportional_string_width( text )+7;
+					sint16 new_xpos = xpos - (width-raster_tile_width)/2;
+					sint16 new_ypos = ypos + 5;
+//					display_text_label( new_xpos, new_ypos, text, fab->get_owner(), dirty );
+					// ... and status
+					fab->display_status( xpos, new_ypos );
+					win_set_tooltip( new_xpos, ypos, fab->get_name(), NULL, NULL );
+				}
+				else if(  gb->get_first_tile() == gb  ) {
+					if(  env_t::show_factory_storage_bar == 3  ||  (env_t::show_factory_storage_bar == 2  &&  fab->is_within_players_network( welt->get_active_player() ))  ) {
+						// name of factory
+						const char* text = fab->get_name();
+						const sint16 raster_tile_width = get_tile_raster_width();
+						const sint16 width = proportional_string_width( text )+7;
+						sint16 new_xpos = xpos - (width-raster_tile_width)/2;
+						display_text_label( new_xpos, ypos, text, fab->get_owner(), dirty );
+						// ... and status
+						fab->display_status( xpos, ypos );
+					}
+				}
+			}
+		}
+	}
+
+	if( schiene_t::show_reservations &&  hat_wege()  ) {
+		if( weg_t* w = get_weg_nr( 0 ) ) {
+			if( w->has_signal() ) {
+				// display arrow here
+				PIXVAL c1 = color_idx_to_rgb( COL_GREEN+2 );
+				PIXVAL c2 = color_idx_to_rgb( COL_GREEN );
+
+				ribi_t::ribi mask = w->get_ribi_maske();
+				if( !mask ) {
+					mask = w->get_ribi_unmasked();
+				}
+
+				if( signal_t* sig = find<signal_t>() ) {
+					if( sig->get_state()==roadsign_t::signalstate::STATE_RED ) {
+						c1 = color_idx_to_rgb( COL_ORANGE+2 );
+						c2 = color_idx_to_rgb( COL_ORANGE );
+					}
+				}
+				display_signal_direction_rgb( xpos, ypos + tile_raster_scale_y( w->get_yoff(), get_current_tile_raster_width() ),
+					w->get_ribi_unmasked(), mask, c1, c2, w->is_diagonal(), get_weg_hang() );
+			}
+			else if( w->get_ribi_maske() ) {
+				PIXVAL c1 = color_idx_to_rgb( COL_BLUE+2 );
+				PIXVAL c2 = color_idx_to_rgb( COL_BLUE );
+				display_signal_direction_rgb( xpos, ypos + tile_raster_scale_y( w->get_yoff(), get_current_tile_raster_width() ),
+					w->get_ribi_unmasked(), w->get_ribi_maske(), c1, c2, w->is_diagonal(), get_weg_hang() );
 			}
 		}
 	}
@@ -1732,6 +1800,24 @@ depot_t* grund_t::get_depot() const
 }
 
 
+bool grund_t::has_depot() const 
+{
+	obj_t* obj = first_obj();
+	if(  obj==NULL  ) {
+		return false;
+	}
+	obj_t::typ obj_type = obj->get_typ();
+	return obj_type == obj_t::bahndepot ||
+		obj_type == obj_t::strassendepot ||
+		obj_type == obj_t::schiffdepot ||
+		obj_type == obj_t::airdepot ||
+		obj_type == obj_t::monoraildepot ||
+		obj_type == obj_t::tramdepot ||
+		obj_type == obj_t::maglevdepot ||
+		obj_type == obj_t::narrowgaugedepot;
+}
+
+
 bool grund_t::weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi)
 {
 	weg_t   *weg = get_weg(wegtyp);
@@ -1744,13 +1830,13 @@ bool grund_t::weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi)
 				// ribi isn't set at wayobj;
 				for( uint8 i = 0; i < 4; i++ ) {
 					// Add ribis to adjacent wayobj.
-					if( ribi_t::nsew[i] & ribi ) {
+					if( ribi_t::nesw[i] & ribi ) {
 						grund_t *next_gr;
-						if( get_neighbour( next_gr, wegtyp, ribi_t::nsew[i] ) ) {
+						if( get_neighbour( next_gr, wegtyp, ribi_t::nesw[i] ) ) {
 							wayobj_t *wo2 = next_gr->get_wayobj( wegtyp );
 							if( wo2 ) {
-								wo->set_dir( wo->get_dir() | ribi_t::nsew[i] );
-								wo2->set_dir( wo2->get_dir() | ribi_t::backward(ribi_t::nsew[i]) );
+								wo->set_dir( wo->get_dir() | ribi_t::nesw[i] );
+								wo2->set_dir( wo2->get_dir() | ribi_t::backward(ribi_t::nesw[i]) );
 							}
 						}
 					}
@@ -1811,9 +1897,9 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player)
 			weg_t *other = (weg_t *)obj_bei(0);
 			// another way will be added
 			if(flags&has_way2) {
-				dbg->fatal("grund_t::neuen_weg_bauen()","cannot built more than two ways on %i,%i,%i!",pos.x,pos.y,pos.z);
-				return 0;
+				dbg->fatal("grund_t::neuen_weg_bauen()","cannot build more than two ways on %i,%i,%i!",pos.x,pos.y,pos.z);
 			}
+
 			// add the way
 			objlist.add( weg );
 			weg->set_ribi(ribi);
@@ -1822,7 +1908,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player)
 			if(ist_uebergang()) {
 				// no tram => crossing needed!
 				waytype_t w2 =  other->get_waytype();
-				const crossing_desc_t *cr_desc = crossing_logic_t::get_crossing( weg->get_waytype(), w2, weg->get_max_speed(), other->get_desc()->get_topspeed(), welt->get_timeline_year_month() );
+				const crossing_desc_t *cr_desc = crossing_logic_t::get_crossing( weg->get_waytype(), w2, weg->get_max_speed(), other->get_max_speed(), welt->get_timeline_year_month() );
 				if(cr_desc==0) {
 					dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", weg->get_waytype(), w2 );
 				}
@@ -1857,10 +1943,10 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 			grund_t *to;
 
 			for(int r = 0; r < 4; r++) {
-				if((ribi & ribi_t::nsew[r]) && get_neighbour(to, wegtyp, ribi_t::nsew[r])) {
+				if((ribi & ribi_t::nesw[r]) && get_neighbour(to, wegtyp, ribi_t::nesw[r])) {
 					weg_t *weg2 = to->get_weg(wegtyp);
 					if(weg2) {
-						weg2->ribi_rem(ribi_t::backward(ribi_t::nsew[r]));
+						weg2->ribi_rem(ribi_t::backward(ribi_t::nesw[r]));
 						to->calc_image();
 					}
 				}
@@ -2083,14 +2169,6 @@ bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t:
 						gr->calc_image(); // to recalculate ribis
 					}
 				}
-				// make tunnel portals to normal ground
-				if (get_typ()==tunnelboden  &&  (flags&has_way1)==0) {
-					// remove remaining objs
-					obj_loesche_alle( player );
-					// set to normal ground
-					welt->access(here)->kartenboden_setzen( new boden_t( pos, slope ) );
-					// now this is already deleted !
-				}
 			}
 		}
 		else {
@@ -2126,4 +2204,41 @@ wayobj_t *grund_t::get_wayobj( waytype_t wt ) const
 		}
 	}
 	return NULL;
+}
+
+bool grund_t::is_use_track_wt_ex_image(ribi_t::ribi backward_ribi){
+	ribi_t::ribi rotate_ribi = ribi_t::rotate90(backward_ribi);
+	ribi_t::ribi rotate_backward_ribi = ribi_t::backward(rotate_ribi);
+	grund_t *first_side;
+	grund_t *second_side;
+	if( get_neighbour(first_side, track_wt, rotate_ribi) && get_neighbour(second_side, track_wt, rotate_backward_ribi) ){
+		ribi_t::ribi first_side_ribi = first_side->get_weg(track_wt)->get_ribi_unmasked();
+		ribi_t::ribi second_side_ribi = second_side->get_weg(track_wt)->get_ribi_unmasked();
+		if(first_side_ribi == (rotate_backward_ribi | backward_ribi) && second_side_ribi == (rotate_ribi | backward_ribi)){
+			return true;
+		}
+	}
+	return false;
+}
+
+bool grund_t::is_use_wayobj_ex_image(ribi_t::ribi backward_ribi){
+	ribi_t::ribi rotate_ribi = ribi_t::rotate90(backward_ribi);
+	ribi_t::ribi rotate_backward_ribi = ribi_t::backward(rotate_ribi);
+	grund_t *first_side;
+	grund_t *second_side;
+	if( get_neighbour(first_side, track_wt, rotate_ribi) && get_neighbour(second_side, track_wt, rotate_backward_ribi) && first_side->get_wayobj(track_wt) && second_side->get_wayobj(track_wt) ){
+		ribi_t::ribi first_side_ribi = first_side->get_wayobj(track_wt)->get_dir();
+		ribi_t::ribi second_side_ribi = second_side->get_wayobj(track_wt)->get_dir();
+		if(first_side_ribi == (rotate_backward_ribi | backward_ribi) && second_side_ribi == (rotate_ribi | backward_ribi)){
+			return true;
+		}
+	}
+	return false;
+}
+
+bool grund_t::is_dummy_ground() const
+{
+	return (get_typ() == grund_t::tunnelboden  ||  get_typ() == grund_t::monorailboden)
+		&&  !hat_wege()
+		&&  get_leitung() == NULL;
 }

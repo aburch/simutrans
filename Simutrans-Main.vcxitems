@@ -34,7 +34,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)simmem.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)simmenu.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)simmesg.cc" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)simobj.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)simplan.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)simskin.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)simsound.cc" />
@@ -48,6 +47,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)bauer\fabrikbauer.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)bauer\goods_manager.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)bauer\hausbauer.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)bauer\tree_builder.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)bauer\tunnelbauer.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)bauer\vehikelbauer.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)bauer\wegbauer.cc" />
@@ -156,6 +156,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\factorylist_stats_t.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\goods_frame_t.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\goods_stats_t.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)gui\groundobj_edit.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\ground_info.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\gui_frame.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\gui_theme.cc" />
@@ -185,6 +186,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\obj_info.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\optionen.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\pakselector.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)gui\pakinstaller.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\password_frame.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\player_frame_t.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\privatesign_info.cc" />
@@ -233,7 +235,18 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_tab_panel.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_textarea.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_textinput.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_waytype_tab_panel.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_world_view_t.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)io\classify_file.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)io\raw_image.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)io\raw_image_bmp.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)io\raw_image_png.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)io\raw_image_ppm.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)io\rdwr\bzip2_file_rdwr_stream.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)io\rdwr\raw_file_rdwr_stream.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)io\rdwr\rdwr_stream.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)io\rdwr\zlib_file_rdwr_stream.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)io\rdwr\zstd_file_rdwr_stream.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)network\checksum.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)network\memory_rw.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)network\network.cc" />
@@ -246,7 +259,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)network\network_packet.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)network\network_socket_list.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)network\pakset_info.cc" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)network\pwd_hash.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)obj\baum.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)obj\bruecke.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)obj\crossing.cc" />
@@ -258,6 +270,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)obj\pillar.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)obj\roadsign.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)obj\signal.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)obj\simobj.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)obj\tunnel.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)obj\wayobj.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)obj\wolke.cc" />
@@ -322,15 +335,17 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)squirrel\squirrel\sqvm.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)sys\simsys.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\cbuffer_t.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)utils\checklist.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\csv.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\log.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\searchfolder.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\sha1.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)utils\sha1_hash.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\simrandom.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\simstring.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\simthread.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)vehicle\movingobj.cc" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)vehicle\simpeople.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)vehicle\pedestrian.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)vehicle\simroadtraffic.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)vehicle\simvehicle.cc" />
   </ItemGroup>
@@ -356,7 +371,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)simmem.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)simmenu.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)simmesg.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)simobj.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)simplan.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)simskin.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)simsound.h" />
@@ -373,6 +387,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)bauer\fabrikbauer.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)bauer\goods_manager.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)bauer\hausbauer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)bauer\tree_builder.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)bauer\tunnelbauer.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)bauer\vehikelbauer.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)bauer\wegbauer.h" />
@@ -503,6 +518,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\factorylist_stats_t.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\goods_frame_t.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\goods_stats_t.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)gui\groundobj_edit.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\ground_info.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\gui_frame.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\gui_theme.h" />
@@ -532,6 +548,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\obj_info.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\optionen.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\pakselector.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)gui\pakinstaller.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\password_frame.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\player_frame_t.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\privatesign_info.h" />
@@ -582,10 +599,18 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_tab_panel.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_textarea.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_textinput.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_waytype_tab_panel.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_world_view_t.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ifc\simtestdriver.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ifc\sync_steppable.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)music\music.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)io\classify_file.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)io\raw_image.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)io\rdwr\bzip2_file_rdwr_stream.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)io\rdwr\raw_file_rdwr_stream.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)io\rdwr\rdwr_stream.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)io\rdwr\zlib_file_rdwr_stream.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)io\rdwr\zstd_file_rdwr_stream.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)network\checksum.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)network\memory_rw.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)network\network.h" />
@@ -598,7 +623,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)network\network_packet.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)network\network_socket_list.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)network\pakset_info.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)network\pwd_hash.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)obj\baum.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)obj\bruecke.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)obj\crossing.h" />
@@ -611,6 +635,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)obj\pillar.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)obj\roadsign.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)obj\signal.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)obj\simobj.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)obj\tunnel.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)obj\wayobj.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)obj\wolke.h" />
@@ -683,15 +708,17 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)tpl\weighted_vector_tpl.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\cbuffer_t.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\csv.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)utils\checklist.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\log.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\searchfolder.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\sha1.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)utils\sha1_hash.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\simrandom.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\simstring.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\simthread.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)vehicle\movingobj.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)vehicle\overtaker.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)vehicle\simpeople.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)vehicle\pedestrian.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)vehicle\simroadtraffic.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)vehicle\simvehicle.h" />
   </ItemGroup>

@@ -25,12 +25,12 @@
  * Functions required by both Simutrans and Nettool
  */
 
-char const* network_receive_file( SOCKET const s, char const* const save_as, sint32 const length, sint32 const timeout )
+const char *network_receive_file(const SOCKET src_sock, const char *const save_as, sint32 const length, sint32 const timeout )
 {
 	// ok, we have a socket to connect
 	dr_remove(save_as);
 
-	DBG_MESSAGE("network_receive_file", "File size %li", length );
+	DBG_MESSAGE("network_receive_file", "File size %i", length );
 
 	if(length>0) {
 #ifndef NETTOOL // no display, no translator available
@@ -45,13 +45,13 @@ char const* network_receive_file( SOCKET const s, char const* const save_as, sin
 				if(  timeout > 0  ) {
 					/** 10s for 4096 bytes:
 					 * As long as you are not connected with less than 1200 Baud that should be fine
-					 * otherwise upgrade you acustic coppler to 56k ...
+					 * otherwise upgrade your acoustic coupler to 56k ...
 					 */
 					fd_set fds;
 					FD_ZERO(&fds);
-					FD_SET(s,&fds);
+					FD_SET(src_sock,&fds);
 					struct timeval tv; // 10 s timeout
-					tv.tv_sec = 10000 / 1000;
+					tv.tv_sec = 30000 / 1000;
 					tv.tv_usec = (10000 % 1000) * 1000ul;
 					// can we read?
 					if(  select( FD_SETSIZE, &fds, NULL, NULL, &tv )!=1  ) {
@@ -60,7 +60,7 @@ char const* network_receive_file( SOCKET const s, char const* const save_as, sin
 					}
 				}
 				// ok, now here should be something new to read
-				int i = recv(s, rbuf, length_read + 4096 < length ? 4096 : length - length_read, 0);
+				int i = recv(src_sock, rbuf, length_read + 4096 < length ? 4096 : length - length_read, 0);
 				if (i > 0) {
 					fwrite(rbuf, 1, i, f);
 					length_read += i;
@@ -141,16 +141,20 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 		sprintf( filename, "client%i-network.sve", nwgi->len );
 		err = network_receive_file( my_client_socket, filename, len );
 
-		// now into gameinfo
-		if(  fd.rd_open( filename )  ) {
-			gameinfo_t *pgi = new gameinfo_t( &fd );
-			*gi = *pgi;
-			delete pgi;
-			fd.close();
-		}
-		else {
-			// some more insets, while things may have failed
-			err = fd.get_last_error() == loadsave_t::FILE_ERROR_FUTURE_VERSION ? "Server version too new" : "Server busy";
+		if (err == NULL) {
+			// now into gameinfo
+			const loadsave_t::file_status_t err_code = fd.rd_open( filename );
+
+			if(  err_code == loadsave_t::FILE_STATUS_OK  ) {
+				gameinfo_t *pgi = new gameinfo_t( &fd );
+				*gi = *pgi;
+				delete pgi;
+				fd.close();
+			}
+			else {
+				// some more insets, while things may have failed
+				err = (err_code == loadsave_t::FILE_STATUS_ERR_FUTURE_VERSION) ? "Server version too new" : "Server busy";
+			}
 		}
 		dr_remove( filename );
 end:
@@ -257,7 +261,7 @@ end:
 }
 
 
-const char *network_send_file( uint32 client_id, const char *filename )
+const char *network_send_file( const SOCKET dst_sock, const char *filename )
 {
 	FILE *fp = dr_fopen(filename,"rb");
 	if (fp == NULL) {
@@ -274,8 +278,7 @@ const char *network_send_file( uint32 client_id, const char *filename )
 
 	// send size of file
 	nwc_game_t nwc(length);
-	SOCKET s = socket_list_t::get_socket(client_id);
-	if (s==INVALID_SOCKET  ||  !nwc.send(s)) {
+	if (dst_sock==INVALID_SOCKET  ||  !nwc.send(dst_sock)) {
 		goto error;
 	}
 
@@ -286,19 +289,20 @@ const char *network_send_file( uint32 client_id, const char *filename )
 		while(  !feof(fp)  ) {
 			int bytes_read = (int)fread( buffer, 1, sizeof(buffer), fp );
 			uint16 dummy;
-			if( !network_send_data(s, buffer, bytes_read, dummy, 250) ) {
-				socket_list_t::remove_client(s);
+			if( !network_send_data(dst_sock, buffer, bytes_read, dummy, 250) ) {
+				socket_list_t::remove_client(dst_sock);
 				goto error;
 			}
+
 			bytes_sent += bytes_read;
 			ls.set_progress( bytes_sent );
 		}
-
 	}
 
 	// ok, new client has savegame
 	fclose(fp);
 	return NULL;
+
 error:
 	// an error occurred: close file
 	fclose(fp);

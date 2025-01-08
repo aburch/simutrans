@@ -24,6 +24,7 @@ private:
 		new_map,
 		load_map,
 		load_scenario,
+		options,
 		join_map,
 		quit;
 
@@ -48,13 +49,6 @@ public:
 	bool is_hit(int, int) OVERRIDE { return true; }
 
 	bool infowin_event(event_t const*) OVERRIDE;
-
-	/**
-	* Draw new component. The values to be passed refer to the window
-	* i.e. It's the screen coordinates of the window where the
-	* component is displayed.
-	*/
-	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
