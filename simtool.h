@@ -28,6 +28,7 @@
 #include "player/simplay.h"
 
 #include "tpl/slist_tpl.h"
+#include "utils/cbuffer_t.h"
 
 class koord3d;
 class koord;
@@ -702,13 +703,15 @@ private:
 	void read_start_position(player_t *player, const koord3d &pos);
 };
 
-class tool_change_city_of_citybuilding_t : public two_click_tool_t {
+class tool_change_city_of_building_t : public two_click_kartenboden_tool_t {
 public:
-	tool_change_city_of_citybuilding_t() : two_click_tool_t(TOOL_CHANGE_CITY_OF_CITYBUILDING | GENERAL_TOOL) {}
+	cbuffer_t default_param_buffer;
+	tool_change_city_of_building_t() : two_click_kartenboden_tool_t(TOOL_CHANGE_CITY_OF_BUILDING | GENERAL_TOOL) { one_click = true; }
 	char const *get_tooltip(player_t const *) const OVERRIDE { return translator::translate("change city of citybuilding"); }
-
+	bool is_init_network_safe() const OVERRIDE { return true; }
 private:
 	char const *do_work(player_t*, koord3d const &, koord3d const &) OVERRIDE;
+	const char* work_on_ground(player_t*, koord, stadt_t*);
 	void mark_tiles(player_t*, koord3d const &, koord3d const &) OVERRIDE;
 	uint8 is_valid_pos(player_t*, koord3d const &pos, char const *&error, koord3d const &start) OVERRIDE {
 		grund_t *bd = welt->lookup(pos);
@@ -716,10 +719,12 @@ private:
 			error = "";
 			return 0;
 		}
+		error = NULL;
 
 		return 2;
 	};
-	image_id get_marker_image() const OVERRIDE { return cursor; };
+	image_id get_marker_image() const OVERRIDE { return cursor; }
+	stadt_t* get_highlighted_city() const;
 };
 
 /* make all tiles of this player a public stop

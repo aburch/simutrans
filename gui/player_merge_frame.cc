@@ -21,14 +21,10 @@ player_merge_frame_t::player_merge_frame_t() :
   add_component(&lb_merged);
   lb_merge_to.set_text("merge to");
   add_component(&lb_merge_to);
-  
   for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
     player_t* player = world()->get_player(i);
-    if(  player==NULL  ) {
-      break;
-    }
-    if(  player->is_public_service()  ) {
-      // public player. skip.
+    if(  player==NULL || player->is_public_service()  ) {
+      // empty player or public player, skip.
       continue;
     }
     

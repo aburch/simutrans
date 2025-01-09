@@ -658,7 +658,6 @@ void gui_halt_detail_t::update_connections( halthandle_t halt )
 	new_component_span<gui_label_t>("Direkt erreichbare Haltestellen", 2);
 
 	bool has_stops = false;
-	const bool is_tgbr_enabled = world()->get_settings().get_goods_routing_policy() == goods_routing_policy_t::GRP_FIFO_ET;
 
 	for (uint i=0; i<goods_manager_t::get_max_catg_index(); i++){
 		vector_tpl<haltestelle_t::connection_t> const& connections = halt->get_connections(i);
@@ -683,6 +682,7 @@ void gui_halt_detail_t::update_connections( halthandle_t halt )
 					sorted.insert_unique_ordered(conn, gui_halt_detail_t::compare_connection);
 				}
 			}
+			const bool is_tgbr_enabled = world()->get_settings().get_time_based_routing_enabled(i);
 			FOR(vector_tpl<haltestelle_t::connection_t>, const& conn, sorted) {
 
 				has_stops = true;

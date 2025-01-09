@@ -130,8 +130,15 @@ void haltestelle_t::step_all()
 		last_reconnection_started_ticks = welt->get_ticks();
 	}
 
-	const bool is_tgbr_enabled = welt->get_settings().get_goods_routing_policy()==GRP_FIFO_ET;
-	if(  status_step==0  &&  is_tgbr_enabled  &&  welt->get_ticks() > last_reconnection_started_ticks + WEIGHT_UPDATE_INTERVAL_TICKS  ) {
+	// Regurally update the connection weight only when time based routing is used.
+	bool is_tbgr_used = false;
+	for(  uint8 catg_idx = 0;  catg_idx < goods_manager_t::get_max_catg_index();  catg_idx++  ) {
+		if(  welt->get_settings().get_time_based_routing_enabled(catg_idx)  ) {
+			is_tbgr_used = true;
+			break;
+		}
+	}
+	if(  status_step==0  &&  is_tbgr_used  &&  welt->get_ticks() > last_reconnection_started_ticks + WEIGHT_UPDATE_INTERVAL_TICKS  ) {
 		status_step = WEIGHT_UPDATE;
 		last_reconnection_started_ticks = welt->get_ticks();
 	}
@@ -1248,9 +1255,6 @@ sint32 haltestelle_t::rebuild_connections()
 	// previous halt supporting the ware categories of the serving line
 	halthandle_t previous_halt[256];
 
-	// true if the estimated time based goods routing is enabled. false if we use route cost calculation.
-	const bool is_tbgr_enabled = welt->get_settings().get_goods_routing_policy() == goods_routing_policy_t::GRP_FIFO_ET;
-
 	// first, remove all old entries
 	if(  staged_all_links  ) {
 		// rebuild_connections() is called before the staged links are commited.
@@ -1351,16 +1355,14 @@ sint32 haltestelle_t::rebuild_connections()
 		// now we add the schedule to the connection array
 		const schedule_entry_t start_entry = schedule->entries[start_index-1];
 
-		// aggregate_weight: When TBGR is enabled, (average goods waiting time) + (median journey time)
-		// When TBGR is disabled, it is route cost. e.g. WEIGHT_HALT + WEIGHT_WAIT * (stops count)
-		sint32 aggregate_weight;
-		if(  is_tbgr_enabled  ) {
-			// the journey time of the first entry contains the stopping time at the starting point, which should be excluded.
-			aggregate_weight = estimated_waiting_ticks(schedule, start_index-1) - start_entry.get_median_convoy_stopping_time();
-		}
-		else {
-			aggregate_weight = WEIGHT_WAIT;
-		}
+		// We calculate the connection weight by both route cost and journey time,
+		// because it depends on the routing configuration for the goods category.
+		sint32 aggregate_weight_rc; // weight by route cost. WEIGHT_HALT + WEIGHT_WAIT * (stops count)
+		sint32 aggregate_weight_jt; // weight by journey time. (average goods waiting time) + (median journey time)
+
+		// the journey time of the first entry contains the stopping time at the starting point, which should be excluded.
+		aggregate_weight_jt = estimated_waiting_ticks(schedule, start_index-1) - start_entry.get_median_convoy_stopping_time();
+		aggregate_weight_rc = WEIGHT_WAIT;
 
 		bool no_load_section = start_entry.is_no_load();
 		force_transfer_search |= (start_entry.is_unload_all()  ||  start_entry.is_no_load()  ||  start_entry.is_no_unload());
@@ -1372,9 +1374,7 @@ sint32 haltestelle_t::rebuild_connections()
 			if(  !current_halt.is_bound()  ) {
 				// ignore way points.
 				// just count the journey time
-				if(  is_tbgr_enabled  ) {
-					aggregate_weight += schedule->get_median_journey_time(current_entry_index, speedbonus_kmh);
-				}
+				aggregate_weight_jt += schedule->get_median_journey_time(current_entry_index, speedbonus_kmh);
 				continue;
 			}
 			if(  current_halt == self  ) {
@@ -1387,11 +1387,8 @@ sint32 haltestelle_t::rebuild_connections()
 					}
 				}
 				// reset aggregate weight and no_load_section
-				if(  is_tbgr_enabled  ) {
-					aggregate_weight = estimated_waiting_ticks(schedule, current_entry_index) - current_entry.get_median_convoy_stopping_time();
-				} else {
-					aggregate_weight = WEIGHT_WAIT;
-				}
+				aggregate_weight_jt = estimated_waiting_ticks(schedule, current_entry_index) - current_entry.get_median_convoy_stopping_time();
+				aggregate_weight_rc = WEIGHT_WAIT;
 			 	force_transfer_search |= (current_entry.is_unload_all()  ||  current_entry.is_no_load()  ||  current_entry.is_no_unload());
 				no_load_section = current_entry.is_no_load();
 				interval = 0;
@@ -1399,11 +1396,8 @@ sint32 haltestelle_t::rebuild_connections()
 			}
 
 			// Add weight
-			if(  is_tbgr_enabled  ) {
-				aggregate_weight += schedule->get_median_journey_time(current_entry_index, (uint32)speedbonus_kmh);
-			} else {
-				aggregate_weight += WEIGHT_HALT;
-			}
+			aggregate_weight_jt += schedule->get_median_journey_time(current_entry_index, (uint32)speedbonus_kmh);
+			aggregate_weight_rc += WEIGHT_HALT;
 
 			if(  current_entry.is_no_unload()  ||  no_load_section  ) {
 				// do not add connection if this halt is set no_unload or if the previous self stop is set no_load.
@@ -1429,6 +1423,7 @@ sint32 haltestelle_t::rebuild_connections()
 					previous_halt[catg_index] = current_halt;
 
 					// either add a new connection or update the weight of an existing connection where necessary
+					const uint32 aggregate_weight = welt->get_settings().get_time_based_routing_enabled(catg_index) ? aggregate_weight_jt : aggregate_weight_rc;
 					connection_t *const existing_connection = staged_all_links[catg_index].connections.insert_unique_ordered( connection_t( current_halt, aggregate_weight, traveler ), connection_t::compare );
 					if(  existing_connection  &&  aggregate_weight<existing_connection->weight  ) {
 						existing_connection->weight = aggregate_weight;
@@ -2436,7 +2431,7 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware)
 	// merge cargos only when "load nearest first" policy is applied.
 	const settings_t &settings = world()->get_settings();
 	const bool* wefl = waiting_amount_exceeds_FIFO_limit.access(ware.get_desc()->get_catg_index());
-	if(  settings.get_goods_routing_policy()!=GRP_NF_RC  &&  (wefl==NULL  ||  !*wefl)  ) {
+	if(  settings.get_first_come_first_serve()  &&  (wefl==NULL  ||  !*wefl)  ) {
 		return false;
 	}
 
@@ -2478,10 +2473,8 @@ std::shared_ptr<halt_waiting_goods_t> haltestelle_t::add_goods_to_halt(halt_wait
 	cargo_item_t goods_ref = cargo_item_t(new halt_waiting_goods_t(wg));
 	warray->append(goods_ref);
 
-	// Add the goods to fresh_cargo_ids if needed
-	if(  world()->get_settings().get_goods_routing_policy()==goods_routing_policy_t::GRP_FIFO_ET  ) {
-		fresh_cargo[wg.goods.get_desc()->get_catg_index()].push_back(std::weak_ptr<halt_waiting_goods_t>(goods_ref));
-	}
+	// Add the goods to fresh_cargo for the waiting time statistics
+	fresh_cargo[wg.goods.get_desc()->get_catg_index()].push_back(std::weak_ptr<halt_waiting_goods_t>(goods_ref));
 	return goods_ref;
 }
 
@@ -4166,7 +4159,7 @@ bool haltestelle_t::book_departure (uint32 arr_tick, uint32 dep_tick, uint32 exp
 			i = departure_slot_table[idx].erase(i);
 			continue;
 		}
-		if(  is_first_ticks_bigger(i->dep_tick, current_ticks) && (world()->lookup(i->cnv->get_pos())->get_halt() != self)  ) {
+		if(  is_first_ticks_bigger(i->dep_tick, current_ticks) && (get_stoppable_halt(i->cnv->get_pos(), i->cnv->get_owner()) != self)  ) {
 			// The convoy is not on this halt while the convoy is yet to depart. Handle it as an invalid.
 			i = departure_slot_table[idx].erase(i);
 			continue;
@@ -4256,23 +4249,26 @@ void haltestelle_t::calc_destination_halt(inthashtable_tpl<uint8, vector_tpl<hal
 	} else {
 		traveler = cnv;
 	}
-	const bool is_tbgr_enabled = welt->get_settings().get_goods_routing_policy()==goods_routing_policy_t::GRP_FIFO_ET;
 	const schedule_t* schedule = std::visit(
 		[&](const auto &t) { return t->get_schedule(); }, traveler
 	);
-	if(  !is_tbgr_enabled  ||  cnv->get_schedule()->is_temporary()  ||  unregistered_journey_time_exists(schedule, cnv->get_owner()) ) {
-		// We accept all halts in reachable_halts
-		FOR(const minivec_tpl<uint8>, const& i, goods_category_indexes) {
+	const bool accept_all_halts = schedule->is_temporary()  ||  unregistered_journey_time_exists(schedule, cnv->get_owner());
+	FOR(const minivec_tpl<uint8>, const& i, goods_category_indexes) {
+		// Temporary schedule or route cost is used -> Accept all halts.
+		if(  accept_all_halts  ||  !welt->get_settings().get_time_based_routing_enabled(i)  ) {
 			FOR(const vector_tpl<reachable_halt_t>, const& rh, reachable_halts) {
 				destination_halts.access(i)->append(rh.halt);
 			}
 		}
-		return;
 	}
 
 	const uint32 additional_ticks_by_schedule = (uint64)schedule->get_additional_base_waiting_time() * world()->ticks_per_world_month / world()->get_settings().get_spacing_shift_divisor();
 	const uint32 base_waiting_ticks = world()->get_settings().get_base_waiting_ticks(schedule->get_waytype()) + additional_ticks_by_schedule;
 	FOR(const minivec_tpl<uint8>, const& g_index, goods_category_indexes) {
+		if(  !destination_halts.access(g_index)->empty()  ) {
+			// The destination halts are already filled above.
+			continue;
+		}
 		FOR(const vector_tpl<reachable_halt_t>, const& rh, reachable_halts) {
 			connection_t connection;
 			FOR(const vector_tpl<connection_t>, const& j, all_links[g_index].connections) {
@@ -4309,7 +4305,7 @@ void haltestelle_t::calc_destination_halt(inthashtable_tpl<uint8, vector_tpl<hal
 // Returns if the route search is needed for the given ware.
 // When TBGR is enabled, the route search is needed only when the next transfer halt is not valid.
 bool haltestelle_t::is_route_search_needed(const ware_t &ware) const {
-	if(  world()->get_settings().get_goods_routing_policy()!=goods_routing_policy_t::GRP_FIFO_ET  ) {
+	if(  !world()->get_settings().get_time_based_routing_enabled(ware.get_index())  ) {
 		// Not using time based goods routing -> Always reroute
 		return true;
 	}
