@@ -28,9 +28,13 @@
 *.patch
 *.log
 /doxygen
-.vs/
+autom4te.cache/
+configure
 revision.h
+.vs/
 .idea
 *.d
 *.res
 .DS_Store
+.vscode/
+sim-*.exe

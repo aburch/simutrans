@@ -468,8 +468,9 @@ image_id gebaeude_t::get_front_image() const
 		return IMG_EMPTY;
 	} else if (  is_in_highlighted_city  &&  is_city_info_opened  ) {
 		return IMG_EMPTY;
-	}
-	else {
+	} else if (env_t::highlight_city && is_city_building()) {
+		return IMG_EMPTY;
+	} else {
 		// Show depots, station buildings etc.
 		return tile->get_foreground( anim_frame, season );
 	}

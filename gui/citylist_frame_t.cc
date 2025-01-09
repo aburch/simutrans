@@ -151,7 +151,6 @@ citylist_frame_t::citylist_frame_t() :
 	sorteddir.add_listener(this);
 	list.add_component(&sorteddir);
 
-
 	list.end_table();
 	list.add_component(&scrolly);
 	fill_list();
