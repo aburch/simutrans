@@ -32,6 +32,8 @@ public:
 		nach_name,
 		nach_wartend,
 		nach_typ,
+		nach_throughput,
+		nach_wartend_percent,
 		SORT_MODES
 	};
 

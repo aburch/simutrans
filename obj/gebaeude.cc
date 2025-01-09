@@ -403,12 +403,10 @@ image_id gebaeude_t::get_image() const
 
 image_id gebaeude_t::get_outline_image() const
 {
-	// get city highlight & city highlighted
-	city_info_t *w_city = dynamic_cast<city_info_t*>(win_get_magic((ptrdiff_t)this->get_stadt()));
-	bool city_highlight = w_city ? w_city->is_highlighted() : false;
-	stadt_t* city = city_highlight ? w_city->get_city() : nullptr;
+	const bool is_city_info_opened = win_get_magic((ptrdiff_t)this->get_stadt()) != NULL;
+	const bool is_in_highlighted_city = is_building_of_city() && this->get_stadt() == city_info_t::get_highlighted_city();
 
-	if (((env_t::hide_buildings != 0 && env_t::hide_with_transparency) || (is_city_building() && this->get_stadt() == city)) && !zeige_baugrube)
+	if (((env_t::hide_buildings != 0 && env_t::hide_with_transparency) || (is_in_highlighted_city && is_city_info_opened)) && !zeige_baugrube)
 	{
 		// opaque houses
 		return tile->get_background( anim_frame, 0, season );
@@ -423,10 +421,8 @@ FLAGGED_PIXVAL gebaeude_t::get_outline_colour() const
 	uint8 colours[] = { COL_BLACK, COL_YELLOW, COL_YELLOW, COL_PURPLE, COL_RED, COL_GREEN };
 	FLAGGED_PIXVAL disp_colour = 0;
 
-	// get city highlight & city highlighted
-	city_info_t *w_city = dynamic_cast<city_info_t*>(win_get_magic((ptrdiff_t)this->get_stadt()));
-	bool city_highlight = w_city ? w_city->is_highlighted() : false;
-	stadt_t* city = city_highlight ? w_city->get_city() : nullptr;
+	const bool is_city_info_opened = win_get_magic((ptrdiff_t)this->get_stadt()) != NULL;
+	const bool is_in_highlighted_city = is_building_of_city() && this->get_stadt() == city_info_t::get_highlighted_city();
 
 	if(env_t::hide_buildings!=env_t::NOT_HIDE) {
 		if(is_city_building()) {
@@ -437,10 +433,8 @@ FLAGGED_PIXVAL gebaeude_t::get_outline_colour() const
 			disp_colour = color_idx_to_rgb(colours[tile->get_desc()->get_type()]) | TRANSPARENT50_FLAG | OUTLINE_FLAG;
 		}
 	}
-	else if(city_highlight) {
-		if(is_building_of_city() && this->get_stadt() == city) {
-			disp_colour = color_idx_to_rgb(colours[0]) | TRANSPARENT75_FLAG | OUTLINE_FLAG;
-		}
+	else if(  is_in_highlighted_city  &&  is_city_info_opened  ) {
+		disp_colour = color_idx_to_rgb(colours[0]) | TRANSPARENT75_FLAG | OUTLINE_FLAG;
 	}
 
 	return disp_colour;
@@ -449,12 +443,10 @@ FLAGGED_PIXVAL gebaeude_t::get_outline_colour() const
 
 image_id gebaeude_t::get_image(int nr) const
 {
-	// get city highlight & city highlighted
-	city_info_t *w_city = dynamic_cast<city_info_t*>(win_get_magic((ptrdiff_t)this->get_stadt()));
-	bool city_highlight = w_city ? w_city->is_highlighted() : false;
-	stadt_t* city = city_highlight ? w_city->get_city() : nullptr;
+	const bool is_city_info_opened = win_get_magic((ptrdiff_t)this->get_stadt()) != NULL;
+	const bool is_in_highlighted_city = is_building_of_city() && this->get_stadt() == city_info_t::get_highlighted_city();
 
-	if(zeige_baugrube || env_t::hide_buildings || (is_city_building() && this->get_stadt() == city)) {
+	if(zeige_baugrube || env_t::hide_buildings || (is_in_highlighted_city  &&  is_city_info_opened)) {
 		return IMG_EMPTY;
 	}
 	else {
@@ -468,14 +460,13 @@ image_id gebaeude_t::get_front_image() const
 	if(zeige_baugrube) {
 		return IMG_EMPTY;
 	}
-	
-	// get city highlight & city highlighted
-	city_info_t *w_city = dynamic_cast<city_info_t*>(win_get_magic((ptrdiff_t)this->get_stadt()));
-	bool city_highlight = w_city ? w_city->is_highlighted() : false;
+
+	const bool is_city_info_opened = win_get_magic((ptrdiff_t)this->get_stadt()) != NULL;
+	const bool is_in_highlighted_city = is_building_of_city() && this->get_stadt() == city_info_t::get_highlighted_city();
 
 	if (env_t::hide_buildings != 0   &&  (is_building_of_city()  ||  (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING  &&  tile->get_desc()->get_type() < building_desc_t::others))) {
 		return IMG_EMPTY;
-	} else if (city_highlight && is_building_of_city()) {
+	} else if (  is_in_highlighted_city  &&  is_city_info_opened  ) {
 		return IMG_EMPTY;
 	}
 	else {

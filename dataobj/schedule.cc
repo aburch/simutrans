@@ -92,7 +92,7 @@ halthandle_t schedule_t::get_next_halt( player_t *player, halthandle_t halt ) co
 {
 	if(  entries.get_count()>1  ) {
 		for(  uint i=1;  i < entries.get_count();  i++  ) {
-			halthandle_t h = haltestelle_t::get_halt( entries[ (current_stop+i) % entries.get_count() ].pos, player );
+			halthandle_t h = haltestelle_t::get_stoppable_halt( entries[ (current_stop+i) % entries.get_count() ].pos, player );
 			if(  h.is_bound()  &&  h != halt  ) {
 				return h;
 			}
@@ -109,7 +109,7 @@ halthandle_t schedule_t::get_prev_halt( player_t *player ) const
 {
 	if(  entries.get_count()>1  ) {
 		for(  uint i=1;  i < entries.get_count()-1u;  i++  ) {
-			halthandle_t h = haltestelle_t::get_halt( entries[ (current_stop+entries.get_count()-i) % entries.get_count() ].pos, player );
+			halthandle_t h = haltestelle_t::get_stoppable_halt( entries[ (current_stop+entries.get_count()-i) % entries.get_count() ].pos, player );
 			if(  h.is_bound()  ) {
 				return h;
 			}
@@ -435,7 +435,7 @@ bool schedule_t::similar( const schedule_t *schedule, const player_t *player )
 	vector_tpl<halthandle_t> halts;
 	for(  uint8 idx = 0;  idx < this->entries.get_count();  idx++  ) {
 		koord3d p = this->entries[idx].pos;
-		halthandle_t halt = haltestelle_t::get_halt( p, player );
+		halthandle_t halt = haltestelle_t::get_stoppable_halt( p, player );
 		if(  halt.is_bound()  ) {
 			halts.insert_unique_ordered( halt, HaltIdOrdering() );
 		}
@@ -443,7 +443,7 @@ bool schedule_t::similar( const schedule_t *schedule, const player_t *player )
 	vector_tpl<halthandle_t> other_halts;
 	for(  uint8 idx = 0;  idx < schedule->entries.get_count();  idx++  ) {
 		koord3d p = schedule->entries[idx].pos;
-		halthandle_t halt = haltestelle_t::get_halt( p, player );
+		halthandle_t halt = haltestelle_t::get_stoppable_halt( p, player );
 		if(  halt.is_bound()  ) {
 			other_halts.insert_unique_ordered( halt, HaltIdOrdering() );
 		}
@@ -622,7 +622,7 @@ void construct_schedule_entry_attributes(cbuffer_t& buf, schedule_entry_t const&
 void schedule_t::gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* const player_, schedule_entry_t const& entry, int const max_chars)
 {
 	const char *p;
-	halthandle_t halt = haltestelle_t::get_halt(entry.pos, player_);
+	halthandle_t halt = haltestelle_t::get_stoppable_halt(entry.pos, player_);
 	if(halt.is_bound()) {
 		construct_schedule_entry_attributes(buf, entry);
 		if(  max_chars <= 0  ) {

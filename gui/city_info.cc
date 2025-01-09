@@ -26,7 +26,6 @@
 #define PAX_DEST_VERTICAL (4.0/3.0) ///< aspect factor where minimaps change to over/under instead of left/right
 
 tool_change_city_of_building_t* city_info_t::citybuilding_tool=new tool_change_city_of_building_t();
-cbuffer_t city_info_t::param_str;
 stadt_t* city_info_t::highlighted_city = nullptr;
 
 /**
@@ -204,7 +203,7 @@ void city_info_t::init()
 		add_component(&allow_growth);
 
 		// add "change highlight button" based on active player
-		if (welt->get_active_player_nr() == PUBLIC_PLAYER_NR) {
+		if (  welt->get_active_player()->is_public_service()  ) {
 			highlight.init( button_t::box_state_automatic | button_t::flexible, "Make building belong to");
 		} else {
 			highlight.init( button_t::box_state_automatic | button_t::flexible, "Highlight");
@@ -393,7 +392,7 @@ void city_info_t::update_labels()
 	lb_unemployed.buf().printf("%s: %d", translator::translate("Unemployed"), c->get_unemployed()); lb_unemployed.update();
 	lb_homeless.buf().printf("%s: %d", translator::translate("Homeless"), c->get_homeless());       lb_homeless.update();
 
-	if (welt->get_active_player_nr() == PUBLIC_PLAYER_NR) {
+	if (  welt->get_active_player()->is_public_service()  ) {
 		highlight.set_text("Make building belong to");
 	} else {
 		highlight.set_text("Highlight");
@@ -431,9 +430,9 @@ bool city_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		// make sure highlighted is true and button is pressed
 		highlighted_city = city;
 
-		param_str.clear();
-		param_str.printf("c%hi,%hi", city->get_pos().x, city->get_pos().y);
-		citybuilding_tool->set_default_param(param_str);
+		citybuilding_tool->default_param_buffer.clear();
+		citybuilding_tool->default_param_buffer.printf("c%hi,%hi", city->get_pos().x, city->get_pos().y);
+		citybuilding_tool->set_default_param(citybuilding_tool->default_param_buffer);
 
 		// set display dirty and select tool
 		welt->set_dirty();
@@ -512,24 +511,18 @@ void city_info_t::rdwr(loadsave_t *file)
 
 	year_month_tabs.rdwr(file);
 
-	bool highlighted = false;
-	if (file->is_saving()) {
-		highlighted = is_highlighted();
-	}
+	bool highlighted = is_highlighted();
 	file->rdwr_bool( highlighted );
 
 	highlight.pressed = highlighted;
-	highlighted_city = highlighted ? city : nullptr;
+	if(  highlighted  ) {
+		highlighted_city = city;
+	}
 
 	if (  city && highlighted  ) {
-		param_str.clear();
-		param_str.printf("c%hi,%hi", city->get_pos().x, city->get_pos().y);
-		citybuilding_tool->set_default_param(param_str);
-
-		// set display dirty and select tool
+		// set display dirty
 		welt->set_dirty();
 		welt->set_background_dirty();
-		welt->set_tool( citybuilding_tool, welt->get_public_player());
 	}
 
 	if (city == NULL) {

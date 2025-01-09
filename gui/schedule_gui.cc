@@ -661,7 +661,7 @@ void schedule_gui_t::update_selection()
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
 		const uint8 current_stop = schedule->get_current_stop();
-		if(  haltestelle_t::get_halt(schedule->entries[current_stop].pos, player).is_bound()  ) {
+		if(  haltestelle_t::get_stoppable_halt(schedule->entries[current_stop].pos, player).is_bound()  ) {
 			
 			const uint8 c = schedule->entries[current_stop].get_coupling_point();
 			bt_find_parent.enable();
@@ -1271,14 +1271,12 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	bt_transfer_interval.set_visible(yesno);
 	lb_departure_slot_group.set_visible(yesno);
 	departure_slot_group_selector.set_visible(yesno);
+	lb_tbgr_waiting_time.set_visible(yesno);
+	numimp_tbgr_waiting_time.set_visible(yesno);
 	
 	const bool coupling_waytype = schedule->get_waytype()!=road_wt  &&  schedule->get_waytype()!=air_wt  &&  schedule->get_waytype()!=water_wt;
 	bt_wait_for_child.set_visible(coupling_waytype  &&  yesno);
 	bt_find_parent.set_visible(coupling_waytype  &&  yesno);
 	bt_reverse_convoy.set_visible(coupling_waytype  &&  yesno);
 	bt_reverse_coupling.set_visible(coupling_waytype  &&  yesno);
-
-	const bool is_tbgr_enabled = world()->get_settings().get_goods_routing_policy() == goods_routing_policy_t::GRP_FIFO_ET;
-	lb_tbgr_waiting_time.set_visible(is_tbgr_enabled  &&  yesno);
-	numimp_tbgr_waiting_time.set_visible(is_tbgr_enabled  &&  yesno);
 }

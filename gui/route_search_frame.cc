@@ -138,8 +138,8 @@ void route_search_frame_t::append_connection_row(haltestelle_t::connection_t con
     // construct weight text
     char text[16];
     uint32 weight;
-    if(  world()->get_settings().get_goods_routing_policy()==GRP_FIFO_ET  ) {
-        // weight is in ticks. We have to convert it to the OTRP departure time unit.
+    if(  world()->get_settings().get_time_based_routing_enabled(0)  ) {
+        // When TBGR is enabled for pax, weight is in ticks. We have to convert it to the OTRP departure time unit.
         weight = (uint64)connection.weight * world()->get_settings().get_spacing_shift_divisor() / world()->ticks_per_world_month;
     } else {
         // weight is in route cost.

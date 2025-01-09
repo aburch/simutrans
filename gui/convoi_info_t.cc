@@ -386,8 +386,14 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		set_recovery_button.pressed = cnv->is_in_delay_recovery();
 		set_recovery_button.enable();
 		next_stop_button.enable();
-		reversed_button.pressed = cnv->is_reversed();
-		reversed_button.enable();
+		const bool reversable_waytype = cnv->get_schedule()->get_waytype()!=road_wt  &&  cnv->get_schedule()->get_waytype()!=air_wt  &&  cnv->get_schedule()->get_waytype()!=water_wt;
+		if (reversable_waytype) {
+			reversed_button.pressed = cnv->is_reversed();
+			reversed_button.enable();
+		}
+		else {
+			reversed_button.set_visible(false);
+		}
 	}
 	else {
 		if(  line_bound  ) {
@@ -530,7 +536,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		}
 
 		if(  comp == &reversed_button  ) {
-			cnv->reverse_vehicles_on_user_request();
+			cnv->call_convoi_tool( 'v', NULL );
 			return true;
 		}
 	}

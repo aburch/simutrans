@@ -749,7 +749,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		// fill haltestellen container with info of stops of the line
 		scrolly_haltestellen.clear_elements();
 		FOR(minivec_tpl<schedule_entry_t>, const& i, new_line->get_schedule()->entries) {
-			halthandle_t const halt = haltestelle_t::get_halt(i.pos, player);
+			halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, player);
 			if(  halt.is_bound()  ) {
 				scrolly_haltestellen.new_component<halt_list_stats_t>(halt);
 			}
@@ -809,8 +809,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 	line = new_line;
 	bt_withdraw_line.set_visible( line.is_bound() );
 	bt_show_journey_time.set_visible( line.is_bound() );
-	const bool is_tbgr_enabled = world()->get_settings().get_goods_routing_policy()==goods_routing_policy_t::GRP_FIFO_ET;
-	bt_goods_waiting_time.set_visible( is_tbgr_enabled  &&  line.is_bound() );
+	bt_goods_waiting_time.set_visible(  line.is_bound() );
 
 	reset_line_name();
 }

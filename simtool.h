@@ -28,6 +28,7 @@
 #include "player/simplay.h"
 
 #include "tpl/slist_tpl.h"
+#include "utils/cbuffer_t.h"
 
 class koord3d;
 class koord;
@@ -704,6 +705,7 @@ private:
 
 class tool_change_city_of_building_t : public two_click_kartenboden_tool_t {
 public:
+	cbuffer_t default_param_buffer;
 	tool_change_city_of_building_t() : two_click_kartenboden_tool_t(TOOL_CHANGE_CITY_OF_BUILDING | GENERAL_TOOL) { one_click = true; }
 	char const *get_tooltip(player_t const *) const OVERRIDE { return translator::translate("change city of citybuilding"); }
 	bool is_init_network_safe() const OVERRIDE { return true; }
@@ -1326,6 +1328,14 @@ public:
 class tool_change_city_t : public tool_t {
 public:
 	tool_change_city_t() : tool_t(TOOL_CHANGE_CITY | SIMPLE_TOOL) {}
+	bool init(player_t*) OVERRIDE;
+	bool is_init_network_safe() const OVERRIDE { return false; }
+};
+
+// change the halt options
+class tool_change_halt_t : public tool_t {
+public:
+	tool_change_halt_t() : tool_t(TOOL_CHANGE_HALT | SIMPLE_TOOL) {}
 	bool init(player_t*) OVERRIDE;
 	bool is_init_network_safe() const OVERRIDE { return false; }
 };

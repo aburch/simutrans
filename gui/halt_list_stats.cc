@@ -22,6 +22,7 @@
 
 #include "gui_frame.h"
 #include "halt_info.h" // gui_halt_type_images_t
+#include "halt_list_frame.h"
 
 
 static karte_ptr_t welt;
@@ -86,8 +87,16 @@ halt_list_stats_t::halt_list_stats_t(halthandle_t h)
 		img_enabled[2].set_rigid(true);
 
 		add_component(&label_cargo);
-		halt->get_short_freight_info( label_cargo.buf() );
-		label_cargo.update();
+		if (halt_list_frame_t::get_sortierung() == halt_list_frame_t::sort_mode_t::nach_throughput) {
+			halt->get_throughput_info( label_cargo.buf() );
+			label_cargo.update();
+		} else if (halt_list_frame_t::get_sortierung() == halt_list_frame_t::sort_mode_t::nach_wartend_percent) {
+			halt->get_waiting_occupancy_info( label_cargo.buf() );
+			label_cargo.update();
+		} else {
+			halt->get_short_freight_info( label_cargo.buf() );
+			label_cargo.update();
+		}
 	}
 	end_table();
 }
@@ -112,8 +121,16 @@ void halt_list_stats_t::draw(scr_coord offset)
 	label_name.set_color(halt->get_status_farbe());
 	label_name.set_shadow(SYSCOL_TEXT,true);
 
-	halt->get_short_freight_info( label_cargo.buf() );
-	label_cargo.update();
+	if (halt_list_frame_t::get_sortierung() == halt_list_frame_t::sort_mode_t::nach_throughput) {
+		halt->get_throughput_info( label_cargo.buf() );
+		label_cargo.update();
+	} else if (halt_list_frame_t::get_sortierung() == halt_list_frame_t::sort_mode_t::nach_wartend_percent) {
+		halt->get_waiting_occupancy_info( label_cargo.buf() );
+		label_cargo.update();
+	} else {
+		halt->get_short_freight_info( label_cargo.buf() );
+		label_cargo.update();
+	}
 
 	set_size(get_size());
 	gui_aligned_container_t::draw(offset);

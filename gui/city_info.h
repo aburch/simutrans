@@ -37,7 +37,6 @@ private:
 	gui_textinput_t name_input;    ///< Input field where the name of the city can be changed
 	button_t allow_growth;         ///< Checkbox to enable/disable city growth
 	button_t highlight;			   ///< highlight button
-	bool highlighted = false;      ///< is currently highlighted
 	static stadt_t* highlighted_city; ///< Which city is highlighted
 	gui_label_buf_t lb_size, lb_buildings, lb_border, lb_unemployed, lb_homeless;
 
@@ -51,7 +50,6 @@ private:
 
 	
 	static tool_change_city_of_building_t* citybuilding_tool;
-	static cbuffer_t param_str;
 
 	/// Renames the city to the name given in the text input field
 	void rename_city();
@@ -100,6 +98,8 @@ public:
 	void rdwr(loadsave_t *file) OVERRIDE;
 
 	uint32 get_rdwr_id() OVERRIDE { return magic_city_info_t; }
+
+	static stadt_t* get_highlighted_city() { return highlighted_city; }
 };
 
 #endif
