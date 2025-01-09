@@ -1019,8 +1019,8 @@ public:
 	void draw_after(scr_coord pos, bool dirty) const OVERRIDE; /* may draw a compass on top */
 	char const* get_tooltip(player_t const*) const OVERRIDE { return env_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Rotate map"); }
 	bool init( player_t * ) OVERRIDE;
-	bool is_init_keeps_game_state() const OVERRIDE { return !env_t::networkmode; }
-	bool is_work_keeps_game_state() const OVERRIDE { return !env_t::networkmode; }
+	bool is_init_keeps_game_state() const OVERRIDE { return false; }
+	bool is_work_keeps_game_state() const OVERRIDE { return false; }
 };
 
 class tool_quit_t : public tool_t {
