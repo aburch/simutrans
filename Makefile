@@ -53,7 +53,7 @@ ifdef MULTI_THREAD
       ifneq ($(OSTYPE),haiku)
         # mingw has already added pthread statically
         ifneq ($(OSTYPE),mingw)
-	  LDFLAGS += -lpthread
+          LDFLAGS += -lpthread
         endif
       endif
     endif
@@ -194,11 +194,13 @@ ifneq ($(BACKEND),posix)
     LDFLAGS += -lfreetype
   endif
 
-  ifeq ($(shell expr $(USE_FONTCONFIG) \>= 1), 1)
-    sdfsfsd := $(shell echo error)
-    CFLAGS  += -DUSE_FONTCONFIG
-    CFLAGS  += $(shell $(FONTCONFIG_CONFIG) --cflags)
-    LDFLAGS += $(shell $(FONTCONFIG_CONFIG) --libs)
+  ifdef USE_FONTCONFIG
+    ifeq ($(shell expr $(USE_FONTCONFIG) \>= 1), 1)
+      sdfsfsd := $(shell echo error)
+      CFLAGS  += -DUSE_FONTCONFIG
+      CFLAGS  += $(shell $(FONTCONFIG_CONFIG) --cflags)
+      LDFLAGS += $(shell $(FONTCONFIG_CONFIG) --libs)
+    endif
   endif
 endif
 

@@ -1,10 +1,9 @@
 {
-    "name": "simutrans-sdl2",
     "version-string": "1.0.0",
     "dependencies": [
         "freetype",
         "miniupnpc",
-        "pthreads",
+        "pthread",
         "zstd",
         "sdl2",
         "zlib"
