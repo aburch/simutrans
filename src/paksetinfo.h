@@ -2,10 +2,10 @@
 #define PAKSET_COUNT 20
 #define OBSOLETE_FROM (12)
 paksetinfo_t pakinfo[PAKSET_COUNT] = {
-	{ "http://downloads.sourceforge.net/project/simutrans/pak64/124-2-2/simupak64-124-2-2.zip", "pak", "pak64 124.2.2 r2170", 15843 },
-	{ "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20ST%20%20124.1up%20%282.9.1%29/simupak128-2.9.1.zip", "pak128", "pak128 2.9.1 for 124.1.0 git r579 hash c3519a4", 414630 },
-	{ "http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192.comic%20V0.7.1/pak192-comic.zip", "pak192.comic", "Pak192.Comic V0.7.1 Rev 1246", 892852 },
-	{ "http://simutrans-germany.com/pak.german/pak64.german_0-124-0-0-3_full.zip", "pak64.german", "pak64.german 0.124.0.0.3", 26365 },
+	{ "http://downloads.sourceforge.net/project/simutrans/pak64/124-3/simupak64-124-3.zip", "pak", "pak64 124.3 r2181", 16169 },
+	{ "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20ST%20124.3up%20%282.10.0%29/simupak128-2-10-for124-3up.zip", "pak128", "pak128 2.10.0 for 124.3 git r659 hash c2eac6b5", 415592 },
+	{ "http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192.comic%20V0.7.2/pak192-comic.zip", "pak192.comic", "Pak192.Comic V0.7.2 Rev 1296", 909748 },
+	{ "http://simutrans-germany.com/pak.german/pak64.german_0-124-0-0-5_full.zip", "pak64.german", "pak64.german 0.124.0.0.5", 28660 },
 	{ "http://downloads.sourceforge.net/project/simutrans/pak64.japan/123-0/simupak64.japan-123-0.zip", "pak.japan", "pak64.japan 123 r2101", 10175 },
 	{ "https://github.com/wa-st/pak-nippon/releases/download/v0.6.2/pak.nippon-v0.6.2.zip", "pak.nippon", "pak.nippon v0.6.2", 50198 },
 	{ "http://downloads.sourceforge.net/project/simutrans/Pak128.CS/nightly%20builds/pak128.CS-r2096.zip", "pak128.CS", "Pak128.CS 0.3.0 r2096", 78628 },
@@ -19,7 +19,7 @@ paksetinfo_t pakinfo[PAKSET_COUNT] = {
 	{ "http://downloads.sourceforge.net/project/simutrans/pak32.comic/pak32.comic%20for%20102-0/pak32.comic_102-0.zip", "pak32", "", 3420 },
 	{ "https://github.com/Varkalandar/pak48.Excentrique/releases/download/v0.19_RC3/pak48.excentrique_v019rc3.zip", "pak48.Excentrique", "pak48.Excentrique v0.19", 2016 },
 	{ "http://downloads.sourceforge.net/project/simutrans/pak64.contrast/pak64.Contrast_910.zip", "pakcontrast", "", 1440 },
-	{ "http://hd.simutrans.com/release/PakHD_v04B_100-0.zip", "pakHD", "Martin", 12515 },
+	{ "http://downloads.sourceforge.net/project/simutrans/OldFiles/PakHD_v04B_100-0.zip", "pakHD", "Martin", 12511 },
 	{ "http://downloads.sourceforge.net/project/simutrans/pakHAJO/pakHAJO_102-2-2/pakHAJO_0-102-2-2.zip", "pakHAJO", "", 7460 },
 	{ "http://downloads.sourceforge.net/project/simutrans/pak64.scifi/pak64.scifi_112.x_v0.2.zip", "pak64.scifi", "pak64.SciFi V0.2", 3293 },
 };

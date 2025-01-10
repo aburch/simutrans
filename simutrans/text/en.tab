@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: en English                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.07 2024                           #
+#                           Date Created: 10.01 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -145,12 +145,18 @@ Cannot connect to the\ncenter of a double slope!
 A brige cannot connect to the middle of a double slope!\nUse landscaping tool to fix this.
 Convoi handles exhausted!
 Maximum number of convoys reached.
+Corrupt file
+File corrupt or truncated.
+Could not open file
+Could not access file. Maybe check permissions?
 Das Feld gehoert\neinem anderen Spieler\n
 This piece of\nland is owned by\nanother player!\n
 Der Besitzer erlaubt das Entfernen nicht
 The owner refuses\npermission to\nremove this!\n
 Diese Zusammenstellung kann nicht fahren!\n
 This combination\ncannot start!\n
+Failed to write file
+Could not write out file. (Permissions?)
 Flugzeughalt muss auf\nRunway liegen!\n
 Plane stand must\nbe on a taxiway.
 Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
@@ -173,10 +179,16 @@ No suitable way on the ground!
 Stops can be built only on\nstraight level matching ways!
 No through station here!
 Stations must be placed on dead-end ways or straight sections with no intersections.
+Not allowed to copy object.
+You cannot build that object!\n(Reason: Wrong player or obsolete)
 Not enough clearance.
 Between two ways a minimum height difference of two is needed.
+Not enough empty space
+Not enough free space left.
 Not enough money!
 You do not have enough\nmoney to buy this!
+Not initialized
+Could not initialize library.
 On narrowgauge track only!\n
 Must be placed on narrow gauge track only!
 Only public player can lock games!
@@ -197,6 +209,8 @@ Terraforming not possible\nhere in underground view
 Terraforming is not possible underground.
 This tunnel branches. You can try Control+Click to remove.
 This tunnel has more than 2 entrances. You can try ctrl+click to remove this tunnel.
+Watertable reached
+Cannot lower tile any further!\nReached the water table.
 Zughalt muss auf\nSchiene liegen!\n
 Rail stations must\nbe placed on the\nrailroad track.\n
 #___________________________________help_text___________________________________
@@ -783,6 +797,8 @@ Game_msg
 General
 Gebaeude
 Building
+generate script
+Generate an infrastruktur macro script
 Generation: %.0f MW
 Generation: %.0f MW\n
 Gewicht
@@ -886,7 +902,7 @@ May not work with touch screens!
 Init map ...
 Initializing map ...
 Ins Stop
-Insert
+Insert Stop
 Insert stop before the current stop
 Insert stop before current stop
 Install paks
@@ -1008,7 +1024,7 @@ Message
 Menge
 amount
 MessageOptionsText
-\nNew Year\n\nPlayers News\n\nCity News\n\nNo Route\n\nNew Destinations\n\nChat\n\nNew Vehicles\n\nStation Full\n\nProblems\n\nTraffic Jams\n\nScenario
+\nNew Year\n\nPlayers News\n\nCity News\n\nNo Route\n\nNew Destinations\n\nNotification\n\nNew Vehicles\n\nStation Full\n\nProblems\n\nTraffic Jams\n\nScenario\n\nGeneral Chat\n\nCompany Chat\n\nPrivate Chat\n\n
 min
 min.
 minimum length of rivers
@@ -1131,6 +1147,8 @@ Percent Electricity
 Electricity output (%% demand):
 personal_chat
 Private chats
+Pipette
+Rebuild the selected object
 Planes are not available yet!
 Aircrafts are not yet available.
 Plant tree
@@ -1381,6 +1399,8 @@ Suppliers
 Suppliers:
 Tage alt
 days old.
+The generated script was saved!\n
+Marko saved sucessfully.\nCan be replayed with script tool.
 There are still vehicles\nstored in this depot!\n
 There are vehicles\nin this depot!\n
 This Month

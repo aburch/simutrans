@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: es Espanol                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.07 2024                           #
+#                           Date Created: 10.01 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -1449,8 +1449,6 @@ List of industries on the map
 Lista de industrias en el mapa
 LKW_tab
 Camiones
-Load '%s'
-Cargar %s
 Load game
 Cargar Partida
 load height data from file

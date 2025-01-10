@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: fr Francais                            #
 #                                Encoding: UTF-8                               #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 2.06 2024                           #
+#                           Date Created: 10.01 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -912,7 +912,7 @@ facteur de friction actuel:
 fuel_cell
 pile à combustible
 Full load
-Attendre un chargement minimale
+Attendre un chargement minimal
 Fundament
 Fondations
 Fussgaenger
@@ -1144,7 +1144,7 @@ Charger scénario
 loaded
 chargé
 loaded passenger/freight
-Trier passagers/marchandise par
+Trier passagers/marchandises par
 Loading (%i->%i%%)!
 Chargement (%i->%i%%)
 Loading (%i%%)!
@@ -1199,6 +1199,8 @@ Max income:
 Revenu max.:
 Max. speed:
 Vitesse max.:
+Max. waiting time
+Temps d'attente max
 Maximum 254 stops\nin a schedule!\n
 Au max 254 arrêts\ndans un ittinéraire !
 maximum length of rivers
@@ -1216,11 +1218,13 @@ Message
 Menge
 Montant total
 MessageOptionsText
-\nNouvelle année\n\nInfos joueurs\n\nInfos villes\n\nPas de route\n\nIndustrie\n\nChat\n\nNouveaux véhicules\n\nGare pleine\n\nProblèmes\n\nBouchons\n\nScénario
+\nNouvelle année\n\nInfos joueurs\n\nInfos villes\n\nPas de route\n\nIndustrie\n\nChat\n\nNouveaux véhicules\n\nGare pleine\n\nProblèmes\n\nBouchons\n\nScénario\n
 min
 min.
 minimum length of rivers
 Long. min. rivières
+Minimum load
+Charge minimale
 Missing pakfiles
 Objets manquants dans le pak !
 Modify the selected line
@@ -1461,6 +1465,8 @@ Problems_msg
 Problèmes
 Produced
 Produit
+Produces: %.1f units/minute
+Produit %.1f unités/minute
 Production of %s has been stopped:\n%s\n
 La production de %s a été arrêtée:\n%s\n
 Production/Boost

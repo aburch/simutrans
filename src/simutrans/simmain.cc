@@ -270,7 +270,7 @@ static void install_objfilename()
 {
 	DBG_DEBUG("", "env_t::reload_and_save_on_quit=%d", env_t::reload_and_save_on_quit);
 #if !defined(USE_OWN_PAKINSTALL)  &&  defined(_WIN32)
-	dr_download_pakset( env_t::base_dir, env_t::base_dir == env_t::user_dir );  // windows
+	dr_download_pakset( env_t::base_dir, strcmp( env_t::base_dir, env_t::user_dir)==0 );  // windows
 #else
 	pakinstaller_t* sel = new pakinstaller_t();
 	// notify gui to load list of paksets

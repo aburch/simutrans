@@ -12,7 +12,7 @@ m+10r.bdf
 #                             Language: ja Japanese                            #
 #                                Encoding: UTF-8                               #
 #                                Font: m+10r.bdf                               #
-#                           Date Created: 20.07 2024                           #
+#                           Date Created: 10.01 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -606,7 +606,7 @@ Add random citycar
 add server
 サーバーを追加
 Add Stop
- 追加
+駅を追加
 Add stops for backward travel
 折り返して戻るための停車駅を追加します
 air
@@ -1314,7 +1314,7 @@ Init map ...
 Input
 原料
 Ins Stop
- 挿入
+駅を挿入
 Insert stop before the current stop
 選択している駅の直前に駅を挿入
 Install graphics
@@ -1421,8 +1421,6 @@ List of industries on the map
 マップ上の産業施設一覧
 LKW_tab
 トラック
-Load '%s'
-「%s」を再開します
 Load game
 ゲームの再開
 load height data from file
@@ -1474,7 +1472,7 @@ Maintenance
 make stop public (or join with public stop next) costs %i per tile and level
 公共駅に変更　駅上をドラッグで、実際の見積り費用を表示します (単価%i)
 Make way or stop public (will join with neighbours), %i times maintainance
-駅または道路・軌道等を公共化して隣接する公共駅と統合します。%i 維持費の%%倍がかかります。
+駅または道路・軌道等を公共化して隣接する公共駅と統合します。維持費%iヶ月分が必要です。
 Manual (Human)
 プレイヤー(人間)
 Manufactured:

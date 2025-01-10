@@ -12,7 +12,7 @@ wenquanyi_9pt.bdf
 #                           Language: cn Sim. Chinese                          #
 #                                Encoding: UTF-8                               #
 #                            Font: wenquanyi_9pt.bdf                           #
-#                           Date Created: 20.07 2024                           #
+#                           Date Created: 10.01 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -380,7 +380,7 @@ Add random citycar
 add server
 新增服务器
 Add Stop
-新建车站
+追加站
 Add stops for backward travel
 为回程路段增设车站
 aircraft_tab
@@ -944,7 +944,7 @@ Init map ...
 Input
 原料
 Ins Stop
-插入
+插入站
 Insert stop before the current stop
 在此车站前增加车站
 Intercity road len:

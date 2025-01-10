@@ -89,7 +89,6 @@ static void write_city_at(player_t* pl, cbuffer_t& buf, const koord3d pos, const
 	if (pl->is_public_service()) {
 		if (const grund_t* gr = world()->lookup(pos)) {
 			if (const gebaeude_t* gb = gr->find<gebaeude_t>()) {
-				sint16 rotation = gb->get_tile()->get_layout();
 				if (gb->get_tile()->get_offset() == koord(0, 0)) {
 					if (gb->is_townhall()) {
 						koord3d diff = pos - origin;

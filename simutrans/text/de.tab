@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: de Deutsch                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.07 2024                           #
+#                           Date Created: 10.01 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -187,8 +187,10 @@ Convoi handles exhausted!
 Maximale Fahrzeugzahl (Convois) erreicht.
 Convoy already deleted!
 Fahrzeuge wurden schon gelöscht!
+Corrupt file
+Die Datei ist kaputt oder zu kurz.
 Could not open file
-Konnte die Datei nicht öffnen.
+Konnte nicht auf die Datei zugreifen.
 Das Feld gehoert\neinem anderen Spieler\n
 Das Grundstück\ngehört einem\nanderen Spieler!\n
 Depots cannot be built on runways!
@@ -199,8 +201,12 @@ Der Besitzer erlaubt das Entfernen nicht
 Der Besitzer\nerlaubt das\nEntfernen nicht.\n
 Diese Zusammenstellung kann nicht fahren!\n
 Diese Zusammenstellung\nkann nicht fahren!\n
+Failed to write file
+Konnte die Datei nicht schreiben.
 Flugzeughalt muss auf\nRunway liegen!\n
 Flugzeuge können\nnur auf Flughäfen landen!\n
+Forbidden by scenario
+Verboten in diesem Szenario
 Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 Hier kann dieses\nFlughafengebäude nicht\ngebaut werden!\n
 In order to lock the game, you have to protect the public player by password!
@@ -231,12 +237,18 @@ No suitable way on the ground!
 Halte können nur auf\ngeraden ebnen geeigneten\nWegen gebaut werden!
 No through station here!
 Hier kann kein Bahnhof oder\neine Haltestelle\ngebaut werden.
+Not allowed to copy object.
+Kann diese Ding nicht kopieren!\n(Braucht anderen Benutzer oder ist veraltet.)
 Not enough bytes transferred
 Vorzeitiges Übertragungsende!
 Not enough clearance.
 Zwischen zwei Wegen müssen zwei Höhenstufen liegen!
+Not enough empty space
+Nicht genug freier Platz zum Speichern.
 Not enough money!
 Zum Bauen reicht das\nGeld nicht mehr!
+Not initialized
+Konnte die Bibliothek nicht initialisieren.
 On narrowgauge track only!\n
 Ein Schmalspurhalt muss auf Schmalspurgleisen liegen.
 Only public player can lock games!
@@ -267,10 +279,14 @@ This tunnel branches. You can try Control+Click to remove.
 Dies ist ein Tunnelsystem. Evt. kann es mittels Strg+Klick gelöscht werden!
 Too far away to merge stations!
 Halt zu weit entfernt zum Verbinden.
+Unknown error
+Allgemeiner Fehler
 Upgrade must have\na higher level
 Neue Station muss ein\nhöheres Level haben.
 Vehicle %s cannot choose because stop too short!
 Die Haltsuche von %s scheitert an zu kurzen Halten!
+Watertable reached
+Kann das Land nicht unter das\nGrundwasserniveau absenken.
 #___________________________________help_text___________________________________
 #___________________________________help_text___________________________________
 <h1>Index</h1><p>*: only english</p><p>General</p>%s<p>Usage</p>%s<p>Tools</p>%s<p>Start</p>%s<p>How to play</p>%s<p>Others:</p>%s
@@ -620,7 +636,7 @@ zufälliges Stadtfahrzeug erstellen
 add server
 Server hinzufügen
 Add Stop
-Hinzufügen
+Halt anfügen
 Add stops for backward travel
 Füge Stops für Rückfahrt hinzu
 air
@@ -1165,6 +1181,8 @@ Gebaeude
 Gebäude
 General
 Allgemeines
+generate script
+Infrastrukturmakro erstellen
 Generated
 Erzeugt
 Generation: %.0f MW
@@ -1275,6 +1293,8 @@ Homeless
 Obdachlos
 hydrogene
 Wasserstoff
+Icon size:
+Werkzeugsymbolgröße
 Idle:
 Leerlauf:
 ignore climates
@@ -1300,7 +1320,7 @@ Kartenfelder initialisieren ...
 Input
 Eingang
 Ins Stop
-Einfügen
+Halt Einfügen
 Insert stop before the current stop
 Halt vor aktueller Fahrplanposition einfügen
 Install graphics
@@ -1508,7 +1528,7 @@ Mittlere Stadtgröße:
 merge stop
 Haltestelle zusammenlegen
 MessageOptionsText
-\nNeues Jahr\n\nKI baut\n\nStadtnachrichten\n\nKeine Route\n\nNeue Industrie\n\nChat\n\nNeue Fahrzeuge\n\nBahnhof voll\n\nProbleme\n\nStaus\n\nSzenario
+\nNeues Jahr\n\nKI baut\n\nStadtnachrichten\n\nKeine Route\n\nNeue Industrie\n\nMitteilungen\n\nNeue Fahrzeuge\n\nBahnhof voll\n\nProbleme\n\nStaus\n\nSzenario\n\nÖffentlicher Chat\n\nFirmeninterner Chat\n\nPrivate Nachrichten\n\n
 minimum length of rivers
 min. Länge
 Minimum load
@@ -1717,6 +1737,8 @@ Percent Electricity
 Anteil Kraftwerke (%%)
 personal_chat
 Direktnachrichten
+Pipette
+Diese Ding noch einmal bauen
 Planes are not available yet!
 Noch keine Fluggeräte erfunden!
 Plant tree
@@ -2123,8 +2145,12 @@ Suppliers
 Lieferanten
 The following graphics are unmaintained:
 Die folgenden Grafiksets werden nicht mehr betreut:
+The generated script was saved!\n
+Makro erfogreich gespeichert.\nKann jetzt mit Skriptwerkezug gebaut werden.
 The gradient does not fit a tunnel
 Die Steigung passt nicht für einen Tunnel.
+The script cannot be saved!\n
+Konnte Marko nicht speichern.
 Theme selector
 Auswahl Oberfläche
 There are still vehicles\nstored in this depot!\n
