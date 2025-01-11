@@ -24,17 +24,23 @@ class hm_headquarter_tl extends hm_base_tl {
 class hm_house_tl extends hm_base_tl {
   desc_name = 0
   pos       = null
+  z         = 256
   rotation  = 0
 
   constructor(dn, p, r) {
     desc_name = dn
-    pos       = coord3d(p[0],p[1],p[2])
+    pos       = coord(p[0],p[1])
     rotation  = r
     hm_commands.append(this)
   }
 
   function exec(player, origin) {
-    return command_x(tool_build_house).work(player, pos+origin, format("1%d%s", rotation, desc_name))
+    local tp = pos + origin 
+    local tile = square_x(tp.x,tp.y).get_ground_tile() // house only on ground
+    if(tile) {
+      return command_x(tool_build_house).work(player, tile, format("1%d%s", rotation, desc_name))
+    }
+    return "No suitable ground!"
   }
 }
 

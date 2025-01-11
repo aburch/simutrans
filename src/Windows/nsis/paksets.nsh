@@ -2,12 +2,12 @@
 SectionGroup /e "Pak64: main and addons" pak64group
 
 Section /o "pak" pak
-  AddSize 16169
+  AddSize 16177
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/124-3/simupak64-124-3.zip"
   SetOutPath $PAKDIR
   StrCpy $archievename "simupak64-124-3.zip"
   StrCpy $downloadname "pak"
-  StrCpy $VersionString "pak64 124.3 r2181"
+  StrCpy $VersionString "pak64 124.3 r2182"
   Call DownloadInstallZip
 SectionEnd
 Section /o "pak64 Food addon"
@@ -27,12 +27,12 @@ SectionGroupEnd
 
 
 Section /o "pak128" pak128
-  AddSize 415592
+  AddSize 415604
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20ST%20124.3up%20%282.10.0%29/simupak128-2-10-for124-3up.zip"
   SetOutPath $PAKDIR
   StrCpy $archievename "simupak128-2-10-for124-3up.zip"
   StrCpy $downloadname "pak128"
-  StrCpy $VersionString "pak128 2.10.0 for 124.3 git r659 hash c2eac6b5"
+  StrCpy $VersionString "pak128 2.10.0 for 124.3 git r hash "
   Call DownloadInstallZip
 SectionEnd
 

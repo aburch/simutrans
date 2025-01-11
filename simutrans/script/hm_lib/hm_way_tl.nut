@@ -5,15 +5,25 @@ include("hm_lib/hm_obj_selector")
 
 class hm_way_tl extends hm_base_tl {
   desc_name = null
-  start = null
-  ziel  = null
-  wtype = null
-  stype = null
+  start  = null
+  startz = 256
+  finish    = null
+  finishz   = 256
+  wtype  = null
+  stype  = null
 
   constructor(d_name, s, z, wt = null, st = null) {
-    desc_name = d_name
-    start = coord3d(s[0],s[1],s[2])
-    ziel  = coord3d(z[0],z[1],z[2])
+    desc_name = d_name 
+    start = coord3d(s[0],s[1],0)
+    if(s.len()>2) {
+      start.z = s[2]
+      startz = 0
+    }
+    finish  = coord3d(z[0],z[1],0)
+    if(z.len()>2) {
+      finishz = 
+      finish.z = z[2]
+    }
     wtype = wt
     stype = st
     hm_commands.append(this)
@@ -57,13 +67,31 @@ class hm_way_tl extends hm_base_tl {
       return dr[0] // there was a error in obtaining the desc
     }
     local desc = dr[1]
-    local err = command_x.build_way(player, origin+start, origin+ziel, desc, true)
+
+    local stp = start+origin
+    if(startz==256) {
+      local tile = square_x(stp.x,stp.y).get_ground_tile()
+      if(tile == null) {
+        return "No suitable ground!"
+      }
+      stp = coor3d(tile);
+    }
+
+    local ftp = finish+origin
+    if(finishz==256) {
+      local tile = square_x(ftp.x,ftp.y).get_ground_tile()
+      if(tile == null) {
+        return "No suitable ground!"
+      }
+      ftp = coord3d(tile);
+    }
+
+    local err = command_x.build_way(player, stp, ftp, desc, true)
     if(err!=null) {
       //calc_route() failed to find a path.
-      local message = format(translate("Way building path from ($s) to (%s) is not found!"), (origin+start).tostring(), (origin+ziel).tostring())
+      local message = format(translate("Way building path from (%s) to (%s) is not found!"), (stp).tostring(), (ftp).tostring())
       return message
-    } else {
-      return null
     }
+    return null
   }
 }

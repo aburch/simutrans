@@ -1265,10 +1265,20 @@ public:
 	virtual bool init(player_t * ) OVERRIDE;
 	virtual bool is_init_network_save() const { return false; }
 };
+
 // internal tool: send message, with additional coordinate information
 class tool_add_message_t : public tool_t {
 public:
 	tool_add_message_t() : tool_t(TOOL_ADD_MESSAGE | GENERAL_TOOL) {}
+	const char *work( player_t*, koord3d) OVERRIDE;
+	bool is_init_keeps_game_state() const OVERRIDE { return true; }
+	// work is not safe, has to be send over network
+};
+
+// internal tool: rename stuff
+class tool_change_owner_t : public tool_t {
+public:
+	tool_change_owner_t() : tool_t(TOOL_SET_OWNER | GENERAL_TOOL) {}
 	const char *work( player_t*, koord3d) OVERRIDE;
 	bool is_init_keeps_game_state() const OVERRIDE { return true; }
 	// work is not safe, has to be send over network

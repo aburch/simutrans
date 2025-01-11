@@ -108,6 +108,8 @@ void export_global_constants(HSQUIRRELVM vm)
 	enum_slot(vm, "tool_exec_script", TOOL_EXEC_SCRIPT | GENERAL_TOOL);
 	/// scripted tool (two-click)
 	enum_slot(vm, "tool_exec_two_click_script", TOOL_EXEC_TWO_CLICK_SCRIPT | GENERAL_TOOL);
+	/// change owner of nth object on tile
+	enum_slot(vm, "tool_set_owner", TOOL_SET_OWNER | GENERAL_TOOL);
 
 	// simple tools
 	/// increase industry density

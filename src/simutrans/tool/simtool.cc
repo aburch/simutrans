@@ -354,7 +354,6 @@ static grund_t *tool_intern_koord_to_weg_grund(player_t *player, karte_t *welt, 
 
 /****************************************** now the actual tools **************************************/
 
-
 const char *tool_query_t::work( player_t *, koord3d pos )
 {
 	grund_t *gr = welt->lookup(pos);
@@ -883,6 +882,65 @@ const char *tool_remover_t::work( player_t *player, koord3d pos )
 	return NULL;
 }
 
+
+
+const char *tool_change_owner_t::work( player_t *pl, koord3d pos )
+{
+	grund_t *gr = welt->lookup(pos);
+	minivec_tpl<gui_frame_t*>info;
+
+	if(gr) {
+		int idx=0, new_pl_id;
+		if(!default_param  ||  !*default_param) {
+			// needs default string with "new_player_id[,tile_index]"
+			return "";
+		}
+		else {
+			new_pl_id = atoi(default_param);
+			if (const char* c = strchr(default_param, 'r')) {
+				idx = atoi(c+1);
+			}
+		}
+		player_t* new_pl = welt->get_player(new_pl_id);
+		if( obj_t *obj = gr->obj_bei(idx)) {
+			if(obj->is_moving()) {
+				// cannot change ownership of moving stuff
+				return "Der Besitzer erlaubt das Entfernen nicht";
+			}
+			if(player_t::check_owner(pl,obj->get_owner())) {
+				// we may have mainenance
+				waytype_t wt = obj->get_waytype();
+				sint64 maintenance = 0;
+				if (bruecke_t* b = dynamic_cast<bruecke_t*>(obj)) {
+					maintenance = b->get_desc()->get_maintenance();
+					wt = b->get_desc()->get_finance_waytype();
+				}
+				else if (gebaeude_t* g = dynamic_cast<gebaeude_t*>(obj)) {
+					// incudes depots
+					maintenance = g->get_tile()->get_desc()->get_maintenance(welt);
+				}
+				else if (tunnel_t* t = dynamic_cast<tunnel_t*>(obj)) {
+					maintenance = t->get_desc()->get_maintenance();
+					wt = t->get_desc()->get_finance_waytype();
+				}
+				else if (weg_t* w = dynamic_cast<weg_t*>(obj)) {
+					maintenance = w->get_desc()->get_maintenance();
+					wt = w->get_desc()->get_finance_waytype();
+				}
+				if(maintenance) {
+					// transfer maintenance
+					player_t::add_maintenance(obj->get_owner(), -maintenance, wt);
+					player_t::add_maintenance(new_pl, maintenance, wt);
+				}
+				obj->set_owner(new_pl);
+				return NULL;
+			}
+			return "Der Besitzer erlaubt das Entfernen nicht";
+		}
+		return "";
+	}
+	return "No suitable ground!";
+}
 
 
 const char *tool_raise_lower_base_t::move( player_t *player, uint16 buttonstate, koord3d pos )
@@ -1790,17 +1848,16 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 	sint16 rotation = -1;
 	if (!strempty(default_param)) {
 		char* building = strdup(default_param);
-
 		citizens = atoi(building);
-		char* p = strrchr(building, ',');
+		char* p = strchr(building, ',');
 		if (p) {
 			p++;
 			char* desc_name = p;
-			while (*p  &&  *p!=',') {
-				p++;
-			}
-			if (*p  &&  isdigit(p[1])) {
-				rotation = atoi(p+1);
+			if (p = strchr(p, ',')) {
+				*p++ = 0;
+				if (isdigit(*p)) {
+					rotation = atoi(p);
+				}
 			}
 			*p = 0;
 			desc = hausbauer_t::get_desc(desc_name);
