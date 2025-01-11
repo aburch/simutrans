@@ -1081,61 +1081,20 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	env_t::player_finance_display_account = contents.get_int( "player_finance_display_account", env_t::player_finance_display_account ) != 0;
 
 	// setting reverse offsets
-	vector_tpl<int> temp_offset_s = contents.get_ints("reverse_base_offset_south");
-	if (temp_offset_s.get_count()>=3){
-		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[0][i] = temp_offset_s[i];}
-	}
-	else{
-		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[0][i] = 0;}
-	}
-	vector_tpl<int> temp_offset_w = contents.get_ints("reverse_base_offset_west");
-	if (temp_offset_w.get_count()>=3){
-		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[1][i] = temp_offset_w[i];}
-	}
-	else{
-		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[1][i] = 0;}
-	}
-	vector_tpl<int> temp_offset_sw = contents.get_ints("reverse_base_offset_southwest");
-	if (temp_offset_sw.get_count()>=3){
-		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[2][i] = temp_offset_sw[i];}
-	}
-	else{
-		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[2][i] = 0;}
-	}
-	vector_tpl<int> temp_offset_se = contents.get_ints("reverse_base_offset_southeast");
-	if (temp_offset_se.get_count()>=3){
-		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[3][i] = temp_offset_se[i];}
-	}
-	else{
-		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[3][i] = 0;}
-	}
-	vector_tpl<int> temp_offset_n = contents.get_ints("reverse_base_offset_north");
-	if (temp_offset_n.get_count()>=3){
-		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[4][i] = temp_offset_n[i];}
-	}
-	else{
-		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[4][i] = 0;}
-	}
-	vector_tpl<int> temp_offset_e = contents.get_ints("reverse_base_offset_east");
-	if (temp_offset_e.get_count()>=3){
-		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[5][i] = temp_offset_e[i];}
-	}
-	else{
-		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[5][i] = 0;}
-	}
-	vector_tpl<int> temp_offset_ne = contents.get_ints("reverse_base_offset_northeast");
-	if (temp_offset_ne.get_count()>=3){
-		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[6][i] = temp_offset_ne[i];}
-	}
-	else{
-		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[6][i] = 0;}
-	}
-	vector_tpl<int> temp_offset_nw = contents.get_ints("reverse_base_offset_northwest");
-	if (temp_offset_nw.get_count()>=3){
-		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[7][i] = temp_offset_nw[i];}
-	}
-	else{
-		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[7][i] = 0;}
+	const char* directions[] = {"south", "west", "southwest", "southeast", "north", "east", "northeast", "northwest"};
+	for(uint8 d_idx = 0; d_idx < 8; d_idx++) {
+		char buf[64];
+		sprintf(buf, "reverse_base_offset_%s", directions[d_idx]);
+		vector_tpl<int> temp_offset = contents.get_ints(buf);
+		if (temp_offset.get_count()>=3) {
+			for(uint8 i=0; i<3; i++) {
+				env_t::reverse_base_offsets[d_idx][i] = temp_offset[i];
+			}
+		} else {
+			for(uint8 i=0; i<3; i++) {
+				env_t::reverse_base_offsets[d_idx][i] = 0;
+			}			
+		}
 	}
 
 
