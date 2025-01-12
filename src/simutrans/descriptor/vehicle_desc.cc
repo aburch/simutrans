@@ -19,10 +19,12 @@ void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 #if MSG_LEVEL>0
 	if(capacity) PAKSET_INFO("payload=","%d",capacity);
 	if(loading_time!=1000) PAKSET_INFO("loading_time=","%d",loading_time);
-	if(weight) PAKSET_INFO("weight=","%d",weight);
-	if(power) PAKSET_INFO("power=","%d",power);
+	if(weight) PAKSET_INFO("weight=","%d",weight/1000);
+	if(power) {
+		PAKSET_INFO("power=","%d",power);
+		if(gear!=64) PAKSET_INFO("gear=","%d",(gear*100)/64);
+	}
 	if(running_cost) PAKSET_INFO("running_cost=","%d",running_cost);
-	if(gear!=64) PAKSET_INFO("gear=","%d",(gear*100)/64);
 	if(len!=8) PAKSET_INFO("length=","%d",len);
 	if(const xref_desc_t *xref = get_child<xref_desc_t>(2)) PAKSET_INFO("freight=","%s",xref->get_name());
 	switch((int)engine_type) {

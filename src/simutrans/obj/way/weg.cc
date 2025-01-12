@@ -123,11 +123,12 @@ const char *weg_t::waytype_to_string(waytype_t wt)
 		case road_wt:        return "road";
 		case water_wt:       return "water";
 		case air_wt:         return "air";
-		default:
-			// keep compiler happy; should never reach here anyway
-			break;
+		// these are just for translation
+		case powerline_wt:   return "power";
+		case decoration_wt:  return "decoration";
+
+		default:             return "invalid waytype";
 	}
-	return "invalid waytype";
 }
 
 

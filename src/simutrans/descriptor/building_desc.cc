@@ -6,6 +6,7 @@
 #include "../simdebug.h"
 
 #include "../world/simworld.h"
+#include "../obj/way/weg.h"
 
 #include "building_desc.h"
 #include "intro_dates.h"
@@ -155,9 +156,10 @@ void building_desc_t::calc_checksum(checksum_t *chk) const
 		case city_res:
 		case city_com:
 		case city_ind:
+			if(extra_data) PAKSET_INFO("clusters=","%d",extra_data);
 		case attraction_land:
 		case factory:
-			if(preservation_year_month!=DEFAULT_RETIRE_DATE) {
+			if(preservation_year_month!=DEFAULT_RETIRE_DATE*12) {
 				PAKSET_INFO("preservation_year=","%d",preservation_year_month/12);
 				if(preservation_year_month%12) PAKSET_INFO("preservation_month=","%d",(preservation_year_month%12)+1);
 			}
@@ -183,13 +185,21 @@ void building_desc_t::calc_checksum(checksum_t *chk) const
 			if(enables&1) PAKSET_INFO("enables_pax=","1");
 			if(enables&2) PAKSET_INFO("enables_post=","1");
 			if(enables&4) PAKSET_INFO("enables_ware=","1");
+			if(allow_underground) PAKSET_INFO("allow_underground=","1");
 		case depot:
-//			PAKSET_INFO("waytype=","%s",weg_t::waytype_to_string(extra_data));
+			PAKSET_INFO("waytype=","%s",weg_t::waytype_to_string((waytype_t)extra_data));
 			break;
 		case others:
 		default:
 			break;
 	}
+	if(distribution_weight!=100) PAKSET_INFO("chance=","%d",distribution_weight);
+	if(animation_time!=300) PAKSET_INFO("animation_time=","%d",animation_time);
+	if(size.x*size.y*layouts>1) PAKSET_INFO("dims=","%d%,%d,%d",size.x,size.y,layouts);
+	if(flags&FLAG_NO_INFO) PAKSET_INFO("noinfo=","1");
+	if(flags&FLAG_NO_PIT) PAKSET_INFO("noconstruction=","1");
+	if(flags&FLAG_NEED_GROUND) PAKSET_INFO("needs_ground=","1");
+	// climates are missing ...
 #endif
 	chk->input((uint8)type);
 	chk->input(animation_time);
