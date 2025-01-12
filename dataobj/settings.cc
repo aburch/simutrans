@@ -31,8 +31,6 @@
 #define NEVER 0xFFFFU
 
 
-sint8 env_t::reverse_base_offsets[8][3];
-
 settings_t::settings_t() :
 	filename(""),
 	heightfield("")
