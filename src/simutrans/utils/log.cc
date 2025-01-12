@@ -19,28 +19,26 @@
 
 #ifdef MAKEOBJ
 //debuglevel is global variable
-#define dr_fopen fopen
+#  define dr_fopen fopen
 #else
-#ifdef NETTOOL
-#define debuglevel (0)
-#define dr_fopen fopen
+#  ifdef NETTOOL
+#    define debuglevel (0)
+#    define dr_fopen fopen
+#  else
+#    define debuglevel (env_t::verbose_debug)
 
-#else
-#define debuglevel (env_t::verbose_debug)
-
-// for display ...
-#include "../gui/messagebox.h"
-#include "../display/simgraph.h"
-#include "../gui/simwin.h"
-
-#include "../dataobj/environment.h"
-#endif
+// for display
+#    include "../gui/messagebox.h"
+#    include "../display/simgraph.h"
+#    include "../gui/simwin.h"
+#    include "../dataobj/environment.h"
+#  endif
 #endif
 
 #ifdef __ANDROID__
-#include <android/log.h>
-#include "cbuffer.h"
-#define  LOG_TAG    "com.simutrans"
+#  include <android/log.h>
+#  include "cbuffer.h"
+#  define  LOG_TAG    "com.simutrans"
 #endif
 
 /**
@@ -48,6 +46,8 @@
  */
 void log_t::pakset(const char* who, const char* format, ...)
 {
+// never spam the Android buffer
+#if !defined(__ANDROID__) && !defined (MAKEOBJ) && !defined(NETTOOL)
 	if (env_t::pakset_debug) {
 		va_list argptr;
 		va_start(argptr, format);
@@ -81,11 +81,11 @@ void log_t::pakset(const char* who, const char* format, ...)
 		}
 		va_end(argptr);
 #endif
-
-#ifdef __ANDROID__
-		// never spam the Android buffer
-#endif
 	}
+#else
+	(void)who;
+	(void)format;
+#endif
 }
 
 
