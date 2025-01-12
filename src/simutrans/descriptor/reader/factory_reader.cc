@@ -57,7 +57,7 @@ obj_desc_t *factory_field_class_reader_t::read_node(FILE *fp, obj_node_info_t &n
 		desc->storage_capacity = decode_uint16(p);
 		desc->spawn_weight = decode_uint16(p);
 
-		DBG_DEBUG("factory_field_class_reader_t::read_node()", "version=%i, has_snow=%i, production=%i, capacity=%i, spawn_weight=%i",
+		PAKSET_DEBUG("factory_field_class_reader_t::read_node()", "version=%i, has_snow=%i, production=%i, capacity=%i, spawn_weight=%i",
 			v,
 			desc->snow_image,
 			desc->production_per_field,
@@ -119,7 +119,7 @@ obj_desc_t *factory_field_group_reader_t::read_node(FILE *fp, obj_node_info_t &n
 		 */
 		incomplete_field_class_desc = field_class_desc;
 
-		DBG_DEBUG("factory_field_group_reader_t::read_node()", "version=%i, probability=%i, fields: max=%i / min=%i / start=%i, field classes=%i, storage=%i, field_prod=%i, chance=%i, has_snow=%i",
+		PAKSET_DEBUG("factory_field_group_reader_t::read_node()", "version=%i, probability=%i, fields: max=%i / min=%i / start=%i, field classes=%i, storage=%i, field_prod=%i, chance=%i, has_snow=%i",
 			v,
 			desc->probability,
 			desc->max_fields,
@@ -136,7 +136,7 @@ obj_desc_t *factory_field_group_reader_t::read_node(FILE *fp, obj_node_info_t &n
 	}
 
 	if (  v>0x8001  ) {
-		DBG_DEBUG("factory_field_group_reader_t::read_node()", "version=%i, probability=%i, fields: max=%i / min=%i / start=%i, field classes=%i",
+		PAKSET_DEBUG("factory_field_group_reader_t::read_node()", "version=%i, probability=%i, fields: max=%i / min=%i / start=%i, field classes=%i",
 			v,
 			desc->probability,
 			desc->max_fields,
@@ -186,7 +186,7 @@ obj_desc_t *factory_smoke_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	desc->xy_off = koord( x, y );
 	/*smoke speed*/ decode_sint16(p);
 
-	DBG_DEBUG("factory_smoke_reader_t::read_node()","(size %i)",node.size);
+	PAKSET_DEBUG("factory_smoke_reader_t::read_node()","(size %i)",node.size);
 
 	return desc;
 }
@@ -220,7 +220,7 @@ obj_desc_t *factory_supplier_reader_t::read_node(FILE *fp, obj_node_info_t &node
 		desc->supplier_count = decode_uint16(p);
 		desc->consumption = decode_uint16(p);
 	}
-	DBG_DEBUG("factory_product_reader_t::read_node()", "version=%d, capacity=%d, count=%d, consumption=%d",
+	PAKSET_DEBUG("factory_product_reader_t::read_node()", "version=%d, capacity=%d, count=%d, consumption=%d",
 		0,
 		desc->capacity,
 		desc->supplier_count,
@@ -259,7 +259,7 @@ obj_desc_t *factory_product_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->factor = 256;
 	}
 
-	DBG_DEBUG("factory_product_reader_t::read_node()", "version=%d, capacity=%d, factor=%x",
+	PAKSET_DEBUG("factory_product_reader_t::read_node()", "version=%d, capacity=%d, factor=%x",
 		version,
 		desc->capacity,
 		desc->factor);
@@ -438,7 +438,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->mail_demand = 65535;
 	}
 
-	DBG_DEBUG("factory_reader_t::read_node()",
+	PAKSET_DEBUG("factory_reader_t::read_node()",
 		"version=%i, place=%i, productivity=%i, suppliers=%i, products=%i, fields=%i, range=%i, level=%i"
 		"Demands: pax=%i / mail=%i / electric=%i,"
 		"Boosts: pax=%i / mail=%i / electric=%i,"
@@ -475,12 +475,12 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			wavname[i] = decode_sint8(p);
 		}
 		desc->sound_id = (sint8)sound_desc_t::get_sound_id(wavname);
-DBG_MESSAGE("vehicle_reader_t::register_obj()","sound %s to %i",wavname,desc->sound_id);
+PAKSET_DEBUG("vehicle_reader_t::register_obj()","sound %s to %i",wavname,desc->sound_id);
 	}
 	else if(desc->sound_id>=0  &&  desc->sound_id<=MAX_OLD_SOUNDS) {
 		sint16 old_id = desc->sound_id;
 		desc->sound_id = (sint8)sound_desc_t::get_compatible_sound_id((sint8)old_id);
-DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,desc->sound_id);
+PAKSET_DEBUG("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,desc->sound_id);
 	}
 
 	return desc;

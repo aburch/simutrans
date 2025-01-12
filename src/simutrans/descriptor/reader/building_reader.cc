@@ -47,7 +47,7 @@ obj_desc_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	building_tile_desc_t *desc = new building_tile_desc_t();
 
 	if(version == 2) {
-//  DBG_DEBUG("tile_reader_t::read_node()","version=1");
+//  PAKSET_DEBUG("tile_reader_t::read_node()","version=1");
 		// Versioned node, version 1
 		desc->phases = (uint8)decode_uint16(p);
 		desc->index = decode_uint16(p);
@@ -55,7 +55,7 @@ obj_desc_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->building = NULL;
 	}
 	else if(version == 1) {
-//  DBG_DEBUG("tile_reader_t::read_node()","version=1");
+//  PAKSET_DEBUG("tile_reader_t::read_node()","version=1");
 		// Versioned node, version 1
 		desc->phases = (uint8)decode_uint16(p);
 		desc->index = decode_uint16(p);
@@ -73,10 +73,7 @@ obj_desc_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->seasons = 1;
 		desc->building = NULL;
 	}
-	DBG_DEBUG("tile_reader_t::read_node()","phases=%i, index=%i, seasons=%i",
-		desc->phases,
-		desc->index,
-		desc->seasons );
+//	PAKSET_DEBUG("tile_reader_t::read_node()","phases=%i, index=%i, seasons=%i", desc->phases, desc->index, desc->seasons );
 
 	return desc;
 }
@@ -199,7 +196,7 @@ void building_reader_t::register_obj(obj_desc_t *&data)
 	}
 
 	if (hausbauer_t::register_desc(desc)) {
-		DBG_DEBUG("building_reader_t::register_obj", "Loaded '%s'", desc->get_name());
+//		PAKSET_DEBUG("building_reader_t::register_obj", "Loaded '%s'", desc->get_name());
 
 		// do not calculate checksum of factory, will be done in factory_reader_t
 		if(  desc->type != building_desc_t::factory  ) {
@@ -413,12 +410,12 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	// correct old station buildings ...
 	if(  version<=3  &&  ((uint8)desc->type >= building_desc_t::bahnhof  ||  desc->type == building_desc_t::factory  ||  desc->type == building_desc_t::depot)  &&  desc->level==0  ) {
-		DBG_DEBUG("building_reader_t::read_node()","old station building -> set level to 4");
+		PAKSET_DEBUG("building_reader_t::read_node()","old station building -> set level to 4");
 		desc->level = 4;
 	}
 	else if(  version<=5  &&  (desc->type == building_desc_t::factory  ||  desc->type == building_desc_t::depot)  ) {
 		desc->level ++;
-		DBG_DEBUG("building_reader_t::read_node()","old station building -> increment level by one to %i", desc->level );
+		PAKSET_DEBUG("building_reader_t::read_node()","old station building -> increment level by one to %i", desc->level );
 	}
 
 	if(  version<=6  ) {
@@ -452,7 +449,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->preservation_year_month = DEFAULT_RETIRE_DATE*12;
 	}
 
-	DBG_DEBUG("building_reader_t::read_node()",
+	PAKSET_DEBUG("building_reader_t::read_node()",
 		"version=%d,"
 		" btyp=%d,"
 		" type=%d,"

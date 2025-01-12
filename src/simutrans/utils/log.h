@@ -60,6 +60,11 @@ private:
 
 public:
 	/**
+	 * writes a pakset content message into the log.
+	 */
+	void pakset(const char* who, const char* format, ...);
+
+	/**
 	 * writes a debug message into the log.
 	 */
 	void debug(const char *who, const char *format, ...);

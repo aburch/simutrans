@@ -30,7 +30,7 @@ obj_desc_t *xref_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		return NULL;
 	}
 
-//	DBG_DEBUG("xref_reader_t::read_node()", "%s",desc->get_text() );
+//	PAKSET_DEBUG("xref_reader_t::read_node()", "%s",desc->get_text() );
 
 	return desc;
 }

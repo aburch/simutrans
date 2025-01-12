@@ -163,7 +163,7 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// front images from version 5 on
 	desc->front_images = version > 4;
 
-	DBG_DEBUG("way_reader_t::read_node()",
+	PAKSET_DEBUG("way_reader_t::read_node()",
 	     "version=%d, price=%d, maintenance=%d, topspeed=%d, max_weight=%d, "
 	     "wtype=%d, styp=%d, intro=%i/%i, retire=%i/%i, axle_load=%d, ding=%i, seasons=%i",
 	     version,

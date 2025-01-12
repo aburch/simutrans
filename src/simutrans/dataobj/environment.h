@@ -472,6 +472,9 @@ public:
 	/// can be set by command-line switch '-debug'
 	static log_t::level_t verbose_debug;
 
+	/// if set, dump pakset details
+	static bool pakset_debug;
+
 	/// do autosave every month?
 	static sint32 autosave;
 

@@ -61,6 +61,8 @@ class pakset_manager_t
 	static stringhashtable_tpl<missing_level_t> missing_pak_names;
 
 public:
+	static bool no_message;
+
 	static void register_reader(obj_reader_t *reader);
 
 	/// Loads pakset data from env_t::pak_dir, and also from env_t::user_dir/addons/env_t::pak_name if @p load_addons is true

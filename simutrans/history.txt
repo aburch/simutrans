@@ -1,3 +1,5 @@
+	CHG: option for pakset dump versus all other debug by appending 'p' to the debug level, e.g. "-debug 0p" to show only pak details
+
 Release of 124.3 (r11590 on 10-Jan-2025):
 	FIX: open schedule get applied during rw (reload, quit, change language), line window crashes
 	CHG: no way foreground drawn inside stations and depots (and other buildings)

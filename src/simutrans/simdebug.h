@@ -20,6 +20,7 @@
 
 #include "utils/log.h"
 
+
 /**
  * Logger instance, this is a globally exported object.
  */
@@ -46,6 +47,10 @@ void init_logging(const char *logname, bool force_flush, bool log_debug, const c
 #undef DO_EXPAND
 #undef EXPAND
 
+#if MSG_LEVEL >0
+#define PAKSET_DEBUG dbg->pakset
+#endif
+
 #if MSG_LEVEL >= 4
 #define DBG_DEBUG4 dbg->debug
 #define DBG_MESSAGE dbg->message
@@ -63,6 +68,7 @@ void init_logging(const char *logname, bool force_flush, bool log_debug, const c
 
 #else
 // nothing to debug -> then ignore
+#define PAKSET_DEBUG(i,...) ;
 #define DBG_DEBUG4(i,...) ;
 #define DBG_MESSAGE(i,...) ;
 #define DBG_DEBUG(i,...) ;

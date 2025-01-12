@@ -36,7 +36,7 @@ void skin_reader_t::register_obj(obj_desc_t *&data)
 
 bool skin_reader_t::successfully_loaded() const
 {
-	DBG_MESSAGE("skin_reader_t::successfully_loaded()","");
+	PAKSET_DEBUG("skin_reader_t::successfully_loaded()","");
 	return skinverwaltung_t::successfully_loaded(get_skintype());
 }
 

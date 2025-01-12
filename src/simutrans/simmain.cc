@@ -386,7 +386,7 @@ void print_help()
 		" -async              asynchronous images, only for SDL\n"
 		" -borderless         emulate fullscreen as borderless window\n"
 		" -use_hw             hardware double buffering, only for SDL\n"
-		" -debug NUM          enables debugging (1..5)\n"
+		" -debug NUM          enables debugging (1..5) Append p to show pak details\n"
 		" -easyserver         set up every for server (query own IP, port forwarding)\n"
 		" -freeplay           play with endless money\n"
 		" -fullscreen         starts simutrans in fullscreen mode\n"
@@ -467,6 +467,7 @@ void setup_logging(const args_t &args)
 		const char *s = args.gimme_arg("-debug", 1);
 		log_t::level_t level = log_t::LEVEL_DEBUG;
 		if(s!=NULL  &&  s[0]>='0'  &&  s[0]<='9'  ) {
+			env_t::pakset_debug = (s[1] == 'p');
 			level = (log_t::level_t)clamp(atoi(s), (int)log_t::LEVEL_FATAL, (int)log_t::LEVEL_DEBUG);
 		}
 		env_t::verbose_debug = level;

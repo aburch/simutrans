@@ -88,7 +88,7 @@ obj_desc_t * crossing_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		dbg->fatal( "crossing_reader_t::read_node()", "Cannot handle too new node version %i", version );
 	}
 
-	DBG_DEBUG("crossing_reader_t::read_node()",
+	PAKSET_DEBUG("crossing_reader_t::read_node()",
 		"version=%i, waytype1=%d, waytype2=%d, topspeed1=%i, topspeed2=%i, open_time=%i, close_time=%i, sound=%i",
 		version,
 		desc->waytype1,

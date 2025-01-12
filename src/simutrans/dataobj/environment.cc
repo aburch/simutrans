@@ -150,6 +150,7 @@ bool env_t::second_open_closes_win;
 bool env_t::remember_window_positions;
 bool env_t::window_frame_active;
 log_t::level_t env_t::verbose_debug;
+bool env_t::pakset_debug = false;
 uint8 env_t::default_sortmode;
 uint32 env_t::default_mapmode;
 uint8 env_t::show_month;

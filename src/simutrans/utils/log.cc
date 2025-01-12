@@ -44,6 +44,52 @@
 #endif
 
 /**
+ * writes a message into the log.
+ */
+void log_t::pakset(const char* who, const char* format, ...)
+{
+	if (env_t::pakset_debug) {
+		va_list argptr;
+		va_start(argptr, format);
+
+		if (log) {                             /* only log when a log */
+			fprintf(log, "pakset: %s  \t", who); /* is already open */
+			vfprintf(log, format, argptr);
+			fprintf(log, "\n");
+
+			if (force_flush) {
+				fflush(log);
+			}
+		}
+		va_end(argptr);
+
+		va_start(argptr, format);
+		if (tee) {                             /* only log when a log */
+			fprintf(tee, "pakset: %s:   \t", who); /* is already open */
+			vfprintf(tee, format, argptr);
+			fprintf(tee, "\n");
+		}
+		va_end(argptr);
+
+#ifdef SYSLOG
+		va_start(argptr, format);
+		if (syslog) {
+			// Replace with dynamic memory allocation
+			char buffer[4096];
+			sprintf(buffer, "pakset: %s\t%s", who, format);
+			vsyslog(LOG_INFO, buffer, argptr);
+		}
+		va_end(argptr);
+#endif
+
+#ifdef __ANDROID__
+		// never spam the Android buffer
+#endif
+	}
+}
+
+
+/**
  * writes a debug message into the log.
  */
 void log_t::debug(const char *who, const char *format, ...)

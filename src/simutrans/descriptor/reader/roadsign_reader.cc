@@ -107,7 +107,7 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->offset_left = 0;
 	}
 
-	DBG_DEBUG("roadsign_reader_t::read_node()",
+	PAKSET_DEBUG("roadsign_reader_t::read_node()",
 		"version=%i, min_speed=%i, price=%i, flags=%x, wtyp=%i, offset_left=%i, intro=%i/%i, retire=%i/%i",
 		version,
 		desc->min_speed,
