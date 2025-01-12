@@ -78,6 +78,6 @@ obj_desc_t * pedestrian_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->distribution_weight = v;
 	}
 
-	PAKSET_DEBUG("pedestrian_reader_t::read_node()", "version=%i, chance=%i", version, desc->distribution_weight);
+	PAKSET_INFO("pedestrian_reader_t::read_node()", "version=%i, chance=%i", version, desc->distribution_weight);
 	return desc;
 }

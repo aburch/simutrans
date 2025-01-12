@@ -26,7 +26,7 @@ void tunnel_reader_t::register_obj(obj_desc_t *&data)
 	if(desc->get_topspeed()==0) {
 		convert_old_tunnel(desc);
 	}
-	PAKSET_DEBUG("tunnel_reader_t::register_obj", "Loaded '%s'", desc->get_name());
+	PAKSET_INFO("tunnel_reader_t::register_obj", "Loaded '%s'", desc->get_name());
 	tunnel_builder_t::register_desc(desc);
 
 	checksum_t *chk = new checksum_t();
@@ -144,7 +144,7 @@ obj_desc_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->axle_load = 9999;
 	}
 
-	PAKSET_DEBUG("tunnel_reader_t::read_node()",
+	PAKSET_INFO("tunnel_reader_t::read_node()",
 		"version=%d, waytype=%d, price=%d, maintenance=%d, topspeed=%d, intro=%d/%d, retire=%d/%d, axle_load=%d, has_way=%i, seasons=%i, b_portals=%i",
 		version,
 		desc->wtyp,

@@ -178,7 +178,7 @@ obj_desc_t *bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->axle_load = 9999;
 	}
 
-	PAKSET_DEBUG("bridge_reader_t::read_node()",
+	PAKSET_INFO("bridge_reader_t::read_node()",
 		"version=%d, waytype=%d, price=%d, maintenance=%d, topspeed=%d, axle_load=%i, max_length=%i, max_height=%i, pillars=%i, asymmetric=%i, seasons=%i, intro=%i/%i, retire=%i/%i",
 		version,
 		desc->wtyp,

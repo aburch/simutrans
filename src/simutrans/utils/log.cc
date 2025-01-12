@@ -53,7 +53,7 @@ void log_t::pakset(const char* who, const char* format, ...)
 		va_start(argptr, format);
 
 		if (log) {                             /* only log when a log */
-			fprintf(log, "pakset: %s  \t", who); /* is already open */
+			fprintf(log, "%s", who); /* is already open */
 			vfprintf(log, format, argptr);
 			fprintf(log, "\n");
 
@@ -65,7 +65,7 @@ void log_t::pakset(const char* who, const char* format, ...)
 
 		va_start(argptr, format);
 		if (tee) {                             /* only log when a log */
-			fprintf(tee, "pakset: %s:   \t", who); /* is already open */
+			fprintf(tee, "%s", who); /* is already open */
 			vfprintf(tee, format, argptr);
 			fprintf(tee, "\n");
 		}
@@ -76,7 +76,7 @@ void log_t::pakset(const char* who, const char* format, ...)
 		if (syslog) {
 			// Replace with dynamic memory allocation
 			char buffer[4096];
-			sprintf(buffer, "pakset: %s\t%s", who, format);
+			sprintf(buffer, "%s%s", who, format);
 			vsyslog(LOG_INFO, buffer, argptr);
 		}
 		va_end(argptr);

@@ -48,7 +48,7 @@ void init_logging(const char *logname, bool force_flush, bool log_debug, const c
 #undef EXPAND
 
 #if MSG_LEVEL >0
-#define PAKSET_DEBUG dbg->pakset
+#define PAKSET_INFO dbg->pakset
 #endif
 
 #if MSG_LEVEL >= 4
@@ -68,7 +68,7 @@ void init_logging(const char *logname, bool force_flush, bool log_debug, const c
 
 #else
 // nothing to debug -> then ignore
-#define PAKSET_DEBUG(i,...) ;
+#define PAKSET_INFO(i,...) ;
 #define DBG_DEBUG4(i,...) ;
 #define DBG_MESSAGE(i,...) ;
 #define DBG_DEBUG(i,...) ;

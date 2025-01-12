@@ -68,7 +68,7 @@ obj_desc_t * groundobj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// version 0, never existed
 		dbg->fatal( "groundobj_reader_t::read_node()", "Cannot handle too new node version %i", version );
 	}
-	PAKSET_DEBUG("groundobj_reader_t::read_node()", "version=%i, climates=$%X, seasons=%i, chance=%i, speed=%i, ways=%i, cost=%d, trees_on_top=%i",
+	PAKSET_INFO("groundobj_reader_t::read_node()", "version=%i, climates=$%X, seasons=%i, chance=%i, speed=%i, ways=%i, cost=%d, trees_on_top=%i",
 		version,
 		desc->allowed_climates,
 		desc->number_of_seasons,

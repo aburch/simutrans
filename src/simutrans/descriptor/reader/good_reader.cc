@@ -19,7 +19,7 @@ void goods_reader_t::register_obj(obj_desc_t *&data)
 	goods_desc_t *desc = static_cast<goods_desc_t *>(data);
 
 	goods_manager_t::register_desc(desc);
-	PAKSET_DEBUG("goods_reader_t::register_obj()","loaded good '%s'", desc->get_name());
+	PAKSET_INFO("goods_reader_t::register_obj()","loaded good '%s'", desc->get_name());
 
 	pakset_manager_t::obj_for_xref(get_type(), desc->get_name(), data);
 
@@ -89,7 +89,7 @@ obj_desc_t * goods_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->catg = (uint8)decode_uint16(p);
 	}
 
-	PAKSET_DEBUG("goods_reader_t::read_node()","version=%d, value=%d, catg=%d, bonus=%d, weight=%i, color=%i",
+	PAKSET_INFO("goods_reader_t::read_node()","version=%d, value=%d, catg=%d, bonus=%d, weight=%i, color=%i",
 		version,
 		desc->base_value,
 		desc->catg,

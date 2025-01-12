@@ -29,7 +29,6 @@ ptrhashtable_tpl<obj_desc_t**, int>                           pakset_manager_t::
 std::string                                                   pakset_manager_t::doublettes;
 stringhashtable_tpl<missing_level_t>                          pakset_manager_t::missing_pak_names;
 std::string                                                   pakset_manager_t::overlaid_warning;
-bool                                                          pakset_manager_t::no_message = false;
 
 void pakset_manager_t::register_reader(obj_reader_t *reader)
 {
@@ -165,7 +164,7 @@ DBG_MESSAGE("pakset_manager_t::load_paks_from_directory", "Reading from '%s'", p
 bool pakset_manager_t::load_pak_file(const std::string &filename)
 {
 	// added trace
-	PAKSET_DEBUG("loading", "name=%s", filename.c_str());
+	PAKSET_INFO("loading", "name=%s", filename.c_str());
 
 	FILE* const fp = dr_fopen(filename.c_str(), "rb");
 	if (!fp) {
@@ -199,7 +198,7 @@ bool pakset_manager_t::load_pak_file(const std::string &filename)
 	char *p = dummy;
 	const uint32 version = decode_uint32(p);
 
-	PAKSET_DEBUG("pakset_manager_t::load_pak_file", "%s, reading %u blocks, file version is %x", filename.c_str(), n, version);
+	PAKSET_INFO("pakset_manager_t::load_pak_file", "%s, reading %u blocks, file version is %x", filename.c_str(), n, version);
 
 	if(version <= COMPILER_VERSION_CODE) {
 		obj_desc_t *data = NULL;
@@ -234,7 +233,7 @@ bool pakset_manager_t::finish_loading()
 	resolve_xrefs();
 
 	for(auto const& elem : *registered_readers) {
-		PAKSET_DEBUG("pakset_manager_t::finish_loading", "Checking %s objects...", elem.value->get_type_name());
+		PAKSET_INFO("pakset_manager_t::finish_loading", "Checking %s objects...", elem.value->get_type_name());
 
 		if (!elem.value->successfully_loaded()) {
 			dbg->warning("pakset_manager_t::finish_loading", "... failed!");
@@ -348,10 +347,7 @@ bool pakset_manager_t::read_nodes(FILE *fp, obj_desc_t *&data, int node_depth, u
 	obj_reader_t *reader = registered_readers->get(static_cast<obj_type>(node.type));
 
 	if(reader) {
-		if (node_depth == 1) {
-			no_message = env_t::pakset_debug;
-		}
-//		PAKSET_DEBUG("pakset_manager_t::read_nodes", "Reading %.4s-node of length %d with '%s'", reinterpret_cast<const char *>(&node.type), node.size, reader->get_type_name());
+//		PAKSET_INFO("pakset_manager_t::read_nodes", "Reading %.4s-node of length %d with '%s'", reinterpret_cast<const char *>(&node.type), node.size, reader->get_type_name());
 		data = reader->read_node(fp, node);
 
 		if (!data) {
@@ -368,7 +364,6 @@ bool pakset_manager_t::read_nodes(FILE *fp, obj_desc_t *&data, int node_depth, u
 					data = NULL;
 					return false;
 				}
-				no_message = false;
 			}
 		}
 

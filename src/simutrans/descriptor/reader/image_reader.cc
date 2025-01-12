@@ -57,7 +57,7 @@ obj_desc_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->zoomable = decode_uint8(p);
 
 		skip_reading_pixels_if_no_graphics;
-		//PAKSET_DEBUG("image_t::read_node()","x,y=%d,%d  w,h=%d,%d, len=%i",desc->x,desc->y,desc->w,desc->h, desc->len);
+		//PAKSET_INFO("image_t::read_node()","x,y=%d,%d  w,h=%d,%d, len=%i",desc->x,desc->y,desc->w,desc->h, desc->len);
 
 		uint16* dest = desc->data;
 		p = desc_buf.begin()+12;

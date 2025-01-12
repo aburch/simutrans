@@ -327,41 +327,13 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			wavname[i] = decode_sint8(p);
 		}
 		desc->sound = (sint8)sound_desc_t::get_sound_id(wavname);
-PAKSET_DEBUG("vehicle_reader_t::register_obj()","sound %s to %i",wavname,desc->sound);
+PAKSET_INFO("vehicle_reader_t::register_obj()","sound %s to %i",wavname,desc->sound);
 	}
 	else if(desc->sound>=0  &&  desc->sound<=MAX_OLD_SOUNDS) {
 		sint16 old_id = desc->sound;
 		desc->sound = (sint8)sound_desc_t::get_compatible_sound_id((sint8)old_id);
-PAKSET_DEBUG("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,desc->sound);
+PAKSET_INFO("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,desc->sound);
 	}
-
-	PAKSET_DEBUG("vehicle_reader_t::read_node()",
-		"version=%d "
-		"way=%d capacity=%d price=%d topspeed=%d weight=%g axle_load=%d power=%d "
-		"running_cost=%d fixed_cost=%d sound=%d prev=%d next=%d loading_time=%d"
-		"date=%d/%d retire=%d/%d gear=%d engine_type=%d freigh_imgs=%d len=%d",
-		version,
-		desc->wtyp,
-		desc->capacity,
-		desc->price,
-		desc->topspeed,
-		desc->weight/1000.0,
-		desc->axle_load,
-		desc->power,
-		desc->running_cost,
-		desc->maintenance,
-		desc->sound,
-		desc->leader_count,
-		desc->trailer_count,
-		desc->loading_time,
-		(desc->intro_date%12)+1,
-		desc->intro_date/12,
-		(desc->retire_date%12)+1,
-		desc->retire_date/12,
-		desc->gear,
-		desc->engine_type,
-		desc->freight_image_type,
-		desc->len);
 
 	return desc;
 }
