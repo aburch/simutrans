@@ -10,6 +10,16 @@ if (CCache_FOUND)
 	endif (SIMUTRANS_USE_CCACHE)
 endif (CCache_FOUND)
 
+option(SIMUTRANS_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
+
+option(SIMUTRANS_SANITIZE_ADDRESS "Build with Address Santitizer support (-fsanitize=address)" OFF)
+if (NOT MSVC)
+	option(SIMUTRANS_SANITIZE_UNDEFINED "Build with Undefined Behaviour Sanitizer support (-fsanitize=undefined)" OFF)
+	option(SIMUTRANS_SANITIZE_THREAD    "Build with Thread Sanitizer support (-fsanitize=thread)" OFF)
+endif ()
+
+option(SIMUTRANS_VALGRIND_SUPPORT  "Add support for valgrind \"memcheck\" tool" OFF)
+
 if (CMAKE_USE_PTHREADS_INIT)
 	option(SIMUTRANS_MULTI_THREAD "Use multiple threads for drawing" ON)
 else (CMAKE_USE_PTHREADS_INIT)
@@ -19,9 +29,6 @@ endif (CMAKE_USE_PTHREADS_INIT)
 if (NOT CMAKE_SIZEOF_VOID_P EQUAL 4)
 	option(SIMUTRANS_BUILD_32BIT "Build 32 or 64 bit executable" OFF)
 endif ()
-
-
-option(SIMUTRANS_VALGRIND_SUPPORT  "Add support for valgrind \"memcheck\" tool" OFF)
 
 if (MiniUPNP_FOUND)
 	option(SIMUTRANS_USE_UPNP "Use MiniUPNP for easier server setup" ON)
@@ -39,7 +46,7 @@ if(Fontconfig_FOUND)
 	option(SIMUTRANS_USE_FONTCONFIG "Use Fontconfig for font autodetection" ON)
 endif()
 
-option(SIMUTRANS_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
+
 option(SIMUTRANS_INSTALL_PAK64 "Download pak64 on install" OFF)
 option(SIMUTRANS_UPDATE_LANGFILES "Update language files from the translator on install" OFF)
 option(SIMUTRANS_ENABLE_PROFILING "Enable profiling code" OFF)
@@ -137,6 +144,11 @@ if (MSVC)
 		add_link_options(/LARGEADDRESSAWARE)
 	endif ()
 
+	if (SIMUTRANS_SANITIZE_ADDRESS)
+		add_compile_options(/fsanitize=address)
+		add_link_options(/fsanitize=address)
+	endif ()
+
 else (MSVC) # Assume GCC/Clang
 	SIMUTRANS_CHECK_CXX_COMPILER_FLAGS(SIMUTRANS_COMMON_COMPILE_OPTIONS
 		-Wall
@@ -163,9 +175,32 @@ else (MSVC) # Assume GCC/Clang
 		add_compile_options(-Werror)
 	endif ()
 
-	# only add large address linking to 32 bin windows programs
+	# Only add for MinGW 32 bit buids
 	if (WIN32 AND CMAKE_SIZEOF_VOID_P EQUAL 4)
 		add_link_options(-Wl,--large-address-aware)
+	endif ()
+
+	if (SIMUTRANS_SANITIZE_ADDRESS)
+		add_compile_options(
+			-fsanitize=address
+			-fno-sanitize-recover=all
+		)
+		add_link_options(-fsanitize=address)
+	endif ()
+
+	if (SIMUTRANS_SANITIZE_UNDEFINED)
+		SIMUTRANS_CHECK_CXX_COMPILER_FLAGS(SIMUTRANS_COMMON_COMPILE_OPTIONS
+			-fsanitize=undefined
+			-fno-sanitize-recover=all
+			-fno-sanitize=shift
+			-fno-sanitize=function # not supported by GCC
+		)
+		add_link_options(-fsanitize=undefined)
+	endif ()
+
+	if (SIMUTRANS_SANITIZE_THREAD)
+		add_compile_options(-fsanitize=thread -fno-sanitize-recover=all)
+		add_link_options(-fsanitize=thread)
 	endif ()
 
 	if (SIMUTRANS_PROFILE)
