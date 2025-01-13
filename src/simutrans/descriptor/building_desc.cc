@@ -143,7 +143,7 @@ void building_desc_t::calc_checksum(checksum_t *chk) const
 		case headquarters: PAKSET_INFO("type=","hq"); break;
 		case dock:         PAKSET_INFO("type=","harbour"); break;
 		case flat_dock:    PAKSET_INFO("type=","dock"); break;
-		case factory:      PAKSET_INFO("type=","fac"); break;
+		case factory:      break;
 		case generic_stop: PAKSET_INFO("type=","stop"); break;
 		case generic_extension: PAKSET_INFO("type=","extension"); break;
 		case depot:        PAKSET_INFO("type=","depot"); break;
@@ -163,7 +163,7 @@ void building_desc_t::calc_checksum(checksum_t *chk) const
 				PAKSET_INFO("preservation_year=","%d",preservation_year_month/12);
 				if(preservation_year_month%12) PAKSET_INFO("preservation_month=","%d",(preservation_year_month%12)+1);
 			}
-			PAKSET_INFO("level=","%d",level);
+			//PAKSET_INFO("level=","%d",level);
 			break;
 		case attraction_city:
 		case townhall:
@@ -193,9 +193,9 @@ void building_desc_t::calc_checksum(checksum_t *chk) const
 		default:
 			break;
 	}
-	if(distribution_weight!=100) PAKSET_INFO("chance=","%d",distribution_weight);
+	if(distribution_weight!=100  &&  type!=factory) PAKSET_INFO("chance=","%d",distribution_weight);
 	if(animation_time!=300) PAKSET_INFO("animation_time=","%d",animation_time);
-	if(size.x*size.y*layouts>1) PAKSET_INFO("dims=","%d%,%d,%d",size.x,size.y,layouts);
+	if(size.x*size.y*layouts>1) PAKSET_INFO("dims=","%d,%d,%d",size.x,size.y,layouts);
 	if(flags&FLAG_NO_INFO) PAKSET_INFO("noinfo=","1");
 	if(flags&FLAG_NO_PIT) PAKSET_INFO("noconstruction=","1");
 	if(flags&FLAG_NEED_GROUND) PAKSET_INFO("needs_ground=","1");

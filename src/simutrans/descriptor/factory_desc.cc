@@ -103,5 +103,57 @@ void factory_desc_t::calc_checksum(checksum_t *chk) const
 		field_group->calc_checksum(chk);
 	}
 
+#if MSG_LEVEL>0
+	PAKSET_INFO("obj=factory", "");
+	PAKSET_INFO("productivity=", "%d", productivity);
+	PAKSET_INFO("range=", "%d", range);
+	PAKSET_INFO("distribution_weight=", "%d", distribution_weight); // there is probably the same in the chance field in the building part
+	PAKSET_INFO("mapcolor=", "%d", color);
+	if (pax_level != 12) PAKSET_INFO("pax_level=", "%d", pax_level);
+	if (expand_minimum != 0) PAKSET_INFO("expand_minimum=", "%d", expand_minimum);
+	if (expand_range != 0) PAKSET_INFO("expand_range=", "%d", expand_range);
+	if (expand_times != 0) PAKSET_INFO("expand_times=", "%d", expand_times);
+	if (electric_demand != 65535u) PAKSET_INFO("electricity_demand=", "%d", electric_demand);
+	if (pax_demand != 65535u) PAKSET_INFO("passenger_demand=", "%d", pax_demand);
+	if (mail_demand != 65535u) PAKSET_INFO("mail_demand=", "%d", mail_demand);
+	if (expand_times != 0) PAKSET_INFO("expand_times=", "%d", expand_times);
+	if (electric_boost != 256) PAKSET_INFO("electricity_boost=", "%d", (electric_boost*1000)/256);
+	if (pax_boost != 0) PAKSET_INFO("passenger_boost=", "%d", pax_boost);
+	if (mail_boost != 0) PAKSET_INFO("mail_boost=", "%d", mail_boost);
+	if (sound_interval != 0xFFFFFFFFul) PAKSET_INFO("sound_interval=", "%lu", sound_interval);
+#endif
+
 	get_building()->calc_checksum(chk);
+
+#if MSG_LEVEL>0
+	if (smokerotations > 0) {
+		if (smokeuplift != DEFAULT_SMOKE_UPLIFT) PAKSET_INFO("smokeuplift=", "%lu", smokeuplift);
+		if (smokelifetime != DEFAULT_FACTORYSMOKE_TIME) PAKSET_INFO("smokelifetime=", "%lu", smokelifetime);
+		for (int i = 0; i < smokerotations; i++) {
+			PAKSET_INFO("smoketile", "[%d]=%d,%d", i, smoketile[i].x, smoketile[i].y);
+			PAKSET_INFO("smokeoffset", "[%d]=%d,%d", i, smokeoffset[i].x, smokeoffset[i].y);
+		}
+	}
+	else if (smoketile[0].x | smoketile[0].y | smokeoffset[0].x | smokeoffset[0].y) {
+		if (smokeuplift != DEFAULT_SMOKE_UPLIFT) PAKSET_INFO("smokeuplift=", "%lu", smokeuplift);
+		if (smokelifetime != DEFAULT_FACTORYSMOKE_TIME) PAKSET_INFO("smokelifetime=", "%lu", smokelifetime);
+		PAKSET_INFO("smoketile", "[%d]=%d,%d", 0, smoketile[0].x, smoketile[0].y);
+		PAKSET_INFO("smokeoffset", "[%d]=%d,%d", 0, smokeoffset[0].x, smokeoffset[0].y);
+	}
+
+	for (uint8 i = 0; i < supplier_count; i++) {
+		const factory_supplier_desc_t* supp = get_supplier(i);
+		PAKSET_INFO("inputgood", "[%d]=%s", i, supp->get_input_type()->get_name());
+		PAKSET_INFO("inputsupplier", "[%d]=%d", i, supp->get_supplier_count());
+		PAKSET_INFO("inputcapacity", "[%d]=%d", i, supp->get_capacity());
+		PAKSET_INFO("inputfactor", "[%d]=%d", i, supp->get_consumption());
+	}
+	for (uint8 i = 0; i < product_count; i++) {
+		const factory_product_desc_t* prod = get_product(i);
+		PAKSET_INFO("outputgood", "[%d]=%s", i, prod->get_output_type()->get_name());
+		PAKSET_INFO("outputcapacity", "[%d]=%d", i, prod->get_capacity());
+		PAKSET_INFO("outputfactor", "[%d]=%d", i, prod->get_factor());
+	}
+	PAKSET_INFO("--", "");
+#endif
 }
