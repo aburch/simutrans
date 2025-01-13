@@ -140,7 +140,7 @@ void factory_desc_t::calc_checksum(checksum_t *chk) const
 	else if (smoketile[0].x | smoketile[0].y | smokeoffset[0].x | smokeoffset[0].y) {
 		if (smokeuplift != DEFAULT_SMOKE_UPLIFT) PAKSET_INFO("smokeuplift=", "%lu", smokeuplift);
 		if (smokelifetime != DEFAULT_FACTORYSMOKE_TIME) PAKSET_INFO("smokelifetime=", "%lu", smokelifetime);
-		PAKSET_INFO("smoketile", "[%d]=%d,%d", 0, smoketile[i].x, smoketile[0].y);
+		PAKSET_INFO("smoketile", "[%d]=%d,%d", 0, smoketile[0].x, smoketile[0].y);
 		PAKSET_INFO("smokeoffset", "[%d]=%d,%d", 0, smokeoffset[0].x, smokeoffset[0].y);
 	}
 	if (const field_group_desc_t* field_group = get_field_group()) {

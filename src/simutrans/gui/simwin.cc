@@ -2389,6 +2389,13 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 					if (ev.ev_code == SYSTEM_RESIZE) {
 						// main window resized
 						simgraph_resize(ev.new_window_size);
+						scr_coord pos{
+							(display_get_width() - gui->get_windowsize().w) / 2,
+							(display_get_height() - gui->get_windowsize().h) / 2
+						};
+						win_clamp_xywh_position(gui, pos, gui->get_windowsize(), true);
+						wins[wins[0].gui != gui].pos = pos;
+
 						dr_prepare_flush();
 						display_fillbox_wh_rgb(0, 0, ev.new_window_size.w, ev.new_window_size.h, color_idx_to_rgb(COL_BLACK), true);
 						gui->draw(win_get_pos(gui), gui->get_windowsize());
