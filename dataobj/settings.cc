@@ -1090,6 +1090,24 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 
 	env_t::player_finance_display_account = contents.get_int( "player_finance_display_account", env_t::player_finance_display_account ) != 0;
 
+	// setting reverse offsets
+	const char* directions[] = {"south", "west", "southwest", "southeast", "north", "east", "northeast", "northwest"};
+	for(uint8 d_idx = 0; d_idx < 8; d_idx++) {
+		char buf[64];
+		sprintf(buf, "reverse_base_offset_%s", directions[d_idx]);
+		vector_tpl<int> temp_offset = contents.get_ints(buf);
+		if (temp_offset.get_count()>=3) {
+			for(uint8 i=0; i<3; i++) {
+				env_t::reverse_base_offsets[d_idx][i] = temp_offset[i];
+			}
+		} else {
+			for(uint8 i=0; i<3; i++) {
+				env_t::reverse_base_offsets[d_idx][i] = 0;
+			}			
+		}
+	}
+
+
 	// network stuff
 	env_t::server_frames_ahead              = contents.get_int_clamped( "server_frames_ahead",             env_t::server_frames_ahead,              0, INT_MAX );
 	env_t::additional_client_frames_behind  = contents.get_int_clamped( "additional_client_frames_behind", env_t::additional_client_frames_behind,  0, INT_MAX );

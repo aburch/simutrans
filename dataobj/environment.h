@@ -523,6 +523,18 @@ public:
 	static koord commandline_server_start_position;
 
 	static bool send_tax_public;
+
+	// Graphical offsets for reverseing vehicles
+	// [directions][offsets]
+	// directions:{"south", "west", "southwest", "southeast", "north", "east", "northeast", "northwest"}
+	// offsets   :{x_offset,y_offset,length_offset}
+	// these parameters are written in simuconf.tab, such as:
+	// 	reverse_base_offset_east = 0, 0, 18
+	// 	reverse_base_offset_west = 0, 2, 14 
+	//
+	// Write the 8 directions in characters and the amount of offset in numbers with 3 components.
+	// the reading method is in setting_t, and these parameters are used in vehicle_t.
+	static sint8 reverse_base_offsets[8][3];
 };
 
 #endif

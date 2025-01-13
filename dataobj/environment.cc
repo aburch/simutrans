@@ -620,3 +620,7 @@ void env_t::rdwr(loadsave_t *file)
 	// server settings are not saved, since they are server specific
 	// and could be different on different servers on the same computers
 }
+
+// Graphical offsets for reverseing vehicles
+// the reading method is in setting_t, and these parameters are used in vehicle_t.
+sint8 env_t::reverse_base_offsets[8][3];
