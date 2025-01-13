@@ -438,35 +438,6 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->mail_demand = 65535;
 	}
 
-	PAKSET_INFO("factory_reader_t::read_node()",
-		"version=%i, place=%i, productivity=%i, suppliers=%i, products=%i, fields=%i, range=%i, level=%i"
-		"Demands: pax=%i / mail=%i / electric=%i,"
-		"Boosts: pax=%i / mail=%i / electric=%i,"
-		"Expand: prob=%i / min=%i / range=%i / times=%i"
-		"chance=%i, sound: id=%i / interval=%i, color=%i",
-		version,
-		desc->placement,
-		desc->productivity,
-		desc->supplier_count,
-		desc->product_count,
-		desc->fields,
-		desc->range,
-		desc->pax_level,
-		desc->pax_demand,
-		desc->mail_demand,
-		desc->electric_demand,
-		desc->pax_boost,
-		desc->mail_boost,
-		desc->electric_boost,
-		desc->expand_probability,
-		desc->expand_minimum,
-		desc->expand_range,
-		desc->expand_times,
-		desc->distribution_weight,
-		desc->sound_id,
-		desc->sound_interval,
-		desc->color);
-
 	if(desc->sound_id==LOAD_SOUND) {
 		uint8 len=decode_sint8(p);
 		char wavname[256];
@@ -475,12 +446,12 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			wavname[i] = decode_sint8(p);
 		}
 		desc->sound_id = (sint8)sound_desc_t::get_sound_id(wavname);
-PAKSET_INFO("vehicle_reader_t::register_obj()","sound %s to %i",wavname,desc->sound_id);
+PAKSET_INFO("factory_reader_t::register_obj()","sound %s to %i",wavname,desc->sound_id);
 	}
 	else if(desc->sound_id>=0  &&  desc->sound_id<=MAX_OLD_SOUNDS) {
 		sint16 old_id = desc->sound_id;
 		desc->sound_id = (sint8)sound_desc_t::get_compatible_sound_id((sint8)old_id);
-PAKSET_INFO("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,desc->sound_id);
+PAKSET_INFO("factory_reader_t::register_obj()","old sound %i to %i",old_id,desc->sound_id);
 	}
 
 	return desc;

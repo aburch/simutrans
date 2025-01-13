@@ -8,8 +8,16 @@
 #include "../network/checksum.h"
 
 
-void field_class_desc_t::calc_checksum(checksum_t *chk) const
+void field_class_desc_t::calc_checksum(checksum_t* chk) const
 {
+#if MSG_LEVEL>0
+	PAKSET_INFO("--\n", "obj=field\nname=%s", get_name());
+	if (get_copyright()) PAKSET_INFO("copyright=", "%s", get_copyright());
+	if (snow_image) PAKSET_INFO("has_snow=", "1");
+	PAKSET_INFO("production=", "%d", production_per_field);
+	if (storage_capacity) PAKSET_INFO("capacity=", "%d", storage_capacity);
+	PAKSET_INFO("spawn_weight=", "%d", spawn_weight);
+#endif
 	chk->input(production_per_field);
 	chk->input(storage_capacity);
 	chk->input(spawn_weight);
@@ -98,11 +106,6 @@ void factory_desc_t::calc_checksum(checksum_t *chk) const
 		prod->calc_checksum(chk);
 	}
 
-	const field_group_desc_t *field_group = get_field_group();
-	if (field_group) {
-		field_group->calc_checksum(chk);
-	}
-
 #if MSG_LEVEL>0
 	PAKSET_INFO("obj=factory", "");
 	PAKSET_INFO("productivity=", "%d", productivity);
@@ -137,10 +140,20 @@ void factory_desc_t::calc_checksum(checksum_t *chk) const
 	else if (smoketile[0].x | smoketile[0].y | smokeoffset[0].x | smokeoffset[0].y) {
 		if (smokeuplift != DEFAULT_SMOKE_UPLIFT) PAKSET_INFO("smokeuplift=", "%lu", smokeuplift);
 		if (smokelifetime != DEFAULT_FACTORYSMOKE_TIME) PAKSET_INFO("smokelifetime=", "%lu", smokelifetime);
-		PAKSET_INFO("smoketile", "[%d]=%d,%d", 0, smoketile[0].x, smoketile[0].y);
+		PAKSET_INFO("smoketile", "[%d]=%d,%d", 0, smoketile[i].x, smoketile[0].y);
 		PAKSET_INFO("smokeoffset", "[%d]=%d,%d", 0, smokeoffset[0].x, smokeoffset[0].y);
 	}
-
+	if (const field_group_desc_t* field_group = get_field_group()) {
+		if (int count = field_group->get_field_class_count()) {
+			PAKSET_INFO("probability_to_spawn", "%d", field_group->get_probability());
+			PAKSET_INFO("min_fields", "%d", field_group->get_min_fields());
+			PAKSET_INFO("max_fields", "%d", field_group->get_max_fields());
+			PAKSET_INFO("start_fields", "%d", field_group->get_start_fields());
+			for (int i = 0; i < count; i++) {
+				PAKSET_INFO("fields", "[%d]=%s", i, field_group->get_field_class(i)->get_name());
+			}
+		}
+	}
 	for (uint8 i = 0; i < supplier_count; i++) {
 		const factory_supplier_desc_t* supp = get_supplier(i);
 		PAKSET_INFO("inputgood", "[%d]=%s", i, supp->get_input_type()->get_name());
@@ -154,6 +167,12 @@ void factory_desc_t::calc_checksum(checksum_t *chk) const
 		PAKSET_INFO("outputcapacity", "[%d]=%d", i, prod->get_capacity());
 		PAKSET_INFO("outputfactor", "[%d]=%d", i, prod->get_factor());
 	}
-	PAKSET_INFO("--", "");
+
 #endif
+	// moved here, since the field class write out the field entries
+	if (const field_group_desc_t* field_group = get_field_group()) {
+		field_group->calc_checksum(chk);
+	}
+
+	PAKSET_INFO("--", "");
 }
