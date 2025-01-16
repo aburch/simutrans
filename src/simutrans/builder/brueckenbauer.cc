@@ -277,7 +277,7 @@ bool bridge_builder_t::is_blocked(koord3d pos, ribi_t::ribi check_ribi, const ch
 	// first check for elevated ground exactly in our height
 	if(  grund_t *gr2 = welt->lookup( pos )  ) {
 		if(  gr2->get_typ() != grund_t::boden  && gr2->get_typ() != grund_t::tunnelboden  ) {
-			// not through bridges
+			// no through bridges
 			// monorail tiles will be checked in is_monorail_junction
 			error_msg = "Tile not empty.";
 			return true;
@@ -411,16 +411,17 @@ koord3d bridge_builder_t::find_end_pos(player_t *player, koord3d pos, const koor
 
 		bool abort = true;
 		for(sint8 z = min_bridge_height; z <= max_height; z++) {
+			// connect to suitable monorail tiles if possible
+			if(  height_okay(z)  &&  is_monorail_junction(koord3d(pos.get_2d(), z), player, desc, error_msg)  ) {
+				gr = welt->lookup(koord3d(pos.get_2d(), z));
+				bridge_height = z - start_height;
+				return gr->get_pos();
+			}
+		}
+		for(sint8 z = min_bridge_height; z <= max_height; z++) {
 			if(height_okay(z)) {
 				if(is_blocked(koord3d(pos.get_2d(), z), ribi_type(zv), error_msg)) {
 					height_okay_array[z-min_bridge_height] = false;
-
-					// connect to suitable monorail tiles if possible
-					if(is_monorail_junction(koord3d(pos.get_2d(), z), player, desc, error_msg)) {
-						gr = welt->lookup(koord3d(pos.get_2d(), z));
-						bridge_height = z - start_height;
-						return gr->get_pos();
-					}
 				}
 				else {
 					abort = false;
