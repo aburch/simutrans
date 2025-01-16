@@ -220,14 +220,21 @@ static void write_sign_at(player_t* , cbuffer_t& buf, const koord3d pos, const k
 static void write_slope_at(player_t* pl, cbuffer_t& buf, const koord3d pos, const koord3d origin)
 {
 	const grund_t* gr = world()->lookup(pos);
-	if (!gr  ||  gr->is_water()  ||  gr->ist_auf_bruecke()  ||  gr->ist_im_tunnel()) {
+	if (!gr  ||  gr->is_water()  ||  !gr->ist_karten_boden()) {
 		return;
 	}
 	if(!pl->is_public_service()) {
 		// only save used tiles unless public service
 		if (gr->ist_natur()  &&  gr->get_typ()==grund_t::boden) {
-			// do not touch
-			return;
+			// do not touch unless its supports an elevated way
+			if (grund_t* el = world()->lookup(pos + koord3d(0, 0, world()->get_settings().get_way_height_clearance()))) {
+				if (el->get_typ() != grund_t::monorailboden) {
+					return;
+				}
+			}
+			else {
+				return;
+			}
 		}
 		if (origin.z > pos.z  &&  (gr->obj_count()==0  ||  gr->obj_bei(0)->get_owner() != pl)) {
 			// do not save tiles below the start unless is mine
@@ -260,14 +267,21 @@ static void write_slope_at(player_t* pl, cbuffer_t& buf, const koord3d pos, cons
 static void write_ground_at(player_t* pl, cbuffer_t& buf, const koord3d pos, const koord3d origin)
 {
 	const grund_t* gr = world()->lookup(pos);
-	if (!gr || gr->is_water() || gr->ist_auf_bruecke() || gr->ist_im_tunnel()) {
+	if (!gr || gr->is_water() || !gr->ist_karten_boden()) {
 		return;
 	}
 	if (!pl->is_public_service()) {
 		// only save used tiles unless public service
 		if (gr->ist_natur() && gr->get_typ() == grund_t::boden) {
-			// do not touch
-			return;
+			// do not touch unless its supports an elevated way
+			if (grund_t* el = world()->lookup(pos + koord3d(0, 0, world()->get_settings().get_way_height_clearance()))) {
+				if (el->get_typ() != grund_t::monorailboden) {
+					return;
+				}
+			}
+			else {
+				return;
+			}
 		}
 		if (origin.z > pos.z && (gr->obj_count() == 0 || gr->obj_bei(0)->get_owner() != pl)) {
 			// do not save tiles below the start unless is mine
@@ -421,7 +435,7 @@ public:
 		player(pl), buf(b), start(s), end(e), origin(o) { };
 
 	void write() {
-		for (sint8 z = -128; z < 127; z++) { // iterate for all height
+		for (sint8 z = 127; z > -127; z--) { // iterate for all height
 			for (sint16 x = start.x; x <= end.x; x++) {
 				for (sint16 y = start.y; y <= end.y; y++) {
 					ribi_t::ribi dirs[2];
@@ -484,6 +498,10 @@ protected:
 		if (!weg0) {
 			return;
 		}
+		if (gr->ist_bruecke()  &&  !gr->get_weg_nr(2)) {
+			// no lone ways on bridge ramps
+			return;
+		}
 		systemtype_t start_styp = weg0->get_desc()->get_styp();
 		koord3d pb = pos - origin; // relative base pos
 		if (gr->get_typ() == grund_t::monorailboden) {
@@ -495,7 +513,7 @@ protected:
 			}
 			grund_t* to = NULL;
 			gr->get_neighbour(to, weg0->get_waytype(), dirs[i]);
-			if (to) {
+			if (to  &&  !to->ist_bruecke()) {
 				const weg_t* to_weg = to->get_weg_nr(0);
 				bool to_weg_nr = 0;
 				if (to_weg->get_waytype() != weg0->get_waytype()) {
@@ -508,11 +526,11 @@ protected:
 				if (!to_weg_nr  &&  !weg_nr) {
 					// check system type (for airplanes etc.) if there is only one way
 					if (start_styp == to_weg->get_desc()->get_styp()) {
-						if (first_pass && start_styp != 0) {
+						if (first_pass && (start_styp != 0) ==  (to_weg->get_waytype()==air_wt) ) {
 							// we connect in this round only to other system types for one step
 							continue;
 						}
-						if (!first_pass && start_styp == 0) {
+						if (!first_pass && (start_styp == 0) == (to_weg->get_waytype() == air_wt)) {
 							// we connect in this round only to other system types
 							continue;
 						}
@@ -590,8 +608,15 @@ public:
 };
 
 
-char const* tool_generate_script_t::do_work(player_t* pl, const koord3d& start, const koord3d& end)
+char const* tool_generate_script_t::do_work(player_t* pl, const koord3d& s, const koord3d& end)
 {
+	grund_t * gr = welt->lookup_kartenboden(s.get_2d());
+	if(!gr) {
+		// not on the map
+		return "";
+	}
+	const koord3d start = gr->get_pos();
+
 	koord3d e = end == koord3d::invalid ? start : end;
 	koord k1 = koord(min(start.x, e.x), min(start.y, e.y));
 	koord k2 = koord(max(start.x, e.x), max(start.y, e.y));
@@ -612,9 +637,9 @@ char const* tool_generate_script_t::do_work(player_t* pl, const koord3d& start, 
 	if (pl->is_public_service()) {
 		write_command(pl, generated_script_buf, write_townhall_at, k1, k2, begin);
 	}
-	write_command_bridges(pl, generated_script_buf, k1, k2, begin);
 	write_way_command_t(pl, generated_script_buf, k1, k2, begin, true).write();
 	write_way_command_t(pl, generated_script_buf, k1, k2, begin, false).write();
+	write_command_bridges(pl, generated_script_buf, k1, k2, begin);
 	write_wayobj_command_t(pl, generated_script_buf, k1, k2, begin).write();
 	write_command_halt(pl, generated_script_buf, k1, k2, begin);
 	write_command(pl, generated_script_buf, write_depot_at, k1, k2, begin);

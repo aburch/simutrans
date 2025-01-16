@@ -3089,8 +3089,14 @@ uint8 tool_build_bridge_t::is_valid_pos(  player_t *player, const koord3d &pos, 
 
 	error = NULL;
 	grund_t *gr = welt->lookup(pos);
-	if(  gr==NULL  ||  !bridge_builder_t::can_place_ramp( player, gr, wt, (is_first_click() ? 0 : ribi_type(pos-start)) )  ) {
-		return 0;
+	if (gr == NULL) {
+		return NULL;
+	}
+	if (is_first_click()  &&  start.z != pos.z  &&  koord_distance(pos,start) != 1) {
+		// only a ramp => we cannot check this tile
+		if (!bridge_builder_t::can_place_ramp(player, gr, wt, (is_first_click() ? 0 : ribi_type(pos - start)))) {
+			return 0;
+		}
 	}
 
 	if(  is_first_click()  ) {
