@@ -269,18 +269,18 @@ bool tool_selector_t::infowin_event(const event_t *ev)
 
 void tool_selector_t::draw(scr_coord pos, scr_size sz)
 {
-	player_t *player = welt->get_active_player();
+	player_t* player = welt->get_active_player();
 
-	if( toolbar_id == 0 ) {
+	if (toolbar_id == 0) {
 		// checks for main menu (since it can change during changing layout)
-		if(env_t::menupos==MENU_TOP || env_t::menupos == MENU_BOTTOM) {
+		if (env_t::menupos == MENU_TOP || env_t::menupos == MENU_BOTTOM) {
 			offset.y = 0;
 			allow_break = false;
 			tool_icon_width = (display_get_width() + env_t::iconsize.w - 1) / env_t::iconsize.w;
 			tool_icon_height = 1; // only single row for title bar
 			set_windowsize(sz);
 			// check for too large values (after changing width etc.)
-			if (  display_get_width() >= (int)tools.get_count() * env_t::iconsize.w  ) {
+			if (display_get_width() >= (int)tools.get_count() * env_t::iconsize.w) {
 				tool_icon_disp_start = 0;
 				offset.x = 0;
 			}
@@ -299,10 +299,10 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 			tool_icon_width = 1;
 			// only single column for title bar
 			scr_rect screen = win_get_max_window_area();
-			tool_icon_height = max(1,(screen.h - win_get_statusbar_height() + env_t::iconsize.h-1) / env_t::iconsize.h);
+			tool_icon_height = max(1, (screen.h - win_get_statusbar_height() + env_t::iconsize.h - 1) / env_t::iconsize.h);
 			set_windowsize(scr_size(env_t::iconsize.w, display_get_height() - win_get_statusbar_height()));
 
-			if ( display_get_height() >= (int)tools.get_count() * env_t::iconsize.h  ) {
+			if (display_get_height() >= (int)tools.get_count() * env_t::iconsize.h) {
 				tool_icon_disp_start = 0;
 				offset.y = 0;
 			}
@@ -318,7 +318,10 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 			has_prev_next = (int)tools.get_count() * env_t::iconsize.h > sz.h;
 		}
 	}
-
+	clip_dimension const p_cr = display_get_clip_wh();
+	if (toolbar_id != 0) {
+		display_set_clip_wh(pos.x, pos.y, sz.w, sz.h);
+	}
 	for(  uint i = tool_icon_disp_start;  i < tool_icon_disp_end;  i++  ) {
 		const image_id icon_img = tools[i].tool->get_icon(player);
 #if COLOUR_DEPTH != 0
@@ -365,6 +368,9 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 	else if(  dirty  &&  (tool_icon_disp_end-tool_icon_disp_start < tool_icon_width*tool_icon_height)  ) {
 		// mark empty space empty
 		mark_rect_dirty_wc(pos.x, pos.y, pos.x + tool_icon_width*env_t::iconsize.w, pos.y + tool_icon_height*env_t::iconsize.h);
+	}
+	if (toolbar_id != 0) {
+		display_set_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h);
 	}
 
 	if(  offset.x != 0  &&  tool_icon_disp_start > 0  ) {
