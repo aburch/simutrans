@@ -193,7 +193,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 				// not our way
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
-			if(  !gr->ist_uebergang()  ) {
+			if(  !gr->get_crossing()  ) {
 				// If road and tram, we have to check both ribis.
 				ribi = gr->get_weg_nr(0)->get_ribi_unmasked() | gr->get_weg_nr(1)->get_ribi_unmasked();
 			}

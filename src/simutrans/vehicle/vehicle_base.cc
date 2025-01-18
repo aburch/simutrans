@@ -161,13 +161,27 @@ void vehicle_base_t::rotate90()
 
 void vehicle_base_t::leave_tile()
 {
+	grund_t* gr = welt->lookup(get_pos());
+
 	// first: release crossing
-	grund_t *gr = welt->lookup(get_pos());
-	if(  gr  &&  gr->ist_uebergang()  ) {
-		crossing_t *cr = gr->find<crossing_t>(2);
-		grund_t *gr2 = welt->lookup(pos_next);
-		if(  gr2==NULL  ||  gr2==gr  ||  !gr2->ist_uebergang()  ||  cr->get_logic()!=gr2->find<crossing_t>(2)->get_logic()  ) {
-			cr->release_crossing(this);
+	if (gr) {
+		if (crossing_t* cr = gr->get_crossing()) {
+			grund_t* gr2 = welt->lookup(pos_next);
+			bool release = gr2==NULL ||  gr2 == gr;
+			if (!release) {
+				// check if we stay on crossing
+				if (crossing_t* cr2 = gr2->get_crossing()) {
+					// only release if new crossing ahead
+					release = (cr->get_logic() != cr2->get_logic());
+				}
+			}
+			if (release) {
+				cr->release_crossing(this);
+			}
+			else {
+				// release when no longer a crossing
+				cr->release_crossing(this);
+			}
 		}
 	}
 

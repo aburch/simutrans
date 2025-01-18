@@ -310,11 +310,8 @@ bool private_car_t::list_empty()
 
 private_car_t::~private_car_t()
 {
-	// first: release crossing
-	grund_t *gr = welt->lookup(get_pos());
-	if(gr  &&  gr->ist_uebergang()) {
-		gr->find<crossing_t>(2)->release_crossing(this);
-	}
+	pos_next = koord3d::invalid;	// will remove car from corssings etc.
+	leave_tile();
 	welt->buche( -1, karte_t::WORLD_CITYCARS );
 }
 
@@ -485,9 +482,10 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 		frei = (NULL == no_cars_blocking( gr, NULL, next_direction, next_direction, next_direction ));
 
 		// do not block railroad crossing
-		if(frei  &&  str->is_crossing()) {
-			const grund_t *gr = welt->lookup(get_pos());
-			frei = (NULL == no_cars_blocking( gr, NULL, next_direction, next_direction, next_direction ));
+		if(frei  &&  gr->get_crossing()) {
+			// look back for turning
+			const grund_t *gr_current = welt->lookup(get_pos());
+			frei = (NULL == no_cars_blocking(gr_current, NULL, next_direction, next_direction, next_direction ));
 		}
 	}
 	else {
@@ -497,9 +495,10 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 		// do not block this crossing (if possible)
 		if(ribi_t::is_threeway(str->get_ribi_unmasked())) {
 			// but leaving from railroad crossing is more important
-			grund_t *gr_here = welt->lookup(get_pos());
-			if(  gr_here  &&  gr_here->ist_uebergang()  ) {
-				return true;
+			if (grund_t* gr_current = welt->lookup(get_pos())) {
+				if (crossing_t* cr = gr_current->get_crossing()) {
+					return true;
+				}
 			}
 			grund_t *test = welt->lookup(pos_next_next);
 			if(  test  ) {
@@ -551,17 +550,18 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 		}
 
 		// do not block railroad crossing
-		if(  frei  &&  str->is_crossing()  ) {
+		if(  frei  &&  gr->get_crossing()  ) {
 			// can we cross?
-			crossing_t* cr = gr->find<crossing_t>(2);
-			if(  cr && !cr->request_crossing(this)) {
+			crossing_t* cr = gr->get_crossing();
+			if(!cr->request_crossing(this)) {
 				// approaching railway crossing: check if empty
 				return false;
 			}
-			// no further check, when already entered a crossing (to allow leaving it)
-			grund_t *gr_here = welt->lookup(get_pos());
-			if(gr_here  &&  gr_here->ist_uebergang()) {
-				return true;
+			// but leaving from railroad crossing is more important
+			if (grund_t* gr_current = welt->lookup(get_pos())) {
+				if (crossing_t* cr = gr_current->get_crossing()) {
+					return true;
+				}
 			}
 			// ok, now check for free exit
 			koord dir = pos_next.get_2d()-get_pos().get_2d();
@@ -580,9 +580,8 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 					return false;
 				}
 				// ok, left the crossing
-				if(!test->find<crossing_t>(2)) {
-					// approaching railway crossing: check if empty
-					crossing_t* cr = gr->find<crossing_t>(2);
+				if(!test->get_crossing()) {
+					// approaching railway crossing if empty
 					return cr->request_crossing( this );
 				}
 				else {
@@ -659,7 +658,7 @@ grund_t* private_car_t::hop_check()
 			bool go_on = false;
 			if(  const grund_t *gr_current = welt->lookup(get_pos())  ) {
 				if(  const roadsign_t *rs = gr_current->find<roadsign_t>()  ) {
-					go_on = rs  &&  rs->get_desc()->is_traffic_light()  &&  !from->ist_uebergang();
+					go_on = rs  &&  rs->get_desc()->is_traffic_light()  &&  !from->get_crossing();
 				}
 			}
 			if(  !go_on   ) {
@@ -803,8 +802,8 @@ void private_car_t::hop(grund_t* to)
 
 	calc_current_speed(to);
 
-	if(to->ist_uebergang()) {
-		to->find<crossing_t>(2)->add_to_crossing(this);
+	if(crossing_t* cr = to->get_crossing()) {
+		cr->add_to_crossing(this);
 	}
 	pos_next = pos_next_next;
 	pos_next_next = koord3d::invalid;
@@ -917,12 +916,12 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 			if(  gr==NULL  ) {
 				return false;
 			}
-			weg_t *str = gr->get_weg(road_wt);
-			if(  str==0  ) {
+			// not overtaking on railroad crossings ...
+			if (gr->get_crossing()) {
 				return false;
 			}
-			// not overtaking on railroad crossings ...
-			if(  str->is_crossing() ) {
+			weg_t *str = gr->get_weg(road_wt);
+			if(  str==0  ) {
 				return false;
 			}
 			if(  ribi_t::is_threeway(str->get_ribi())  ) {
@@ -996,6 +995,11 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 			check_pos.z ++;
 		}
 
+		// not overtaking on railroad crossings ...
+		if (gr->get_crossing()) {
+			return false;
+		}
+
 		// special signs
 		if(  str->has_sign()  &&  str->get_ribi()==str->get_ribi_unmasked()  ) {
 			const roadsign_t *rs = gr->find<roadsign_t>(1);
@@ -1006,11 +1010,6 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 					return false;
 				}
 			}
-		}
-
-		// not overtaking on railroad crossings ...
-		if(  str->is_crossing() ) {
-			return false;
 		}
 
 		// street gets too slow (TODO: should be able to be correctly accounted for)

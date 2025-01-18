@@ -570,8 +570,8 @@ void vehicle_t::hop(grund_t* gr)
 	const weg_t *weg = gr->get_weg(get_waytype());
 	if(  weg  ) {
 		speed_limit = kmh_to_speed( weg->get_max_speed() );
-		if(  weg->is_crossing()  ) {
-			gr->find<crossing_t>(2)->add_to_crossing(this);
+		if (crossing_t* cr = gr->get_crossing()) {
+			cr->add_to_crossing(this);
 		}
 	}
 	else {

@@ -171,7 +171,6 @@ private:
 	void build_powerline();
 	void build_river();
 
-	void upgrade_crossing_if_needed(const grund_t*);
 
 	/**
 	 * This function calculates the distance of pos to the cuboid
@@ -222,7 +221,7 @@ public:
 	/// returns the amount needed to build this way
 	sint64 calc_costs();
 
-	bool check_crossing(const koord zv, const grund_t *bd,waytype_t wtyp, const player_t *player) const;
+	bool check_crossing(const koord zv, const grund_t *bd, const way_desc_t *desc, const player_t *player) const;
 	bool check_powerline(const koord zv, const grund_t *bd) const;
 	// allowed owner?
 	bool check_owner( const player_t *player1, const player_t *player2 ) const;

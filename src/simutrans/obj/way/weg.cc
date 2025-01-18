@@ -184,6 +184,42 @@ weg_t::~weg_t()
 }
 
 
+bool weg_t::needs_crossing(const way_desc_t* other) const
+{
+	// certain way always needs crossing (or never)
+	switch (desc->get_waytype()) {
+		case powerline_wt:
+			return false;
+		case water_wt:
+		case air_wt:
+		case decoration_wt:
+			return true;
+		default:
+			break;
+	}
+	switch (other->get_waytype()) {
+		case powerline_wt:
+			return false;
+		case water_wt:
+		case air_wt:
+		case decoration_wt:
+			return true;
+		default:
+			break;
+	}
+	// only now we can check if there is a tramway involved
+	if (desc->get_styp() == type_tram) {
+		// we are tramway
+		return false;
+	}
+	if (other->get_styp() == type_tram) {
+		// other is tramway
+		return false;
+	}
+	// needs a crossing
+	return true;
+}
+
 void weg_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t t( file, "weg_t" );
@@ -289,11 +325,10 @@ void weg_t::count_sign()
 	if(gr) {
 		uint8 i = 1;
 		// if there is a crossing, the start index is at least three ...
-		if(  gr->ist_uebergang()  ) {
+		if(const crossing_t* cr = gr->get_crossing()) {
 			max_speed = desc->get_topspeed(); // reset max_speed
 			flags |= HAS_CROSSING;
 			i = 3;
-			const crossing_t* cr = gr->find<crossing_t>();
 			const sint32 top_speed = cr->get_desc()->get_maxspeed( cr->get_desc()->get_waytype(0)==get_waytype() ? 0 : 1);
 			max_speed = min(max_speed, top_speed);
 		}

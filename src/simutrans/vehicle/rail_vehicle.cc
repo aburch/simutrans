@@ -580,16 +580,18 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 	if(  cnv->get_state()==convoi_t::CAN_START  ||  cnv->get_state()==convoi_t::CAN_START_ONE_MONTH  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS  ) {
 		// reserve first block at the start until the next signal
-		grund_t *gr_current = welt->lookup( get_pos() );
-		weg_t *w = gr_current ? gr_current->get_weg(get_waytype()) : NULL;
-		if(  w==NULL  ||  !(w->has_signal()  ||  w->is_crossing())  ) {
-			// free track => reserve up to next signal
-			if(  !block_reserver(cnv->get_route(), max(route_index,1)-1, next_signal, next_crossing, 0, true, false )  ) {
-				restart_speed = 0;
-				return false;
+		if (grund_t* gr_current = welt->lookup(get_pos())) {
+			if (weg_t* w = gr_current->get_weg(get_waytype())) {
+				if (!(w->has_signal()  ||  gr_current->get_crossing())) {
+					// free track => reserve up to next signal
+					if (!block_reserver(cnv->get_route(), max(route_index, 1) - 1, next_signal, next_crossing, 0, true, false)) {
+						restart_speed = 0;
+						return false;
+					}
+					cnv->set_next_stop_index(next_crossing < next_signal ? next_crossing : next_signal);
+					return true;
+				}
 			}
-			cnv->set_next_stop_index( next_crossing<next_signal ? next_crossing : next_signal );
-			return true;
 		}
 		cnv->set_next_stop_index( max(route_index,1)-1 );
 		if(  steps<steps_next  ) {
@@ -649,28 +651,26 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		// Is a crossing?
 		// note: crossing and signal might exist on same tile
 		// so first check crossing
-		if(  sch1->is_crossing()  ) {
-			if(  crossing_t* cr = gr_next_block->find<crossing_t>(2)  ) {
-				// ok, here is a draw/turnbridge ...
-				bool ok = cr->request_crossing(this);
-				if(!ok) {
-					// cannot cross => wait here
-					restart_speed = 0;
-					return cnv->get_next_stop_index()>route_index+1;
+		if(crossing_t* cr = gr_next_block->get_crossing()) {
+			// ok, here is a draw/turnbridge ...
+			bool ok = cr->request_crossing(this);
+			if(!ok) {
+				// cannot cross => wait here
+				restart_speed = 0;
+				return cnv->get_next_stop_index()>route_index+1;
+			}
+			else if(  !sch1->has_signal()  ) {
+				// can reserve: find next place to do something and drive on
+				if(  block_pos == cnv->get_route()->back()  ) {
+					// is also last tile => go on ...
+					cnv->set_next_stop_index( route_t::INVALID_INDEX );
+					return true;
 				}
-				else if(  !sch1->has_signal()  ) {
-					// can reserve: find next place to do something and drive on
-					if(  block_pos == cnv->get_route()->back()  ) {
-						// is also last tile => go on ...
-						cnv->set_next_stop_index( route_t::INVALID_INDEX );
-						return true;
-					}
-					else if(  !block_reserver( cnv->get_route(), cnv->get_next_stop_index(), next_signal, next_crossing, 0, true, false )  ) {
-						dbg->error( "rail_vehicle_t::can_enter_tile()", "block not free but was reserved!" );
-						return false;
-					}
-					cnv->set_next_stop_index( next_crossing<next_signal ? next_crossing : next_signal );
+				else if(  !block_reserver( cnv->get_route(), cnv->get_next_stop_index(), next_signal, next_crossing, 0, true, false )  ) {
+					dbg->error( "rail_vehicle_t::can_enter_tile()", "block not free but was reserved!" );
+					return false;
 				}
+				cnv->set_next_stop_index( next_crossing<next_signal ? next_crossing : next_signal );
 			}
 		}
 
@@ -748,7 +748,7 @@ bool rail_vehicle_t::block_reserver(const route_t *route, route_t::index_t start
 			if(  !sch1->reserve( cnv->self, ribi_type( route->at(max(1u,i)-1u), route->at(min(route->get_count()-1u,i+1u)) ) )  ) {
 				success = false;
 			}
-			if(next_crossing_index==route_t::INVALID_INDEX  &&  sch1->is_crossing()) {
+			if(next_crossing_index==route_t::INVALID_INDEX  &&  gr->get_crossing()) {
 				next_crossing_index = i;
 			}
 		}
@@ -769,8 +769,8 @@ bool rail_vehicle_t::block_reserver(const route_t *route, route_t::index_t start
 					signal->set_state(roadsign_t::STATE_RED);
 				}
 			}
-			if(sch1->is_crossing()) {
-				gr->find<crossing_t>()->release_crossing(this);
+			if(crossing_t* cr = gr->get_crossing()) {
+				cr->release_crossing(this);
 			}
 		}
 	}
@@ -811,16 +811,13 @@ void rail_vehicle_t::leave_tile()
 	vehicle_t::leave_tile();
 	// fix counters
 	if(last) {
-		grund_t *gr = welt->lookup( get_pos() );
-		if(gr) {
-			schiene_t *sch0 = (schiene_t *) gr->get_weg(get_waytype());
-			if(sch0) {
+		if(grund_t* gr = welt->lookup(get_pos())) {
+			if(schiene_t* sch0 = (schiene_t*)gr->get_weg(get_waytype())) {
 				sch0->unreserve(this);
 				// tell next signal?
 				// and switch to red
 				if(sch0->has_signal()) {
-					signal_t* sig = gr->find<signal_t>();
-					if(sig) {
+					if(signal_t* sig = gr->find<signal_t>(1)) {
 						sig->set_state(roadsign_t::STATE_RED);
 					}
 				}

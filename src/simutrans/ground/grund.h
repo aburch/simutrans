@@ -15,6 +15,7 @@
 #include "../dataobj/objlist.h"
 #include "../display/clip_num.h"
 #include "../obj/way/weg.h"
+#include "../obj/crossing.h"
 
 
 class player_t;
@@ -674,10 +675,6 @@ public:
 			if(wt == typ  ||  (typ == ignore_wt  &&  wt > 0)) {
 				return w;
 			}
-			else if (wt > typ) {
-				// ways are ordered wrt to waytype
-				return NULL;
-			}
 			if (flags & has_way2) {
 				// try second way (if exists)
 				if (weg_t* const w = get_weg_nr(1)) {
@@ -736,10 +733,19 @@ public:
 	inline bool hat_wege() const { return (flags&(has_way1|has_way2))!=0;}
 
 	/**
-	* Kreuzen sich hier 2 verschiedene Wege?
-	* Strassenbahnschienen duerfen nicht als Kreuzung erkannt werden!
+	* Are two ways crossing here?
+	* To not discover trams, we look for the crossing object
 	*/
-	inline bool ist_uebergang() const { return (flags&has_way2)!=0  &&  ((weg_t *)objlist.bei(1))->get_desc()->get_styp()!=type_tram; }
+	inline crossing_t *get_crossing() const {
+		if (flags & has_way2) {
+			if (obj_t* obj = objlist.bei(2)) {
+				if (obj->get_typ() == obj_t::crossing) {
+					return static_cast<crossing_t*>(obj);
+				}
+			}
+		}
+		return NULL;
+	}
 
 	/**
 	* returns the vehicle of a convoi (if there)

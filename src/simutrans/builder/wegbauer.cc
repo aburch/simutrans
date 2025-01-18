@@ -326,9 +326,9 @@ void way_builder_t::fill_menu(tool_selector_t *tool_selector, const waytype_t wt
 
 
 /// allow for railroad crossing
-bool way_builder_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wtyp0, const player_t *player) const
+bool way_builder_t::check_crossing(const koord zv, const grund_t *bd, const way_desc_t *desc, const player_t *player) const
 {
-	const waytype_t wtyp = wtyp0==tram_wt ? track_wt : wtyp0;
+	const waytype_t wtyp = desc->get_waytype();
 	// nothing to cross here
 	if (!bd->hat_wege()) {
 		return true;
@@ -351,8 +351,7 @@ bool way_builder_t::check_crossing(const koord zv, const grund_t *bd, waytype_t 
 	}
 
 	// special case: tram track on road
-	if ( (wtyp==road_wt  &&  w->get_waytype()==track_wt  &&  w->get_desc()->get_styp()==type_tram)  ||
-		     (wtyp0==tram_wt  &&  w->get_waytype()==road_wt) ) {
+	if(!w->needs_crossing(desc)) {
 		return true;
 	}
 
@@ -732,7 +731,7 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 	// universal check for crossings
 	if (to!=from  &&  (bautyp&bautyp_mask)!=leitung) {
 		waytype_t const wtyp = (bautyp == river) ? water_wt : (waytype_t)(bautyp & bautyp_mask);
-		if(!check_crossing(zv,to,wtyp,player_builder)  ||  !check_crossing(-zv,from,wtyp,player_builder)) {
+		if(!check_crossing(zv,to,desc,player_builder)  ||  !check_crossing(-zv,from, desc,player_builder)) {
 			warn_fail = translator::translate("No suitable crossing");
 			return false;
 		}
@@ -2739,7 +2738,9 @@ void way_builder_t::build_road()
 				weg->set_gehweg(add_sidewalk);
 				player_t::add_maintenance( player_builder, weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype());
 				weg->set_owner(player_builder);
-				upgrade_crossing_if_needed(gr);
+				if (crossing_t* crossing = gr->get_crossing()) {
+					crossing->finish_rd();
+				}
 			}
 		}
 		else {
@@ -2807,8 +2808,8 @@ void way_builder_t::build_track()
 			}
 
 			// build tram track over crossing -> remove crossing
-			if(  gr->has_two_ways()  &&  desc->get_styp()==type_tram  &&  weg->get_desc()->get_styp() != type_tram  ) {
-				if(  crossing_t *cr = gr->find<crossing_t>(2)  ) {
+			if(  gr->has_two_ways()  &&  (desc->get_styp() == type_tram  ||  weg->get_desc()->get_styp() == type_tram)  ) {
+				if(  crossing_t *cr = gr->get_crossing()  ) {
 					// change to tram track
 					cr->mark_image_dirty( cr->get_image(), 0);
 					cr->cleanup(player_builder);
@@ -2837,7 +2838,9 @@ void way_builder_t::build_track()
 				weg->set_owner(player_builder);
 				// respect speed limit of crossing
 				weg->count_sign();
-				upgrade_crossing_if_needed(gr);
+				if (crossing_t* crossing = gr->get_crossing()) {
+					crossing->finish_rd();
+				}
 			}
 		}
 		else {
@@ -3185,14 +3188,4 @@ uint32 way_builder_t::calc_distance( const koord3d &pos, const koord3d &mini, co
 	else if( pos.z > maxi.z ) { dist += (pos.z - maxi.z) * settings.way_count_slope; }
 
 	return dist;
-}
-
-
-void way_builder_t::upgrade_crossing_if_needed( const grund_t* gr )
-{
-	crossing_t *crossing = gr->find<crossing_t>();
-	if(  !gr->ist_uebergang()  ||  !crossing  ) {
-		return; // A crossing does not exist on the given tile.
-	}
-	crossing->finish_rd();
 }

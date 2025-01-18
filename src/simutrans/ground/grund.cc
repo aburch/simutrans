@@ -441,19 +441,34 @@ void grund_t::rdwr(loadsave_t *file)
 	// all objects on this tile
 	objlist.rdwr(file, get_pos());
 
-	// need to add a crossing for old games ...
-	if (file->is_loading()  &&  ist_uebergang()  &&  !find<crossing_t>(2)) {
-		const crossing_desc_t *cr_desc = crossing_logic_t::get_crossing( ((weg_t *)obj_bei(0))->get_waytype(), ((weg_t *)obj_bei(1))->get_waytype(), ((weg_t *)obj_bei(0))->get_max_speed(), ((weg_t *)obj_bei(1))->get_max_speed(), 0 );
-		if(cr_desc==NULL) {
-			dbg->warning("crossing_t::rdwr()","requested for waytypes %i and %i not available, try to load object without timeline", ((weg_t *)obj_bei(0))->get_waytype(), ((weg_t *)obj_bei(1))->get_waytype() );
-			cr_desc = crossing_logic_t::get_crossing( ((weg_t *)obj_bei(0))->get_waytype(), ((weg_t *)obj_bei(1))->get_waytype(), 0, 0, 0);
+	// need to add/remove crossing for old games and init logic ...
+	if (file->is_loading()  &&  has_two_ways()) {
+		const weg_t* w1 = ((weg_t*)obj_bei(0));
+		const weg_t* w2 = ((weg_t*)obj_bei(1));
+		if(w1->needs_crossing(w2->get_desc())){
+			if (crossing_t* cr = get_crossing()) {
+				cr->finish_rd();
+			}
+			else {
+				const crossing_desc_t* cr_desc = crossing_logic_t::get_crossing(w1->get_waytype(), w2->get_waytype(), w1->get_max_speed(), w2->get_max_speed(), 0);
+				if (cr_desc == NULL) {
+					dbg->warning("crossing_t::rdwr()", "requested for waytypes %i and %i not available, try to load object without timeline", w1->get_waytype(), w2->get_waytype());
+					cr_desc = crossing_logic_t::get_crossing(w1->get_waytype(), w2->get_waytype(), 0, 0, 0);
+				}
+				if (cr_desc == 0) {
+					dbg->fatal("crossing_t::crossing_t()", "requested for waytypes %i and %i but nothing defined!", w1->get_waytype(), w2->get_waytype());
+				}
+				cr = new crossing_t(w1->get_owner(), pos, cr_desc, ribi_t::is_straight_ns(get_weg(cr_desc->get_waytype(1))->get_ribi_unmasked()));
+				objlist.add(cr);
+				cr->finish_rd(); // or else not multithred safe!
+			}
 		}
-		if(cr_desc==0) {
-			dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", ((weg_t *)obj_bei(0))->get_waytype(), ((weg_t *)obj_bei(1))->get_waytype() );
+		else {
+			if (crossing_t* cr = get_crossing()) {
+				objlist.remove(cr);
+				delete cr;
+			}
 		}
-		crossing_t *cr = new crossing_t(obj_bei(0)->get_owner(), pos, cr_desc, ribi_t::is_straight_ns(get_weg(cr_desc->get_waytype(1))->get_ribi_unmasked()) );
-		objlist.add( cr );
-		crossing_logic_t::add( cr, crossing_logic_t::CROSSING_INVALID );
 	}
 }
 
@@ -619,8 +634,7 @@ void grund_t::info(cbuffer_t& buf) const
 				buf.append("\n");
 				obj_bei(1)->info(buf);
 				buf.append("\n");
-				if(ist_uebergang()) {
-					crossing_t* crossing = find<crossing_t>(2);
+				if(crossing_t* crossing = get_crossing()) {
 					crossing->info(buf);
 				}
 			}
@@ -1888,8 +1902,8 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player)
 			weg->set_ribi(ribi);
 			weg->set_pos(pos);
 			flags |= has_way2;
-			if(ist_uebergang()) {
-				// no tram => crossing needed!
+			if (weg->needs_crossing(other->get_desc())) {
+				//crossing needed!
 				waytype_t w2 =  other->get_waytype();
 				const crossing_desc_t *cr_desc = crossing_logic_t::get_crossing( weg->get_waytype(), w2, weg->get_max_speed(), other->get_max_speed(), welt->get_timeline_year_month() );
 				if(cr_desc==0) {
@@ -1897,6 +1911,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player)
 				}
 				crossing_t *cr = new crossing_t(obj_bei(0)->get_owner(), pos, cr_desc, ribi_t::is_straight_ns(get_weg(cr_desc->get_waytype(1))->get_ribi_unmasked()) );
 				objlist.add( cr );
+				crossing_logic_t::add(cr, crossing_logic_t::CROSSING_INVALID);
 				cr->finish_rd();
 			}
 		}

@@ -119,10 +119,8 @@ bool water_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, u
 			// too many ships already here ..
 			return false;
 		}
-		weg_t *w = gr->get_weg(water_wt);
-		if(w  &&  w->is_crossing()) {
+		if(crossing_t* cr = gr->get_crossing()) {
 			// ok, here is a draw/turn-bridge ...
-			crossing_t* cr = gr->find<crossing_t>();
 			if(!cr->request_crossing(this)) {
 				restart_speed = 0;
 				return false;

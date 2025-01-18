@@ -3250,7 +3250,7 @@ void karte_t::step()
 
 	DBG_DEBUG4("karte_t::step", "step convois");
 	// since convois will be deleted during stepping, we need to step backwards
-	for (size_t i = convoi_array.get_count(); i-- != 0;) {
+	for (sint32 i = (sint32)convoi_array.get_count(); i-- > 0; ) {
 		convoihandle_t cnv = convoi_array[i];
 		cnv->step();
 		if((i&15)==0) {

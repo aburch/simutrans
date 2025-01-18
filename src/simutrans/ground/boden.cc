@@ -108,7 +108,7 @@ void boden_t::rdwr(loadsave_t *file)
 
 const char *boden_t::get_name() const
 {
-	if(  ist_uebergang()  ) {
+	if(  get_crossing()  ) {
 		return "Kreuzung";
 	}
 	else if(  hat_wege()  ) {

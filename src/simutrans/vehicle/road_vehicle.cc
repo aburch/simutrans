@@ -306,14 +306,14 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		// no further check, when already entered a crossing (to allow leaving it)
 		if(  !second_check_count  ) {
 			if(  const grund_t *gr_current = welt->lookup(get_pos())  ) {
-				if(  gr_current  &&  gr_current->ist_uebergang()  ) {
+				if(  gr_current  &&  gr_current->get_crossing()  ) {
+					// always allow to leave a crossing
 					return true;
 				}
-			}
-			// always allow to leave traffic lights (avoid vehicles stuck on crossings directly after though)
-			if(  const grund_t *gr_current = welt->lookup(get_pos())  ) {
-				if(  const roadsign_t *rs = gr_current->find<roadsign_t>()  ) {
-					if(  rs  &&  rs->get_desc()->is_traffic_light()  &&  !gr->ist_uebergang()  ) {
+				// always allow to leave traffic lights (avoid vehicles stuck on crossings directly after though)
+				if(  const roadsign_t *rs = gr_current->find<roadsign_t>(1)  ) {
+					if(  rs  &&  rs->get_desc()->is_traffic_light()  &&  !gr->get_crossing()  ) {
+						// unless next tile is a crossing ...
 						return true;
 					}
 				}
@@ -329,33 +329,34 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 
 		// first: check roadsigns
-		const roadsign_t *rs = NULL;
+		const roadsign_t* rs = NULL;
 		if(  str->has_sign()  ) {
-			rs = gr->find<roadsign_t>();
-			route_t const& r = *cnv->get_route();
+			if(rs = gr->find<roadsign_t>(1)) {
+				route_t const& r = *cnv->get_route();
 
-			if(  rs  &&  (route_index + 1u < r.get_count())  ) {
-				// since at the corner, our direction may be diagonal, we make it straight
-				uint8 direction90 = ribi_type(get_pos(), pos_next);
-
-				if(  rs->get_desc()->is_traffic_light()  &&  (rs->get_dir()&direction90) == 0  ) {
-					// wait here
-					restart_speed = 16;
-					return false;
-				}
-				// check, if we reached a choose point
-				else {
-					// route position after road sign
-					const koord pos_next_next = r.at(route_index + 1u).get_2d();
+				if(  route_index + 1u < r.get_count()  ) {
 					// since at the corner, our direction may be diagonal, we make it straight
-					direction90 = ribi_type( pos_next, pos_next_next );
+					uint8 direction90 = ribi_type(get_pos(), pos_next);
 
-					if(  rs->is_free_route(direction90)  &&  !target_halt.is_bound()  ) {
-						if(  second_check_count  ) {
-							return false;
-						}
-						if(  !choose_route( restart_speed, direction90, route_index )  ) {
-							return false;
+					if(  rs->get_desc()->is_traffic_light()  &&  (rs->get_dir()&direction90) == 0  ) {
+						// wait here
+						restart_speed = 16;
+						return false;
+					}
+					// check, if we reached a choose point
+					else {
+						// route position after road sign
+						const koord pos_next_next = r.at(route_index + 1u).get_2d();
+						// since at the corner, our direction may be diagonal, we make it straight
+						direction90 = ribi_type( pos_next, pos_next_next );
+
+						if(  rs->is_free_route(direction90)  &&  !target_halt.is_bound()  ) {
+							if(  second_check_count  ) {
+								return false;
+							}
+							if(  !choose_route( restart_speed, direction90, route_index )  ) {
+								return false;
+							}
 						}
 					}
 				}
@@ -381,9 +382,8 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			bool int_block = ribi_t::is_threeway(str->get_ribi_unmasked())  &&  (((drives_on_left ? ribi_t::rotate90l(curr_90direction) : ribi_t::rotate90(curr_90direction)) & str->get_ribi_unmasked())  ||  curr_90direction != next_90direction  ||  (rs  &&  rs->get_desc()->is_traffic_light()));
 
 			// check exit from crossings and intersections, allow to proceed after 4 consecutive
-			while(  !obj   &&  (str->is_crossing()  ||  int_block)  &&  test_index < r.get_count()  &&  test_index < route_index + 4u  ) {
-				if(  str->is_crossing()  ) {
-					crossing_t* cr = gr->find<crossing_t>(2);
+			while(  !obj   &&  (int_block  ||  gr->get_crossing())  &&  test_index < r.get_count()  &&  test_index < route_index + 4u  ) {
+				if (crossing_t* cr = gr->get_crossing()) {
 					if(  !cr->request_crossing(this)  ) {
 						restart_speed = 0;
 						return false;
@@ -453,7 +453,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				test_index++;
 			}
 
-			if(  obj  &&  test_index > route_index + 1u  &&  !str->is_crossing()  &&  !int_block  ) {
+			if(  obj  &&  test_index > route_index + 1u  &&  !gr->get_crossing()  &&  !int_block  ) {
 				// found a car blocking us after checking at least 1 intersection or crossing
 				// and the car is in a place we could stop. So if it can move, assume it will, so we will too.
 				// but check only upto 8 cars ahead to prevent infinite recursion on roundabouts.

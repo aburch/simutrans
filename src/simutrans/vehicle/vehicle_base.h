@@ -142,6 +142,8 @@ public:
 
 	koord3d get_pos_next() const {return pos_next;}
 
+	void set_pos_next(koord3d pn) { pos_next = pn; }
+
 	waytype_t get_waytype() const OVERRIDE = 0;
 
 	// true, if this vehicle did not moved for some time
