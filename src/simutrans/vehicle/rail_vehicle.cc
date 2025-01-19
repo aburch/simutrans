@@ -745,8 +745,17 @@ bool rail_vehicle_t::block_reserver(const route_t *route, route_t::index_t start
 				count --;
 				next_signal_index = i;
 			}
-			if(  !sch1->reserve( cnv->self, ribi_type( route->at(max(1u,i)-1u), route->at(min(route->get_count()-1u,i+1u)) ) )  ) {
+			if (!sch1->reserve(cnv->self, ribi_type(route->at(max(1u, i) - 1u), route->at(min(route->get_count() - 1u, i + 1u))))) {
 				success = false;
+			}
+			if (gr->has_two_ways()) {
+				// we may need to reserve the other way as well
+				if (schiene_t* sch0 = dynamic_cast<schiene_t*>(gr->get_weg_nr(gr->get_weg_nr(0) == sch1))) {
+					// the other way is reservable too => try to reserve it
+					if (!sch0->reserve(cnv->self, ribi_type(route->at(max(1u, i) - 1u), route->at(min(route->get_count() - 1u, i + 1u))))) {
+						success = false;
+					}
+				}
 			}
 			if(next_crossing_index==route_t::INVALID_INDEX  &&  gr->get_crossing()) {
 				next_crossing_index = i;
@@ -786,8 +795,18 @@ bool rail_vehicle_t::block_reserver(const route_t *route, route_t::index_t start
 	if(!success) {
 		// free reservation
 		for ( route_t::index_t j=start_index; j<i; j++) {
-			schiene_t * sch1 = (schiene_t *)welt->lookup( route->at(j))->get_weg(get_waytype());
-			sch1->unreserve(cnv->self);
+			if (grund_t * gr=welt->lookup(route->at(j))) {
+				schiene_t* sch1 = (schiene_t*)gr->get_weg(get_waytype());
+				if(sch1) {
+					sch1->unreserve(cnv->self);
+					if (gr->has_two_ways()) {
+						// we may need to reserve the other way as well
+						if (schiene_t* sch0 = dynamic_cast<schiene_t*>(gr->get_weg_nr(gr->get_weg_nr(0) == sch1))) {
+							sch0->unreserve(cnv->self);
+						}
+					}
+				}
+			}
 		}
 		cnv->set_next_reservation_index( start_index );
 		return false;
@@ -819,6 +838,13 @@ void rail_vehicle_t::leave_tile()
 				if(sch0->has_signal()) {
 					if(signal_t* sig = gr->find<signal_t>(1)) {
 						sig->set_state(roadsign_t::STATE_RED);
+					}
+				}
+				if (gr->has_two_ways()) {
+					// we may need to reserve the other way as well
+					if (schiene_t* sch1 = dynamic_cast<schiene_t*>(gr->get_weg_nr(gr->get_weg_nr(0) == sch0))) {
+						// the other way is reservable too => unreserve it
+						sch1->unreserve(this);
 					}
 				}
 			}
