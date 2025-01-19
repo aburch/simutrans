@@ -102,7 +102,7 @@ void scenario_info_t::update_scenario_texts()
 	gui_flowtext_t* ft = dynamic_cast<gui_flowtext_t*>(tabs.get_aktives_tab());
 
 	// since we do not update the scroll position if the top text did not changed
-	uint32 new_hash_text = string_to_hash(*tab2dyn[active], 64);
+	uint32 new_hash_text = string_to_hash((const char *)(*tab2dyn[active]), 64);
 	int x = ft->get_scroll_x();
 	int y = ft->get_scroll_y();
 	bool changed = update_dynamic_texts(ft, tab2dyn[active], border_size, hash_text==0);

@@ -162,30 +162,30 @@ void crossing_t::rdwr(loadsave_t *file)
 
 void crossing_t::finish_rd()
 {
-	if(logic==NULL) {
-		grund_t *gr=welt->lookup(get_pos());
-		if(gr==NULL  ||  !gr->hat_weg(desc->get_waytype(0))  ||  !gr->hat_weg(desc->get_waytype(1))) {
-			dbg->error("crossing_t::finish_rd","way/ground missing at %i,%i => ignore", get_pos().x, get_pos().y );
+	grund_t *gr=welt->lookup(get_pos());
+	if(gr==NULL  ||  !gr->hat_weg(desc->get_waytype(0))  ||  !gr->hat_weg(desc->get_waytype(1))) {
+		dbg->error("crossing_t::finish_rd","way/ground missing at %i,%i => ignore", get_pos().x, get_pos().y );
+	}
+	else {
+		// try to find crossing that matches way max speed
+		weg_t *w1=gr->get_weg(desc->get_waytype(0));
+		weg_t *w2=gr->get_weg(desc->get_waytype(1));
+		const crossing_desc_t *test = crossing_logic_t::get_crossing( desc->get_waytype(0), desc->get_waytype(1), w1->get_desc()->get_topspeed(), w2->get_desc()->get_topspeed(), welt->get_timeline_year_month());
+		if (test  &&  test!=desc) {
+			desc = test;
 		}
-		else {
-			// try to find crossing that matches way max speed
-			weg_t *w1=gr->get_weg(desc->get_waytype(0));
-			weg_t *w2=gr->get_weg(desc->get_waytype(1));
-			const crossing_desc_t *test = crossing_logic_t::get_crossing( desc->get_waytype(0), desc->get_waytype(1), w1->get_desc()->get_topspeed(), w2->get_desc()->get_topspeed(), welt->get_timeline_year_month());
-			if (test  &&  test!=desc) {
-				desc = test;
-			}
-			// after loading restore speedlimits
-			w1->count_sign();
-			w2->count_sign();
-			ns = ribi_t::is_straight_ns(w2->get_ribi_unmasked());
+		// after loading restore speedlimits
+		w1->count_sign();
+		w2->count_sign();
+		ns = ribi_t::is_straight_ns(w2->get_ribi_unmasked());
+		if (!logic) {
 #ifdef MULTI_THREAD
-			pthread_mutex_lock( &crossing_logic_mutex );
+			pthread_mutex_lock(&crossing_logic_mutex);
 #endif
-			crossing_logic_t::add( this, static_cast<crossing_logic_t::crossing_state_t>(state) );
+			crossing_logic_t::add(this, static_cast<crossing_logic_t::crossing_state_t>(state));
 			logic->recalc_state();
 #ifdef MULTI_THREAD
-			pthread_mutex_unlock( &crossing_logic_mutex );
+			pthread_mutex_unlock(&crossing_logic_mutex);
 #endif
 		}
 	}
