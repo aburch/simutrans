@@ -4199,6 +4199,18 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 						// direction is bad to couple.
 						continue;
 					}
+					// if v is only one car train, determine the direction based on the information of the coupling of v->get_convoi().
+					if(  i!=start_index  &&  ((v->get_convoi()->is_coupled()&&(v->get_direction()&dir)==0)  ||  (v->get_convoi()->get_coupling_convoi().is_bound()&&(v->get_direction()&dir)!=0))   ) {
+						// direction is bad to couple.
+						continue;
+					}
+					// the waiting convoi is currently coupling
+					if(  v->get_convoi()->get_will_coupling_convoi().is_bound()  &&  v->get_convoi()->get_will_coupling_convoi() != cnv->self  ) {
+						continue;
+					}
+					// set convoi as coupling now!
+					v->get_convoi()->self->set_coupling_now(cnv->self);
+					cnv->set_coupling_now(v->get_convoi()->self);
 					//reserve tiles
 					for(  uint16 h=start_index;  h<i;  h++  ) {
 						grund_t* grn = welt->lookup(route->at(h));
@@ -4210,7 +4222,7 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 					// set coupling index and step
 					// c_step can be negative, so it must be handled as sint16.
 					// TODO: in case that the vehicle length is over 16.
-					const sint16 c_step = v->get_steps() - VEHICLE_STEPS_PER_CARUNIT*v->get_desc()->get_length();
+					const sint16 c_step = ((v->get_direction()&dir)==0) ? v->get_steps() - VEHICLE_STEPS_PER_TILE /2 + env_t::reverse_base_offsets[dir][2] : v->get_steps() - VEHICLE_STEPS_PER_CARUNIT*v->get_desc()->get_length();
 					const bool is_diagonal_way = ribi_t::is_bend(gr->get_weg(get_waytype())->get_ribi_unmasked());
 					const sint16 tile_length = is_diagonal_way ? diagonal_vehicle_steps_per_tile : VEHICLE_STEPS_PER_TILE;
 					coupling_index = c_step<0 ? max(i-1,0) : i;
@@ -4218,7 +4230,7 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 					return true;
 				} else {
 					// other convoy exists.
-					return false;
+					continue;
 				}
 			}
 		}

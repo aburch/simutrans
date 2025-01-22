@@ -1890,6 +1890,10 @@ void convoi_t::ziel_erreicht()
 				if(  !v  ||  !can_start_coupling(v->get_convoi())  ||  !v->get_convoi()->is_loading()  ) {
 					continue;
 				}
+				// if there are many convoys in the same tile, the coupled convoy is the front or end convoy!
+				if(  (   (v->get_direction()&self->front()->get_direction())==0  &&  v->get_convoi()->is_coupled()  )  ||  (  (v->get_direction()&self->front()->get_direction())!=0  &&  v->get_convoi()->get_coupling_convoi().is_bound()  )  ) {
+					continue;
+				}
 				// there is a suitable waiting convoy for coupling -> this is coupling point.
 				akt_speed = 0;
 				if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  ) {
@@ -5108,6 +5112,7 @@ bool convoi_t::can_start_coupling(convoi_t* parent) const {
 	* 1) next schedule entries have the same position.
 	* 2) current schedule entries have the same position.
 	* 3) current schedule entry has appropriate coupling_point for both convoys.
+	* 4) check the coupled couvoi has a free coupler. if both front and back sides are already coupled, false.
 	*/
 	// Since current schedule entry of this convoy can be waypoint, we proceed to a genuine stop point.
 	sint16 t_idx = schedule->get_current_stop();
@@ -5136,6 +5141,11 @@ bool convoi_t::can_start_coupling(convoi_t* parent) const {
 	if(  t_c.pos!=p_c.pos  ||  t_n.pos!=p_n.pos  ) {
 		return false;
 	}
+	// If the coupled convoy cannot be coupled, return false.
+	// If the coupled convoy is already coupling with two convoy, this convoy cannot be coupled!
+	if(  parent->self->get_coupling_convoi().is_bound()  &&  parent->is_coupled()  ) {
+		return false;
+	}
 	return true;
 }
 
@@ -5143,7 +5153,7 @@ bool convoi_t::is_waiting_for_coupling() const {
 	convoihandle_t c = self;
 	bool waiting_for_coupling = false;
 	while(  c.is_bound()  ) {
-		waiting_for_coupling |= (!c->get_coupling_convoi().is_bound()  &&  c->get_schedule()->get_current_entry().get_coupling_point()==1);
+		waiting_for_coupling |= (  !(c->get_coupling_convoi().is_bound()&&c->is_coupled())  &&  c->get_schedule()->get_current_entry().get_coupling_point()==1);
 		c = c->get_coupling_convoi();
 	}
 	return waiting_for_coupling;
