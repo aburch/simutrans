@@ -1055,6 +1055,11 @@ public:
 	// Returns the root parent convoi of this convoy. Returns this convoy if not coupled.
 	// Warning: The calculation cost is O(n) where n is the number of convoys in the world.
 	convoihandle_t find_most_parent_convoi() const;
+
+	// go to next stop (skip one stops)
+	// only called by tool_change_convoi_t
+	void next_stop_button_pressed();
+
 };
 
 #endif

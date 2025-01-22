@@ -5324,3 +5324,31 @@ convoihandle_t convoi_t::find_most_parent_convoi() const {
 	}
 	return tc;
 }
+
+
+void convoi_t::next_stop_button_pressed() {
+	if(  self->is_coupled()  ) {
+		return;
+	}
+	convoihandle_t c = self;
+	while( c.is_bound() ) {
+		schedule_t *schedule = c->get_schedule();
+		convoihandle_t const temp_c = c->get_coupling_convoi();
+		if( !c->can_continue_coupling() ) {
+			c->uncouple_convoi();
+		}
+		if( schedule->get_current_stop() == schedule->entries.get_count() - 1 ) {
+			schedule->set_current_stop( 0 );
+		} else {
+			schedule->set_current_stop( schedule->get_current_stop() + 1 ); 
+		}
+		if( !c->is_coupled() ) {
+			c->set_schedule(schedule);
+		}
+		if( c->is_coupling_done() ) {
+			c->set_coupling_done(false);
+		}
+		c = temp_c;
+	}
+}
+
