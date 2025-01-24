@@ -3633,64 +3633,114 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 					// does not have a bridge available ...
 					return false;
 				}
-				const char *err = NULL;
-				sint8 bridge_height;
-				koord3d end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, false);
-				if(err  ||   koord_distance( k, end.get_2d())>3) {
-					// try to find shortest possible
-					end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, true);
+				// find the first tile which is not a river
+				for (int i = 2; i < 5; i++) {
+					bd_next = welt->lookup_kartenboden(k + zv * i);
+					if (!bd_next) {
+						return false;
+					}
+					if (bd_next->is_water() || (bd_next->hat_weg(water_wt) && bd_next->get_weg(water_wt)->get_desc()->get_styp() == type_river)) {
+						bd_next = NULL;
+						continue;
+					}
+					// first tile after the river
+					else if (bd->get_typ() != grund_t::boden) {
+						return false;
+					}
+					break;
 				}
+				if (!bd_next) {
+					return false;
+				}
+				sint8 bridge_height;
+				const char* err = bridge_builder_t::can_build_bridge(NULL, bd->get_pos(), bd_next->get_pos(), bridge_height, bridge, false);
 				// if the river is nagigable, we need a two hight slope, so we have to start on a flat tile
-				if(  err  &&  *err!=0  &&  strcmp(err,"Bridge is too long for this type!\n")!=0  &&  bd->get_weg_hang()!=slope_t::flat    ) {
-					slope_t::type old_slope = bd->get_grund_hang();
-					sint8 h_diff = slope_t::max_diff( old_slope );
-					// raise up the tile
-					bd->set_grund_hang( slope_t::flat );
-					bd->set_hoehe( bd->get_hoehe() + h_diff );
-					// transfer objects to on new grund
-					for(  int i=0;  i<bd->obj_count();  i++  ) {
-						bd->obj_bei(i)->set_pos( bd->get_pos() );
+				bool try_flat_start = false;;
+				if (err  &&  (bd->get_grund_hang()!= slope_t::flat  ||  bd_next->get_grund_hang()!=slope_t::flat)) {
+
+					slope_t::type try_flat_start = bd->get_grund_hang();
+					if (try_flat_start != slope_t::flat) {
+						sint8 h_diff = slope_t::max_diff(try_flat_start);
+						// raise up the tile
+						bd->set_grund_hang(slope_t::flat);
+						bd->set_hoehe(bd->get_hoehe() + h_diff);
+						// transfer objects to on new grund
+						for (int i = 0; i < bd->obj_count(); i++) {
+							bd->obj_bei(i)->set_pos(bd->get_pos());
+						}
+					}
+				
+					slope_t::type try_flat_end = bd_next->get_grund_hang();
+					if (try_flat_end != slope_t::flat) {
+						sint8 h_diff = slope_t::max_diff(try_flat_end);
+						// raise up the tile
+						bd_next->set_grund_hang(slope_t::flat);
+						bd_next->set_hoehe(bd_next->get_hoehe() + h_diff);
+						// transfer objects to on new grund
+						for (int i = 0; i < bd_next->obj_count(); i++) {
+							bd_next->obj_bei(i)->set_pos(bd_next->get_pos());
+						}
 					}
 
-					end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, false);
-					if(err  ||   koord_distance( k, end.get_2d())>3) {
-						// try to find shortest possible
-						end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, true);
+					err = bridge_builder_t::can_build_bridge(NULL, bd->get_pos(), bd_next->get_pos(), bridge_height, bridge, false);
+					if (err) {
+						// still impossible => resotre slope
+						if (try_flat_start != slope_t::flat) {
+							sint8 h_diff = slope_t::max_diff(try_flat_start);
+							bd->set_grund_hang(try_flat_start);
+							bd->set_hoehe(bd->get_hoehe() - h_diff);
+							// transfer objects to on new grund
+							for (int i = 0; i < bd->obj_count(); i++) {
+								bd->obj_bei(i)->set_pos(bd->get_pos());
+							}
+						}
+						if (try_flat_end != slope_t::flat) {
+							sint8 h_diff = slope_t::max_diff(try_flat_end);
+							// raise up the tile
+							bd_next->set_grund_hang(try_flat_start);
+							bd_next->set_hoehe(bd_next->get_hoehe() - h_diff);
+							// transfer objects to on new grund
+							for (int i = 0; i < bd_next->obj_count(); i++) {
+								bd_next->obj_bei(i)->set_pos(bd_next->get_pos());
+							}
+						}
+						return false; // give up
 					}
-					// not successful: restore old slope
-					if( (err  &&  *err != 0)  ||  end==koord3d::invalid  || koord_distance( k, end.get_2d())>5 ) {
-						bd->set_grund_hang( old_slope );
-						bd->set_hoehe( bd->get_hoehe() - h_diff );
-						// transfer objects to on new grund
-						for(  int i=0;  i<bd->obj_count();  i++  ) {
-							bd->obj_bei(i)->set_pos( bd->get_pos() );
-						}
+
+					// update slope graphics on tile and tile in front
+					if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 0, 1 ) ) ) {
+						bd_recalc->check_update_underground();
 					}
-					else {
-						// update slope graphics on tile and tile in front
-						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 0, 1 ) ) ) {
-							bd_recalc->check_update_underground();
-						}
-						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 0 ) ) ) {
-							bd_recalc->check_update_underground();
-						}
-						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 1 ) ) ) {
-							bd_recalc->check_update_underground();
-						}
-						bd->mark_image_dirty();
+					if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 0 ) ) ) {
+						bd_recalc->check_update_underground();
 					}
+					if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 1 ) ) ) {
+						bd_recalc->check_update_underground();
+					}
+					bd->mark_image_dirty();
+
+					koord end = bd_next->get_pos().get_2d();
+					// update slope graphics on tile and tile in front
+					if (grund_t* bd_recalc = welt->lookup_kartenboden(end + koord(0, 1))) {
+						bd_recalc->check_update_underground();
+					}
+					if (grund_t* bd_recalc = welt->lookup_kartenboden(end + koord(1, 0))) {
+						bd_recalc->check_update_underground();
+					}
+					if (grund_t* bd_recalc = welt->lookup_kartenboden(end + koord(1, 1))) {
+						bd_recalc->check_update_underground();
+					}
+					bd_next->mark_image_dirty();
 				}
-				if((err==NULL||*err == 0)  &&   koord_distance( k, end.get_2d())<=5  &&  welt->is_within_limits((end+zv).get_2d())) {
-					bridge_builder_t::build_bridge(NULL, bd->get_pos(), end, zv, bridge_height, bridge, welt->get_city_road());
-					// try to build one connecting piece of road
-					build_road( (end+zv).get_2d(), NULL, false);
-					// try to build a house near the bridge end
-					uint32 old_count = buildings.get_count();
-					for(uint8 i=0; i<lengthof(koord::neighbours)  &&  buildings.get_count() == old_count; i++) {
-						koord c(end.get_2d()+zv+koord::neighbours[i]);
-						if (welt->is_within_limits(c)) {
-							build_city_building(end.get_2d()+zv+koord::neighbours[i]);
-						}
+				bridge_builder_t::build_bridge(NULL, bd->get_pos(), bd_next->get_pos(), zv, bridge_height, bridge, welt->get_city_road());
+				koord end = bd_next->get_pos().get_2d();
+				build_road( end+zv, NULL, false);
+				// try to build a house near the bridge end
+				uint32 old_count = buildings.get_count();
+				for(uint8 i=0; i<lengthof(koord::neighbours)  &&  buildings.get_count() == old_count; i++) {
+					koord c(end+zv+koord::neighbours[i]);
+					if (welt->is_within_limits(c)) {
+						build_city_building(end+zv+koord::neighbours[i]);
 					}
 				}
 			}

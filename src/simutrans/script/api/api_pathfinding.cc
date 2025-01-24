@@ -130,11 +130,7 @@ koord3d bridge_builder_find_end_pos(player_t *player, koord3d pos, my_ribi_t mri
 	if (player == NULL  ||  bridge == NULL) {
 		return koord3d::invalid;
 	}
-	grund_t *from = welt->lookup(pos);
-	if (from == NULL  ||  !bridge_builder_t::can_place_ramp(player, from, bridge->get_wtyp(), ribi_t::backward(ribi))) {
-		return koord3d::invalid;
-	}
-	return bridge_builder_t::find_end_pos(player, pos, ribi, bridge, err, height, false, min_length, false);
+	return bridge_builder_t::find_end_pos(player, pos, ribi, height, bridge, min_length, 10);
 }
 
 

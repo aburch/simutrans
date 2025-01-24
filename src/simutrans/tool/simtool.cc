@@ -2943,16 +2943,13 @@ bool tool_build_bridge_t::init( player_t *player )
 const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
 {
 	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
-	if (end==koord3d::invalid) {
-		return bridge_builder_t::build( player, start, desc );
-	}
-	else {
+	if (end!=koord3d::invalid) {
 		const koord zv(ribi_type(end-start));
 		sint8 bridge_height;
 		const char *error;
-		koord3d end2 = bridge_builder_t::find_end_pos(player, start, zv, desc, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
-		if (end2 != end) {
-			return "End position is not valid"; // could only happen for scripts
+		if (const char* error=bridge_builder_t::can_build_bridge(player, start, end, bridge_height, desc, is_ctrl_pressed())) {
+			// cannot build bridge here
+			return error;
 		}
 		bridge_builder_t::build_bridge( player, start, end, zv, bridge_height, desc, way_builder_t::weg_search(desc->get_waytype(), desc->get_topspeed(), welt->get_timeline_year_month(), type_flat));
 		return NULL; // all checks are performed before building.
@@ -2974,8 +2971,11 @@ void tool_build_bridge_t::mark_tiles( player_t *player, const koord3d &start, co
 	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
 	const char *error;
 	sint8 bridge_height;
-	koord3d end2 = bridge_builder_t::find_end_pos(player, start, zv, desc, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
-	assert(end2 == end); (void)end2;
+
+	if (bridge_builder_t::can_build_bridge(player, start, end, bridge_height, desc, is_ctrl_pressed())) {
+		// cannot build bridge here
+		return;
+	}
 
 	sint64 costs = 0;
 	// start
@@ -2986,7 +2986,7 @@ void tool_build_bridge_t::mark_tiles( player_t *player, const koord3d &start, co
 	// single height -> height is 1
 	// double height -> height is 2
 	const slope_t::type slope = gr->get_weg_hang();
-	uint8 max_height = slope ?  slope_t::max_diff(slope) : bridge_height;
+	uint8 max_height = slope ?  slope_t::max_diff(slope) : bridge_height-start.z;
 
 	zeiger_t *way = new zeiger_t(start, player );
 	const bridge_desc_t::img_t img0 = desc->get_end( slope, slope, slope_type(zv)*max_height );
@@ -3016,7 +3016,7 @@ void tool_build_bridge_t::mark_tiles( player_t *player, const koord3d &start, co
 	marked.insert( way );
 	way->mark_image_dirty( way->get_image(), 0 );
 	// loop
-	koord3d pos( start + zv + koord3d( 0, 0, max_height ) );
+	koord3d pos( start.get_2d()+zv, bridge_height );
 	while (pos.get_2d()!=end.get_2d()) {
 		grund_t *gr = welt->lookup( pos );
 		if( !gr ) {
@@ -3059,6 +3059,7 @@ void tool_build_bridge_t::mark_tiles( player_t *player, const koord3d &start, co
 		costs += desc->get_price();
 	}
 	else {
+		// should be elevated ground
 		if (desc->get_waytype() == powerline_wt  ? !gr->find<leitung_t>() : !gr->hat_weg(desc->get_waytype())) {
 			const way_desc_t *way_desc = way_builder_t::weg_search(desc->get_waytype(), desc->get_topspeed(), welt->get_timeline_year_month(), type_flat);
 			costs += way_desc->get_price();
@@ -3092,78 +3093,14 @@ uint8 tool_build_bridge_t::is_valid_pos(  player_t *player, const koord3d &pos, 
 	if (gr == NULL) {
 		return NULL;
 	}
-	if (is_first_click()  &&  start.z != pos.z  &&  koord_distance(pos,start) != 1) {
-		// only a ramp => we cannot check this tile
-		if (!bridge_builder_t::can_place_ramp(player, gr, wt, (is_first_click() ? 0 : ribi_type(pos - start)))) {
-			return 0;
-		}
+	bool diagonal = (pos.x != start.x) && (pos.y != start.y);
+	if (!is_first_click() && diagonal) {
+		return 0;
 	}
-
-	if(  is_first_click()  ) {
-		if(  gr->ist_karten_boden()  ) {
-			// first click
-			// check ribis, all other checks already done
-			ribi_t::ribi rw = ribi_t::none;
-			if (wt==powerline_wt) {
-				if (gr->find<leitung_t>()) {
-					rw |= gr->find<leitung_t>()->get_ribi();
-				}
-			}
-			else {
-				// way types are checked, take all ribis
-				for(int i=0;i<2;i++) {
-					if (const weg_t *w = gr->get_weg_nr(i)) {
-						rw |= w->get_ribi_unmasked();
-					}
-					else break;
-				}
-			}
-			// ribi from slope
-			rw |= ribi_type(gr->get_grund_hang());
-			if(  rw!=ribi_t::none && !ribi_t::is_single(rw)  ) {
-				return 0;
-			}
-			// determine possible directions
-			ribi = ribi_t::backward(rw);
-			return (ribi!=ribi_t::none ? 2 : 0) | (ribi_t::is_single(ribi) ? 1 : 0);
-		}
-		else {
-			if(  gr->get_weg_hang()  ) {
-				return 0;
-			}
-
-			if(  gr->get_typ() != grund_t::monorailboden  &&
-			     gr->get_typ() != grund_t::tunnelboden  ) {
-				return 0;
-			}
-
-			if(!gr->get_weg_nr(0)) {
-				return 0;
-			}
-
-			ribi = ~gr->get_weg_nr(0)->get_ribi_unmasked();
-
-			return 2;
-		}
-	}
-	else {
-		// second click
-
-		// dragging in the right direction?
-		ribi_t::ribi test = ribi_type(pos - start);
-		if (!ribi_t::is_single(test)  ||  ((test & (~ribi))!=0) ) {
-			return 0;
-		}
-
-		// check whether we can build a bridge here
-		const char *error = NULL;
-		sint8 bridge_height;
-		koord3d end = bridge_builder_t::find_end_pos(player, start, koord(test), desc, error, bridge_height, false, koord_distance(start, pos), is_ctrl_pressed());
-		if (end!=pos) {
-			return 0;
-		}
+	if (!bridge_builder_t::check_start_tile(player, gr, is_first_click()?0:ribi_type(pos-start), desc)) {
 		return 2;
 	}
+	return 0;
 }
 
 

@@ -33,7 +33,28 @@ private:
 
 	static bool is_blocked(koord3d pos, ribi_t::ribi check_ribi, const char *&error_msg);
 	static bool is_monorail_junction(koord3d pos, player_t *player, const bridge_desc_t *desc, const char *&error_msg);
+
 public:
+
+	/**
+	 * checks if a bridge can start (or end) on this tile in priciple
+	 * @return NULL on success or an error message
+	 */
+	static const char* check_start_tile(const player_t* player, const grund_t* gr, ribi_t::ribi bridge_ribi, const bridge_desc_t* desc);
+
+	/**
+	 * check the bridge span for clearance in the given height
+	 * @return NULL on success or an error message
+	 */
+	static const char* can_span_bridge(const player_t* player, koord3d start_pos, koord3d end_pos, sint8 height, const bridge_desc_t* desc);
+
+	/**
+	 * checks if we can build a bridge between start and end positions
+	 * @return NULL on success or an error message
+	 *         on success h contains the height of the bridge
+	 */
+	static const char* can_build_bridge(const player_t* pl, koord3d start_pos, koord3d end_pos, sint8& height, const bridge_desc_t* desc, bool try_flat_bridge);
+
 	/**
 	 * Finds the position of the end of the bridge. Does all kind of checks.
 	 * Uses two methods:
@@ -48,24 +69,12 @@ public:
 	 * @param bridge_height on success, the height of the bridge that we can build
 	 * @param ai_bridge if this bridge is being built by an AI
 	 * @param min_length the minimum length of the bridge.
-	 * @param high_bridge
 	 * @return the position of the other end of the bridge or koord3d::invalid if no possible end is found
 	 */
-	static koord3d find_end_pos(player_t *player, koord3d pos, const koord zv, const bridge_desc_t *desc, const char *&error_msg, sint8 &bridge_height, bool ai_bridge=false, uint32 min_length=0, bool high_bridge = false );
+	static koord3d find_end_pos(player_t *player, koord3d pos, const koord zv, sint8 &bridge_height, const bridge_desc_t* desc, uint32 min_length, uint32 max_length);
 
 	/**
-	 * Checks whether given tile @p gr is suitable for placing bridge ramp.
-	 *
-	 * @param player the player wanting to build the  bridge.
-	 * @param gr the ground to check.
-	 * @param wt
-	 * @param r is ribi_t::none of the direction from bridge to ground.
-	 * @return true, if bridge ramp can be built here.
-	 */
-	static bool can_place_ramp(player_t *player, const grund_t *gr, waytype_t wt, ribi_t::ribi r );
-
-	/**
-	 * Checks if a bridge starts on @p gr
+	 * Checks if a bridge starts on @p gr also for rampless bridges
 	 *
 	 * @param gr the ground to check.
 	 * @return true, if bridge ends/starts here
@@ -81,7 +90,7 @@ public:
 	 * @param weg_hang
 	 * @param desc the bridge description.
 	 */
-	static void build_ramp(player_t *player, koord3d end, ribi_t::ribi ribi_neu, slope_t::type weg_hang, const bridge_desc_t *desc);
+	static void build_ramp(player_t *player, koord3d end, ribi_t::ribi ribi_neu, const slope_t::type weg_hang, const bridge_desc_t *desc);
 
 	/**
 	 * Actually builds the bridge without checks.
@@ -111,17 +120,6 @@ public:
 	 * @return bridge descriptor or NULL if not found
 	 */
 	static const bridge_desc_t *get_desc(const char *name);
-
-	/**
-	 * Builds the bridge and performs all checks.
-	 * This is the main construction routine.
-	 *
-	 * @param player The player wanting to build the bridge.
-	 * @param pos the start of the bridge.
-	 * @param desc Description of the bridge to build
-	 * @return NULL on success or error message otherwise
-	 */
-	static const char *build( player_t *player, const koord3d pos, const bridge_desc_t *desc);
 
 	/**
 	 * Removes a bridge
