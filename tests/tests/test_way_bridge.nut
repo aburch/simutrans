@@ -142,8 +142,8 @@ function test_way_bridge_build_at_slope()
 	{
 		// wrong single-height slope
 		ASSERT_EQUAL(setslope(pl, end_pos, slope.west), null)
-		local err = command_x.build_bridge_at(pl, start_pos, bridge_desc)
-		ASSERT_EQUAL(err, "A bridge must start on a way!")
+		local err = command_x.build_bridge(pl, start_pos, end_pos, bridge_desc)
+		ASSERT_EQUAL(err, "")
 
 		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 1),
 			[
@@ -161,8 +161,8 @@ function test_way_bridge_build_at_slope()
 	{
 		// double height slope
 		ASSERT_EQUAL(setslope(pl, end_pos, 2*slope.north), null)
-		local err = command_x.build_bridge_at(pl, start_pos, bridge_desc)
-		ASSERT_EQUAL(err, "Cannot connect to the\ncenter of a double slope!")
+		local err = command_x.build_bridge(pl, start_pos, end_pos, bridge_desc)
+		ASSERT_EQUAL(err, "")
 
 		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 1),
 			[
@@ -180,8 +180,8 @@ function test_way_bridge_build_at_slope()
 	{
 		// wrong double height slope
 		ASSERT_EQUAL(setslope(pl, end_pos, 2*slope.west), null)
-		local err = command_x.build_bridge_at(pl, start_pos, bridge_desc)
-		ASSERT_EQUAL(err, "Cannot connect to the\ncenter of a double slope!")
+		local err = command_x.build_bridge(pl, start_pos, end_pos, bridge_desc)
+		ASSERT_EQUAL(err, "")
 
 		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 1),
 			[
@@ -201,7 +201,7 @@ function test_way_bridge_build_at_slope()
 		ASSERT_EQUAL(setslope(pl, end_pos, slope.all_up_slope), null)
 		ASSERT_EQUAL(setslope(pl, end_pos + coord3d(0, 0, 1), slope.all_up_slope), null)
 		local err = command_x.build_bridge_at(pl, start_pos, bridge_desc)
-		ASSERT_EQUAL(err, "Cannot connect to the\ncenter of a double slope!")
+		ASSERT_EQUAL(err, "Bridge is too long for this type!\n")
 
 		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 1),
 			[
@@ -556,7 +556,7 @@ function test_way_bridge_build_above_runway()
 	// build bridge across runway, should fail
 	{
 		ASSERT_EQUAL(command_x.build_way(pl, coord3d(7, 7, 0), coord3d(7, 9, 0), runway, true), null)
-		ASSERT_EQUAL(command_x.build_bridge(pl, coord3d(6, 8, 0), coord3d(8, 8, 0), bridge), "")
+		ASSERT_EQUAL(command_x.build_bridge(pl, coord3d(6, 8, 0), coord3d(8, 8, 0), bridge), "No bridges over runways!")
 
 		ASSERT_WAY_PATTERN(wt_air, coord3d(5, 5, 0),
 			[
@@ -582,8 +582,8 @@ function test_way_bridge_build_above_runway()
 function test_way_bridge_planner()
 {
 	local pl = player_x(0)
-	local start_pos = coord3d(2, 3, 0)
-	local end_pos = coord3d(2, 6, 0)
+	local start_pos = coord3d(12, 3, 0)
+	local end_pos = coord3d(12, 6, 0)
 	local bridge_desc = bridge_desc_x.get_available_bridges(wt_road)[0]
 
 	local working_slopes = [ slope.north ] // maybe also slope.south in the future
@@ -621,7 +621,7 @@ function test_way_bridge_planner()
 		ASSERT_EQUAL(bridge_planner_x.find_end(pl, coord3d(2, 1, 0), dir.south, bridge_desc, 1).tostring(), coord3d(2, 2, 0).tostring())
 
 		ASSERT_EQUAL(bridge_planner_x.find_end(pl, coord3d(3, 1, 0), dir.south, bridge_desc, 0).tostring(), coord3d(3, 3, 0).tostring())
-		ASSERT_EQUAL(bridge_planner_x.find_end(pl, coord3d(3, 1, 0), dir.south, bridge_desc, 1).tostring(), coord3d(-1, -1, -1).tostring())
+		ASSERT_EQUAL(bridge_planner_x.find_end(pl, coord3d(3, 1, 0), dir.south, bridge_desc, 1).tostring(), coord3d(3, 3, 0).tostring())
 		ASSERT_EQUAL(bridge_planner_x.find_end(pl, coord3d(3, 1, 0), dir.south, bridge_desc, 2).tostring(), coord3d(3, 3, 0).tostring())
 		ASSERT_EQUAL(bridge_planner_x.find_end(pl, coord3d(3, 1, 0), dir.south, bridge_desc, 3).tostring(), coord3d(-1, -1, -1).tostring())
 

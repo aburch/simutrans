@@ -187,7 +187,13 @@ tool_t * call_tool_base_t::create_tool()
 SQInteger param<call_tool_work>::push(HSQUIRRELVM vm, call_tool_work v)
 {
 	if (v.error) {
-		return sq_raise_error(vm, *v.error ? v.error : "Strange error occurred");
+		if (v.tool_id==0) {
+			// return error as if the tool failed normally
+			return param<const char*>::push(vm, v.error);
+		}
+		else {
+			return sq_raise_error(vm, *v.error ? v.error : "Strange error occurred");
+		}
 	}
 	// create tool, if necessary, delete on exit
 	std::unique_ptr<tool_t> our_tool;
@@ -390,10 +396,11 @@ call_tool_work build_bridge_at(player_t* pl, koord3d start, const bridge_desc_t*
 	}
 	if (grund_t *gr = world()->lookup(start)) {
 		sint8 height;
-		koord3d end = bridge_builder_t::find_end_pos(pl, start, -koord(gr->get_weg_hang()), height, bridge, 1, 10);
-		if (end != koord3d::invalid) {
-			return call_tool_work(TOOL_BUILD_BRIDGE | GENERAL_TOOL, bridge->get_name(), 0, pl, start, end);
+		koord3d end = start;
+		if (const char *err = bridge_builder_t::find_end_pos(pl, start, -koord(gr->get_weg_hang()), height, bridge, 1, 10, false)) {
+			return call_tool_work(err); // to keep compatibility with old error message
 		}
+		return call_tool_work(TOOL_BUILD_BRIDGE | GENERAL_TOOL, bridge->get_name(), 0, pl, start, end);
 	}
 	return call_tool_work("Bridge is too long for this type!\n"); // to keep compatibility with old error message
 }

@@ -69,9 +69,9 @@ public:
 	 * @param bridge_height on success, the height of the bridge that we can build
 	 * @param ai_bridge if this bridge is being built by an AI
 	 * @param min_length the minimum length of the bridge.
-	 * @return the position of the other end of the bridge or koord3d::invalid if no possible end is found
+	 * @return if NULL then the position of the other end of the bridge in pos. Otherwise error is the reason of failure
 	 */
-	static koord3d find_end_pos(player_t *player, koord3d pos, const koord zv, sint8 &bridge_height, const bridge_desc_t* desc, uint32 min_length, uint32 max_length);
+	static const char *find_end_pos(player_t *player, koord3d &pos, const koord zv, sint8 &bridge_height, const bridge_desc_t* desc, uint32 min_length, uint32 max_length, bool also_flat_ends);
 
 	/**
 	 * Checks if a bridge starts on @p gr also for rampless bridges

@@ -21,15 +21,7 @@ function test_climate_invalid()
 	ASSERT_EQUAL(setclimate.work(pl, pos, pos, "42"), "")
 	ASSERT_EQUAL(setclimate.work(pl, coord3d(-1, -1, 0), coord3d(-1, -1, 0), "" + cl_water), null)
 
-	local error_caught = false
-	try {
-		ASSERT_TRUE(command_x.change_climate_at(pl, pos, -1) != null)
-	}
-	catch (e) {
-		error_caught = true
-		ASSERT_EQUAL(e, "Invalid climate number provided")
-	}
-	ASSERT_TRUE(error_caught)
+	ASSERT_EQUAL(command_x.change_climate_at(pl, pos, -1), "Invalid climate number provided")
 }
 
 

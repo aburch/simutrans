@@ -430,28 +430,20 @@ const char *bridge_builder_t::can_span_bridge(const player_t* player, koord3d st
 	}
 
 	if (start_pos.z < height) {
-		// ramp on start tile needs clearance
+		// ramp on start tile needs clearance; also we are on ground then
 		planquadrat_t* pl = welt->access(start_pos.x,start_pos.y);
-		if (pl->get_boden_in_hoehe(height)  ||  (height - start_pos.z > 1  &&  pl->get_boden_in_hoehe(height-1))) {
-			// something is the way
-			return "";
-		}
-		for (int i = 1; i <= clearance; i++) {
-			if (pl->get_boden_in_hoehe(height + i)) {
+		for (sint8 z = start_pos.z + 1; z < height + clearance; z++) {
+			if (pl->get_boden_in_hoehe(z)) {
 				// something is the way
 				return "";
 			}
 		}
 	}
 	if (end_pos.z < height) {
-		// ramp on start tile needs clearance
+		// ramp on end tile needs clearance; also we are on ground then
 		planquadrat_t* pl = welt->access(end_pos.x, end_pos.y);
-		if (pl->get_boden_in_hoehe(height)  ||  (height - end_pos.z > 1  &&  pl->get_boden_in_hoehe(height-1))) {
-			// something is the way
-			return "";
-		}
-		for (int i = 1; i <= welt->get_settings().get_way_height_clearance(); i++) {
-			if (pl->get_boden_in_hoehe(height+i)) {
+		for (sint8 z = end_pos.z + 1; z < height + clearance; z++) {
+			if (pl->get_boden_in_hoehe(z)) {
 				// something is the way
 				return "";
 			}
@@ -564,7 +556,6 @@ const char* bridge_builder_t::can_build_bridge(const player_t* pl, koord3d start
 	else if (start_sl != slope_t::flat) {
 		sint8 start_dz = slope_t::max_diff(start_sl);
 		heights.append(start_pos.z + start_dz);	// test this first
-		heights.append(start_pos.z);
 	}
 	else {
 		// start on flat tile => may need a ramp => need clearance
@@ -592,11 +583,9 @@ const char* bridge_builder_t::can_build_bridge(const player_t* pl, koord3d start
 	}
 	else if (end_sl != slope_t::flat) {
 		sint8 end_dz = slope_t::max_diff(end_sl);
-		for (int i = heights.get_count()-1; i >= 0;  i--) {
-			if (!heights.is_contained(end_pos.z)  &&  !heights.is_contained(end_pos.z + end_dz)) {
-				// not matching height
-				heights.remove_at(i);
-			}
+		if(!heights.is_contained(end_pos.z + end_dz)) {
+			// mismatched heights
+			return "";
 		}
 	}
 	else {
@@ -643,40 +632,53 @@ const char* bridge_builder_t::can_build_bridge(const player_t* pl, koord3d start
 
 
 // returns the shortest possible bridge with a length of 1 ... min_length
-koord3d bridge_builder_t::find_end_pos(player_t* player, koord3d pos, const koord zv, sint8& bridge_height, const bridge_desc_t* desc, uint32 min_length, uint32 max_length )
+const char *bridge_builder_t::find_end_pos(player_t* player, koord3d &pos, const koord zv, sint8& bridge_height, const bridge_desc_t* desc, uint32 min_length, uint32 max_length, bool also_flat_ends)
 {
-	if (check_start_tile(player, welt->lookup(pos), ribi_t::backward(ribi_type(zv)), desc)) {
-		return koord3d::invalid;
+	grund_t* start = welt->lookup(pos);
+	if (check_start_tile(player, start, ribi_t::backward(ribi_type(zv)), desc)) {
+		return "";
 	}
+	const char* error = "Bridge is too long for this type!\n";
+	sint8 finish_height = pos.z + slope_t::max_diff(start->get_grund_hang());
 
 	// first find slope in my direction
-	for (uint8 i = min_length; i <= max_length  &&  i <= welt->get_settings().way_max_bridge_len; i++) {
+	for (uint8 i = max(1,min_length); i <= max_length  &&  i <= welt->get_settings().way_max_bridge_len; i++) {
 		const grund_t* gr_end = welt->lookup_kartenboden(pos.get_2d() + zv * i);
 		if (!gr_end) {
 			// not on map any more
 			max_length = i-1;  // try shorter bridge then
 			break;
 		}
-		if (gr_end->get_grund_hang()) {
-			// try to connect
+		if (gr_end->get_hoehe() + slope_t::max_diff(gr_end->get_grund_hang()) == finish_height) {
+			// try to connect to a slope or flat tile ending here
 			koord3d end = gr_end->get_pos();
-			const char* error = bridge_builder_t::can_build_bridge(player, pos, end, bridge_height, desc, false);
+			error = bridge_builder_t::can_build_bridge(player, pos, end, bridge_height, desc, false);
 			if (!error) {
-				return end;
+				pos = end;
+				return NULL;
 			}
 			max_length = i-1;  // try shorter bridge then
 			break;
 		}
 	}
 
-
-	// now try shorter bridge
-	for (uint8 i = min_length;  i <= max_length; i++) {
-		const grund_t* gr_end = welt->lookup_kartenboden(pos.get_2d() + zv * i);	// must succeed, we tested above
-		koord3d end = gr_end->get_pos();
-		const char* error = bridge_builder_t::can_build_bridge(player, pos, end, bridge_height, desc, false);
+	if(also_flat_ends) {
+		// now try shorter bridge
+		for (uint8 i = min_length;  i <= max_length; i++) {
+			const grund_t* gr_end = welt->lookup_kartenboden(pos.get_2d() + zv * i);	// must succeed, we tested above
+			koord3d end = gr_end->get_pos();
+			if (const char* err = bridge_builder_t::can_build_bridge(player, pos, end, bridge_height, desc, false)) {
+				if (err && *err) {
+					error = err;
+				}
+			}
+			else {
+				pos = end;
+				return NULL;
+			}
+		}
 	}
-	return koord3d::invalid;
+	return (error &&  *error) ? error : "Bridge is too long for this type!\n";
 }
 
 

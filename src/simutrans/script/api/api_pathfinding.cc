@@ -130,7 +130,10 @@ koord3d bridge_builder_find_end_pos(player_t *player, koord3d pos, my_ribi_t mri
 	if (player == NULL  ||  bridge == NULL) {
 		return koord3d::invalid;
 	}
-	return bridge_builder_t::find_end_pos(player, pos, ribi, height, bridge, min_length, 10);
+	if (err = bridge_builder_t::find_end_pos(player, pos, ribi, height, bridge, min_length, 10, false)) {
+		return koord3d::invalid;
+	}
+	return pos;
 }
 
 
