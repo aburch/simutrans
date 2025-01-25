@@ -2,6 +2,7 @@
 	CHG: tram system type way can be laid over other tracks as well (like pak192 narrowgauge over normal rails)
 	CHG: bridge builder is now only a two click tool (total reneval) Can not again connect to complex ramps on elevated ways or cross rivers automatically
 
+
 Release of 124.3 (r11590 on 10-Jan-2025):
 	FIX: open schedule get applied during rw (reload, quit, change language), line window crashes
 	CHG: no way foreground drawn inside stations and depots (and other buildings)

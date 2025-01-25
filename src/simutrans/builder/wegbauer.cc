@@ -655,9 +655,9 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 		if(  to2 && (((bautyp&bautyp_mask)!=leitung  &&  to2->get_weg_nr(0)  &&  to2->get_weg_nr(0)->get_desc()->get_topspeed()>0) || to2->get_leitung())  ) {
 			return false;
 		}
-		// tile above cannot have way unless we are a way (not powerline) with a maximum speed of 0, or be surface if we are underground
+		// tiles directly above cannot have way unless it is a powerline bridge
 		to2 = welt->lookup( to->get_pos() + koord3d(0, 0, 1) );
-		if(  to2  &&  ((to2->get_weg_nr(0)  &&  (desc->get_topspeed()>0  ||  (bautyp&bautyp_mask)==leitung))  ||  (bautyp & tunnel_flag) != 0)  ) {
+		if(  to2  &&  (to2->find<leitung_t>() == NULL  ||  to2->get_typ() != grund_t::brueckenboden)  ) {
 			return false;
 		}
 	}
@@ -699,10 +699,10 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 	}
 
 	// universal check: do not switch to tunnel through cliffs!
-	if( from->get_typ()==grund_t::tunnelboden  &&  to->get_typ() != grund_t::tunnelboden  &&  !from->ist_karten_boden() ) {
+	if(  from->get_typ() == grund_t::tunnelboden  &&  to->get_typ() != grund_t::tunnelboden  &&  !from->ist_karten_boden() ) {
 		return false;
 	}
-	if( to->get_typ()==grund_t::tunnelboden  &&  from->get_typ() != grund_t::tunnelboden   &&  !to->ist_karten_boden() ) {
+	if(  to->get_typ() == grund_t::tunnelboden  &&  from->get_typ() != grund_t::tunnelboden   &&  !to->ist_karten_boden() ) {
 		return false;
 	}
 
@@ -897,8 +897,10 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 				if(to->get_typ()==grund_t::fundament) {
 					ok &= to->find<field_t>()!=NULL;
 				}
-				// no bridges and monorails here in the air
-				ok &= (welt->access(to_pos)->get_boden_in_hoehe(to->get_pos().z+1)==NULL);
+				// no bridges and monorails here in the air apart from another powerline bridge
+				if (grund_t* to2 = welt->lookup(to->get_pos() + koord3d(0,0,1))) {
+					ok &= to->find<leitung_t>()  &&  to->get_typ() == grund_t::brueckenboden;
+				}
 			}
 
 			// calculate costs

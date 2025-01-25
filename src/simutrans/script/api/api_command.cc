@@ -13,7 +13,8 @@
 #include "../api_param.h"
 #include "../api_class.h"
 #include "../api_function.h"
-#include "../../tool/simmenu.h"
+#include "../../builder/brueckenbauer.h"
+#include "../../ground/grund.h"
 #include "../../tool/simtool.h"
 #include "../../world/simworld.h"
 #include "../../dataobj/environment.h"
@@ -387,7 +388,14 @@ call_tool_work build_bridge_at(player_t* pl, koord3d start, const bridge_desc_t*
 	if (const char* err = is_available(bridge)) {
 		return call_tool_work(err);
 	}
-	return call_tool_work(TOOL_BUILD_BRIDGE | GENERAL_TOOL, bridge->get_name(), 0, pl, start);
+	if (grund_t *gr = world()->lookup(start)) {
+		sint8 height;
+		koord3d end = bridge_builder_t::find_end_pos(pl, start, -koord(gr->get_weg_hang()), height, bridge, 1, 10);
+		if (end != koord3d::invalid) {
+			return call_tool_work(TOOL_BUILD_BRIDGE | GENERAL_TOOL, bridge->get_name(), 0, pl, start, end);
+		}
+	}
+	return call_tool_work("Bridge is too long for this type!\n"); // to keep compatibility with old error message
 }
 
 call_tool_work set_slope(player_t* pl, koord3d start, my_slope_t slope)

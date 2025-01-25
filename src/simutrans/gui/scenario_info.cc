@@ -97,6 +97,9 @@ void scenario_info_t::update_scenario_texts()
 {
 	// we only update the current tab ...
 	scenario_t *scen = welt->get_scenario();
+	if (!scen->active()) {
+		return;
+	}
 	scr_size border_size = get_client_windowsize() - info.get_pos() - scr_size(D_MARGIN_RIGHT + D_SCROLLBAR_WIDTH, D_MARGIN_BOTTOM + D_SCROLLBAR_HEIGHT);
 	int active = tabs.get_active_tab_index();
 	gui_flowtext_t* ft = dynamic_cast<gui_flowtext_t*>(tabs.get_aktives_tab());

@@ -215,7 +215,7 @@ function test_slope_restore_on_bridge()
 
 	ASSERT_EQUAL(command_x.set_slope(pl, coord3d(4, 2, 0), slope.south), null)
 	ASSERT_EQUAL(command_x.set_slope(pl, coord3d(4, 4, 0), slope.north), null)
-	ASSERT_EQUAL(command_x(tool_build_bridge).work(pl, coord3d(4, 2, 0), rail_bridge.get_name()), null)
+	ASSERT_EQUAL(command_x.build_bridge_at(pl, coord3d(4, 2, 0), rail_bridge), null)
 
 	{
 		ASSERT_EQUAL(command_x(tool_restoreslope).work(pl, coord3d(4, 2, 0)), "No suitable ground!")

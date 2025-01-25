@@ -69,7 +69,7 @@ function test_halt_build_rail_single_tile()
 	{
 		ASSERT_EQUAL(setslope(pl, coord3d(3, 2, 0), slope.south), null)
 		ASSERT_EQUAL(setslope(pl, coord3d(3, 4, 0), slope.north), null)
-		ASSERT_EQUAL(command_x(tool_build_bridge).work(pl, coord3d(3, 2, 0), bridge_desc.get_name()), null)
+		ASSERT_EQUAL(command_x.build_bridge_at(pl, coord3d(3, 2, 0), bridge_desc), null)
 
 		local old_maintenance = pl.get_current_maintenance()
 
@@ -250,7 +250,7 @@ function test_halt_build_flat_dock_on_bridge()
 {
 	ASSERT_EQUAL(command_x.set_slope(player_x(0), coord3d(4, 2, 0), slope.south), null)
 	ASSERT_EQUAL(command_x.set_slope(player_x(0), coord3d(4, 4, 0), slope.north), null)
-	ASSERT_EQUAL(command_x(tool_build_bridge).work(player_x(0), coord3d(4, 2, 0), "Schiffhebewerk"), null)
+	ASSERT_EQUAL(command_x(tool_build_bridge).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 4, 0), "Schiffhebewerk"), null)
 
 	{
 		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(4, 3, 1), "LakeShipStop"), "")
@@ -691,7 +691,7 @@ function test_halt_build_on_bridge_end()
 		ASSERT_EQUAL(setslope(pl, coord3d(4, 2, 0), slope.south), null)
 		ASSERT_EQUAL(setslope(pl, coord3d(4, 4, 0), slope.north), null)
 
-		ASSERT_EQUAL(command_x(tool_build_bridge).work(pl, coord3d(4, 2, 0), rail_bridge.get_name()), null)
+		ASSERT_EQUAL(command_x.build_bridge_at(pl, coord3d(4, 2, 0), rail_bridge), null)
 		ASSERT_EQUAL(command_x.build_station(pl, coord3d(4, 2, 0), station_desc), null)
 		ASSERT_EQUAL(command_x.build_station(pl, coord3d(4, 4, 0), station_desc), null)
 
@@ -709,7 +709,7 @@ function test_halt_build_on_bridge_end()
 		ASSERT_EQUAL(setslope(pl, coord3d(3, 3, 0), slope.east), null)
 		ASSERT_EQUAL(setslope(pl, coord3d(5, 3, 0), slope.west), null)
 
-		ASSERT_EQUAL(command_x(tool_build_bridge).work(pl, coord3d(3, 3, 0), rail_bridge.get_name()), null)
+		ASSERT_EQUAL(command_x.build_bridge_at(pl, coord3d(3, 3, 0), rail_bridge), null)
 		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(3, 3, 0), get_depot_by_wt(wt_rail)), null)
 		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(5, 3, 0), get_depot_by_wt(wt_rail)), null)
 		ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(3, 3, 0)), null)
