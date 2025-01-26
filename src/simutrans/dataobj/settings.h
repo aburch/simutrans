@@ -29,6 +29,10 @@ struct road_timeline_t
 
 /**
  * Game settings
+ *
+ * @note The default values from this class should be kept in sync with the
+ *       default values from the default simuconf.tab located in simutrans/config/
+ *       (same as for env_t)
  */
 class settings_t
 {
@@ -51,36 +55,35 @@ public:
 	} climate_generate_t;
 
 private:
-	sint32 size_x, size_y;
-	sint32 map_number;
+	sint32 size_x     = 256;
+	sint32 size_y     = 256;
+	sint32 map_number =  33;
 
-	/* new setting since version 0.85.01
-	 */
-	sint32 factory_count;
-	sint32 electric_promille;
-	sint32 tourist_attractions;
+	sint32 tourist_attractions =  16;
+	sint32 factory_count       =  12;
+	sint32 electric_promille   = 330;
 
-	sint32 city_count;
-	sint32 mean_citizen_count;
+	sint32 city_count         =   16;
+	sint32 mean_citizen_count = 1600;
 
 	// town growth factors
-	sint32 passenger_multiplier;
-	sint32 mail_multiplier;
-	sint32 goods_multiplier;
-	sint32 electricity_multiplier;
+	sint32 passenger_multiplier   = 40;
+	sint32 mail_multiplier        = 20;
+	sint32 goods_multiplier       = 20;
+	sint32 electricity_multiplier =  0;
 
 	// Also there are size dependent factors (0=no growth)
-	sint32 growthfactor_small;
-	sint32 growthfactor_medium;
-	sint32 growthfactor_large;
+	sint32 growthfactor_small  = 400;
+	sint32 growthfactor_medium = 200;
+	sint32 growthfactor_large  = 100;
 
-	sint16 special_building_distance; // distance between attraction to factory or other special buildings
-	uint32 minimum_city_distance;
-	uint32 industry_increase;
+	sint16 special_building_distance =    3; // distance between attraction to factory or other special buildings
+	uint32 minimum_city_distance     =   16;
+	uint32 industry_increase         = 2000; // add new factory (chain) when city grows to x * 2^n
 
 	// percentage of routing
-	sint16 factory_worker_percentage;
-	sint16 tourist_percentage;
+	sint16 factory_worker_percentage = 33;
+	sint16 tourist_percentage        = 16;
 
 	// higher number: passengers are more evenly distributed around the map
 	struct yearly_locality_factor_t
@@ -91,69 +94,67 @@ private:
 	yearly_locality_factor_t locality_factor_per_year[10];
 
 	// radius for factories
-	sint16 factory_worker_radius;
-	sint32 factory_worker_minimum_towns;
-	sint32 factory_worker_maximum_towns;
+	sint16 factory_worker_radius        = 77;
+	sint32 factory_worker_minimum_towns =  1; ///< try to have at least a single town connected to a factory ...
+	sint32 factory_worker_maximum_towns =  4; ///< ... but not more than 4
 
 	// number of periods for averaging the amount of arrived pax/mail at factories
-	uint16 factory_arrival_periods;
+	uint16 factory_arrival_periods = 4;
 
 	// whether factory pax/mail demands are enforced
-	bool factory_enforce_demand;
+	bool factory_enforce_demand = true;
 
-	uint16 station_coverage_size;
+	uint16 station_coverage_size = 2;
 
 	// the maximum length of each convoi
-	uint8 max_rail_convoi_length;
-	uint8 max_road_convoi_length;
-	uint8 max_ship_convoi_length;
-	uint8 max_air_convoi_length;
+	uint8 max_rail_convoi_length = 24;
+	uint8 max_road_convoi_length =  4;
+	uint8 max_ship_convoi_length =  4;
+	uint8 max_air_convoi_length  =  1;
 
-	/**
-	 * At which level buildings generate traffic?
-	 */
-	sint32 traffic_level;
+	/// At which level buildings generate traffic?
+	sint32 traffic_level = 5;
 
 	/**
 	 * the maximum and minimum allowed world height.
 	 */
-	sint8 world_maximum_height;
-	sint8 world_minimum_height;
+	sint8 world_maximum_height =  32;
+	sint8 world_minimum_height = -12;
 
-	 /**
-	 * waterlevel, climate borders, lowest snow in winter
-	 */
-	climate_generate_t climate_generator;
-	sint16 groundwater;
-	sint16 winter_snowline;
+	/// @{
+	/// @ref set_default_climates
+	climate_generate_t climate_generator = climate_generate_t::HEIGHT_BASED;
+	sint16 groundwater = -2;
+	sint16 winter_snowline = 7; ///< Not mediterranean
 	sint16 climate_borders[MAX_CLIMATES][2];
 	sint8 climate_temperature_borders[5];
-	sint8 tropic_humidity;
-	sint8 desert_humidity;
+	sint8 tropic_humidity = 75;
+	sint8 desert_humidity = 65;
 
-	ribi_t::ribi wind_direction; ///< Wind is coming from this direction. Must be single! (N/W/S/E)
+	ribi_t::ribi wind_direction = ribi_t::west; ///< Wind is coming from this direction. Must be single! (N/W/S/E)
 
 	sint8 patch_size_percentage; // average size of a climate patch, if there are overlapping climates
 
 	sint8 moisture; // how much increase of moisture per tile
 	sint8 moisture_water; // how much increase of moisture per water tile
+	/// @}
 
-	double max_mountain_height;
-	double map_roughness;
+	double max_mountain_height = 160.0;  // can be 0-160.0
+	double map_roughness       =   0.6;  // can be 0-1
 
 	// river stuff
-	sint16 river_number;
-	sint16 min_river_length;
-	sint16 max_river_length;
+	sint16 river_number     =  16;
+	sint16 min_river_length =  16;
+	sint16 max_river_length = 256;
 
 	// forest stuff
-	uint8 forest_base_size;
-	uint8 forest_map_size_divisor;
-	uint8 forest_count_divisor;
-	uint16 forest_inverse_spare_tree_density;
-	uint8 max_no_of_trees_on_square;
-	uint16 tree_climates;
-	uint16 no_tree_climates;
+	uint8 forest_base_size                   = 36; // Minimal size of forests - map independent
+	uint8 forest_map_size_divisor            = 38; // The smaller it is, the larger are individual forests
+	uint8 forest_count_divisor               = 16; // The smaller it is, the more forest are generated
+	uint16 forest_inverse_spare_tree_density =  5; // Determines how often are spare trees going to be planted (1 per x tiles on avg)
+	uint8 max_no_of_trees_on_square          =  3; // 2 - minimal usable, 3 good, 5 very nice looking
+	uint16 tree_climates                     =  0; // bit set, if this climate is to be covered with trees entirely
+	uint16 no_tree_climates                  =  0; // bit set, if this climate is to be void of random trees
 
 public:
 	enum tree_distribution_t
@@ -164,54 +165,54 @@ public:
 		TREE_DIST_COUNT
 	};
 private:
-	uint16 tree_distribution;
+	uint16 tree_distribution = tree_distribution_t::TREE_DIST_RANDOM;
 
-	sint8 lake_height; //relative to sea height
+	sint8 lake_height = 8; // relative to sea (groundwater) height
 
 	// game mechanics
-	uint8 allow_player_change;
-	uint8 use_timeline;
-	sint16 starting_year;
-	sint16 starting_month;
-	sint16 bits_per_month;
+	uint8 allow_player_change = true;
+	uint8 use_timeline        =    2;
+	sint16 starting_year      = 1930;
+	sint16 starting_month     =    0;
+	sint16 bits_per_month     =   20;
 
-	std::string filename;
+	std::string filename = "";
 
-	bool beginner_mode;
-	sint32 beginner_price_factor;
+	bool beginner_mode = false;
+	sint32 beginner_price_factor = 1500; // 1500 = +50%
 
 	/* Industry supply model used.
 	 * 0 : Classic (no flow control?)
 	 * 1 : JIT Classic (maximum transit and storage limited)
 	 * 2 : JIT Version 2 (demand buffers with better consumption model)
 	 */
-	uint8 just_in_time;
+	uint8 just_in_time = 1; // Overwritten by the value from env_t
 
 	// default 0, will be incremented after each 90 degree rotation until 4
-	uint8 rotation;
+	uint8 rotation = 0;
 
-	sint16 origin_x, origin_y;
+	sint16 origin_x = 0, origin_y = 0;
 
-	sint32 passenger_factor;
+	// passenger manipulation factor (=16 about old value)
+	sint32 passenger_factor = 16;
 
-	sint16 min_factory_spacing;
-	sint16 max_factory_spacing;
-	sint16 max_factory_spacing_percentage;
+	sint16 min_factory_spacing = 6;
+	sint16 max_factory_spacing = 40;
+	sint16 max_factory_spacing_percentage = 0;
 
 	/*no goods will put in route, when stored>gemax_storage and goods_in_transit*maximum_intransit_percentage/100>max_storage  */
-	uint16 factory_maximum_intransit_percentage;
+	uint16 factory_maximum_intransit_percentage = 0;
 
-	/* crossconnect all factories (like OTTD and similar games) */
-	bool crossconnect_factories;
+	// crossconnect all factories (like OTTD and similar games)
+	// These two values are overwritten if OTTD_LIKE is defined
+	bool   crossconnect_factories = false;
+	sint16 crossconnect_factor    =    33;
 
-	/* crossconnect all factories (like OTTD and similar games) */
-	sint16 crossconnect_factor;
+	sint32 stadtauto_duration = false;
 
-	sint32 stadtauto_duration;
+	bool freeplay = false;
 
-	bool freeplay;
-
-	sint64 starting_money;
+	sint64 starting_money = 20000000;
 
 	struct yearmoney
 	{
@@ -221,43 +222,43 @@ private:
 	};
 	yearmoney startingmoneyperyear[10];
 
-	uint16 num_city_roads;
+	uint16 num_city_roads = 0;
 	road_timeline_t city_roads[10];
-	uint16 num_intercity_roads;
+	uint16 num_intercity_roads = 0;
 	road_timeline_t intercity_roads[10];
 
 	// pairs of year,speed
-	uint16 city_road_speed_limit_num;
+	uint16 city_road_speed_limit_num = 0;
 	uint16 city_road_speed_limit[20];
 
 	/**
 	 * Use numbering for stations?
 	 */
-	bool numbered_stations;
+	bool numbered_stations = false;
 
 	/* maximum number of steps for breath search */
-	sint32 max_route_steps;
+	sint32 max_route_steps = 1000000;
 
 	// maximum length for route search at signs/signals
-	sint32 max_choose_route_steps;
+	sint32 max_choose_route_steps = 200;
 
 	// max steps for good routing
-	sint32 max_hops;
+	sint32 max_hops = 2000;
 
 	/* maximum number of steps for breath search */
-	sint32 max_transfers;
+	sint32 max_transfers = 9;
 
 	/* multiplier for steps on diagonal:
 	 * 1024: TT-like, factor 2, vehicle will be too long and too fast
 	 * 724: correct one, factor sqrt(2)
 	 */
-	uint16 pak_diagonal_multiplier;
+	uint16 pak_diagonal_multiplier = 724;
 
 	// names of the stations ...
 	char language_code_names[4];
 
 	// true, if the different capacities (passengers/mail/freight) are counted separately
-	bool separate_halt_capacities;
+	bool separate_halt_capacities = false;
 
 	/**
 	 * payment is only for the distance that got shorter between target and start
@@ -267,118 +268,119 @@ private:
 	 * 2 = pay for distance to destination
 	 * 0 allows chaeting, but the income with 1 or two are much lower
 	 */
-	uint8 pay_for_total_distance;
+	uint8 pay_for_total_distance = TO_PREVIOUS;
 
 	/* if set, goods will avoid being routed over overcrowded stops */
-	bool avoid_overcrowding;
+	bool avoid_overcrowding = false;
 
 	/* if set, goods will not routed over overcrowded stations but rather try detours (if possible) */
-	bool no_routing_over_overcrowding;
+	bool no_routing_over_overcrowding = false;
 
 	// lowest possible income with speedbonus (1000=1) default 125
-	sint32 bonus_basefactor;
+	sint32 bonus_basefactor = 125;
 
 	// true, if this pak should be used with extensions (default=false)
 	bool with_private_paks = false;
 
 	/// what is the minimum clearance required under bridges
-	uint8 way_height_clearance;
+	/// read default from env_t, should be set in simmain.cc (taken from pak-set simuconf.tab)
+	uint8 way_height_clearance = 2;
 
 	// if true, you can buy obsolete stuff
-	bool allow_buying_obsolete_vehicles;
-	// vehicle value is decrease by this factor/1000 when a vehicle leaved the depot
-	sint16 used_vehicle_reduction;
+	bool allow_buying_obsolete_vehicles = true;
+	// vehicle value is decrease by this factor/1000 when a vehicle leaves the depot
+	sint16 used_vehicle_reduction = 0;
 
-	uint32 random_counter;
-	uint32 frames_per_second; // only used in network mode ...
-	uint32 frames_per_step;
-	uint32 server_frames_ahead;
+	// some network things to keep client in sync
+	uint32 random_counter      =  0; // will be set when actually saving
+	uint32 frames_per_second   = 20; // only used in network mode
+	uint32 frames_per_step     =  4; // for network play
+	uint32 server_frames_ahead =  4; // for network play
 
-	bool drive_on_left;
-	bool signals_on_left;
+	bool drive_on_left   = false;
+	bool signals_on_left = false;
 
 	// fraction of running costs charged for going on other players way
-	sint32 way_toll_runningcost_percentage;
-	sint32 way_toll_waycost_percentage;
+	sint32 way_toll_runningcost_percentage = 0;
+	sint32 way_toll_waycost_percentage     = 0;
 
 	// true if transformers are allowed to built underground
-	bool allow_underground_transformers;
+	bool allow_underground_transformers = true;
 
 	// true if companies can make ways public
-	bool disable_make_way_public;
+	bool disable_make_way_public = false;
 
 	// only for trains. If true, trains stop at the position designated in the schdule..
-	bool stop_halt_as_scheduled;
+	bool stop_halt_as_scheduled = false;
 
+	// the big cost section
 public:
-	/* the big cost section */
-	sint32 maint_building; // normal building
+	sint32 maint_building = 5000; // normal building
 
-	sint64 cst_multiply_dock;
-	sint64 cst_multiply_station;
-	sint64 cst_multiply_roadstop;
-	sint64 cst_multiply_airterminal;
-	sint64 cst_multiply_post;
-	sint64 cst_multiply_headquarter;
-	sint64 cst_depot_rail;
-	sint64 cst_depot_road;
-	sint64 cst_depot_ship;
-	sint64 cst_depot_air;
+	sint64 cst_multiply_dock        =  -50000;
+	sint64 cst_multiply_station     =  -60000;
+	sint64 cst_multiply_roadstop    =  -40000;
+	sint64 cst_multiply_airterminal = -300000;
+	sint64 cst_multiply_post        =  -30000;
+	sint64 cst_multiply_headquarter = -100000;
+	sint64 cst_depot_rail           = -100000;
+	sint64 cst_depot_road           = -130000;
+	sint64 cst_depot_ship           = -250000;
+	sint64 cst_depot_air            = -500000;
 
 	// cost to merge station
-	uint32 allow_merge_distant_halt;
-	sint64 cst_multiply_merge_halt;
+	uint32 allow_merge_distant_halt = 2;
+	sint64 cst_multiply_merge_halt  = -50000;
 
 	// alter landscape
-	sint64 cst_buy_land;
-	sint64 cst_alter_land;
-	sint64 cst_alter_climate;
-	sint64 cst_set_slope;
-	sint64 cst_found_city;
-	sint64 cst_multiply_found_industry;
-	sint64 cst_remove_tree;
-	sint64 cst_multiply_remove_haus;
-	sint64 cst_multiply_remove_field;
-	sint64 cst_transformer;
-	sint64 cst_maintain_transformer;
+	sint64 cst_buy_land                =     -10000;
+	sint64 cst_alter_land              =    -100000;
+	sint64 cst_alter_climate           =    -100000;
+	sint64 cst_set_slope               =    -250000;
+	sint64 cst_found_city              = -500000000;
+	sint64 cst_multiply_found_industry =   -2000000;
+	sint64 cst_remove_tree             =     -10000;
+	sint64 cst_multiply_remove_haus    =    -100000;
+	sint64 cst_multiply_remove_field   =    -500000;
+	sint64 cst_transformer             =    -250000;
+	sint64 cst_maintain_transformer    =      -2000;
 
 	// maintainance cost in months to make something public
-	sint64 cst_make_public_months;
+	sint64 cst_make_public_months = 60;
 
 	// costs for the way searcher
-	sint32 way_count_straight;
-	sint32 way_count_curve;
-	sint32 way_count_double_curve;
-	sint32 way_count_90_curve;
-	sint32 way_count_slope;
-	sint32 way_count_tunnel;
-	sint32 way_count_no_way;
-	sint32 way_count_avoid_crossings;
-	sint32 way_count_leaving_way;
-	sint32 way_count_maximum;
-	sint32 way_count_way_parallel;
-	uint32 way_max_bridge_len;
+	sint32 way_count_straight        =    1; // cost on existing way
+	sint32 way_count_curve           =    5; // diagonal curve
+	sint32 way_count_double_curve    =   10;
+	sint32 way_count_90_curve        =   30;
+	sint32 way_count_slope           =   20;
+	sint32 way_count_tunnel          =   16;
+	sint32 way_count_no_way          =    3; // slightly prefer existing ways
+	sint32 way_count_avoid_crossings =    8; // prefer less system crossings
+	sint32 way_count_leaving_way     =   50;
+	sint32 way_count_maximum         = 2000; // limit for allowed ways (can be set lower to avoid covering the whole map with two clicks)
+	uint32 way_max_bridge_len        =   15;
 
 	// 0 = empty, otherwise some value from simplay
 	uint8 player_type[MAX_PLAYER_COUNT];
 
-	// how fast new AI will built something
-	uint32 default_ai_construction_speed;
+	// how fast new AI will build something; value is copied from env_t
+	uint32 default_ai_construction_speed = 8000;
 
 	// player color suggestions for new games
-	bool default_player_color_random;
+	bool default_player_color_random = false;
 	uint8 default_player_color[MAX_PLAYER_COUNT][2];
 
 	// remove dummy companies and remove password from abandoned companies
-	uint16 remove_dummy_player_months;
-	uint16 unprotect_abandoned_player_months;
+	uint16 remove_dummy_player_months        = 6;
+	uint16 unprotect_abandoned_player_months = 0;
 
 public:
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
 	 * Set to empty string in order to avoid loading.
 	 */
-	std::string heightfield;
+	std::string heightfield = "";
 
 	settings_t();
 

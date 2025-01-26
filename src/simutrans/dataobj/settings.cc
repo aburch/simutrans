@@ -31,159 +31,24 @@
 #define NEVER 0xFFFFU
 
 
-settings_t::settings_t() :
-	filename(""),
-	heightfield("")
+settings_t::settings_t()
 {
-	size_x = 256;
-	size_y = 256;
-
-	map_number = 33;
-
-	/* new setting since version 0.85.01
-	 */
-	factory_count = 12;
-	tourist_attractions = 16;
-
-	city_count = 16;
-	mean_citizen_count = 1600;
-
-	station_coverage_size = 2;
-
-	traffic_level = 5;
-
-	// default maximum length of convoi
-	max_rail_convoi_length = 24;
-	max_road_convoi_length = 4;
-	max_ship_convoi_length = 4;
-	max_air_convoi_length = 1;
-
-	world_maximum_height = 32;
-	world_minimum_height = -12;
-
 	// default climate zones
 	set_default_climates( );
-	climate_generator = HEIGHT_BASED;
-	groundwater = -2;
-	winter_snowline = 7; // not mediterranean
 
-	max_mountain_height = 160;                  //can be 0-160.0
-	map_roughness = 0.6;                        //can be 0-1
-
-	river_number = 16;
-	min_river_length = 16;
-	max_river_length = 256;
-
-	// since the turning rules are different, driving must now be saved here
-	drive_on_left = false;
-	signals_on_left = false;
-
-	// forest setting ...
-	forest_base_size = 36;                 // Base forest size - minimal size of forest - map independent
-	forest_map_size_divisor = 38;          // Map size divisor - smaller it is the larger are individual forests
-	forest_count_divisor = 16;             // Forest count divisor - smaller it is, the more forest are generated
-	forest_inverse_spare_tree_density = 5; // Determines how often are spare trees going to be planted (works inversely)
-	max_no_of_trees_on_square = 3;         // Number of trees on square 2 - minimal usable, 3 good, 5 very nice looking
-	tree_climates = 0;                     // bit set, if this climate is to be covered with trees entirely
-	no_tree_climates = 0;                  // bit set, if this climate is to be void of random trees
-	tree_distribution = TREE_DIST_RANDOM;  // 0=no trees may be useful for low end engines, 1=random, 2=rainfall
-
-	lake_height = 8;                       // lakes will be generated below this height above groundwater
-
-	// some settings more
-	allow_player_change = true;
-	use_timeline = 2;
-	starting_year = 1930;
-	starting_month = 0;
-	bits_per_month = 20;
-
-	beginner_mode = false;
-	beginner_price_factor = 1500;
-
-	rotation = 0;
-
-	origin_x = origin_y = 0;
-
-	// passenger manipulation factor (=16 about old value)
-	passenger_factor = 16;
-
-	// town growth factors
-	passenger_multiplier = 40;
-	mail_multiplier = 20;
-	goods_multiplier = 20;
-	electricity_multiplier = 0;
-
-	// Also there are size dependent factors (0 causes crash !)
-	growthfactor_small = 400;
-	growthfactor_medium = 200;
-	growthfactor_large = 100;
-
-	minimum_city_distance = 16;
-	industry_increase = 2000;
-
-	special_building_distance = 3;
-
-	factory_worker_percentage = 33;
-	tourist_percentage = 16;
 	for(  int i=0; i<10; i++  ) {
 		locality_factor_per_year[i].year = 0;
 		locality_factor_per_year[i].factor = 0;
 	}
 	locality_factor_per_year[0].factor = 100;
 
-	factory_worker_radius = 77;
-	// try to have at least a single town connected to a factory
-	factory_worker_minimum_towns = 1;
-	// not more than four towns should supply to a factory
-	factory_worker_maximum_towns = 4;
-
-	factory_arrival_periods = 4;
-
-	factory_enforce_demand = true;
-
-	factory_maximum_intransit_percentage = 0;
-
-	electric_promille = 330;
-
 #ifdef OTTD_LIKE
 	// crossconnect all factories (like OTTD and similar games)
 	crossconnect_factories=true;
 	crossconnect_factor=100;
-#else
-	/* crossconnect a certain number */
-	crossconnect_factories=false;
-	crossconnect_factor=33;
 #endif
 
-	/* minimum spacing between two factories */
-	min_factory_spacing = 6;
-	max_factory_spacing = 40;
-	max_factory_spacing_percentage = 0; // off
-
 	just_in_time = env_t::just_in_time;
-
-	stadtauto_duration = 36; // three years
-
-	// to keep names consistent
-	numbered_stations = false;
-
-	num_city_roads = 0;
-	num_intercity_roads = 0;
-	city_road_speed_limit_num = 0;
-
-	max_route_steps = 1000000;
-	max_choose_route_steps = 200;
-	max_transfers = 9;
-	max_hops = 2000;
-	no_routing_over_overcrowding = false;
-
-	bonus_basefactor = 125;
-
-	/* multiplier for steps on diagonal:
-	 * 1024: TT-like, factor 2, vehicle will be too long and too fast
-	 * 724: correct one, factor sqrt(2)
-	 */
-	pak_diagonal_multiplier = 724;
 
 	// read default from env_t
 	// should be set in simmain.cc (taken from pak-set simuconf.tab
@@ -217,88 +82,12 @@ settings_t::settings_t() :
 	default_ai_construction_speed = env_t::default_ai_construction_speed;
 
 	/* the big cost section */
-	freeplay = false;
-	starting_money = 20000000;
+
 	for(  int i=0; i<10; i++  ) {
 		startingmoneyperyear[i].year = 0;
 		startingmoneyperyear[i].money = 0;
 		startingmoneyperyear[i].interpol = 0;
 	}
-
-	// six month time frame for starting first convoi
-	remove_dummy_player_months = 6;
-
-	// off
-	unprotect_abandoned_player_months = 0;
-
-	maint_building = 5000; // normal buildings
-	way_toll_runningcost_percentage = 0;
-	way_toll_waycost_percentage = 0;
-
-	allow_underground_transformers = true;
-	disable_make_way_public = false;
-
-	// stop buildings
-	cst_multiply_dock=-50000;
-	cst_multiply_station=-60000;
-	cst_multiply_roadstop=-40000;
-	cst_multiply_airterminal=-300000;
-	cst_multiply_post=-30000;
-	cst_multiply_headquarter=-100000;
-	cst_depot_rail=-100000;
-	cst_depot_road=-130000;
-	cst_depot_ship=-250000;
-	cst_depot_air=-500000;
-	allow_merge_distant_halt = 2;
-	cst_multiply_merge_halt=-50000;
-	// alter landscape
-	cst_buy_land=-10000;
-	cst_alter_land=-100000;
-	cst_alter_climate=-100000;
-	cst_set_slope=-250000;
-	cst_found_city=-500000000;
-	cst_multiply_found_industry=-2000000;
-	cst_remove_tree=-10000;
-	cst_multiply_remove_haus=-100000;
-	cst_multiply_remove_field=-500000;
-	// cost for transformers
-	cst_transformer=-250000;
-	cst_maintain_transformer=-2000;
-
-	cst_make_public_months = 60;
-
-	// costs for the way searcher
-	way_count_straight = 1; // cost on existing way
-	way_count_no_way = 3; // slightly prefer existing ways
-	way_count_curve = 5; // diagonal curve
-	way_count_double_curve=10;
-	way_count_90_curve=30;
-	way_count_slope=20;
-	way_count_tunnel=16;
-	way_count_leaving_way=50;
-	way_count_avoid_crossings = 8; // prefer less system crossings
-	way_count_maximum = 2000; // limit for allowed ways (can be set lower to avoid covering the whole map with two clicks)
-	way_max_bridge_len = 15;
-
-	// default: joined capacities
-	separate_halt_capacities = false;
-
-	// this will pay for distance to next change station
-	pay_for_total_distance = TO_PREVIOUS;
-
-	avoid_overcrowding = false;
-
-	allow_buying_obsolete_vehicles = true;
-
-	used_vehicle_reduction = 0;
-
-	// some network thing to keep client in sync
-	random_counter = 0; // will be set when actually saving
-	frames_per_second = 20;
-	frames_per_step = 4;
-	server_frames_ahead = 4;
-
-	stop_halt_as_scheduled = false;
 }
 
 
