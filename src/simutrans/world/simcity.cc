@@ -3654,8 +3654,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 				}
 				sint8 bridge_height;
 				const char* err = bridge_builder_t::can_build_bridge(NULL, bd->get_pos(), bd_next->get_pos(), bridge_height, bridge, false);
-				// if the river is nagigable, we need a two hight slope, so we have to start on a flat tile
-				bool try_flat_start = false;;
+				// if the river is navigable, we need a two hight slope, so we have to start on a flat tile
 				if (err  &&  (bd->get_grund_hang()!= slope_t::flat  ||  bd_next->get_grund_hang()!=slope_t::flat)) {
 
 					slope_t::type try_flat_start = bd->get_grund_hang();

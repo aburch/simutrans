@@ -1853,7 +1853,7 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 		if (p) {
 			p++;
 			char* desc_name = p;
-			if (p = strchr(p, ',')) {
+			if ((p = strchr(p, ',')) != NULL) {
 				*p++ = 0;
 				if (isdigit(*p)) {
 					rotation = atoi(p);
@@ -2946,7 +2946,6 @@ const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start
 	if (end!=koord3d::invalid) {
 		const koord zv(ribi_type(end-start));
 		sint8 bridge_height;
-		const char *error;
 		if (const char* error=bridge_builder_t::can_build_bridge(player, start, end, bridge_height, desc, is_ctrl_pressed())) {
 			// cannot build bridge here
 			return error;
@@ -2969,7 +2968,6 @@ void tool_build_bridge_t::mark_tiles( player_t *player, const koord3d &start, co
 	const ribi_t::ribi ribi_mark = ribi_type(end-start);
 	const koord zv(ribi_mark);
 	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
-	const char *error;
 	sint8 bridge_height;
 
 	if (bridge_builder_t::can_build_bridge(player, start, end, bridge_height, desc, is_ctrl_pressed())) {
@@ -3083,15 +3081,15 @@ void tool_build_bridge_t::mark_tiles( player_t *player, const koord3d &start, co
 	win_set_static_tooltip( tooltip_with_price_length("Building costs estimates", costs, koord_distance(start, pos)+1 ) );
 }
 
+
 uint8 tool_build_bridge_t::is_valid_pos(  player_t *player, const koord3d &pos, const char *&error, const koord3d &start )
 {
 	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
-	const waytype_t wt = desc->get_waytype();
 
 	error = NULL;
 	grund_t *gr = welt->lookup(pos);
 	if (gr == NULL) {
-		return NULL;
+		return 0;
 	}
 	bool diagonal = (pos.x != start.x) && (pos.y != start.y);
 	if (!is_first_click() && diagonal) {

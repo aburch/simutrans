@@ -380,7 +380,7 @@ const char* bridge_builder_t::check_start_tile(const player_t* player, const gru
 
 	}
 	// we can build a ramp when there is one (or with tram two) way in our direction and no stations/depot etc.
-	else if (gr->hat_wege()  &&  !gr->get_typ()==grund_t::monorailboden) {
+	else if (gr->hat_wege()  &&  gr->get_typ()!=grund_t::monorailboden) {
 
 		weg_t* w = gr->get_weg(desc->get_waytype());
 		if (!w) {
@@ -390,7 +390,7 @@ const char* bridge_builder_t::check_start_tile(const player_t* player, const gru
 
 		// now check for direction
 		ribi_t::ribi ribi = w->get_ribi_unmasked();
-		if (weg_t* w2 = gr->get_weg_nr(1)) {
+		if (gr->get_weg_nr(1)) {
 			if (gr->get_crossing()) {
 				// cannot start on a crossing
 				return "A bridge must start on a way!";
@@ -515,7 +515,7 @@ const char* bridge_builder_t::can_build_bridge(const player_t* pl, koord3d start
 	minivec_tpl<sint8>heights;
 
 	koord delta = end_pos.get_2d() - start_pos.get_2d();
-	if (delta.x * delta.y) {
+	if (delta.x && delta.y) {
 		// no diagonal bridges
 		return "";
 	}
@@ -526,13 +526,12 @@ const char* bridge_builder_t::can_build_bridge(const player_t* pl, koord3d start
 	delta = delta / abs(delta.x + delta.y); // normalised step difference
 	ribi_t::ribi bridge_ribi = ribi_type(delta);
 
-	const char* error_msg = NULL;
 	grund_t* start = welt->lookup(start_pos);
-	if (error_msg = check_start_tile(pl, start, ribi_t::reverse_single(bridge_ribi), desc)) {
+	if (const char* error_msg = check_start_tile(pl, start, ribi_t::reverse_single(bridge_ribi), desc)) {
 		return error_msg;
 	}
 	grund_t* end = welt->lookup(end_pos);
-	if (error_msg = check_start_tile(pl, end, bridge_ribi, desc)) {
+	if (const char* error_msg = check_start_tile(pl, end, bridge_ribi, desc)) {
 		return error_msg;
 	}
 
@@ -612,7 +611,7 @@ const char* bridge_builder_t::can_build_bridge(const player_t* pl, koord3d start
 	}
 
 	// as default, we fail construction
-	error_msg = "";
+	const char* error_msg = "";
 
 	if (koord_distance(start_pos, end_pos) > 0) {
 		// we always try to build the lowest bridge possible with the least slopes

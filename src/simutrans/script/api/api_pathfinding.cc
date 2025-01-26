@@ -123,14 +123,13 @@ bool way_builder_is_allowed_step(way_builder_t *bob, grund_t *from, grund_t *to)
 
 koord3d bridge_builder_find_end_pos(player_t *player, koord3d pos, my_ribi_t mribi, const bridge_desc_t *bridge, uint32 min_length)
 {
-	const char* err;
 	sint8 height;
 	ribi_t::ribi ribi(mribi);
 
 	if (player == NULL  ||  bridge == NULL) {
 		return koord3d::invalid;
 	}
-	if (err = bridge_builder_t::find_end_pos(player, pos, ribi, height, bridge, min_length, 10, false)) {
+	if (bridge_builder_t::find_end_pos(player, pos, ribi, height, bridge, min_length, 10, false) != NULL) {
 		return koord3d::invalid;
 	}
 	return pos;
