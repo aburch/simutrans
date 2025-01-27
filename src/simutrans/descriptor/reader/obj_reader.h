@@ -55,12 +55,35 @@ inline uint16 decode_uint16(char * &data)
  */
 inline uint32 decode_uint32(char * &data)
 {
-	uint32 const v = (uint32)(uint8)data[0] | (uint32)(uint8)data[1] << 8 | (uint32)(uint8)data[2] << 16 | (uint32)(uint8)data[3] << 24;
+	uint32 const v =
+		(uint32)(uint8)data[0] <<  0 |
+		(uint32)(uint8)data[1] <<  8 |
+		(uint32)(uint8)data[2] << 16 |
+		(uint32)(uint8)data[3] << 24;
 	data += sizeof(v);
 	return v;
 }
 
 #define decode_sint32(data)  (sint32)decode_uint32(data)
+
+
+inline uint64 decode_uint64(char *&data)
+{
+	const uint64 v =
+		(uint64)(uint8)data[0] <<  0 |
+		(uint64)(uint8)data[1] <<  8 |
+		(uint64)(uint8)data[2] << 16 |
+		(uint64)(uint8)data[3] << 24 |
+		(uint64)(uint8)data[4] << 32 |
+		(uint64)(uint8)data[5] << 40 |
+		(uint64)(uint8)data[6] << 48 |
+		(uint64)(uint8)data[7] << 56;
+	data += sizeof(v);
+	return v;
+}
+
+#define decode_sint64(data)  (sint64)decode_uint64(data)
+
 
 
 #define OBJ_READER_DEF(classname, ty, ty_name) \
