@@ -653,7 +653,7 @@ void convoi_t::add_running_cost( const weg_t *weg )
 
 	if(  weg  &&  weg->get_owner()!=get_owner()  &&  weg->get_owner()!=NULL  ) {
 		// running on non-public way costs toll (since running costs are positive => invert)
-		sint32 toll = -(sum_running_costs*welt->get_settings().get_way_toll_runningcost_percentage())/100l;
+		sint64 toll = -(sum_running_costs*welt->get_settings().get_way_toll_runningcost_percentage())/100l;
 		if(  welt->get_settings().get_way_toll_waycost_percentage()  ) {
 			if(  weg->is_electrified()  &&  needs_electrification()  ) {
 				// toll for using electricity
@@ -675,7 +675,6 @@ void convoi_t::add_running_cost( const weg_t *weg )
 		get_owner()->book_toll_paid(         -toll, get_schedule()->get_waytype() );
 		book( -toll, CONVOI_WAYTOLL);
 		book( -toll, CONVOI_PROFIT);
-
 	}
 	get_owner()->book_running_costs( sum_running_costs, get_schedule()->get_waytype());
 

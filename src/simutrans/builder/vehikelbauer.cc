@@ -210,7 +210,7 @@ vehicle_t* vehicle_builder_t::build(koord3d k, player_t* player, convoi_t* cnv, 
 			dbg->fatal("vehicle_builder_t::build()", "cannot built a vehicle with waytype %i", vb->get_waytype());
 	}
 
-	player->book_new_vehicle(-(sint64)vb->get_price(), k.get_2d(), vb->get_waytype() );
+	player->book_new_vehicle(-vb->get_price(), k.get_2d(), vb->get_waytype() );
 
 	return v;
 }
@@ -257,9 +257,9 @@ static int compare_capacity(const vehicle_desc_t* a, const vehicle_desc_t* b) { 
 static int compare_engine(const vehicle_desc_t* a, const vehicle_desc_t* b) {
 	return (a->get_capacity() + a->get_power() == 0 ? (uint8)vehicle_desc_t::steam : a->get_engine_type()) - (b->get_capacity() + b->get_power() == 0 ? (uint8)vehicle_desc_t::steam : b->get_engine_type());
 }
-static int compare_price(const vehicle_desc_t* a, const vehicle_desc_t* b) { return a->get_price() - b->get_price(); }
-static int compare_cost(const vehicle_desc_t* a, const vehicle_desc_t* b) { return a->get_running_cost() - b->get_running_cost(); }
-static int compare_cost_per_unit(const vehicle_desc_t* a, const vehicle_desc_t* b) { return a->get_running_cost()*b->get_capacity() - b->get_running_cost()*a->get_capacity(); }
+static int compare_price(const vehicle_desc_t* a, const vehicle_desc_t* b) { return sgn(a->get_price() - b->get_price()); }
+static int compare_cost(const vehicle_desc_t* a, const vehicle_desc_t* b) { return sgn(a->get_running_cost() - b->get_running_cost()); }
+static int compare_cost_per_unit(const vehicle_desc_t* a, const vehicle_desc_t* b) { return sgn(a->get_running_cost()*b->get_capacity() - b->get_running_cost()*a->get_capacity()); }
 static int compare_topspeed(const vehicle_desc_t* a, const vehicle_desc_t* b) {return a->get_topspeed() - b->get_topspeed();}
 static int compare_power(const vehicle_desc_t* a, const vehicle_desc_t* b) {return (a->get_power() == 0 ? 0x7FFFFFF : a->get_power()) - (b->get_power() == 0 ? 0x7FFFFFF : b->get_power());}
 static int compare_weight(const vehicle_desc_t* a, const vehicle_desc_t* b) {return a->get_weight() - b->get_weight();}

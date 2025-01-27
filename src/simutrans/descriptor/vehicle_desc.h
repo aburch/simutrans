@@ -62,11 +62,11 @@ public:
 
 
 private:
-	uint16  capacity;
-	uint16  loading_time; // time per full loading/unloading
 	uint32  weight;
 	uint32  power;
-	uint16  running_cost;
+	sint64  running_cost;
+	uint16  capacity;
+	uint16  loading_time; // time per full loading/unloading
 
 	uint16  gear;       // engine gear (power multiplier), 64=100
 
@@ -246,8 +246,8 @@ public:
 	uint16 get_loading_time() const { return loading_time; } // ms per full loading/unloading
 	uint32 get_weight() const { return weight; }
 	uint32 get_power() const { return power; }
-	uint32 get_running_cost() const { return running_cost; }
-	sint32 get_fixed_cost() const { return get_maintenance(); }
+	sint64 get_running_cost() const { return running_cost; }
+	sint64 get_fixed_cost() const { return get_maintenance(); }
 	sint8 get_sound() const { return sound; }
 
 	/**

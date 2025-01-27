@@ -87,22 +87,22 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	write_name_and_copyright(fp, node, obj);
 
-	node.write_version(fp, 11);
+	node.write_version(fp, 12);
 
 	// Price of this vehicle in cent
-	uint32 price = obj.get_int("cost", 0);
-	node.write_uint32(fp, price);
+	const sint64 price = obj.get_int64("cost", 0);
+	node.write_sint64(fp, price);
 
 	// Maximum payload of this vehicle
-	uint16 capacity = obj.get_int("payload", 0);
+	const uint16 capacity = obj.get_int("payload", 0);
 	node.write_uint16(fp, capacity);
 
 	// ms per loading/unloading everything
-	uint16 loading_time = obj.get_int("loading_time", 1000 );
+	const uint16 loading_time = obj.get_int("loading_time", 1000 );
 	node.write_uint16(fp, loading_time);
 
 	// Top speed of this vehicle. Must be greater than 0
-	uint16 topspeed = obj.get_int("speed", 0);
+	const uint16 topspeed = obj.get_int("speed", 0);
 	node.write_uint16(fp, topspeed);
 
 	// Total weight of this vehicle in tons
@@ -111,30 +111,30 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint32(fp, weight);
 
 	// axle_load (determine ways usage)
-	uint16 axle_load = obj.get_int("axle_load", 0);
+	const uint16 axle_load = obj.get_int("axle_load", 0);
 	node.write_uint16(fp, axle_load);
 
 	// Power of this vehicle in KW
-	uint32 power = obj.get_int("power", 0);
+	const uint32 power = obj.get_int("power", 0);
 	node.write_uint32(fp, power);
 
 	// Running costs, given in cent per square
-	uint16 running_cost = obj.get_int("runningcost", 0);
-	node.write_uint16(fp, running_cost);
+	const sint64 running_cost = obj.get_int64("runningcost", 0);
+	node.write_sint64(fp, running_cost);
 
 	// monthly maintenance
-	uint32 fixed_cost = obj.get_int("fixed_cost", 0xFFFFFFFFul );
-	if(  fixed_cost == 0xFFFFFFFFul  ) {
+	sint64 fixed_cost = obj.get_int64("fixed_cost", INT64_MAX);
+	if(  fixed_cost == INT64_MAX  ) {
 		fixed_cost = obj.get_int("maintenance", 0);
 	}
-	node.write_uint32(fp, fixed_cost);
+	node.write_sint64(fp, fixed_cost);
 
 	// Introduction date (year * 12 + month)
-	uint16 intro_date  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12 + obj.get_int("intro_month", 1) - 1;
+	uint16 intro_date  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12 + obj.get_int("intro_month", 1)-1;
 	node.write_uint16(fp, intro_date);
 
 	// retire date (year * 12 + month)
-	uint16 retire_date = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12 + obj.get_int("retire_month", 1) - 1;
+	uint16 retire_date = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12 + obj.get_int("retire_month", 1)-1;
 	node.write_uint16(fp, retire_date);
 
 	// Engine gear (power multiplier)
