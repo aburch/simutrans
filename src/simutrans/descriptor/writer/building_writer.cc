@@ -45,19 +45,13 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 	}
 
 	// write version data
-	uint16 v16 = 0x8002;
-	node.write_uint16(fp, v16, 0);
+	node.write_version(fp, 2);
 
-	v16 = phases;
-	node.write_uint16(fp, v16, 2);
+	node.write_uint16(fp, (uint16)phases);
+	node.write_uint16(fp, (uint16)index);
+	node.write_uint8 (fp, (uint8)seasons);
 
-	v16 = index;
-	node.write_uint16(fp, v16, 4);
-
-	uint8 uv8 = seasons;
-	node.write_uint8(fp, uv8, 6);
-
-	node.write(fp);
+	node.check_and_write_header(fp);
 }
 
 
@@ -81,7 +75,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// take care, hardcoded size of node on disc here!
 	obj_node_t node(this, 39, &parent);
 
-	write_head(fp, node, obj);
+	write_name_and_copyright(fp, node, obj);
 
 	koord size(1, 1);
 	uint8 layouts = 0;
@@ -278,7 +272,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 			for (int x = 0; x < w; ++x) { // each tile
 				for (int pos = 0; pos < 2; pos++) {
 					for (int season = seasons; season < 12; season++) {
-						char buf[40];
+						char buf[256];
 						sprintf(buf, "%simage[%d][%d][%d][%d][%d][%d]", pos ? "back" : "front", l, y, x, 0, 0, season);
 						string str = obj.get(buf);
 						if (str.size() != 0) {
@@ -310,7 +304,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 						for (unsigned int h = 0; ; h++) { // each height
 							for (int phase = 0; ; phase++) { // each animation
-								char buf[40];
+								char buf[256];
 
 								sprintf(buf, "%simage[%d][%d][%d][%d][%d][%d]", pos ? "back" : "front", l, y, x, h, phase, season);
 								string str = obj.get(buf);
@@ -351,28 +345,28 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 
 	// write version data
-	node.write_uint16(fp, 0x800A,            0);
+	node.write_version(fp, 10);
 
 	// write desc data
-	node.write_uint8 (fp, 0,                 2); // was gtyp
-	node.write_uint8 (fp, type,              3);
-	node.write_uint16(fp, level,             4);
-	node.write_uint32(fp, extra_data,        6);
-	node.write_uint16(fp, size.x,           10);
-	node.write_uint16(fp, size.y,           12);
-	node.write_uint8 (fp, layouts,          14);
-	node.write_uint16(fp, allowed_climates, 15);
-	node.write_uint8 (fp, enables,          17);
-	node.write_uint8 (fp, flags,            18);
-	node.write_uint8 (fp, chance,           19);
-	node.write_uint16(fp, intro_date,       20);
-	node.write_uint16(fp, retire_date,    22);
-	node.write_uint16(fp, animation_time,   24);
-	node.write_uint16(fp, capacity,         26);
-	node.write_sint32(fp, maintenance,      28);
-	node.write_sint32(fp, price,            32);
-	node.write_uint8 (fp, allow_underground,36);
-	node.write_uint16(fp, preservation_date,37);
+	node.write_uint8 (fp, 0); // was gtyp
+	node.write_uint8 (fp, type);
+	node.write_uint16(fp, level);
+	node.write_uint32(fp, extra_data);
+	node.write_uint16(fp, size.x);
+	node.write_uint16(fp, size.y);
+	node.write_uint8 (fp, layouts);
+	node.write_uint16(fp, allowed_climates);
+	node.write_uint8 (fp, enables);
+	node.write_uint8 (fp, flags);
+	node.write_uint8 (fp, chance);
+	node.write_uint16(fp, intro_date);
+	node.write_uint16(fp, retire_date);
+	node.write_uint16(fp, animation_time);
+	node.write_uint16(fp, capacity);
+	node.write_sint32(fp, maintenance);
+	node.write_sint32(fp, price);
+	node.write_uint8 (fp, allow_underground);
+	node.write_uint16(fp, preservation_date);
 
 	// probably add some icons, if defined
 	slist_tpl<string> cursorkeys;
@@ -384,5 +378,6 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	if (!c.empty() || !i.empty()) {
 		cursorskin_writer_t::instance()->write_obj(fp, node, obj, cursorkeys);
 	}
-	node.write(fp);
+
+	node.check_and_write_header(fp);
 }

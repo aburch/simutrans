@@ -493,21 +493,22 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, std::string an_i
 	// version 3
 	obj_node_t node(this, 10 + (image.len * sizeof(uint16)), &parent);
 
-	// to avoid any problems due to structure changes, we write manually the data
-	node.write_uint16(outfp, image.x,        0);
-	node.write_uint16(outfp, image.y,        2);
-	node.write_uint16(outfp, image.w,        4);
-	node.write_uint8 (outfp, 3,              6); // version, always at position 6!
-	node.write_uint16(outfp, image.h,        7);
+	// to avoid any problems due to structure changes, we write the data manually
+	node.write_uint16(outfp, image.x);
+	node.write_uint16(outfp, image.y);
+	node.write_uint16(outfp, image.w);
+	node.write_uint8 (outfp, 3); // version, always at position 6!
+	node.write_uint16(outfp, image.h);
+
 	// len is now automatically calculated
-	node.write_uint8 (outfp, image.zoomable, 9);
+	node.write_uint8 (outfp, image.zoomable);
 
 	if (image.len) {
 		// only called, if there is something to store
-		node.write_data_at(outfp, pixdata, 10, image.len * sizeof(uint16));
+		node.write_bytes(outfp, image.len * sizeof(uint16), pixdata);
 		delete [] pixdata;
 	}
 #endif
 
-	node.write(outfp);
+	node.check_and_write_header(outfp);
 }

@@ -17,7 +17,7 @@ using std::string;
 void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	obj_node_t node(this, 16, &parent);
-	write_head(fp, node, obj);
+	write_name_and_copyright(fp, node, obj);
 
 	climate_bits allowed_climates;
 	const char *climate_str = obj.get("climates");
@@ -101,14 +101,15 @@ finish_images:
 	imagelist2d_writer_t::instance()->write_obj(fp, node, keys);
 
 	// write version data
-	node.write_uint16(fp, 0x8001,               0);
-	node.write_uint16(fp, allowed_climates,     2);
-	node.write_uint16(fp, distribution_weight,  4);
-	node.write_uint8 (fp, number_of_seasons,    6);
-	node.write_uint8 (fp, trees_on_top,         7);
-	node.write_uint16(fp, speed,                8);
-	node.write_uint16(fp, waytype,             10);
-	node.write_sint32(fp, price,        12);
+	node.write_version(fp, 1);
 
-	node.write(fp);
+	node.write_uint16(fp, allowed_climates);
+	node.write_uint16(fp, distribution_weight);
+	node.write_uint8 (fp, number_of_seasons);
+	node.write_uint8 (fp, trees_on_top);
+	node.write_uint16(fp, speed);
+	node.write_uint16(fp, waytype);
+	node.write_sint32(fp, price);
+
+	node.check_and_write_header(fp);
 }

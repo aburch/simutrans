@@ -16,7 +16,7 @@ void ground_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	obj_node_t node(this, 0, &parent);
 
-	write_head(fp, node, obj);
+	write_name_and_copyright(fp, node, obj);
 
 	slist_tpl<slist_tpl<std::string> > keys;
 	// summer images
@@ -41,5 +41,5 @@ void ground_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	}
 	imagelist2d_writer_t::instance()->write_obj(fp, node, keys);
 
-	node.write(fp);
+	node.check_and_write_header(fp);
 }

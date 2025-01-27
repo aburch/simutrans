@@ -85,92 +85,70 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	obj_node_t node(this, total_len, &parent);
 
-	write_head(fp, node, obj);
-	uint16 pos = 0;
+	write_name_and_copyright(fp, node, obj);
 
-	// Version needs high bit set as trigger -> this is required
-	// as marker because formerly nodes were unversioned
-	uint16 version = 0x800B;
-	node.write_uint16(fp, version, pos);
-	pos += sizeof(uint16);
+	node.write_version(fp, 11);
 
 	// Price of this vehicle in cent
 	uint32 price = obj.get_int("cost", 0);
-	node.write_uint32(fp, price, pos);
-	pos += sizeof(uint32);
-
+	node.write_uint32(fp, price);
 
 	// Maximum payload of this vehicle
 	uint16 capacity = obj.get_int("payload", 0);
-	node.write_uint16(fp, capacity, pos);
-	pos += sizeof(uint16);
+	node.write_uint16(fp, capacity);
 
 	// ms per loading/unloading everything
 	uint16 loading_time = obj.get_int("loading_time", 1000 );
-	node.write_uint16(fp, loading_time, pos);
-	pos += sizeof(uint16);
+	node.write_uint16(fp, loading_time);
 
 	// Top speed of this vehicle. Must be greater than 0
 	uint16 topspeed = obj.get_int("speed", 0);
-	node.write_uint16(fp, topspeed, pos);
-	pos += sizeof(uint16);
+	node.write_uint16(fp, topspeed);
 
 	// Total weight of this vehicle in tons
 	const char *weight_str = obj.get("weight");
 	uint32 weight = (uint32)(atof( weight_str )*1000.0 + 0.5);
-	node.write_uint32(fp, weight, pos);
-	pos += sizeof(uint32);
+	node.write_uint32(fp, weight);
 
 	// axle_load (determine ways usage)
 	uint16 axle_load = obj.get_int("axle_load", 0);
-	node.write_uint16(fp, axle_load, pos);
-	pos += sizeof(uint16);
+	node.write_uint16(fp, axle_load);
 
 	// Power of this vehicle in KW
 	uint32 power = obj.get_int("power", 0);
-	node.write_uint32(fp, power, pos);
-	pos += sizeof(uint32);
+	node.write_uint32(fp, power);
 
 	// Running costs, given in cent per square
 	uint16 running_cost = obj.get_int("runningcost", 0);
-	node.write_uint16(fp, running_cost, pos);
-	pos += sizeof(uint16);
+	node.write_uint16(fp, running_cost);
 
 	// monthly maintenance
 	uint32 fixed_cost = obj.get_int("fixed_cost", 0xFFFFFFFFul );
 	if(  fixed_cost == 0xFFFFFFFFul  ) {
 		fixed_cost = obj.get_int("maintenance", 0);
 	}
-	node.write_uint32(fp, fixed_cost, pos);
-	pos += sizeof(uint32);
+	node.write_uint32(fp, fixed_cost);
 
 	// Introduction date (year * 12 + month)
-	uint16 intro_date  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
-	intro_date += obj.get_int("intro_month", 1) - 1;
-	node.write_uint16(fp, intro_date, pos);
-	pos += sizeof(uint16);
+	uint16 intro_date  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12 + obj.get_int("intro_month", 1) - 1;
+	node.write_uint16(fp, intro_date);
 
 	// retire date (year * 12 + month)
-	uint16 retire_date = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
-	retire_date += obj.get_int("retire_month", 1) - 1;
-	node.write_uint16(fp, retire_date, pos);
-	pos += sizeof(uint16);
+	uint16 retire_date = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12 + obj.get_int("retire_month", 1) - 1;
+	node.write_uint16(fp, retire_date);
 
 	// Engine gear (power multiplier)
 	uint16 gear = (obj.get_int("gear", 100) * 64) / 100;
-	node.write_uint16(fp, gear, pos);
-	pos += sizeof(uint16);
+	node.write_uint16(fp, gear);
 
 	// Type of way this vehicle drives on
 	char const* const waytype_name = obj.get("waytype");
 	waytype_t   const waytype      = get_waytype(waytype_name);
 	uv8 = waytype != overheadlines_wt ? waytype : track_wt;
-	node.write_uint8(fp, uv8, pos);
-	pos += sizeof(uint8);
+	node.write_uint8(fp, uv8);
 
 	// sound id byte
-	node.write_sint8(fp, sound_id, pos);
-	pos += sizeof(uint8);
+	node.write_sint8(fp, sound_id);
 
 	// engine
 	if (waytype == overheadlines_wt) {
@@ -181,19 +159,18 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		const char* engine_type = obj.get("engine_type");
 		uv8 = get_engine_type(engine_type);
 	}
-	node.write_uint8(fp, uv8, pos);
-	pos += sizeof(uint8);
+	node.write_uint8(fp, uv8);
 
 	// the length (default 8)
 	uint8 length = obj.get_int("length", 8);
-	node.write_uint8(fp, length, pos);
-	pos += sizeof(uint8);
+	node.write_uint8(fp, length);
 
 	// The freight type
 	const char* freight = obj.get("freight");
 	if (!*freight) {
 		freight = "None";
 	}
+
 	xref_writer_t::instance()->write_obj(fp, node, obj_good, freight, true);
 	xref_writer_t::instance()->write_obj(fp, node, obj_smoke, obj.get("smoke"), false);
 
@@ -348,20 +325,15 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		xref_writer_t::instance()->write_obj(fp, node, obj_good, freight, false);
 	}
 
-	node.write_sint8(fp, leader_count, pos);
-	pos += sizeof(uint8);
-	node.write_sint8(fp, trailer_count, pos);
-	pos += sizeof(uint8);
-	node.write_uint8(fp, (uint8) freight_image_type, pos);
-	pos += sizeof(uint8);
+	node.write_sint8(fp, leader_count);
+	node.write_sint8(fp, trailer_count);
+	node.write_uint8(fp, (uint8) freight_image_type);
 
 	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {
-		node.write_sint8  (fp, sound_str_len, pos);
-		pos += sizeof(uint8);
-		node.write_data_at(fp, sound_str.c_str(), pos, sound_str_len);
-		pos += sound_str_len;
+		node.write_sint8  (fp, sound_str_len);
+		node.write_bytes(fp, sound_str_len, sound_str.c_str());
 	}
 
-	node.write(fp);
+	node.check_and_write_header(fp);
 }

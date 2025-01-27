@@ -59,7 +59,7 @@ void obj_writer_t::write(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 }
 
 
-void obj_writer_t::write_head(FILE* fp, obj_node_t& node, tabfileobj_t& obj)
+void obj_writer_t::write_name_and_copyright(FILE* fp, obj_node_t& node, tabfileobj_t& obj)
 {
 	const char* name = obj.get("name");
 	const char* msg = obj.get("copyright");

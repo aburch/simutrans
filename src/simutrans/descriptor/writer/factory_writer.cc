@@ -25,13 +25,13 @@ void factory_field_class_writer_t::write_obj(FILE* outfp, obj_node_t& parent, co
 	xref_writer_t::instance()->write_obj(outfp, node, obj_field, field_name, true);
 
 	// data specific to each field class
-	node.write_uint16(outfp, 0x8001,     0); // version
-	node.write_uint8 (outfp, snow_image, 2);
-	node.write_uint16(outfp, production, 3);
-	node.write_uint16(outfp, capacity,   5);
-	node.write_uint16(outfp, weight,     7);
+	node.write_version(outfp, 1);
+	node.write_uint8 (outfp, snow_image);
+	node.write_uint16(outfp, production);
+	node.write_uint16(outfp, capacity);
+	node.write_uint16(outfp, weight);
 
-	node.write(outfp);
+	node.check_and_write_header(outfp);
 }
 
 
@@ -87,14 +87,14 @@ void factory_field_group_writer_t::write_obj(FILE* outfp, obj_node_t& parent, ta
 		probability = 10000;
 	}
 
-	node.write_uint16(outfp, 0x8003,        0); // version
-	node.write_uint16(outfp, probability,   2);
-	node.write_uint16(outfp, max_fields,    4);
-	node.write_uint16(outfp, min_fields,    6);
-	node.write_uint16(outfp, start_fields,    8);
-	node.write_uint16(outfp, field_classes, 10);
+	node.write_version(outfp, 3); // version
+	node.write_uint16(outfp, probability);
+	node.write_uint16(outfp, max_fields);
+	node.write_uint16(outfp, min_fields);
+	node.write_uint16(outfp, start_fields);
+	node.write_uint16(outfp, field_classes);
 
-	node.write(outfp);
+	node.check_and_write_header(outfp);
 }
 
 
@@ -108,13 +108,13 @@ void factory_smoke_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileo
 	koord  const xy_off    = obj.get_koord("smokeoffset", koord(0, 0));
 	sint16 const smokespeed = 0; /* was obj.get_int("smokespeed",  0); */
 
-	node.write_sint16(outfp, pos_off.x,  0);
-	node.write_sint16(outfp, pos_off.y,  2);
-	node.write_sint16(outfp, xy_off.x,   4);
-	node.write_sint16(outfp, xy_off.y,   6);
-	node.write_sint16(outfp, smokespeed, 8);
+	node.write_sint16(outfp, pos_off.x);
+	node.write_sint16(outfp, pos_off.y);
+	node.write_sint16(outfp, xy_off.x);
+	node.write_sint16(outfp, xy_off.y);
+	node.write_sint16(outfp, smokespeed);
 
-	node.write(outfp);
+	node.check_and_write_header(outfp);
 }
 
 
@@ -127,12 +127,12 @@ void factory_product_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int ca
 	// Version needs high bit set as trigger -> this is required
 	// as marker because formerly nodes were unversioned
 	// new version 2: pax-level added
-	node.write_uint16(outfp, 0x8001,   0);
+	node.write_version(outfp, 1);
 
-	node.write_uint16(outfp, capacity, 2);
-	node.write_uint16(outfp, factor,   4);
+	node.write_uint16(outfp, capacity);
+	node.write_uint16(outfp, factor);
 
-	node.write(outfp);
+	node.check_and_write_header(outfp);
 }
 
 
@@ -142,12 +142,12 @@ void factory_supplier_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int c
 
 	xref_writer_t::instance()->write_obj(outfp, node, obj_good, warename, true);
 
-	node.write_uint16(outfp, capacity,    0);
-	node.write_uint16(outfp, count,       2);
-	node.write_uint16(outfp, consumption, 4);
-	node.write_uint16(outfp, 0,           6); //dummy, unused (and uninitialized in past versions)
+	node.write_uint16(outfp, capacity);
+	node.write_uint16(outfp, count);
+	node.write_uint16(outfp, consumption);
+	node.write_uint16(outfp, 0); //dummy, unused (and uninitialized in past versions)
 
-	node.write(outfp);
+	node.check_and_write_header(outfp);
 }
 
 
@@ -309,47 +309,48 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	}
 
 	// new version with pax_level, and smoke offsets part of factory
-	node.write_uint16(fp, 0x8005,              0); // version
-	node.write_uint16(fp, placement,           2);
-	node.write_uint16(fp, productivity,        4);
-	node.write_uint16(fp, range,               6);
-	node.write_uint16(fp, chance,              8);
-	node.write_uint8 (fp, color,              10);
-	node.write_uint8 (fp, fields,             11);
-	node.write_uint16(fp, supplier_count,     12);
-	node.write_uint16(fp, product_count,      14);
-	node.write_uint16(fp, pax_level,          16);
-	node.write_uint16(fp, expand_probability, 18);
-	node.write_uint16(fp, expand_minimum,     20);
-	node.write_uint16(fp, expand_range,       22);
-	node.write_uint16(fp, expand_times,       24);
-	node.write_uint16(fp, electric_boost,     26);
-	node.write_uint16(fp, pax_boost,          28);
-	node.write_uint16(fp, mail_boost,         30);
-	node.write_uint16(fp, electric_demand,    32);
-	node.write_uint16(fp, pax_demand,         34);
-	node.write_uint16(fp, mail_demand,        36);
-	node.write_uint32(fp, sound_interval,     38);
-	node.write_uint8 (fp, sound_id,           42);
+	node.write_version(fp, 5);
 
-	node.write_uint8 (fp, num_smoke_offsets,  43);
+	node.write_uint16(fp, placement);
+	node.write_uint16(fp, productivity);
+	node.write_uint16(fp, range);
+	node.write_uint16(fp, chance);
+	node.write_uint8 (fp, color);
+	node.write_uint8 (fp, fields);
+	node.write_uint16(fp, supplier_count);
+	node.write_uint16(fp, product_count);
+	node.write_uint16(fp, pax_level);
+	node.write_uint16(fp, expand_probability);
+	node.write_uint16(fp, expand_minimum);
+	node.write_uint16(fp, expand_range);
+	node.write_uint16(fp, expand_times);
+	node.write_uint16(fp, electric_boost);
+	node.write_uint16(fp, pax_boost);
+	node.write_uint16(fp, mail_boost);
+	node.write_uint16(fp, electric_demand);
+	node.write_uint16(fp, pax_demand);
+	node.write_uint16(fp, mail_demand);
+	node.write_uint32(fp, sound_interval);
+	node.write_uint8 (fp, sound_id);
+
+	node.write_uint8 (fp, num_smoke_offsets);
 	for( int i = 0; i < 4; i++ ) {
-		node.write_sint16( fp, pos_off[i].x, 44+i*8 );
-		node.write_sint16( fp, pos_off[i].y, 46+i*8 );
-		node.write_sint16( fp, xy_off[i].x,  48+i*8 );
-		node.write_sint16( fp, xy_off[i].y,  50+i*8 );
+		node.write_sint16( fp, pos_off[i].x);
+		node.write_sint16( fp, pos_off[i].y);
+		node.write_sint16( fp, xy_off[i].x);
+		node.write_sint16( fp, xy_off[i].y);
 	}
-	node.write_sint16(fp, smokeuplift,       76);
-	node.write_sint16(fp, smokelifetime,     78);
+	node.write_sint16(fp, smokeuplift);
+	node.write_sint16(fp, smokelifetime);
 
 	// this should be always at the end
 	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {
-		node.write_sint8  (fp, sound_str_len, 80);
-		node.write_data_at(fp, sound_str.c_str(), 81, sound_str_len);
+		node.write_sint8  (fp, sound_str_len);
+		node.write_bytes(fp, sound_str_len, sound_str.c_str());
 	}
 
-	node.write(fp);
+	node.check_and_write_header(fp);
 }
 
 

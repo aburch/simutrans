@@ -44,7 +44,7 @@ protected:
 
 	virtual bool dump_node(FILE *infp, const obj_node_info_t& node);
 	virtual void write_obj(FILE */*fp*/, obj_node_t& /*parent*/, tabfileobj_t& /*obj*/) {}
-	void write_head(FILE* fp, obj_node_t& node, tabfileobj_t& obj);
+	void write_name_and_copyright(FILE* fp, obj_node_t& node, tabfileobj_t& obj);
 
 public:
 	// contains the name of the last obj/name header

@@ -18,8 +18,8 @@ void text_writer_t::write_obj(FILE* outfp, obj_node_t& parent, const char* text)
 	const size_t len = strlen(text);
 	obj_node_t node(this, len + 1, &parent);
 
-	node.write_data(outfp, text);
-	node.write(outfp);
+	node.write_bytes(outfp, len+1, text);
+	node.check_and_write_header(outfp);
 }
 
 

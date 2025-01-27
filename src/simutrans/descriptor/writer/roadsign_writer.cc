@@ -114,22 +114,22 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// this causes unused entries to give a warning that they are ignored
 
 	// write version data
-	node.write_uint16(fp, 0x8005,      0); // version 5
-	node.write_uint16(fp, min_speed,   2);
-	node.write_uint32(fp, price,       4);
-	node.write_uint16(fp, flags,       8);
-	node.write_uint8 (fp, offset_left,10);
-	node.write_uint8 (fp, wtyp,       11);
+	node.write_version(fp, 5);
+	node.write_uint16(fp, min_speed);
+	node.write_uint32(fp, price);
+	node.write_uint16(fp, flags);
+	node.write_uint8 (fp, offset_left);
+	node.write_uint8 (fp, wtyp);
 
 	uint16 intro_date = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
 	intro_date += obj.get_int("intro_month", 1) - 1;
-	node.write_uint16(fp, intro_date, 12);
+	node.write_uint16(fp, intro_date);
 
 	uint16 retire_date = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
 	retire_date += obj.get_int("retire_month", 1) - 1;
-	node.write_uint16(fp, retire_date, 14);
+	node.write_uint16(fp, retire_date);
 
-	write_head(fp, node, obj);
+	write_name_and_copyright(fp, node, obj);
 
 	// add the images
 	slist_tpl<std::string> keys;
@@ -156,5 +156,5 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		cursorskin_writer_t::instance()->write_obj(fp, node, obj, cursorkeys);
 	}
 
-	node.write(fp);
+	node.check_and_write_header(fp);
 }

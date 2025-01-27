@@ -104,7 +104,7 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 					obj.unused( "#;-/" );
 
 					if(separate) {
-						node->write(outfp);
+						node->check_and_write_header(outfp);
 						delete node;
 						fclose(outfp);
 					}
@@ -116,7 +116,7 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 		}
 	}
 	if (!separate) {
-		node->write(outfp);
+		node->check_and_write_header(outfp);
 		delete node;
 		fclose(outfp);
 	}

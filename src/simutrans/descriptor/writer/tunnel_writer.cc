@@ -61,22 +61,18 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 		number_portals = 4;
 	}
 
-	// Version uses always high bit set as trigger
 	// version 4: snow images + underground way image + broad portals
-	uint16 version = 0x8005;
-	node.write_uint16(fp, version,           0);
-	node.write_sint32(fp, topspeed,          2);
-	node.write_uint32(fp, price,             6);
-	node.write_uint32(fp, maintenance,      10);
-	node.write_uint8 (fp, wtyp,             14);
-	node.write_uint16(fp, intro_date,       15);
-	node.write_uint16(fp, retire_date,      17);
-	node.write_uint16(fp, axle_load,        19);
-	node.write_sint8(fp, number_of_seasons, 21);
-	// has was (uint8) is here but filled later
-	node.write_sint8(fp, (number_portals==4), 23);
+	node.write_version(fp, 5);
+	node.write_sint32(fp, topspeed);
+	node.write_uint32(fp, price);
+	node.write_uint32(fp, maintenance);
+	node.write_uint8 (fp, wtyp);
+	node.write_uint16(fp, intro_date);
+	node.write_uint16(fp, retire_date);
+	node.write_uint16(fp, axle_load);
+	node.write_sint8(fp, number_of_seasons);
 
-	write_head(fp, node, obj);
+	write_name_and_copyright(fp, node, obj);
 
 	// and now the images
 	slist_tpl<string> backkeys;
@@ -112,13 +108,15 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	str = obj.get("way");
 	if (!str.empty()) {
 		xref_writer_t::instance()->write_obj(fp, node, obj_way, str.c_str(), false);
-		node.write_sint8(fp, 1, 22);
+		node.write_sint8(fp, 1);
 	}
 	else {
-		node.write_sint8(fp, 0, 22);
+		node.write_sint8(fp, 0);
 	}
+
+	node.write_sint8(fp, (number_portals==4));
 
 	cursorkeys.clear();
 
-	node.write(fp);
+	node.check_and_write_header(fp);
 }

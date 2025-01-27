@@ -29,7 +29,7 @@ void imagelist_writer_t::write_obj(FILE* fp, obj_node_t& parent, const slist_tpl
 		dbg->warning( obj_writer_t::last_name, "Expected %i but found %i images (might be correct)!\n", keys.get_count(), count);
 	}
 
-	node.write_uint16(fp, count, 0);
-	node.write_uint16(fp, 0,     2);
-	node.write(fp);
+	node.write_uint16(fp, count);
+	node.write_uint16(fp, 0);
+	node.check_and_write_header(fp);
 }

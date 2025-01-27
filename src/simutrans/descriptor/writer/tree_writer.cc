@@ -17,7 +17,7 @@ using std::string;
 void tree_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	obj_node_t node(this, 6, &parent);
-	write_head(fp, node, obj);
+	write_name_and_copyright(fp, node, obj);
 
 	climate_bits allowed_climates;
 	const char *climate_str = obj.get("climates");
@@ -56,10 +56,10 @@ void tree_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	imagelist2d_writer_t::instance()->write_obj(fp, node, keys);
 
 	// write version data
-	node.write_uint16(fp, 0x8002,              0);
-	node.write_uint16(fp, allowed_climates,    2);
-	node.write_uint8( fp, distribution_weight, 4);
-	node.write_uint8( fp, number_of_seasons,   5);
+	node.write_version(fp, 2);
+	node.write_uint16(fp, allowed_climates);
+	node.write_uint8(fp, distribution_weight);
+	node.write_uint8(fp, number_of_seasons);
 
-	node.write(fp);
+	node.check_and_write_header(fp);
 }

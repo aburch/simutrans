@@ -15,7 +15,6 @@ void citycar_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 {
 	int i;
 
-	obj_node_t node(this, 10, &parent);
 
 	uint16 const dist_weight = obj.get_int("distributionweight", 1);
 
@@ -29,14 +28,16 @@ void citycar_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	uint16 const topspeed = obj.get_int("speed", 80) * 16;
 
-	// new version with intro and obsolete dates
-	node.write_uint16(fp, 0x8002,        0); // version information
-	node.write_uint16(fp, dist_weight,   2);
-	node.write_uint16(fp, topspeed,      4);
-	node.write_uint16(fp, intro_date,    6);
-	node.write_uint16(fp, retire_date, 8);
+	obj_node_t node(this, 10, &parent);
 
-	write_head(fp, node, obj);
+	// new version with intro and obsolete dates
+	node.write_version(fp, 2); // version information
+	node.write_uint16(fp, dist_weight);
+	node.write_uint16(fp, topspeed);
+	node.write_uint16(fp, intro_date);
+	node.write_uint16(fp, retire_date);
+
+	write_name_and_copyright(fp, node, obj);
 
 	static const char* const dir_codes[] = {
 		"s", "w", "sw", "se", "n", "e", "ne", "nw"
@@ -53,5 +54,5 @@ void citycar_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	}
 	imagelist_writer_t::instance()->write_obj(fp, node, keys);
 
-	node.write(fp);
+	node.check_and_write_header(fp);
 }

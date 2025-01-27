@@ -29,12 +29,8 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	};
 	int ribi, slope;
 
-	obj_node_t node(this, 20, &parent);
-
-
 	// Version needs high bit set as trigger -> this is required
 	// as marker because formerly nodes were unversionend
-	uint16 version     = 0x8001;
 	uint32 price       = obj.get_int("cost",        100);
 	uint32 maintenance = obj.get_int("maintenance", 100);
 	sint32 topspeed    = obj.get_int("topspeed",    999);
@@ -48,16 +44,18 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	uint8 wtyp     =  get_waytype(obj.get("waytype"));
 	uint8 own_wtyp =  get_waytype(obj.get("own_waytype"));
 
-	node.write_uint16(outfp, version,      0);
-	node.write_uint32(outfp, price,        2);
-	node.write_uint32(outfp, maintenance,  6);
-	node.write_sint32(outfp, topspeed,    10);
-	node.write_uint16(outfp, intro,       14);
-	node.write_uint16(outfp, retire,      16);
-	node.write_uint8 (outfp, wtyp,        18);
-	node.write_uint8 (outfp, own_wtyp,    19);
+	obj_node_t node(this, 20, &parent);
 
-	write_head(outfp, node, obj);
+	node.write_version(outfp, 1);
+	node.write_uint32(outfp, price);
+	node.write_uint32(outfp, maintenance);
+	node.write_sint32(outfp, topspeed);
+	node.write_uint16(outfp, intro);
+	node.write_uint16(outfp, retire);
+	node.write_uint8 (outfp, wtyp);
+	node.write_uint8 (outfp, own_wtyp);
+
+	write_name_and_copyright(outfp, node, obj);
 
 	slist_tpl<string> front_list;
 	slist_tpl<string> back_list;
@@ -122,6 +120,5 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	cursorkeys.append(string(obj.get("icon")));
 	cursorskin_writer_t::instance()->write_obj(outfp, node, obj, cursorkeys);
 
-	// node.write_data(fp, &desc);
-	node.write(outfp);
+	node.check_and_write_header(outfp);
 }

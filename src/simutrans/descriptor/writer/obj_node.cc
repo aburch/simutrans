@@ -8,24 +8,28 @@
 #include "obj_node.h"
 #include "../obj_desc.h"
 
+#include <cassert>
 
-uint32 obj_node_t::free_offset; // next free offset in file
+
+uint32 obj_node_t::next_node_header_offset; // next free offset in file
 
 
 obj_node_t::obj_node_t(obj_writer_t* writer, uint32 size, obj_node_t* parent)
 {
 	this->parent = parent;
+	this->data_write_offset = 0;
 
 	desc.type = writer->get_type();
 	desc.nchildren = 0;
 	desc.size = size;
+
 	if(  size<LARGE_RECORD_SIZE  ) {
-		write_offset = free_offset + OBJ_NODE_INFO_SIZE; // put size of dis here!
-		free_offset = write_offset + desc.size;
+		this->body_offset = obj_node_t::next_node_header_offset + OBJ_NODE_INFO_SIZE; // put size of dis here!
+		obj_node_t::next_node_header_offset = this->body_offset + this->desc.size;
 	}
 	else {
-		write_offset = free_offset + EXT_OBJ_NODE_INFO_SIZE; // put size of dis here!
-		free_offset = write_offset + desc.size;
+		this->body_offset = obj_node_t::next_node_header_offset + EXT_OBJ_NODE_INFO_SIZE; // put size of dis here!
+		obj_node_t::next_node_header_offset = this->body_offset + this->desc.size;
 	}
 }
 
@@ -62,28 +66,31 @@ bool obj_node_t::read_node(FILE* fp, obj_node_info_t &node )
 }
 
 
-void obj_node_t::write(FILE* fp)
+void obj_node_t::check_and_write_header(FILE *fp)
 {
+	assert(this->data_write_offset == this->desc.size);
+
 	if(  desc.size<LARGE_RECORD_SIZE  ) {
-		fseek(fp, write_offset - OBJ_NODE_INFO_SIZE, SEEK_SET);
+		fseek(fp, body_offset - OBJ_NODE_INFO_SIZE, SEEK_SET);
 		uint32 type     = endian(desc.type);
 		uint16 children = endian(desc.nchildren);
 		uint16 size16   = endian(uint16(desc.size));
-		fwrite(&type, 4, 1, fp);
-		fwrite(&children, 2, 1, fp);
-		fwrite(&size16, 2, 1, fp);
+		fwrite(&type,     sizeof(type),     1, fp);
+		fwrite(&children, sizeof(children), 1, fp);
+		fwrite(&size16,   sizeof(size16),   1, fp);
 	}
 	else {
 		// extended length record
-		fseek(fp, write_offset - EXT_OBJ_NODE_INFO_SIZE, SEEK_SET);
+		fseek(fp, body_offset - EXT_OBJ_NODE_INFO_SIZE, SEEK_SET);
 		uint32 type     = endian(desc.type);
 		uint16 children = endian(desc.nchildren);
 		uint16 size16   = endian(uint16(LARGE_RECORD_SIZE));
 		uint32 size     = endian(desc.size);
-		fwrite(&type, 4, 1, fp);
-		fwrite(&children, 2, 1, fp);
-		fwrite(&size16, 2, 1, fp); // 0xFFFF
-		fwrite(&size, 4, 1, fp);
+
+		fwrite(&type,     sizeof(type),     1, fp);
+		fwrite(&children, sizeof(children), 1, fp);
+		fwrite(&size16,   sizeof(size16),   1, fp); // 0xFFFF
+		fwrite(&size,     sizeof(size),     1, fp);
 	}
 
 	if (parent) {
@@ -92,39 +99,47 @@ void obj_node_t::write(FILE* fp)
 }
 
 
-void obj_node_t::write_data(FILE* fp, const void* data)
+void obj_node_t::write_bytes(FILE* fp, uint32 size, const void *data)
 {
-	write_data_at(fp, data, 0, desc.size);
-}
-
-
-void obj_node_t::write_data_at(FILE* fp, const void* data, int offset, int size)
-{
-	if (offset < 0 || size < 0 || (uint32)(offset + size) > desc.size) {
+	// beware of overflow
+	if (UINT32_MAX - size < this->data_write_offset ||
+		this->data_write_offset + size > desc.size)
+	{
 		char reason[1024];
-		sprintf(reason, "invalid parameters (offset=%d, size=%d, obj_size=%d)", offset, size, desc.size);
+		sprintf(reason, "invalid parameters (%u + %u > %u)", this->data_write_offset, size, desc.size);
 		throw obj_pak_exception_t("obj_node_t", reason);
 	}
-	fseek(fp, write_offset + offset, SEEK_SET);
+
+	fseek(fp, body_offset + this->data_write_offset, SEEK_SET);
 	fwrite(data, size, 1, fp);
+	this->data_write_offset += size;
 }
 
 
-void obj_node_t::write_uint8(FILE* fp, uint8 data, int offset)
+void obj_node_t::write_version(FILE *fp, uint16 version)
 {
-	this->write_data_at(fp, &data, offset, 1);
+	// Version needs high bit set as trigger -> this is required
+	// as marker because formerly nodes were unversionend
+	version |= UINT16_C(0x8000);
+	write_uint16(fp, version);
 }
 
 
-void obj_node_t::write_uint16(FILE* fp, uint16 data, int offset)
+void obj_node_t::write_uint8(FILE* fp, uint8 data)
+{
+	this->write_bytes(fp, sizeof(data), &data);
+}
+
+
+void obj_node_t::write_uint16(FILE* fp, uint16 data)
 {
 	uint16 data2 = endian(data);
-	this->write_data_at(fp, &data2, offset, 2);
+	this->write_bytes(fp, sizeof(data2), &data2);
 }
 
 
-void obj_node_t::write_uint32(FILE* fp, uint32 data, int offset)
+void obj_node_t::write_uint32(FILE *fp, uint32 data)
 {
 	uint32 data2 = endian(data);
-	this->write_data_at(fp, &data2, offset, 4);
+	this->write_bytes(fp, sizeof(data2), &data2);
 }

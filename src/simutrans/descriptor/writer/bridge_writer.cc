@@ -95,16 +95,15 @@ void write_bridge_images(FILE* outfp, obj_node_t& node, tabfileobj_t& obj, int s
 
 void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 24, &parent);
 
-	uint8  wegtyp        = get_waytype(obj.get("waytype"));
-	uint16 topspeed      = obj.get_int("topspeed", 999);
-	uint32 price         = obj.get_int("cost", 0);
-	uint32 maintenance   = obj.get_int("maintenance", 1000);
-	uint8  pillars_every = obj.get_int("pillar_distance",0); // distance==0 is off
+	uint8  wegtyp            = get_waytype(obj.get("waytype"));
+	uint16 topspeed          = obj.get_int("topspeed", 999);
+	uint32 price             = obj.get_int("cost", 0);
+	uint32 maintenance       = obj.get_int("maintenance", 1000);
+	uint8  pillars_every     = obj.get_int("pillar_distance",0); // distance==0 is off
 	uint8  pillar_asymmetric = obj.get_int("pillar_asymmetric",0); // middle of tile
-	uint8  max_length    = obj.get_int("max_lenght",0); // max_lenght==0: unlimited
-	max_length    = obj.get_int("max_length",max_length); // with correct spelling
+	uint8  max_length        = obj.get_int("max_lenght",0); // max_lenght==0: unlimited
+	max_length           = obj.get_int("max_length",max_length); // with correct spelling
 	uint8  max_height    = obj.get_int("max_height",0); // max_height==0: unlimited
 	uint16 axle_load = obj.get_int("axle_load",    9999);
 
@@ -117,28 +116,27 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 
 	sint8 number_of_seasons = 0;
 
-	// Version needs high bit set as trigger -> this is required
-	// as marker because formerly nodes were unversionend
-	uint16 version = 0x8009;
-	node.write_uint16(outfp, version,            0);
-	node.write_uint16(outfp, topspeed,           2);
-	node.write_uint32(outfp, price,              4);
-	node.write_uint32(outfp, maintenance,        8);
-	node.write_uint8 (outfp, wegtyp,            12);
-	node.write_uint8 (outfp, pillars_every,     13);
-	node.write_uint8 (outfp, max_length,        14);
-	node.write_uint16(outfp, intro_date,        15);
-	node.write_uint16(outfp, retire_date,       17);
-	node.write_uint8 (outfp, pillar_asymmetric, 19);
-	node.write_uint16(outfp, axle_load,         20);
-	node.write_uint8 (outfp, max_height,        22);
+	obj_node_t node(this, 24, &parent);
+
+	node.write_version(outfp, 9);
+	node.write_uint16(outfp, topspeed);
+	node.write_uint32(outfp, price);
+	node.write_uint32(outfp, maintenance);
+	node.write_uint8 (outfp, wegtyp);
+	node.write_uint8 (outfp, pillars_every);
+	node.write_uint8 (outfp, max_length);
+	node.write_uint16(outfp, intro_date);
+	node.write_uint16(outfp, retire_date);
+	node.write_uint8 (outfp, pillar_asymmetric);
+	node.write_uint16(outfp, axle_load);
+	node.write_uint8 (outfp, max_height);
 
 	char keybuf[40];
 
 	string str = obj.get("backimage[ns][0]");
 	if (str.empty()) {
-		node.write_data_at(outfp, &number_of_seasons, 23, sizeof(uint8));
-		write_head(outfp, node, obj);
+		node.write_uint8(outfp, number_of_seasons);
+		write_name_and_copyright(outfp, node, obj);
 		write_bridge_images( outfp, node, obj, -1 );
 
 	}
@@ -154,14 +152,13 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 			}
 		}
 
-		node.write_data_at(outfp, &number_of_seasons, 23, sizeof(uint8));
-		write_head(outfp, node, obj);
+		node.write_uint8(outfp, number_of_seasons);
+		write_name_and_copyright(outfp, node, obj);
 
 		for(uint8 season = 0 ; season <= number_of_seasons ; season++) {
 			write_bridge_images( outfp, node, obj, season );
 		}
 	}
 
-	// node.write_data(outfp, &desc);
-	node.write(outfp);
+	node.check_and_write_header(outfp);
 }

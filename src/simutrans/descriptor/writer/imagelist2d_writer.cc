@@ -19,7 +19,8 @@ void imagelist2d_writer_t::write_obj(FILE* fp, obj_node_t& parent, const slist_t
 	for(slist_tpl<std::string>  const& s : keys) {
 		imagelist_writer_t::instance()->write_obj(fp, node, s);
 	}
-	node.write_uint16(fp, count, 0);
-	node.write_uint16(fp, 0,     2);
-	node.write(fp);
+	node.write_uint16(fp, count);
+	node.write_uint16(fp, 0);
+
+	node.check_and_write_header(fp);
 }

@@ -70,12 +70,9 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	// ok, node can be allocated now
 	obj_node_t node(this, total_len, &parent);
-	write_head(fp, node, obj);
+	write_name_and_copyright(fp, node, obj);
 
-	// Version needs high bit set as trigger -> this is required
-	// as marker because formerly nodes were unversionend
-	uint16 uv16 = 0x8002;
-	node.write_uint16(fp, uv16, 0);
+	node.write_version(fp, 2);
 
 	// waytypes, waytype 2 will be on top
 	uint8 waytype1 = get_waytype(obj.get("waytype[0]"));
@@ -83,35 +80,31 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	if(waytype1==waytype2) {
 		dbg->fatal( "Crossing", "Identical ways (%s) cannot cross (check waytypes)!", obj.get("waytype[0]") );
 	}
-	node.write_uint8(fp, waytype1, 2);
-	node.write_uint8(fp, waytype2, 3);
+	node.write_uint8(fp, waytype1);
+	node.write_uint8(fp, waytype2);
 
 	// Top speed of this way
-	uv16 = obj.get_int("speed[0]", 0);
-	if(uv16==0) {
+	const uint16 speed0 = obj.get_int("speed[0]", 0);
+	const uint16 speed1 = obj.get_int("speed[1]", 0);
+
+	if(speed0==0 || speed1 == 0) {
 		dbg->fatal( "Crossing", "A maxspeed MUST be given for both ways!");
 	}
-	node.write_uint16(fp, uv16, 4);
-	uv16 = obj.get_int("speed[1]", 0);
-	if(uv16==0) {
-		dbg->fatal( "Crossing", "A maxspeed MUST be given for both ways!");
-	}
-	node.write_uint16(fp, uv16, 6);
+	node.write_uint16(fp, speed0);
+	node.write_uint16(fp, speed1);
 
 	// time between frames for animation
 	uint32 uv32 = obj.get_int("animation_time_open", 0);
-	node.write_uint32(fp, uv32, 8);
+	node.write_uint32(fp, uv32);
 	uv32 = obj.get_int("animation_time_closed", 0);
-	node.write_uint32(fp, uv32, 12);
+	node.write_uint32(fp, uv32);
 
-	node.write_uint8(fp, sound_id, 16);
-	uint8 index = 17;
+	node.write_uint8(fp, sound_id);
 
 	if (!sound_str.empty()) {
 		sint8 sv8 = sound_str.size();
-		node.write_data_at(fp, &sv8, 17, sizeof(sint8));
-		node.write_data_at(fp, sound_str.c_str(), 18, sound_str.size());
-		index += 1 + sound_str.size();
+		node.write_bytes(fp, sizeof(sint8), &sv8);
+		node.write_bytes(fp, sound_str.size(), sound_str.c_str());
 	}
 
 	uint16 intro_date  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
@@ -120,10 +113,8 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	uint16 retire_date  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
 	retire_date += obj.get_int("retire_month", 1) - 1;
 
-	node.write_uint16(fp, intro_date, index);
-	index += 2;
-	node.write_uint16(fp, retire_date, index);
-	index += 2;
+	node.write_uint16(fp, intro_date);
+	node.write_uint16(fp, retire_date);
 
 	// now the image stuff
 	slist_tpl<string> openkeys_ns;
@@ -164,5 +155,5 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	write_list(fp, node, front_closekeys_ns);
 	write_list(fp, node, front_closekeys_ew);
 
-	node.write(fp);
+	node.check_and_write_header(fp);
 }
