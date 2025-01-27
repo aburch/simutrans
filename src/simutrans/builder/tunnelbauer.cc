@@ -453,7 +453,7 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 	weg_t *weg = NULL;
 	leitung_t *lt = NULL;
 	koord3d pos = start;
-	int cost = 0;
+	sint64 cost = 0;
 	const way_desc_t *way_desc;
 	waytype_t wegtyp = desc->get_waytype();
 
@@ -563,7 +563,7 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 }
 
 
-void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const way_desc_t *way_desc, int &cost, bool connect_inside)
+void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const way_desc_t *way_desc, sint64 &cost, bool connect_inside)
 {
 	grund_t *alter_boden = welt->lookup(end);
 	ribi_t::ribi ribi = 0;

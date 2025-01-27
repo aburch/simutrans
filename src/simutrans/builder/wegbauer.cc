@@ -2449,7 +2449,7 @@ sint64 way_builder_t::calc_costs()
 	sint64 costs=0;
 	koord3d offset = koord3d( 0, 0, bautyp & elevated_flag ? welt->get_settings().get_way_height_clearance() : 0 );
 
-	sint32 single_cost;
+	sint64 single_cost;
 	sint32 new_speedlimit;
 
 	if( bautyp&tunnel_flag ) {
@@ -2488,7 +2488,7 @@ sint64 way_builder_t::calc_costs()
 
 	for(uint32 i=0; i<get_count(); i++) {
 		sint32 old_speedlimit = -1;
-		sint32 replace_cost = 0;
+		sint64 replace_cost = 0;
 
 		const grund_t* gr = welt->lookup(route[i] + offset);
 		if( gr ) {
@@ -2538,7 +2538,7 @@ sint64 way_builder_t::calc_costs()
 			}
 		}
 		if(  !keep_existing_faster_ways  ||  old_speedlimit < new_speedlimit  ) {
-			costs += max(single_cost, replace_cost);
+			costs += std::max(single_cost, replace_cost);
 		}
 
 		// last tile cannot be start of tunnel/bridge

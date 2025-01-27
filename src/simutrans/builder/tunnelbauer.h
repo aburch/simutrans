@@ -28,7 +28,7 @@ private:
 	static karte_ptr_t welt;
 
 	static bool build_tunnel(player_t *player, koord3d pos, koord3d end, koord zv, const tunnel_desc_t *desc);
-	static void build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const way_desc_t *way_desc, int &cost, bool connect_inside);
+	static void build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const way_desc_t *way_desc, sint64 &cost, bool connect_inside);
 
 	tunnel_builder_t() {} // private -> no instance please
 

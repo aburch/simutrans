@@ -1,6 +1,7 @@
 	CHG: option for pakset dump versus all other debug by appending 'p' to the debug level, e.g. "-debug 0p" to show only pak details
 	CHG: tram system type way can be laid over other tracks as well (like pak192 narrowgauge over normal rails)
 	CHG: bridge builder is now only a two click tool (total reneval) Can not again connect to complex ramps on elevated ways or cross rivers automatically
+	FIX: Players gain money by building long stretches of expensive tunnels
 
 
 Release of 124.3 (r11590 on 10-Jan-2025):
