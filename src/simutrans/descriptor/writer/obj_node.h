@@ -56,10 +56,12 @@ public:
 	void write_uint8 (FILE *fp, uint8  data);
 	void write_uint16(FILE *fp, uint16 data);
 	void write_uint32(FILE *fp, uint32 data);
+	void write_uint64(FILE *fp, uint64 data);
 
 	void write_sint8 (FILE* fp, sint8  data) { this->write_uint8 (fp, (uint8) data); }
 	void write_sint16(FILE* fp, sint16 data) { this->write_uint16(fp, (uint16)data); }
-	void write_sint32(FILE* fp, sint32 data) { this->write_uint32(fp, (sint32)data); }
+	void write_sint32(FILE* fp, sint32 data) { this->write_uint32(fp, (uint32)data); }
+	void write_sint64(FILE* fp, sint64 data) { this->write_uint64(fp, (uint64)data); }
 
 	// Write the internal node info to the file
 	// DO THIS AFTER ALL CHILD NODES ARE WRITTEN !!!

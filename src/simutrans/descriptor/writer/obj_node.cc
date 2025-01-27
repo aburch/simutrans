@@ -125,13 +125,13 @@ void obj_node_t::write_version(FILE *fp, uint16 version)
 }
 
 
-void obj_node_t::write_uint8(FILE* fp, uint8 data)
+void obj_node_t::write_uint8(FILE *fp, uint8 data)
 {
 	this->write_bytes(fp, sizeof(data), &data);
 }
 
 
-void obj_node_t::write_uint16(FILE* fp, uint16 data)
+void obj_node_t::write_uint16(FILE *fp, uint16 data)
 {
 	uint16 data2 = endian(data);
 	this->write_bytes(fp, sizeof(data2), &data2);
@@ -141,5 +141,12 @@ void obj_node_t::write_uint16(FILE* fp, uint16 data)
 void obj_node_t::write_uint32(FILE *fp, uint32 data)
 {
 	uint32 data2 = endian(data);
+	this->write_bytes(fp, sizeof(data2), &data2);
+}
+
+
+void obj_node_t::write_uint64(FILE *fp, uint64 data)
+{
+	uint64 data2 = endian(data);
 	this->write_bytes(fp, sizeof(data2), &data2);
 }
