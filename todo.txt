@@ -4,8 +4,8 @@ To be done:
 - city wayobj instead just sidewalks
 - building/tree heights in dats
 - fog view to the top?
-- instant text updates
 - bahnhofsdetaildialog (more text on the station buildings)
+- pier like extended instead monorail ground
 
 partially done:
 - connection weighted by their intermediate stops => A* for goods routing [A* did not worked out, but intermediate stops may be considered]

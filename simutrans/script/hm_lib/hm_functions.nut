@@ -194,14 +194,7 @@ function hm_get_building_desc(desc_name, wt, building_type) {
   local obj   = null
   local goods = {}
 
-  local list = null
-  if ( building_type == building_desc_x.depot ) {
-    // depot list all waytypes
-    list = building_desc_x.get_building_list(building_desc_x.depot)
-  } else if ( wt != null && building_type == building_desc_x.station ) {
-    // station list waytype and available
-    list = building_desc_x.get_available_stations(building_desc_x.station, wt, goods)
-  }
+  local list = building_desc_x.get_building_list(building_type)
 
   if ( wt != null ) {
     // searche waytypes
@@ -210,11 +203,13 @@ function hm_get_building_desc(desc_name, wt, building_type) {
         obj = b
         break
       }
-      if ( obj == null && (b.is_available(world.get_time()) || world.use_timeline() == false) ) {
-        //gui.add_message_at(player, "waytype: " + b.get_waytype(), world.get_time())
-        if ( b.get_waytype() == wt ) {
-          obj = b
-          //gui.add_message_at(player, "fallback " + obj.get_name(), world.get_time())
+      if ( building_type != building_desc_x.depot ) {
+        if ( obj == null && (b.is_available(world.get_time()) || world.use_timeline() == false) ) {
+          //gui.add_message_at(player, "waytype: " + b.get_waytype(), world.get_time())
+          if ( b.get_waytype() == wt && b.get_type() != building_desc_x.depot ) {
+            obj = b
+            //gui.add_message_at(player, "fallback " + obj.get_name(), world.get_time())
+          }
         }
       }
     }
