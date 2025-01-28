@@ -377,7 +377,7 @@ static void write_command_halt(player_t* pl, cbuffer_t& buf, const koord start, 
 						// only for left top tile save
 						const building_desc_t* desc = gb->get_tile()->get_desc();
 						koord3d diff = t.grund->get_pos() - origin;
-						buf.printf("\thm_station_tl(\"%s\",[%d,%d,%d],%d,%d)\n", desc->get_name(), diff.x, diff.y, diff.z, gb->get_waytype(), rotation);
+						buf.printf("\thm_station_tl(\"%s\",[%d,%d,%d],%d,%d,%d)\n", desc->get_name(), diff.x, diff.y, diff.z, gb->get_waytype(), rotation, desc->get_type());
 					}
 				}
 			}
@@ -483,26 +483,26 @@ public:
 class write_way_command_t : public write_path_command_t {
 protected:
 	bool first_pass;
+	waytype_t waytype;
 
 	void append_command(koord3d pos, const ribi_t::ribi(&dirs)[2]) OVERRIDE
 	{
+		if (!first_pass && waytype != air_wt) {
+			// only air needs two passes for correct order
+			return;
+		}
 		const grund_t* gr = world()->lookup(pos);
 		if (!gr) {
 			return;
 		}
-		bool weg_nr = 0;
-		if (!first_pass  &&  gr->get_weg_nr(1)) {
-			weg_nr = 1;
-		}
-		const weg_t* weg0 = gr->get_weg_nr(weg_nr);
-		if (!weg0) {
+		if (gr->ist_bruecke() && gr->find<bruecke_t>()->get_desc()->get_waytype() == waytype) {
+			// bridge way part of desc
 			return;
 		}
-		if (gr->ist_bruecke()  &&  !gr->get_weg_nr(2)) {
-			// no lone ways on bridge ramps
+		const weg_t* weg = gr->get_weg(waytype);
+		if (!weg) {
 			return;
 		}
-		systemtype_t start_styp = weg0->get_desc()->get_styp();
 		koord3d pb = pos - origin; // relative base pos
 		if (gr->get_typ() == grund_t::monorailboden) {
 			pb.z -= world()->get_settings().get_way_height_clearance();
@@ -512,45 +512,31 @@ protected:
 				continue;
 			}
 			grund_t* to = NULL;
-			gr->get_neighbour(to, weg0->get_waytype(), dirs[i]);
-			if (to  &&  !to->ist_bruecke()) {
-				const weg_t* to_weg = to->get_weg_nr(0);
-				bool to_weg_nr = 0;
-				if (to_weg->get_waytype() != weg0->get_waytype()) {
-					to_weg = to->get_weg_nr(1);
-					to_weg_nr = 1;
-					if (to_weg->get_waytype() != weg0->get_waytype()) {
-						continue;
-					}
-				}
-				if (!to_weg_nr  &&  !weg_nr) {
-					// check system type (for airplanes etc.) if there is only one way
-					if (start_styp == to_weg->get_desc()->get_styp()) {
-						if (first_pass && (start_styp != 0) ==  (to_weg->get_waytype()==air_wt) ) {
-							// we connect in this round only to other system types for one step
-							continue;
+			gr->get_neighbour(to, waytype, dirs[i]);
+			if (to) {
+				if (const weg_t* to_weg = to->get_weg(waytype)) {
+					const way_desc_t* d = weg->get_desc();
+					if(waytype==air_wt) {
+						if(first_pass) {
+							if (weg->get_desc()->get_styp() + to_weg->get_desc()->get_styp() > 1) {
+								// we connect in this round only to runways for one step
+								continue;
+							}
+							if (to_weg->get_desc()->get_styp() == 0) {
+								d = to_weg->get_desc();
+							}
 						}
-						if (!first_pass && (start_styp == 0) == (to_weg->get_waytype() == air_wt)) {
-							// we connect in this round only to other system types
+						else if ((weg->get_desc()->get_styp() + to_weg->get_desc()->get_styp()) != 2) {
+							// in second pass we keep on runway
 							continue;
 						}
 					}
-					else if (!first_pass) {
-						continue;
+					koord3d tp = to->get_pos() - origin;
+					if (to->get_typ() == grund_t::monorailboden) {
+						tp = tp - koord3d(0, 0, world()->get_settings().get_way_height_clearance());
 					}
+					commands.append(script_cmd{ pb, tp, d->get_name(), d->get_waytype(), (sint16)d->get_styp() });
 				}
-				koord3d tp = to->get_pos() - origin;
-				if (to->get_typ() == grund_t::monorailboden) {
-					tp = tp - koord3d(0, 0, world()->get_settings().get_way_height_clearance());
-				}
-				const way_desc_t* d = (weg0->get_desc()->get_styp()==0 && first_pass) ? weg0->get_desc() : to_weg->get_desc();
-				if (weg_nr > 0) {
-					d = weg0->get_desc();
-				}
-				if (to_weg_nr > 0) {
-					d = to_weg->get_desc();
-				}
-				commands.append(script_cmd{ pb, tp, d->get_name(), d->get_waytype(), (sint16)d->get_styp() });
 			}
 		}
 	}
@@ -561,11 +547,12 @@ protected:
 	}
 
 public:
-	write_way_command_t(player_t* pl, cbuffer_t& b, koord s, koord e, koord3d o, bool fp) :
+	write_way_command_t(player_t* pl, cbuffer_t& b, koord s, koord e, koord3d o, bool fp, waytype_t wt) :
 		write_path_command_t(pl, b, s, e, o)
 	{
 		cmd_str = "hm_way_tl";
 		first_pass = fp;
+		waytype = wt;
 	}
 };
 
@@ -637,9 +624,16 @@ char const* tool_generate_script_t::do_work(player_t* pl, const koord3d& s, cons
 	if (pl->is_public_service()) {
 		write_command(pl, generated_script_buf, write_townhall_at, k1, k2, begin);
 	}
-	write_way_command_t(pl, generated_script_buf, k1, k2, begin, true).write();
-	write_way_command_t(pl, generated_script_buf, k1, k2, begin, false).write();
 	write_command_bridges(pl, generated_script_buf, k1, k2, begin);
+	write_way_command_t(pl, generated_script_buf, k1, k2, begin, true, road_wt).write();
+	write_way_command_t(pl, generated_script_buf, k1, k2, begin, true, track_wt).write();
+	write_way_command_t(pl, generated_script_buf, k1, k2, begin, true, water_wt).write();
+	write_way_command_t(pl, generated_script_buf, k1, k2, begin, true, monorail_wt).write();
+	write_way_command_t(pl, generated_script_buf, k1, k2, begin, true, maglev_wt).write();
+	write_way_command_t(pl, generated_script_buf, k1, k2, begin, true, narrowgauge_wt).write();
+	write_way_command_t(pl, generated_script_buf, k1, k2, begin, true, air_wt).write();
+	write_way_command_t(pl, generated_script_buf, k1, k2, begin, false, air_wt).write();
+	write_way_command_t(pl, generated_script_buf, k1, k2, begin, true, decoration_wt).write();
 	write_wayobj_command_t(pl, generated_script_buf, k1, k2, begin).write();
 	write_command_halt(pl, generated_script_buf, k1, k2, begin);
 	write_command(pl, generated_script_buf, write_depot_at, k1, k2, begin);

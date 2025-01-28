@@ -5,6 +5,7 @@
 	FIX: Pak files cannot represent cost of vehicles exceeding 2^32-1 Simu-cents
 	FIX: Pak files cannot represent runningcost of vehicles exceeding 2^16-1 Simu-cents
 	FIX: Pak files cannot represent fixed cost of vehicles exceeding 2^32-1 Simu-cents
+	FIX: makro building with way order and stations extensions fixed
 
 
 Release of 124.3 (r11590 on 10-Jan-2025):

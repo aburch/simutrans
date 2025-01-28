@@ -6,13 +6,15 @@ class hm_station_tl extends hm_base_tl {
   pos       = null
   wtype     = 0
   rotation  = 15
+  building  = 34 // generic stop
 
-  constructor(sta_name, p, wt = 0, r = 15) {
+  constructor(sta_name, p, wt = 0, r = 15, b = 34) {
     desc_name = sta_name
     pos       = coord3d(p[0],p[1],p[2])
     wtype     = wt
     rotation  = r
     hm_commands.append(this)
+    building  = b
   }
 
   // returns [error_message, desc]
@@ -37,7 +39,7 @@ class hm_station_tl extends hm_base_tl {
       }
       return [null, d]
     } else {
-      local d = hm_get_building_desc(desc_name, wtype, building_desc_x.station)
+      local d = hm_get_building_desc(desc_name, wtype, building)
       if(d==null) {
         local message = format(translate("Station %s (%s) is not found!"), translate(desc_name), desc_name)
         return [message, null]
