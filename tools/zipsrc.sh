@@ -6,7 +6,7 @@ packen()
 	FILELISTE=`find . -type f "(" -name "*.c" -o -name "*.h" -o -name "*.cc" -o -name "*.mm" ")" -not -path */.vs/* -not -path */vcpkg_installed/*`
 	FILELISTF=`find . -type f "(" -name "*.sh" -o -name "*.mk"  -o -name "*.nut" ")" -not -path */.vs/* -not -path */vcpkg_installed/*`
 	FILELISTG=`find . -type f "(" -name "*.txt" -o -name "*.bdf"  -o -name "*.fnt"  -o -name "*.mid"  -o -name "*.tab" ")" -not -path */.vs/* -not -path */vcpkg_installed/*`
-	FILELISTI=`find . -type f "(" -name "*.tab" -o -name "*.dat"  -o -name "*.png" -o -name "*.svg" -o -name "*.desktop" ")" -not -path */.vs/* -not -path */vcpkg_installed/*`
+	FILELISTH=`find . -type f "(" -name "*.tab" -o -name "*.dat"  -o -name "*.png" -o -name "*.svg" -o -name "*.desktop" ")" -not -path */.vs/* -not -path */vcpkg_installed/*`
 	FILELISTI=`find . -type f "(" -name "*.vcxproj" -o -name "*.vcxproj.filters"  -o -name "*.sln" -o -name "*.vcxitems" -o -name "*.json" ")" -not -path */.vs/* -not -path */vcpkg_installed/*`
 	rm ../simutrans-src.zip
 	zip ../simutrans-src.zip $FILELISTE
