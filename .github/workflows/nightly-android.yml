@@ -108,14 +108,15 @@ jobs:
         ./gradlew bundleRelease
         cd /android-sdl/simutrans-android-project/simutrans/build/outputs/bundle/release
         jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore $SIGNING_KEYSTORE -storepass $SIGNING_STORE_PASSWORD simutrans-release.aab $SIGNING_KEY_ALIAS
-        mkdir whatsNewDirectory
-        echo `cd $GITHUB_WORKSPACE/gh-clone/simutrans && git log --pretty=format:'%s' -1` > whatsNewDirectory/whatsnew-en-US
         wget https://github.com/google/bundletool/releases/download/1.15.2/bundletool-all-1.15.2.jar
         chmod 775 bundletool-all-1.15.2.jar
-        java -jar bundletool-all-1.15.2.jar build-apks --bundle=simuandroid-nightly.aab --output=temp.apks --mode=universal
+        java -jar bundletool-all-1.15.2.jar build-apks --bundle=simutrans-release.aab --output=temp.apks --mode=universal
+        rm -rf bundletool-all-1.15.2.jar
         unzip temp.akps
         rm -rf temp.apks toc.pb
         mv unversal.apk simutrans-nightly.apk
+        mkdir whatsNewDirectory
+        echo `cd $GITHUB_WORKSPACE/gh-clone/simutrans && git log --pretty=format:'%s' -1` > whatsNewDirectory/whatsnew-en-US
 
 
     - name: Update binaries of Nightly Release aab
