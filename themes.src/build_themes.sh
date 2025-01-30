@@ -47,7 +47,7 @@ cp *.tab ../../simutrans/themes
 
 cd ../pak64german/files
 ../../../src/makeobj/makeobj pak
-cd ../file_large
+cd ../files_large
 ../../../src/makeobj/makeobj pak
 ../../../src/makeobj/makeobj pak128 ./ ./dat_128.txt
 cd ..
