@@ -99,6 +99,9 @@ jobs:
       run: |
         echo "action_state=yellow" >> $GITHUB_ENV
         sed -i "s/versionCode [0-9]\+/versionCode $(./tools/get_revision.sh)/" /android-sdl/simutrans-android-project/simutrans/build.gradle
+        VERSION=`sed -n 's/#define SIM_VERSION_MAJOR *\([0-9]*\)$/\1/ p' <src/simutrans/simversion.h`.`sed -n 's/#define SIM_VERSION_MINOR *\([0-9]*\)$/\1/ p' <src/simutrans/simversion.h`.`sed -n 's/#define SIM_VERSION_PATCH *\([0-9]*\)$/\1/ p' <src/simutrans/simversion.h`
+        NIGHTLY=`sed -n 's/#define SIM_VERSION_BUILD SIM_BUILD_NIGHTLY/ Nightly/ p' <src/simutrans/simversion.h``sed -n 's/#define SIM_VERSION_BUILD SIM_BUILD_RELEASE_CANDIDATE/ Release candidate/ p' <src/simutrans/simversion.h`
+        sed -i 's/versionName.*$/versionName "'"$VERSION$NIGHTLY"'"/' /android-sdl/simutrans-android-project/simutrans/build.gradle
         cd /android-sdl/simutrans-android-project
         cat simutrans/build.gradle
         ./gradlew assembleRelease
@@ -107,6 +110,13 @@ jobs:
         jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore $SIGNING_KEYSTORE -storepass $SIGNING_STORE_PASSWORD simutrans-release.aab $SIGNING_KEY_ALIAS
         mkdir whatsNewDirectory
         echo `cd $GITHUB_WORKSPACE/gh-clone/simutrans && git log --pretty=format:'%s' -1` > whatsNewDirectory/whatsnew-en-US
+        wget https://github.com/google/bundletool/releases/download/1.15.2/bundletool-all-1.15.2.jar
+        chmod 775 bundletool-all-1.15.2.jar
+        java -jar bundletool-all-1.15.2.jar build-apks --bundle=test-simutrans.aab --output=temp.apks --mode=universal
+        unzip temp.akps
+        rm -rf temp.apks toc.pb
+        mv unversal.apk simutrans-nightly.apk
+
 
     - name: Update binaries of Nightly Release aab
       uses: svenstaro/upload-release-action@v2
@@ -121,7 +131,7 @@ jobs:
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: /android-sdl/simutrans-android-project/simutrans/build/outputs/apk/release/simutrans-release-unsigned.apk
+        file: /android-sdl/simutrans-android-project/simutrans/build/outputs/bundle/release/simutrans-nightly.apk
         asset_name: simuandroid-nightly.apk
         tag: Nightly
         overwrite: true
