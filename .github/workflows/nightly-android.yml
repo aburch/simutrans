@@ -112,7 +112,7 @@ jobs:
         echo `cd $GITHUB_WORKSPACE/gh-clone/simutrans && git log --pretty=format:'%s' -1` > whatsNewDirectory/whatsnew-en-US
         wget https://github.com/google/bundletool/releases/download/1.15.2/bundletool-all-1.15.2.jar
         chmod 775 bundletool-all-1.15.2.jar
-        java -jar bundletool-all-1.15.2.jar build-apks --bundle=test-simutrans.aab --output=temp.apks --mode=universal
+        java -jar bundletool-all-1.15.2.jar build-apks --bundle=simuandroid-nightly.aab --output=temp.apks --mode=universal
         unzip temp.akps
         rm -rf temp.apks toc.pb
         mv unversal.apk simutrans-nightly.apk

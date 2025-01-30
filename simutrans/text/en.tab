@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: en English                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 10.01 2025                           #
+#                           Date Created: 29.01 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -1400,7 +1400,7 @@ Suppliers:
 Tage alt
 days old.
 The generated script was saved!\n
-Marko saved sucessfully.\nCan be replayed with script tool.
+Macro saved successfully.\nCan be replayed with the script tool.
 There are still vehicles\nstored in this depot!\n
 There are vehicles\nin this depot!\n
 This Month

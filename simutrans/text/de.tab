@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: de Deutsch                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 10.01 2025                           #
+#                           Date Created: 29.01 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -2150,7 +2150,7 @@ Makro erfogreich gespeichert.\nKann jetzt mit Skriptwerkezug gebaut werden.
 The gradient does not fit a tunnel
 Die Steigung passt nicht für einen Tunnel.
 The script cannot be saved!\n
-Konnte Marko nicht speichern.
+Konnte Makro nicht speichern.
 Theme selector
 Auswahl Oberfläche
 There are still vehicles\nstored in this depot!\n
