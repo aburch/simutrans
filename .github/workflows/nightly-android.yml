@@ -112,7 +112,7 @@ jobs:
         chmod 775 bundletool-all-1.15.2.jar
         java -jar bundletool-all-1.15.2.jar build-apks --bundle=simutrans-release.aab --output=temp.apks --mode=universal
         rm -rf bundletool-all-1.15.2.jar
-        unzip temp.akps
+        unzip temp.apks
         rm -rf temp.apks toc.pb
         mv unversal.apk simutrans-nightly.apk
         mkdir whatsNewDirectory
