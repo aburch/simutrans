@@ -1,4 +1,4 @@
-
+#!/bin/bash
 
 sudo apt-get update
 sudo dpkg --add-architecture i386
@@ -14,7 +14,10 @@ echo "export ANDROID_SDK_ROOT=/opt/android-sdk-linux" >> ~/.profile
 echo "export ANDROID_SDK=/opt/android-sdk-linux" >> ~/.profile
 echo "export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> ~/.profile
 echo "export ANDROID_NDK=/opt/android-sdk-linux/ndk/25.1.8937393/" >> ~/.profile
-echo 'PATH=$PATH:/opt/android-sdk-linux/cmdline-tools/latest/bin:/opt/android-sdk-linux/platform-tools:/opt/android-sdk-linux/build-tools/34.0.0:/opt/android-sdk-linux/cmake/3.22.1/bin:/opt/android-sdk-linux/ndk/25.1.8937393:/opt/android-sdk-linux/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/' >> ~/.prof
+
+echo 'alias bundletool="java -jar /opt/android-sdk-linux/cmdline-tools/latest/bin/bundletool-all-1.15.2.jar"' >> ~/.profile
+
+echo 'PATH=$PATH:/opt/android-sdk-linux/cmdline-tools/latest/bin:/opt/android-sdk-linux/platform-tools:/opt/android-sdk-linux/build-tools/34.0.0:/opt/android-sdk-linux/cmake/3.22.1/bin:/opt/android-sdk-linux/ndk/25.1.8937393:/opt/android-sdk-linux/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/' >> ~/.profile
 
 export ANDROID_HOME=/opt/android-sdk-linux
 export ANDROID_SDK_HOME=/opt/android-sdk-linux
@@ -22,6 +25,8 @@ export ANDROID_SDK_ROOT=/opt/android-sdk-linux
 export ANDROID_SDK=/opt/android-sdk-linux
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 export ANDROID_NDK=/opt/android-sdk-linux/ndk/25.1.8937393/
+
+alias bundletool="java -jar /opt/android-sdk-linux/cmdline-tools/latest/bin/bundletool-all-1.15.2.jar
 
 PATH=$PATH:/opt/android-sdk-linux/cmdline-tools/latest/bin:/opt/android-sdk-linux/platform-tools:/opt/android-sdk-linux/build-tools/34.0.0:/opt/android-sdk-linux/cmake/3.22.1/bin:/opt/android-sdk-linux/ndk/25.1.8937393:/opt/android-sdk-linux/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/
 
@@ -32,13 +37,16 @@ rm commandlinetools-linux-11076708_latest.zip
 mv cmdline-tools latest
 mkdir cmdline-tools
 mv latest cmdline-tools/latest
-yes | sdkmanager --licenses
-yes | sdkmanager --install "platform-tools"
-yes | sdkmanager --install "build-tools;34.0.0"
-yes | sdkmanager --install "cmake;3.22.1"
-yes | sdkmanager --install "ndk;25.1.8937393"
+yes | cmdline-tools/latest/bin/sdkmanager --licenses
+yes | cmdline-tools/latest/bin/sdkmanager --install "platform-tools"
+yes | cmdline-tools/latest/bin/sdkmanager --install "build-tools;34.0.0"
+yes | cmdline-tools/latest/bin/sdkmanager --install "cmake;3.22.1"
+yes | cmdline-tools/latest/bin/sdkmanager --install "ndk;25.1.8937393"
 ln -s llvm-objdump /opt/android-sdk-linux/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/objdump
 
+cd cmdline-tools/latest/bin
+wget https://github.com/google/bundletool/releases/download/1.15.2/bundletool-all-1.15.2.jar
+chmod 775 bundletool-all-1.15.2.jar
 
 mkdir ~/.android/
 keytool -genkey -v -keystore ~/.android/debug.keystore -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -keypass android -storepass android -dname "cn=example.com,ou=exampleou,dc=example,dc=com"

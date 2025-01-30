@@ -114,7 +114,7 @@ jobs:
         rm -rf bundletool-all-1.15.2.jar
         unzip temp.apks
         rm -rf temp.apks toc.pb
-        mv unversal.apk simutrans-nightly.apk
+        mv universal.apk simutrans-nightly.apk
         mkdir whatsNewDirectory
         echo `cd $GITHUB_WORKSPACE/gh-clone/simutrans && git log --pretty=format:'%s' -1` > whatsNewDirectory/whatsnew-en-US
 

@@ -1,7 +1,8 @@
-cd simutrans/jni
+#!/bin/bash
+
+cd simutrans-android-project/simutrans/jni
 
 # Assets
-#./simutrans/src/android/AndroidPreBuild.sh
 cp -rf simutrans/simutrans/. ../src/main/assets
 
 # Revision
@@ -20,7 +21,7 @@ echo "$PWD"
 # Build Android project
 cp -r simutrans/jni/SDL/android-project/app/src/main/java simutrans/src/main
 
-cat simutrans/build.gradle
+#cat simutrans/build.gradle
 ./gradlew assembleRelease
 ./gradlew bundleRelease
 
@@ -29,6 +30,6 @@ cp simutrans/build/outputs/bundle/release/simutrans-release.aab ./test-simutrans
 bundletool build-apks --bundle=test-simutrans.aab --output=temp.apks --mode=universal
 unzip temp.akps
 rm -rf temp.apks toc.pb
-mv unversal.apk simutrans-nightly.apk
+mv universal.apk simutrans-nightly.apk
 
 
