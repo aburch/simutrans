@@ -27,8 +27,8 @@ cp -r simutrans/jni/SDL/android-project/app/src/main/java simutrans/src/main
 
 cp simutrans/build/outputs/bundle/release/simutrans-release.aab ./test-simutrans.aab
 #jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore $SIGNING_KEYSTORE test-simutrans.aab $SIGNING_KEY_ALIAS -storepass $SIGNING_STORE_PASSWORD 
-bundletool build-apks --bundle=test-simutrans.aab --output=temp.apks --mode=universal
-unzip temp.akps
+java -jar /opt/android-sdk-linux/cmdline-tools/latest/bin/bundletool-all-1.15.2.jar build-apks --bundle=test-simutrans.aab --output=temp.apks --mode=universal
+unzip temp.apks
 rm -rf temp.apks toc.pb
 mv universal.apk simutrans-nightly.apk
 
