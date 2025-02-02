@@ -48,8 +48,8 @@ obj_desc_t *bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	desc->pillars_asymmetric = false;
 	desc->max_length = 0;
 	desc->max_height = 0;
-	desc->intro_date = DEFAULT_INTRO_DATE*12;
-	desc->retire_date = DEFAULT_RETIRE_DATE*12;
+	desc->intro_date = DEFAULT_INTRO_YEAR*12;
+	desc->retire_date = DEFAULT_RETIRE_YEAR*12;
 	desc->number_of_seasons = 0;
 
 	if(version == 1) {

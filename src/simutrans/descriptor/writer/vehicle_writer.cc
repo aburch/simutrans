@@ -130,11 +130,11 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_sint64(fp, fixed_cost);
 
 	// Introduction date (year * 12 + month)
-	uint16 intro_date  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12 + obj.get_int("intro_month", 1)-1;
+	uint16 intro_date  = obj.get_int("intro_year", DEFAULT_INTRO_YEAR) * 12 + obj.get_int("intro_month", 1)-1;
 	node.write_uint16(fp, intro_date);
 
 	// retire date (year * 12 + month)
-	uint16 retire_date = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12 + obj.get_int("retire_month", 1)-1;
+	uint16 retire_date = obj.get_int("retire_year", DEFAULT_RETIRE_YEAR) * 12 + obj.get_int("retire_month", 1)-1;
 	node.write_uint16(fp, retire_date);
 
 	// Engine gear (power multiplier)

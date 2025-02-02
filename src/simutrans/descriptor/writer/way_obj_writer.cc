@@ -35,10 +35,10 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	uint32 maintenance = obj.get_int("maintenance", 100);
 	sint32 topspeed    = obj.get_int("topspeed",    999);
 
-	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
+	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_YEAR) * 12;
 	intro +=        obj.get_int("intro_month", 1) - 1;
 
-	uint16 retire  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
+	uint16 retire  = obj.get_int("retire_year", DEFAULT_RETIRE_YEAR) * 12;
 	retire +=        obj.get_int("retire_month", 1) - 1;
 
 	uint8 wtyp     =  get_waytype(obj.get("waytype"));

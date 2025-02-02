@@ -1537,7 +1537,7 @@ void depot_frame_t::update_vehicle_info_text(scr_coord pos)
 		labels[LB_VEH_WEIGHT]->buf().printf( "%s %4.1ft\n", translator::translate("Weight:"), veh_type->get_weight() / 1000.0 );
 		labels[LB_VEH_DATE]->buf().printf( "%s: %s - ", translator::translate("Available"), translator::get_short_date(veh_type->get_intro_year_month() / 12, veh_type->get_intro_year_month() % 12) );
 
-		if(  veh_type->get_retire_year_month() != DEFAULT_RETIRE_DATE * 12  ) {
+		if(  veh_type->get_retire_year_month() != DEFAULT_RETIRE_YEAR * 12  ) {
 			labels[LB_VEH_DATE]->buf().printf( "%s\n", translator::get_short_date(veh_type->get_retire_year_month() / 12, veh_type->get_retire_year_month() % 12) );
 		}
 

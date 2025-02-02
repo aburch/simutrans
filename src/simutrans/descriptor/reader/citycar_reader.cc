@@ -77,8 +77,8 @@ obj_desc_t * citycar_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// old version 0 ...
 		desc->distribution_weight = v;
 		desc->topspeed = kmh_to_speed(80);
-		desc->intro_date = DEFAULT_INTRO_DATE*12;
-		desc->retire_date = DEFAULT_RETIRE_DATE*12;
+		desc->intro_date = DEFAULT_INTRO_YEAR*12;
+		desc->retire_date = DEFAULT_RETIRE_YEAR*12;
 	}
 	// zero speed not allowed, we want something that moves!
 	if(  desc->topspeed<=16  ) {

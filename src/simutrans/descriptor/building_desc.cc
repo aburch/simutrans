@@ -159,7 +159,7 @@ void building_desc_t::calc_checksum(checksum_t *chk) const
 			if(extra_data) PAKSET_INFO("clusters=","%d",extra_data);
 		case attraction_land:
 		case factory:
-			if(preservation_year_month!=DEFAULT_RETIRE_DATE*12) {
+			if(preservation_year_month!=DEFAULT_RETIRE_YEAR*12) {
 				PAKSET_INFO("preservation_year=","%d",preservation_year_month/12);
 				if(preservation_year_month%12) PAKSET_INFO("preservation_month=","%d",(preservation_year_month%12)+1);
 			}

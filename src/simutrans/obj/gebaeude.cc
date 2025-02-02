@@ -745,7 +745,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 
 		building_desc_t const& h = *tile->get_desc();
 		buf.printf("%s%u", translator::translate("\nBauzeit von"), h.get_intro_year_month() / 12);
-		if (h.get_retire_year_month() != DEFAULT_RETIRE_DATE * 12) {
+		if (h.get_retire_year_month() != DEFAULT_RETIRE_YEAR * 12) {
 			buf.printf("%s%u", translator::translate("\nBauzeit bis"), h.get_retire_year_month() / 12);
 		}
 

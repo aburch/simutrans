@@ -2891,7 +2891,7 @@ void karte_t::new_month()
 		koord::locality_factor = settings.get_locality_factor( last_year + 1 );
 		need_locality_update = (old_locality_factor != koord::locality_factor);
 
-		if( current_month > DEFAULT_RETIRE_DATE * 12 ) {
+		if( current_month > DEFAULT_RETIRE_YEAR * 12 ) {
 			// switch off timeline after 2999, since everything retires
 			settings.set_use_timeline( 0 );
 			dbg->warning( "karte_t::new_month()", "Timeline disabled after the year 2999" );

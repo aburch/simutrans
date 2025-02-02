@@ -379,8 +379,8 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
 
-		desc->intro_date = DEFAULT_INTRO_DATE*12;
-		desc->retire_date = DEFAULT_RETIRE_DATE*12;
+		desc->intro_date = DEFAULT_INTRO_YEAR*12;
+		desc->retire_date = DEFAULT_RETIRE_YEAR*12;
 		desc->animation_time = 300;
 	}
 	else {
@@ -401,8 +401,8 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->flags = (building_desc_t::flag_t)decode_uint32(p);
 		desc->distribution_weight = 100;
 
-		desc->intro_date = DEFAULT_INTRO_DATE*12;
-		desc->retire_date = DEFAULT_RETIRE_DATE*12;
+		desc->intro_date = DEFAULT_INTRO_YEAR*12;
+		desc->retire_date = DEFAULT_RETIRE_YEAR*12;
 		desc->animation_time = 300;
 	}
 	// there are additional nodes for cursor/icon
@@ -448,7 +448,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	if( version < 10 ) {
 		// can always replace
-		desc->preservation_year_month = DEFAULT_RETIRE_DATE*12;
+		desc->preservation_year_month = DEFAULT_RETIRE_YEAR*12;
 	}
 
 	PAKSET_INFO("building_reader_t::read_node()",

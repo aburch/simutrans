@@ -68,7 +68,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->leader_count = decode_uint8(p);
 		desc->trailer_count = decode_uint8(p);
 
-		desc->retire_date = (DEFAULT_RETIRE_DATE*16);
+		desc->retire_date = (DEFAULT_RETIRE_YEAR*16);
 	}
 	else if(version == 2) {
 		// Versioned node, version 2
@@ -89,7 +89,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->trailer_count = decode_uint8(p);
 		desc->engine_type = decode_uint8(p);
 
-		desc->retire_date = (DEFAULT_RETIRE_DATE*16);
+		desc->retire_date = (DEFAULT_RETIRE_YEAR*16);
 	}
 	else if (version==3   ||  version==4  ||  version==5) {
 		// Versioned node, version 3 with retire date
@@ -288,8 +288,8 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->leader_count = (sint8)decode_uint16(p);
 		desc->trailer_count = (sint8)decode_uint16(p);
 
-		desc->intro_date = DEFAULT_INTRO_DATE*16;
-		desc->retire_date = (DEFAULT_RETIRE_DATE*16);
+		desc->intro_date = DEFAULT_INTRO_YEAR*16;
+		desc->retire_date = (DEFAULT_RETIRE_YEAR*16);
 		desc->gear = 64;
 	}
 

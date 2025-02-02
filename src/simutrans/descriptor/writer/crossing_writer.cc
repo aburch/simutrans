@@ -107,10 +107,10 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		node.write_bytes(fp, sound_str.size(), sound_str.c_str());
 	}
 
-	uint16 intro_date  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
+	uint16 intro_date  = obj.get_int("intro_year", DEFAULT_INTRO_YEAR) * 12;
 	intro_date += obj.get_int("intro_month", 1) - 1;
 
-	uint16 retire_date  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
+	uint16 retire_date  = obj.get_int("retire_year", DEFAULT_RETIRE_YEAR) * 12;
 	retire_date += obj.get_int("retire_month", 1) - 1;
 
 	node.write_uint16(fp, intro_date);

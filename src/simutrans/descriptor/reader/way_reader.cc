@@ -55,8 +55,8 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->maintenance = 800;
 		desc->topspeed = 999;
 		desc->max_weight = 999;
-		desc->intro_date = DEFAULT_INTRO_DATE*12;
-		desc->retire_date = DEFAULT_RETIRE_DATE*12;
+		desc->intro_date = DEFAULT_INTRO_YEAR*12;
+		desc->retire_date = DEFAULT_RETIRE_YEAR*12;
 		desc->wtyp = road_wt;
 		desc->styp = type_flat;
 		desc->draw_as_obj = false;
@@ -129,7 +129,7 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->intro_date = (intro_date/16)*12 + (intro_date%16);
 			desc->wtyp = decode_uint8(p);
 			desc->styp = decode_uint8(p);
-			desc->retire_date = DEFAULT_RETIRE_DATE*12;
+			desc->retire_date = DEFAULT_RETIRE_YEAR*12;
 			desc->draw_as_obj = false;
 			desc->number_of_seasons = 0;
 		}

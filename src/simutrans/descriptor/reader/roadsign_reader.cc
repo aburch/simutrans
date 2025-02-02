@@ -84,8 +84,8 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->price = decode_uint32(p);
 		desc->flags = decode_uint8(p);
 		desc->offset_left = 14;
-		desc->intro_date = DEFAULT_INTRO_DATE*12;
-		desc->retire_date = DEFAULT_RETIRE_DATE*12;
+		desc->intro_date = DEFAULT_INTRO_YEAR*12;
+		desc->retire_date = DEFAULT_RETIRE_YEAR*12;
 		desc->wtyp = road_wt;
 	}
 	else if(version==1) {
@@ -94,8 +94,8 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->price = 50000;
 		desc->flags = decode_uint8(p);
 		desc->offset_left = 14;
-		desc->intro_date = DEFAULT_INTRO_DATE*12;
-		desc->retire_date = DEFAULT_RETIRE_DATE*12;
+		desc->intro_date = DEFAULT_INTRO_YEAR*12;
+		desc->retire_date = DEFAULT_RETIRE_YEAR*12;
 		desc->wtyp = road_wt;
 	}
 	else {

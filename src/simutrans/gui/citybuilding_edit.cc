@@ -277,7 +277,7 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 			buf.printf("%s: %i\n",translator::translate("Postrate"),desc->get_mail_level());
 
 			buf.printf("%s%u", translator::translate("\nBauzeit von"), desc->get_intro_year_month() / 12);
-			if(desc->get_retire_year_month()!=DEFAULT_RETIRE_DATE*12) {
+			if(desc->get_retire_year_month()!=DEFAULT_RETIRE_YEAR*12) {
 				buf.printf("%s%u", translator::translate("\nBauzeit bis"), desc->get_retire_year_month() / 12);
 			}
 			buf.append("\n");

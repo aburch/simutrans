@@ -50,8 +50,8 @@ void tunnel_reader_t::convert_old_tunnel(tunnel_desc_t *desc)
 	}
 	desc->maintenance = 500;
 	desc->price = 200000;
-	desc->intro_date = DEFAULT_INTRO_DATE*12;
-	desc->retire_date = DEFAULT_RETIRE_DATE*12;
+	desc->intro_date = DEFAULT_INTRO_YEAR*12;
+	desc->retire_date = DEFAULT_RETIRE_YEAR*12;
 	desc->has_way = false;
 }
 

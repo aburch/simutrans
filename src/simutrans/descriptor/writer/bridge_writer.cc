@@ -108,10 +108,10 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 	uint16 axle_load = obj.get_int("axle_load",    9999);
 
 	// timeline
-	uint16 intro_date = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
+	uint16 intro_date = obj.get_int("intro_year", DEFAULT_INTRO_YEAR) * 12;
 	intro_date += obj.get_int("intro_month", 1) - 1;
 
-	uint16 retire_date = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
+	uint16 retire_date = obj.get_int("retire_year", DEFAULT_RETIRE_YEAR) * 12;
 	retire_date += obj.get_int("retire_month", 1) - 1;
 
 	sint8 number_of_seasons = 0;

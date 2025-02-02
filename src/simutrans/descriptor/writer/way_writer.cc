@@ -42,10 +42,10 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	uint32 max_weight  = obj.get_int("max_weight",  999);
 	uint16 axle_load   = obj.get_int("axle_load",  9999);
 
-	uint16 intro = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
+	uint16 intro = obj.get_int("intro_year", DEFAULT_INTRO_YEAR) * 12;
 	intro += obj.get_int("intro_month", 1) - 1;
 
-	uint16 retire = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
+	uint16 retire = obj.get_int("retire_year", DEFAULT_RETIRE_YEAR) * 12;
 	retire += obj.get_int("retire_month", 1) - 1;
 
 	uint8 wtyp = get_waytype(obj.get("waytype"));
