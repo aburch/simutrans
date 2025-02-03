@@ -24,6 +24,8 @@
 #ifdef __ANDROID__
 // since the script does only work on few devices
 #define USE_OWN_PAKINSTALL
+
+extern const char* download_file(const char* url, const char* filename);
 #endif
 
 
@@ -70,13 +72,7 @@ bool pak_can_download(const paksetinfo_t *pi)
 	return false;
 #endif
 #else
-#ifdef __ANDROID__
-	// no https for Android for now
-	if (strncmp(pi->url, "https://",8)==0) {
-		return false;
-	}
-#endif
-	// own routines, require http (for Android) and zip
+	// own routines require zip
 	if (strstr(pi->url, ".zip")) {
 		return true;
 	}
@@ -224,6 +220,13 @@ bool pak_download(vector_tpl<paksetinfo_t*>paks)
 			sprintf(outfilename, "curl --progress-bar -L '%s' > 'temp.zip'", pi->url);
 			system(outfilename);
 			strcpy(outfilename, "temp.zip");
+#else
+			// using system to download
+			strcpy(outfilename, "temp.zip");
+			if (const char* err = download_file(pi->url, "temp.zip")) {
+				outfilename[0] = 0;
+				dbg->warning("pak_download()","Failed to download %s",pi->url);
+			}
 #endif
 #endif
 		}
