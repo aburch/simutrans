@@ -1905,7 +1905,7 @@ void convoi_t::ziel_erreicht()
 					}
 				}
 				// when both convoi has child, the waiting convois are set as children, firstly.
-				else if(  self->get_coupling_convoi().is_bound() || v->get_convoi()->self->get_coupling_convoi().is_bound()  ){
+				else if(  self->get_coupling_convoi().is_bound() || v->get_convoi()->get_coupling_convoi().is_bound()  ){
 					reverse_convoy_coupling();
 					couple_convoi(v->get_convoi()->self);
 					// if the direction is different, change order
