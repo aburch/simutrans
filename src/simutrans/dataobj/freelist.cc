@@ -44,7 +44,7 @@ void* freelist_t::gimme_node(size_t size)
 #ifdef MULTI_THREAD
 		pthread_mutex_lock(&freelist_mutex_create);
 #endif
-		all_lists[idx] = new freelist_size_t(size * 4);
+		all_lists[idx] = new freelist_size_t(idx * 4);
 #ifdef MULTI_THREAD
 		pthread_mutex_unlock(&freelist_mutex_create);
 #endif
