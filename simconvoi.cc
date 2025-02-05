@@ -5300,13 +5300,12 @@ void convoi_t::reverse_convoy_coupling()
 	convoihandle_t new_parent_convoy = coupling_convoi; 
 	if (  !new_parent_convoy.is_bound()  ) {
 		return;	
-	} else {
-		uncouple_convoi();
-		if (new_parent_convoy->get_coupling_convoi().is_bound()) {
-			new_parent_convoy->reverse_convoy_coupling();
-		}
-		new_parent_convoy->couple_convoi(self);
 	}
+	uncouple_convoi();
+	if (new_parent_convoy->get_coupling_convoi().is_bound()) {
+		new_parent_convoy->reverse_convoy_coupling();
+	}
+	new_parent_convoy->couple_convoi(self);
 }
 
 
