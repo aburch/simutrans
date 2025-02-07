@@ -8302,14 +8302,7 @@ bool tool_change_convoi_t::init( player_t *player )
 
 		case 't':
 		{
-			schedule_t *schedule = cnv->get_schedule();
-			if( schedule->get_current_stop() == schedule->entries.get_count()-1 ){
-				schedule->set_current_stop( 0 );
-			}
-			else{
-				schedule->set_current_stop( schedule->get_current_stop() + 1 );
-			}
-			cnv->set_schedule(schedule);
+			cnv->next_stop_button_pressed();
 		}
 		break;
 		
