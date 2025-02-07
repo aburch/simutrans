@@ -1897,15 +1897,15 @@ void convoi_t::ziel_erreicht()
 				}
 				// when the waiting couvoi is child of other convoi or the coupling convoi already has child convoi,
 				// to avoid duplication, the coupling convoi is set as a child of waiting convoi firstly.
-				if(v->get_convoi()->is_coupled()){
+				if(  v->get_convoi()->is_coupled()  ){
 					v->get_convoi()->couple_convoi(self);
 					// if the direction is different, reverse the parents_children order.
-					if(ribi_t::backward(front()->get_direction())==v->get_convoi()->get_next_initial_direction()){
+					if(  ribi_t::backward(front()->get_direction())==v->get_convoi()->get_next_initial_direction()  ){
 						find_most_parent_convoi()->reverse_convoy_coupling();
 					}
 				}
 				// when both convoi has child, the waiting convois are set as children, firstly.
-				else if(self->get_coupling_convoi().is_bound()){
+				else if(  self->get_coupling_convoi().is_bound() || v->get_convoi()->get_coupling_convoi().is_bound()  ){
 					reverse_convoy_coupling();
 					couple_convoi(v->get_convoi()->self);
 					// if the direction is different, change order
@@ -5298,6 +5298,9 @@ void convoi_t::reverse_vehicles()
 void convoi_t::reverse_convoy_coupling()
 {
 	convoihandle_t new_parent_convoy = coupling_convoi; 
+	if (  !new_parent_convoy.is_bound()  ) {
+		return;	
+	}
 	uncouple_convoi();
 	if (new_parent_convoy->get_coupling_convoi().is_bound()) {
 		new_parent_convoy->reverse_convoy_coupling();
