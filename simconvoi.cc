@@ -2232,7 +2232,7 @@ bool convoi_t::can_go_alte_richtung()
 	// going backwards? then recalculate all
 	ribi_t::ribi neue_richtung_rwr = ribi_t::backward(fahr[0]->calc_direction(route.front(), route.at(min(2, route.get_count() - 1))));
 //	DBG_MESSAGE("convoi_t::go_alte_richtung()","neu=%i,rwr_neu=%i,alt=%i",neue_richtung_rwr,ribi_t::backward(neue_richtung_rwr),alte_richtung);
-	if(neue_richtung_rwr&alte_richtung) {
+	if( neue_richtung_rwr&alte_richtung ) {
 		akt_speed = 8;
 		return false;
 	}
@@ -2421,10 +2421,12 @@ void convoi_t::vorfahren()
 	recalc_data_front = true;
 	recalc_data = true;
 	recalc_speed_limit = true;
+	bool temp_reversing_flag=false;
 	convoihandle_t c = self;
 	while(  c.is_bound()  ) {
 		if (c->is_reversing_needed){
 			c->reverse_vehicles_at_halt_if_needed();
+			temp_reversing_flag=true;
 		}
 		c = c->get_coupling_convoi();
 	}
@@ -2489,7 +2491,7 @@ void convoi_t::vorfahren()
 		}
 
 		// still leaving depot (steps_driven!=0) or going in other direction or misalignment?
-		if(  steps_driven>0  ||  !can_go_alte_richtung()  ) {
+		if(  steps_driven>0  ||  !can_go_alte_richtung() || temp_reversing_flag  ) {
 
 			// start route from the beginning at index 0, place everything on start
 			uint32 train_length = 0;
@@ -5258,6 +5260,7 @@ void convoi_t::reverse_vehicles_at_halt_if_needed()
 	// the reversing is not done until the coupling is done.
 	reverse_vehicles();
 	is_reversing_needed = false;
+	welt->set_dirty();
 }
 
 void convoi_t::reverse_vehicles_to_go_to_depot()
