@@ -230,6 +230,15 @@ private:
 	convoihandle_t coupling_convoi;
 
 	/**
+	* a convoy that is coupling now.
+	*/
+	convoihandle_t will_coupling_convoi;
+	/**
+	* delete currently coupling convoi information
+	*/
+	void delete_will_coupling_convoi() {will_coupling_convoi=convoihandle_t();}
+
+	/**
 	* Current map
 	*/
 	static karte_ptr_t welt;
@@ -1017,6 +1026,9 @@ public:
 
 	bool is_coupled() const { return state==COUPLED  ||  state==COUPLED_LOADING; }
 	bool is_waiting_for_coupling() const;
+	void set_will_coupling_convoi(convoihandle_t convoi_coupling_undergo);
+	convoihandle_t get_will_coupling_convoi() const { return will_coupling_convoi; }
+	void unset_will_coupling_convoi();
 
 	bool can_continue_coupling() const;
 	bool can_start_coupling(convoi_t* parent) const;
