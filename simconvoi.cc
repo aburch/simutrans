@@ -5247,6 +5247,7 @@ void convoi_t::reverse_vehicles_on_user_request()
 		return;
 	}
 	reverse_vehicles();
+	welt->set_dirty();
 	// trigger repositioning on the most parent convoy
 	find_most_parent_convoi()->set_state(EDIT_SCHEDULE);
 }
