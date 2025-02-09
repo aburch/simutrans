@@ -1163,7 +1163,7 @@ koord3d convoi_t::calc_first_pos_of_route() const {
 	const vehicle_t* front_vehicle = front();
 	const grund_t* gr = world()->lookup(front_vehicle->get_pos());
 	// Since this function is called before the route is calculated, vehicle_base_t::get_90direction() cannot be used.
-	// So we use get_direction() and give up the judge when the obtained direction is not single. This judgement only affects visual jupming of the convoy.
+	// So we use get_direction(). This judgement only affects visual jupming of the convoy.
 	const ribi_t::ribi front_vehicle_dir = front_vehicle->get_direction();
 	grund_t* ngr;
 	if(
@@ -1897,14 +1897,14 @@ void convoi_t::ziel_erreicht()
 				}
 				// the direction of the waiting vehicle is same? opposite?
 				// reference direction to detect leading or following
-				ribi_t::ribi ribi_reference_direction = (  ( v->get_convoi()->get_next_initial_direction()  &  v->get_convoi()->front()->get_direction() ) > 0  ) ? ribi_reference_direction = v->get_direction(): ribi_reference_direction = ribi_t::backward(v->get_direction());
-				bool coupling_is_leading = !( ( self->front()->get_direction() & ribi_reference_direction ) > 0 );
+				ribi_t::ribi const const v_next_initial_direction = (  ( v->get_convoi()->get_next_initial_direction()  &  v->get_convoi()->front()->get_direction() ) > 0  ) ? v->get_direction(): ribi_t::backward(v->get_direction());
+				bool const should_this_convoy_be_parent = ( self->front()->get_direction() & v_next_initial_direction ) == 0 ;
 				// when the waiting couvoi is child of other convoi or the coupling convoi already has child convoi,
 				// to avoid duplication, the coupling convoi is set as a child of waiting convoi firstly.
 				if(v->get_convoi()->is_coupled()){
 					v->get_convoi()->couple_convoi(self);
 					// if the direction is different, reverse the parents_children order.
-					if(  coupling_is_leading  ){
+					if(  should_this_convoy_be_parent  ){
 						find_most_parent_convoi()->reverse_convoy_coupling();
 					}
 				}
@@ -1913,12 +1913,12 @@ void convoi_t::ziel_erreicht()
 					reverse_convoy_coupling();
 					couple_convoi(v->get_convoi()->self);
 					// if the direction is different, change order
-					if(  !coupling_is_leading  ){
+					if(  !should_this_convoy_be_parent  ){
 						find_most_parent_convoi()->reverse_convoy_coupling();
 					}
 				}
 				// the waiting convoi and coupling convoi are single convoi
-				else if(  coupling_is_leading  ){
+				else if(  should_this_convoy_be_parent  ){
 					// this convoy leads the other.
 					couple_convoi(v->get_convoi()->self);
 				} else {
