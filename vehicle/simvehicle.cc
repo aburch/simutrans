@@ -4204,13 +4204,6 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 						// direction is bad to couple.
 						continue;
 					}
-					// the waiting convoi is currently coupling
-					if(  v->get_convoi()->get_will_coupling_convoi().is_bound()  &&  v->get_convoi()->get_will_coupling_convoi() != cnv->self  ) {
-						continue;
-					}
-					// set convoi as coupling now!
-					v->get_convoi()->self->set_coupling_now(cnv->self);
-					cnv->set_coupling_now(v->get_convoi()->self);
 					//reserve tiles
 					for(  uint16 h=start_index;  h<i;  h++  ) {
 						grund_t* grn = welt->lookup(route->at(h));
