@@ -1181,7 +1181,7 @@ koord3d convoi_t::calc_first_pos_of_route() const {
 		return front_vehicle->get_pos();
 	}
 	// There is the child coupling convoy in front and we need to reverse the direction.
-	if(  heading_child_convoy_vehicle->get_direction()==ribi_t::backward(front_vehicle_dir)  ) {
+	if(  (heading_child_convoy_vehicle->get_direction()&ribi_t::backward(front_vehicle_dir)) > 0  ) {
 		// The child coupling convoy is already in reversed direction.
 		// Use the last vehicle pos of the child as the first pos of the new route.
 		convoihandle_t c = heading_child_convoy_vehicle->get_convoi()->self;
@@ -2421,9 +2421,17 @@ void convoi_t::vorfahren()
 	recalc_data_front = true;
 	recalc_data = true;
 	recalc_speed_limit = true;
+	// this reversing flag is for recalculating reversing convoy's vehicle positions.
 	bool temp_reversing_flag=false;
+	// is driving direction not change?
+	ribi_t::ribi neue_richtung_rwr = ribi_t::backward(fahr[0]->calc_direction(route.front(), route.at(min(2, route.get_count() - 1))));
+	bool const temp_only_image_reversing = (neue_richtung_rwr&alte_richtung)==0;
+	// this is the position for recalculating route when reversing only image direction (not driving direction).
+	koord3d new_start;
 	convoihandle_t c = self;
 	while(  c.is_bound()  ) {
+		// the back vehicles position is set.
+		new_start = c->back()->get_pos();
 		if (c->is_reversing_needed){
 			c->reverse_vehicles_at_halt_if_needed();
 			temp_reversing_flag=true;
@@ -2432,6 +2440,23 @@ void convoi_t::vorfahren()
 	}
 
 	koord3d k0 = route.front();
+
+	// if this convoy is reversing only image direction (not driving direction),
+	// the start position should be the last car of this convoy.
+	// reset the position, and recalculate the route.
+	if( temp_reversing_flag && temp_only_image_reversing &&(new_start!=k0)) {
+		front()->leave_tile();
+		front()->set_pos(new_start);
+		route_t const old_route=route;
+		if (!front()->calc_route(new_start, k0, speed_to_kmh(min_top_speed), &route)) {
+			state = NO_ROUTE;
+			get_owner()->report_vehicle_problem( self, k0 );
+			return;
+		}
+		route.append(&old_route);
+		k0 = route.front();
+	}
+
 	grund_t *gr = welt->lookup(k0);
 	bool at_dest = false;
 	if(gr  &&  gr->get_depot()) {
@@ -2491,7 +2516,7 @@ void convoi_t::vorfahren()
 		}
 
 		// still leaving depot (steps_driven!=0) or going in other direction or misalignment?
-		if(  steps_driven>0  ||  !can_go_alte_richtung() || temp_reversing_flag  ) {
+		if(  steps_driven>0  ||  !can_go_alte_richtung()  ||  temp_reversing_flag  ) {
 
 			// start route from the beginning at index 0, place everything on start
 			uint32 train_length = 0;
