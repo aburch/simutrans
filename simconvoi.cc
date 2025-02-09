@@ -1181,7 +1181,7 @@ koord3d convoi_t::calc_first_pos_of_route() const {
 		return front_vehicle->get_pos();
 	}
 	// There is the child coupling convoy in front and we need to reverse the direction.
-	if(  (heading_child_convoy_vehicle->get_direction()&ribi_t::backward(front_vehicle_dir)) > 0  ) {
+	if(  heading_child_convoy_vehicle->get_direction()==ribi_t::backward(front_vehicle_dir)  ) {
 		// The child coupling convoy is already in reversed direction.
 		// Use the last vehicle pos of the child as the first pos of the new route.
 		convoihandle_t c = heading_child_convoy_vehicle->get_convoi()->self;
