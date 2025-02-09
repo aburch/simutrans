@@ -1349,6 +1349,9 @@ bool convoi_t::drive_to()
 			schedule->set_current_stop(current_stop);
 			if(  route_ok  ) {
 				vorfahren();
+				if( state == NO_ROUTE ) {
+					return false;
+				}
 				is_reversing_needed = false;
 				return true;
 			}
