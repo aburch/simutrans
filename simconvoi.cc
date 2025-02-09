@@ -1890,6 +1890,10 @@ void convoi_t::ziel_erreicht()
 				if(  !v  ||  !can_start_coupling(v->get_convoi())  ||  !v->get_convoi()->is_loading()  ) {
 					continue;
 				}
+				// if there are many convoys in the same tile, the coupled convoy is the front or end convoy!
+				if(  (   (v->get_direction()&front()->get_direction())==0  &&  v->get_convoi()->is_coupled()  )  ||  (  (v->get_direction()&self->front()->get_direction())!=0  &&  v->get_convoi()->get_coupling_convoi().is_bound()  )  ) {
+					continue;
+				}
 				// there is a suitable waiting convoy for coupling -> this is coupling point.
 				akt_speed = 0;
 				if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  ) {
@@ -1901,7 +1905,7 @@ void convoi_t::ziel_erreicht()
 				bool const should_this_convoy_be_parent = ( self->front()->get_direction() & v_next_initial_direction ) == 0 ;
 				// when the waiting couvoi is child of other convoi or the coupling convoi already has child convoi,
 				// to avoid duplication, the coupling convoi is set as a child of waiting convoi firstly.
-				if(v->get_convoi()->is_coupled()){
+				if(  v->get_convoi()->is_coupled()  ){
 					v->get_convoi()->couple_convoi(self);
 					// if the direction is different, reverse the parents_children order.
 					if(  should_this_convoy_be_parent  ){
@@ -1909,7 +1913,7 @@ void convoi_t::ziel_erreicht()
 					}
 				}
 				// when both convoi has child, the waiting convois are set as children, firstly.
-				else if(self->get_coupling_convoi().is_bound()){
+				else if(  self->get_coupling_convoi().is_bound() || v->get_convoi()->get_coupling_convoi().is_bound()  ){
 					reverse_convoy_coupling();
 					couple_convoi(v->get_convoi()->self);
 					// if the direction is different, change order
@@ -5112,6 +5116,7 @@ bool convoi_t::can_start_coupling(convoi_t* parent) const {
 	* 1) next schedule entries have the same position.
 	* 2) current schedule entries have the same position.
 	* 3) current schedule entry has appropriate coupling_point for both convoys.
+	* 4) check the coupled couvoi has a free coupler. if both front and back sides are already coupled, false.
 	*/
 	// Since current schedule entry of this convoy can be waypoint, we proceed to a genuine stop point.
 	sint16 t_idx = schedule->get_current_stop();
@@ -5140,6 +5145,11 @@ bool convoi_t::can_start_coupling(convoi_t* parent) const {
 	if(  t_c.pos!=p_c.pos  ||  t_n.pos!=p_n.pos  ) {
 		return false;
 	}
+	// If the coupled convoy cannot be coupled, return false.
+	// If the coupled convoy is already coupling with two convoy, this convoy cannot be coupled!
+	if(  parent->self->get_coupling_convoi().is_bound()  &&  parent->is_coupled()  ) {
+		return false;
+	}
 	return true;
 }
 
@@ -5147,7 +5157,7 @@ bool convoi_t::is_waiting_for_coupling() const {
 	convoihandle_t c = self;
 	bool waiting_for_coupling = false;
 	while(  c.is_bound()  ) {
-		waiting_for_coupling |= (!c->get_coupling_convoi().is_bound()  &&  c->get_schedule()->get_current_entry().get_coupling_point()==1);
+		waiting_for_coupling |= (  !(c->get_coupling_convoi().is_bound()&&c->is_coupled())  &&  c->get_schedule()->get_current_entry().get_coupling_point()==1);
 		c = c->get_coupling_convoi();
 	}
 	return waiting_for_coupling;
@@ -5302,6 +5312,9 @@ void convoi_t::reverse_vehicles()
 void convoi_t::reverse_convoy_coupling()
 {
 	convoihandle_t new_parent_convoy = coupling_convoi; 
+	if (  !new_parent_convoy.is_bound()  ) {
+		return;	
+	}
 	uncouple_convoi();
 	if (new_parent_convoy->get_coupling_convoi().is_bound()) {
 		new_parent_convoy->reverse_convoy_coupling();
@@ -5328,3 +5341,35 @@ convoihandle_t convoi_t::find_most_parent_convoi() const {
 	}
 	return tc;
 }
+
+
+void convoi_t::next_stop_button_pressed() {
+	if(  self->is_coupled()  ) {
+		return;
+	}
+	convoihandle_t c = self;
+	while( c.is_bound() ) {
+		schedule_t *schedule = c->get_schedule();
+		convoihandle_t const temp_c = c->get_coupling_convoi();
+		if( !c->can_continue_coupling() ) {
+			c->uncouple_convoi();
+		}
+		if( schedule->get_current_stop() == schedule->entries.get_count() - 1 ) {
+			schedule->set_current_stop( 0 );
+		} else {
+			schedule->set_current_stop( schedule->get_current_stop() + 1 ); 
+		}
+		// c->set_schedule() is change convoy status to "EDIT_SCHEDULE".
+		// So, if the convoy is leading, it can recalculate the schedule by calling this function.
+		// However, if the convoy is coupled convoy, calling c->set_schedule() destroy coupling information.
+		// So, we only call c->set_schedule() if c is leading.
+		if( !c->is_coupled() ) {
+			c->set_schedule(schedule);
+		}
+		if( c->is_coupling_done() ) {
+			c->set_coupling_done(false);
+		}
+		c = temp_c;
+	}
+}
+

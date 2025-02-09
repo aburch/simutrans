@@ -385,7 +385,11 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		no_load_button.enable();
 		set_recovery_button.pressed = cnv->is_in_delay_recovery();
 		set_recovery_button.enable();
-		next_stop_button.enable();
+		if(  cnv->is_coupled() ){
+			next_stop_button.disable();
+		}else{
+			next_stop_button.enable();
+		}
 		const bool reversable_waytype = cnv->get_schedule()->get_waytype()!=road_wt  &&  cnv->get_schedule()->get_waytype()!=air_wt  &&  cnv->get_schedule()->get_waytype()!=water_wt;
 		if (reversable_waytype) {
 			reversed_button.pressed = cnv->is_reversed();
