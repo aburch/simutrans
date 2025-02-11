@@ -1737,23 +1737,31 @@ void convoi_t::betrete_depot(depot_t *dep, bool is_loading)
 	unreserve_route();
 
 	// remove vehicles from world data structure
-	for(unsigned i=0; i<anz_vehikel; i++) {
-		vehicle_t* v = fahr[i];
+	convoihandle_t c = self;
+	convoihandle_t child = c->get_coupling_convoi();
+	while(c.is_bound()) {
+		c->uncouple_convoi();
+		for(unsigned i=0; i<c->anz_vehikel; i++) {
+			vehicle_t* v = c->fahr[i];
 
-		grund_t* gr = welt->lookup(v->get_pos());
-		if(gr) {
-			// remove from blockstrecke
-			v->set_last(true);
-			v->leave_tile();
-			v->set_flag( obj_t::not_on_map );
+			grund_t* gr = welt->lookup(v->get_pos());
+			if(gr) {
+				// remove from blockstrecke
+				v->set_last(true);
+				v->leave_tile();
+				v->set_flag( obj_t::not_on_map );
+			}
 		}
+
+		destroy_win( magic_convoi_info+c.get_id() );
+
+		maxspeed_average_count = 0;
+		state = INITIAL;
+		dep->convoi_arrived(c, !is_loading  &&  get_schedule());
+		c->coupling_convoi = child;
+		child = child->get_coupling_convoi();
+		c = c->get_coupling_convoi();
 	}
-
-	destroy_win( magic_convoi_info+self.get_id() );
-
-	maxspeed_average_count = 0;
-	state = INITIAL;
-	dep->convoi_arrived(self, !is_loading  &&  get_schedule());
 }
 
 
