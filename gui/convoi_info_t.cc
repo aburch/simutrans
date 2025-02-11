@@ -378,7 +378,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			if(  cnv->get_coupling_convoi().is_bound()  ) {
 				convoihandle_t c = cnv;
 				while( c.is_bound() ) {
-					if(  cnv->get_owner() != c->get_owner() || cnv->get_schedule()->get_waytype() != cnv->get_schedule()->get_waytype()  ) {
+					if(  cnv->get_owner() != c->get_owner() || cnv->get_schedule()->get_waytype() != c->get_schedule()->get_waytype()  ) {
 						show_go_home_button = false;
 					}
 					c = c->get_coupling_convoi();
