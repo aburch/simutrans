@@ -989,16 +989,33 @@ sint32 convoi_t::calc_max_speed(uint64 total_power, uint64 total_weight, sint32 
 }
 
 
-int convoi_t::get_vehicle_at_length(uint16 length)
+int convoi_t::get_vehicle_at_length(sint32 length)
 {
+	int parents_anz_vehikel = 0;
 	int current_length = 0;
-	for( int i=0;  i<anz_vehikel;  i++  ) {
-		current_length += fahr[i]->get_desc()->get_length();
-		if(length<current_length) {
-			return i;
+	convoihandle_t c = self;
+	while(c.is_bound()) {
+		for( int i=0;  i<c->anz_vehikel;  i++  ) {
+			current_length += c->fahr[i]->get_desc()->get_length();
+			if(length<current_length) {
+				return i+parents_anz_vehikel;
+			}
 		}
+		parents_anz_vehikel += c->anz_vehikel;
+		c = c->get_coupling_convoi();
 	}
-	return anz_vehikel;
+	return parents_anz_vehikel;
+}
+
+int convoi_t::get_total_anz_vehikel()
+{
+	int return_value = 0;
+	convoihandle_t c=self;
+	while(c.is_bound()) {
+		return_value += c->anz_vehikel;
+		c = c->get_coupling_convoi();
+	}
+	return return_value;
 }
 
 
@@ -1053,7 +1070,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 					if (state==ROUTING_1) {
 						break;
 					}
-					if(  v_nr==anz_vehikel  ) {
+					if(  v_nr==get_total_anz_vehikel()  ) {
 						// all are moving
 						steps_driven = -1;
 						state = DRIVING;
@@ -1064,8 +1081,18 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 						return SYNC_OK;
 					}
 					// now only the right numbers
+					convoihandle_t c = self;
+					int c_i = 1;
 					for(int i=1; i<=v_nr; i++) {
-						fahr[i]->do_drive(sp_hat);
+						if(c_i == c->anz_vehikel) {
+							c = c->get_coupling_convoi();
+							c_i = 0;
+							if(!c.is_bound()) {
+								break;
+							}
+						}
+						c->fahr[c_i]->do_drive(sp_hat);
+						c_i++;
 					}
 					sp_soll -= sp_hat;
 				}
@@ -1901,7 +1928,7 @@ void convoi_t::ziel_erreicht()
 				}
 				// the direction of the waiting vehicle is same? opposite?
 				// reference direction to detect leading or following
-				ribi_t::ribi const const v_next_initial_direction = (  ( v->get_convoi()->get_next_initial_direction()  &  v->get_convoi()->front()->get_direction() ) > 0  ) ? v->get_direction(): ribi_t::backward(v->get_direction());
+				ribi_t::ribi const v_next_initial_direction = (  ( v->get_convoi()->get_next_initial_direction()  &  v->get_convoi()->front()->get_direction() ) > 0  ) ? v->get_direction(): ribi_t::backward(v->get_direction());
 				bool const should_this_convoy_be_parent = ( self->front()->get_direction() & v_next_initial_direction ) == 0 ;
 				// when the waiting couvoi is child of other convoi or the coupling convoi already has child convoi,
 				// to avoid duplication, the coupling convoi is set as a child of waiting convoi firstly.
@@ -2442,27 +2469,31 @@ void convoi_t::vorfahren()
 	bool at_dest = false;
 	if(gr  &&  gr->get_depot()) {
 		// start in depot
-		for(unsigned i=0; i<anz_vehikel; i++) {
-			vehicle_t* v = fahr[i];
+		convoihandle_t c = self;
+		while(c.is_bound()) {
+			for(unsigned i=0; i<c->anz_vehikel; i++) {
+				vehicle_t* v = c->fahr[i];
 
-			// remove from old position
-			grund_t* gr = welt->lookup(v->get_pos());
-			if(gr) {
-				gr->obj_remove(v);
-				if(gr->ist_uebergang()) {
-					crossing_t *cr = gr->find<crossing_t>(2);
-					cr->release_crossing(v);
+				// remove from old position
+				grund_t* gr = welt->lookup(v->get_pos());
+				if(gr) {
+					gr->obj_remove(v);
+					if(gr->ist_uebergang()) {
+						crossing_t *cr = gr->find<crossing_t>(2);
+						cr->release_crossing(v);
+					}
+					// eventually unreserve this
+					if(  schiene_t* const sch0 = obj_cast<schiene_t>(gr->get_weg(c->fahr[i]->get_waytype()))  ) {
+						sch0->unreserve(v);
+					}
 				}
-				// eventually unreserve this
-				if(  schiene_t* const sch0 = obj_cast<schiene_t>(gr->get_weg(fahr[i]->get_waytype()))  ) {
-					sch0->unreserve(v);
-				}
+				v->initialise_journey(0, true);
+				// set at new position
+				gr = welt->lookup(v->get_pos());
+				assert(gr);
+				v->enter_tile(gr);
 			}
-			v->initialise_journey(0, true);
-			// set at new position
-			gr = welt->lookup(v->get_pos());
-			assert(gr);
-			v->enter_tile(gr);
+			c = c->get_coupling_convoi();
 		}
 
 		// just advances the first vehicle
@@ -2471,8 +2502,12 @@ void convoi_t::vorfahren()
 		v0->get_smoke(false);
 		steps_driven = 0;
 		// drive half a tile:
-		for(int i=0; i<anz_vehikel; i++) {
-			fahr[i]->do_drive( (VEHICLE_STEPS_PER_TILE/2)<<YARDS_PER_VEHICLE_STEP_SHIFT );
+		c = self;
+		while(c.is_bound()) {
+			for(int i=0; i<c->anz_vehikel; i++) {
+				c->fahr[i]->do_drive( (VEHICLE_STEPS_PER_TILE/2)<<YARDS_PER_VEHICLE_STEP_SHIFT );
+			}
+			c = c->get_coupling_convoi();
 		}
 		v0->get_smoke(true);
 		v0->set_leading(true); // switches on signal checks to reserve the next route
@@ -5373,3 +5408,16 @@ void convoi_t::next_stop_button_pressed() {
 	}
 }
 
+
+// this function is for coupling convoy leaving depot.
+bool convoi_t::couple_convoi_running(convoihandle_t coupled) {
+	// we don't change parent's state because it will be changed by other functions!
+	// already started, so the state is set as COUPLED.
+	coupled->set_state(COUPLED);
+	// couplilng
+	coupling_convoi = coupled;
+	coupling_convoi->front()->set_leading(false);
+	back()->set_last(false);
+	must_recalc_min_top_speed();
+	return true;
+}

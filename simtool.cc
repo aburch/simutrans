@@ -8638,6 +8638,8 @@ bool tool_change_line_t::init( player_t *player )
  * 'r' : removes a vehikel (+number in convoi)
  * 'R' : removes all vehikels including (+number in convoi) to end
  * 'e' : set replacement seed convoy
+ * 'p' : paste convoy
+ * 'u' : set coupling convoy
  */
 bool tool_change_depot_t::init( player_t *player )
 {
@@ -8730,7 +8732,11 @@ bool tool_change_depot_t::init( player_t *player )
 					}
 					return false;
 				}
-				depot->copy_convoi( cnv, can_use_gui() );
+				convoihandle_t new_cnv = depot->copy_convoi( cnv, can_use_gui() );
+				if(  cnv->self->get_coupling_convoi().is_bound()  ) {
+					convoihandle_t new_child_cnv = depot->copy_convoi(  cnv->self->get_coupling_convoi(), can_use_gui()  );
+					new_cnv->set_coupling_convoi(new_child_cnv);
+				}
 			}
 			break;
 		}
@@ -8871,6 +8877,20 @@ bool tool_change_depot_t::init( player_t *player )
 				depot->copy_convoi( cnv, can_use_gui(),false );
 			}
 			break;
+		}
+		case 'u': { // coupling convoy in depot
+			if(  cnv.is_bound()  ){
+				uint16 coupled_cnv_id = atoi(p);
+				convoihandle_t child_cnv = depot->get_convoi(coupled_cnv_id);
+				if(  child_cnv.is_bound() && cnv != child_cnv  ) {
+					cnv->set_coupling_convoi(child_cnv);
+				} else {
+					cnv->set_coupling_convoi(convoihandle_t());
+					break;
+				}
+			} else {
+				break;
+			}
 		}
 	}
 	return false;

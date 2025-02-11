@@ -102,6 +102,12 @@ public:
 	 * @param local_execution if true, this method creates pop-ups in case of errors
 	 */
 	bool start_convoi(convoihandle_t cnv, bool local_execution);
+	/**
+	 * This is only for coupled couvoy
+	 * only return the condition of leaving, 
+	 * coupled convoy does not depart.
+	 */
+	bool can_start_coupled_convoi(convoihandle_t cnv, bool local_execution); 
 
 	bool start_all_convoys();
 
