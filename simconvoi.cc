@@ -5425,7 +5425,6 @@ void convoi_t::next_stop_button_pressed() {
 	}
 }
 
-
 // this function is for coupling convoy leaving depot.
 bool convoi_t::couple_convoi_running(convoihandle_t coupled) {
 	// we don't change parent's state because it will be changed by other functions!
