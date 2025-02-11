@@ -232,11 +232,11 @@ private:
 	/**
 	* a convoy that is coupling now.
 	*/
-	convoihandle_t will_coupling_convoi;
+	convoihandle_t convoi_coupling_in_progress;
 	/**
 	* delete currently coupling convoi information
 	*/
-	void delete_will_coupling_convoi() {will_coupling_convoi=convoihandle_t();}
+	void delete_convoi_coupling_in_progress() {convoi_coupling_in_progress=convoihandle_t();}
 
 	/**
 	* Current map
@@ -1026,9 +1026,9 @@ public:
 
 	bool is_coupled() const { return state==COUPLED  ||  state==COUPLED_LOADING; }
 	bool is_waiting_for_coupling() const;
-	void set_will_coupling_convoi(convoihandle_t convoi_coupling_undergo);
-	convoihandle_t get_will_coupling_convoi() const { return will_coupling_convoi; }
-	void unset_will_coupling_convoi();
+	void set_convoi_coupling_in_progress(convoihandle_t);
+	convoihandle_t get_convoi_coupling_in_progress() const { return convoi_coupling_in_progress; }
+	void unset_convoi_coupling_in_progress();
 
 	bool can_continue_coupling() const;
 	bool can_start_coupling(convoi_t* parent) const;
