@@ -356,25 +356,26 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		}
 		line_button.enable();
 		
-		if(  cnv->is_coupled()  ||  cnv->get_coupling_convoi().is_bound()  ) {
+		if(  cnv->get_coupling_convoi().is_bound()  ) {
+			button.set_tooltip("Uncouple the back convoy now.");
+			button.set_text("release back");
+			button.enable();
+		} else if(  cnv->is_coupled()  ) {
 			button.set_tooltip("Please decouple the other convoy to edit the schedule.");
+			button.set_text("Fahrplan");
 			button.disable();
 		} else {
 			button.set_tooltip("Alters a schedule.");
+			button.set_text("Fahrplan");
 			button.enable();
 		}
 
-		if(  cnv->get_coupling_convoi().is_bound()  ) {
-			go_home_button.set_tooltip("Uncouple the back convoy now.");
-			go_home_button.set_text("release back");
-			go_home_button.enable();
-		}
-		else if(  cnv->is_coupled()  ||  route_search_in_progress  ) {
+		if(  cnv->is_coupled()  ||  route_search_in_progress  ) {
 			go_home_button.disable();
 		}
 		else {
 			go_home_button.set_tooltip("Sends the convoi to the last depot it departed from!");
-			go_home_button.set_text("go home");
+			// go_home_button.set_text("go home");
 			go_home_button.enable();
 		}
 
@@ -488,8 +489,14 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	if(cnv->get_owner()==welt->get_active_player()  &&  !welt->get_active_player()->is_locked()) {
 
 		if(  comp == &button  ) {
+			if(  cnv->get_coupling_convoi().is_bound()  ) {
+				cnv->call_convoi_tool('r', NULL);
+				return true;
+			}
+			else {
 			cnv->call_convoi_tool( 'f', NULL );
 			return true;
+			}
 		}
 
 		if(  comp == &no_load_button    &&    !route_search_in_progress  ) {
@@ -501,11 +508,6 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			// limit update to certain states that are considered to be safe for schedule updates
 			int state = cnv->get_state();
 			if(state==convoi_t::EDIT_SCHEDULE) {
-				return true;
-			}
-			
-			if(  cnv->get_coupling_convoi().is_bound()  ) {
-				cnv->call_convoi_tool('r', NULL);
 				return true;
 			}
 
