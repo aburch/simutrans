@@ -174,7 +174,7 @@ public:
 	 * Set center viewport position, taking height into account.
 	 * Possibly switches underground mode.
 	 */
-	void change_world_position( const koord3d& ij );
+	void change_world_position( const koord3d& ij, bool automatic_underground = true );
 
 	/**
 	 * Set center viewport position, placing a in-game koord3d under the desired screen position.

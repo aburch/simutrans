@@ -1194,7 +1194,7 @@ bool minimap_t::infowin_event(const event_t *ev)
 	if(IS_LEFTRELEASE(ev)  ||  ((IS_LEFTCLICK(ev)  ||  IS_LEFTDRAG(ev))  &&  !env_t::leftdrag_in_minimap)) {
 		world->get_viewport()->set_follow_convoi( convoihandle_t() );
 		const sint8 min_hgt = world->is_within_grid_limits(k) ? world->min_hgt(k) : 0;
-		world->get_viewport()->change_world_position(koord3d(k,min_hgt));
+		world->get_viewport()->change_world_position(koord3d(k,min_hgt),false); // change position bu do not touch underground mode
 		return true;
 	}
 
