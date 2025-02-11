@@ -1768,6 +1768,7 @@ void convoi_t::betrete_depot(depot_t *dep, bool is_loading)
 	convoihandle_t child = c->get_coupling_convoi();
 	while(c.is_bound()) {
 		c->uncouple_convoi();
+		dbg->message("convoi_t::betrete_depot()","%s reach_depot",c->get_name());
 		for(unsigned i=0; i<c->anz_vehikel; i++) {
 			vehicle_t* v = c->fahr[i];
 
@@ -1782,10 +1783,12 @@ void convoi_t::betrete_depot(depot_t *dep, bool is_loading)
 
 		destroy_win( magic_convoi_info+c.get_id() );
 
-		maxspeed_average_count = 0;
-		state = INITIAL;
+		c->maxspeed_average_count = 0;
+		c->state = INITIAL;
 		dep->convoi_arrived(c, !is_loading  &&  get_schedule());
-		c->coupling_convoi = child;
+		if(child.is_bound()) {
+			c->coupling_convoi = child;
+		}
 		child = child->get_coupling_convoi();
 		c = c->get_coupling_convoi();
 	}
@@ -4913,13 +4916,19 @@ const char* convoi_t::send_to_depot(bool local)
 	// if route to a depot has been found, update the convoi's schedule
 	const char *txt;
 	if(  !shortest_route->empty()  ) {
-		schedule_t *schedule = get_schedule()->copy();
-		schedule->insert(welt->lookup(home));
-		schedule->set_current_stop( (schedule->get_current_stop()+schedule->get_count()-1)%schedule->get_count() );
-		is_reversing_needed = false;
-		reverse_vehicles_to_go_to_depot();
-		set_schedule(schedule);
-		txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
+		convoihandle_t c = self;
+		while( c.is_bound() ) {
+			schedule_t *schedule = c->get_schedule();
+			schedule->insert(welt->lookup(home));
+			schedule->set_current_stop( (schedule->get_current_stop()+schedule->get_count()-1)%schedule->get_count() );
+			is_reversing_needed = false;
+			reverse_vehicles_to_go_to_depot();
+			if(  !c->is_coupled()  ) {
+				set_schedule(schedule);
+			}
+			txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
+			c = c->get_coupling_convoi();
+		}
 	}
 	else {
 		txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
