@@ -374,9 +374,22 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			go_home_button.disable();
 		}
 		else {
-			go_home_button.set_tooltip("Sends the convoi to the last depot it departed from!");
-			// go_home_button.set_text("go home");
-			go_home_button.enable();
+			bool show_go_home_button = true;
+			if(  cnv->get_coupling_convoi().is_bound()  ) {
+				convoihandle_t c = cnv;
+				while( c.is_bound() ) {
+					if(  cnv->get_owner() != c->get_owner() || cnv->get_schedule()->get_waytype() != cnv->get_schedule()->get_waytype()  ) {
+						show_go_home_button = false;
+					}
+					c = c->get_coupling_convoi();
+				}
+			}
+			if(  show_go_home_button  ) {
+				go_home_button.set_tooltip("Sends the convoi to the last depot it departed from!");
+				go_home_button.enable();
+			} else {
+				go_home_button.disable();
+			}
 		}
 
 		if(  grund_t* gr=welt->lookup(cnv->get_schedule()->get_current_entry().pos)  ) {
