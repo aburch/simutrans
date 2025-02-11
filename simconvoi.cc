@@ -3426,11 +3426,8 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 		const schedule_entry_t e = c->get_schedule()->get_current_entry();
 		coupling_cond |= (e.get_coupling_point()==1  &&  !c->is_coupling_done()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled()));
 		if (  c->is_coupling_done()  ||  !c->get_convoi_coupling_in_progress().is_bound()  ||  c->get_convoi_coupling_in_progress()->get_convoi_coupling_in_progress()!=c  ) {
-			// This will_conpling_convoi() flag is too strong. 
-			// So if there are some happens such as
-			// coupling convoi is removed or
-			// forget to remove the flag after coupling done,
-			// this flag should be NONE! 
+			// The convoi_coupling_in_progress flag blocks the departure.
+			// Reset the flag if it is outdated to avoid blocking the departure forever.
 			c->unset_convoi_coupling_in_progress();
 		}
 		c = c->get_coupling_convoi();
@@ -5399,11 +5396,9 @@ void convoi_t::set_convoi_coupling_in_progress(convoihandle_t convoi_coupling_un
 	if( !convoi_coupling_undergo.is_bound() ) {
 		dbg->warning( "convoi_t::set_convoi_coupling_in_progress()","%i cannot find the coupling convoi!", self.get_id());
 		return;
-	} else {
-		convoi_coupling_in_progress=convoi_coupling_undergo;
-		dbg->message( "convoi_t::set_convoi_coupling_in_progress()","%i and %i convoys will be coupling soon", self.get_id(), convoi_coupling_in_progress->self.get_id() );
-		return;
 	}
+	convoi_coupling_in_progress=convoi_coupling_undergo;
+	dbg->message( "convoi_t::set_convoi_coupling_in_progress()","%i and %i convoys will be coupling soon", self.get_id(), convoi_coupling_in_progress->self.get_id() );
 }
 
 void convoi_t::unset_convoi_coupling_in_progress() {
@@ -5414,5 +5409,4 @@ void convoi_t::unset_convoi_coupling_in_progress() {
 	c->delete_convoi_coupling_in_progress();
 	self->delete_convoi_coupling_in_progress();
 	dbg->message( "convoi_t::unset_convoi_coupling_in_progress()","%i and %i convoys are now coupling or canceling couple", self.get_id(), c->self.get_id() );
-	return;
 }
