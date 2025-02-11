@@ -391,6 +391,12 @@ private:
 	*/
 	bool can_go_alte_richtung();
 
+	/**
+	* a helper function for can_go_alte_richtung() and vorfahren()
+	* calculate route where the convoys are.
+	*/
+	bool add_route_convoy_on();
+
 	// alte_richtung of coupled convoy is set by the head convoy.
 	void set_alte_richtung(ribi_t::ribi r) { alte_richtung = r; }
 

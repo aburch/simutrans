@@ -1349,9 +1349,6 @@ bool convoi_t::drive_to()
 			schedule->set_current_stop(current_stop);
 			if(  route_ok  ) {
 				vorfahren();
-				if( state == NO_ROUTE ) {
-					return false;
-				}
 				is_reversing_needed = false;
 				return true;
 			}
@@ -2291,7 +2288,7 @@ bool convoi_t::can_go_alte_richtung()
 	}
 
 	// check if convoi is way too short (even for diagonal tracks)
-	// inspecting represents the last convoy of all couled convoys.
+	// inspecting represents the last convoy of all coupled convoys.
 	tile_length += (ribi_t::is_straight(welt->lookup(inspecting->back()->get_pos())->get_weg_ribi_unmasked(inspecting->back()->get_waytype())) ? 16 : 8192/vehicle_t::get_diagonal_multiplier());
 	if(  convoi_length>tile_length  ) {
 		dbg->warning("convoi_t::go_alte_richtung()","convoy too short (id %i) => fixing!",self.get_id());
@@ -2319,45 +2316,9 @@ bool convoi_t::can_go_alte_richtung()
 
 	// we continue our journey; however later cars need also a correct route entry
 	// eventually we need to add their positions to the convois route
-	koord3d pos = fahr[0]->get_pos();
-	assert(pos == route.front());
-	inspecting = self; // reset inspecting to the first convoy
-	if(welt->lookup(pos)->get_depot()) {
+	// move this calculation in convoi_t::add_route_convoy_on()
+	if ( !add_route_convoy_on() ) {
 		return false;
-	}
-	else {
-		while(  inspecting.is_bound()  ) {
-			for(i=0; i<inspecting->get_vehicle_count(); i++) {
-				vehicle_t* v = inspecting->get_vehikel(i);
-				// eventually add current position to the route
-				// fill the tiles between route.front() and v->get_pos()
-				while (route.front() != v->get_pos() && route.at(1) != v->get_pos()) {
-					const grund_t* g = welt->lookup(route.front());
-					const weg_t* w = g ? g->get_weg(front()->get_waytype()) : NULL;
-					ribi_t::ribi dir = w ? w->get_ribi_unmasked() : ribi_t::none;
-					// find the direction to add to the route.
-					dir &= ~ribi_type(route.at(1) - route.front());
-					// If something went wrong in finding the adjacent tile, just insert the vehicle's pos.
-					koord3d pos_to_insert = v->get_pos();
-					if(  ribi_t::is_single(dir)  ) {
-						grund_t* gn;
-						g->get_neighbour(gn, front()->get_waytype(), dir);
-						if(  gn  ) {
-							pos_to_insert = gn->get_pos();
-						}
-					}
-					route.insert(pos_to_insert);
-				}
-			}
-			inspecting = inspecting->get_coupling_convoi();
-		}
-		// now route was constructed. we broadcast the route to the coupled convoys.
-		inspecting = self->get_coupling_convoi();
-		while(  inspecting.is_bound()  ) {
-			inspecting->access_route()->clear();
-			inspecting->access_route()->append(get_route());
-			inspecting = inspecting->get_coupling_convoi();
-		}
 	}
 
 	// since we need the route for every vehicle of this convoi,
@@ -2412,6 +2373,55 @@ bool convoi_t::can_go_alte_richtung()
 	return true;
 }
 
+// a helper function for convoi_t::vorfahren() and convoi_t::can_go_alte_richtung()
+bool convoi_t::add_route_convoy_on()
+{
+	if( route.get_count() < 2 ) {
+		return false;
+	}
+	koord3d pos = fahr[0]->get_pos();
+	assert(pos == route.front());
+	convoihandle_t inspecting = self; // reset inspecting to the first convoy
+	if(welt->lookup(pos)->get_depot()) {
+		return false;
+	}
+	else {
+		while(  inspecting.is_bound()  ) {
+			for(uint8 i=0; i<inspecting->get_vehicle_count(); i++) {
+				vehicle_t* v = inspecting->get_vehikel(i);
+				// eventually add current position to the route
+				// fill the tiles between route.front() and v->get_pos()
+				while (route.front() != v->get_pos() && route.at(1) != v->get_pos()) {
+					const grund_t* g = welt->lookup(route.front());
+					const weg_t* w = g ? g->get_weg(front()->get_waytype()) : NULL;
+					ribi_t::ribi dir = w ? w->get_ribi_unmasked() : ribi_t::none;
+					// find the direction to add to the route.
+					dir &= ~ribi_type(route.at(1) - route.front());
+					// If something went wrong in finding the adjacent tile, just insert the vehicle's pos.
+					koord3d pos_to_insert = v->get_pos();
+					if(  ribi_t::is_single(dir)  ) {
+						grund_t* gn;
+						g->get_neighbour(gn, front()->get_waytype(), dir);
+						if(  gn  ) {
+							pos_to_insert = gn->get_pos();
+						}
+					}
+					route.insert(pos_to_insert);
+				}
+			}
+			inspecting = inspecting->get_coupling_convoi();
+		}
+		// now route was constructed. we broadcast the route to the coupled convoys.
+		inspecting = self->get_coupling_convoi();
+		while(  inspecting.is_bound()  ) {
+			inspecting->access_route()->clear();
+			inspecting->access_route()->append(get_route());
+			inspecting = inspecting->get_coupling_convoi();
+		}
+		return true;
+	}
+}
+
 
 // put the convoi on its way
 void convoi_t::vorfahren()
@@ -2425,41 +2435,34 @@ void convoi_t::vorfahren()
 	recalc_data = true;
 	recalc_speed_limit = true;
 	// this reversing flag is for recalculating reversing convoy's vehicle positions.
-	bool temp_reversing_flag=false;
+	convoihandle_t c = self;
+	bool temp_reversing_flag = false;
+	while ( c.is_bound() ) {
+		temp_reversing_flag |= c->is_reversing_needed;
+		c = c->get_coupling_convoi();
+	}
 	// is driving direction not change?
 	ribi_t::ribi neue_richtung_rwr = ribi_t::backward(fahr[0]->calc_direction(route.front(), route.at(min(2, route.get_count() - 1))));
-	bool const temp_only_image_reversing = (neue_richtung_rwr&alte_richtung)==0;
+	bool const temp_only_image_reversing = ((neue_richtung_rwr&alte_richtung)==0) && temp_reversing_flag;
+
+	// if this convoy is reversing only image direction (not driving direction),
+	// the start position should be the last car of this convoy.
+	// reset the position, and recalculate the route.
+	if( temp_only_image_reversing ) {
+		add_route_convoy_on();
+	}
+
 	// this is the position for recalculating route when reversing only image direction (not driving direction).
-	koord3d new_start;
-	convoihandle_t c = self;
+	c = self;
 	while(  c.is_bound()  ) {
 		// the back vehicles position is set.
-		new_start = c->back()->get_pos();
 		if (c->is_reversing_needed){
 			c->reverse_vehicles_at_halt_if_needed();
-			temp_reversing_flag=true;
 		}
 		c = c->get_coupling_convoi();
 	}
 
 	koord3d k0 = route.front();
-
-	// if this convoy is reversing only image direction (not driving direction),
-	// the start position should be the last car of this convoy.
-	// reset the position, and recalculate the route.
-	if( temp_reversing_flag && temp_only_image_reversing &&(new_start!=k0)) {
-		front()->leave_tile();
-		front()->set_pos(new_start);
-		route_t const old_route=route;
-		if (!front()->calc_route(new_start, k0, speed_to_kmh(min_top_speed), &route)) {
-			state = NO_ROUTE;
-			get_owner()->report_vehicle_problem( self, k0 );
-			return;
-		}
-		route.append(&old_route);
-		k0 = route.front();
-	}
-
 	grund_t *gr = welt->lookup(k0);
 	bool at_dest = false;
 	if(gr  &&  gr->get_depot()) {
