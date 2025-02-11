@@ -5438,3 +5438,22 @@ bool convoi_t::couple_convoi_running(convoihandle_t coupled) {
 	must_recalc_min_top_speed();
 	return true;
 }
+
+void convoi_t::set_convoi_coupling_in_progress(convoihandle_t convoi_coupling_undergo) {
+	if( !convoi_coupling_undergo.is_bound() ) {
+		dbg->warning( "convoi_t::set_convoi_coupling_in_progress()","%i cannot find the coupling convoi!", self.get_id());
+		return;
+	}
+	convoi_coupling_in_progress=convoi_coupling_undergo;
+	dbg->message( "convoi_t::set_convoi_coupling_in_progress()","%i and %i convoys will be coupling soon", self.get_id(), convoi_coupling_in_progress->self.get_id() );
+}
+
+void convoi_t::unset_convoi_coupling_in_progress() {
+	if ( !get_convoi_coupling_in_progress().is_bound() ) {
+		return;
+	}
+	convoihandle_t c = get_convoi_coupling_in_progress();
+	c->delete_convoi_coupling_in_progress();
+	self->delete_convoi_coupling_in_progress();
+	dbg->message( "convoi_t::unset_convoi_coupling_in_progress()","%i and %i convoys are now coupling or canceling couple", self.get_id(), c->self.get_id() );
+}
