@@ -2522,7 +2522,7 @@ void convoi_t::vorfahren()
 		}
 
 		// still leaving depot (steps_driven!=0) or going in other direction or misalignment?
-		if(  steps_driven>0  ||  !can_go_alte_richtung()  ||  temp_reversing_flag  ) {
+		if(  steps_driven>0  ||  temp_reversing_flag  ||  !can_go_alte_richtung()  ) {
 
 			// start route from the beginning at index 0, place everything on start
 			uint32 train_length = 0;
