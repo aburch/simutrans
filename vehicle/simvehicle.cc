@@ -4170,10 +4170,12 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 	} while(  idx!=cnv->get_schedule()->get_current_stop()  );
 	if(  !stop_found  ||  cnv->get_schedule()->entries[idx].get_coupling_point()!=2  ) {
 		// all schedule entries are waypoint or the next stop point is not a coupling point.
+		cnv->unset_convoi_coupling_in_progress();
 		return false;
 	}
 	// start_index can be invalid.
 	if(start_index>=route->get_count()) {
+		cnv->unset_convoi_coupling_in_progress();
 		return false;
 	}
 
@@ -4184,6 +4186,7 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 		grund_t *gr = welt->lookup(route->at(i));
 		if(  !gr  ) {
 			// ground does not exist!?
+			cnv->unset_convoi_coupling_in_progress();
 			return false;
 		}
 		const ribi_t::ribi dir = i==start_index ? ribi_t::none : ribi_type(route->at(i-1), route->at(i));
@@ -4204,6 +4207,13 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 						// direction is bad to couple.
 						continue;
 					}
+					// The waiting convoi is currently coupling with another convoy.
+					if(  v->get_convoi()->get_convoi_coupling_in_progress() != cnv->self  ) {
+						continue;
+					}
+					// set convoi as coupling now!
+					v->get_convoi()->self->set_convoi_coupling_in_progress(cnv->self);
+					cnv->set_convoi_coupling_in_progress(v->get_convoi()->self);
 					//reserve tiles
 					for(  uint16 h=start_index;  h<i;  h++  ) {
 						grund_t* grn = welt->lookup(route->at(h));
@@ -4231,6 +4241,7 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 		schiene_t * sch = gr ? (schiene_t *)gr->get_weg(get_waytype()) : NULL;
 		if(  !sch  ||  (!ignore_signals  &&  sch->has_signal())  ||  !sch->can_reserve(cnv->self)  ) {
 			// end of truck or section. or unreachable for some reasons. anyway, convoy for coupling is not found.
+			cnv->unset_convoi_coupling_in_progress();
 			return false;
 		}
 	}
