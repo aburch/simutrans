@@ -534,13 +534,17 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			}
 			else {
 				// back to normal schedule
-				schedule_t* schedule = cnv->get_schedule()->copy();
-				schedule->remove(); // remove depot entry
+				convoihandle_t c = cnv;
+				while( c.is_bound() ) {
+					schedule_t* schedule = c->get_schedule()->copy();
+					schedule->remove(); // remove depot entry
 
-				cbuffer_t buf;
-				schedule->sprintf_schedule( buf );
-				cnv->call_convoi_tool( 'g', buf );
-				delete schedule;
+					cbuffer_t buf;
+					schedule->sprintf_schedule( buf );
+					c->call_convoi_tool( 'g', buf );
+					delete schedule;
+					c = c->get_coupling_convoi();
+				}
 			}
 		} // end go home button
 
