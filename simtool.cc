@@ -8212,15 +8212,13 @@ bool tool_change_convoi_t::init( player_t *player )
 					if(  strncmp(schedule_cmp_buf, p, schedule_cmp_buf.len() + 1)==0  ) {
 						// No need to update the schedule.  Avoid discarding the time history.
 						cnv_schedule->finish_editing();
-						if( !cnv->is_coupled() ) {
-							cnv->set_schedule(cnv_schedule);
-						}
+						cnv->set_schedule(cnv_schedule);
 						break;
 					}
 				}
 				schedule_t *schedule = cnv->create_schedule()->copy();
 				schedule->finish_editing();
-				if (schedule->sscanf_schedule( p )  &&  (no_check()  ||  scenario_check_schedule(welt, player, schedule, can_use_gui())) && !cnv->is_coupled() ) {
+				if (schedule->sscanf_schedule( p )  &&  (no_check()  ||  scenario_check_schedule(welt, player, schedule, can_use_gui())) ) {
 					cnv->set_schedule( schedule );
 				}
 				else {
