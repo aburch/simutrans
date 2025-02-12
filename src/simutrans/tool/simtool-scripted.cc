@@ -304,6 +304,7 @@ bool tool_exec_two_click_script_t::exit(player_t* player)
 	// shut down vm
 	delete script;
 	script = NULL;
+	waiting_for_do_work = false;
 	return res  &&  res2;
 }
 
