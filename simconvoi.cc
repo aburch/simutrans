@@ -1599,7 +1599,17 @@ void convoi_t::step()
 			// depart convoy from the depot.
 			if(  grund_t *gr = welt->lookup(get_pos())  ) {
 				if(  gr->get_depot()  ) {
-					state = INITIAL;
+					convoihandle_t c = self;
+					convoihandle_t child = get_coupling_convoi();
+					while( c.is_bound() ) {	
+						c->uncouple_convoi();
+						c->state = INITIAL;
+						if(child.is_bound()) {
+							c->set_coupling_convoi(child);
+						}
+						child = child->get_coupling_convoi();
+						c = c->get_coupling_convoi();
+					}
 					gr->get_depot()->start_convoi(self, false);
 				}
 			}
@@ -2241,7 +2251,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 	check_freight();
 
 	// ok, now we have a schedule
-	if(state != INITIAL) {
+	if(  state != INITIAL && !is_coupled()  ) {
 		state = EDIT_SCHEDULE;
 	}
 	// to avoid jumping trains
