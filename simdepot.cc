@@ -409,7 +409,14 @@ bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 				vehicles.append(v);
 			}
 		}
-
+		
+		// this convoy will be removed. so parent convoy uncouple this convoy.
+		for(uint32 i=0; i < convois.get_count() ; i++) {
+			if( cnv==convois.at(i)->get_coupling_convoi() ) {
+				convois.at(i)->set_coupling_convoi(convoihandle_t());
+			}
+		}
+		
 		// remove from depot lists
 		remove_convoi( cnv );
 
