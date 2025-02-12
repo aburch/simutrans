@@ -3465,9 +3465,8 @@ bool rail_vehicle_t::is_coupling_target(const grund_t *gr, const grund_t *prev_g
 		// we have to couple with either end of the convoy.
 		if(  !v  ||
 			!cnv->can_start_coupling(v->get_convoi())  ||
-			!v->get_convoi()->is_loading()  //||
-			//(!v->is_last()  &&  !v->is_leading())  
-			) {
+			!v->get_convoi()->is_loading()  ||
+			(!v->is_last()  &&  !v->is_leading())  ) {
 			continue;
 		}
 		// Is the platform long enough?
