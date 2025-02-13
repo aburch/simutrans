@@ -5080,11 +5080,7 @@ void convoi_t::calc_crossing_reservation() {
 
 
 bool convoi_t::couple_convoi(convoihandle_t coupled) {
-	convoihandle_t coupleds = coupled;
-	while( coupleds.is_bound() ) {
-		coupleds->set_state(COUPLED_LOADING);
-		coupleds = coupleds->get_coupling_convoi();
-	}
+	coupled->set_state(COUPLED_LOADING);
 	if(  !is_coupled()  ) {
 		set_state(LOADING);
 	}
