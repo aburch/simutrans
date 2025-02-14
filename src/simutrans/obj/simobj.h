@@ -232,12 +232,6 @@ public:
 	virtual image_id get_image() const = 0;
 
 	/**
-	 * give image for height > 0 (max. height currently 3)
-	 * IMG_EMPTY is no images
-	 */
-	virtual image_id get_image(int /*height*/) const {return IMG_EMPTY;}
-
-	/**
 	 * this image is drawn after all get_image() on this tile
 	 * Currently only single height is supported for this feature
 	 */
@@ -296,10 +290,11 @@ public:
 	virtual const char *get_removal_error(const player_t *player);
 
 	/**
-	 * Draw background image of object
+	 * Draw background image of object (but only single height)
 	 * (everything that could be potentially behind vehicles)
+	 * override for multi imge objects
 	 */
-	void display(int xpos, int ypos  CLIP_NUM_DEF) const;
+	virtual void display(int xpos, int ypos  CLIP_NUM_DEF) const;
 
 	/**
 	 * Draw foreground image

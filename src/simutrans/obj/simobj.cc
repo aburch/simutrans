@@ -206,23 +206,16 @@ void obj_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 		xpos += tile_raster_scale_x(get_xoff(), raster_width);
 		ypos += tile_raster_scale_y(get_yoff(), raster_width);
 
-		const int start_ypos = ypos;
-		for(  int j=0;  image!=IMG_EMPTY;  ) {
-
-			if(  owner_n != PLAYER_UNOWNED  ) {
-				if(  obj_t::show_owner  ) {
-					display_blend( image, xpos, ypos, owner_n, color_idx_to_rgb(welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
-				}
-				else {
-					display_color( image, xpos, ypos, owner_n, true, is_dirty  CLIP_NUM_PAR);
-				}
+		if(  owner_n != PLAYER_UNOWNED  ) {
+			if(  obj_t::show_owner  ) {
+				display_blend( image, xpos, ypos, owner_n, color_idx_to_rgb(welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
 			}
 			else {
-				display_normal( image, xpos, ypos, 0, true, is_dirty  CLIP_NUM_PAR);
+				display_color( image, xpos, ypos, owner_n, true, is_dirty  CLIP_NUM_PAR);
 			}
-			// this obj has another image on top (e.g. skyscraper)
-			ypos -= raster_width;
-			image = get_image(++j);
+		}
+		else {
+			display_normal( image, xpos, ypos, 0, true, is_dirty  CLIP_NUM_PAR);
 		}
 
 		if(  outline_image != IMG_EMPTY  ) {
@@ -230,16 +223,16 @@ void obj_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 			const FLAGGED_PIXVAL transparent = get_outline_colour();
 			if(  TRANSPARENT_FLAGS&transparent  ) {
 				// only transparent outline
-				display_blend( get_outline_image(), xpos, start_ypos, owner_n, transparent, 0, is_dirty  CLIP_NUM_PAR);
+				display_blend( get_outline_image(), xpos, ypos, owner_n, transparent, 0, is_dirty  CLIP_NUM_PAR);
 			}
 			else if(  obj_t::get_flag( highlight )  ) {
 				// highlight this tile
-				display_blend( get_image(), xpos, start_ypos, owner_n, SYSCOL_OBJECT_HIGHLIGHT | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
+				display_blend( get_image(), xpos, ypos, owner_n, SYSCOL_OBJECT_HIGHLIGHT | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
 			}
 		}
 		else if(  obj_t::get_flag( highlight )  ) {
 			// highlight this tile
-			display_blend( get_image(), xpos, start_ypos, owner_n, SYSCOL_OBJECT_HIGHLIGHT | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
+			display_blend( get_image(), xpos, ypos, owner_n, SYSCOL_OBJECT_HIGHLIGHT | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
 		}
 	}
 }

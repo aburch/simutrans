@@ -95,12 +95,13 @@ public:
 	waytype_t get_waytype() const OVERRIDE;
 
 	image_id get_image() const OVERRIDE;
-	image_id get_image(int nr) const OVERRIDE;
 	image_id get_front_image() const OVERRIDE;
 	void mark_images_dirty() const;
 
 	image_id get_outline_image() const OVERRIDE;
 	FLAGGED_PIXVAL get_outline_colour() const OVERRIDE;
+
+	void display(int xpos, int ypos  CLIP_NUM_DEF) const OVERRIDE;
 
 	// caches image at height 0
 	void calc_image() OVERRIDE;

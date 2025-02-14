@@ -424,13 +424,90 @@ FLAGGED_PIXVAL gebaeude_t::get_outline_colour() const
 }
 
 
-image_id gebaeude_t::get_image(int nr) const
+void gebaeude_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 {
-	if(zeige_baugrube || env_t::hide_buildings) {
-		return IMG_EMPTY;
+
+	const int raster_width = get_current_tile_raster_width();
+	const bool is_dirty = get_flag(obj_t::dirty);
+	uint8 owner_n = get_owner_nr();
+
+	if (env_t::hide_buildings != 0 && env_t::hide_with_transparency && !zeige_baugrube) {
+		// transparent building
+		image_id img = tile->get_background(anim_frame, 0, season);
+		if (img == IMG_EMPTY) {
+			return;
+		}
+		uint8 colours[] = { COL_BLACK, COL_YELLOW, COL_YELLOW, COL_PURPLE, COL_RED, COL_GREEN };
+		FLAGGED_PIXVAL disp_colour = 0;
+		if (is_city_building()) {
+			disp_colour = color_idx_to_rgb(colours[0]) | TRANSPARENT50_FLAG | OUTLINE_FLAG;
+		}
+		else if (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING && tile->get_desc()->get_type() < building_desc_t::others) {
+			// special building
+			disp_colour = color_idx_to_rgb(colours[tile->get_desc()->get_type()]) | TRANSPARENT50_FLAG | OUTLINE_FLAG;
+		}
+
+		if (image_id ground = get_image()) {
+			if (owner_n != PLAYER_UNOWNED) {
+				if (obj_t::show_owner) {
+					display_blend(ground, xpos, ypos, owner_n, color_idx_to_rgb(welt->get_player(owner_n)->get_player_color1() + 2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
+				}
+				else {
+					display_color(ground, xpos, ypos, owner_n, true, is_dirty  CLIP_NUM_PAR);
+				}
+			}
+			else {
+				display_normal(ground, xpos, ypos, 0, true, is_dirty  CLIP_NUM_PAR);
+			}
+		}
+
+		if (TRANSPARENT_FLAGS & disp_colour) {
+			// only transparent outline
+			display_blend(get_outline_image(), xpos, ypos, owner_n, disp_colour, 0, is_dirty  CLIP_NUM_PAR);
+		}
+		else if (obj_t::get_flag(highlight)) {
+			// highlight this tile
+			display_blend(get_image(), xpos, ypos, owner_n, SYSCOL_OBJECT_HIGHLIGHT | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
+		}
+		// finish
+		return;
 	}
-	else {
-		return tile->get_background( anim_frame, nr, season );
+
+	// not hidden
+	image_id image = get_image();
+	if (image != IMG_EMPTY) {
+		const int raster_width = get_current_tile_raster_width();
+		const bool is_dirty = get_flag(obj_t::dirty);
+
+		const int start_ypos = ypos;
+		for (int j = 0; image != IMG_EMPTY; ) {
+
+			if (owner_n != PLAYER_UNOWNED) {
+				if (obj_t::show_owner) {
+					display_blend(image, xpos, ypos, owner_n, color_idx_to_rgb(welt->get_player(owner_n)->get_player_color1() + 2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
+				}
+				else {
+					display_color(image, xpos, ypos, owner_n, true, is_dirty  CLIP_NUM_PAR);
+				}
+			}
+			else {
+				display_normal(image, xpos, ypos, 0, true, is_dirty  CLIP_NUM_PAR);
+			}
+
+			if (obj_t::get_flag(highlight)) {
+				// highlight this tile
+				display_blend(image, xpos, start_ypos, owner_n, SYSCOL_OBJECT_HIGHLIGHT | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
+			}
+
+			// this obj has another image on top (e.g. skyscraper)
+			ypos -= raster_width;
+
+			if (zeige_baugrube || env_t::hide_buildings) {
+				// finish
+				return;
+			}
+			image = tile->get_background(anim_frame, ++j, season);
+		}
 	}
 }
 
@@ -1071,11 +1148,13 @@ void gebaeude_t::mark_images_dirty() const
 			(!env_t::hide_with_transparency  &&
 				env_t::hide_buildings>(is_city_building() ? env_t::NOT_HIDE : env_t::SOME_HIDDEN_BUILDING))  ) {
 		img = skinverwaltung_t::construction_site->get_image_id(0);
+		mark_image_dirty(img, 0);
 	}
 	else {
 		img = tile->get_background( anim_frame, 0, season ) ;
-	}
-	for(  int i=0;  img!=IMG_EMPTY;  img=get_image(++i)  ) {
-		mark_image_dirty( img, -(i*get_tile_raster_width()) );
+		for (int i = 0; img != IMG_EMPTY; ) {
+			mark_image_dirty(img, -(i * get_tile_raster_width()));
+			img = tile->get_background(anim_frame, ++i, season);
+		}
 	}
 }
