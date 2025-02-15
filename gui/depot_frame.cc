@@ -1562,7 +1562,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			const int selection = p.i <= icnv? p.i-1: p.i;
 			if(  selection < 0  ) {
 				// if cnv == depot->get_convoi(icnv), cnv reset coupling_convoi
-				.printf("%u", cnv.get_id());
+				.printf("%u", 0 );
 			} else {
 				.printf("%u", depot->get_convoi(selection).get_id() );
 			}
