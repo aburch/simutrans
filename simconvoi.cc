@@ -1070,7 +1070,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 					if (state==ROUTING_1) {
 						break;
 					}
-					if(  v_nr==get_total_anz_vehikel()  ) {
+					if(  v_nr==get_total_vehicle_length()  ) {
 						// all are moving
 						steps_driven = -1;
 						state = DRIVING;
