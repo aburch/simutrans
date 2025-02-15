@@ -1078,7 +1078,7 @@ public:
 
 	// coupling during running.
 	// Only for Leaving Depot
-	bool couple_convoi_running(convoihandle_t coupled);
+	bool couple_convoi_during_running(convoihandle_t coupled);
 
 };
 
