@@ -879,16 +879,22 @@ void depot_frame_t::update_data()
 	coupling_convoi_selector.clear_elements();
 	coupling_convoi_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( no_coupling_text, SYSCOL_TEXT ) ;
 	coupling_convoi_selector.set_selection(0);
+	// This flag is to prohibit child convoy departures without parental permission
 	is_shown_convoy_coupled = false;
 
 	// check all matching convoys
-	int temp_cnv_number=1;
 	FOR(slist_tpl<convoihandle_t>, const c, depot->get_convoy_list()) {
 		convoy_selector.new_component<convoy_scrollitem_t>(c) ;
 		if(  cnv.is_bound()  &&  c == cnv  ) {
 			// this convoy
 			convoy_selector.set_selection( convoy_selector.count_elements() - 1 );
-		} else if (  cnv.is_bound()  ) {
+		} 
+	}
+
+	// add choices for coupling, find selected child convoy, and find parent convoy of coupling.
+	int temp_cnv_number=1;
+	FOR(slist_tpl<convoihandle_t>, const c, depot->get_convoy_list()) {
+		if (  cnv.is_bound()  &&  c != cnv  ) {
 			// add choices for coupling
 			coupling_convoi_selector.new_component<convoy_scrollitem_t>(c) ;
 			if( cnv.is_bound() && c == cnv->get_coupling_convoi() ) {
@@ -897,26 +903,14 @@ void depot_frame_t::update_data()
 			}
 			if( cnv.is_bound() && cnv == c->get_coupling_convoi() ) {
 				// this convoy is cnv's parent convoy.
+				// therefore, this convoy can not start without parent's permission
 				is_shown_convoy_coupled = true;
 			}
 			temp_cnv_number+=1;
 		}
 	}
-	// check the ouroboros-like coupling setting:
-	// If this convoy's connecting convoy contains itself, this convoy uncouple child.
-	convoihandle_t check_cnv = cnv;
-	cbuffer_t couple_buf;
-	while( check_cnv.is_bound() ) {
-		if(  check_cnv->get_coupling_convoi() == cnv  ) {
-			// loop found!
-			// uncoupling
-			couple_buf.printf("%u", icnv);
-			depot->call_depot_tool('u',cnv,couple_buf);
-			coupling_convoi_selector.set_selection(0);
-			break;
-		}
-		check_cnv = check_cnv->get_coupling_convoi();
-	}
+	
+	
 	// update the description of start/move_to_parent_convoy button
 	// if this convoy is child convoy, start button is changed to "move to parent convoy" button.
 	if(  !is_shown_convoy_coupled  ) {
@@ -1568,16 +1562,23 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			const int selection = p.i <= icnv? p.i-1: p.i;
 			if(  selection < 0  ) {
 				// if cnv == depot->get_convoi(icnv), cnv reset coupling_convoi
-				couple_buf.printf("%u", icnv);
-			}else {
-				if(  cnv == depot->get_convoi(selection)->get_coupling_convoi()  ) {
-					// if child convoy select its parent convoy as coupling_convoi, both convoy reset coupling_convoi!
-					couple_buf.printf("%u", selection);
-					depot->call_depot_tool('u',depot->get_convoi(selection),couple_buf);
-					couple_buf.printf("%u", icnv);
-				} else {
-					couple_buf.printf("%u", selection);
+				couple_buf.printf("%u", cnv.get_id());
+			} else {
+				couple_buf.printf("%u", depot->get_convoi(selection).get_id() );
+			}
+			// check the ouroboros-like coupling setting:
+			// If this convoy's connecting convoy contains itself, this convoy don't start coupling!
+			convoihandle_t check_cnv = depot->get_convoi(selection);
+			cbuffer_t couple_buf;
+			while( check_cnv.is_bound() ) {
+				if(  check_cnv->get_coupling_convoi() == cnv  ) {
+					// loop found!
+					// no coupling
+					couple_buf.printf("%u", 0);
+					coupling_convoi_selector.set_selection(0);
+					break;
 				}
+				check_cnv = check_cnv->get_coupling_convoi();
 			}
 			depot->call_depot_tool('u',cnv,couple_buf);
 			return true;
