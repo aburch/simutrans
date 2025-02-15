@@ -227,7 +227,7 @@ void obj_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 			}
 			else if(  obj_t::get_flag( highlight )  ) {
 				// highlight this tile
-				display_blend( get_image(), xpos, ypos, owner_n, SYSCOL_OBJECT_HIGHLIGHT | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
+				display_blend( image, xpos, ypos, owner_n, SYSCOL_OBJECT_HIGHLIGHT | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
 			}
 		}
 		else if(  obj_t::get_flag( highlight )  ) {
