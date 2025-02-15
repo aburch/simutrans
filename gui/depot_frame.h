@@ -112,7 +112,7 @@ private:
 	gui_combobox_t coupling_convoi_selector;
 	// if this flag is true, the showed convoy is someone's child convoy.
 	// if this flag is true, this convoy cannot depart alone.
-	bool is_leaving_coupled;
+	bool is_shown_convoy_coupled;
 
 	button_t bt_obsolete;
 	button_t bt_show_all;
