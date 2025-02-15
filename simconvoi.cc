@@ -2316,8 +2316,7 @@ bool convoi_t::can_go_alte_richtung()
 
 	// we continue our journey; however later cars need also a correct route entry
 	// eventually we need to add their positions to the convois route
-	// move this calculation in convoi_t::add_route_convoy_on()
-	if ( !add_route_convoy_on() ) {
+	if ( !insert_route_convoy_on() ) {
 		return false;
 	}
 
@@ -2374,7 +2373,7 @@ bool convoi_t::can_go_alte_richtung()
 }
 
 // a helper function for convoi_t::vorfahren() and convoi_t::can_go_alte_richtung()
-bool convoi_t::add_route_convoy_on()
+bool convoi_t::insert_route_convoy_on()
 {
 	if( route.get_count() < 2 ) {
 		return false;
@@ -2436,20 +2435,20 @@ void convoi_t::vorfahren()
 	recalc_speed_limit = true;
 	// this reversing flag is for recalculating reversing convoy's vehicle positions.
 	convoihandle_t c = self;
-	bool temp_reversing_flag = false;
+	bool is_reversing_needed_true = false;
 	while ( c.is_bound() ) {
-		temp_reversing_flag |= c->is_reversing_needed;
+		is_reversing_needed_true |= c->is_reversing_needed;
 		c = c->get_coupling_convoi();
 	}
 	// is driving direction not change?
 	ribi_t::ribi neue_richtung_rwr = ribi_t::backward(fahr[0]->calc_direction(route.front(), route.at(min(2, route.get_count() - 1))));
-	bool const temp_only_image_reversing = ((neue_richtung_rwr&alte_richtung)==0) && temp_reversing_flag;
+	bool const reverse_preserving_direction = ((neue_richtung_rwr&alte_richtung)==0) && is_reversing_needed_true;
 
 	// if this convoy is reversing only image direction (not driving direction),
 	// the start position should be the last car of this convoy.
 	// reset the position, and recalculate the route.
-	if( temp_only_image_reversing ) {
-		add_route_convoy_on();
+	if( reverse_preserving_direction ) {
+		insert_route_convoy_on();
 	}
 
 	// this is the position for recalculating route when reversing only image direction (not driving direction).
@@ -2522,7 +2521,7 @@ void convoi_t::vorfahren()
 		}
 
 		// still leaving depot (steps_driven!=0) or going in other direction or misalignment?
-		if(  steps_driven>0  ||  temp_reversing_flag  ||  !can_go_alte_richtung()  ) {
+		if(  steps_driven>0  ||  is_reversing_needed_true  ||  !can_go_alte_richtung()  ) {
 
 			// start route from the beginning at index 0, place everything on start
 			uint32 train_length = 0;
