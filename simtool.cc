@@ -8879,18 +8879,13 @@ bool tool_change_depot_t::init( player_t *player )
 			break;
 		}
 		case 'u': { // coupling convoy in depot
-			if(  cnv.is_bound()  ){
-				uint16 coupled_cnv_id = atoi(p);
-				convoihandle_t child_cnv = depot->get_convoi(coupled_cnv_id);
-				if(  child_cnv.is_bound() && cnv != child_cnv  ) {
-					cnv->set_coupling_convoi(child_cnv);
-				} else {
-					cnv->set_coupling_convoi(convoihandle_t());
-					break;
-				}
-			} else {
-				break;
+			convoihandle_t child = convoihandle_t();
+			uint16 coupled_cnv_id = atoi(p);
+			if( coupled_cnv_id != 0) {
+				child.set_id(coupled_cnv_id);
 			}
+			cnv->set_coupling_convoi(child);
+			break;
 		}
 	}
 	return false;
