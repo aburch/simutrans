@@ -210,7 +210,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	coupling_convoi_selector.add_listener(this);
 	coupling_convoi_selector.set_wrapping(false);
 	add_component(&coupling_convoi_selector);
-	is_leaving_coupled = false;
+	is_shown_convoy_coupled = false;
 
 	/*
 	* [PANEL]
@@ -533,7 +533,7 @@ void depot_frame_t::layout(scr_size *size)
 	
 	bt_start.set_pos(scr_coord(D_MARGIN_LEFT, ACTIONS_VSTART));
 	bt_start.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
-	if (!is_leaving_coupled){
+	if (!is_shown_convoy_coupled){
 		bt_start.set_text("Start");
 	} else {
 		bt_start.set_text("Move to Parent Convoy");
@@ -879,7 +879,7 @@ void depot_frame_t::update_data()
 	coupling_convoi_selector.clear_elements();
 	coupling_convoi_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( no_coupling_text, SYSCOL_TEXT ) ;
 	coupling_convoi_selector.set_selection(0);
-	is_leaving_coupled = false;
+	is_shown_convoy_coupled = false;
 
 	// check all matching convoys
 	int temp_cnv_number=1;
@@ -897,7 +897,7 @@ void depot_frame_t::update_data()
 			}
 			if( cnv.is_bound() && cnv == c->get_coupling_convoi() ) {
 				// this convoy is cnv's parent convoy.
-				is_leaving_coupled = true;
+				is_shown_convoy_coupled = true;
 			}
 			temp_cnv_number+=1;
 		}
@@ -919,7 +919,7 @@ void depot_frame_t::update_data()
 	}
 	// update the description of start/move_to_parent_convoy button
 	// if this convoy is child convoy, start button is changed to "move to parent convoy" button.
-	if(  !is_leaving_coupled  ) {
+	if(  !is_shown_convoy_coupled  ) {
 		bt_start.set_tooltip("Start the selected vehicle(s)");
 	} else {
 		bt_start.set_tooltip("Move to Parent Convoy");
@@ -1398,7 +1398,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 		if(  comp == &bt_start  ) {
 			if(  cnv.is_bound()  ) {
 				// Move to Parent Convoy (Not Start Button!)
-				if(  is_leaving_coupled  ) {
+				if(  is_shown_convoy_coupled  ) {
 					int temp_parent_convoy = 0;
 					FOR(slist_tpl<convoihandle_t>, const c, depot->get_convoy_list()) {
 						if( c.is_bound() && cnv.is_bound() && cnv == c->get_coupling_convoi() ) {
@@ -1659,7 +1659,7 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 	bt_copy_convoi.enable( action_allowed );
 	bt_apply_line.enable( action_allowed );
 	bt_start.enable( action_allowed  &&  cnv!=depot->get_replacement_seed() );	
-	// if(!is_leaving_coupled) {
+	// if(!is_shown_convoy_coupled) {
 	// 	bt_start.enable( action_allowed  &&  cnv!=depot->get_replacement_seed() );
 	// } else {
 	// 	bt_start.disable();
