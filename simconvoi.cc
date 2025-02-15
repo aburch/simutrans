@@ -1007,7 +1007,7 @@ int convoi_t::get_vehicle_at_length(sint32 length)
 	return parents_anz_vehikel;
 }
 
-int convoi_t::get_total_anz_vehikel()
+int convoi_t::get_total_vehicle_length()
 {
 	int return_value = 0;
 	convoihandle_t c=self;
