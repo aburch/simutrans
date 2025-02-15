@@ -393,7 +393,7 @@ private:
 
 	/**
 	* a helper function for can_go_alte_richtung() and vorfahren()
-	* insert route where the convoys are.
+	* Inserts the positions where the convoys are to the route.
 	*/
 	bool insert_route_convoy_on();
 
