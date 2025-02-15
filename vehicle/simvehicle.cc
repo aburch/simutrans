@@ -4208,7 +4208,7 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 						continue;
 					}
 					// The waiting convoi is currently coupling with another convoy.
-					if(  v->get_convoi()->get_convoi_coupling_in_progress() != cnv->self  ) {
+					if(  v->get_convoi()->get_convoi_coupling_in_progress().is_bound() && v->get_convoi()->get_convoi_coupling_in_progress() != cnv->self  ) {
 						continue;
 					}
 					// set convoi as coupling now!
