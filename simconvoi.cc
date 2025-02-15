@@ -5456,7 +5456,6 @@ void convoi_t::next_stop_button_pressed() {
 	}
 }
 
-<<<<<<< OTRP-KUTA-RC-COUPLING_DEPOT
 // this function is for coupling convoy leaving depot.
 bool convoi_t::couple_convoi_running(convoihandle_t coupled) {
 	// we don't change parent's state because it will be changed by other functions!
@@ -5470,8 +5469,6 @@ bool convoi_t::couple_convoi_running(convoihandle_t coupled) {
 	return true;
 }
 
-=======
->>>>>>> OTRP-KUTAv6
 void convoi_t::set_convoi_coupling_in_progress(convoihandle_t convoi_coupling_undergo) {
 	if( !convoi_coupling_undergo.is_bound() ) {
 		dbg->warning( "convoi_t::set_convoi_coupling_in_progress()","%i cannot find the coupling convoi!", self.get_id());
