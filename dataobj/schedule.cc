@@ -360,6 +360,10 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *schedule)
 	if(  this==schedule  ) {
 		return true;
 	}
+	// diifferent flags -> not same schedules
+	if(  schedule->flags != flags  ) {
+		return false;
+	}
 	// no match for empty schedules
 	if(  schedule->entries.empty()  ||  entries.empty()  ) {
 		return false;
@@ -368,8 +372,13 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *schedule)
 	// we need to do this that complicated, because the last stop may make the difference
 	uint16 f1=0, f2=0;
 	while(  f1+f2<entries.get_count()+schedule->entries.get_count()  ) {
-		if(f1<entries.get_count()  &&  f2<schedule->entries.get_count()  &&  schedule->entries[(uint8)f2].pos == entries[(uint8)f1].pos) {
-			// minimum_loading/waiting ignored: identical
+		if(f1<entries.get_count()  &&  f2<schedule->entries.get_count()  &&  schedule->entries[(uint8)f2].pos == entries[(uint8)f1].pos
+		&&  schedule->entries[(uint8)f2].minimum_loading == entries[(uint8)f1].minimum_loading
+		&&  schedule->entries[(uint8)f2].waiting_time_shift == entries[(uint8)f1].waiting_time_shift
+	    &&  schedule->entries[(uint8)f2].get_stop_flags() == entries[(uint8)f1].get_stop_flags()
+		&&  schedule->entries[(uint8)f2].spacing == entries[(uint8)f1].spacing
+		&&  schedule->entries[(uint8)f2].spacing_shift == entries[(uint8)f1].spacing_shift
+		&&  schedule->entries[(uint8)f2].delay_tolerance == entries[(uint8)f1].delay_tolerance) {
 			f1++;
 			f2++;
 		}
