@@ -523,7 +523,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 						c_c->start();
 						remove_convoi( c_c );
 						// parent is coupling child convoy already started.
-						p_c->couple_convoi_running(c_c);
+						p_c->couple_convoi_during_running(c_c);
 						// switch to grandchild convoy 
 						p_c=p_c->get_coupling_convoi();
 						c_c=c_c->get_coupling_convoi();
