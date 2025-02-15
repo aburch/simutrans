@@ -5115,7 +5115,7 @@ bool convoi_t::couple_convoi(convoihandle_t coupled) {
 	convoihandle_t c = coupled;
 	while( c.is_bound() ) {
 		c->set_state(COUPLED_LOADING);
-		c = coupleds->get_coupling_convoi();
+		c = coupled->get_coupling_convoi();
 	}
 	if(  !is_coupled()  ) {
 		set_state(LOADING);
