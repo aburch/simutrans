@@ -415,7 +415,7 @@ private:
 	int get_vehicle_at_length(sint32);
 
 	// returns the total vehicle number of the coupling convoys.
-	int get_total_anz_vehikel();
+	int get_total_vehicle_length();
 
 	/**
 	* calculate income for last hop
