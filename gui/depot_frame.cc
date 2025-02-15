@@ -70,7 +70,7 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	depot(depot),
 	icnv(-1),
 	lb_convoi_line("Serves Line:", SYSCOL_TEXT, gui_label_t::left),
-	lb_coupling_convoy("Coupling With:", SYSCOL_TEXT, gui_label_t::left),
+	lb_coupling_convoy("Child convoy:", SYSCOL_TEXT, gui_label_t::left),
 	lb_sort_by("Sort by:", SYSCOL_TEXT, gui_label_t::right),
 	lb_name_filter_input("Search:", SYSCOL_TEXT, gui_label_t::right),
 	lb_veh_action("Fahrzeuge:", SYSCOL_TEXT, gui_label_t::right),
