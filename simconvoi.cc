@@ -2251,6 +2251,8 @@ bool convoi_t::set_schedule(schedule_t * f)
 	check_freight();
 
 	// ok, now we have a schedule
+	// if convoy is driving and convoy is leading, this convoy should be recalculate route.
+	// so, state is updated.
 	if(  state != INITIAL && !is_coupled()  ) {
 		state = EDIT_SCHEDULE;
 	}
