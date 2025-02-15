@@ -1659,12 +1659,6 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 	bt_copy_convoi.enable( action_allowed );
 	bt_apply_line.enable( action_allowed );
 	bt_start.enable( action_allowed  &&  cnv!=depot->get_replacement_seed() );	
-	// if(!is_shown_convoy_coupled) {
-	// 	bt_start.enable( action_allowed  &&  cnv!=depot->get_replacement_seed() );
-	// } else {
-	// 	bt_start.disable();
-	// }
-
 	bt_schedule.enable( action_allowed );
 	bt_destroy.enable( action_allowed );
 	bt_sell.enable( action_allowed );
