@@ -1216,6 +1216,7 @@ void vehicle_t::hop(grund_t* gr)
 			// advance schedule for all coupling convoys.
 			convoihandle_t c = cnv->self;
 			while(  c.is_bound()  ) {
+				if( !c->can_continue_coupling() ) {c->uncouple_convoi();}
 				c->get_schedule()->advance();
 				c = c->get_coupling_convoi();
 			}

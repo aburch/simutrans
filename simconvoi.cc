@@ -1961,6 +1961,9 @@ void convoi_t::ziel_erreicht()
 		c = self;
 		// advance schedule for all coupling convoys.
 		while(  c.is_bound()  ) {
+			if( !c->can_continue_coupling() ) {
+				c->uncouple_convoi();
+			}
 			c->get_schedule()->advance();
 			c = c->get_coupling_convoi();
 		}
