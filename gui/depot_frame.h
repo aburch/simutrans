@@ -110,7 +110,7 @@ private:
 	// if some convoy select, this convoy will depart coupling with selected convoy
 	// the showed convoy itself is not in this selector.
 	gui_combobox_t child_convoi_selector;
-	// if this flag is true, the showed convoy is someone's child convoy.
+	// When this flag is true, the currently shown convoy is someone's child convoy.
 	// if this flag is true, this convoy cannot depart alone.
 	bool is_shown_convoy_coupled;
 
