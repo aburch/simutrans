@@ -989,7 +989,7 @@ sint32 convoi_t::calc_max_speed(uint64 total_power, uint64 total_weight, sint32 
 }
 
 
-int convoi_t::get_vehicle_at_length(sint32 length)
+uint16 convoi_t::get_vehicle_at_length(uint32 length)
 {
 	int parents_anz_vehikel = 0;
 	int current_length = 0;
@@ -1007,7 +1007,7 @@ int convoi_t::get_vehicle_at_length(sint32 length)
 	return parents_anz_vehikel;
 }
 
-int convoi_t::get_total_vehicle_length()
+uint16 convoi_t::get_total_vehicle_count()
 {
 	int return_value = 0;
 	convoihandle_t c=self;
@@ -1062,7 +1062,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 					if(  sp_hat>0  ) {
 						steps_driven++;
 					}
-					int v_nr = get_vehicle_at_length(steps_driven>>4);
+					uint16 v_nr = get_vehicle_at_length(steps_driven>>4);
 					// stop when depot reached
 					if (state==INITIAL) {
 						return SYNC_REMOVE;
@@ -1070,7 +1070,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 					if (state==ROUTING_1) {
 						break;
 					}
-					if(  v_nr==get_total_vehicle_length()  ) {
+					if(  v_nr==get_total_vehicle_count()  ) {
 						// all are moving
 						steps_driven = -1;
 						state = DRIVING;

@@ -412,10 +412,10 @@ private:
 	void set_erstes_letztes();
 
 	// returns the index of the vehikel at position length (16=1 tile)
-	int get_vehicle_at_length(sint32);
+	uint16 get_vehicle_at_length(uint32);
 
 	// returns the total vehicle number of the coupling convoys.
-	int get_total_vehicle_length();
+	uint16 get_total_vehicle_count();
 
 	/**
 	* calculate income for last hop

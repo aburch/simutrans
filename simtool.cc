@@ -8733,8 +8733,8 @@ bool tool_change_depot_t::init( player_t *player )
 					return false;
 				}
 				convoihandle_t new_cnv = depot->copy_convoi( cnv, can_use_gui() );
-				if(  cnv->self->get_coupling_convoi().is_bound()  ) {
-					convoihandle_t new_child_cnv = depot->copy_convoi(  cnv->self->get_coupling_convoi(), can_use_gui()  );
+				if(  cnv->get_coupling_convoi().is_bound()  ) {
+					convoihandle_t new_child_cnv = depot->copy_convoi(  cnv->get_coupling_convoi(), can_use_gui()  );
 					new_cnv->set_coupling_convoi(new_child_cnv);
 				}
 			}

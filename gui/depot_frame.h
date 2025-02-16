@@ -104,12 +104,12 @@ private:
 	button_t bt_destroy;
 	button_t bt_sell;
 	button_t bt_replacement_seed;
-	const char* no_coupling_text;
-	gui_label_t lb_coupling_convoy;
+	const char* no_child_text;
+	gui_label_t lb_child_convoy;
 	// coupling convoy selector
 	// if some convoy select, this convoy will depart coupling with selected convoy
 	// the showed convoy itself is not in this selector.
-	gui_combobox_t coupling_convoi_selector;
+	gui_combobox_t child_convoi_selector;
 	// if this flag is true, the showed convoy is someone's child convoy.
 	// if this flag is true, this convoy cannot depart alone.
 	bool is_shown_convoy_coupled;

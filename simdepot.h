@@ -97,17 +97,15 @@ public:
 	convoihandle_t copy_convoi(convoihandle_t old_cnv, bool local_execution, bool is_copy_schedule = true);
 
 	/**
-	 * Let convoi leave the depot.
-	 * If not possible, a message is displayed and the function returns false.
-	 * @param local_execution if true, this method creates pop-ups in case of errors
+	 * Let convoi leave the depot, if convoys' conditions are OK.
 	 */
 	bool start_convoi(convoihandle_t cnv, bool local_execution);
 	/**
-	 * This is only for coupled couvoy
-	 * only return the condition of leaving, 
-	 * coupled convoy does not depart.
+	 * Check the condition of start convoy (called by depot_t::start_convoi() ).
+	 * If not possible, a message is displayed and the function returns false.
+	 * @param local_execution if true, this method creates pop-ups in case of errors
 	 */
-	bool can_start_coupled_convoi(convoihandle_t cnv, bool local_execution); 
+	bool can_start_convoi(convoihandle_t cnv, bool local_execution); 
 
 	bool start_all_convoys();
 

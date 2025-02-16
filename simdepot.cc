@@ -445,129 +445,62 @@ bool scenario_check_convoy(karte_t *welt, player_t *player, convoihandle_t cnv, 
 
 bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 {
-	// close schedule window if not yet closed
-	if(cnv.is_bound() &&  cnv->get_schedule()!=NULL) {
-		if(!cnv->get_schedule()->is_editing_finished()) {
-			// close the schedule window
-			destroy_win((ptrdiff_t)cnv->get_schedule());
-		}
-	}
-
-	// convoi not in depot anymore, maybe user double-clicked on start-button
-	if(!convois.is_contained(cnv)) {
+	if(  !can_start_convoi(cnv, local_execution)  ) {
 		return false;
 	}
-
-	if (cnv.is_bound() && cnv->get_schedule() && !cnv->get_schedule()->empty()) {
-		// if next schedule entry is this depot => advance to next entry
-		const koord3d& cur_pos = cnv->get_schedule()->get_current_entry().pos;
-		if (cur_pos == get_pos()) {
-			cnv->get_schedule()->advance();
-		}
-
-		// check if convoi is complete
-		if(cnv->get_sum_power() == 0 || !cnv->pruefe_alle()) {
-			if (local_execution) {
-				create_win( new news_img("Diese Zusammenstellung kann nicht fahren!\n"), w_time_delete, magic_none);
-			}
-		}
-		else if(  !cnv->front()->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed(), cnv->access_route())  ) {
-			// no route to go ...
-			if(local_execution) {
-				static cbuffer_t buf;
-				buf.clear();
-				buf.printf( translator::translate("Vehicle %s can't find a route!"), cnv->get_name() );
-				create_win( new news_img(buf), w_time_delete, magic_none);
-			}
-		}
-		else if (!scenario_check_convoy(welt, get_owner(), cnv, this, local_execution) ) {
-			// not allowed by scenario
-		}
-		else {
-			// check the convoy is coupled or not
-			// if coupled, not allowed depart alone!
-			for(uint32 i=0; i < convois.get_count() ; i++) {
-				if( cnv==convois.at(i)->get_coupling_convoi() ) {
-					static cbuffer_t buf;
-					buf.clear();
-					buf.printf( translator::translate("Vehicle %s is coupled convoy, so it cannot depart alone!"), cnv->get_name() );
-					create_win( new news_img(buf), w_time_delete, magic_none);
-					return false;
-				}
-			}
-			// coupling convoys depart
-			if(  cnv->get_coupling_convoi().is_bound()  ) {
-				convoihandle_t child_cnv = cnv->get_coupling_convoi();
-				// check the coupling condition
-				const schedule_entry_t t = cnv->get_schedule()->get_current_entry();
-				const schedule_entry_t c = child_cnv->get_schedule()->get_current_entry();
-				if(  t.pos!=c.pos  ) {
-					// the next stop is different!->false
-					static cbuffer_t buf;
-					buf.clear();
-					buf.printf( translator::translate("Vehicle %s will couple with vehicle %s, but the next stop positions are different!"), cnv->get_name(), child_cnv->get_name() );
-					create_win( new news_img(buf), w_time_delete, magic_none);
-					return false;
-				}
-				// check child convoy can depot?
-				if( can_start_coupled_convoi( child_cnv, local_execution ) ) {
-					// these convoys can depart!
-					// parent starts
-					cnv->start();
-					remove_convoi( cnv );
-					// children start
-					convoihandle_t p_c = cnv;
-					convoihandle_t c_c = child_cnv;
-					while(c_c.is_bound()){
-						// child start
-						c_c->start();
-						remove_convoi( c_c );
-						// parent is coupling child convoy already started.
-						p_c->couple_convoi_during_running(c_c);
-						// switch to grandchild convoy 
-						p_c=p_c->get_coupling_convoi();
-						c_c=c_c->get_coupling_convoi();
-					}
-					return true;
-				} else {
-					// the child convoy can not depart, so the parent convoy do not depart, return false.
-					return false;
-				}
-			} else { 
-				// go alone
-				// convoi can start now
-				cnv->start();
-
-				// remove from depot lists
-				remove_convoi( cnv );
-
-				return true;
-			}
+	// check the convoy is coupled or not
+	// if coupled, not allowed depart alone!
+	for(uint32 i=0; i < convois.get_count() ; i++) {
+		if( cnv==convois.at(i)->get_coupling_convoi() ) {
+			static cbuffer_t buf;
+			buf.clear();
+			buf.printf( translator::translate("Vehicle %s is coupled convoy, so it cannot depart alone!"), cnv->get_name() );
+			create_win( new news_img(buf), w_time_delete, magic_none);
+			return false;
 		}
 	}
-	else {
-		if (local_execution) {
-			create_win( new news_img("Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n"), w_time_delete, magic_none);
+	// coupling convoys depart
+	if(  cnv->get_coupling_convoi().is_bound()  ) {
+		convoihandle_t child_cnv = cnv->get_coupling_convoi();
+		// check child convoy can depot?
+		if( !can_start_convoi( child_cnv, local_execution ) ) {
+			// the child convoy can not depart, so the parent convoy do not depart, return false.
+			return false;
 		}
+		// these convoys can depart!
+		// parent starts
+		cnv->start();
+		remove_convoi( cnv );
+		// children start
+		convoihandle_t p_c = cnv;
+		convoihandle_t c_c = child_cnv;
+		while(c_c.is_bound()){
+			// child start
+			c_c->start();
+			remove_convoi( c_c );
+			// parent is coupling child convoy already started.
+			p_c->couple_convoi_during_running(c_c);
+			// switch to grandchild convoy 
+			p_c=p_c->get_coupling_convoi();
+			c_c=c_c->get_coupling_convoi();
+		}
+		return true;
+	} else { 
+		// go alone
+		// convoi can start now
+		cnv->start();
 
-		if (!cnv.is_bound()) {
-			dbg->warning("depot_t::start_convoi()","No convoi to start!");
-		} else if (!cnv->get_schedule()) {
-			dbg->warning("depot_t::start_convoi()","No schedule for convoi.");
-		} else if (!cnv->get_schedule()->is_editing_finished()) {
-			dbg->warning("depot_t::start_convoi()","Schedule is incomplete/not finished");
-		}
+		// remove from depot lists
+		remove_convoi( cnv );
+
+		return true;
 	}
-	return false;
 }
 
 /**
- * This is only for coupled couvoy
- * only return the condition of leaving, 
- * coupled convoy does not depart.
- * they will depart with parent convoy in start_convoi(parent convoy)
+ * return the condition of leaving.
  */
-bool depot_t::can_start_coupled_convoi(convoihandle_t cnv, bool local_execution)
+bool depot_t::can_start_convoi(convoihandle_t cnv, bool local_execution)
 {
 	// close schedule window if not yet closed
 	if(cnv.is_bound() &&  cnv->get_schedule()!=NULL) {
@@ -623,7 +556,7 @@ bool depot_t::can_start_coupled_convoi(convoihandle_t cnv, bool local_execution)
 					return false;
 				}
 				// check child convoy can depot?
-				return(can_start_coupled_convoi( child_cnv, local_execution ));
+				return(can_start_convoi( child_cnv, local_execution ));
 			} else { 
 				// ok, this child convoy can depart.
 				return true;
