@@ -893,18 +893,19 @@ void depot_frame_t::update_data()
 
 	// add choices for coupling, find selected child convoy, and find parent convoy of coupling.
 	FOR(slist_tpl<convoihandle_t>, const c, depot->get_convoy_list()) {
-		if (  cnv.is_bound()  &&  c != cnv  ) {
-			// add choices for coupling
-			child_convoi_selector.new_component<convoy_scrollitem_t>(c) ;
-			if( cnv.is_bound() && c == cnv->get_coupling_convoi() ) {
-				// this convoy is cnv's child convoy, cnv will couple with this convoy when departure. 
-				child_convoi_selector.set_selection( child_convoi_selector.count_elements() - 1 );
-			}
-			if( cnv.is_bound() && cnv == c->get_coupling_convoi() ) {
-				// this convoy is cnv's parent convoy.
-				// therefore, this convoy can not start without parent's permission
-				is_shown_convoy_coupled = true;
-			}
+		if (  !cnv.is_bound()  ||  c == cnv  ) {
+			continue;
+		}
+		// add choices for coupling
+		child_convoi_selector.new_component<convoy_scrollitem_t>(c) ;
+		if( cnv.is_bound() && c == cnv->get_coupling_convoi() ) {
+			// this convoy is cnv's child convoy, cnv will couple with this convoy when departure. 
+			child_convoi_selector.set_selection( child_convoi_selector.count_elements() - 1 );
+		}
+		if( cnv.is_bound() && cnv == c->get_coupling_convoi() ) {
+			// this convoy is cnv's parent convoy.
+			// therefore, this convoy can not start without parent's permission
+			is_shown_convoy_coupled = true;
 		}
 	}
 	
