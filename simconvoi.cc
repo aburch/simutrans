@@ -4983,14 +4983,11 @@ const char* convoi_t::send_to_depot(bool local)
 			schedule_t *schedule = c->get_schedule();
 			schedule->insert(welt->lookup(home));
 			schedule->set_current_stop( (schedule->get_current_stop()+schedule->get_count()-1)%schedule->get_count() );
-			is_reversing_needed = false;
-			reverse_vehicles_to_go_to_depot();
-			if(  !c->is_coupled()  ) {
-				set_schedule(schedule);
-			}
+			c->reverse_vehicles_to_go_to_depot();
 			txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
 			c = c->get_coupling_convoi();
 		}
+		set_schedule(get_schedule());
 	}
 	else {
 		txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
@@ -5377,8 +5374,7 @@ void convoi_t::reverse_vehicles_on_user_request()
 		// reversing is not allowed.
 		return;
 	}
-	reverse_vehicles();
-	welt->set_dirty();
+	is_reversing_needed = true;
 	// trigger repositioning on the most parent convoy
 	find_most_parent_convoi()->set_state(EDIT_SCHEDULE);
 }
@@ -5399,11 +5395,7 @@ void convoi_t::reverse_vehicles_to_go_to_depot()
 {
 	// this function is fix the direction of train when it go home (depot).
 	// if the vehicle reversed, this vehicle reversed again.
-	if(  !reversed  ) {
-		return;
-	}
-	reverse_vehicles();
-	welt->set_dirty();
+	is_reversing_needed = reversed;
 }
 
 // The raw logic to reverse the convoy. Do proper validations before calling this function.
