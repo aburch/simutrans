@@ -5136,9 +5136,6 @@ convoihandle_t convoi_t::uncouple_convoi() {
 	coupling_convoi->set_state(is_loading() ? LOADING : ROUTING_1);
 	coupling_convoi->front()->set_leading(true);
 	back()->set_last(true);
-	find_most_parent_convoi()->must_recalc_min_top_speed();
-	find_most_parent_convoi()->check_electrification();
-	find_most_parent_convoi()->must_recalc_friction_weight();
 	// for child convoy, recalculate is_electric and min_top_speed immediately.
 	coupling_convoi->check_electrification();
 	coupling_convoi->must_recalc_friction_weight();
@@ -5150,6 +5147,9 @@ convoihandle_t convoi_t::uncouple_convoi() {
 		c = c->get_coupling_convoi();
 	}
 	coupling_convoi = convoihandle_t();
+	find_most_parent_convoi()->must_recalc_min_top_speed();
+	find_most_parent_convoi()->check_electrification();
+	find_most_parent_convoi()->must_recalc_friction_weight();
 	return ret;
 }
 
