@@ -1216,11 +1216,17 @@ void vehicle_t::hop(grund_t* gr)
 			// advance schedule for all coupling convoys.
 			convoihandle_t c = cnv->self;
 			while(  c.is_bound()  ) {
-				if( !c->can_continue_coupling() ) {
-					c->uncouple_convoi();
-				}
 				c->get_schedule()->advance();
 				c = c->get_coupling_convoi();
+			}
+			c = cnv->self;
+			convoihandle_t child = c->get_coupling_convoi(); 
+			while(  child.is_bound()  ) {
+				if( c->get_schedule()->get_current_entry().pos != child->get_schedule()->get_current_entry().pos ) {
+					c->uncouple_convoi();
+				}
+				c = child;
+				child = child->get_coupling_convoi();
 			}
 			const koord3d ziel = cnv->get_schedule()->get_current_entry().pos;
 			cnv->set_schedule_target( cnv->is_waypoint(ziel) ? ziel : koord3d::invalid );
