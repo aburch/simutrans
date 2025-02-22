@@ -1288,7 +1288,6 @@ sint32 haltestelle_t::rebuild_connections()
 	// HACK: When unload_all, no_load or no_unload is applied, is_transfer is true regardless of connections.
 	bool force_transfer_search = false;
 	while(  lines  ||  current_index < registered_convoys.get_count()  ) {
-
 		// Now, collect the "schedule", "owner" and "add_catg_index" from line resp. convoy.
 		if(  lines  ) {
 			if(  current_index >= registered_lines.get_count()  ) {
@@ -2753,6 +2752,11 @@ void haltestelle_t::change_owner( player_t *player, bool halt_only )
 	player_t* const prev_owner = owner;
 	owner = player;
 	rebuild_connections();
+	if ( staged_all_links ) {
+		delete[] all_links;
+		all_links = staged_all_links;
+		staged_all_links = NULL;
+	}
 	rebuild_linked_connections();
 	rebuild_connected_components();
 
@@ -2884,6 +2888,11 @@ void haltestelle_t::merge_halt( halthandle_t halt_merged )
 	// also rebuild our connections
 	recalc_station_type();
 	rebuild_connections();
+	if ( staged_all_links ) {
+		delete[] all_links;
+		all_links = staged_all_links;
+		staged_all_links = NULL;
+	}
 	rebuild_linked_connections();
 	rebuild_connected_components();
 }
