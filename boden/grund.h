@@ -790,6 +790,10 @@ public:
 	 *
 	 */
 	bool get_neighbour(grund_t *&to, waytype_t type, ribi_t::ribi r ) const;
+	/**
+ 	 * This is used in convoi_t::calc_first_pos_of_route()
+   	 */
+	bool get_neighbour_for_calc_first_pos_of_route(grund_t *&to, waytype_t type, ribi_t::ribi r ) const;
 
 	/**
 	 * Description;
