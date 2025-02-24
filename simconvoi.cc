@@ -4322,9 +4322,9 @@ void convoi_t::check_pending_updates()
 				 * (To detect also places, where only the platform
 				 *  changed, we also compare the halthandle)
 				 */
-				const koord3d next = schedule->entries[(current_stop+1)%schedule->get_count()].pos;
-				const koord3d nextnext = schedule->entries[(current_stop+2)%schedule->get_count()].pos;
-				const koord3d nextnextnext = schedule->entries[(current_stop+3)%schedule->get_count()].pos;
+				const koord3d next = schedule->get_count()==0 ? koord3d::invalid : schedule->entries[(current_stop+1)%schedule->get_count()].pos;
+				const koord3d nextnext = schedule->get_count()==0 ? koord3d::invalid : schedule->entries[(current_stop+2)%schedule->get_count()].pos;
+				const koord3d nextnextnext = schedule->get_count()==0 ? koord3d::invalid : schedule->entries[(current_stop+3)%schedule->get_count()].pos;
 				int how_good_matching = 0;
 				const uint8 new_count = new_schedule->get_count();
 
