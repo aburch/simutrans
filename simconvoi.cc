@@ -4984,9 +4984,9 @@ const char* convoi_t::send_to_depot(bool local)
 			schedule->insert(welt->lookup(home));
 			schedule->set_current_stop( (schedule->get_current_stop()+schedule->get_count()-1)%schedule->get_count() );
 			c->reverse_vehicles_to_go_to_depot();
-			txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
 			c = c->get_coupling_convoi();
 		}
+		txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
 		set_schedule(get_schedule());
 	}
 	else {
