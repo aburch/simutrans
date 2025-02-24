@@ -1170,7 +1170,7 @@ koord3d convoi_t::calc_first_pos_of_route() const {
 		!get_coupling_convoi().is_bound()
 		||  !gr
 		||  ( !ribi_t::is_single(front_vehicle_dir) && !ribi_t::is_bend(front_vehicle_dir) )
-		||  !gr->get_neighbour(ngr, front_vehicle->get_waytype(), front_vehicle_dir)
+		||  !gr->get_neighbour_for_calc_first_pos_of_route(ngr, front_vehicle->get_waytype(), front_vehicle_dir)
 	) {
 		// There is not the coupling convoy in front.
 		return front_vehicle->get_pos();
