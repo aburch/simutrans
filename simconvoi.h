@@ -421,7 +421,7 @@ private:
 	uint16 get_vehicle_at_length(uint32);
 
 	// returns the total vehicle number of the coupling convoys.
-	uint16 get_total_vehicle_count();
+	uint16 get_total_vehicle_count() const;
 
 	/**
 	* calculate income for last hop
@@ -1083,7 +1083,7 @@ public:
 	void next_stop_button_pressed();
 
 	// coupling during running.
-	// Only for Leaving Depot
+	// Only for during leaving a depot
 	bool couple_convoi_during_running(convoihandle_t coupled);
 
 };
