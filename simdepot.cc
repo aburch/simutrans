@@ -461,19 +461,13 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 	}
 	// coupling convoys depart
 	if(  cnv->get_coupling_convoi().is_bound()  ) {
-		convoihandle_t child_cnv = cnv->get_coupling_convoi();
-		// check child convoy can depot?
-		if( !can_start_convoi( child_cnv, local_execution ) ) {
-			// the child convoy can not depart, so the parent convoy do not depart, return false.
-			return false;
-		}
 		// these convoys can depart!
 		// parent starts
 		cnv->start();
 		remove_convoi( cnv );
 		// children start
 		convoihandle_t p_c = cnv;
-		convoihandle_t c_c = child_cnv;
+		convoihandle_t c_c = cnv->get_coupling_convoi();
 		while(c_c.is_bound()){
 			// child start
 			c_c->start();
