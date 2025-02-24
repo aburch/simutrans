@@ -1960,6 +1960,8 @@ void convoi_t::ziel_erreicht()
 		// Neither depot nor station: waypoint
 		c = self;
 		// advance schedule for all coupling convoys.
+		// If uncoupled first, the leading convoy may get in the way and the coupled convoy may not be able to arrive at the waypoint.
+		// So, we advance all convoys' schedules first, and check can continue coupling after advancing schedules.
 		while(  c.is_bound()  ) {
 			c->get_schedule()->advance();
 			c = c->get_coupling_convoi();
