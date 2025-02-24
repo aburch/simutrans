@@ -2031,6 +2031,59 @@ bool grund_t::get_neighbour(grund_t *&to, waytype_t type, ribi_t::ribi ribi) con
 	return false;
 }
 
+// this function is called only for calculating first position.
+// this function supports diagonal tiles
+bool grund_t::get_neighbour_for_calc_first_pos_of_route(grund_t *&to, waytype_t type, ribi_t::ribi ribi) const
+{
+	if(  type != invalid_wt  &&   (get_weg_ribi_unmasked(type) & ribi) == 0  ) {
+		// no way on this tile in the given direction
+		return false;
+	}
+	const ribi_t::ribi back = ribi_t::backward(ribi);
+
+	ribi_t::ribi to_ribi;
+	if ( ribi_t::is_single(ribi&get_weg_ribi_unmasked(type)) ) {
+		// ribi is single or way is normal diagonal
+		to_ribi = ribi&get_weg_ribi_unmasked(type);
+	} else if ( ribi_t::is_single(back&ribi_t::backward(get_weg_ribi_unmasked(type))) ) {
+		// way is three-way, so we define the next position by backward of three-way's ribi 
+		to_ribi = ribi_t::backward(get_weg_ribi_unmasked(type));
+	} else {
+		// way connects all direction, so we can not decide ribi.
+		return false;
+	}
+
+	const planquadrat_t *plan = welt->access(pos.get_2d() + koord(to_ribi) );
+	if(!plan) {
+		return false;
+	}
+
+	// most common on empty ground => check this first
+	if(  get_grund_hang() == slope_t::flat  &&  get_weg_hang() == slope_t::flat  ) {
+		if(  grund_t *gr = plan->get_boden_in_hoehe( pos.z )  ) {
+			if(  gr->get_grund_hang() == slope_t::flat  &&  gr->get_weg_hang() == slope_t::flat  ) {
+				if(  type == invalid_wt  ||  (gr->get_weg_ribi_unmasked(type) & back)  ) {
+					to = gr;
+					return true;
+				}
+			}
+		}
+	}
+
+	// most common on empty round => much faster this way
+	const sint16 this_height = get_vmove(to_ribi);
+	for( unsigned i=0;  i<plan->get_boden_count();  i++  ) {
+		grund_t* gr = plan->get_boden_bei(i);
+		if(gr->get_vmove(ribi_t::backward(to_ribi))==this_height) {
+			// test, if connected
+			if(  type == invalid_wt  ||  (gr->get_weg_ribi_unmasked(type) & back)  ) {
+				to = gr;
+				return true;
+			}
+		}
+	}
+	return false;
+}
 
 int grund_t::get_max_speed() const
 {
