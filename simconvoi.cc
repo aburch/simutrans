@@ -1009,13 +1009,13 @@ uint16 convoi_t::get_vehicle_at_length(uint32 length)
 
 uint16 convoi_t::get_total_vehicle_count()
 {
-	int return_value = 0;
+	uint16 total_vehicle_count = 0;
 	convoihandle_t c=self;
 	while(c.is_bound()) {
-		return_value += c->anz_vehikel;
+		total_vehicle_count += c->anz_vehikel;
 		c = c->get_coupling_convoi();
 	}
-	return return_value;
+	return total_vehicle_count;
 }
 
 
