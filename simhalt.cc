@@ -4,6 +4,7 @@
  */
 
 #include <algorithm>
+#include <unordered_map>
 
 #include "freight_list_sorter.h"
 
@@ -3245,7 +3246,8 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	// Used only in loading, for constructing fresh_cargo reference lists from the archived addresses.
 	// The hash table of (archived address value, shared_ptr) of cargo items.
-	inthashtable_tpl<sint64, cargo_item_t> archived_cargo_address_table;
+	// std::unordered_map is used here instead of inthashtable_tpl because inthashtable_tpl is slow.
+	std::unordered_map<sint64, cargo_item_t> archived_cargo_address_table;
 
 	init_pos = tiles.empty() ? koord::invalid : tiles.front().grund->get_pos().get_2d();
 	if(file->is_saving()) {
@@ -3307,7 +3309,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					if(  ware.get_desc()  &&  ware.menge>0  &&  welt->is_within_limits(ware.get_zielpos())  ) {
 						cargo_item_t goods_ref = add_goods_to_halt(halt_waiting_goods_t(ware, arrived_time));
 						if(  file->get_OTRP_version()>=40  ) {
-							archived_cargo_address_table.put(archived_address, goods_ref);
+							archived_cargo_address_table.emplace(archived_address, goods_ref);
 						}
 						// restore in-transit information
 						fabrik_t::update_transit( &ware, true );
@@ -3402,8 +3404,9 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				vector_tpl<sint64> ref_addresses;
 				file->rdwr_vector(ref_addresses, rdwr_longlong_item);
 				FOR(vector_tpl<sint64>, &addr, ref_addresses) {
-					if(  cargo_item_t* ptr = archived_cargo_address_table.access(addr)  ) {
-						fresh_cargo[i].push_back(std::weak_ptr(*ptr));
+					auto cargo_ptr = archived_cargo_address_table.find(addr);
+					if(  cargo_ptr != archived_cargo_address_table.end()  ) {
+						fresh_cargo[i].push_back(std::weak_ptr(cargo_ptr->second));
 					}
 				}
 			}
