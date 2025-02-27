@@ -1162,15 +1162,37 @@ rail_vehicle_t* find_convoy_on_tile(grund_t* const gr, convoihandle_t cnv) {
 koord3d convoi_t::calc_first_pos_of_route() const {
 	const vehicle_t* front_vehicle = front();
 	const grund_t* gr = world()->lookup(front_vehicle->get_pos());
+	if(
+		!get_coupling_convoi().is_bound()
+		||  !gr
+	) {
+		// There is not the coupling convoy in front.
+		return front_vehicle->get_pos();
+	}
 	// Since this function is called before the route is calculated, vehicle_base_t::get_90direction() cannot be used.
 	// So we use get_direction(). This judgement only affects visual jupming of the convoy.
 	const ribi_t::ribi front_vehicle_dir = front_vehicle->get_direction();
 	grund_t* ngr;
+	// grund_t::get_neighbour() only accept ribi_t::is_single(dir), so we first make single_type ribi of next tile.
+	ribi_t::ribi ngr_dir;
+	if(  (front_vehicle_dir&gr->get_weg_ribi_unmasked(front_vehicle->get_waytype()))==0  ) {
+		// There is not the coupling convoy in front
+		return front_vehicle->get_pos();
+	}
+	if(  ribi_t::is_single(front_vehicle_dir&gr->get_weg_ribi_unmasked(front_vehicle->get_waytype())) ) {
+		// single or simple diagonal
+		ngr_dir = front_vehicle_dir&gr->get_weg_ribi_unmasked(front_vehicle->get_waytype());
+	} else if (  ribi_t::is_single(ribi_t::backward(front_vehicle_dir)&ribi_t::backward(gr->get_weg_ribi_unmasked(front_vehicle->get_waytype())))  ) {
+		// three-way, so we define the next position by backward of the three-way's ribi.
+		ngr_dir = ribi_t::backward(gr->get_weg_ribi_unmasked(front_vehicle->get_waytype()));
+	} else {
+		// give up the calculation of ribi, return.
+		return front_vehicle->get_pos();
+	}
+	grund_t* ngr;
 	if(
-		!get_coupling_convoi().is_bound()
-		||  !gr
-		||  ( !ribi_t::is_single(front_vehicle_dir) && !ribi_t::is_bend(front_vehicle_dir) )
-		||  !gr->get_neighbour(ngr, front_vehicle->get_waytype(), front_vehicle_dir)
+		( !ribi_t::is_single(front_vehicle_dir) && !ribi_t::is_bend(front_vehicle_dir) )
+		||  !gr->get_neighbour(ngr, front_vehicle->get_waytype(), ngr_dir)
 	) {
 		// There is not the coupling convoy in front.
 		return front_vehicle->get_pos();
