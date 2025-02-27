@@ -418,7 +418,7 @@ private:
 	void set_erstes_letztes();
 
 	// returns the index of the vehikel at position length (16=1 tile)
-	uint16 get_vehicle_at_length(uint32);
+	uint16 get_vehicle_at_length(uint32) const;
 
 	// returns the total vehicle number of the coupling convoys.
 	uint16 get_total_vehicle_count() const;

@@ -448,8 +448,8 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 	if(  !can_start_convoi(cnv, local_execution)  ) {
 		return false;
 	}
-	// check the convoy is coupled or not
-	// if coupled, not allowed depart alone!
+	// Check if the convoy is coupled or not.
+	// When coupled, the convoy is not allowed to depart alone!
 	for(uint32 i=0; i < convois.get_count() ; i++) {
 		if( cnv==convois.at(i)->get_coupling_convoi() ) {
 			static cbuffer_t buf;

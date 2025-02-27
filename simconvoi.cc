@@ -989,7 +989,7 @@ sint32 convoi_t::calc_max_speed(uint64 total_power, uint64 total_weight, sint32 
 }
 
 
-uint16 convoi_t::get_vehicle_at_length(uint32 length)
+uint16 convoi_t::get_vehicle_at_length(uint32 length) const
 {
 	int parents_anz_vehikel = 0;
 	int current_length = 0;
@@ -1007,7 +1007,7 @@ uint16 convoi_t::get_vehicle_at_length(uint32 length)
 	return parents_anz_vehikel;
 }
 
-uint16 convoi_t::get_total_vehicle_count()
+uint16 convoi_t::get_total_vehicle_count() const
 {
 	uint16 total_vehicle_count = 0;
 	convoihandle_t c=self;
@@ -2285,8 +2285,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 	check_freight();
 
 	// ok, now we have a schedule
-	// if convoy is driving and convoy is leading, this convoy should be recalculate route.
-	// so, state is updated.
+	// If this convoy is driving and is a leading convoy, this convoy should recalculate route.
 	if(  state != INITIAL && !is_coupled()  ) {
 		state = EDIT_SCHEDULE;
 	}
