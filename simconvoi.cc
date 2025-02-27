@@ -1599,6 +1599,7 @@ void convoi_t::step()
 			// depart convoy from the depot.
 			if(  grund_t *gr = welt->lookup(get_pos())  ) {
 				if(  gr->get_depot()  ) {
+					// Temporarily put all convoys in a depot.
 					convoihandle_t c = self;
 					convoihandle_t child = get_coupling_convoi();
 					while( c.is_bound() ) {	
