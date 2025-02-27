@@ -1175,6 +1175,10 @@ koord3d convoi_t::calc_first_pos_of_route() const {
 	grund_t* ngr;
 	// grund_t::get_neighbour() only accept ribi_t::is_single(dir), so we first make single_type ribi of next tile.
 	ribi_t::ribi ngr_dir;
+	if(  (front_vehicle_dir&gr->get_weg_ribi_unmasked(front_vehicle->get_waytype()))==0  ) {
+		// There is not the coupling convoy in front
+		return front_vehicle->get_pos();
+	}
 	if(  ribi_t::is_single(front_vehicle_dir&gr->get_weg_ribi_unmasked(front_vehicle->get_waytype())) ) {
 		// single or simple diagonal
 		ngr_dir = front_vehicle_dir&gr->get_weg_ribi_unmasked(front_vehicle->get_waytype());
