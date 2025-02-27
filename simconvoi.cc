@@ -1172,7 +1172,6 @@ koord3d convoi_t::calc_first_pos_of_route() const {
 	// Since this function is called before the route is calculated, vehicle_base_t::get_90direction() cannot be used.
 	// So we use get_direction(). This judgement only affects visual jupming of the convoy.
 	const ribi_t::ribi front_vehicle_dir = front_vehicle->get_direction();
-	grund_t* ngr;
 	// grund_t::get_neighbour() only accept ribi_t::is_single(dir), so we first make single_type ribi of next tile.
 	ribi_t::ribi ngr_dir;
 	if(  (front_vehicle_dir&gr->get_weg_ribi_unmasked(front_vehicle->get_waytype()))==0  ) {
