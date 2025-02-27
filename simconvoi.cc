@@ -989,16 +989,33 @@ sint32 convoi_t::calc_max_speed(uint64 total_power, uint64 total_weight, sint32 
 }
 
 
-int convoi_t::get_vehicle_at_length(uint16 length)
+uint16 convoi_t::get_vehicle_at_length(uint32 length)
 {
+	int parents_anz_vehikel = 0;
 	int current_length = 0;
-	for( int i=0;  i<anz_vehikel;  i++  ) {
-		current_length += fahr[i]->get_desc()->get_length();
-		if(length<current_length) {
-			return i;
+	convoihandle_t c = self;
+	while(c.is_bound()) {
+		for( int i=0;  i<c->anz_vehikel;  i++  ) {
+			current_length += c->fahr[i]->get_desc()->get_length();
+			if(length<current_length) {
+				return i+parents_anz_vehikel;
+			}
 		}
+		parents_anz_vehikel += c->anz_vehikel;
+		c = c->get_coupling_convoi();
 	}
-	return anz_vehikel;
+	return parents_anz_vehikel;
+}
+
+uint16 convoi_t::get_total_vehicle_count()
+{
+	uint16 total_vehicle_count = 0;
+	convoihandle_t c=self;
+	while(c.is_bound()) {
+		total_vehicle_count += c->anz_vehikel;
+		c = c->get_coupling_convoi();
+	}
+	return total_vehicle_count;
 }
 
 
@@ -1045,7 +1062,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 					if(  sp_hat>0  ) {
 						steps_driven++;
 					}
-					int v_nr = get_vehicle_at_length(steps_driven>>4);
+					uint16 v_nr = get_vehicle_at_length(steps_driven>>4);
 					// stop when depot reached
 					if (state==INITIAL) {
 						return SYNC_REMOVE;
@@ -1053,7 +1070,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 					if (state==ROUTING_1) {
 						break;
 					}
-					if(  v_nr==anz_vehikel  ) {
+					if(  v_nr==get_total_vehicle_count()  ) {
 						// all are moving
 						steps_driven = -1;
 						state = DRIVING;
@@ -1064,8 +1081,18 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 						return SYNC_OK;
 					}
 					// now only the right numbers
+					convoihandle_t c = self;
+					int c_i = 1;
 					for(int i=1; i<=v_nr; i++) {
-						fahr[i]->do_drive(sp_hat);
+						if(c_i == c->anz_vehikel) {
+							c = c->get_coupling_convoi();
+							c_i = 0;
+							if(!c.is_bound()) {
+								break;
+							}
+						}
+						c->fahr[c_i]->do_drive(sp_hat);
+						c_i++;
 					}
 					sp_soll -= sp_hat;
 				}
@@ -1593,7 +1620,18 @@ void convoi_t::step()
 			// depart convoy from the depot.
 			if(  grund_t *gr = welt->lookup(get_pos())  ) {
 				if(  gr->get_depot()  ) {
-					state = INITIAL;
+					// Temporarily put all convoys in a depot.
+					convoihandle_t c = self;
+					convoihandle_t child = get_coupling_convoi();
+					while( c.is_bound() ) {	
+						c->uncouple_convoi();
+						c->state = INITIAL;
+						if(child.is_bound()) {
+							c->set_coupling_convoi(child);
+						}
+						child = child->get_coupling_convoi();
+						c = c->get_coupling_convoi();
+					}
 					gr->get_depot()->start_convoi(self, false);
 				}
 			}
@@ -1761,23 +1799,34 @@ void convoi_t::betrete_depot(depot_t *dep, bool is_loading)
 	unreserve_route();
 
 	// remove vehicles from world data structure
-	for(unsigned i=0; i<anz_vehikel; i++) {
-		vehicle_t* v = fahr[i];
+	convoihandle_t c = self;
+	convoihandle_t child = c->get_coupling_convoi();
+	while(c.is_bound()) {
+		c->uncouple_convoi();
+		dbg->message("convoi_t::betrete_depot()","%s reach_depot",c->get_name());
+		for(unsigned i=0; i<c->anz_vehikel; i++) {
+			vehicle_t* v = c->fahr[i];
 
-		grund_t* gr = welt->lookup(v->get_pos());
-		if(gr) {
-			// remove from blockstrecke
-			v->set_last(true);
-			v->leave_tile();
-			v->set_flag( obj_t::not_on_map );
+			grund_t* gr = welt->lookup(v->get_pos());
+			if(gr) {
+				// remove from blockstrecke
+				v->set_last(true);
+				v->leave_tile();
+				v->set_flag( obj_t::not_on_map );
+			}
 		}
+
+		destroy_win( magic_convoi_info+c.get_id() );
+
+		c->maxspeed_average_count = 0;
+		c->state = INITIAL;
+		dep->convoi_arrived(c, !is_loading  &&  get_schedule());
+		if(child.is_bound()) {
+			c->coupling_convoi = child;
+		}
+		child = child->get_coupling_convoi();
+		c = c->get_coupling_convoi();
 	}
-
-	destroy_win( magic_convoi_info+self.get_id() );
-
-	maxspeed_average_count = 0;
-	state = INITIAL;
-	dep->convoi_arrived(self, !is_loading  &&  get_schedule());
 }
 
 
@@ -2236,7 +2285,9 @@ bool convoi_t::set_schedule(schedule_t * f)
 	check_freight();
 
 	// ok, now we have a schedule
-	if(state != INITIAL) {
+	// if convoy is driving and convoy is leading, this convoy should be recalculate route.
+	// so, state is updated.
+	if(  state != INITIAL && !is_coupled()  ) {
 		state = EDIT_SCHEDULE;
 	}
 	// to avoid jumping trains
@@ -2510,27 +2561,31 @@ void convoi_t::vorfahren()
 	bool at_dest = false;
 	if(gr  &&  gr->get_depot()) {
 		// start in depot
-		for(unsigned i=0; i<anz_vehikel; i++) {
-			vehicle_t* v = fahr[i];
+		convoihandle_t c = self;
+		while(c.is_bound()) {
+			for(unsigned i=0; i<c->anz_vehikel; i++) {
+				vehicle_t* v = c->fahr[i];
 
-			// remove from old position
-			grund_t* gr = welt->lookup(v->get_pos());
-			if(gr) {
-				gr->obj_remove(v);
-				if(gr->ist_uebergang()) {
-					crossing_t *cr = gr->find<crossing_t>(2);
-					cr->release_crossing(v);
+				// remove from old position
+				grund_t* gr = welt->lookup(v->get_pos());
+				if(gr) {
+					gr->obj_remove(v);
+					if(gr->ist_uebergang()) {
+						crossing_t *cr = gr->find<crossing_t>(2);
+						cr->release_crossing(v);
+					}
+					// eventually unreserve this
+					if(  schiene_t* const sch0 = obj_cast<schiene_t>(gr->get_weg(c->fahr[i]->get_waytype()))  ) {
+						sch0->unreserve(v);
+					}
 				}
-				// eventually unreserve this
-				if(  schiene_t* const sch0 = obj_cast<schiene_t>(gr->get_weg(fahr[i]->get_waytype()))  ) {
-					sch0->unreserve(v);
-				}
+				v->initialise_journey(0, true);
+				// set at new position
+				gr = welt->lookup(v->get_pos());
+				assert(gr);
+				v->enter_tile(gr);
 			}
-			v->initialise_journey(0, true);
-			// set at new position
-			gr = welt->lookup(v->get_pos());
-			assert(gr);
-			v->enter_tile(gr);
+			c = c->get_coupling_convoi();
 		}
 
 		// just advances the first vehicle
@@ -2539,8 +2594,12 @@ void convoi_t::vorfahren()
 		v0->get_smoke(false);
 		steps_driven = 0;
 		// drive half a tile:
-		for(int i=0; i<anz_vehikel; i++) {
-			fahr[i]->do_drive( (VEHICLE_STEPS_PER_TILE/2)<<YARDS_PER_VEHICLE_STEP_SHIFT );
+		c = self;
+		while(c.is_bound()) {
+			for(int i=0; i<c->anz_vehikel; i++) {
+				c->fahr[i]->do_drive( (VEHICLE_STEPS_PER_TILE/2)<<YARDS_PER_VEHICLE_STEP_SHIFT );
+			}
+			c = c->get_coupling_convoi();
 		}
 		v0->get_smoke(true);
 		v0->set_leading(true); // switches on signal checks to reserve the next route
@@ -4953,13 +5012,16 @@ const char* convoi_t::send_to_depot(bool local)
 	// if route to a depot has been found, update the convoi's schedule
 	const char *txt;
 	if(  !shortest_route->empty()  ) {
-		schedule_t *schedule = get_schedule()->copy();
-		schedule->insert(welt->lookup(home));
-		schedule->set_current_stop( (schedule->get_current_stop()+schedule->get_count()-1)%schedule->get_count() );
-		is_reversing_needed = false;
-		reverse_vehicles_to_go_to_depot();
-		set_schedule(schedule);
+		convoihandle_t c = self;
+		while( c.is_bound() ) {
+			schedule_t *schedule = c->get_schedule();
+			schedule->insert(welt->lookup(home));
+			schedule->set_current_stop( (schedule->get_current_stop()+schedule->get_count()-1)%schedule->get_count() );
+			c->reverse_vehicles_to_go_to_depot();
+			c = c->get_coupling_convoi();
+		}
 		txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
+		set_schedule(get_schedule());
 	}
 	else {
 		txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
@@ -5347,8 +5409,7 @@ void convoi_t::reverse_vehicles_on_user_request()
 		// reversing is not allowed.
 		return;
 	}
-	reverse_vehicles();
-	welt->set_dirty();
+	is_reversing_needed = true;
 	// trigger repositioning on the most parent convoy
 	find_most_parent_convoi()->set_state(EDIT_SCHEDULE);
 }
@@ -5369,11 +5430,7 @@ void convoi_t::reverse_vehicles_to_go_to_depot()
 {
 	// this function is fix the direction of train when it go home (depot).
 	// if the vehicle reversed, this vehicle reversed again.
-	if(  !reversed  ) {
-		return;
-	}
-	reverse_vehicles();
-	welt->set_dirty();
+	is_reversing_needed = reversed;
 }
 
 // The raw logic to reverse the convoy. Do proper validations before calling this function.
@@ -5462,6 +5519,19 @@ void convoi_t::next_stop_button_pressed() {
 		}
 		c = temp_c;
 	}
+}
+
+// this function is for coupling convoy leaving depot.
+bool convoi_t::couple_convoi_during_running(convoihandle_t coupled) {
+	// we don't change parent's state because it will be changed by other functions!
+	// already started, so the state is set as COUPLED.
+	coupled->set_state(COUPLED);
+	// couplilng
+	coupling_convoi = coupled;
+	coupling_convoi->front()->set_leading(false);
+	back()->set_last(false);
+	must_recalc_min_top_speed();
+	return true;
 }
 
 void convoi_t::set_convoi_coupling_in_progress(convoihandle_t convoi_coupling_undergo) {

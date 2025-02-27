@@ -418,7 +418,10 @@ private:
 	void set_erstes_letztes();
 
 	// returns the index of the vehikel at position length (16=1 tile)
-	int get_vehicle_at_length(uint16);
+	uint16 get_vehicle_at_length(uint32);
+
+	// returns the total vehicle number of the coupling convoys.
+	uint16 get_total_vehicle_count() const;
 
 	/**
 	* calculate income for last hop
@@ -957,6 +960,7 @@ public:
 	void set_next_coupling(uint16 n, uint8 m) { next_coupling_index = n; next_coupling_steps = m; }
 
 	convoihandle_t get_coupling_convoi() const {return coupling_convoi;}
+	void set_coupling_convoi(convoihandle_t c) {coupling_convoi = c;}
 
 	/* the current state of the convoi */
 	PIXVAL get_status_color() const;
@@ -1077,6 +1081,10 @@ public:
 	// go to next stop (skip one stops)
 	// only called by tool_change_convoi_t
 	void next_stop_button_pressed();
+
+	// coupling during running.
+	// Only for during leaving a depot
+	bool couple_convoi_during_running(convoihandle_t coupled);
 
 };
 

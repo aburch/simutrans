@@ -70,6 +70,7 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	depot(depot),
 	icnv(-1),
 	lb_convoi_line("Serves Line:", SYSCOL_TEXT, gui_label_t::left),
+	lb_child_convoy("Child convoy:", SYSCOL_TEXT, gui_label_t::left),
 	lb_sort_by("Sort by:", SYSCOL_TEXT, gui_label_t::right),
 	lb_name_filter_input("Search:", SYSCOL_TEXT, gui_label_t::right),
 	lb_veh_action("Fahrzeuge:", SYSCOL_TEXT, gui_label_t::right),
@@ -109,6 +110,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	line_seperator       = translator::translate("--------------------------------");
 	new_convoy_text      = translator::translate("new convoi");
 	promote_to_line_text = translator::translate("<promote to line>");
+	no_child_text     = translator::translate("depart without child convoy");
 
 	/*
 	* [SELECT]:
@@ -150,6 +152,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	add_component(&lb_convoi_power);
 	add_component(&lb_convoi_weight);
 	add_component(&cont_convoi_capacity);
+	add_component(&lb_child_convoy);
 
 	sb_convoi_length.set_base( depot->get_max_convoi_length() * CARUNITS_PER_TILE / 2 - 1);
 	sb_convoi_length.set_vertical(false);
@@ -203,6 +206,11 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	bt_paste_convoi.add_listener(this);
 	bt_paste_convoi.set_tooltip("Paste the copied convoi");
 	add_component(&bt_paste_convoi);
+
+	child_convoi_selector.add_listener(this);
+	child_convoi_selector.set_wrapping(false);
+	add_component(&child_convoi_selector);
+	is_shown_convoy_coupled = false;
 
 	/*
 	* [PANEL]
@@ -381,7 +389,7 @@ void depot_frame_t::layout(scr_size *size)
 	 */
 	const scr_coord_val CLIST_WIDTH = depot->get_max_convoi_length() * (grid.x - grid_dx) + 2 * gui_image_list_t::BORDER;
 	const scr_coord_val CLIST_HEIGHT = grid.y + 2 * gui_image_list_t::BORDER + 5;
-	const scr_coord_val CINFO_HEIGHT = LINESPACE * 3 + D_BUTTON_HEIGHT + 1;
+	const scr_coord_val CINFO_HEIGHT = LINESPACE * 3 + D_BUTTON_HEIGHT * 2 + 1;
 
 	/*
 	 * Structure of [ACTIONS] is a row of buttons:
@@ -514,9 +522,22 @@ void depot_frame_t::layout(scr_size *size)
 	/*
 	 * [ACTIONS]
 	 */
+	const waytype_t wt = depot->get_waytype();
+	if( wt!=road_wt && wt!=air_wt && wt!=water_wt ) {
+		lb_child_convoy.set_pos(scr_coord(D_MARGIN_LEFT, ACTIONS_VSTART - D_BUTTON_HEIGHT ));
+		lb_child_convoy.set_width(BUTTON_WIDTH_DEPOT);
+		child_convoi_selector.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE) , ACTIONS_VSTART - D_BUTTON_HEIGHT)); // D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE)*2
+		child_convoi_selector.set_size(scr_size(win_size.w - D_MARGIN_RIGHT - ( D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE) ) - selector_x, D_BUTTON_HEIGHT));
+		child_convoi_selector.set_max_size(scr_size(win_size.w - D_MARGIN_RIGHT - ( D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE) ) - selector_x, LINESPACE * 13 + 2 + 16));
+	}
+	
 	bt_start.set_pos(scr_coord(D_MARGIN_LEFT, ACTIONS_VSTART));
 	bt_start.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
-	bt_start.set_text("Start");
+	if (!is_shown_convoy_coupled){
+		bt_start.set_text("Start");
+	} else {
+		bt_start.set_text("Move to Parent Convoy");
+	}
 
 	bt_schedule.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE), ACTIONS_VSTART));
 	bt_schedule.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
@@ -855,13 +876,46 @@ void depot_frame_t::update_data()
 	convoy_selector.clear_elements();
 	convoy_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( new_convoy_text, SYSCOL_TEXT ) ;
 	convoy_selector.set_selection(0);
+	child_convoi_selector.clear_elements();
+	child_convoi_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( no_child_text, SYSCOL_TEXT ) ;
+	child_convoi_selector.set_selection(0);
+	// This flag is to prohibit child convoy departures without parental permission
+	is_shown_convoy_coupled = false;
 
 	// check all matching convoys
 	FOR(slist_tpl<convoihandle_t>, const c, depot->get_convoy_list()) {
 		convoy_selector.new_component<convoy_scrollitem_t>(c) ;
 		if(  cnv.is_bound()  &&  c == cnv  ) {
+			// this convoy
 			convoy_selector.set_selection( convoy_selector.count_elements() - 1 );
+		} 
+	}
+
+	// add choices for coupling, find selected child convoy, and find parent convoy of coupling.
+	FOR(slist_tpl<convoihandle_t>, const c, depot->get_convoy_list()) {
+		if (  !cnv.is_bound()  ||  c == cnv  ) {
+			continue;
 		}
+		// add choices for coupling
+		child_convoi_selector.new_component<convoy_scrollitem_t>(c) ;
+		if( cnv.is_bound() && c == cnv->get_coupling_convoi() ) {
+			// this convoy is cnv's child convoy, cnv will couple with this convoy when departure. 
+			child_convoi_selector.set_selection( child_convoi_selector.count_elements() - 1 );
+		}
+		if( cnv.is_bound() && cnv == c->get_coupling_convoi() ) {
+			// this convoy is cnv's parent convoy.
+			// therefore, this convoy can not start without parent's permission
+			is_shown_convoy_coupled = true;
+		}
+	}
+	
+	
+	// update the description of start/move_to_parent_convoy button
+	// if this convoy is child convoy, start button is changed to "move to parent convoy" button.
+	if(  !is_shown_convoy_coupled  ) {
+		bt_start.set_tooltip("Start the selected vehicle(s)");
+	} else {
+		bt_start.set_tooltip("Move to Parent Convoy");
 	}
 
 	const vehicle_desc_t *veh = NULL;
@@ -1336,11 +1390,22 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 	if(  comp != NULL  ) { // message from outside!
 		if(  comp == &bt_start  ) {
 			if(  cnv.is_bound()  ) {
-				//first: close schedule (will update schedule on clients)
-				destroy_win( (ptrdiff_t)cnv->get_schedule() );
-				// only then call the tool to start
-				char tool = event_get_last_control_shift() == 2 ? 'B' : 'b'; // start all with CTRL-click
-				depot->call_depot_tool( tool, cnv, NULL);
+				// Move to Parent Convoy (Not Start Button!)
+				if(  is_shown_convoy_coupled  ) {
+					for( uint32 i=0; i<depot->get_convoy_list().get_count(); i++ ) {
+						convoihandle_t c = depot->get_convoy_list().at(i);
+						if( c.is_bound() && cnv.is_bound() && cnv == c->get_coupling_convoi() ) {
+							// switch convoy to parent convoy
+							icnv = i;
+						}
+					}
+				} else {
+					//first: close schedule (will update schedule on clients)
+					destroy_win( (ptrdiff_t)cnv->get_schedule() );
+					// only then call the tool to start
+					char tool = event_get_last_control_shift() == 2 ? 'B' : 'b'; // start all with CTRL-click
+					depot->call_depot_tool( tool, cnv, NULL);
+				}
 			}
 		}
 		else if(  comp == &bt_schedule  ) {
@@ -1485,6 +1550,33 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			}
 			return true;
 		}
+		else if(  comp == &child_convoi_selector  ) {
+			if( !cnv.is_bound() ) {
+				// this is not convoy.
+				return true;
+			}
+			cbuffer_t couple_buf;
+			// selection number should be modified because child_convoi_selector(0) is "departing alone"
+			const int selection = p.i <= icnv? p.i-1: p.i;
+			uint16 child_convoy_id = selection < 0? 0: depot->get_convoi(selection).get_id();
+			// check the ouroboros-like coupling setting:
+			// If this convoy's connecting convoy contains itself, this convoy don't start coupling!
+			convoihandle_t check_cnv = depot->get_convoi(selection);
+			while( check_cnv.is_bound() ) {
+				if(  check_cnv->get_coupling_convoi() == cnv  ) {
+					// loop found!
+					// no coupling
+					child_convoy_id = 0;
+					child_convoi_selector.set_selection(0);
+					create_win( new news_img("This convoy cannot be coupled because it is a parent of shown convoy!"), w_time_delete, magic_none );
+					break;
+				}
+				check_cnv = check_cnv->get_coupling_convoi();
+			}
+			couple_buf.printf("%u", child_convoy_id);
+			depot->call_depot_tool('u',cnv,couple_buf);
+			return true;
+		}
 		else {
 			return false;
 		}
@@ -1561,7 +1653,7 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 	bt_change_line.enable( action_allowed );
 	bt_copy_convoi.enable( action_allowed );
 	bt_apply_line.enable( action_allowed );
-	bt_start.enable( action_allowed  &&  cnv!=depot->get_replacement_seed() );
+	bt_start.enable( action_allowed  &&  cnv!=depot->get_replacement_seed() );	
 	bt_schedule.enable( action_allowed );
 	bt_destroy.enable( action_allowed );
 	bt_sell.enable( action_allowed );
