@@ -2754,7 +2754,7 @@ void haltestelle_t::change_owner( player_t *player, bool halt_only )
 	player_t* const prev_owner = owner;
 	owner = player;
 	rebuild_connections();
-	_connections();
+	rebuild_linked_connections();
 	rebuild_connected_components();
 
 	// tell the world of it ...
@@ -2885,7 +2885,7 @@ void haltestelle_t::merge_halt( halthandle_t halt_merged )
 	// also rebuild our connections
 	recalc_station_type();
 	rebuild_connections();
-	_connections();
+	rebuild_linked_connections();
 	rebuild_connected_components();
 }
 // [mod : shingoushori] mod : changes this to a private transfer exchange stop 3/3
