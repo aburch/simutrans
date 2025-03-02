@@ -1030,7 +1030,9 @@ int factory_builder_t::increase_industry_density( bool tell_me )
 
 		// only return if successful
 		if(  last_built_consumer->get_suppliers().get_count() > last_suppliers  ) {
+#if MSG_LEVEL >= 3
 			DBG_MESSAGE( "factory_builder_t::increase_industry_density()", "added ware %s to factory %s", last_built_consumer_ware->get_name(), last_built_consumer->get_name() );
+#endif
 			// tell the player
 			if(tell_me) {
 				stadt_t *s = welt->find_nearest_city( last_built_consumer->get_pos().get_2d() );
@@ -1043,7 +1045,9 @@ int factory_builder_t::increase_industry_density( bool tell_me )
 			return nr;
 		}
 		else {
+#if MSG_LEVEL >= 3
 			DBG_MESSAGE( "factory_builder_t::increase_industry_density()", "failed to add ware %s to factory %s", last_built_consumer_ware->get_name(), last_built_consumer->get_name() );
+#endif
 		}
 	}
 
