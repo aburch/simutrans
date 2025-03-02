@@ -73,7 +73,7 @@ static uint32 get_cluster_data(tabfileobj_t& obj)
 void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	// take care, hardcoded size of node on disc here!
-	obj_node_t node(this, 39, &parent);
+	obj_node_t node(this, 47, &parent);
 
 	write_name_and_copyright(fp, node, obj);
 
@@ -246,14 +246,14 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		capacity = obj.get_int("station_capacity", level * 32);
 	}
 
-	sint32 maintenance = obj.get_int("maintenance", PRICE_MAGIC);
+	sint64 maintenance = obj.get_int64("maintenance", PRICE_MAGIC);
 	if(  maintenance == PRICE_MAGIC  ) {
-		maintenance = obj.get_int("station_maintenance", PRICE_MAGIC);
+		maintenance = obj.get_int64("station_maintenance", PRICE_MAGIC);
 	}
 
-	sint32 price = obj.get_int("cost", PRICE_MAGIC);
+	sint64 price = obj.get_int64("cost", PRICE_MAGIC);
 	if(  price == PRICE_MAGIC  ) {
-		price = obj.get_int("station_price", PRICE_MAGIC);
+		price = obj.get_int64("station_price", PRICE_MAGIC);
 	}
 
 	uint8 allow_underground = obj.get_int("allow_underground", 2);
@@ -363,8 +363,8 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint16(fp, retire_date);
 	node.write_uint16(fp, animation_time);
 	node.write_uint16(fp, capacity);
-	node.write_sint32(fp, maintenance);
-	node.write_sint32(fp, price);
+	node.write_sint64(fp, maintenance);
+	node.write_sint64(fp, price);
 	node.write_uint8 (fp, allow_underground);
 	node.write_uint16(fp, preservation_date);
 

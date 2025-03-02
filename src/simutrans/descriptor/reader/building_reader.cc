@@ -216,7 +216,7 @@ bool building_reader_t::successfully_loaded() const
 }
 
 
-obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t *building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	array_tpl<char> desc_buf(node.size);
 	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
@@ -227,190 +227,208 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// old versions of PAK files have no version stamp.
 	// But we know, the highest bit was always cleared.
 	const uint16 v = decode_uint16(p);
-	const int version = (v & 0x8000)!=0 ? v&0x7FFF : 0;
+	const uint16 version = (v & 0x8000)!=0 ? v&0x7FFF : 0;
 
 	old_btyp::typ btyp;
 	building_desc_t *desc = new building_desc_t();
 
-	if(version == 10) {
-		// preservation date added
-		btyp = (old_btyp::typ)decode_uint8(p);
-		desc->type = (building_desc_t::btype)decode_uint8(p);
-		desc->level = decode_uint16(p);
-		desc->extra_data = decode_uint32(p);
-		desc->size.x = decode_uint16(p);
-		desc->size.y = decode_uint16(p);
-		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = (climate_bits)(decode_uint16(p) & ALL_CLIMATES);
-		desc->enables = decode_uint8(p);
-		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
-		desc->distribution_weight = decode_uint8(p);
-		desc->intro_date = decode_uint16(p);
-		desc->retire_date = decode_uint16(p);
-		desc->animation_time = decode_uint16(p);
-		desc->capacity = decode_uint16(p);
-		desc->maintenance = decode_sint32(p);
-		desc->price = decode_sint32(p);
-		desc->allow_underground = decode_uint8(p);
+	if (version == 11) {
+		// cost/maintenance as sint64
+		btyp                          = (old_btyp::typ)decode_uint8(p);
+		desc->type                    = (building_desc_t::btype)decode_uint8(p);
+		desc->level                   = decode_uint16(p);
+		desc->extra_data              = decode_uint32(p);
+		desc->size.x                  = decode_uint16(p);
+		desc->size.y                  = decode_uint16(p);
+		desc->layouts                 = decode_uint8(p);
+		desc->allowed_climates        = (climate_bits)(decode_uint16(p) & ALL_CLIMATES);
+		desc->enables                 = decode_uint8(p);
+		desc->flags                   = (building_desc_t::flag_t)decode_uint8(p);
+		desc->distribution_weight     = decode_uint8(p);
+		desc->intro_date              = decode_uint16(p);
+		desc->retire_date             = decode_uint16(p);
+		desc->animation_time          = decode_uint16(p);
+		desc->capacity                = decode_uint16(p);
+		desc->maintenance             = decode_sint64(p);
+		desc->price                   = decode_sint64(p);
+		desc->allow_underground       = decode_uint8(p);
 		desc->preservation_year_month = decode_uint16(p);
 	}
-	else if(version == 8  ||  version == 9) {
-		// Versioned node, version 8
-		// station price, maintenance and capacity added
+	else if (version == 10) {
+		// preservation date added
 		btyp = (old_btyp::typ)decode_uint8(p);
-		desc->type = (building_desc_t::btype)decode_uint8(p);
-		desc->level = decode_uint16(p);
-		desc->extra_data = decode_uint32(p);
-		desc->size.x = decode_uint16(p);
-		desc->size.y = decode_uint16(p);
-		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = (climate_bits)(decode_uint16(p) & ALL_CLIMATES);
-		desc->enables = decode_uint8(p);
-		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
+		desc->type                    = (building_desc_t::btype)decode_uint8(p);
+		desc->level                   = decode_uint16(p);
+		desc->extra_data              = decode_uint32(p);
+		desc->size.x                  = decode_uint16(p);
+		desc->size.y                  = decode_uint16(p);
+		desc->layouts                 = decode_uint8(p);
+		desc->allowed_climates        = (climate_bits)(decode_uint16(p) & ALL_CLIMATES);
+		desc->enables                 = decode_uint8(p);
+		desc->flags                   = (building_desc_t::flag_t)decode_uint8(p);
+		desc->distribution_weight     = decode_uint8(p);
+		desc->intro_date              = decode_uint16(p);
+		desc->retire_date             = decode_uint16(p);
+		desc->animation_time          = decode_uint16(p);
+		desc->capacity                = decode_uint16(p);
+		desc->maintenance             = decode_sint32(p);
+		desc->price                   = decode_sint32(p);
+		desc->allow_underground       = decode_uint8(p);
+		desc->preservation_year_month = decode_uint16(p);
+	}
+	else if (version == 8  ||  version == 9) {
+		// station price, maintenance and capacity added
+		btyp                      = (old_btyp::typ)decode_uint8(p);
+		desc->type                = (building_desc_t::btype)decode_uint8(p);
+		desc->level               = decode_uint16(p);
+		desc->extra_data          = decode_uint32(p);
+		desc->size.x              = decode_uint16(p);
+		desc->size.y              = decode_uint16(p);
+		desc->layouts             = decode_uint8(p);
+		desc->allowed_climates    = (climate_bits)(decode_uint16(p) & ALL_CLIMATES);
+		desc->enables             = decode_uint8(p);
+		desc->flags               = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
-		desc->intro_date = decode_uint16(p);
-		desc->retire_date = decode_uint16(p);
-		desc->animation_time = decode_uint16(p);
-		desc->capacity = decode_uint16(p);
-		desc->maintenance = decode_sint32(p);
-		desc->price = decode_sint32(p);
-		desc->allow_underground = decode_uint8(p);
+		desc->intro_date          = decode_uint16(p);
+		desc->retire_date         = decode_uint16(p);
+		desc->animation_time      = decode_uint16(p);
+		desc->capacity            = decode_uint16(p);
+		desc->maintenance         = decode_sint32(p);
+		desc->price               = decode_sint32(p);
+		desc->allow_underground   = decode_uint8(p);
 	}
 	else if(version == 7) {
-		// Versioned node, version 7
 		// underground mode added
-		btyp = (old_btyp::typ)decode_uint8(p);
-		desc->type = (building_desc_t::btype)decode_uint8(p);
-		desc->level = decode_uint16(p);
-		desc->extra_data = decode_uint32(p);
-		desc->size.x = decode_uint16(p);
-		desc->size.y = decode_uint16(p);
-		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = (climate_bits)(decode_uint16(p) & ALL_CLIMATES);
-		desc->enables = decode_uint8(p);
-		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
+		btyp                      = (old_btyp::typ)decode_uint8(p);
+		desc->type                = (building_desc_t::btype)decode_uint8(p);
+		desc->level               = decode_uint16(p);
+		desc->extra_data          = decode_uint32(p);
+		desc->size.x              = decode_uint16(p);
+		desc->size.y              = decode_uint16(p);
+		desc->layouts             = decode_uint8(p);
+		desc->allowed_climates    = (climate_bits)(decode_uint16(p) & ALL_CLIMATES);
+		desc->enables             = decode_uint8(p);
+		desc->flags               = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
-		desc->intro_date = decode_uint16(p);
-		desc->retire_date = decode_uint16(p);
-		desc->animation_time = decode_uint16(p);
-		desc->allow_underground = decode_uint8(p);
+		desc->intro_date          = decode_uint16(p);
+		desc->retire_date         = decode_uint16(p);
+		desc->animation_time      = decode_uint16(p);
+		desc->allow_underground   = decode_uint8(p);
 	}
 	else if(version == 5  ||  version==6) {
-		// Versioned node, version 5 or 6  (only level logic is different)
 		// animation interval in ms added
-		btyp = (old_btyp::typ)decode_uint8(p);
-		desc->type = (building_desc_t::btype)decode_uint8(p);
-		desc->level = decode_uint16(p);
-		desc->extra_data = decode_uint32(p);
-		desc->size.x = decode_uint16(p);
-		desc->size.y = decode_uint16(p);
-		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = (climate_bits)(decode_uint16(p) & ALL_CLIMATES);
-		desc->enables = decode_uint8(p);
-		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
+		// only level logic is different between version 5 and 6
+		btyp                      = (old_btyp::typ)decode_uint8(p);
+		desc->type                = (building_desc_t::btype)decode_uint8(p);
+		desc->level               = decode_uint16(p);
+		desc->extra_data          = decode_uint32(p);
+		desc->size.x              = decode_uint16(p);
+		desc->size.y              = decode_uint16(p);
+		desc->layouts             = decode_uint8(p);
+		desc->allowed_climates    = (climate_bits)(decode_uint16(p) & ALL_CLIMATES);
+		desc->enables             = decode_uint8(p);
+		desc->flags               = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
-		desc->intro_date = decode_uint16(p);
-		desc->retire_date = decode_uint16(p);
-		desc->animation_time = decode_uint16(p);
+		desc->intro_date          = decode_uint16(p);
+		desc->retire_date         = decode_uint16(p);
+		desc->animation_time      = decode_uint16(p);
 	}
 	else if(version == 4) {
-		// Versioned node, version 4
 		// climates and seasons added
-		btyp = (old_btyp::typ)decode_uint8(p);
-		desc->type = (building_desc_t::btype)decode_uint8(p);
-		desc->level = decode_uint16(p);
-		desc->extra_data = decode_uint32(p);
-		desc->size.x = decode_uint16(p);
-		desc->size.y = decode_uint16(p);
-		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = (climate_bits)(decode_uint16(p) & ALL_CLIMATES);
-		desc->enables = decode_uint8(p);
-		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
+		btyp                      = (old_btyp::typ)decode_uint8(p);
+		desc->type                = (building_desc_t::btype)decode_uint8(p);
+		desc->level               = decode_uint16(p);
+		desc->extra_data          = decode_uint32(p);
+		desc->size.x              = decode_uint16(p);
+		desc->size.y              = decode_uint16(p);
+		desc->layouts             = decode_uint8(p);
+		desc->allowed_climates    = (climate_bits)(decode_uint16(p) & ALL_CLIMATES);
+		desc->enables             = decode_uint8(p);
+		desc->flags               = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
-		desc->intro_date = decode_uint16(p);
-		desc->retire_date = decode_uint16(p);
-		desc->animation_time = 300;
+		desc->intro_date          = decode_uint16(p);
+		desc->retire_date         = decode_uint16(p);
+		desc->animation_time      = 300;
 	}
 	else if(version == 3) {
-		// Versioned node, version 3
-		btyp = (old_btyp::typ)decode_uint8(p);
-		desc->type = (building_desc_t::btype)decode_uint8(p);
-		desc->level = decode_uint16(p);
-		desc->extra_data = decode_uint32(p);
-		desc->size.x = decode_uint16(p);
-		desc->size.y = decode_uint16(p);
-		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = all_but_water_climate; // all but water
-		desc->enables = decode_uint8(p);
-		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
+		btyp                      = (old_btyp::typ)decode_uint8(p);
+		desc->type                = (building_desc_t::btype)decode_uint8(p);
+		desc->level               = decode_uint16(p);
+		desc->extra_data          = decode_uint32(p);
+		desc->size.x              = decode_uint16(p);
+		desc->size.y              = decode_uint16(p);
+		desc->layouts             = decode_uint8(p);
+		desc->allowed_climates    = all_but_water_climate; // all but water
+		desc->enables             = decode_uint8(p);
+		desc->flags               = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
-		desc->intro_date = decode_uint16(p);
-		desc->retire_date = decode_uint16(p);
-		desc->animation_time = 300;
+		desc->intro_date          = decode_uint16(p);
+		desc->retire_date         = decode_uint16(p);
+		desc->animation_time      = 300;
 	}
 	else if(version == 2) {
-		// Versioned node, version 2
-		btyp = (old_btyp::typ)decode_uint8(p);
-		desc->type = (building_desc_t::btype)decode_uint8(p);
-		desc->level = decode_uint16(p);
-		desc->extra_data = decode_uint32(p);
-		desc->size.x = decode_uint16(p);
-		desc->size.y = decode_uint16(p);
-		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = all_but_water_climate; // all but water
-		desc->enables = 0x80;
-		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
+		// added intro/retire date
+		btyp                      = (old_btyp::typ)decode_uint8(p);
+		desc->type                = (building_desc_t::btype)decode_uint8(p);
+		desc->level               = decode_uint16(p);
+		desc->extra_data          = decode_uint32(p);
+		desc->size.x              = decode_uint16(p);
+		desc->size.y              = decode_uint16(p);
+		desc->layouts             = decode_uint8(p);
+		desc->allowed_climates    = all_but_water_climate; // all but water
+		desc->enables             = 0x80;
+		desc->flags               = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
-		desc->intro_date = decode_uint16(p);
-		desc->retire_date = decode_uint16(p);
-		desc->animation_time = 300;
+		desc->intro_date          = decode_uint16(p);
+		desc->retire_date         = decode_uint16(p);
+		desc->animation_time      = 300;
 	}
 	else if(version == 1) {
-		// Versioned node, version 1
-		btyp = (old_btyp::typ)decode_uint8(p);
-		desc->type = (building_desc_t::btype)decode_uint8(p);
-		desc->level = decode_uint16(p);
-		desc->extra_data = decode_uint32(p);
-		desc->size.x = decode_uint16(p);
-		desc->size.y = decode_uint16(p);
-		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = all_but_water_climate; // all but water
-		desc->enables = 0x80;
-		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
+		btyp                      = (old_btyp::typ)decode_uint8(p);
+		desc->type                = (building_desc_t::btype)decode_uint8(p);
+		desc->level               = decode_uint16(p);
+		desc->extra_data          = decode_uint32(p);
+		desc->size.x              = decode_uint16(p);
+		desc->size.y              = decode_uint16(p);
+		desc->layouts             = decode_uint8(p);
+		desc->allowed_climates    = all_but_water_climate; // all but water
+		desc->enables             = 0x80;
+		desc->flags               = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
 
-		desc->intro_date = DEFAULT_INTRO_YEAR*12;
-		desc->retire_date = DEFAULT_RETIRE_YEAR*12;
+		desc->intro_date     = DEFAULT_INTRO_YEAR*12;
+		desc->retire_date    = DEFAULT_RETIRE_YEAR*12;
+		desc->animation_time = 300;
+	}
+	else if (version == 0) {
+		// old node, version 0
+		btyp                      = (old_btyp::typ)v;
+		decode_uint16(p);
+		desc->type                = (building_desc_t::btype)decode_uint32(p);
+		desc->level               = decode_uint32(p);
+		desc->extra_data          = decode_uint32(p);
+		desc->size.x              = decode_uint16(p);
+		desc->size.y              = decode_uint16(p);
+		desc->layouts             = decode_uint32(p);
+		desc->allowed_climates    = all_but_water_climate; // all but water
+		desc->enables             = 0x80;
+		desc->flags               = (building_desc_t::flag_t)decode_uint32(p);
+		desc->distribution_weight = 100;
+
+		desc->intro_date     = DEFAULT_INTRO_YEAR*12;
+		desc->retire_date    = DEFAULT_RETIRE_YEAR*12;
 		desc->animation_time = 300;
 	}
 	else {
-		if( version ) {
-			dbg->fatal( "building_reader_t::read_node()", "Cannot handle too new node version %i", version );
-		}
-		// old node, version 0
-		btyp = (old_btyp::typ)v;
-		decode_uint16(p);
-		desc->type = (building_desc_t::btype)decode_uint32(p);
-		desc->level = decode_uint32(p);
-		desc->extra_data= decode_uint32(p);
-		desc->size.x = decode_uint16(p);
-		desc->size.y = decode_uint16(p);
-		desc->layouts = decode_uint32(p);
-		desc->allowed_climates = all_but_water_climate; // all but water
-		desc->enables = 0x80;
-		desc->flags = (building_desc_t::flag_t)decode_uint32(p);
-		desc->distribution_weight = 100;
-
-		desc->intro_date = DEFAULT_INTRO_YEAR*12;
-		desc->retire_date = DEFAULT_RETIRE_YEAR*12;
-		desc->animation_time = 300;
+		dbg->fatal( "building_reader_t::read_node()", "Cannot handle too new node version %i", version );
 	}
+
 	// there are additional nodes for cursor/icon
 	if(  node.nchildren > 2+desc->size.x*desc->size.y*desc->layouts  ) {
 		desc->flags |= building_desc_t::FLAG_HAS_CURSOR;
 	}
 
-	// correct old station buildings ...
+	// correct old station buildings
 	if(  version<=3  &&  ((uint8)desc->type >= building_desc_t::bahnhof  ||  desc->type == building_desc_t::factory  ||  desc->type == building_desc_t::depot)  &&  desc->level==0  ) {
 		PAKSET_INFO("building_reader_t::read_node()","old station building -> set level to 4");
 		desc->level = 4;
