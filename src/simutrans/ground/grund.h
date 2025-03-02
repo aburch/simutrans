@@ -324,42 +324,31 @@ public:
 	*/
 	void mark_image_dirty() const;
 
-	/**
-	* Return the name of the ground.
-	* @return The name of the ground.
-	*/
-	virtual const char* get_name() const = 0;
+	/// @returns The name of the ground.
+	virtual const char *get_name() const = 0;
 
-	/**
-	* Return the ground type.
-	* @return The ground type.
-	*/
+	/// @returns The ground type.
 	virtual typ get_typ() const = 0;
 
-	/**
-	* Return the ground description texts.
-	* @return A description for the ground.
-	*/
+	/// @returns A description for the ground.
 	const char* get_text() const;
 
 	virtual void info(cbuffer_t & buf) const;
 
 	/**
-	* Auffforderung, ein Infofenster zu oeffnen.
+	* Aufforderung, ein Infofenster zu oeffnen.
 	* Oeffnet standardmaessig kein Infofenster.
 	*/
 	void open_info_window();
 
-	/**
-	 * @return player that owns the label to show it in player's colors
-	 */
+	/// @returns player that owns the label to show it in player's colors
 	const player_t* get_label_owner() const;
 
 	/**
 	 * Sets the label text (by copying it)
-	 * @param text the new text (NULL will remove any label text)
+	 * @param text the new text, or NULL to remove the existing text
 	 */
-	void set_text(const char* text);
+	void set_text(const char *text);
 
 	virtual bool ist_natur() const {return false;}
 	virtual bool is_water() const {return false;}
@@ -368,39 +357,36 @@ public:
 	* This is called very often, it must be inlined and therefore
 	* cannot be virtual - subclasses must set the flags appropriately!
 	*/
-	inline bool ist_bruecke() const {return get_typ()==brueckenboden;}
+	inline bool ist_bruecke() const { return get_typ()==brueckenboden; }
 
 	/**
-	* gives true for grounds inside tunnel (not tunnel mouths)
-	* check for visibility in is_visible()
+	* @returns true for bridge grounds that are not bridge ramps.
 	*/
 	inline bool ist_auf_bruecke() const {
-		return (get_typ() == brueckenboden  &&  !ist_karten_boden());
+		return ist_bruecke()  &&  !ist_karten_boden();
 	}
 
 	/**
-	* true if tunnelboden (hence true also for tunnel mouths)
+	* @returns true if tunnelboden (hence true also for tunnel mouths)
 	* check for visibility in is_visible()
 	*/
 	inline bool ist_tunnel() const {
-		return ( (get_typ()==tunnelboden) );
+		return get_typ()==tunnelboden;
 	}
 
 	/**
-	* gives true for grounds inside tunnel (not tunnel mouths)
+	* @returns true for grounds inside tunnel (not tunnel mouths)
 	* check for visibility in is_visible()
 	*/
 	inline bool ist_im_tunnel() const {
-		return ( get_typ()==tunnelboden && (!ist_karten_boden())) ;
+		return ist_tunnel() && !ist_karten_boden();
 	}
 
 	/* this will be stored locally, since it is called many, many times */
-	inline bool ist_karten_boden() const {return (flags&is_kartenboden);}
-	void set_kartenboden(bool tf) {if(tf) {flags|=is_kartenboden;} else {flags&=~is_kartenboden;} }
+	inline bool ist_karten_boden() const { return (flags&is_kartenboden); }
+	void set_kartenboden(bool tf) { if(tf) {flags|=is_kartenboden;} else {flags&=~is_kartenboden;} }
 
-	/**
-	* returns powerline here
-	*/
+	/// @returns powerline here
 	leitung_t *get_leitung() const { return (leitung_t *) objlist.get_leitung(); }
 
 	/**
@@ -409,10 +395,10 @@ public:
 	*/
 	virtual void rdwr(loadsave_t *file);
 
-	// map rotation
+	/// do map rotation
 	virtual void rotate90();
 
-	// we must put the text back to their proper location after rotation ...
+	// we must put the text back to their proper location after rotation
 	static void finish_rotate90();
 
 	// since enlargement will require new hashes
@@ -420,22 +406,16 @@ public:
 
 	void sort_trees();
 
-	/**
-	* Gibt die 3d-Koordinaten des Planquadrates zurueck, zu dem der
-	* Untergrund gehoert.
-	* @return Die Position des Grundes in der 3d-Welt
-	*/
+	/// @returns the world position of this ground.
 	inline const koord3d& get_pos() const { return pos; }
 
-	inline void set_pos(koord3d newpos) { pos = newpos;}
+	inline void set_pos(koord3d newpos) { pos = newpos; }
 
 	// slope are now maintained locally
 	slope_t::type get_grund_hang() const { return slope; }
 	void set_grund_hang(slope_t::type sl) { slope = sl; }
 
-	/**
-	 * some ground tiles may be part of halts.
-	 */
+	/// some ground tiles may be part of halts.
 	void set_halt(halthandle_t halt);
 	halthandle_t get_halt() const;
 	bool is_halt() const { return flags & is_halt_flag; }
@@ -443,7 +423,7 @@ public:
 	/**
 	 * @return The height of the tile.
 	 */
-	inline sint8 get_hoehe() const {return pos.z;}
+	inline sint8 get_hoehe() const { return pos.z; }
 
 	/**
 	 * @param corner slope_t::_corner mask of corners to check.
@@ -868,7 +848,7 @@ public:
 	/** removes everything from a tile, including a halt but i.e. leave a
 	 * powerline ond other stuff
 	 */
-	bool remove_everything_from_way(player_t *player,waytype_t wt,ribi_t::ribi ribi_rem);
+	bool remove_everything_from_way(player_t *player, waytype_t wt, ribi_t::ribi ribi_rem);
 
 	/// @returns true if this is a dummy ground that is only there for UI purposes
 	/// (previews for bridges, elevated ways and tunnels)
