@@ -14,11 +14,13 @@
 #include "get_waytype.h"
 #include "bridge_writer.h"
 
+#include <string>
+
 
 static void write_bridge_images(FILE* outfp, obj_node_t& node, tabfileobj_t& obj, int season)
 {
-	slist_tpl<string> backkeys;
-	slist_tpl<string> frontkeys;
+	slist_tpl<std::string> backkeys;
+	slist_tpl<std::string> frontkeys;
 
 	static const char* const names[] = {
 		"image",
