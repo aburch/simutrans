@@ -345,7 +345,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 
 	// write version data
-	node.write_version(fp, 10);
+	node.write_version(fp, 11);
 
 	// write desc data
 	node.write_uint8 (fp, 0); // was gtyp
