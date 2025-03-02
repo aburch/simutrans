@@ -1289,7 +1289,6 @@ sint32 haltestelle_t::rebuild_connections()
 	// HACK: When unload_all, no_load or no_unload is applied, is_transfer is true regardless of connections.
 	bool force_transfer_search = false;
 	while(  lines  ||  current_index < registered_convoys.get_count()  ) {
-
 		// Now, collect the "schedule", "owner" and "add_catg_index" from line resp. convoy.
 		if(  lines  ) {
 			if(  current_index >= registered_lines.get_count()  ) {
@@ -1455,6 +1454,7 @@ void haltestelle_t::rebuild_linked_connections()
 {
 	vector_tpl<halthandle_t> all; // all halts connected to this halt
 	for(  uint8 i=0;  i<goods_manager_t::get_max_catg_index();  i++  ){
+		// TODO: consider using staged_all_links, since this function is called after rebuild_connections() stores the connections to it.
 		vector_tpl<connection_t>& connections = all_links[i].connections;
 
 		FOR(vector_tpl<connection_t>, &c, connections) {
@@ -1462,7 +1462,9 @@ void haltestelle_t::rebuild_linked_connections()
 		}
 	}
 	FOR(vector_tpl<halthandle_t>, h, all) {
-		h->rebuild_connections();
+		if(h.is_bound()) {
+			h->rebuild_connections();
+		}
 	}
 }
 
