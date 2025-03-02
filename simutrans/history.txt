@@ -8,6 +8,7 @@
 	FIX: makro building with way order and stations extensions fixed
 	FIX: Freelist allocated objects (tiles, ways, trees etc.) use 3x more memory than necessary
 	FIX: Do not change underground mode when scrolling from the minimap
+	ADD: Monthly maintenance for roadsigns and signals (maintenance=1234 in dat file)
 
 
 Release of 124.3 (r11590 on 10-Jan-2025):

@@ -77,15 +77,15 @@ void parse_images_numbered(slist_tpl<std::string>& keys, tabfileobj_t& obj)
 	}
 }
 
+
 void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 16, &parent);
-
-	uint32                 const price       = obj.get_int("cost",        500) * 100;
-	uint16                 const min_speed   = obj.get_int("min_speed",     0);
-	sint8                  const offset_left = obj.get_int("offset_left",  14);
-	uint8                  const wtyp        = get_waytype(obj.get("waytype"));
-	roadsign_desc_t::types       flags       = roadsign_desc_t::NONE;
+	const sint64           price       = obj.get_int64("cost",      500) * 100;
+	const sint64           maintenance = obj.get_int64("maintenance", 0);
+	const uint16           min_speed   = obj.get_int("min_speed",     0);
+	const sint8            offset_left = obj.get_int("offset_left",  14);
+	const uint8            wtyp        = get_waytype(obj.get("waytype"));
+	roadsign_desc_t::types flags       = roadsign_desc_t::NONE;
 
 	if(  obj.get_int("is_signal",0)   ) {
 		flags = roadsign_desc_t::SIGN_SIGNAL;
@@ -113,10 +113,12 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 	// this causes unused entries to give a warning that they are ignored
 
-	// write version data
-	node.write_version(fp, 5);
+	obj_node_t node(this, 28, &parent);
+
+	node.write_version(fp, 6);
 	node.write_uint16(fp, min_speed);
-	node.write_uint32(fp, price);
+	node.write_sint64(fp, price);
+	node.write_sint64(fp, maintenance);
 	node.write_uint16(fp, flags);
 	node.write_uint8 (fp, offset_left);
 	node.write_uint8 (fp, wtyp);
