@@ -256,6 +256,19 @@ To halt not found.
 到着停留所が見つかりません。
 No route found!
 経路が見つかりません！
+#------車庫内連結機能------
+Child convoy:
+後ろに連結する編成:
+depart without child convoy
+連結せずに発車
+Move to Parent Convoy
+先頭の編成に移動
+This convoy cannot be coupled because it is a parent of shown convoy!
+指定した編成はこの編成の前に連結する編成です!後ろに連結できません!
+Vehicle %s is coupled convoy, so it cannot depart alone!
+%sは先頭の編成ではないので、発車しませんでした。
+Vehicle %s will couple with vehicle %s, but the next stop positions are different!
+%sと%sは連結して発車する予定ですが、次の駅の座標が異なるため連結できません!
 #------その他の翻訳------
 next stop
 次の駅へ
