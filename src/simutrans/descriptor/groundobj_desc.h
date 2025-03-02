@@ -36,7 +36,7 @@ class groundobj_desc_t : public obj_named_desc_t
 	uint16       index;
 	bool         trees_on_top;
 	waytype_t    wtyp;
-	sint32       price;
+	sint64       price;
 
 public:
 	uint16 get_distribution_weight() const { return distribution_weight; }
@@ -74,7 +74,7 @@ public:
 
 	waytype_t get_waytype() const { return wtyp; }
 
-	sint32 get_price() const { return price; }
+	sint64 get_price() const { return price; }
 
 	uint16 get_index() const { return index; }
 

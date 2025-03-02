@@ -16,7 +16,7 @@ using std::string;
 
 void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 16, &parent);
+	obj_node_t node(this, 20, &parent);
 	write_name_and_copyright(fp, node, obj);
 
 	climate_bits allowed_climates;
@@ -37,7 +37,7 @@ void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& o
 	uint16 const distribution_weight = obj.get_int("distributionweight", 3);
 
 	// how much for removal
-	sint32 const price = obj.get_int("cost", 0);
+	sint64 const price = obj.get_int64("cost", 0);
 
 	// !=0 for moving objects (sheeps, birds)
 	uint16 const speed = obj.get_int("speed", 0);
@@ -101,7 +101,7 @@ finish_images:
 	imagelist2d_writer_t::instance()->write_obj(fp, node, keys);
 
 	// write version data
-	node.write_version(fp, 1);
+	node.write_version(fp, 2);
 
 	node.write_uint16(fp, allowed_climates);
 	node.write_uint16(fp, distribution_weight);
@@ -109,7 +109,7 @@ finish_images:
 	node.write_uint8 (fp, trees_on_top);
 	node.write_uint16(fp, speed);
 	node.write_uint16(fp, waytype);
-	node.write_sint32(fp, price);
+	node.write_sint64(fp, price);
 
 	node.check_and_write_header(fp);
 }

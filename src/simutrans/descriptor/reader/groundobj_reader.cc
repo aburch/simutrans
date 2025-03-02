@@ -17,6 +17,8 @@
 #include "../../network/pakset_info.h"
 #include "../../tpl/array_tpl.h"
 
+#include <cinttypes>
+
 
 void groundobj_reader_t::register_obj(obj_desc_t *&data)
 {
@@ -41,7 +43,7 @@ bool groundobj_reader_t::successfully_loaded() const
 }
 
 
-obj_desc_t * groundobj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t *groundobj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	array_tpl<char> desc_buf(node.size);
 	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
@@ -52,23 +54,34 @@ obj_desc_t * groundobj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// old versions of PAK files have no version stamp.
 	// But we know, the highest bit was always cleared.
 	const uint16 v = decode_uint16(p);
-	const int version = v & 0x8000 ? v & 0x7FFF : 0;
+	const uint16 version = v & 0x8000 ? v & 0x7FFF : 0;
 	groundobj_desc_t *desc = new groundobj_desc_t();
 
-	if(version == 1) {
-		desc->allowed_climates = (climate_bits)decode_uint16(p);
+	if (version == 2) {
+		// cost as sint64
+		desc->allowed_climates    = (climate_bits)decode_uint16(p);
 		desc->distribution_weight = decode_uint16(p);
-		desc->number_of_seasons = decode_uint8(p);
-		desc->trees_on_top = (bool)decode_uint8(p);
-		desc->speed = kmh_to_speed( decode_uint16(p) );
-		desc->wtyp = (waytype_t)decode_uint16(p);
-		desc->price = decode_sint32(p);
+		desc->number_of_seasons   = decode_uint8(p);
+		desc->trees_on_top        = (bool)decode_uint8(p);
+		desc->speed               = kmh_to_speed( decode_uint16(p) );
+		desc->wtyp                = (waytype_t)decode_uint16(p);
+		desc->price               = decode_sint64(p);
+	}
+	else if (version == 1) {
+		desc->allowed_climates    = (climate_bits)decode_uint16(p);
+		desc->distribution_weight = decode_uint16(p);
+		desc->number_of_seasons   = decode_uint8(p);
+		desc->trees_on_top        = (bool)decode_uint8(p);
+		desc->speed               = kmh_to_speed( decode_uint16(p) );
+		desc->wtyp                = (waytype_t)decode_uint16(p);
+		desc->price               = decode_sint32(p);
 	}
 	else {
 		// version 0, never existed
 		dbg->fatal( "groundobj_reader_t::read_node()", "Cannot handle too new node version %i", version );
 	}
-	PAKSET_INFO("groundobj_reader_t::read_node()", "version=%i, climates=$%X, seasons=%i, chance=%i, speed=%i, ways=%i, cost=%d, trees_on_top=%i",
+
+	PAKSET_INFO("groundobj_reader_t::read_node()", "version=%i, climates=$%X, seasons=%i, chance=%i, speed=%i, ways=%i, cost=%" PRId64 ", trees_on_top=%i",
 		version,
 		desc->allowed_climates,
 		desc->number_of_seasons,
