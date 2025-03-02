@@ -1453,6 +1453,7 @@ void haltestelle_t::rebuild_linked_connections()
 {
 	vector_tpl<halthandle_t> all; // all halts connected to this halt
 	for(  uint8 i=0;  i<goods_manager_t::get_max_catg_index();  i++  ){
+		// TODO: consider using staged_all_links, since this function is called after rebuild_connections() stores the connections to it.
 		vector_tpl<connection_t>& connections = all_links[i].connections;
 
 		FOR(vector_tpl<connection_t>, &c, connections) {
