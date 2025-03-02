@@ -14,16 +14,14 @@
 
 void goods_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 10, &parent);
+	obj_node_t node(this, 16, &parent);
 
 	write_name_and_copyright(fp, node, obj);
 	text_writer_t::instance()->write_obj(fp, node, obj.get("metric"));
 
-	// Version needs high bit set as trigger -> this is required
-	// as marker because formerly nodes were unversioned
-	node.write_version(fp, 3);
+	node.write_version(fp, 4);
 
-	node.write_uint16(fp, obj.get_int("value", 0));
+	node.write_sint64(fp, obj.get_int64("value", 0));
 	node.write_uint8 (fp, obj.get_int("catg", 0));
 	node.write_uint16(fp, obj.get_int("speed_bonus", 0));
 	node.write_uint16(fp, obj.get_int("weight_per_unit", 100));

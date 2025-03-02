@@ -187,7 +187,6 @@ void goods_manager_t::set_multiplier(sint32 multiplier)
 {
 //DBG_MESSAGE("goods_manager_t::set_multiplier()","new factor %i",multiplier);
 	for(unsigned i=0;  i<get_count();  i++  ) {
-		sint32 long_base_value = goods[i]->base_value;
-		goods[i]->value = (uint16)((long_base_value*multiplier)/1000l);
+		goods[i]->value = (goods[i]->base_value * (sint64)multiplier) / INT64_C(1000);
 	}
 }

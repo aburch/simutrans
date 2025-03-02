@@ -24,19 +24,14 @@ class goods_desc_t : public obj_named_desc_t {
 	friend class goods_reader_t;
 	friend class goods_manager_t;
 
+	/// base value without price multipliers, read from the pak file
+	sint64 base_value;
 
-	/// base value
-	uint16 base_value;
+	/// Value with (beginner) price multiplier applied.
+	/// This is the value that is is actually used in revenue calculation.
+	sint64 value;
 
-	/**
-	 * Value used in revenue calculation.
-	 * Will be set by goods_manager_t.
-	 */
-	uint16 value;
-
-	/**
-	* Category of the good
-	*/
+	/// Category of the good
 	uint8 catg;
 
 	/**
@@ -71,7 +66,7 @@ public:
 		return get_child<text_desc_t>(2)->get_text();
 	}
 
-	uint16 get_value() const { return value; }
+	sint64 get_value() const { return value; }
 
 	/**
 	* @return speed bonus value of the good

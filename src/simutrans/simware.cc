@@ -180,11 +180,10 @@ sint64 ware_t::calc_revenue(const goods_desc_t* desc, waytype_t wt, sint32 speed
 	const sint32 ref_kmh = welt->get_average_speed( wt );
 	const sint32 kmh_base = (100 * speedkmh) / ref_kmh - 100;
 
-	const sint32 grundwert128    = welt->get_settings().get_bonus_basefactor(); // minimal bonus factor
-	const sint32 grundwert_bonus = 1000+kmh_base*desc->get_speed_bonus();       // speed bonus factor
+	const sint64 grundwert128    = welt->get_settings().get_bonus_basefactor(); // minimal bonus factor
+	const sint64 grundwert_bonus = 1000 + kmh_base*desc->get_speed_bonus();     // speed bonus factor
 
-	// take the larger of both
-	return desc->get_value() * (grundwert128 > grundwert_bonus ? grundwert128 : grundwert_bonus);
+	return desc->get_value() * std::max(grundwert128, grundwert_bonus);
 }
 
 

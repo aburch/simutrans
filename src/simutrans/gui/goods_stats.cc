@@ -37,9 +37,9 @@ void goods_stats_t::update_goodslist(vector_tpl<const goods_desc_t*>goods, int b
 		new_component<gui_colorbox_t>(wtyp->get_color())->set_max_size(scr_size(D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT));
 		new_component<gui_label_t>(wtyp->get_name());
 
-		const sint32 grundwert128 = (sint32)wtyp->get_value() * welt->get_settings().get_bonus_basefactor(); // bonus price will be always at least this
-		const sint32 grundwert_bonus = (sint32)wtyp->get_value()*(1000l+(bonus-100l)*wtyp->get_speed_bonus());
-		const sint32 price = (grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus);
+		const sint64 grundwert128    = wtyp->get_value() * welt->get_settings().get_bonus_basefactor(); // bonus price will be always at least this
+		const sint64 grundwert_bonus = wtyp->get_value() * (1000l + (bonus-100l) * wtyp->get_speed_bonus());
+		const sint64 price           = std::max(grundwert128, grundwert_bonus);
 
 		gui_label_buf_t *lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
 		lb->buf().append_money(price/3000.0);
