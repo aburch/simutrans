@@ -31,15 +31,14 @@ class bridge_desc_t : public obj_desc_transport_infrastructure_t {
 	friend class bridge_reader_t;
 
 private:
-	uint8 pillars_every;     // =0 off
-	bool pillars_asymmetric; // =0 off else leave one off for north/west slopes
-	uint offset;             // flag, because old bridges had their name/copyright at the wrong position
+	uint8  pillars_every      = 0;     // =0 off
+	bool   pillars_asymmetric = false; // =0 off else leave one off for north/west slopes
+	uint32 offset = 0;                 // flag, because old bridges had their name/copyright at the wrong position
 
-	uint8 max_length;        // =0 off, else maximum length
-	uint8 max_height;        // =0 off, else maximum length
+	uint8 max_length = 0;        // =0 off, else maximum length
+	uint8 max_height = 0;        // =0 off, else maximum length
 
-	// number of seasons (0 = none, 1 = no snow/snow
-	sint8 number_of_seasons;
+	sint8 number_of_seasons = 0; // 0 = no seasons
 
 public:
 	/*

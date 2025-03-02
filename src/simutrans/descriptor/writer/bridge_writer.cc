@@ -14,9 +14,8 @@
 #include "get_waytype.h"
 #include "bridge_writer.h"
 
-using std::string;
 
-void write_bridge_images(FILE* outfp, obj_node_t& node, tabfileobj_t& obj, int season)
+static void write_bridge_images(FILE* outfp, obj_node_t& node, tabfileobj_t& obj, int season)
 {
 	slist_tpl<string> backkeys;
 	slist_tpl<string> frontkeys;
@@ -48,7 +47,7 @@ void write_bridge_images(FILE* outfp, obj_node_t& node, tabfileobj_t& obj, int s
 	do {
 		const char* keyindex = *ptr++;
 		do {
-			string value;
+			std::string value;
 
 			if(  season < 0  ) {
 				sprintf( keybuf, "back%s[%s]", keyname, keyindex );
@@ -81,48 +80,44 @@ void write_bridge_images(FILE* outfp, obj_node_t& node, tabfileobj_t& obj, int s
 	imagelist_writer_t::instance()->write_obj( outfp, node, backkeys );
 	imagelist_writer_t::instance()->write_obj( outfp, node, frontkeys );
 	if(  season <= 0  ) {
-		slist_tpl<string> cursorkeys;
-		cursorkeys.append( string( obj.get("cursor") ) );
-		cursorkeys.append( string( obj.get("icon") ) );
+		slist_tpl<std::string> cursorkeys;
+		cursorkeys.append( std::string( obj.get("cursor") ) );
+		cursorkeys.append( std::string( obj.get("icon") ) );
 
 		cursorskin_writer_t::instance()->write_obj( outfp, node, obj, cursorkeys );
 
 		cursorkeys.clear();
 	}
+
 	backkeys.clear();
 	frontkeys.clear();
 }
 
-void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
-{
 
-	uint8  wegtyp            = get_waytype(obj.get("waytype"));
-	uint16 topspeed          = obj.get_int("topspeed", 999);
-	uint32 price             = obj.get_int("cost", 0);
-	uint32 maintenance       = obj.get_int("maintenance", 1000);
-	uint8  pillars_every     = obj.get_int("pillar_distance",0); // distance==0 is off
-	uint8  pillar_asymmetric = obj.get_int("pillar_asymmetric",0); // middle of tile
-	uint8  max_length        = obj.get_int("max_lenght",0); // max_lenght==0: unlimited
-	max_length           = obj.get_int("max_length",max_length); // with correct spelling
-	uint8  max_height    = obj.get_int("max_height",0); // max_height==0: unlimited
-	uint16 axle_load = obj.get_int("axle_load",    9999);
+void bridge_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &obj)
+{
+	const waytype_t waytype        = get_waytype(obj.get("waytype"));
+	const uint16 topspeed          = obj.get_int("topspeed", 999);
+	const sint64 price             = obj.get_int64("cost", 0);
+	const sint64 maintenance       = obj.get_int64("maintenance", 1000);
+	const uint8  pillars_every     = obj.get_int_clamped("pillar_distance",     0, 0, UINT8_MAX); // distance==0 is off
+	const uint8  pillar_asymmetric = obj.get_int_clamped("pillar_asymmetric",   0, 0, 1);         // middle of tile
+	      uint8  max_length        = obj.get_int_clamped("max_lenght",          0, 0, UINT8_MAX); // max_lenght==0: unlimited
+	             max_length        = obj.get_int_clamped("max_length", max_length, 0, UINT8_MAX); // with correct spelling
+	const uint8  max_height        = obj.get_int_clamped("max_height",          0, 0, UINT8_MAX); // max_height==0: unlimited
+	const uint16 axle_load         = obj.get_int_clamped("axle_load",        9999, 0, UINT16_MAX);
 
 	// timeline
-	uint16 intro_date = obj.get_int("intro_year", DEFAULT_INTRO_YEAR) * 12;
-	intro_date += obj.get_int("intro_month", 1) - 1;
+	const uint16 intro_date  = 12*obj.get_int_clamped("intro_year",  DEFAULT_INTRO_YEAR,  0, INT32_MAX) + obj.get_int_clamped("intro_month",  1, 1, 12) - 1;
+	const uint16 retire_date = 12*obj.get_int_clamped("retire_year", DEFAULT_RETIRE_YEAR, 0, INT32_MAX) + obj.get_int_clamped("retire_month", 1, 1, 12) - 1;
 
-	uint16 retire_date = obj.get_int("retire_year", DEFAULT_RETIRE_YEAR) * 12;
-	retire_date += obj.get_int("retire_month", 1) - 1;
+	obj_node_t node(this, 32, &parent);
 
-	sint8 number_of_seasons = 0;
-
-	obj_node_t node(this, 24, &parent);
-
-	node.write_version(outfp, 9);
+	node.write_version(outfp, 10);
 	node.write_uint16(outfp, topspeed);
-	node.write_uint32(outfp, price);
-	node.write_uint32(outfp, maintenance);
-	node.write_uint8 (outfp, wegtyp);
+	node.write_sint64(outfp, price);
+	node.write_sint64(outfp, maintenance);
+	node.write_uint8 (outfp, waytype);
 	node.write_uint8 (outfp, pillars_every);
 	node.write_uint8 (outfp, max_length);
 	node.write_uint16(outfp, intro_date);
@@ -132,18 +127,18 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 	node.write_uint8 (outfp, max_height);
 
 	char keybuf[40];
+	std::string str = obj.get("backimage[ns][0]");
+	sint8 number_of_seasons = 0;
 
-	string str = obj.get("backimage[ns][0]");
 	if (str.empty()) {
 		node.write_uint8(outfp, number_of_seasons);
 		write_name_and_copyright(outfp, node, obj);
 		write_bridge_images( outfp, node, obj, -1 );
-
 	}
 	else {
 		while(number_of_seasons < 2) {
 			sprintf(keybuf, "backimage[ns][%d]", number_of_seasons+1);
-			string str = obj.get(keybuf);
+			std::string str = obj.get(keybuf);
 			if (!str.empty()) {
 				number_of_seasons++;
 			}

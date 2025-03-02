@@ -7,10 +7,13 @@
 #define DESCRIPTOR_OBJ_BASE_DESC_H
 
 
+#include "intro_dates.h"
 #include "text_desc.h"
+
 
 class checksum_t;
 class tool_t;
+
 
 /**
  * Common base class for all object descriptors, which get their name and
@@ -42,8 +45,8 @@ public:
 class obj_desc_timelined_t : public obj_named_desc_t {
 
 protected:
-	uint16 intro_date;  ///< this thing is available from this date
-	uint16 retire_date; ///< this thing is available until this date
+	uint16 intro_date  = DEFAULT_INTRO_YEAR  * 12; ///< this thing is available from this date
+	uint16 retire_date = DEFAULT_RETIRE_YEAR * 12; ///< this thing is available until this date
 
 public:
 	obj_desc_timelined_t() : obj_named_desc_t(),
@@ -80,16 +83,13 @@ public:
 class obj_desc_transport_related_t : public obj_desc_timelined_t {
 
 protected:
-	sint64 maintenance;   ///< monthly cost for bits_per_month=18
-	sint64 price;         ///< cost to build this thing [1/100 credits] per tile/object
-	uint16 axle_load;     ///< up to this load vehicle may pass (default 9999)
-	uint8  wtyp;          ///< waytype of this thing
-	sint32 topspeed;      ///< maximum allowed speed in km/h
+	sint64 maintenance =    0; ///< monthly cost for bits_per_month=18
+	sint64 price       =    0; ///< cost to build this thing [1/100 credits] per tile/object
+	uint16 axle_load   = 9999; ///< up to this load vehicle may pass (default 9999)
+	uint8  wtyp        =  255; ///< waytype of this thing
+	sint32 topspeed    =    0; ///< maximum allowed speed in km/h
 
 public:
-	obj_desc_transport_related_t() : obj_desc_timelined_t(),
-		maintenance(0), price(0), axle_load(9999), wtyp(255), topspeed(0) {}
-
 	sint64 get_maintenance() const { return maintenance; }
 
 	sint64 get_price() const { return price; }
@@ -110,7 +110,7 @@ public:
 class obj_desc_transport_infrastructure_t : public obj_desc_transport_related_t {
 
 protected:
-	tool_t *builder;  ///< default tool for building
+	tool_t *builder = NULL;  ///< default tool for building
 
 public:
 
