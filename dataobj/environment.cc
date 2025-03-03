@@ -617,6 +617,17 @@ void env_t::rdwr(loadsave_t *file)
 		file->rdwr_short(display_scale_percent);
 	}
 
+	if(  file->get_OTRP_version()>=44  ) {
+		char buf[2048];
+		strncpy(buf, newserver_name, 2048);
+		file->rdwr_str(buf, 2048);
+		if(  file->is_loading()  &&  strlen(newserver_name)==0  ) {
+			// If the server name is already set in simu_main, do not restore the server name.
+			// TODO: copy the buf string into newserver_name after resolving the UI blocking issue on server_frame_t.
+			// strncpy(new_server_name, buf, 2048);
+		}
+	}
+
 	// server settings are not saved, since they are server specific
 	// and could be different on different servers on the same computers
 }
