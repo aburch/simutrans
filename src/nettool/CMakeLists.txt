@@ -15,7 +15,7 @@ if (SIMUTRANS_USE_SYSLOG)
 	target_compile_definitions(nettool PRIVATE SYSLOG=1)
 endif ()
 
-if (NOT SIMUTRANS_USE_IPV6)
+if (SIMUTRANS_USE_IP4_ONLY)
 	target_compile_definitions(nettool PRIVATE USE_IP4_ONLY=1)
 endif ()
 
