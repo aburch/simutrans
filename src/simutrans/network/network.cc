@@ -328,7 +328,13 @@ SOCKET network_open_address(char const* cp, char const*& err)
 					int ret = select(my_client_socket+1, NULL, &setW, &setE, &time_out);
 					if (ret <= 0) {
 						// select() failed or connection timed out
-						DBG_MESSAGE("network_open_address()", "Could not connect using this socket. select() Error: \"%s\"", strerror(GET_LAST_ERROR()));
+						if (ret < 0) {
+							DBG_MESSAGE("network_open_address()", "Could not connect using this socket. select() Error: \"%s\"", strerror(GET_LAST_ERROR()));
+						}
+						else {
+							DBG_MESSAGE("network_open_address()", "Could not connect using this socket. select() timeout" );
+							err = "Connection timeout";
+						}
 						network_close_socket(my_client_socket);
 						continue;
 					}
