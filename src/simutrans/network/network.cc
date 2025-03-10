@@ -295,8 +295,8 @@ SOCKET network_open_address(char const* cp, char const*& err)
 
 				DBG_MESSAGE( "network_open_address()", "Potential remote address: %s", ipstr_remote );
 
-				// put socked in non-blocking mode...
 #ifdef WIN32
+				// put socked in non-blocking mode... (does only work for windows)
 				u_long block = 1;
 				if(  ioctlsocket(my_client_socket, FIONBIO, &block) != 0  )	{
 					my_client_socket = INVALID_SOCKET;
@@ -335,20 +335,24 @@ SOCKET network_open_address(char const* cp, char const*& err)
 							DBG_MESSAGE("network_open_address()", "Could not connect using this socket. select() timeout" );
 							err = "Connection timeout";
 						}
-						network_close_socket(my_client_socket);
+#ifdef WIN32
+						ioctlsocket(my_client_socket, FIONBIO, &block);  // back to blocking
+#endif
 						continue;
 					}
 
 					if(  FD_ISSET(my_client_socket, &setE)  ) {
 						// connection failed
 						DBG_MESSAGE("network_open_address()", "Could not connect FD_ISSET failed.");
-						network_close_socket(my_client_socket);
+#ifdef WIN32
+						ioctlsocket(my_client_socket, FIONBIO, &block); // back to blocking
+#endif
 						continue;
 					}
 					// connection successful
 
-					// put socket in blocking mode...
 #ifdef WIN32
+					// put socket in blocking mode...
 					block = 0;
 					bool blocking_mode = ioctlsocket(my_client_socket, FIONBIO, &block) == 0;
 					if (!blocking_mode) {
@@ -359,14 +363,14 @@ SOCKET network_open_address(char const* cp, char const*& err)
 					// linux non-blocking sockets seems to not work at all!
 #endif
 				}
-
 				connected = true;
 			}
-			// If no connection throw away this socket and try the next one
-			if (  !connected  ) {
-				network_close_socket( my_client_socket );
-				my_client_socket = INVALID_SOCKET;
-			}
+		}
+
+		// If no connection throw away this socket and try the next one
+		if (!connected) {
+			network_close_socket(my_client_socket);
+			my_client_socket = INVALID_SOCKET;
 		}
 
 		freeaddrinfo( local );
