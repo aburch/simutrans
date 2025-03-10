@@ -523,13 +523,14 @@ void depot_frame_t::layout(scr_size *size)
 	 * [ACTIONS]
 	 */
 	const waytype_t wt = depot->get_waytype();
-	if( wt!=road_wt && wt!=air_wt && wt!=water_wt ) {
-		lb_child_convoy.set_pos(scr_coord(D_MARGIN_LEFT, ACTIONS_VSTART - D_BUTTON_HEIGHT ));
-		lb_child_convoy.set_width(BUTTON_WIDTH_DEPOT);
-		child_convoi_selector.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE) , ACTIONS_VSTART - D_BUTTON_HEIGHT)); // D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE)*2
-		child_convoi_selector.set_size(scr_size(win_size.w - D_MARGIN_RIGHT - ( D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE) ) - selector_x, D_BUTTON_HEIGHT));
-		child_convoi_selector.set_max_size(scr_size(win_size.w - D_MARGIN_RIGHT - ( D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE) ) - selector_x, LINESPACE * 13 + 2 + 16));
-	}
+	const bool should_show_child_convoi_selector = (wt != road_wt && wt != air_wt && wt != water_wt);
+	lb_child_convoy.set_visible(should_show_child_convoi_selector);
+	child_convoi_selector.set_visible(should_show_child_convoi_selector);
+	lb_child_convoy.set_pos(scr_coord(D_MARGIN_LEFT, ACTIONS_VSTART - D_BUTTON_HEIGHT ));
+	lb_child_convoy.set_width(BUTTON_WIDTH_DEPOT);
+	child_convoi_selector.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE) , ACTIONS_VSTART - D_BUTTON_HEIGHT)); // D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE)*2
+	child_convoi_selector.set_size(scr_size(win_size.w - D_MARGIN_RIGHT - ( D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE) ) - selector_x, D_BUTTON_HEIGHT));
+	child_convoi_selector.set_max_size(scr_size(win_size.w - D_MARGIN_RIGHT - ( D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE) ) - selector_x, LINESPACE * 13 + 2 + 16));
 	
 	bt_start.set_pos(scr_coord(D_MARGIN_LEFT, ACTIONS_VSTART));
 	bt_start.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
