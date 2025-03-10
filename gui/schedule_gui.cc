@@ -914,6 +914,8 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 		tool_t *tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
 		cbuffer_t buf;
 		buf.printf( "c,0,%i,%ld,", (int)schedule->get_type(), (long)(intptr_t)old_schedule );
+		// A line needs a unique departure_slot_group_id.
+		schedule->set_departure_slot_group_id(schedule_t::issue_new_departure_slot_group_id());
 		schedule->sprintf_schedule( buf );
 		tool->set_default_param(buf);
 		welt->set_tool( tool, player );
