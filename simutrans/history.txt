@@ -9,6 +9,7 @@
 	FIX: Freelist allocated objects (tiles, ways, trees etc.) use 3x more memory than necessary
 	FIX: Do not change underground mode when scrolling from the minimap
 	ADD: Monthly maintenance for roadsigns and signals (maintenance=1234 in dat file)
+	FIX: "Not a socket" error when server does not reply to initial connection attempt within 2 seconds on Windows
 
 
 Release of 124.3 (r11590 on 10-Jan-2025):
