@@ -16,17 +16,17 @@ using std::string;
 
 void tree_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 6, &parent);
-	write_name_and_copyright(fp, node, obj);
-
 	climate_bits allowed_climates;
 	const char *climate_str = obj.get("climates");
+
 	if (climate_str) {
 		allowed_climates = get_climate_bits(climate_str);
-	} else {
+	}
+	else {
 		printf("WARNING: old syntax without climates!\n");
 		allowed_climates = all_but_arctic_climate;
 	}
+
 	// seasons = 1: no seasons
 	// seasons = 2: 0=summer, 1=winter
 	// seasons = 4, normal four seasons, starting with summer
@@ -53,6 +53,10 @@ void tree_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 			keys.at(age).append(str);
 		}
 	}
+
+	obj_node_t node(this, 6, &parent);
+	write_name_and_copyright(fp, node, obj);
+
 	imagelist2d_writer_t::instance()->write_obj(fp, node, keys);
 
 	// write version data
