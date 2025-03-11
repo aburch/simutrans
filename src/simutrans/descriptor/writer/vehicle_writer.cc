@@ -125,7 +125,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// monthly maintenance
 	sint64 fixed_cost = obj.get_int64("fixed_cost", INT64_MAX);
 	if(  fixed_cost == INT64_MAX  ) {
-		fixed_cost = obj.get_int("maintenance", 0);
+		fixed_cost = obj.get_int64("maintenance", 0);
 	}
 	node.write_sint64(fp, fixed_cost);
 
