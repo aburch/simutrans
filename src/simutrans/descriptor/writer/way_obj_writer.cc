@@ -29,11 +29,9 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	};
 	int ribi, slope;
 
-	// Version needs high bit set as trigger -> this is required
-	// as marker because formerly nodes were unversionend
-	uint32 price       = obj.get_int("cost",        100);
-	uint32 maintenance = obj.get_int("maintenance", 100);
-	sint32 topspeed    = obj.get_int("topspeed",    999);
+	const sint64 price       = obj.get_int64("cost",        100);
+	const sint64 maintenance = obj.get_int64("maintenance", 100);
+	const sint32 topspeed    = obj.get_int  ("topspeed",    999);
 
 	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_YEAR) * 12;
 	intro +=        obj.get_int("intro_month", 1) - 1;
@@ -44,11 +42,11 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	uint8 wtyp     =  get_waytype(obj.get("waytype"));
 	uint8 own_wtyp =  get_waytype(obj.get("own_waytype"));
 
-	obj_node_t node(this, 20, &parent);
+	obj_node_t node(this, 28, &parent);
 
-	node.write_version(outfp, 1);
-	node.write_uint32(outfp, price);
-	node.write_uint32(outfp, maintenance);
+	node.write_version(outfp, 2);
+	node.write_sint64(outfp, price);
+	node.write_sint64(outfp, maintenance);
 	node.write_sint32(outfp, topspeed);
 	node.write_uint16(outfp, intro);
 	node.write_uint16(outfp, retire);
