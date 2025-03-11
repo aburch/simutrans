@@ -19,13 +19,11 @@ using std::string;
 
 void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 24, &parent);
-
-	sint32 topspeed    = obj.get_int("topspeed",     999);
-	uint32 price       = obj.get_int("cost",           0);
-	uint32 maintenance = obj.get_int("maintenance", 1000);
-	uint8 wtyp         = get_waytype(obj.get("waytype"));
-	uint16 axle_load   = obj.get_int("axle_load",   9999);
+	const sint32 topspeed    = obj.get_int("topspeed",       999);
+	const sint64 price       = obj.get_int64("cost",           0);
+	const sint64 maintenance = obj.get_int64("maintenance", 1000);
+	const uint8  wtyp        = get_waytype(obj.get("waytype"));
+	const uint16 axle_load   = obj.get_int("axle_load",   9999);
 
 	// timeline
 	uint16 intro_date  = obj.get_int("intro_year", DEFAULT_INTRO_YEAR) * 12;
@@ -61,16 +59,17 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 		number_portals = 4;
 	}
 
-	// version 4: snow images + underground way image + broad portals
-	node.write_version(fp, 5);
+	obj_node_t node(this, 32, &parent);
+
+	node.write_version(fp, 6);
 	node.write_sint32(fp, topspeed);
-	node.write_uint32(fp, price);
-	node.write_uint32(fp, maintenance);
+	node.write_sint64(fp, price);
+	node.write_sint64(fp, maintenance);
 	node.write_uint8 (fp, wtyp);
 	node.write_uint16(fp, intro_date);
 	node.write_uint16(fp, retire_date);
 	node.write_uint16(fp, axle_load);
-	node.write_sint8(fp, number_of_seasons);
+	node.write_sint8 (fp, number_of_seasons);
 
 	write_name_and_copyright(fp, node, obj);
 
@@ -81,6 +80,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	slist_tpl<string> cursorkeys;
 	cursorkeys.append(string(obj.get("cursor")));
 	cursorkeys.append(string(obj.get("icon")));
+
 	for(  uint8 season = 0;  season <= number_of_seasons;  season++  ) {
 		for(  uint8 pos = 0;  pos < 2;  pos++  ) {
 			for(  uint8 j = 0;  j < number_portals;  j++  ) {
@@ -96,10 +96,13 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 				}
 			}
 		}
+
 		imagelist_writer_t::instance()->write_obj(fp, node, backkeys);
 		imagelist_writer_t::instance()->write_obj(fp, node, frontkeys);
+
 		backkeys.clear();
 		frontkeys.clear();
+
 		if(season == 0) {
 			cursorskin_writer_t::instance()->write_obj(fp, node, obj, cursorkeys);
 		}
