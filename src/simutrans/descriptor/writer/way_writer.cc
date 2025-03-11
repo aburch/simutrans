@@ -30,17 +30,11 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	};
 	int ribi, slope;
 
-	obj_node_t node(this, 28, &parent);
-
-
-	// Version needs high bit set as trigger -> this is required
-	// as marker because formerly nodes were unversionend
-	uint16 version     = 0x8006;
-	uint32 price       = obj.get_int("cost",        100);
-	uint32 maintenance = obj.get_int("maintenance", 100);
-	sint32 topspeed    = obj.get_int("topspeed",    999);
-	uint32 max_weight  = obj.get_int("max_weight",  999);
-	uint16 axle_load   = obj.get_int("axle_load",  9999);
+	const sint64 price       = obj.get_int64("cost",        100);
+	const sint64 maintenance = obj.get_int64("maintenance", 100);
+	const sint32 topspeed    = obj.get_int("topspeed",    999);
+	const uint32 max_weight  = obj.get_int("max_weight",  999);
+	const uint16 axle_load   = obj.get_int("axle_load",  9999);
 
 	uint16 intro = obj.get_int("intro_year", DEFAULT_INTRO_YEAR) * 12;
 	intro += obj.get_int("intro_month", 1) - 1;
@@ -62,9 +56,11 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	uint8 draw_as_ding = (obj.get_int("draw_as_ding", 0) == 1);
 	sint8 number_of_seasons = 0;
 
-	node.write_version(outfp, 6);
-	node.write_uint32(outfp, price);
-	node.write_uint32(outfp, maintenance);
+	obj_node_t node(this, 36, &parent);
+
+	node.write_version(outfp, 7);
+	node.write_sint64(outfp, price);
+	node.write_sint64(outfp, maintenance);
 	node.write_sint32(outfp, topspeed);
 	node.write_uint32(outfp, max_weight);
 	node.write_uint16(outfp, intro);
@@ -80,6 +76,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	char buf[40];
 	sprintf(buf, "image[%s][0]", ribi_codes[0]);
 	string str = obj.get(buf);
+
 	if (str.empty()) {
 		node.write_sint8(outfp, number_of_seasons);
 		write_name_and_copyright(outfp, node, obj);
