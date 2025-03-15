@@ -801,5 +801,5 @@ uint32 schedule_t::get_median_journey_time(uint8 index, uint32 max_speed_kmh) co
 	 * (derived from gui_departure_board_t::calc_ticks_until_arrival())
 	 */
 	const uint32 max_speed = max(kmh_to_speed(max_speed_kmh), 1);
-	return (koord_distance(pos, prev_pos) << 20) / max_speed;
+	return sint64(koord_distance(pos, prev_pos) << 20) / max_speed;
 }

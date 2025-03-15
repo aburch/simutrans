@@ -1272,7 +1272,7 @@ sint32 haltestelle_t::rebuild_connections()
 	const player_t *owner;
 	schedule_t *schedule;
 	const minivec_tpl<uint8> *goods_catg_index;
-	sint32 speedbonus_kmh;
+	sint32 speedbonus_kmh = 0;
 	traveler_t traveler;
 
 	minivec_tpl<uint8> supported_catg_index(32);
@@ -1304,7 +1304,24 @@ sint32 haltestelle_t::rebuild_connections()
 			owner = line->get_owner();
 			schedule = line->get_schedule();
 			goods_catg_index = &line->get_goods_catg_index();
-			speedbonus_kmh = max(line->get_finance_history(0, LINE_MAXSPEED), 10); // To avoid zero division
+			const sint32 line_speedbonus_kmh = line->get_finance_history(0, LINE_MAXSPEED);
+			if(  line_speedbonus_kmh > 0  ) {
+				speedbonus_kmh = line_speedbonus_kmh;
+			}
+			else {
+				// use speed bonus of the convoy
+				FOR(vector_tpl<convoihandle_t>, const cnv, line->get_convoys()) {
+					if(  !cnv.is_bound()  ) { continue; }
+					const sint32 cnv_speedbonus_kmh = cnv->get_speedbonus_kmh();
+					if(  cnv_speedbonus_kmh > 0  ) {
+						speedbonus_kmh = cnv_speedbonus_kmh;
+						break;
+					}
+				}
+				if(  speedbonus_kmh == 0  ) {
+					speedbonus_kmh = 10; // To avoid zero division
+				}
+			}
 			traveler = line;
 		}
 		else {
