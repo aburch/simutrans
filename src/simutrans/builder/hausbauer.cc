@@ -68,7 +68,7 @@ static special_obj_tpl<building_desc_t> const special_objects[] = {
 };
 
 
-sint16 hausbauer_t::largest_city_building_area = 1;
+sint16 hausbauer_t::largest_city_building_area = 0;
 
 
 /**
@@ -142,74 +142,67 @@ bool hausbauer_t::successfully_loaded()
 	for(auto const& i : desc_table) {
 		building_desc_t const* const desc = i.value;
 
+		if (desc->is_city_building()) {
+			// find city build sizes
+			sint16 max_size = max(desc->get_x(), desc->get_y());
+			if (max_size > 3) {
+				dbg->fatal("hausbauer_t::successfully_loaded()", "maximum city building size (3x3) but %s is (%sx%i)", desc->get_name(), desc->get_x(), desc->get_y());
+			}
+			if (largest_city_building_area < max_size) {
+				largest_city_building_area = max_size;
+			}
+		}
+
 		// now insert the desc into the correct list.
 		switch(desc->get_type()) {
 			case building_desc_t::city_res:
-				if(  desc->get_x()*desc->get_y() > 9  ) {
-					dbg->fatal( "hausbauer_t::successfully_loaded()", "maximum city building size (3x3) but %s is (%sx%i)", desc->get_name(), desc->get_x(), desc->get_y() );
-				}
-				if(  desc->get_x()*desc->get_y() > largest_city_building_area  ) {
-					largest_city_building_area = desc->get_x()*desc->get_y();
-				}
 				city_residential.insert_ordered(desc,compare_building_desc);
 				break;
 			case building_desc_t::city_ind:
-				if(  desc->get_x()*desc->get_y() > 9  ) {
-					dbg->fatal( "hausbauer_t::successfully_loaded()", "maximum city building size (3x3) but %s is (%sx%i)", desc->get_name(), desc->get_x(), desc->get_y() );
-				}
-				if(  desc->get_x()*desc->get_y() > largest_city_building_area  ) {
-					largest_city_building_area = desc->get_x()*desc->get_y();
-				}
 				city_industry.insert_ordered(desc,compare_building_desc);
 				break;
 			case building_desc_t::city_com:
-				if(  desc->get_x()*desc->get_y() > 9  ) {
-					dbg->fatal( "hausbauer_t::successfully_loaded()", "maximum city building size (3x3) but %s is (%ix%i)", desc->get_name(), desc->get_x(), desc->get_y() );
-				}
-				if(  desc->get_x()*desc->get_y() > largest_city_building_area  ) {
-					largest_city_building_area = desc->get_x()*desc->get_y();
-				}
 				city_commercial.insert_ordered(desc,compare_building_desc);
 				break;
 
-				case building_desc_t::monument:
-					monuments.insert_ordered(desc,compare_building_desc);
-					break;
-				case building_desc_t::attraction_land:
-					attractions_land.insert_ordered(desc,compare_building_desc);
-					break;
-				case building_desc_t::headquarters:
-					headquarters.insert_ordered(desc,compare_hq_desc);
-					break;
-				case building_desc_t::townhall:
-					townhalls.insert_ordered(desc,compare_building_desc);
-					break;
-				case building_desc_t::attraction_city:
-					attractions_city.insert_ordered(desc,compare_building_desc);
-					break;
+			case building_desc_t::monument:
+				monuments.insert_ordered(desc,compare_building_desc);
+				break;
+			case building_desc_t::attraction_land:
+				attractions_land.insert_ordered(desc,compare_building_desc);
+				break;
+			case building_desc_t::headquarters:
+				headquarters.insert_ordered(desc,compare_hq_desc);
+				break;
+			case building_desc_t::townhall:
+				townhalls.insert_ordered(desc,compare_building_desc);
+				break;
+			case building_desc_t::attraction_city:
+				attractions_city.insert_ordered(desc,compare_building_desc);
+				break;
 
-				case building_desc_t::factory:
+			case building_desc_t::factory:
+				break;
+
+			case building_desc_t::dock:
+			case building_desc_t::flat_dock:
+			case building_desc_t::depot:
+			case building_desc_t::generic_stop:
+			case building_desc_t::generic_extension:
+				station_building.insert_ordered(desc,compare_station_desc);
+				break;
+
+			case building_desc_t::others:
+				if(strcmp(desc->get_name(),"MonorailGround")==0) {
+					// foundation for elevated ways
+					elevated_foundation_desc = desc;
 					break;
+				}
+				/* FALLTHROUGH */
 
-				case building_desc_t::dock:
-				case building_desc_t::flat_dock:
-				case building_desc_t::depot:
-				case building_desc_t::generic_stop:
-				case building_desc_t::generic_extension:
-					station_building.insert_ordered(desc,compare_station_desc);
-					break;
-
-				case building_desc_t::others:
-					if(strcmp(desc->get_name(),"MonorailGround")==0) {
-						// foundation for elevated ways
-						elevated_foundation_desc = desc;
-						break;
-					}
-					/* FALLTHROUGH */
-
-				default:
-					// obsolete object, usually such pak set will not load properly anyway (old objects should be caught before!)
-					dbg->error("hausbauer_t::successfully_loaded()","unknown subtype %i of \"%s\" ignored",desc->get_type(), desc->get_name());
+			default:
+				// obsolete object, usually such pak set will not load properly anyway (old objects should be caught before!)
+				dbg->error("hausbauer_t::successfully_loaded()","unknown subtype %i of \"%s\" ignored",desc->get_type(), desc->get_name());
 		}
 	}
 
@@ -486,10 +479,11 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord pos, int org_layout, cons
 					base_h = max( base_h, gr->get_hoehe() );
 					if( gr->get_hoehe()!=base_h  &&  welt->lookup( koord3d( pos+k, base_h ) ) ) {
 						// there is already a ground here!
-						dbg->error("hausbauer_t::build","Will create new ground at (%s) where there is ground above!", pos.get_str() );
+						dbg->error("hausbauer_t::build","Fail to create new ground at (%s): There is already a ground above!", (pos+k).get_str() );
 					}
 				}
 				else {
+					dbg->error("hausbauer_t::build", "Not on the map at %s", (pos+k).get_str());
 					return NULL;
 				}
 			}
@@ -499,7 +493,6 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord pos, int org_layout, cons
 		// single tile
 		grund_t* gr = welt->lookup_kartenboden( pos + k );
 		base_h = gr->get_hoehe() + +slope_t::max_diff( gr->get_grund_hang() );
-
 	}
 	// now we must raise all grounds to base_h during construction
 
@@ -541,6 +534,10 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord pos, int org_layout, cons
 				gr->obj_add(gb);
 			}
 			else {
+				if (desc->is_city_building() && gr->get_typ() == grund_t::fundament) {
+					dbg->error("hausbauer_t::build", "Destroy old building at", gr->get_pos().get_str());
+				}
+
 				// mostly remove everything
 				vector_tpl<obj_t *> keptobjs;
 				if(!gr->hat_wege()) {

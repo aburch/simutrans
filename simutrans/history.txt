@@ -11,6 +11,7 @@
 	ADD: Monthly maintenance for roadsigns and signals (maintenance=1234 in dat file)
 	FIX: "Not a socket" error when server does not reply to initial connection attempt within 2 seconds on Windows
 	FIX: Increased maximum possible cost, runningcost, and fixed cost of all pak objects (where applicable) to 2^63-1 Simu-cents to prevent overflows during pak creation
+	FIX: Completely updated city renovation logic, now goes forward to multitle and back again
 
 
 Release of 124.3 (r11590 on 10-Jan-2025):

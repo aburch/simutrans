@@ -2790,7 +2790,7 @@ bool update_city_street(koord pos)
 static int const building_layout[] = { CHECK_NEIGHBOUR | 0, 0, 1, 4, 2, 0, 5, CHECK_NEIGHBOUR | 1, 3, 7, 1, CHECK_NEIGHBOUR | 0, 6, CHECK_NEIGHBOUR | 3, CHECK_NEIGHBOUR | 2, CHECK_NEIGHBOUR | 0 };
 
 
-// calculates the "best" oreintation of a citybuilding
+// calculates the "best" orientation of a citybuilding
 int stadt_t::orient_city_building(const koord k, const building_desc_t *h, koord maxarea )
 {
 	/*******************************************************
@@ -3188,7 +3188,8 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 		return;
 	}
 
-	koord k = gb->get_pos().get_2d() - gb->get_tile()->get_offset();
+	const koord k = gb->get_pos().get_2d();
+	const koord gb_size = gb_desc->get_size(gb->get_tile()->get_layout());
 
 	// Divide unemployed by 4, because it counts towards commercial and industrial,
 	// and both of those count 'double' for population relative to residential.
@@ -3208,45 +3209,48 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 
 	// Run through orthogonal neighbors (only), and oneself  looking for which cluster to build
 	// This is a bitmap -- up to 32 clustering types are allowed.
-	uint32 neighbor_building_clusters = gb->get_tile()->get_desc()->get_clusters();
+	uint32 neighbor_building_clusters = gb_desc->get_clusters();
 	sint8 zpos = gb->get_pos().z;
-	koord minsize = gb->get_tile()->get_desc()->get_size(gb->get_tile()->get_layout());
 	// since we handle buildings larger than (1x1) we test all periphery
-	koord lu = k - koord( 1, 1 );
-	koord rd = k + minsize;
-	for( sint16 x = lu.x; x<=rd.x; x++ ) {
-		for( sint16 y = lu.y; y<=rd.y; y++ ) {
-			if(  koord(x,y)!=k  ) {
-				if(  grund_t *gr = welt->lookup_kartenboden(x,y)  ) {
-					if(  gebaeude_t const* const testgb = gr->find<gebaeude_t>()  ) {
-						if(  testgb->get_tile()->get_desc() != gb->get_tile()->get_desc()  &&  testgb->is_city_building()  ) {
-							// We really have a different building as a neighbor...
-							const building_desc_t* neighbor_building = testgb->get_tile()->get_desc();
-							neighbor_building_clusters |= neighbor_building->get_clusters();
-						}
-					}
+	minivec_tpl<koord> testkoord(18);
+	for (sint16 x = k.x-1; x <=k.x+ gb_size.x; x++) {
+		testkoord.append(koord(x, k.y - 1));
+		testkoord.append(koord(x, k.y + gb_size.y ));
+	}
+	for (sint16 y = k.y; y < k.y + gb_size.y; y++) {
+		testkoord.append(koord(k.x-1, y));
+		testkoord.append(koord(k.x+ gb_size.x, y));
+	}
+	for(koord k : testkoord) {
+		if(  grund_t *gr = welt->lookup_kartenboden(k)  ) {
+			if(  gebaeude_t const* const testgb = gr->find<gebaeude_t>()  ) {
+				if(  testgb->is_city_building()  ) {
+					// We really have a different building as a neighbor...
+					const building_desc_t* neighbor_building = testgb->get_tile()->get_desc();
+					neighbor_building_clusters |= neighbor_building->get_clusters();
 				}
 			}
 		}
 	}
 
 	// now test the surrounding tiles for larger size
-	koord maxsize=minsize;
+	koord minsize = gb_size; // should fit for sure ...
+	koord maxsize = minsize;
 	if(  hausbauer_t::get_largest_city_building_area() > 1  ) {
-		for(  uint area_level=0;  area_level < lengthof(area3x3);  area_level++  ) {
+		const uint maxarea_check = hausbauer_t::get_largest_city_building_area() == 2 ? 4 : lengthof(area3x3);
+		// check first one size larger
+		for(  uint area_level=0;  area_level < maxarea_check;  area_level++  ) {
+			if (area3x3[area_level].x < minsize.x && area3x3[area_level].y < minsize.y) {
+				// inside our building
+				continue;
+			}
 			grund_t* gr = welt->lookup_kartenboden(k + area3x3[area_level]);
-			if(  gr  &&  gr->get_typ() == grund_t::fundament  &&  gr->obj_bei(0)->get_typ() == obj_t::gebaeude  ) {
+			if(  gr  &&  gr->get_typ() == grund_t::fundament  ) {
 				// We have a building as a neighbor...
-				if(  gebaeude_t const* const testgb = obj_cast<gebaeude_t>(gr->first_no_way_obj())  ) {
-					// We really have a building here
-					const building_desc_t* neighbor_building = testgb->get_tile()->get_desc();
-					if(  neighbor_building->is_city_building()  ) {
-
-						if(  gb->get_tile()->get_desc() == neighbor_building   &&   testgb->get_tile()->get_offset() == area3x3[area_level]  ) {
-							// part of same building
-							maxsize = area3x3[ area_level ] + koord( 1, 1 );
-							continue;
-						}
+				if(  gebaeude_t const* const testgb = gr->find<gebaeude_t>()  ) {
+					// since only citybuilds are unowned and we cannot renovated an owned building, test is fast
+					if(player_t::check_owner(testgb->get_owner(), NULL)) {
+						const building_desc_t* neighbor_building = testgb->get_tile()->get_desc();
 						if(  testgb->get_pos().z == zpos   &&   neighbor_building->get_x()*neighbor_building->get_y() == 1 ) {
 							// also in right height and citybuilding
 							maxsize = area3x3[ area_level ] + koord( 1, 1 );
@@ -3276,7 +3280,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 	if (sum_commercial > sum_industrial && sum_commercial > sum_residential) {
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == building_desc_t::city_com ? level + 1 : level);
-		h = hausbauer_t::get_commercial(try_level, current_month, cl, neighbor_building_clusters, minsize, maxsize );
+		h = hausbauer_t::get_commercial(try_level, current_month, cl, neighbor_building_clusters, koord(1,1), maxsize);
 		if(  h != NULL  &&  h->get_level() >= try_level  ) {
 			want_to_have = building_desc_t::city_com;
 			sum = sum_commercial;
@@ -3287,7 +3291,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 	       (sum_commercial > sum_residential  &&  want_to_have == building_desc_t::unknown)  ) {
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == building_desc_t::city_ind ? level + 1 : level);
-		h = hausbauer_t::get_industrial(try_level , current_month, cl, neighbor_building_clusters, minsize, maxsize );
+		h = hausbauer_t::get_industrial(try_level , current_month, cl, neighbor_building_clusters, koord(1, 1), maxsize );
 		if(  h != NULL  &&  h->get_level() >= try_level  ) {
 			want_to_have = building_desc_t::city_ind;
 			sum = sum_industrial;
@@ -3298,7 +3302,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 	if(  want_to_have == building_desc_t::unknown  ) {
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == building_desc_t::city_res ? level + 1 : level);
-		h = hausbauer_t::get_residential(try_level, current_month, cl, neighbor_building_clusters, minsize, maxsize );
+		h = hausbauer_t::get_residential(try_level, current_month, cl, neighbor_building_clusters, koord(1, 1), maxsize );
 		if(  h != NULL  &&  h->get_level() >= try_level  ) {
 			want_to_have = building_desc_t::city_res;
 			sum = sum_residential;
@@ -3308,22 +3312,25 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 		}
 	}
 
+	if (h == NULL) {
+		// no matching building found ...
+		return;
+	}
+
 	if (alt_typ != want_to_have) {
 		sum -= level * 10;
 	}
 
-	// good enough to renovate, and we found a building?
-	if(  sum > 0  &&  h != NULL  ) {
+	// good enough replacement to renovate?
+	if(  sum > 0  ) {
 //		DBG_MESSAGE("stadt_t::renovate_city_building()", "renovation at %i,%i (%i level) of typ %i to typ %i with desire %i", k.x, k.y, alt_typ, want_to_have, sum);
 
 		// no renovation for now, if new is smaller
-		assert(  gb_desc->get_x()*gb_desc->get_y() <= h->get_x()*h->get_y()  );
-
 		int rotation = 0;
 		if(  h->get_all_layouts()>1  ) {
 
-			// only do this of symmetric of small enough building
-			if(  h->get_x()==h->get_y()  ||  (h->get_x()<maxsize.y  &&  h->get_x()<maxsize.x)  ) {
+			// only do this of symmetric buildings
+			if(  h->get_x() == h->get_y()  ) {
 				// check for pavement
 				int streetdir = 0;
 				for(  int i = 0;  i < 4;  i++  ) {
@@ -3371,8 +3378,27 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 				}
 			}
 			else {
-				// asymmetric building
-				rotation = (h->get_x(0)<=maxsize.x  &&  h->get_y(0)<=maxsize.y) ? 0 : 1;
+				// any size should fit
+				if (minsize.x == minsize.y) {
+					rotation = simrand(h->get_all_layouts());
+				}
+				// we try to fit the old building
+				else if (minsize.x > minsize.y) {
+					rotation = 0;
+					if (h->get_x(0) < h->get_y(0)) {
+						rotation = 1;
+					}
+ 				}
+				else {
+					rotation = 0;
+					if (h->get_x(0) > h->get_y(0)) {
+						rotation = 1;
+					}
+				}
+				// now make sure we find max_size
+				if (maxsize.x < h->get_x(rotation)) {
+					rotation ^= 1;
+				}
 			}
 		}
 
@@ -3416,6 +3442,45 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 					case building_desc_t::city_res: won += h->get_level() * 10; break;
 					case building_desc_t::city_com: arb += h->get_level() * 20; break;
 					case building_desc_t::city_ind: arb += h->get_level() * 20; break;
+					default: break;
+				}
+			}
+		}
+		// if new building is smaller than old one => convert remaining tiles
+		for (int x = 0; x < minsize.x; x++) {
+			for (int y = 0; y < minsize.y; y++) {
+				if (x < h->get_x(rotation) && y < h->get_y(rotation)) {
+					continue;
+				}
+				koord kpos = k + koord(x, y);
+				grund_t* gr = welt->lookup_kartenboden(kpos);
+				gebaeude_t* oldgb = gr->find<gebaeude_t>();
+				const building_desc_t* hr;
+				switch (oldgb->get_tile()->get_desc()->get_type()) {
+					case building_desc_t::city_res:
+						won -= level * 10;
+						hr = hausbauer_t::get_residential(level, current_month, cl, 0, koord(1, 1), koord(1, 1));
+						break;
+					case building_desc_t::city_com:
+						arb -= level * 20;
+						hr = hausbauer_t::get_commercial(level, current_month, cl, 0, koord(1, 1), koord(1, 1));
+						break;
+					case building_desc_t::city_ind:
+						arb -= level * 20;
+						hr = hausbauer_t::get_industrial(level, current_month, cl, 0, koord(1, 1), koord(1, 1));
+						break;
+					default: break;
+				}
+				// for now we just remove it to avoid half buildings left
+				oldgb->set_stadt(NULL);
+				oldgb->set_tile(hr->get_tile(0), true);
+				welt->lookup_kartenboden(kpos)->calc_image();
+				update_gebaeude_from_stadt(oldgb);
+				update_city_street(kpos);
+				switch (hr->get_type()) {
+					case building_desc_t::city_res: won += hr->get_level() * 10; break;
+					case building_desc_t::city_com: arb += hr->get_level() * 20; break;
+					case building_desc_t::city_ind: arb += hr->get_level() * 20; break;
 					default: break;
 				}
 			}
@@ -3807,8 +3872,13 @@ void stadt_t::build()
 	if(  !buildings.empty()  &&  simrand(100) <= renovation_percentage  ) {
 		// try to find a public owned building
 		for(  uint8 i=0;  i<4;  i++  ) {
-			gebaeude_t* const gb = pick_any(buildings);
+			gebaeude_t *gb = pick_any(buildings);
 			if(  player_t::check_owner(gb->get_owner(),NULL)  ) {
+				if (gb->get_tile()->get_offset() != koord(0, 0)) {
+					// go to tile origin to make sure we replace all tiles of a multitle building
+					grund_t *gr = welt->lookup_kartenboden(gb->get_pos().get_2d() - gb->get_tile()->get_offset());
+					gb = gr->find<gebaeude_t>();
+				}
 				renovate_city_building(gb);
 				break;
 			}
