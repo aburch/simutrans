@@ -3748,7 +3748,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 
 					err = bridge_builder_t::can_build_bridge(NULL, bd->get_pos(), bd_next->get_pos(), bridge_height, bridge, false);
 					if (err) {
-						// still impossible => resotre slope
+						// still impossible => restore slope
 						if (try_flat_start != slope_t::flat) {
 							sint8 h_diff = slope_t::max_diff(try_flat_start);
 							bd->set_grund_hang(try_flat_start);

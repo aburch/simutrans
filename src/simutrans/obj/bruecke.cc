@@ -29,6 +29,7 @@ bruecke_t::bruecke_t(koord3d pos, player_t *player, const bridge_desc_t *desc, b
  obj_no_info_t(pos)
 {
 	this->desc = desc;
+	assert(img >= bridge_desc_t::NS_Segment && img <= bridge_desc_t::OW_Pillar2);
 	this->img = img;
 	set_owner( player );
 	player_t::book_construction_costs( get_owner(), -desc->get_price(), get_pos().get_2d(), desc->get_waytype());
@@ -155,6 +156,8 @@ void bruecke_t::rdwr(loadsave_t *file)
 				default: break;
 			}
 		}
+		assert(img >= bridge_desc_t::NS_Segment && img <= bridge_desc_t::OW_Pillar2);
+
 	}
 }
 

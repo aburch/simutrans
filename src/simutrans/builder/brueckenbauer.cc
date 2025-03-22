@@ -625,7 +625,7 @@ const char* bridge_builder_t::can_build_bridge(const player_t* pl, koord3d start
 			}
 		}
 	}
-	return error_msg;
+	return error_msg ? error_msg: "";
 }
 
 
