@@ -13,6 +13,7 @@
 #include "../simworld.h"
 #include "../simmenu.h"
 #include "simwin.h"
+#include "player_frame_t.h"
 
 #include "../dataobj/schedule.h"
 #include "../dataobj/translator.h"
@@ -129,6 +130,16 @@ void convoi_info_t::init(convoihandle_t cnv)
 			line_button.set_targetpos3d( koord3d::invalid );
 			line_button.add_listener( this );
 			line_bound = false;
+
+			add_component(&container_owner);
+			container_owner.set_table_layout(3,1);
+			container_owner.add_component(&playerlist_button);
+			container_owner.new_component<gui_label_t>("Owner:");
+			container_owner.add_component(&owner_label);
+			// goto playerlist button
+			playerlist_button.init( button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE + LINESPACE*4 ) );
+			playerlist_button.set_targetpos3d( koord3d::invalid );
+			playerlist_button.add_listener( this );
 		}
 		end_table();
 
@@ -321,6 +332,10 @@ void convoi_info_t::update_labels()
 	}
 	line_label.update();
 
+	// owner information
+	owner_label.buf().append(cnv->get_owner()->get_name());
+	owner_label.set_color(color_idx_to_rgb(cnv->get_owner()->get_player_color1()));
+
 	// buffer update now only when needed by convoi itself => dedicated buffer for this
 	const int old_len=freight_info.len();
 	cnv->get_freight_info(freight_info);
@@ -420,7 +435,9 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			remove_component( &line_button );
 			line_bound = false;
 		}
-		button.disable();
+		button.set_tooltip("move to the owner");
+		button.set_text("Owner");
+		button.enable();
 		go_home_button.disable();
 		no_load_button.disable();
 		set_recovery_button.disable();
@@ -430,6 +447,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 	// update button & labels
 	follow_button.pressed = (welt->get_viewport()->get_follow_convoi()==cnv);
+	playerlist_button.enable();
 	update_labels();
 
 	route_bar.set_base(cnv->get_route()->get_count()-1);
@@ -483,6 +501,10 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	if(  comp == &line_button  ) {
 		cnv->get_owner()->simlinemgmt.show_lineinfo( cnv->get_owner(), cnv->get_line() );
 		welt->set_dirty();
+	}
+
+	if(  comp == &playerlist_button  ) {
+		create_win(new ki_kontroll_t(), w_info, magic_ki_kontroll_t);
 	}
 
 	if(  comp == &input  ) {
@@ -560,6 +582,13 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 
 		if(  comp == &reversed_button  ) {
 			cnv->call_convoi_tool( 'v', NULL );
+			return true;
+		}
+	} 
+	else {
+		if(  comp == &button  ) {
+			// move to the owner player
+			welt->switch_active_player(cnv->get_owner()->get_player_nr(),false);
 			return true;
 		}
 	}
