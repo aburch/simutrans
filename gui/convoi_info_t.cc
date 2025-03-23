@@ -13,7 +13,6 @@
 #include "../simworld.h"
 #include "../simmenu.h"
 #include "simwin.h"
-#include "player_frame_t.h"
 
 #include "../dataobj/schedule.h"
 #include "../dataobj/translator.h"
@@ -573,7 +572,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	} 
 	else {
 		if(  comp == &button  ) {
-			// move to the owner player
+			// switch to the owner player
 			welt->switch_active_player(cnv->get_owner()->get_player_nr(),false);
 			return true;
 		}
