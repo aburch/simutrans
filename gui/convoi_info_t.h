@@ -48,7 +48,7 @@ private:
 
 	gui_textarea_t text;
 	obj_view_t view;
-	gui_label_buf_t speed_label, profit_label, running_cost_label, weight_label, target_label, line_label, owner_label;
+	gui_label_buf_t speed_label, profit_label, running_cost_label, weight_label, target_label, line_label;
 	gui_textinput_t input;
 	gui_speedbar_t filled_bar;
 	gui_speedbar_t speed_bar;
@@ -64,15 +64,13 @@ private:
 	button_t reversed_button;
 
 	gui_tab_panel_t switch_mode;
-	gui_aligned_container_t container_freight, container_stats, container_line, *container_top, container_details, container_owner;
+	gui_aligned_container_t container_freight, container_stats, container_line, *container_top, container_details;
 	convoi_detail_t *details;
 	gui_scrollpane_t scroll_freight;
 
 	button_t sort_button;
 	button_t line_button; // goto line ...
 	bool line_bound;
-
-	button_t playerlist_button; // goto player list
 
 	convoihandle_t cnv;
 	sint32 mean_convoi_speed;
