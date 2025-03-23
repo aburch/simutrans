@@ -611,7 +611,8 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 // this function removes houses from the city house list
 void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb)
 {
-	buildings.remove(gb);
+	bool ok = buildings.remove(gb);
+	assert(ok);
 	gb->set_stadt(NULL);
 	recalc_city_size();
 }
@@ -3720,81 +3721,88 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 				sint8 bridge_height;
 				const char* err = bridge_builder_t::can_build_bridge(NULL, bd->get_pos(), bd_next->get_pos(), bridge_height, bridge, false);
 				// if the river is navigable, we need a two hight slope, so we have to start on a flat tile
-				if (err  &&  (bd->get_grund_hang()!= slope_t::flat  ||  bd_next->get_grund_hang()!=slope_t::flat)) {
+				if (err) {
 
-					slope_t::type try_flat_start = bd->get_grund_hang();
-					if (try_flat_start != slope_t::flat) {
-						sint8 h_diff = slope_t::max_diff(try_flat_start);
-						// raise up the tile
-						bd->set_grund_hang(slope_t::flat);
-						bd->set_hoehe(bd->get_hoehe() + h_diff);
-						// transfer objects to on new grund
-						for (int i = 0; i < bd->obj_count(); i++) {
-							bd->obj_bei(i)->set_pos(bd->get_pos());
-						}
-					}
-				
-					slope_t::type try_flat_end = bd_next->get_grund_hang();
-					if (try_flat_end != slope_t::flat) {
-						sint8 h_diff = slope_t::max_diff(try_flat_end);
-						// raise up the tile
-						bd_next->set_grund_hang(slope_t::flat);
-						bd_next->set_hoehe(bd_next->get_hoehe() + h_diff);
-						// transfer objects to on new grund
-						for (int i = 0; i < bd_next->obj_count(); i++) {
-							bd_next->obj_bei(i)->set_pos(bd_next->get_pos());
-						}
-					}
+					if(bd->get_grund_hang() != slope_t::flat  ||  bd_next->get_grund_hang() != slope_t::flat) {
 
-					err = bridge_builder_t::can_build_bridge(NULL, bd->get_pos(), bd_next->get_pos(), bridge_height, bridge, false);
-					if (err) {
-						// still impossible => restore slope
+						slope_t::type try_flat_start = bd->get_grund_hang();
 						if (try_flat_start != slope_t::flat) {
 							sint8 h_diff = slope_t::max_diff(try_flat_start);
-							bd->set_grund_hang(try_flat_start);
-							bd->set_hoehe(bd->get_hoehe() - h_diff);
+							// raise up the tile
+							bd->set_grund_hang(slope_t::flat);
+							bd->set_hoehe(bd->get_hoehe() + h_diff);
 							// transfer objects to on new grund
 							for (int i = 0; i < bd->obj_count(); i++) {
 								bd->obj_bei(i)->set_pos(bd->get_pos());
 							}
 						}
+				
+						slope_t::type try_flat_end = bd_next->get_grund_hang();
 						if (try_flat_end != slope_t::flat) {
 							sint8 h_diff = slope_t::max_diff(try_flat_end);
 							// raise up the tile
-							bd_next->set_grund_hang(try_flat_start);
-							bd_next->set_hoehe(bd_next->get_hoehe() - h_diff);
+							bd_next->set_grund_hang(slope_t::flat);
+							bd_next->set_hoehe(bd_next->get_hoehe() + h_diff);
 							// transfer objects to on new grund
 							for (int i = 0; i < bd_next->obj_count(); i++) {
 								bd_next->obj_bei(i)->set_pos(bd_next->get_pos());
 							}
 						}
-						return false; // give up
-					}
 
-					// update slope graphics on tile and tile in front
-					if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 0, 1 ) ) ) {
-						bd_recalc->check_update_underground();
-					}
-					if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 0 ) ) ) {
-						bd_recalc->check_update_underground();
-					}
-					if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 1 ) ) ) {
-						bd_recalc->check_update_underground();
-					}
-					bd->mark_image_dirty();
+						err = bridge_builder_t::can_build_bridge(NULL, bd->get_pos(), bd_next->get_pos(), bridge_height, bridge, false);
+						if (err) {
+							// still impossible => restore slope
+							if (try_flat_start != slope_t::flat) {
+								sint8 h_diff = slope_t::max_diff(try_flat_start);
+								bd->set_grund_hang(try_flat_start);
+								bd->set_hoehe(bd->get_hoehe() - h_diff);
+								// transfer objects to on new grund
+								for (int i = 0; i < bd->obj_count(); i++) {
+									bd->obj_bei(i)->set_pos(bd->get_pos());
+								}
+							}
+							if (try_flat_end != slope_t::flat) {
+								sint8 h_diff = slope_t::max_diff(try_flat_end);
+								// raise up the tile
+								bd_next->set_grund_hang(try_flat_start);
+								bd_next->set_hoehe(bd_next->get_hoehe() - h_diff);
+								// transfer objects to on new grund
+								for (int i = 0; i < bd_next->obj_count(); i++) {
+									bd_next->obj_bei(i)->set_pos(bd_next->get_pos());
+								}
+							}
+							return false; // give up
+						}
 
-					koord end = bd_next->get_pos().get_2d();
-					// update slope graphics on tile and tile in front
-					if (grund_t* bd_recalc = welt->lookup_kartenboden(end + koord(0, 1))) {
-						bd_recalc->check_update_underground();
+						// update slope graphics on tile and tile in front
+						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 0, 1 ) ) ) {
+							bd_recalc->check_update_underground();
+						}
+						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 0 ) ) ) {
+							bd_recalc->check_update_underground();
+						}
+						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 1 ) ) ) {
+							bd_recalc->check_update_underground();
+						}
+						bd->mark_image_dirty();
+
+						koord end = bd_next->get_pos().get_2d();
+						// update slope graphics on tile and tile in front
+						if (grund_t* bd_recalc = welt->lookup_kartenboden(end + koord(0, 1))) {
+							bd_recalc->check_update_underground();
+						}
+						if (grund_t* bd_recalc = welt->lookup_kartenboden(end + koord(1, 0))) {
+							bd_recalc->check_update_underground();
+						}
+						if (grund_t* bd_recalc = welt->lookup_kartenboden(end + koord(1, 1))) {
+							bd_recalc->check_update_underground();
+						}
+						bd_next->mark_image_dirty();
 					}
-					if (grund_t* bd_recalc = welt->lookup_kartenboden(end + koord(1, 0))) {
-						bd_recalc->check_update_underground();
+					else {
+						// err and not a good starting position
+						return false;
 					}
-					if (grund_t* bd_recalc = welt->lookup_kartenboden(end + koord(1, 1))) {
-						bd_recalc->check_update_underground();
-					}
-					bd_next->mark_image_dirty();
 				}
 				bridge_builder_t::build_bridge(NULL, bd->get_pos(), bd_next->get_pos(), zv, bridge_height, bridge, welt->get_city_road());
 				koord end = bd_next->get_pos().get_2d();
