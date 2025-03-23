@@ -1304,7 +1304,7 @@ sint32 haltestelle_t::rebuild_connections()
 			owner = line->get_owner();
 			schedule = line->get_schedule();
 			goods_catg_index = &line->get_goods_catg_index();
-			const sint32 line_speedbonus_kmh = line->get_finance_history(0, LINE_MAXSPEED);
+			const sint32 line_speedbonus_kmh = line->get_finance_history(1, LINE_MAXSPEED);
 			if(  line_speedbonus_kmh > 0  ) {
 				speedbonus_kmh = line_speedbonus_kmh;
 			}
