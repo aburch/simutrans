@@ -422,7 +422,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			line_bound = false;
 		}
 		 button.set_text(cnv->get_owner()->get_name());
-		 if(  !welt->get_active_player()->is_locked()  ) {
+		 if(  !cnv->get_owner()->is_locked()  ) {
 			button.set_tooltip("move to the owner");
 			button.enable();
 		 } else {
