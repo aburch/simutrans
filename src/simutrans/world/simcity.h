@@ -400,12 +400,6 @@ private:
 	void bewerte_strasse(koord pos, sint32 rd, const rule_t &regel);
 	void bewerte_haus(koord pos, sint32 rd, const rule_t &regel);
 
-	/**
-	 * Updates city limits: tile at @p pos belongs to city.
-	 * @warning Do not call this during multithreaded loading!
-	 */
-	void pruefe_grenzen(koord pos, koord extend);
-
 public:
 	bool is_within_players_network( const player_t* player ) const;
 

@@ -1084,8 +1084,12 @@ void gebaeude_t::cleanup(player_t *player)
 
 	player_t::book_construction_costs(player, cost, get_pos().get_2d(), tile->get_desc()->get_finance_waytype());
 
-	// may need to update next buildings, in the case of start, middle, end buildings
-	if(tile->get_desc()->get_all_layouts()>1  &&  !is_city_building()) {
+	if (get_stadt()) {
+		ptr.stadt->remove_gebaeude_from_stadt(this);
+	}
+
+	// may need to update next buildings, in the case of start, middle, end buildings (only for stations for now)
+	if(tile->get_desc()->get_all_layouts()>1  &&  tile->get_desc()->is_transport_building()) {
 
 		// realign surrounding buildings...
 		uint32 layout = tile->get_layout();
@@ -1136,6 +1140,7 @@ void gebaeude_t::cleanup(player_t *player)
 			}
 		}
 	}
+
 	mark_images_dirty();
 }
 

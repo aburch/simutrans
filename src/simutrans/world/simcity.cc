@@ -602,7 +602,7 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 		if (!ordered) {
 			// check borders
 			koord size = gb_tiles.back()->get_pos().get_2d()-gb_tiles.front()->get_pos().get_2d()+koord( 1, 1 );
-			pruefe_grenzen(pos, size);
+			recalc_city_size();
 		}
 	}
 }
@@ -624,19 +624,6 @@ void stadt_t::update_gebaeude_from_stadt(gebaeude_t* gb)
 	buildings.remove(gb);
 	buildings.append(gb, gb->get_tile()->get_desc()->get_level() + 1);
 }
-
-
-void stadt_t::pruefe_grenzen(koord /*k*/, koord /*size*/)
-{
-	/* somehow we sometimes end up during growth with a high density
-	 * city that is not recognized as such (happens more frequently with pak64.japan)
-	 * Therefore, we just recalc the borders each time; building events
-	 * are few, and the penalty is not strong.
-	 * See version control for old code.
-	 */
-	recalc_city_size();
-}
-
 
 
 // returns true, if there is a halt serving at least one building of the town.
@@ -2431,10 +2418,10 @@ void stadt_t::check_bau_townhall(bool new_town, const building_desc_t* desc, sin
 	if (desc == NULL) {
 		desc = hausbauer_t::get_special(has_townhall ? bev : 0, building_desc_t::townhall, welt->get_timeline_year_month(), (bev == 0) || !has_townhall, welt->get_climate(pos));
 	}
-	if(desc != NULL) {
+	if (desc != NULL) {
 		grund_t* gr = welt->lookup_kartenboden(pos);
 		gebaeude_t* gb = obj_cast<gebaeude_t>(gr->first_no_way_obj());
-		const bool neugruendung = !has_townhall  ||  !gb  || !gb->is_townhall();
+		const bool neugruendung = !has_townhall || !gb || !gb->is_townhall();
 		bool umziehen = !neugruendung;
 		koord alte_str(koord::invalid);
 		koord best_pos(pos);
@@ -2443,7 +2430,7 @@ void stadt_t::check_bau_townhall(bool new_town, const building_desc_t* desc, sin
 
 		DBG_MESSAGE("check_bau_townhall()", "bev=%d, new=%d name=%s", bev, neugruendung, name.c_str());
 
-		if(  umziehen  ) {
+		if (umziehen) {
 
 			const building_desc_t* desc_old = gb->get_tile()->get_desc();
 			if (desc_old->get_level() == desc->get_level()) {
@@ -2454,16 +2441,16 @@ void stadt_t::check_bau_townhall(bool new_town, const building_desc_t* desc, sin
 			const sint8 old_z = gb->get_pos().z;
 			koord pos_alt = best_pos = gr->get_pos().get_2d() - gb->get_tile()->get_offset();
 			// guess layout for broken townhall's
-			if(desc_old->get_x() != desc_old->get_y()  &&  desc_old->get_all_layouts()==1) {
+			if (desc_old->get_x() != desc_old->get_y() && desc_old->get_all_layouts() == 1) {
 				// test all layouts
-				koord corner_offset(desc_old->get_x()-1, desc_old->get_y()-1);
-				for(uint8 test_layout = 0; test_layout<4; test_layout++) {
+				koord corner_offset(desc_old->get_x() - 1, desc_old->get_y() - 1);
+				for (uint8 test_layout = 0; test_layout < 4; test_layout++) {
 					// is there a part of our townhall in this corner
-					grund_t *gr0 = welt->lookup_kartenboden(pos + corner_offset);
+					grund_t* gr0 = welt->lookup_kartenboden(pos + corner_offset);
 					gebaeude_t const* const gb0 = gr0 ? obj_cast<gebaeude_t>(gr0->first_no_way_obj()) : 0;
-					if (gb0  &&  gb0->is_townhall()  &&  gb0->get_tile()->get_desc()==desc_old  &&  gb0->get_stadt()==this) {
+					if (gb0 && gb0->is_townhall() && gb0->get_tile()->get_desc() == desc_old && gb0->get_stadt() == this) {
 						old_layout = test_layout;
-						pos_alt = best_pos = gr->get_pos().get_2d() + koord(test_layout%3!=0 ? corner_offset.x : 0, test_layout&2 ? corner_offset.y : 0);
+						pos_alt = best_pos = gr->get_pos().get_2d() + koord(test_layout % 3 != 0 ? corner_offset.x : 0, test_layout & 2 ? corner_offset.y : 0);
 						break;
 					}
 					corner_offset = koord(-corner_offset.y, corner_offset.x);
@@ -2472,18 +2459,18 @@ void stadt_t::check_bau_townhall(bool new_town, const building_desc_t* desc, sin
 			koord groesse_alt = desc_old->get_size(old_layout);
 
 			// do we need to move
-			if(  old_layout<=desc->get_all_layouts()  &&  desc->get_x(old_layout) <= groesse_alt.x  &&  desc->get_y(old_layout) <= groesse_alt.y  ) {
+			if (old_layout <= desc->get_all_layouts() && desc->get_x(old_layout) <= groesse_alt.x && desc->get_y(old_layout) <= groesse_alt.y) {
 				// no, the size is ok
 				// still need to check whether the existing townhall is not broken in some way
 				umziehen = false;
-				for(k.y = 0; k.y < groesse_alt.y; k.y ++) {
-					for(k.x = 0; k.x < groesse_alt.x; k.x ++) {
+				for (k.y = 0; k.y < groesse_alt.y; k.y++) {
+					for (k.x = 0; k.x < groesse_alt.x; k.x++) {
 						// for buildings with holes the hole could be on a different height ->gr==NULL
 						bool ok = false;
-						if (grund_t *gr = welt->lookup_kartenboden(k + pos)) {
-							if(gebaeude_t *gb_part = gr->find<gebaeude_t>()) {
+						if (grund_t* gr = welt->lookup_kartenboden(k + pos)) {
+							if (gebaeude_t* gb_part = gr->find<gebaeude_t>()) {
 								// there may be buildings with holes, so we only remove our building!
-								if(gb_part->get_tile()  ==  desc_old->get_tile(old_layout, k.x, k.y)) {
+								if (gb_part->get_tile() == desc_old->get_tile(old_layout, k.x, k.y)) {
 									ok = true;
 								}
 							}
@@ -2493,11 +2480,48 @@ void stadt_t::check_bau_townhall(bool new_town, const building_desc_t* desc, sin
 				}
 				if (!umziehen) {
 					// correct position if new townhall is smaller than old
-					if(  old_layout == 0  ) {
+					if (old_layout == 0) {
 						best_pos.y -= desc->get_y(old_layout) - groesse_alt.y;
 					}
 					else if (old_layout == 1) {
 						best_pos.x -= desc->get_x(old_layout) - groesse_alt.x;
+					}
+				}
+			}
+			else {
+				// do we have only citybuildings in the same height around us? Maybe we do not have to move either
+				for (int one_row = 0; one_row < 2; one_row++) {
+					int count = 0;
+					koord testpos = best_pos;
+					if (desc->get_x(old_layout) > groesse_alt.x) {
+						if (one_row) {
+							// second try: one to the left
+							testpos.x--;
+						}
+					}
+					else {
+						if (one_row) {
+							// second try: one to the back
+							testpos.y--;
+						}
+					}
+					for (sint16 y = 0; y < desc->get_y(old_layout); y++) {
+						for (sint16 x = 0; x < desc->get_x(old_layout); x++) {
+							if (grund_t* gr = welt->lookup_kartenboden(testpos + koord(x, y))) {
+								if (gr->get_typ() == grund_t::fundament) {
+									if (gebaeude_t* gb = gr->find<gebaeude_t>()) {
+										if (gb->is_townhall()  ||  gb->get_owner() == NULL) {
+											count++; // can use this tile
+										}
+									}
+								}
+							}
+						}
+					}
+					if (count == desc->get_area()) {
+						umziehen = false;
+						best_pos = testpos;
+						break;
 					}
 				}
 			}
@@ -2506,17 +2530,17 @@ void stadt_t::check_bau_townhall(bool new_town, const building_desc_t* desc, sin
 			// (pos - whatever) could result in negative (or invalid) map coordinates given that pos can be zero and given that zero is a valid pos in the world
 			if (umziehen) {
 				// we need to built a new road, thus we will use the old as a starting point (if found)
-				if (welt->is_within_limits(townhall_road)  &&  welt->lookup_kartenboden(townhall_road)->hat_weg(road_wt)) {
+				if (welt->is_within_limits(townhall_road) && welt->lookup_kartenboden(townhall_road)->hat_weg(road_wt)) {
 					alte_str = townhall_road;
 				}
 				else {
-					koord k = pos + (old_layout==0 ? koord(0, desc_old->get_y()) : koord(desc_old->get_x(),0) );
-					if (welt->is_within_limits(k)  &&  welt->lookup_kartenboden(k)->hat_weg(road_wt)) {
+					koord k = pos + (old_layout == 0 ? koord(0, desc_old->get_y()) : koord(desc_old->get_x(), 0));
+					if (welt->is_within_limits(k) && welt->lookup_kartenboden(k)->hat_weg(road_wt)) {
 						alte_str = k;
 					}
 					else {
-						k = pos - (old_layout==0 ? koord(0, desc_old->get_y()) : koord(desc_old->get_x(),0) );
-						if (welt->is_within_limits(k)  &&  welt->lookup_kartenboden(k)->hat_weg(road_wt)) {
+						k = pos - (old_layout == 0 ? koord(0, desc_old->get_y()) : koord(desc_old->get_x(), 0));
+						if (welt->is_within_limits(k) && welt->lookup_kartenboden(k)->hat_weg(road_wt)) {
 							alte_str = k;
 						}
 					}
@@ -2524,20 +2548,20 @@ void stadt_t::check_bau_townhall(bool new_town, const building_desc_t* desc, sin
 			}
 
 			// remove old townhall
-			if(  gb  ) {
+			if (gb) {
 				DBG_MESSAGE("stadt_t::check_bau_townhall()", "delete townhall at (%s)", pos_alt.get_str());
 				hausbauer_t::remove(NULL, gb);
 			}
 
 			// replace old space by normal houses level 0 (must be 1x1!)
-			if(  umziehen  ) {
+			if (umziehen) {
 				for (k.x = 0; k.x < groesse_alt.x; k.x++) {
 					for (k.y = 0; k.y < groesse_alt.y; k.y++) {
 						// we iterate over all tiles, since the townhalls are allowed sizes bigger than 1x1
 						const koord pos = pos_alt + k;
 						gr = welt->lookup_kartenboden(pos);
-						if (gr  &&  gr->ist_natur() &&  gr->kann_alle_obj_entfernen(NULL) == NULL  &&
-							  (  gr->get_grund_hang() == slope_t::flat  ||  welt->lookup(koord3d(k, welt->max_hgt(k))) == NULL  ) ) {
+						if (gr && gr->ist_natur() && gr->kann_alle_obj_entfernen(NULL) == NULL &&
+							(gr->get_grund_hang() == slope_t::flat || welt->lookup(koord3d(k, welt->max_hgt(k))) == NULL)) {
 							DBG_MESSAGE("stadt_t::check_bau_townhall()", "fill empty spot at (%s)", pos.get_str());
 							build_city_building(pos);
 						}
@@ -2546,13 +2570,13 @@ void stadt_t::check_bau_townhall(bool new_town, const building_desc_t* desc, sin
 			}
 			else {
 				// make tiles flat, hausbauer_t::remove could have set some natural slopes
-				for(  k.x = 0;  k.x < desc->get_x(old_layout);  k.x++  ) {
-					for(  k.y = 0;  k.y < desc->get_y(old_layout);  k.y++  ) {
+				for (k.x = 0; k.x < desc->get_x(old_layout); k.x++) {
+					for (k.y = 0; k.y < desc->get_y(old_layout); k.y++) {
 						gr = welt->lookup_kartenboden(best_pos + k);
-						if(  gr  &&  gr->ist_natur()  ) {
+						if (gr && gr->ist_natur()) {
 							// make flat and use right height
 							gr->set_grund_hang(slope_t::flat);
-							gr->set_pos( koord3d( best_pos + k, old_z ) );
+							gr->set_pos(koord3d(best_pos + k, old_z));
 						}
 					}
 				}
@@ -2561,7 +2585,7 @@ void stadt_t::check_bau_townhall(bool new_town, const building_desc_t* desc, sin
 
 		// Now built the new townhall (remember old orientation)
 		sint16 layout = old_layout;
-		if (old_layout == -1  ||  neugruendung) {
+		if (old_layout == -1 || neugruendung) {
 			layout = simrand(desc->get_all_layouts());
 		}
 		else {
@@ -2571,11 +2595,17 @@ void stadt_t::check_bau_townhall(bool new_town, const building_desc_t* desc, sin
 		uint8 dir = ribi_t::layout_to_ribi[layout & 3];
 		if (neugruendung || umziehen) {
 			best_pos = townhall_placefinder_t(welt, dir).find_place(pos, desc->get_x(layout) + (dir & ribi_t::eastwest ? 1 : 0), desc->get_y(layout) + (dir & ribi_t::northsouth ? 1 : 0), desc->get_allowed_climate_bits());
-		}
-		// check, if the was something found
-		if(best_pos==koord::invalid) {
-			dbg->error( "stadt_t::check_bau_townhall", "no better position found!" );
-			return;
+			// check, if the was something found
+			if (best_pos == koord::invalid) {
+				dbg->error("stadt_t::check_bau_townhall", "no better position found!");
+				return;
+			}
+			if (dir == ribi_t::west) {
+				best_pos.x++;
+			}
+			if (dir == ribi_t::north) {
+				best_pos.y++;
+			}
 		}
 		gebaeude_t const* const new_gb = hausbauer_t::build(owner, best_pos, layout, desc);
 		DBG_MESSAGE("new townhall", "use layout=%i", layout);

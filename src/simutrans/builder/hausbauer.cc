@@ -534,8 +534,13 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord pos, int org_layout, cons
 				gr->obj_add(gb);
 			}
 			else {
-				if (desc->is_city_building() && gr->get_typ() == grund_t::fundament) {
-					dbg->error("hausbauer_t::build", "Destroy old building at", gr->get_pos().get_str());
+				if (gr->get_typ() == grund_t::fundament) {
+					// here is an old building
+					gebaeude_t* old_gb = gr->find<gebaeude_t>();
+					DBG_MESSAGE("hausbauer_t::build", "Destroy old building at %s", old_gb->get_pos().get_str());
+					hausbauer_t::remove(player, old_gb);
+					gr = welt->lookup_kartenboden(pos + k); // since it is normal ground right now
+					// in principle, we could just update the tile on 1x1 buildings (and do some additional housekeeping) but this is safer
 				}
 
 				// mostly remove everything
