@@ -421,9 +421,14 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			remove_component( &line_button );
 			line_bound = false;
 		}
-		button.set_tooltip("move to the owner");
-		button.set_text(cnv->get_owner()->get_name());
-		button.enable();
+		 button.set_text(cnv->get_owner()->get_name());
+		 if(  !welt->get_active_player()->is_locked()  ) {
+			button.set_tooltip("move to the owner");
+			button.enable();
+		 } else {
+			button.set_tooltip("This player is locked");
+			button.disable();
+		 }
 		go_home_button.disable();
 		no_load_button.disable();
 		set_recovery_button.disable();
