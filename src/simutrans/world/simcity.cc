@@ -2435,7 +2435,7 @@ void stadt_t::check_bau_townhall(bool new_town, const building_desc_t* desc, sin
 			const building_desc_t* desc_old = gb->get_tile()->get_desc();
 			if (desc_old->get_level() == desc->get_level()) {
 				DBG_MESSAGE("check_bau_townhall()", "town hall already ok.");
-				return; // Rathaus ist schon okay
+				return;
 			}
 			old_layout = gb->get_tile()->get_layout();
 			const sint8 old_z = gb->get_pos().z;
@@ -2459,12 +2459,12 @@ void stadt_t::check_bau_townhall(bool new_town, const building_desc_t* desc, sin
 			koord groesse_alt = desc_old->get_size(old_layout);
 
 			// do we need to move
-			if (old_layout <= desc->get_all_layouts() && desc->get_x(old_layout) <= groesse_alt.x && desc->get_y(old_layout) <= groesse_alt.y) {
+			if (old_layout <= desc->get_all_layouts()  &&  desc->get_x(old_layout) <= groesse_alt.x  &&  desc->get_y(old_layout) <= groesse_alt.y) {
 				// no, the size is ok
 				// still need to check whether the existing townhall is not broken in some way
 				umziehen = false;
-				for (k.y = 0; k.y < groesse_alt.y; k.y++) {
-					for (k.x = 0; k.x < groesse_alt.x; k.x++) {
+				for (k.y = 0; !umziehen  &&  k.y < groesse_alt.y; k.y++) {
+					for (k.x = 0; !umziehen  &&  k.x < groesse_alt.x; k.x++) {
 						// for buildings with holes the hole could be on a different height ->gr==NULL
 						bool ok = false;
 						if (grund_t* gr = welt->lookup_kartenboden(k + pos)) {
@@ -2488,8 +2488,10 @@ void stadt_t::check_bau_townhall(bool new_town, const building_desc_t* desc, sin
 					}
 				}
 			}
+#if 0
+			// the placefinder will first try this location anyway ... so we do not need to try it now
 			else {
-				// do we have only citybuildings in the same height around us? Maybe we do not have to move either
+				// do we have only citybuildings and nature in the same height around us? Maybe we do not have to move either
 				for (int one_row = 0; one_row < 2; one_row++) {
 					int count = 0;
 					koord testpos = best_pos;
@@ -2515,6 +2517,9 @@ void stadt_t::check_bau_townhall(bool new_town, const building_desc_t* desc, sin
 										}
 									}
 								}
+								else if (gr->ist_natur()) {
+									count++; // can use this tile
+								}
 							}
 						}
 					}
@@ -2525,6 +2530,7 @@ void stadt_t::check_bau_townhall(bool new_town, const building_desc_t* desc, sin
 					}
 				}
 			}
+#endif
 
 			// Needs bounds checks for the edge case where a townhall is at the very top of the map and the townhall road is demolished
 			// (pos - whatever) could result in negative (or invalid) map coordinates given that pos can be zero and given that zero is a valid pos in the world
@@ -3503,7 +3509,6 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 					default: break;
 				}
 				// for now we just remove it to avoid half buildings left
-				oldgb->set_stadt(NULL);
 				oldgb->set_tile(hr->get_tile(0), true);
 				welt->lookup_kartenboden(kpos)->calc_image();
 				update_gebaeude_from_stadt(oldgb);

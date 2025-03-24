@@ -123,9 +123,7 @@ gebaeude_t::~gebaeude_t()
 		// avoid book-keeping
 	}
 
-	if(get_stadt()) {
-		ptr.stadt->remove_gebaeude_from_stadt(this);
-	}
+	assert(get_stadt() == NULL);
 
 	if(sync) {
 		sync = false;
@@ -1084,8 +1082,8 @@ void gebaeude_t::cleanup(player_t *player)
 
 	player_t::book_construction_costs(player, cost, get_pos().get_2d(), tile->get_desc()->get_finance_waytype());
 
-	if (get_stadt()) {
-		ptr.stadt->remove_gebaeude_from_stadt(this);
+	if (stadt_t *city=get_stadt()) {
+		city->remove_gebaeude_from_stadt(this);
 	}
 
 	// may need to update next buildings, in the case of start, middle, end buildings (only for stations for now)

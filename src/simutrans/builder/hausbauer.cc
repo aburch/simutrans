@@ -345,8 +345,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 	gb->get_tile_list( gb_tiles );
 
 	// then remove factory
-	fabrik_t *fab = gb->get_fabrik();
-	if(fab) {
+	if(fabrik_t* fab = gb->get_fabrik()) {
 		for(grund_t* gr : gb_tiles ) {
 			const koord3d pos = gr->get_pos();
 			planquadrat_t *plan = welt->access( pos.get_2d() );
