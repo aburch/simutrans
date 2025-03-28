@@ -5502,9 +5502,10 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	}
 
 	file->set_buffered(false);
-	clear_random_mode(LOAD_RANDOM);	koord3d k;
+	clear_random_mode(LOAD_RANDOM);	
 
 	// remove all inappropriate size buildings
+	koord3d k;
 	for(k.z=-32;k.z<64;k.z++) {
 		for(k.y=0;k.y<get_size().y;k.y++) {
 			for(k.x=0;k.x<get_size().x;k.x++) {
