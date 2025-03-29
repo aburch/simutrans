@@ -5511,14 +5511,8 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 			for(k.x=0;k.x<get_size().x;k.x++) {
 				if( grund_t* gr = lookup( k ) ) {
 					if( gebaeude_t* gb = gr->find<gebaeude_t>() ) {
-						if( !gb->is_building_of_city() ) {
-							continue;
-						}
-						vector_tpl<grund_t*> grs;
-						uint32 num = gb->get_tile_list(grs);
-						koord size = gb->get_tile()->get_desc()->get_size( gb->get_tile()->get_layout() );
-						if( num != (size.x*size.y) ) {
-							dbg->message("karte_t::load()","(%u,%u) building has (%u,%u) tiles, but only %u sizes.",gb->get_pos().x,gb->get_pos().y,size.x,size.y,num);
+						if( gb->is_broken_building() ) {
+							dbg->message("karte_t::load()","(%u,%u) building is broken",k.x,k.y);
 							hausbauer_t::remove( get_public_player(), gb );
 						}
 					}
