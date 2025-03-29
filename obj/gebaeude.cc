@@ -583,6 +583,57 @@ uint32 gebaeude_t::get_tile_list( vector_tpl<grund_t *> &list ) const
 	return list.get_count();
 }
 
+// checking the broken buildings
+// if building is broken, it will be removed
+bool gebaeude_t::is_broken_building()
+{
+	vector_tpl<grund_t*> grs;
+	if( get_tile_list(grs) < 2 ) {
+		return false;
+	}
+	koord size = get_tile()->get_desc()->get_size( get_tile()->get_layout() );
+	const koord3d pos0 = get_pos() - get_tile()->get_offset();
+	const uint8 layout_int = (get_tile()->get_layout());
+	grund_t* gr;
+	gebaeude_t* gb;
+	gr = welt->lookup( pos0 );
+	if( gr ) {
+		if( get_tile()->get_desc()->get_tile(layout_int*size.x*size.y)->get_background(0,0,0) != IMG_EMPTY ) {
+			gb = gr->find<gebaeude_t>();
+			if( !gb || !is_same_building(gb)  ) {
+				return true;
+			}
+		}
+	}
+	gr = welt->lookup( pos0+koord3d (size.x-1,0,0) );
+	if( gr ) {
+		if( get_tile()->get_desc()->get_tile(layout_int*size.x*size.y+size.x-1)->get_background(0,0,0) != IMG_EMPTY ) {
+			gb = gr->find<gebaeude_t>();
+			if( !gb || !is_same_building(gb)  ) {
+				return true;
+			}
+		}
+	}
+	gr = welt->lookup( pos0+koord3d (0,size.y-1,0) );
+	if( gr ) {
+		if( get_tile()->get_desc()->get_tile(layout_int*size.x*size.y+size.y*(size.x-1))->get_background(0,0,0) != IMG_EMPTY ) {
+			gb = gr->find<gebaeude_t>();
+			if( !gb || !is_same_building(gb)  ) {
+				return true;
+			}
+		}
+	}
+	gr = welt->lookup( pos0+koord3d(size.x-1,size.y-1,0) );
+	if( gr ) {
+		if( get_tile()->get_desc()->get_tile((layout_int+1)*size.x*size.y-1)->get_background(0,0,0) != IMG_EMPTY ) {
+			gb = gr->find<gebaeude_t>();
+			if( !gb || !is_same_building(gb)  ) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
 
 
 
