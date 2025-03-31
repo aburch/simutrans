@@ -585,15 +585,16 @@ uint32 gebaeude_t::get_tile_list( vector_tpl<grund_t *> &list ) const
 
 // checking the broken buildings
 // if building is broken, it will be removed
-bool gebaeude_t::is_broken_building()
+bool gebaeude_t::is_broken_building() const
 {
 	vector_tpl<grund_t*> grs;
 	if( get_tile_list(grs) < 2 ) {
 		return false;
 	}
-	koord size = get_tile()->get_desc()->get_size( get_tile()->get_layout() );
+	const koord size = get_tile()->get_desc()->get_size( get_tile()->get_layout() );
 	const koord3d pos0 = get_pos() - get_tile()->get_offset();
 	const uint8 layout_int = (get_tile()->get_layout());
+	// Check about the four corners of the building.
 	grund_t* gr;
 	gebaeude_t* gb;
 	gr = welt->lookup( pos0 );
