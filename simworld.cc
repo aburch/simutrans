@@ -5505,16 +5505,16 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	clear_random_mode(LOAD_RANDOM);	
 
 	// remove all inappropriate size buildings
-	koord3d k;
-	for(k.z=-32;k.z<64;k.z++) {
-		for(k.y=0;k.y<get_size().y;k.y++) {
-			for(k.x=0;k.x<get_size().x;k.x++) {
-				if( grund_t* gr = lookup( k ) ) {
-					if( gebaeude_t* gb = gr->find<gebaeude_t>() ) {
-						if( gb->is_broken_building() ) {
-							dbg->message("karte_t::load()","(%u,%u) building is broken",k.x,k.y);
-							hausbauer_t::remove( get_public_player(), gb );
-						}
+	koord k;
+	grund_t* gr;
+	gebaeude_t* gb;
+	for(k.y=0;k.y<get_size().y;k.y++) {
+		for(k.x=0;k.x<get_size().x;k.x++) {
+			if( gr = lookup_kartenboden(k) ) {
+				if( gb = gr->find<gebaeude_t>() ) {
+					if( gb->is_broken_building() ) {
+						dbg->message("karte_t::load()","(%u,%u) building is broken",k.x,k.y);
+						hausbauer_t::remove( get_public_player(), gb );
 					}
 				}
 			}
