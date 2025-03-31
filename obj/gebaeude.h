@@ -128,7 +128,7 @@ public:
 	bool is_building_of_city() const { return is_city_building() || is_headquarter() || is_monument(); }
 
 	// check broken tiles
-	bool is_broken_building(); 
+	bool is_broken_building() const; 
 
 	/// fills vector with a list of all tiles with this building
 	/// @return number of actual tiles
