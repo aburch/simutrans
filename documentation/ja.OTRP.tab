@@ -57,6 +57,12 @@ Waiting for schedule. %i left!
 発車時刻待ち（残り %i）
 line name tooltips
 系統名を表示
+line name and states tooltips
+系統名と車両の状態を表示
+coupled
+連結運転中
+driving
+運転中
 #------Convoy coupling related stuff------
 #------増解結関連のエントリ------
 Wait for coupling
