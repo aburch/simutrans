@@ -5502,7 +5502,21 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	}
 
 	file->set_buffered(false);
-	clear_random_mode(LOAD_RANDOM);
+	clear_random_mode(LOAD_RANDOM);	
+
+	// remove all inappropriate size buildings
+	koord k;
+	for(k.y=0;k.y<get_size().y;k.y++) {
+		for(k.x=0;k.x<get_size().x;k.x++) {
+			const grund_t* gr = lookup_kartenboden(k);
+			const gebaeude_t* gb = gr ? gr->find<gebaeude_t>() : NULL;
+			const bool is_broken = gb ? gb->is_broken_building() : false;
+			if( is_broken ) {
+				dbg->message("karte_t::load()","(%u,%u) building is broken",k.x,k.y);
+				hausbauer_t::remove( get_public_player(), gb );
+			}
+		}
+	}
 
 	// loading finished, reset savegame version to current
 	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL ).version;

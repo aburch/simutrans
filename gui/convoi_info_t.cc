@@ -420,7 +420,14 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			remove_component( &line_button );
 			line_bound = false;
 		}
-		button.disable();
+		 button.set_text(cnv->get_owner()->get_name());
+		 if(  !cnv->get_owner()->is_locked()  ) {
+			button.set_tooltip("move to the owner");
+			button.enable();
+		 } else {
+			button.set_tooltip("This player is locked");
+			button.disable();
+		 }
 		go_home_button.disable();
 		no_load_button.disable();
 		set_recovery_button.disable();
@@ -560,6 +567,13 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 
 		if(  comp == &reversed_button  ) {
 			cnv->call_convoi_tool( 'v', NULL );
+			return true;
+		}
+	} 
+	else {
+		if(  comp == &button  ) {
+			// switch to the owner player
+			welt->switch_active_player(cnv->get_owner()->get_player_nr(),false);
 			return true;
 		}
 	}
