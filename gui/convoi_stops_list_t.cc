@@ -15,8 +15,6 @@
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
-#include "../boden/grund.h"
-
 #include "../dataobj/schedule.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
@@ -28,10 +26,8 @@
 #include "convoi_stops_list_t.h"
 #include "halt_info.h"
 
-#include "components/gui_button.h"
 #include "components/gui_image.h"
 #include "components/gui_textarea.h"
-#include "minimap.h"
 #include "simwin.h"
 
 static karte_ptr_t welt;
@@ -44,7 +40,7 @@ class gui_convoi_stops_list_t : public gui_aligned_container_t, public gui_actio
 {
 	schedule_entry_t entry;
 	bool is_current;
-	uint number;
+	uint8 number;
 	player_t* player;
 	gui_image_t arrow;
 	gui_label_buf_t stop;
@@ -86,40 +82,43 @@ public:
 
 	bool infowin_event(const event_t *ev) OVERRIDE
 	{
-		if( ev->ev_class == EVENT_CLICK ) {
-			dbg->message("gui_convoi_stops_list_t::infowin_event()","pressed");
-			if(  IS_RIGHTCLICK(ev)  ||  ev->mx < stop.get_pos().x) {
-				// move to the entry tile.
-				view_stop();
+		if( ev->ev_class != EVENT_CLICK ) {
+			return false;
+		}
+		if(  IS_RIGHTCLICK(ev)  ||  ev->mx < stop.get_pos().x) {
+			// move to the entry tile.
+			view_stop();
+		}
+		else {
+			halthandle_t h = haltestelle_t::get_stoppable_halt( entry.pos,player );
+			if (  h.is_bound()  ) {
+				// show halt info window.
+				create_win(new halt_info_t(h), w_info, magic_halt_info);		
 			}
 			else {
-				halthandle_t h = haltestelle_t::get_stoppable_halt( entry.pos,player );
-				if (  h.is_bound()  ) {
-					// show halt info window.
-					create_win(new halt_info_t(h), w_info, magic_halt_info);		
-				}
-				else {
-					call_listeners(number);
-				}
+				call_listeners(number);
 			}
-			return true;
 		}
-		return false;
+		return true;
 	}
 	void view_stop()
 	{
 		// just center on it
-		welt->get_viewport()->change_world_position( entry.pos );		
+		world()->get_viewport()->change_world_position( entry.pos );		
 	}
 };
 
 
-convoi_stops_list_t::convoi_stops_list_t(convoihandle_t cnv)
+convoi_stops_list_t::convoi_stops_list_t(convoihandle_t cnv_)
 {	
 	set_table_layout(1,0);
-	if (cnv.is_bound()) {
-		init(cnv);
+	this->cnv = cnv_;
+	this->player = cnv_->get_owner();
+	if( !cnv_.is_bound() ) {
+		return;
 	}
+	update_schedule();
+	add_listener(this);
 }
 
 
@@ -129,7 +128,7 @@ void convoi_stops_list_t::update_schedule()
 	remove_all();
 	entries.clear();
 	gui_schedule = cnv->get_schedule()->copy();
-	buf.clear();
+	static cbuffer_t buf;
 	if (gui_schedule->empty()) {
 		new_component<gui_textarea_t>(&buf);
 	}
@@ -157,16 +156,3 @@ bool convoi_stops_list_t::action_triggered(gui_action_creator_t *comp, value_t p
 	return false;
 }
 
-void convoi_stops_list_t::init(convoihandle_t cnv_)
-{
-	this->cnv = cnv_;
-	this->player = cnv_->get_owner();
-	if( !cnv_.is_bound() ) {
-		return;
-	}
-	update_schedule();
-	add_listener(this);
-}
-
-
-cbuffer_t convoi_stops_list_t::buf;

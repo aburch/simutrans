@@ -9,16 +9,11 @@
 
 #include "gui_frame.h"
 
-#include "components/gui_label.h"
-#include "components/gui_numberinput.h"
-#include "components/gui_combobox.h"
-#include "components/gui_button.h"
 #include "components/action_listener.h"
 
 #include "components/gui_scrollpane.h"
 
 #include "../convoihandle_t.h"
-#include "simwin.h"
 #include "../tpl/vector_tpl.h"
 
 
@@ -35,13 +30,11 @@ class gui_convoi_stops_list_t;
 class convoi_stops_list_t : public gui_aligned_container_t, action_listener_t, public gui_action_creator_t
 {
 	convoihandle_t cnv;
-	static cbuffer_t buf;
 
 	vector_tpl<gui_convoi_stops_list_t*> entries;
 	schedule_t *gui_schedule; // displaied schedule
 public:
 	player_t*  player;
-	void init(convoihandle_t cnv);
 
 	convoi_stops_list_t(convoihandle_t cnv_ = convoihandle_t());
 
