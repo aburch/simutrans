@@ -52,8 +52,8 @@ pakselector_t::pakselector_t() :
 
 	add_path( bd );
 	if(  strcmp(bd,id)  ) {
+		add_path(id);
 	}
-	add_path(id);
 	dr_chdir( env_t::user_dir );
 	if(  !dr_chdir(USER_PAK_PATH)  ) {
 		char ud[PATH_MAX];
