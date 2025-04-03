@@ -73,6 +73,9 @@ class karte_t : public surface_t
 	static karte_t* world; ///< static single instance
 
 public:
+	// true, if there is a current valid savegame for networkplay
+	bool has_current_network_save;
+
 	// kind of map
 	enum { AUTO_GENERATED, SCENARIO_WORLD, NEW_WORLD, RESTORED_WORLD, CLIENT_WORLD, LOADED_WORLD } type_of_generation;
 

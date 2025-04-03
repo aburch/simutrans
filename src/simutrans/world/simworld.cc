@@ -681,6 +681,7 @@ void karte_t::init_tiles()
 
 	type_of_generation = AUTO_GENERATED;
 
+	has_current_network_save = false;
 	if (env_t::server) {
 		nwc_auth_player_t::init_player_lock_server(this);
 	}
@@ -1333,6 +1334,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 	msg->clear();
 	chat_msg->clear();
+	has_current_network_save = false;
 
 	set_dirty();
 	step_mode = PAUSE_FLAG;
@@ -3914,12 +3916,12 @@ bool karte_t::load(const char *filename)
 			if(  server_reload_pwd_hashes  ) {
 				char fn[256];
 				sprintf( fn, "server%d-pwdhash.sve", env_t::server );
-				loadsave_t pwdfile;
-				if(  pwdfile.rd_open(fn) == loadsave_t::FILE_STATUS_OK  ) {
-					rdwr_player_password_hashes( &pwdfile );
+				loadsave_t pwdrdfile;
+				if(pwdrdfile.rd_open(fn) == loadsave_t::FILE_STATUS_OK  ) {
+					rdwr_player_password_hashes( &pwdrdfile);
 					// correct locking info
 					nwc_auth_player_t::init_player_lock_server(this);
-					pwdfile.close();
+					pwdrdfile.close();
 				}
 			}
 		}
@@ -6303,6 +6305,41 @@ bool karte_t::interactive(uint32 quit_month)
 					// no clients -> pause game
 					if (  env_t::networkmode  &&  env_t::pause_server_no_clients  &&  socket_list_t::get_playing_clients() == 0  &&  !nwc_join_t::is_pending()  ) {
 						set_pause(true);
+						// save the game in advance
+						char fn[256];
+						// first save password hashes
+						sprintf(fn, "server%d-pwdhash.sve", env_t::server);
+						loadsave_t pwdwrfile;
+						if (pwdwrfile.wr_open(fn, loadsave_t::zipped, 1, "hashes", SAVEGAME_VER_NR) == loadsave_t::FILE_STATUS_OK) {
+							rdwr_player_password_hashes(&pwdwrfile);
+							pwdwrfile.close();
+						}
+
+						// remove passwords before transfer on the server and set default client mask
+						// they will be restored in karte_t::laden
+						uint16 unlocked_players = 0;
+						for (int i = 0; i < PLAYER_UNOWNED; i++) {
+							if (players[i]  &&  !players[i]->access_password_hash().empty()) {
+								players[i]->access_password_hash().clear();
+							}
+						}
+
+						// save game
+						sprintf(fn, "server%d-network.sve", env_t::server);
+						bool old_restore_UI = env_t::restore_UI;
+						env_t::restore_UI = true;
+						save(fn, false, SERVER_SAVEGAME_VER_NR, false);
+						env_t::restore_UI = old_restore_UI;
+
+						// restore password hashes for us
+						sprintf(fn, "server%d-pwdhash.sve", env_t::server);
+						loadsave_t pwdrdfile;
+						if (pwdrdfile.rd_open(fn) == loadsave_t::FILE_STATUS_OK) {
+							rdwr_player_password_hashes(&pwdrdfile);
+							pwdrdfile.close();
+						}
+
+						has_current_network_save = true;	// now we have a current savegame to send immediately
 					}
 				}
 				else {

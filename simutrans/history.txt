@@ -11,9 +11,10 @@
 	ADD: Monthly maintenance for roadsigns and signals (maintenance=1234 in dat file)
 	FIX: "Not a socket" error when server does not reply to initial connection attempt within 2 seconds on Windows
 	FIX: Increased maximum possible cost, runningcost, and fixed cost of all pak objects (where applicable) to 2^63-1 Simu-cents to prevent overflows during pak creation
-	FIX: Completely updated city renovation logic, now goes forward to multitle and back again
+	FIX: Completely updated city renovation logic, now goes forward to multitile and back again
 	FIX: bridge during town growth were built even if the inital test failed
 	FIX: less moving townhalls and not builging townhalls over roads with asymmetric sizes
+	CHG: with pause setting, server saves game after going to pause => immediately able to fulfill join requests and more current savegames on crashing servers
 
 
 Release of 124.3 (r11590 on 10-Jan-2025):

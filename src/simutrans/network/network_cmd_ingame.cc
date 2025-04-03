@@ -758,33 +758,47 @@ void nwc_sync_t::do_command(karte_t *welt)
 		network_send_server(nwc);
 	}
 	else {
+		// we are on the server
 		char fn[256];
-		// first save password hashes
-		sprintf( fn, "server%d-pwdhash.sve", env_t::server );
-		loadsave_t file;
-		if(  file.wr_open(fn, loadsave_t::zipped, 1, "hashes", SAVEGAME_VER_NR ) == loadsave_t::FILE_STATUS_OK  ) {
-			welt->rdwr_player_password_hashes( &file );
-			file.close();
-		}
-
-		// remove passwords before transfer on the server and set default client mask
-		// they will be restored in karte_t::laden
 		uint16 unlocked_players = 0;
-		for(  int i=0;  i<PLAYER_UNOWNED; i++  ) {
-			player_t *player = welt->get_player(i);
-			if(  player==NULL  ||  player->access_password_hash().empty()  ) {
-				unlocked_players |= (1<<i);
+		if (!welt->has_current_network_save) {
+			// no an ready savegame yet
+			// first save password hashes
+			sprintf( fn, "server%d-pwdhash.sve", env_t::server );
+			loadsave_t file;
+			if(  file.wr_open(fn, loadsave_t::zipped, 1, "hashes", SAVEGAME_VER_NR ) == loadsave_t::FILE_STATUS_OK  ) {
+				welt->rdwr_player_password_hashes( &file );
+				file.close();
 			}
-			else {
-				player->access_password_hash().clear();
+
+			// remove passwords before transfer on the server and set default client mask
+			// they will be restored below
+			for(  int i=0;  i<PLAYER_UNOWNED; i++  ) {
+				player_t *player = welt->get_player(i);
+				if(  player==NULL  ||  player->access_password_hash().empty()  ) {
+					unlocked_players |= (1<<i);
+				}
+				else {
+					player->access_password_hash().clear();
+				}
+			}
+
+			// save game
+			sprintf( fn, "server%d-network.sve", env_t::server );
+			bool old_restore_UI = env_t::restore_UI;
+			env_t::restore_UI = true;
+			welt->save( fn, false, SERVER_SAVEGAME_VER_NR, false );
+			env_t::restore_UI = old_restore_UI;
+		}
+		else {
+			sprintf(fn, "server%d-network.sve", env_t::server);
+			for (int i = 0; i < PLAYER_UNOWNED; i++) {
+				player_t* player = welt->get_player(i);
+				if (player == NULL  ||  player->access_password_hash().empty()) {
+					unlocked_players |= (1 << i);
+				}
 			}
 		}
-
-		// save game
-		sprintf( fn, "server%d-network.sve", env_t::server );
-		bool old_restore_UI = env_t::restore_UI;
-		env_t::restore_UI = true;
-		welt->save( fn, false, SERVER_SAVEGAME_VER_NR, false );
 
 		// ok, now sending game
 		// this sends nwc_game_t
@@ -796,7 +810,6 @@ void nwc_sync_t::do_command(karte_t *welt)
 		uint32 old_sync_steps = welt->get_sync_steps();
 		welt->load( fn );
 		welt->type_of_generation = karte_t::LOADED_WORLD;
-		env_t::restore_UI = old_restore_UI;
 
 		// restore steps
 		welt->network_game_set_pause( false, old_sync_steps);
