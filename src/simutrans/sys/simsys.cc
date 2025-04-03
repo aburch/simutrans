@@ -405,7 +405,8 @@ bool check_and_set_dir( const char *path, const char *info, char *result, const 
 		if(!ok && !testfile) {
 			dr_mkdir(path);
 			ok = !dr_chdir(path);
-		} else if(testfile) {
+		}
+		else if(testfile) {
 			FILE* testf = fopen(testfile,"r");
 			ok = ok && testf;
 			if(testf) {

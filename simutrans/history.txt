@@ -16,6 +16,7 @@
 	FIX: less moving townhalls and not builging townhalls over roads with asymmetric sizes
 	CHG: with pause setting, server saves game after going to pause => immediately able to fulfill join requests and more current savegames on crashing servers
 	ADD: CURRENCY is now translateable to a local currency (no conversions though)
+	FIX: make sure, the pak path and working path are really different
 
 
 Release of 124.3 (r11590 on 10-Jan-2025):

@@ -42,17 +42,25 @@ pakselector_t::pakselector_t() :
 
 	resize(scr_coord(0,0));
 
-	add_path( env_t::base_dir );
-	if(  strcmp(env_t::base_dir,env_t::install_dir)  ) {
-		add_path( env_t::install_dir );
+	dr_chdir(env_t::base_dir);
+	char bd[PATH_MAX], id[PATH_MAX];
+	dr_getcwd(bd, lengthof(bd)-2);
+	strcat(bd, PATH_SEPARATOR);
+	dr_chdir(env_t::install_dir);
+	dr_getcwd(id, lengthof(id)-2);
+	strcat(id, PATH_SEPARATOR);
+
+	add_path( bd );
+	if(  strcmp(bd,id)  ) {
 	}
+	add_path(id);
 	dr_chdir( env_t::user_dir );
 	if(  !dr_chdir(USER_PAK_PATH)  ) {
-		char dummy[PATH_MAX];
-		dr_getcwd(dummy, lengthof(dummy) - 2);
-		strcat(dummy, PATH_SEPARATOR);
-		if(  strcmp(env_t::install_dir, dummy)  ) {
-			add_path(dummy);
+		char ud[PATH_MAX];
+		dr_getcwd(ud, lengthof(ud)-2 );
+		strcat(ud, PATH_SEPARATOR);
+		if(  strcmp(id, ud)  ) {
+			add_path(ud);
 		}
 	}
 }
