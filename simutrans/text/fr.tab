@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: fr Francais                            #
 #                                Encoding: UTF-8                               #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 10.01 2025                           #
+#                            Date Created: 3.04 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -327,6 +327,8 @@ With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 (%i) 
 (in depot)
 (au dépôt)
+/month
+/mois
 \nBauzeit bis
  jusqu'en 
 \nBauzeit von
@@ -340,7 +342,7 @@ With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 \nHeightfield has wrong image type.\n
 \nLe dénivelé n'est pas\nau bon format d'image.\n
 \nis reserved by:
-\nréservé par le train
+\nréservé par 
 \nminimum speed:
 \nvitesse minimale
 \nnot elektrified
@@ -354,9 +356,9 @@ With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 \nsingle way
 \nVoie unique
 \nway1 reserved by
-voie 1 réservée par\nvoie 1 réservée par 
+voie 1 réservée par\n
 \nway2 reserved by
-voie 2 réservée par\nvoie 2 réservée par 
+voie 2 réservée par\n
 \nwith sign/signal\n
 \navec signe/signal\n
 %d buildings\n
@@ -509,6 +511,8 @@ Autohalt muss auf\nStrasse liegen!\n
 Un arrêt de bus doit être placé sur une route.
 Available
 Disponible
+Available at custom date
+Disponible à partir de
 Bahndepot
 Dépôt ferroviaire
 Bankrott:\n\nDu bist bankrott.\n
@@ -556,7 +560,7 @@ Construire un signal de choix de quai
 Build city market
 construire un nouveau marché dans la ville la plus proche
 Build drain
-Transfomateur
+Transformateur
 build HQ
 Construire HQ
 Build land consumer
@@ -566,7 +570,7 @@ Construire un dépôt de Maglev
 Build monorail depot
 Construire un dépôt pour monorail
 Build narrowgauge depot
-Constructer un dépôt à voie étroite
+Construire un dépôt à voie étroite
 Build powerline
 Ligne à haute tension
 Build presignals
@@ -685,6 +689,8 @@ clf_chk_waren
 Filtre marchandises:
 clf_title
 Filtre véhicule
+Climate
+Climat
 Climate Control
 Contrôle Du Climat
 closed
@@ -753,6 +759,8 @@ curiosity builder
 Construire une attraction
 curlist_title
 Liste des attractions
+CURRENCY
+€
 Currently playing:
 Jouant:
 Customers live in:
@@ -813,6 +821,8 @@ Dock
 quai
 Dock must be built on single slope!
 Les quais doivent être construits sur une pente !
+dp_title
+Liste des dépots
 Du hast %d Monate Zeit, deine Schulden zurueckzuzahlen
 Vous avez %d mois pour recouvrir votre dette.
 Durchsatz
@@ -1173,12 +1183,16 @@ Maglevdepot
 Dépôt des trains à sustentation magnétique
 Mail Demand %d\n
 Demande de courrier %d\n
+Mail level
+Taux d’envois postaux
 Mailbox
 Centre des messages
 Mailbox Options
 Options des messages
 make stop public (or join with public stop next) costs %i per tile and level
 faire un arrêt public (ou joindre un arrêt public voisin) coût %i$ par case et niveau
+Make way or stop public (will join with neighbours), %i times maintainance
+Transformer en arrêt public (relier avec les voisins), %i-coût de maintenance.
 Manual (Human)
 Manuel (humain)
 Manufactured:
@@ -1217,6 +1231,8 @@ Meldung
 Message
 Menge
 Montant total
+merge stop
+Regrouper les arrêts de bus
 MessageOptionsText
 \nNouvelle année\n\nInfos joueurs\n\nInfos villes\n\nPas de route\n\nIndustrie\n\nChat\n\nNouveaux véhicules\n\nGare pleine\n\nProblèmes\n\nBouchons\n\nScénario\n
 min
@@ -1239,6 +1255,8 @@ Monorailboden
 Support Monorail
 Monoraildepot
 Dépôt de monorail
+Month
+Mois
 month wait time
 Attend max. (mois)
 Monthly departures
@@ -1405,6 +1423,8 @@ Password
 Mot de passe
 Pax <%i>  Mail <%i>
 Passagers <%i> Courrier <%i>
+Pax level
+Taux passagers
 PaxDest
 Destinations
 Percent Electricity
@@ -1551,6 +1571,8 @@ road vehicle
 véhicule routier
 Roadsign
 Signal routier
+Rotate Building
+Faire pivoter le bâtiment
 Rotate map
 Tourner la carte
 Routing
@@ -1869,6 +1891,8 @@ Verkehrsteilnehmer
 Utilise la route
 Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
 Endettement:\n\nIl vous reste\n%d mois\npour rembourser.\n
+vh_title
+Liste de tous les véhicules
 via %s\n
  via %s\n
 via Menge
@@ -1923,6 +1947,8 @@ Withdraw All
 Retirer tout
 WRONGSAVE
 Chargement impossible:\nFormat de sauvegarde\nincompatible.\n
+Year
+Année
 Year %i has started.
 L'année %i a commencé!
 Years

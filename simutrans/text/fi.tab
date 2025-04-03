@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                              Language: fi Suomi                              #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 2.06 2024                           #
+#                            Date Created: 3.04 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -238,9 +238,9 @@ With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 \nsingle way
 \nYksisuuntainen
 \nway1 reserved by
-Tien 1 varannut\nTien 1 varannut 
+Tien 1 varannut\n
 \nway2 reserved by
-Tien 2 varannut\nTien 2 varannut 
+Tien 2 varannut\n
 \nwith sign/signal\n
 \nmerkillä/opastimella\n
 %d buildings\n
@@ -591,6 +591,8 @@ curiosity builder
 Nähtävyysrakentaja
 curlist_title
 Turistikohdelista
+CURRENCY
+?
 Currently playing:
 Tällä hetkellä soi:
 Deccelerate time

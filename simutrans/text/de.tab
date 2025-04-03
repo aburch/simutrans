@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: de Deutsch                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 29.01 2025                           #
+#                            Date Created: 3.04 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -480,7 +480,7 @@ Pos1
 \nHeightfield has wrong image type.\n
 \nFalscher Dateityp.\n
 \nis reserved by:
-\nreserviert von Zug: \n
+\nreserviert von 
 \nminimum speed:
 \nMindestgeschwindigkeit: 
 \nnot elektrified
@@ -494,9 +494,9 @@ Pos1
 \nsingle way
 Keine Einfahrt!
 \nway1 reserved by
-\nWeg 1 besetzt von 
+\nWeg 1 reserviert bei 
 \nway2 reserved by
-\nWeg 2 besetzt von 
+\nWeg 2 reserviert bei 
 \nwith sign/signal\n
 \nHat Verkehrszeichen/Signal\n
 %d buildings\n
@@ -981,6 +981,8 @@ curiosity builder
 Sehenswürdigkeiten bauen
 curlist_title
 Touristenziele
+CURRENCY
+?
 Current game
 Spiel in Hintergrund
 Currently playing:
@@ -1034,7 +1036,7 @@ Zielort
 Destroying map ...
 Kartenspeicher wird freigegeben ...
 Developed by the Simutrans Team
-Entwickelts von dem Simutrans-Team
+Entwickelt vom Simutrans-Team
 Die Bruecke ist nicht frei!\n
 Die Brücke ist nicht frei!\n
 diesel

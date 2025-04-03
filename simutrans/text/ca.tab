@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                              Language: ca Catala                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 2.06 2024                           #
+#                            Date Created: 3.04 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -338,9 +338,9 @@ fins a
 \nsingle way
 \nSentit únic
 \nway1 reserved by
-L'accés 1 està reservat per \nL'accés 1 està reservat per 
+L'accés 1 està reservat per \n
 \nway2 reserved by
-L'accés 2 està reservat per \n L'accés 2 està reservat per 
+L'accés 2 està reservat per \n
 \nwith sign/signal\n
 \nNo té senyalètica\n
 %d buildings\n
@@ -727,6 +727,8 @@ curiosity builder
 Constructor de monuments
 curlist_title
 Llistat d'atraccions
+CURRENCY
+?
 Currently playing:
 Llista de pistes:
 Customers live in:

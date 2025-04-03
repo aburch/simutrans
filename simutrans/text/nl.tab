@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                            Language: nl Nederlands                           #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.07 2024                           #
+#                            Date Created: 3.04 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -342,9 +342,9 @@ niet geëlektrificeerd
 \nsingle way
 \neenrichtingsweg
 \nway1 reserved by
-Weg 1 gebruikt door\nWeg 1 gebruikt door
+Weg 1 gebruikt door\n
 \nway2 reserved by
-Weg 2 gebruikt door\nWeg 2 gebruikt door
+Weg 2 gebruikt door\n
 \nwith sign/signal\n
 \nmet bord/sein\n
 %d buildings\n
@@ -747,6 +747,8 @@ curiosity builder
 Attractie bouwen
 curlist_title
 Bezienswaardigheden
+CURRENCY
+?
 Currently playing:
 Momenteel spelend:
 Customers live in:

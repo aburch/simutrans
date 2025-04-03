@@ -12,7 +12,7 @@ cyr.bdf
 #                             Language: ru Russian                             #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 20.07 2024                           #
+#                            Date Created: 3.04 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -925,6 +925,8 @@ curiosity builder
 Построить достопримечательность
 curlist_title
 Список достопримечательностей
+CURRENCY
+₽
 Currently playing:
 Сейчас звучит:
 Customers live in:

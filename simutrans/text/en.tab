@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: en English                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 29.01 2025                           #
+#                            Date Created: 3.04 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -330,7 +330,7 @@ With a big festival,\n%s built\na new monument.\n%i citizens rejoiced.
 \nHeightfield has wrong image type.\n
 \nHeightfield has wrong\nimage type.\n
 \nis reserved by:
-\nreserved by train 
+\nreserved by 
 \nminimum speed:
 \nminimum speed: 
 \nnot elektrified
@@ -669,6 +669,8 @@ curiosity builder
 Curiosity builder
 curlist_title
 List of Tourist Destinations
+CURRENCY
+$
 deactivated in online mode
 Not active while online
 Deccelerate time

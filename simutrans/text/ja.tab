@@ -12,7 +12,7 @@ m+10r.bdf
 #                             Language: ja Japanese                            #
 #                                Encoding: UTF-8                               #
 #                                Font: m+10r.bdf                               #
-#                           Date Created: 10.01 2025                           #
+#                            Date Created: 3.04 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -472,7 +472,7 @@ Line Filter
 \nHeightfield has wrong image type.\n
 \nマップファイルの\nイメージ形式が不正です。\n
 \nis reserved by:
-優先列車：
+優先が
 \nminimum speed:
 \n最低速度：
 \nnot elektrified
@@ -951,6 +951,8 @@ curiosity builder
 ランドマーク建設ツール
 curlist_title
 名所旧跡一覧
+CURRENCY
+¥
 Currently playing:
 演奏中の曲：
 Customers live in:

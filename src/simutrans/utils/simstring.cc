@@ -16,7 +16,7 @@ static char fraction_sep = '.';
 static const char *large_number_string = "M";
 static double large_number_factor = 1e99; // off
 static int thousand_sep_exponent = 3;
-
+static const char *currency_string = "$";
 
 /**
  * Set thousand separator, used in money_to_string and
@@ -49,6 +49,10 @@ void set_fraction_sep(char c)
 }
 
 
+/**
+ * Set fraction separator, used in money_to_string and
+ * number_to_string
+ */
 char get_fraction_sep()
 {
 	return fraction_sep;
@@ -57,6 +61,18 @@ char get_fraction_sep()
 const char *get_large_money_string()
 {
 	return large_number_string;
+}
+
+
+void set_currency_string(const char* c)
+{
+	currency_string = c;
+}
+
+
+const char *get_currency_string()
+{
+	return currency_string;
 }
 
 
@@ -128,8 +144,7 @@ void money_to_string(char * p, double f, const bool show_decimal)
 			*p++ = tp[i++];
 		}
 	}
-	*p++ = '$';
-	*p = 0;
+	strcpy(p, currency_string);
 }
 
 

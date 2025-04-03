@@ -12,7 +12,7 @@ cyr.bdf
 #                              Language: ko Korean                             #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 20.07 2024                           #
+#                            Date Created: 3.04 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -715,6 +715,8 @@ curiosity builder
 호기심있는 건설업자
 curlist_title
 관광명소 목록
+CURRENCY
+₩
 Currently playing:
 게임중:
 Customers live in:

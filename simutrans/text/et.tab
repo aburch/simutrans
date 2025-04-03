@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                              Language: et Eesti                              #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 2.06 2024                           #
+#                            Date Created: 3.04 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -309,6 +309,8 @@ Convoi has been sent\nto the nearest depot\nof appropriate type.\n
 Sõiduk on saadetud lähimasse sobivasse depoosse.
 Convoi is sold when all wagons are empty.
 Sõiduk müüakse niipea kui see on täiesti tühi.
+CURRENCY
+?
 Neue Karte
 Uus kaart
 player 2

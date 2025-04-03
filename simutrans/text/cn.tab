@@ -12,7 +12,7 @@ wenquanyi_9pt.bdf
 #                           Language: cn Sim. Chinese                          #
 #                                Encoding: UTF-8                               #
 #                            Font: wenquanyi_9pt.bdf                           #
-#                           Date Created: 10.01 2025                           #
+#                            Date Created: 3.04 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -665,6 +665,8 @@ curiosity builder
 景点工具
 curlist_title
 景点列表
+CURRENCY
+¥
 Currently playing:
 进行中:
 deactivated in online mode

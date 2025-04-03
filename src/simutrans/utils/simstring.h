@@ -74,6 +74,10 @@ void set_fraction_sep(char c);
 char get_fraction_sep();
 const char *get_large_money_string();
 
+// currency (default "$")
+void set_currency_string(const char* c);
+const char* get_currency_string();
+
 /**
  * Set thousand exponent (3=1000, 4=10000), used in money_to_string and
  * number_to_string
@@ -91,14 +95,12 @@ void set_large_amount( const char *, const double v );
  */
 char *make_single_line_string(const char *in,int number_of_lines);
 
-
 /**
  * Formats a money value. Uses thousand separator. Two digits precision.
  * Concludes format with $ sign. Buffer must be large enough, no checks
  * are made!
  */
 void money_to_string(char * buf, double f, const bool show_decimal = true);
-
 
 /**
  * Formats a number value. Uses thousand separator. Buffer must be large enough,

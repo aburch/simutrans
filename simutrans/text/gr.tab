@@ -12,7 +12,7 @@ cyr.bdf
 #                             Language: gr Ellinika                            #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                            Date Created: 2.06 2024                           #
+#                            Date Created: 3.04 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -154,9 +154,9 @@ Remove vehicle from map. Use with care!
 \nsingle way
 \nΑπλή διαδρομή
 \nway1 reserved by
-διαδρομή 1 δεσμευμένη από\nδιαδρομή 1 δεσμευμένη από
+διαδρομή 1 δεσμευμένη από\n
 \nway2 reserved by
-διαδρομή 2 δεσμευμένη από\nδιαδρομή 2 δεσμευμένη από
+διαδρομή 2 δεσμευμένη από\n
 \nwith sign/signal\n
 \nμε σήμα/σήμα\n
 %d buildings\n
@@ -323,6 +323,8 @@ Copy the selected convoi and its schedule or line
 Αντιγράψτε την επιλεγμένη φάλαγγα οχημάτων και το χρονοδιάγραμμά της ή τη γραμμή
 Create a new line based on this schedule
 Κατασκευάστε μια νέα γραμμή βασισμένη σε αυτό το χρονοδιάγραμμα
+CURRENCY
+€
 Deccelerate time
 Χρόνος επιβράδυνσης
 December

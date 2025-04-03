@@ -15,6 +15,7 @@
 	FIX: bridge during town growth were built even if the inital test failed
 	FIX: less moving townhalls and not builging townhalls over roads with asymmetric sizes
 	CHG: with pause setting, server saves game after going to pause => immediately able to fulfill join requests and more current savegames on crashing servers
+	ADD: CURRENCY is now translateable to a local currency (no conversions though)
 
 
 Release of 124.3 (r11590 on 10-Jan-2025):

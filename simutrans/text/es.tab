@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: es Espanol                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 10.01 2025                           #
+#                            Date Created: 3.04 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -983,6 +983,8 @@ curiosity builder
 Constructor de monumentos
 curlist_title
 Lista de Atracciones Turísticas
+CURRENCY
+?
 Currently playing:
 Reproduciendo actualmente:
 Customers live in:

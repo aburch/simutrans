@@ -67,6 +67,13 @@ void sprachengui_t::init_font_from_lang()
 		dr_chdir( env_t::user_dir );
 	}
 
+	// currency symbol
+	{
+		const char* org = "CURRENCY";
+		const char* trans = translator::translate(org);
+		set_currency_string((trans != org) ? trans : "$");
+	}
+
 	const char * p = translator::translate("SEP_THOUSAND");
 	char c = ',';
 	if(*p != 'S') {

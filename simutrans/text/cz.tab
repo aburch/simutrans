@@ -12,7 +12,7 @@ prop-latin2.fnt
 #                             Language: cz Cestina                             #
 #                                Encoding: UTF-8                               #
 #                             Font: prop-latin2.fnt                            #
-#                           Date Created: 20.07 2024                           #
+#                            Date Created: 3.04 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -336,9 +336,9 @@ elektrifikováno
 \nsingle way
 \nJednosměrka
 \nway1 reserved by
-Trasa 1 rezervována hráčem\nTrasa 1 rezervována hráčem
+Trasa 1 rezervována hráčem\n
 \nway2 reserved by
-Trasa 1 rezervována hráčem\nTrasa 1 rezervována hráčem
+Trasa 1 rezervována hráčem\n
 \nwith sign/signal\n
 \nse značkou/semaforem\n
 %d buildings\n

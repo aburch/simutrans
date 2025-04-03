@@ -12,7 +12,7 @@ cyr.bdf
 #                            Language: lt Lithuanian                           #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 20.07 2024                           #
+#                            Date Created: 3.04 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -312,9 +312,9 @@ iki
 \nsingle way
 \nViena kryptis
 \nway1 reserved by
-kelias 1 reservuotas \nkelias 1 reservuotas 
+kelias 1 reservuotas \n
 \nway2 reserved by
-kelias 2 užimtas: \nkelias 2 paruoštas 
+kelias 2 užimtas: \n
 \nwith sign/signal\n
 \nsu ženklu/signalu\n
 %d buildings\n
@@ -701,6 +701,8 @@ curiosity builder
 Įvairūs pastatai
 curlist_title
 Lankomų vietų sąrašas 
+CURRENCY
+€
 Currently playing:
 Grojama:
 Customers live in:
