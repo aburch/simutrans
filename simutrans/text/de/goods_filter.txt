@@ -3,21 +3,21 @@
 <h1><strong>Warenliste</strong></h1>
 
 <p>
-Die Warenliste wird mit <em>Shift</em>+<em>G</em> oder über die <a href="list.txt">Listenverwaltung</a> aufgerufen.<br/>
-In der Warenliste sind Passagiere sowie alle Güter, die Dir im gespielten Grafikset ( pak ) zum Transport anvertraut werden können, gelistet. Dabei können momentan nicht vorhandene Güter ausgeblendet werden.
+Die Warenliste wird mit <em>Shift</em>+<em>G</em> oder Ã¼ber die <a href="list.txt">Listenverwaltung</a> aufgerufen.<br/>
+In der Warenliste sind Passagiere sowie alle GÃ¼ter, die Dir im gespielten Grafikset ( pak ) zum Transport anvertraut werden kÃ¶nnen, gelistet. Dabei kÃ¶nnen momentan nicht vorhandene GÃ¼ter ausgeblendet werden.
 </p>
 <p>
-· <em>Fracht:</em> Passagiere und alle Güterarten in Simutrans werden nach einer internen Sortierung gelistet. Vor jeder Frachtart befindet sich ein <em>Farbquadrat</em>. Die gleichen Farben findest Du auch an den Säulen über den Haltestellennamen wieder. Sie zeigen dort an, wieviel Einheiten je Güterart an den Haltestellen gelagert sind. Die Anzeige läßt sich über die Taste <em>!</em> ein- und ausblenden.
+Â· <em>Fracht:</em> Passagiere und alle GÃ¼terarten in Simutrans werden nach einer internen Sortierung gelistet. Vor jeder Frachtart befindet sich ein <em>Farbquadrat</em>. Die gleichen Farben findest Du auch an den SÃ¤ulen Ã¼ber den Haltestellennamen wieder. Sie zeigen dort an, wieviel Einheiten je GÃ¼terart an den Haltestellen gelagert sind. Die Anzeige lÃ¤ÃŸt sich Ã¼ber die Taste <em>!</em> ein- und ausblenden.
 </p>
 <p>
-· <em>Preis:</em> Der Transporterlös pro Einheit eines Gutes für ein zurückgelegtes Feld.
+Â· <em>Preis:</em> Der TransporterlÃ¶s pro Einheit eines Gutes fÃ¼r ein zurÃ¼ckgelegtes Feld.
 </p>
 <p>
-· <em>Bonus:</em> Werden Güter, und vor allem Passagiere und Post auf einem Verkehrsträger schneller als oben angezeigt befördert, wird auf den Grundumsatz pro weitere 10 km/h der Bonus aufgerechnet; ist das Fahrzeug langsamer, kann der Umsatz auch sinken. Die Berechnungsformel ist komplex. Maßgebend für die Höhe des Bonus ist die zulässige Höchstgeschwindigkeit des Konvois. Die Höchstgeschwindigkeit der befahrenen Strecke und die tatsächliche Beförderungszeit finden keine Berücksichtigung.
+Â· <em>Bonus:</em> Werden GÃ¼ter, und vor allem Passagiere und Post auf einem VerkehrstrÃ¤ger schneller als oben angezeigt befÃ¶rdert, wird auf den Grundumsatz pro weitere 10 km/h der Bonus aufgerechnet; ist das Fahrzeug langsamer, kann der Umsatz auch sinken. Die Berechnungsformel ist komplex. MaÃŸgebend fÃ¼r die HÃ¶he des Bonus ist die zulÃ¤ssige HÃ¶chstgeschwindigkeit des Konvois. Die HÃ¶chstgeschwindigkeit der befahrenen Strecke und die tatsÃ¤chliche BefÃ¶rderungszeit finden keine BerÃ¼cksichtigung.
 </p>
 <p>
-· <em>Kategorie:</em>  Jede Frachtart ist einer Güterkategorie zugeordnet. Für jede Güterkategorie ist ein bestimmter Fahrzeugtyp vorgesehen. Alle Sonderfrachten können nur mit spezifischen Fahrzeugen transportiert werden. Im <a href="depot3.txt">Depotfenster</a> kannst Du die Güterarten unter "Zuladung" einsehen.
+Â· <em>Kategorie:</em>  Jede Frachtart ist einer GÃ¼terkategorie zugeordnet. FÃ¼r jede GÃ¼terkategorie ist ein bestimmter Fahrzeugtyp vorgesehen. Alle Sonderfrachten kÃ¶nnen nur mit spezifischen Fahrzeugen transportiert werden. Im <a href="depot3.txt">Depotfenster</a> kannst Du die GÃ¼terarten unter "Zuladung" einsehen.
 </p>
 <p>
-· <em>Gewicht:</em> Das Gewicht einer Einheit eines Gutes in kg.
+Â· <em>Gewicht:</em> Das Gewicht einer Einheit eines Gutes in kg.
 </p>

@@ -54,7 +54,7 @@
          -- <a href="factorylist_filter.txt">Industrie lijst</a><br>
          -- <a href="curiositylist_filter.txt">Bezienswaardigheden</a><br>
 - <a href="mailbox.txt">Berichtencentrum</a><br>
-- <a href="finances.txt">Financiën</a>
+- <a href="finances.txt">FinanciÃ«n</a>
 </p>
 
 <p>

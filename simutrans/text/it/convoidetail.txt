@@ -3,7 +3,7 @@
 <h1><strong>Dettagli del convoglio</strong></h1>
 
 <p>
-<strong>Dettagli del convoglio</strong> fornisce pi˘ informazioni riguardo un determinato convoglio (un veicolo o una combinazione di essi) e puÚ essere usato per venderlo immediatamente.
+<strong>Dettagli del convoglio</strong> fornisce pi√π informazioni riguardo un determinato convoglio (un veicolo o una combinazione di essi) e pu√≤ essere usato per venderlo immediatamente.
 </p>
 <p>
 
@@ -21,16 +21,16 @@ In cima a <strong>Dettagli del convoglio</strong>, le informazioni includono:
 <em>Valore di vendita:</em> denaro ricevuto se il convoglio venisse venduto (prezzo d'acquisto meno tutte le perdite di valore).
 </p>
 <p>
-ATTENZIONE: Clicca sull'opzione <em>Modalit‡ vendita</em> per vendere il convoglio immediatamente. Nessuna conferma sar‡ richiesta. Esso sar‡ rimosso dal gioco e il bilancio del giocatore ricever‡ in credito il prezzo di vendita.
+ATTENZIONE: Clicca sull'opzione <em>Modalit√† vendita</em> per vendere il convoglio immediatamente. Nessuna conferma sar√† richiesta. Esso sar√† rimosso dal gioco e il bilancio del giocatore ricever√† in credito il prezzo di vendita.
 </p>
 <p>
 <strong>Dettagli convoglio</strong> elenca tutti gli elementi in esso.<br>
 Le informazioni presenti per tutti i veicoli includono:<br>
-- <em>Immagine:</em> una figura dell'unit‡ (usata anche in <a href="depot.txt">Depositi</a>).<br>
+- <em>Immagine:</em> una figura dell'unit√† (usata anche in <a href="depot.txt">Depositi</a>).<br>
 - <em>Costruito:</em> mese e anno di costruzione e di introduzione se si sta giocando con la <a href="new_world.txt">linea del tempo</a>.<br>
 - <em>Valore di rivendita:</em> somma ricevuta se venduto.<br>
 - <em>Potenza:</em> potenza generata (dai veicoli motorizzati).<br>
 - <em>Frizione:</em> livello di frizione corrente.<br>
-- <em>Guadagno massimo:</em> guadagno dell'unit‡ secondo il tipo di bene trasportato dal convoglio.<br>
+- <em>Guadagno massimo:</em> guadagno dell'unit√† secondo il tipo di bene trasportato dal convoglio.<br>
 - <em>Beni a bordo</em> ammontare e destinazione dei beni trasportati dal veicolo.
 </p>

@@ -1,35 +1,35 @@
-<title>Sehenswürdigkeiten bauen</title>
+<title>SehenswÃ¼rdigkeiten bauen</title>
 
-<h1><strong>Sehenswürdigkeiten bauen</strong></h1>
+<h1><strong>SehenswÃ¼rdigkeiten bauen</strong></h1>
 
 <p>
 Der Dialog ist in vier Bereiche aufgeteilt.
 <br>
-· oben links befindet sich die Auswahlliste mit den Sehenswürdigkeiten<br>
-· unten links wird das Bild der ausgewählten Sehenswürdigkeit angezeigt<br>
-· oben rechts befinden sich einige Optionen<br>
-· unten rechts werden die Informationen der ausgewählten Sehenswürdigkeit angezeigt<br>
+Â· oben links befindet sich die Auswahlliste mit den SehenswÃ¼rdigkeiten<br>
+Â· unten links wird das Bild der ausgewÃ¤hlten SehenswÃ¼rdigkeit angezeigt<br>
+Â· oben rechts befinden sich einige Optionen<br>
+Â· unten rechts werden die Informationen der ausgewÃ¤hlten SehenswÃ¼rdigkeit angezeigt<br>
 </p>
 <h1>Auswahlliste</h1>
 <p>
-In der Auswahlliste werden alle zur Verfügung stehenden Sehenswürdigkeit angezeigt, wenn die entsprechenden Optionen aktiviert (<em>Stadtattraktionen</em>, <em> Ausflugsziel</em>, <em>Denkmal</em>) sind.
+In der Auswahlliste werden alle zur VerfÃ¼gung stehenden SehenswÃ¼rdigkeit angezeigt, wenn die entsprechenden Optionen aktiviert (<em>Stadtattraktionen</em>, <em> Ausflugsziel</em>, <em>Denkmal</em>) sind.
 Oben befinden sich zwei Reiter, die die Anzeige umschalten.<br>
-· <em>Übersetzung:</em> Zeigt die Namen so an, wie diese im Spiel verwendet werden. Dies ist abhängig von der eingestellten Sprache. Wenn keine Übersetzung für die eingestellte Sprache vorhanden ist, wird der Objektname angezeigt.<br>
-· <em>Objekt:</em> Zeigt die internen Objektnamen an.<br>
+Â· <em>Ãœbersetzung:</em> Zeigt die Namen so an, wie diese im Spiel verwendet werden. Dies ist abhÃ¤ngig von der eingestellten Sprache. Wenn keine Ãœbersetzung fÃ¼r die eingestellte Sprache vorhanden ist, wird der Objektname angezeigt.<br>
+Â· <em>Objekt:</em> Zeigt die internen Objektnamen an.<br>
 <br>
 Die Schriftfarben haben folgende Bedeutung:<br>
-· <em>grüne Schrift</em> kennzeichnet Sehenswürdigkeiten, deren Standort sich außerhalb von Städten befindet.<br>
-· <em>blaue Schrift</em> kennzeichnet Sehenswürdigkeiten, deren Standort sich innerhalb von Städten befindet.<br>
-· <em>schwarze Schrift</em> kennzeichnet Denkmäler. Denkmäler können nur einmal pro Karte gebaut werden.<br>
+Â· <em>grÃ¼ne Schrift</em> kennzeichnet SehenswÃ¼rdigkeiten, deren Standort sich auÃŸerhalb von StÃ¤dten befindet.<br>
+Â· <em>blaue Schrift</em> kennzeichnet SehenswÃ¼rdigkeiten, deren Standort sich innerhalb von StÃ¤dten befindet.<br>
+Â· <em>schwarze Schrift</em> kennzeichnet DenkmÃ¤ler. DenkmÃ¤ler kÃ¶nnen nur einmal pro Karte gebaut werden.<br>
 </p>
 <h1>Optionen</h1>
 <p>
-· <em>alle Klimazonen:</em> Diese Option deaktiviert die Klimazonenzuordnung beim Bau der Sehenswürdigkeit.<br>
-· <em>Mit Epoche ab Jahr:</em> Es werden nur die Sehenswürdigkeiten in der Auswahlliste angezeigt, die im aktuellem Spieljahr zur Verfügung stehen.<br>
-· <em>Auch veraltete zeigen:</em> Es werden auch die Sehenswürdigkeiten in der Auswahlliste angezeigt, die in früheren Spieljahren mal zur Verfügung standen.<br>
-· <em>Stadtattraktionen:</em> Es werden die Sehenswürdigkeiten in der Auswahlliste angezeigt, deren Standort sich in Städten befindet.<br>
-· <em>Ausflugsziel:</em> Es werden die Sehenswürdigkeiten in der Auswahlliste angezeigt, deren Standort sich außerhalb von Städten befindet.<br>
-· <em>Denkmal:</em> Es werden die Denkmäler in der Auswahlliste angezeigt.
+Â· <em>alle Klimazonen:</em> Diese Option deaktiviert die Klimazonenzuordnung beim Bau der SehenswÃ¼rdigkeit.<br>
+Â· <em>Mit Epoche ab Jahr:</em> Es werden nur die SehenswÃ¼rdigkeiten in der Auswahlliste angezeigt, die im aktuellem Spieljahr zur VerfÃ¼gung stehen.<br>
+Â· <em>Auch veraltete zeigen:</em> Es werden auch die SehenswÃ¼rdigkeiten in der Auswahlliste angezeigt, die in frÃ¼heren Spieljahren mal zur VerfÃ¼gung standen.<br>
+Â· <em>Stadtattraktionen:</em> Es werden die SehenswÃ¼rdigkeiten in der Auswahlliste angezeigt, deren Standort sich in StÃ¤dten befindet.<br>
+Â· <em>Ausflugsziel:</em> Es werden die SehenswÃ¼rdigkeiten in der Auswahlliste angezeigt, deren Standort sich auÃŸerhalb von StÃ¤dten befindet.<br>
+Â· <em>Denkmal:</em> Es werden die DenkmÃ¤ler in der Auswahlliste angezeigt.
 <br>
-· <em>Rotation:</em> Sofern die ausgewählte Sehenswürdigkeit mehrere Ansichten hat, kann hier eine bestimmte Ansicht ausgewählt werden. Die Grafik unten links wird entsprechen gewechselt. Bei der Auswahl von <em>Zufällig</em>, wird beim Bau der Sehenswürdigkeit irgendeine Ansicht gewählt.<br>
+Â· <em>Rotation:</em> Sofern die ausgewÃ¤hlte SehenswÃ¼rdigkeit mehrere Ansichten hat, kann hier eine bestimmte Ansicht ausgewÃ¤hlt werden. Die Grafik unten links wird entsprechen gewechselt. Bei der Auswahl von <em>ZufÃ¤llig</em>, wird beim Bau der SehenswÃ¼rdigkeit irgendeine Ansicht gewÃ¤hlt.<br>
 </p>

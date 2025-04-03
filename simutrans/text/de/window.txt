@@ -4,30 +4,30 @@
 
 <p>
 <em>Allgemeines</em>
-<br/>Simutrans lässt sich über die Maus und teilweise auch über die <em>Tastatur</em> steuern; die <a href="keys.txt">Tastaturbelegung</a> ist über den gleichnamigen Menüpunkt im Hilfemenü (Taste <em>F1</em>) verfügbar und erscheint auch jedesmal, wenn eine Taste ohne Funktion gedrückt wird (z. B. 5).<br/>
-Die Tasten sind in der Hilfe weiß hervorgehoben. <em>Achtung</em> es wird zwischen Groß- und Kleinschreibung unterschieden.
+<br/>Simutrans lÃ¤sst sich Ã¼ber die Maus und teilweise auch Ã¼ber die <em>Tastatur</em> steuern; die <a href="keys.txt">Tastaturbelegung</a> ist Ã¼ber den gleichnamigen MenÃ¼punkt im HilfemenÃ¼ (Taste <em>F1</em>) verfÃ¼gbar und erscheint auch jedesmal, wenn eine Taste ohne Funktion gedrÃ¼ckt wird (z. B. 5).<br/>
+Die Tasten sind in der Hilfe weiÃŸ hervorgehoben. <em>Achtung</em> es wird zwischen GroÃŸ- und Kleinschreibung unterschieden.
 </p>
 <p>
 <em>Auswahlen und Platzierungen</em>
-<br/>Die Nutzung der Schaltflächen und Objektauswahlen sowie Objektplazierungen im Spiel erfolgen über Klicken mit der linken Maustaste. In der Hilfe werden die Begriffe "auswählen" und "platzieren" bzw. Begriffe mit vergleichbarem Sinn benutzt.
+<br/>Die Nutzung der SchaltflÃ¤chen und Objektauswahlen sowie Objektplazierungen im Spiel erfolgen Ã¼ber Klicken mit der linken Maustaste. In der Hilfe werden die Begriffe "auswÃ¤hlen" und "platzieren" bzw. Begriffe mit vergleichbarem Sinn benutzt.
 </p>
 <p>
 <em>Bewegen der Spielkarte</em>
-<br/><em>·</em> Halte die rechte Maustaste gedrückt und verschiebe die Karte in beliebiger Richtung zu Deiner Wunschposition. In der Grundeinstellung verschiebt sich die Karte entgegen der Mausbewegung. Du kannst das Verhalten über die <a href="options.txt">Einstellungen</a> ändern.
-<br/><em>·</em> Die Karte lässt sich auch über die Tastatur (Ziffern auf dem Nummernblock) bewegen.
-<br/><em>·</em> Du hast auch die Möglichkeit, den gewünschten Kartenausschnitt durch Anwahl des entsprechenden Punktes auf der <a href="map.txt">Reliefkarte</a> direkt anzuspringen.
+<br/><em>Â·</em> Halte die rechte Maustaste gedrÃ¼ckt und verschiebe die Karte in beliebiger Richtung zu Deiner Wunschposition. In der Grundeinstellung verschiebt sich die Karte entgegen der Mausbewegung. Du kannst das Verhalten Ã¼ber die <a href="options.txt">Einstellungen</a> Ã¤ndern.
+<br/><em>Â·</em> Die Karte lÃ¤sst sich auch Ã¼ber die Tastatur (Ziffern auf dem Nummernblock) bewegen.
+<br/><em>Â·</em> Du hast auch die MÃ¶glichkeit, den gewÃ¼nschten Kartenausschnitt durch Anwahl des entsprechenden Punktes auf der <a href="map.txt">Reliefkarte</a> direkt anzuspringen.
 </p>
 <p>
-<em>Ändern der Kartenansicht (zoomen)</em>
-<br/>Die Ansicht der Karte lässt sich in 4 Größenstufen darstellen. Verfügt Deine Maus über ein Mausrad, kannst Du die Größenstufe durch drehen des Mausrades einstellen. Mit den Tasten <em>Page Up</em> und <em>Page Down</em> erreichst Du den gleichen Effekt.
+<em>Ã„ndern der Kartenansicht (zoomen)</em>
+<br/>Die Ansicht der Karte lÃ¤sst sich in 4 GrÃ¶ÃŸenstufen darstellen. VerfÃ¼gt Deine Maus Ã¼ber ein Mausrad, kannst Du die GrÃ¶ÃŸenstufe durch drehen des Mausrades einstellen. Mit den Tasten <em>Page Up</em> und <em>Page Down</em> erreichst Du den gleichen Effekt.
 </p>
 <p>
 <em>Spielgeschwindigkeit</em>
-<br/>Die in der Statusleiste angezeigte Spielgeschwindigkeit (T=1.00) entspricht der Standardgeschwindigkeit. Alle Aktivitäten im Spiel laufen wirklichkeitskonform.
+<br/>Die in der Statusleiste angezeigte Spielgeschwindigkeit (T=1.00) entspricht der Standardgeschwindigkeit. Alle AktivitÃ¤ten im Spiel laufen wirklichkeitskonform.
 </p>
 <p>
-Mitunter mag Dir eine höhere Geschwindigkeit sinnvoll erscheinen, vor allem, wenn der Kassenbestand knapp wird und Du auf Belieferung und das Kassieren der Frachten wartest. Ändere die Geschwindigkeit bei Bedarf mit den Tasten <em>.</em> (schneller) und <em>,</em> (langsamer).
-Einiges an Tempo wird das Spiel problemlos umsetzen. Bei Geschwindigkeiten, die die Leistung Deines Computers überschreiten, sind Unregelmäßigkeiten im Spielablauf, wie etwa in den Bahnhöfen stehenbleibende Züge, zu geringe Passagiererzeugung oder fehlerhafte Beladung bis hin zum Einfrieren des Spiels, nicht ausgeschlossen. Bei den<a href="display.txt">Anzeigeeinstellungen</a> befinden sich diesbezügliche Kontrollmöglichkeiten. Ein automatischer schneller Vorlauf lässt sich über die Taste <em>W</em> oder das Vorlaufsymbol in der <a href="mainmenu2.txt">Hauptenüleiste</a> ein- und ausschalten.
+Mitunter mag Dir eine hÃ¶here Geschwindigkeit sinnvoll erscheinen, vor allem, wenn der Kassenbestand knapp wird und Du auf Belieferung und das Kassieren der Frachten wartest. Ã„ndere die Geschwindigkeit bei Bedarf mit den Tasten <em>.</em> (schneller) und <em>,</em> (langsamer).
+Einiges an Tempo wird das Spiel problemlos umsetzen. Bei Geschwindigkeiten, die die Leistung Deines Computers Ã¼berschreiten, sind UnregelmÃ¤ÃŸigkeiten im Spielablauf, wie etwa in den BahnhÃ¶fen stehenbleibende ZÃ¼ge, zu geringe Passagiererzeugung oder fehlerhafte Beladung bis hin zum Einfrieren des Spiels, nicht ausgeschlossen. Bei den<a href="display.txt">Anzeigeeinstellungen</a> befinden sich diesbezÃ¼gliche KontrollmÃ¶glichkeiten. Ein automatischer schneller Vorlauf lÃ¤sst sich Ã¼ber die Taste <em>W</em> oder das Vorlaufsymbol in der <a href="mainmenu2.txt">HauptenÃ¼leiste</a> ein- und ausschalten.
 </p>
 <p>
 <em>Einstellung der Helligkeit</em>
@@ -36,17 +36,17 @@ Einiges an Tempo wird das Spiel problemlos umsetzen. Bei Geschwindigkeiten, die 
 <p>
 <em>Editieren von Namen</em>
 <br/>
-Die Namensfelder in einigen Fenstern, wie Haltestellen-, Fahrzeug- und Liniennamen, sind editierbar. Sie sind von der Fensteroberfläche zurückgesetzt und zeigen glatte Beschriftungsflächen. Zum editieren, klicke mit der Maus in das Namensfeld. Bearbeite nun den Text. Editierungen werden unmittelbar wirksam. Drücke zum Verlassen des Feldes die Taste <em>RETURN</em>.
+Die Namensfelder in einigen Fenstern, wie Haltestellen-, Fahrzeug- und Liniennamen, sind editierbar. Sie sind von der FensteroberflÃ¤che zurÃ¼ckgesetzt und zeigen glatte BeschriftungsflÃ¤chen. Zum editieren, klicke mit der Maus in das Namensfeld. Bearbeite nun den Text. Editierungen werden unmittelbar wirksam. DrÃ¼cke zum Verlassen des Feldes die Taste <em>RETURN</em>.
 </p>
 <p>
 <em>Pfeilschalter</em>
 <br/>
-In vielen Fenstern findest Du Wertangaben zwischen zwei Pfeilschaltern. Mit einem Klick auf den linken Schalter verringerst Du den Wert, mit einem Klick auf den rechten erhöhst Du den Wert. Halte die linke Maustaste gedrückt, wenn Du größere Wertebereiche durchlaufen möchtest.
+In vielen Fenstern findest Du Wertangaben zwischen zwei Pfeilschaltern. Mit einem Klick auf den linken Schalter verringerst Du den Wert, mit einem Klick auf den rechten erhÃ¶hst Du den Wert. Halte die linke Maustaste gedrÃ¼ckt, wenn Du grÃ¶ÃŸere Wertebereiche durchlaufen mÃ¶chtest.
 </p>
 <p>
-<em>Auswahlmenüs</em>
+<em>AuswahlmenÃ¼s</em>
 <br/>
-Linienauswahlmenüs in den Depotfenstern und in den Fahrplanfenstern sind wie die Namensfelder zurückgesetzt und zusätzlich mit Pfeilschaltern versehen. Wenn Du auf eine Menüfläche klickst, wird das Auswahlmenü geöffnet. Wählst Du einen Eintrag aus, springt er in die Anzeigezeile und stellt nun die neue Auswahl dar. Die Zeile kann auch editiert werden, aus eigener Erfahrung rät der Autor, Editierungen bevorzugt in speziell dafür vorgesehenen Fenstern vorzunehmen.
+LinienauswahlmenÃ¼s in den Depotfenstern und in den Fahrplanfenstern sind wie die Namensfelder zurÃ¼ckgesetzt und zusÃ¤tzlich mit Pfeilschaltern versehen. Wenn Du auf eine MenÃ¼flÃ¤che klickst, wird das AuswahlmenÃ¼ geÃ¶ffnet. WÃ¤hlst Du einen Eintrag aus, springt er in die Anzeigezeile und stellt nun die neue Auswahl dar. Die Zeile kann auch editiert werden, aus eigener Erfahrung rÃ¤t der Autor, Editierungen bevorzugt in speziell dafÃ¼r vorgesehenen Fenstern vorzunehmen.
 </p> 
 <p>
 <em>Untergrund</em>

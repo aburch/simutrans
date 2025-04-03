@@ -1,23 +1,23 @@
-<title>Häfen und Werften</title>
+<title>HÃ¤fen und Werften</title>
 
-<h1><strong>Häfen und Werften</strong></h1>
+<h1><strong>HÃ¤fen und Werften</strong></h1>
 
 <p>
-Diese Werkzeugleiste dient dem Bau von Kanälen, Hafenanlagen und Werften. Bei der Auswahl eines Werkzeuges verwandelt sich der Cursor in das jeweilige Symbol.
+Diese Werkzeugleiste dient dem Bau von KanÃ¤len, Hafenanlagen und Werften. Bei der Auswahl eines Werkzeuges verwandelt sich der Cursor in das jeweilige Symbol.
 </p>
 <p>
-<em>Kanäle</em> erlauben es Schiffen, ins Binnenland vorzudringen. Simutrans benutzt nur leere Felder oder bereits vorhandene Kanalstücke. Am Hang kann nur in Neigungsrichtung gebaut werden, Schleusengrafiken werden automatisch erstellt.<br/>
-Beim ersten Platzieren des Kanalbauwerkzeuges in der Weltkarte wird der Anfang der Strecke festgelegt, beim zweiten der Endpunkt. Das Spiel baut zwischen beiden Punkten die kürzestmögliche Strecke. Wenn keine Verbindung gefunden wird, passiert nach dem Anklicken des Endpunktes nichts. Eine Bauaktion lässt sich mittels <em>z</em> gratis rückgängig machen (ohne Baukostenerstattung), solange nichts anderes gebaut wurde.
+<em>KanÃ¤le</em> erlauben es Schiffen, ins Binnenland vorzudringen. Simutrans benutzt nur leere Felder oder bereits vorhandene KanalstÃ¼cke. Am Hang kann nur in Neigungsrichtung gebaut werden, Schleusengrafiken werden automatisch erstellt.<br/>
+Beim ersten Platzieren des Kanalbauwerkzeuges in der Weltkarte wird der Anfang der Strecke festgelegt, beim zweiten der Endpunkt. Das Spiel baut zwischen beiden Punkten die kÃ¼rzestmÃ¶gliche Strecke. Wenn keine Verbindung gefunden wird, passiert nach dem Anklicken des Endpunktes nichts. Eine Bauaktion lÃ¤sst sich mittels <em>z</em> gratis rÃ¼ckgÃ¤ngig machen (ohne Baukostenerstattung), solange nichts anderes gebaut wurde.
 </p>
 <p>
-<em>Hafenanlagen</em> dienen als Schiffsanlegestellen. An Häfen werden Schiffe be- und entladen.
+<em>Hafenanlagen</em> dienen als Schiffsanlegestellen. An HÃ¤fen werden Schiffe be- und entladen.
 <br> <br/>
-<em>Hafenbau</em> Binnenhäfen können auf geraden Kanalstücken, Meerhäfen nur an geraden Stränden gebaut werden. Plaziere zur Errichtung eines Meerhafens das Hafenbauwerkzeug auf einer Strandkachel. Zur Errichtung größerer Hafenanlagen ist es möglich, mehrere Häfen direkt aneinander zu bauen. In einigen Simutrans-Versionen stehen Dir mehrteilige Hafenanlagen zur verfügung, welche Du in beliebiger Anordnung platzieren kannst.
+<em>Hafenbau</em> BinnenhÃ¤fen kÃ¶nnen auf geraden KanalstÃ¼cken, MeerhÃ¤fen nur an geraden StrÃ¤nden gebaut werden. Plaziere zur Errichtung eines Meerhafens das Hafenbauwerkzeug auf einer Strandkachel. Zur Errichtung grÃ¶ÃŸerer Hafenanlagen ist es mÃ¶glich, mehrere HÃ¤fen direkt aneinander zu bauen. In einigen Simutrans-Versionen stehen Dir mehrteilige Hafenanlagen zur verfÃ¼gung, welche Du in beliebiger Anordnung platzieren kannst.
 <br> <br/>
-<em>Fahrplanhalte</em> Schiffe gehen im Wasser vor Anker. Bei Binnenhäfen ist der Haltepunkt im Kanal, Setze die Fahrplanhalte bei Meerhäfen nicht auf den Hafen, sondern auf Wasserfelder, die an den Hafen direkt angrenzen.
+<em>Fahrplanhalte</em> Schiffe gehen im Wasser vor Anker. Bei BinnenhÃ¤fen ist der Haltepunkt im Kanal, Setze die Fahrplanhalte bei MeerhÃ¤fen nicht auf den Hafen, sondern auf Wasserfelder, die an den Hafen direkt angrenzen.
 <br> <br/>
 <em>Haltestelle</em> Weiteres zum Aufbau von Haltestellen ist detailiert in der Hilfe zum <a href="station.txt">Haltestellenfenster</a> beschrieben.
 </p>
 <p>
-<em>Werften</em> dienen zum Bau von Schiffen. Die angebotenen Schiffstypen stehen Dir zum Kauf zur Verfügung. Richte Schifflinien ein, weise sie den georderten Schiffen zu, lasse die Schiffe auslaufen. Die verschiedenen Werfttypen unterscheiden sich lediglich in ihrer Ausrichtung. Platziere sie im freien Wasser, Es ist nicht möglich, eine Werft auf dem Strand oder in einem Kanal zu bauen. Auch weit draußen auf See kannst Du Werften errichten. Berücksichtige bei der Plazierung aber die Kartengrenzen. Deine Spielwelt ist immer von Wasser umgeben. Die Ränder stehen der Nutzung allerdings nicht zur Verfügung. Sie dienen dem gefälligen Kartenabschluss.
+<em>Werften</em> dienen zum Bau von Schiffen. Die angebotenen Schiffstypen stehen Dir zum Kauf zur VerfÃ¼gung. Richte Schifflinien ein, weise sie den georderten Schiffen zu, lasse die Schiffe auslaufen. Die verschiedenen Werfttypen unterscheiden sich lediglich in ihrer Ausrichtung. Platziere sie im freien Wasser, Es ist nicht mÃ¶glich, eine Werft auf dem Strand oder in einem Kanal zu bauen. Auch weit drauÃŸen auf See kannst Du Werften errichten. BerÃ¼cksichtige bei der Plazierung aber die Kartengrenzen. Deine Spielwelt ist immer von Wasser umgeben. Die RÃ¤nder stehen der Nutzung allerdings nicht zur VerfÃ¼gung. Sie dienen dem gefÃ¤lligen Kartenabschluss.
 </p>

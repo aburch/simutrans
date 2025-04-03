@@ -10,37 +10,37 @@
 
 <strong>Uusi peli</strong> asettaa uuden pelin ominaisuudet.<br>
 
-Muokattavia asetuksia ovat mm. maaston koko ja kaupunki- ja teollisuusalueiden määrä pelin alussa. Asetusten mukaisesta uudesta kartasta näkee esikatseluversion.
+Muokattavia asetuksia ovat mm. maaston koko ja kaupunki- ja teollisuusalueiden mÃ¤Ã¤rÃ¤ pelin alussa. Asetusten mukaisesta uudesta kartasta nÃ¤kee esikatseluversion.
 
 </p>
 
 <p>
 
-<strong>Uusi peli</strong> avautuu yhdessä <a href="language.txt">Kielet</a>- ja <a href="climates.txt">Ilmaston asetukset</a> -ikkunoiden kanssa, kun Simutrans käynnistyy. Sen saa esille myös <a href="options.txt">Peliasetukset</a>-kuvakkeesta (tällöin muut työkalut, ikkunat ja tekstit sulkeutuvat).<br>
+<strong>Uusi peli</strong> avautuu yhdessÃ¤ <a href="language.txt">Kielet</a>- ja <a href="climates.txt">Ilmaston asetukset</a> -ikkunoiden kanssa, kun Simutrans kÃ¤ynnistyy. Sen saa esille myÃ¶s <a href="options.txt">Peliasetukset</a>-kuvakkeesta (tÃ¤llÃ¶in muut tyÃ¶kalut, ikkunat ja tekstit sulkeutuvat).<br>
 
-Pikanäppäimiä käytettäessä <strong>Uusi peli</strong> avautuu näppäimillä <a href="keys.txt">[Q]</a> and [X].
-
-</p>
-
-<p>
-
-Palataksesi nykyiseen peliin <strong>Uusi peli</strong>-ikkunasta klikkaa rastia vasemmassa yläkulmassa.
+PikanÃ¤ppÃ¤imiÃ¤ kÃ¤ytettÃ¤essÃ¤ <strong>Uusi peli</strong> avautuu nÃ¤ppÃ¤imillÃ¤ <a href="keys.txt">[Q]</a> and [X].
 
 </p>
 
 <p>
 
-Nuolipainikkeet säätävät asetuksia ja painikkeet vaihtavat päälle/pois tai avaavat uusia asetuksia:
+Palataksesi nykyiseen peliin <strong>Uusi peli</strong>-ikkunasta klikkaa rastia vasemmassa ylÃ¤kulmassa.
+
 </p>
 
 <p>
 
-<em>Kartan numero:</em> valitsee pelissä käytettävän kartan numeron.<br>
+Nuolipainikkeet sÃ¤Ã¤tÃ¤vÃ¤t asetuksia ja painikkeet vaihtavat pÃ¤Ã¤lle/pois tai avaavat uusia asetuksia:
+</p>
 
-Klikkaa numerolaatikkoa ja kirjoita haluamasi numero tai käytä nuolipainikkeita siirtyäksesi eri maastovaihtoehtojen välillä.
+<p>
+
+<em>Kartan numero:</em> valitsee pelissÃ¤ kÃ¤ytettÃ¤vÃ¤n kartan numeron.<br>
+
+Klikkaa numerolaatikkoa ja kirjoita haluamasi numero tai kÃ¤ytÃ¤ nuolipainikkeita siirtyÃ¤ksesi eri maastovaihtoehtojen vÃ¤lillÃ¤.
 <br>
 
-Esikatselukuva näyttää valitun maaston (vesi on sinistä, maa on vaaleampaa korkeammilla kohdilla).
+Esikatselukuva nÃ¤yttÃ¤Ã¤ valitun maaston (vesi on sinistÃ¤, maa on vaaleampaa korkeammilla kohdilla).
 
 </p>
 
@@ -48,12 +48,12 @@ Esikatselukuva näyttää valitun maaston (vesi on sinistä, maa on vaaleampaa korke
 
 <em>Kartan koko:</em> asettaa kartan sivujen pituudet (ylempi arvo on leveys, alempi korkeus).
 
-Suuret kartat vaativat enemmän muistia ja niiden luominen kestää pidempään. Esim. tietokoneella, jossa on 256 Mt RAM-muistia, on kokoa 512 x 512 oleva kartta käytännössä maksimi sujuvaan peliin.
+Suuret kartat vaativat enemmÃ¤n muistia ja niiden luominen kestÃ¤Ã¤ pidempÃ¤Ã¤n. Esim. tietokoneella, jossa on 256 Mt RAM-muistia, on kokoa 512 x 512 oleva kartta kÃ¤ytÃ¤nnÃ¶ssÃ¤ maksimi sujuvaan peliin.
 </p>
 
 <p>
 
-<em>Arvo kartta:</em> valitsee satunnaisen kartan l. kartan numeron. Muut asetukset säilyvät ennallaan.
+<em>Arvo kartta:</em> valitsee satunnaisen kartan l. kartan numeron. Muut asetukset sÃ¤ilyvÃ¤t ennallaan.
 
 </p>
 
@@ -65,69 +65,69 @@ Suuret kartat vaativat enemmän muistia ja niiden luominen kestää pidempään. Esim
 
 <p>
 
-<em>Kaupunkien määrä:</em> asettaa <a href="citywindow.txt">kaupunkien</a> lukumäärän pelin alussa.
+<em>Kaupunkien mÃ¤Ã¤rÃ¤:</em> asettaa <a href="citywindow.txt">kaupunkien</a> lukumÃ¤Ã¤rÃ¤n pelin alussa.
 
 </p>
 
 <p>
 
-<em>Asukkaita keskimäärin:</em> asettaa kaupunkien väkiluvun pelin alussa.<br>
+<em>Asukkaita keskimÃ¤Ã¤rin:</em> asettaa kaupunkien vÃ¤kiluvun pelin alussa.<br>
 
-Tämä on keskiarvo; Simutrans pyrkii luomaan enemmän pieniä kyliä kuin suuria kaupunkeja.
-
-</p>
-
-<p>
-
-<em>Maanteiden pituus:</em> asettaa kaupunkienvälisten teiden pituuden.
+TÃ¤mÃ¤ on keskiarvo; Simutrans pyrkii luomaan enemmÃ¤n pieniÃ¤ kyliÃ¤ kuin suuria kaupunkeja.
 
 </p>
 
 <p>
 
-<em>Liikennetiheys:</em> asettaa henkilöautojen määrän kaupungeissa.<br>
-
-Korkeat arvot luovat enemmän yksityisliikennettä, 0 ei yhtään. Väestön suuretessa ilmaantuu uusia autoja.
-</p>
-
-<p>
-
-<em>Tehtaita:</em> asettaa <a href="industry_info.txt">tuotantoketjujen</a> määrän pelin alussa.<br>
-
-Jos maasto on hyvin mäkistä, voi lopullinen määrä jäädä pienemmäksi.
+<em>Maanteiden pituus:</em> asettaa kaupunkienvÃ¤listen teiden pituuden.
 
 </p>
 
 <p>
 
-<em>Sähköntuotto:</em> asettaa <a href="industry_info.txt">voimaloiden</a> enimmillään tuottaman sähkön määrän prosentteina muiden tehtaiden enimmillään tarvitsemasta määrästä.<br>
+<em>Liikennetiheys:</em> asettaa henkilÃ¶autojen mÃ¤Ã¤rÃ¤n kaupungeissa.<br>
 
-Useiden tehtaiden ja laitosten tuotantoa voidaan tehostaa kytkemällä ne sähköverkkoon.
+Korkeat arvot luovat enemmÃ¤n yksityisliikennettÃ¤, 0 ei yhtÃ¤Ã¤n. VÃ¤estÃ¶n suuretessa ilmaantuu uusia autoja.
+</p>
+
+<p>
+
+<em>Tehtaita:</em> asettaa <a href="industry_info.txt">tuotantoketjujen</a> mÃ¤Ã¤rÃ¤n pelin alussa.<br>
+
+Jos maasto on hyvin mÃ¤kistÃ¤, voi lopullinen mÃ¤Ã¤rÃ¤ jÃ¤Ã¤dÃ¤ pienemmÃ¤ksi.
 
 </p>
 
 <p>
 
-<a href="curiositylist_filter.txt"><em>Turistikohteita:</em></a> asettaa turistaa ja postia puoleensavetävien nähtävyyksien määrän pelin alussa.<br>
+<em>SÃ¤hkÃ¶ntuotto:</em> asettaa <a href="industry_info.txt">voimaloiden</a> enimmillÃ¤Ã¤n tuottaman sÃ¤hkÃ¶n mÃ¤Ã¤rÃ¤n prosentteina muiden tehtaiden enimmillÃ¤Ã¤n tarvitsemasta mÃ¤Ã¤rÃ¤stÃ¤.<br>
 
-Nämä esiintyvät kaupunkialueiden ulkopuolella eivätkä ole riippuvaisia kaupunkeihin luotujen nähtävyyksien määrästä. Nähtävyyksien lähistöltä syntyy myös turistien ja postin paluuliikennettä.
+Useiden tehtaiden ja laitosten tuotantoa voidaan tehostaa kytkemÃ¤llÃ¤ ne sÃ¤hkÃ¶verkkoon.
 
 </p>
 
 <p>
 
-<em>Käytä aikalinjaa vuodesta:</em> asettaa pelin aloitusvuoden.
+<a href="curiositylist_filter.txt"><em>Turistikohteita:</em></a> asettaa turistaa ja postia puoleensavetÃ¤vien nÃ¤htÃ¤vyyksien mÃ¤Ã¤rÃ¤n pelin alussa.<br>
 
-Kun neliöpainike on alhaalla, aikalinja on valittu ja pelin ajan kuluessa voi ilmaantua uusia ajoneuvo- ja rakennusvaihtoehtoja.
+NÃ¤mÃ¤ esiintyvÃ¤t kaupunkialueiden ulkopuolella eivÃ¤tkÃ¤ ole riippuvaisia kaupunkeihin luotujen nÃ¤htÃ¤vyyksien mÃ¤Ã¤rÃ¤stÃ¤. NÃ¤htÃ¤vyyksien lÃ¤histÃ¶ltÃ¤ syntyy myÃ¶s turistien ja postin paluuliikennettÃ¤.
+
+</p>
+
+<p>
+
+<em>KÃ¤ytÃ¤ aikalinjaa vuodesta:</em> asettaa pelin aloitusvuoden.
+
+Kun neliÃ¶painike on alhaalla, aikalinja on valittu ja pelin ajan kuluessa voi ilmaantua uusia ajoneuvo- ja rakennusvaihtoehtoja.
 <br>
 
-Kun neliöpainike on alhaalla ja aikalinja siis pois päältä, peli alkaa yhä valittuna vuonna, mutta kaikki ajoneuvot ja rakennukset ovat käytettävissä välittömästi. Kaupungeissa on tällöin rakennuksia usealta aikakaudelta ja hitaammat ajoneuvot eivät ole yhtä tuottoisia kuin muuten (kuljetuspalkkioihin vaikuttaa kulloinkin saatavilla olevien ajoneuvojen keskinopeus).
+Kun neliÃ¶painike on alhaalla ja aikalinja siis pois pÃ¤Ã¤ltÃ¤, peli alkaa yhÃ¤ valittuna vuonna, mutta kaikki ajoneuvot ja rakennukset ovat kÃ¤ytettÃ¤vissÃ¤ vÃ¤littÃ¶mÃ¤sti. Kaupungeissa on tÃ¤llÃ¶in rakennuksia usealta aikakaudelta ja hitaammat ajoneuvot eivÃ¤t ole yhtÃ¤ tuottoisia kuin muuten (kuljetuspalkkioihin vaikuttaa kulloinkin saatavilla olevien ajoneuvojen keskinopeus).
 
 </p>
 
 <p>
 
-<em>Salli pelaajan vaihtaminen:</em> antaa mahdollisuuden ohjata tekoälyn(AI) tai julkiset palvelut -<a href="players.txt">pelaajan</a> yhtiötä (asetusta ei voi vaihtaa pelin alettua).
+<em>Salli pelaajan vaihtaminen:</em> antaa mahdollisuuden ohjata tekoÃ¤lyn(AI) tai julkiset palvelut -<a href="players.txt">pelaajan</a> yhtiÃ¶tÃ¤ (asetusta ei voi vaihtaa pelin alettua).
 
 </p>
 
@@ -135,18 +135,18 @@ Kun neliöpainike on alhaalla ja aikalinja siis pois päältä, peli alkaa yhä valit
 
 <a href="load.txt">
 
-<em>Lataa peli:</em></a> avaa uuden ikkunan, jossa voi avata <a href="save.txt">tallennetun</a> pelin. Nykyinen (tallentamaton) peli menetetään.
+<em>Lataa peli:</em></a> avaa uuden ikkunan, jossa voi avata <a href="save.txt">tallennetun</a> pelin. Nykyinen (tallentamaton) peli menetetÃ¤Ã¤n.
 
 </p>
 
 <p>
 
-<em>Aloita peli:</em> luo uuden pelimaailman valituilla asetuksilla. Klikkaa aloittaaksi - onnea matkaan ja nauti pelistä!
+<em>Aloita peli:</em> luo uuden pelimaailman valituilla asetuksilla. Klikkaa aloittaaksi - onnea matkaan ja nauti pelistÃ¤!
 
 </p>
 
 <p>
 
-{Vinkki: Simutransin käynnistyessä näytettäviä oletusarvoja voi muokata tiedostossa simuconf.tab}
+{Vinkki: Simutransin kÃ¤ynnistyessÃ¤ nÃ¤ytettÃ¤viÃ¤ oletusarvoja voi muokata tiedostossa simuconf.tab}
 
 </p>

@@ -66,7 +66,7 @@ Puede hacer zoom de la vista y tambien desplazarla para ver el resto de partes d
 <p>
 Una barra inferior muestra informacion acerca de la partida actual, y se situa en la parte inferior de la vista del juego.<br>
 La informacion mostrada, de izquierda a derecha en la barra inferior incluye:<br>
-<em>fecha y hora</em>: fecha y hora actual de la partida, seguida por el icono y nombre de la estacion del año.<br>
+<em>fecha y hora</em>: fecha y hora actual de la partida, seguida por el icono y nombre de la estacion del aÃ±o.<br>
 <em>balance economico</em>: dinero actual disponible para construccion y otros costes (comprar vehiculos, mantenimiento de las infraestructuras de transporte y los costes operacionales de los vehiculos operativos).<br>
 <em>coordenadas</em>: indica la posicion del cursor en la vista de juego. Las tres cifras representan las coordenadas X, Y y la altura.<br>
 <em>T</em>: indica la escala de paso del tiempo en el juego.<br>

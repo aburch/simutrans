@@ -9,10 +9,10 @@
 Una Linea consta de una serie de <a href="station.txt">Paradas</a> donde los vehiculos cargan y descargan pasajeros y mercancias (los transportes maritimos usan una cuadricula cualquiera de agua en el area de influencia del puerto) y puntos de paso (usados para dirigir vehiculos si hay mas de una ruta posible o para proporcionar puntos intermedios de destino).
 </p>
 <p>
-Pulsa en el icono de la red en la barra de la parte superior de la pantalla o pulsa <a href="keys.txt">[w]</a> para abrir la ventana de <strong>Administracion de Lineas</strong>, de la cual puedes <a href="mouse.txt">ajustar su tamaño</a> (pulsa en la flecha hacia abajo de la barra de titulo para volver al tamaño original).
+Pulsa en el icono de la red en la barra de la parte superior de la pantalla o pulsa <a href="keys.txt">[w]</a> para abrir la ventana de <strong>Administracion de Lineas</strong>, de la cual puedes <a href="mouse.txt">ajustar su tamaÃ±o</a> (pulsa en la flecha hacia abajo de la barra de titulo para volver al tamaÃ±o original).
 </p>
 <p>
-La parte izquierda de la ventana <strong>Administracion de Lineas</strong> lista las lineas existentes (para desplazar la lista: usa la barra de desplazamiento en la parte derecha de la lista), que puede filtrarse por tipo de transporte, pulsando en las distintas pestañas que hay sobre la lista para seleccionar:<br>
+La parte izquierda de la ventana <strong>Administracion de Lineas</strong> lista las lineas existentes (para desplazar la lista: usa la barra de desplazamiento en la parte derecha de la lista), que puede filtrarse por tipo de transporte, pulsando en las distintas pestaÃ±as que hay sobre la lista para seleccionar:<br>
 <em>Todo</em>: lista Lineas de todos los vehiculos.<br>
 <em>Tren</em>: lista Lineas de todos los vehiculos ferroviarios.<br>
 <em>Monorrail</em>: lista Lineas de todos los vehiculos Monorrail/maglevs.<br>
@@ -32,15 +32,15 @@ El color del nombre de la Linea indica los siguiente:<br>
 <p>
 Bajo la lista de lineas existentes estan los botones de opcion para gestionar las Lineas.<br>
 Pulsa en una Linea de la lista para seleccionarla (el nombre aparecera resaltado) y consulta informacion acerca de las <a href="station.txt">Paradas</a>, ingresos, y Convoys en la Linea seleccionada.<br>
-Si los detalles de las Paradas o Convoys son parcialmente visibles, ajusta el tamaño de la ventana <strong>Administracion de Lineas</strong> o usa las barras de desplazamiento para desplazar la informacion.
+Si los detalles de las Paradas o Convoys son parcialmente visibles, ajusta el tamaÃ±o de la ventana <strong>Administracion de Lineas</strong> o usa las barras de desplazamiento para desplazar la informacion.
 </p>
 <p>
 Los botones de opcion, en la parte izquierda, incluyen (pulsa para seleccionar):
 </p>
 <p>
 <em>Nueva linea:</em>opcion que abre controles para definir la <a href="schedule.txt">Ruta</a> ( una ruta y la cantidad minima de mercancias y pasajeros que cargara el <a href="convoiinfo.txt">Convoy</a> en cada Parada) de una nueva Linea.<br>
-Añade cuantas <a href="station.txt">Paradas</a> o puntos de paso como sea necesario, ajusta los niveles de carga para cada Parada, y por ultimo cierra la ventana de Enrutar para crear la nueva Linea (pulsa en la X de la parte superior izquierda de la ventana o usa el teclado). A la nueva Linea se le asignara un numero y se listara en la ventana <strong>Administracion de Lineas</strong>.<br>
-{Consejos: Selecciona el tipo de transporte usando las pestañas antes de crear una nueva Linea. Los vehiculos no cargan o descargan mercancias o pasajeros en los puntos de paso.}
+AÃ±ade cuantas <a href="station.txt">Paradas</a> o puntos de paso como sea necesario, ajusta los niveles de carga para cada Parada, y por ultimo cierra la ventana de Enrutar para crear la nueva Linea (pulsa en la X de la parte superior izquierda de la ventana o usa el teclado). A la nueva Linea se le asignara un numero y se listara en la ventana <strong>Administracion de Lineas</strong>.<br>
+{Consejos: Selecciona el tipo de transporte usando las pestaÃ±as antes de crear una nueva Linea. Los vehiculos no cargan o descargan mercancias o pasajeros en los puntos de paso.}
 </p>
 <p>
 <em>Actualizar linea:</em> abre los controles para alterar y gestionar una <a href="schedule.txt">Ruta</a> ya existente (una ruta y la cantidad minima de mercancias y pasajeros que cargara el <a href="convoiinfo.txt">Convoy</a> en cada Parada) de una Linea. EL cambio afectara a todos los vehiculos de la Linea, una vez hayas cerrado la ventana de Enrutar (pulsa en la X de la esquina superior izquierda de la ventana).<br>
@@ -63,7 +63,7 @@ Los elementos listado por cada Parada incluyen:<br>
 <em>Numero</em> de Parada (Las Paradas son numeradas si esta activa esta opcion en el archivo simuconf.tab).<br>
 <em>icono(s) de vehiculo</em> indica que tipos de vehiculos pueden usar la Parada (se usa tambien en Lista de Estaciones y en Informacion de la Parada). os iconos incluyen: bus (para vehiculos de pasajeros por carretera), camion (para vehiculos de mercancias por carretera), tren, barco y avion. Los tranvias se indican mediante el icono del bus o tren dependiendo del tipo de estacion.<br>
 <em>icono(s) de mercancias</em> indica que elementos (pasajeros, mercancias y correo) puede manejar la Parada (tambien se usa en Informacion de la Parada y Lista de Estaciones).<br>
-{Consejos: añade las extensiones apropiadas para cambiar la categoria de las mercancias que puede manejar la Parada. Las <a href="special.txt">oficinas de correos</a> se pueden añadir a las Paradas para poder manejar correo}.<br>
+{Consejos: aÃ±ade las extensiones apropiadas para cambiar la categoria de las mercancias que puede manejar la Parada. Las <a href="special.txt">oficinas de correos</a> se pueden aÃ±adir a las Paradas para poder manejar correo}.<br>
 <em>esperando</em> detalles de las diferentes mercancias y pasajeros.
 </p>
 <p>
@@ -98,7 +98,7 @@ Cuando se selecciona una Linea (pulsa en el nombre de una Linea de la lista para
 En la parte superior de la lista de vehiculos se muestra: el numero total de Convoys asignados a la Linea; ingresos (ganancias menos costes operativos), capacidad, y cantidad actual de mercancias y pasajeros cargada(% de la maxima capacidad entre parentesis) the todos los Convoys de la linea.<br>
 Pulsa en un elemento de la lista para ver mas informacion acerca de dicho Convoy (usa la barra de desplazamiento para desplazar la lista).<br>
 los elementos listados por cada Convoy incluyen:<br>
-<em>nombre:</em> que ha sido asignado (por defecto esto se hace con el primer vehiculo <a href="depot.txt">comprado</a> o añadido a un Convoy).<br>
+<em>nombre:</em> que ha sido asignado (por defecto esto se hace con el primer vehiculo <a href="depot.txt">comprado</a> o aÃ±adido a un Convoy).<br>
 <em>ingresos:</em> muestra los beneficios (ingresos generados menos costes operaciones).<br>
 <em>Linea:</em> muestra el nombre de la Linea asignada al Convoy e indica si esta en una <a href="depot.txt">cochera</a>.<br>
 <em>graficos:</em> muestra la composicion y el nivel actual de los elementos cargados.

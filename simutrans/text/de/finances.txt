@@ -3,45 +3,45 @@
 <h1><strong>Finanzen</strong></h1>
 
 <p>
-Die Finanzen können im Finanzfenster betrachtet werden. Dieses kann durch Drücken von <em>f</em> oder über die <a href="mainmenu.txt">Hauptmenüleiste</a> geöffnet werden.<br>
-Dort sind die Informationen über die Finanzen zusammengefasst.
+Die Finanzen kÃ¶nnen im Finanzfenster betrachtet werden. Dieses kann durch DrÃ¼cken von <em>f</em> oder Ã¼ber die <a href="mainmenu.txt">HauptmenÃ¼leiste</a> geÃ¶ffnet werden.<br>
+Dort sind die Informationen Ã¼ber die Finanzen zusammengefasst.
 </p>
 <p>
-Im unteren Teil des Fensters ist eine Grafik, die den Verlauf eines oder mehrer Werte anzeigt. Welche diese anzeigen soll, kannst Du mit den farbigen Schaltflächen darüber auswählen. Du kannst die Ansicht zwischen Jahren und Monaten umschalten.
+Im unteren Teil des Fensters ist eine Grafik, die den Verlauf eines oder mehrer Werte anzeigt. Welche diese anzeigen soll, kannst Du mit den farbigen SchaltflÃ¤chen darÃ¼ber auswÃ¤hlen. Du kannst die Ansicht zwischen Jahren und Monaten umschalten.
 </p>
 <p>
-Mit der Schaltfläche <em>Firmensitzbau</em> kann ein Firmensitz gebaut werden. Gibt es bereits einen Firmensitzes, heißt die Schaltfläche <em>Firmensitzumbau</em>. Unterhalb der Schaltfläche wird ein Kartenausschnitt mit dem Standort des Firmensitzes angezeigt.<br>
-Der Firmensitzbau/-umbau steht nur zur Verfügung, wenn das verwendete Pakset Firmensitzgebäude enthält.
+Mit der SchaltflÃ¤che <em>Firmensitzbau</em> kann ein Firmensitz gebaut werden. Gibt es bereits einen Firmensitzes, heiÃŸt die SchaltflÃ¤che <em>Firmensitzumbau</em>. Unterhalb der SchaltflÃ¤che wird ein Kartenausschnitt mit dem Standort des Firmensitzes angezeigt.<br>
+Der Firmensitzbau/-umbau steht nur zur VerfÃ¼gung, wenn das verwendete Pakset FirmensitzgebÃ¤ude enthÃ¤lt.
 </p>
 <p>
-Die Positionen und Schaltflächen der linken Hälfte sind wie folgt:
+Die Positionen und SchaltflÃ¤chen der linken HÃ¤lfte sind wie folgt:
 </p>
 <p>
-<em>Einnahmen</em> - Die gesamten Einnahmen aus dem Transport von Passagieren und Gütern.<br>
-<em>Betriebskosten</em> - Die Kosten für den Betrieb aller Fahrzeuge. Die Betriebskosten pro gefahrenem Kilometer je Fahrzeugtyp können im <a href="depot.txt">Depot</a> eingesehen werden, für Fahrzeugverbände im <a href="convoiinfo.txt">Fahrzeugfenster</a>.<br>
-<em>Instandhaltung</em> - Die angefallenen Kosten für die Instandhaltung der Infrastruktur. Die Kosten der <em>Instandhaltung pro Monat</em> werden rechts angezeigt und jeweils am letzten des Monats fällig, also dann immer soviel auf dem Konto vorrätig haben!<br>
-<em>Maut</em> - Wenn Fahrzeuge auf fremden Wegen (zum Beispiel Straßen anderer Spieler) unterwegs sind, kann ein Maut (Wegzoll) anfallen. Dies hängt vom Pakset ab. Je nachdem, ob andere Spieler deine Wege benutzen oder umgekehrt, kann man so Geld verdienen oder muss bezahlen.<br>
+<em>Einnahmen</em> - Die gesamten Einnahmen aus dem Transport von Passagieren und GÃ¼tern.<br>
+<em>Betriebskosten</em> - Die Kosten fÃ¼r den Betrieb aller Fahrzeuge. Die Betriebskosten pro gefahrenem Kilometer je Fahrzeugtyp kÃ¶nnen im <a href="depot.txt">Depot</a> eingesehen werden, fÃ¼r FahrzeugverbÃ¤nde im <a href="convoiinfo.txt">Fahrzeugfenster</a>.<br>
+<em>Instandhaltung</em> - Die angefallenen Kosten fÃ¼r die Instandhaltung der Infrastruktur. Die Kosten der <em>Instandhaltung pro Monat</em> werden rechts angezeigt und jeweils am letzten des Monats fÃ¤llig, also dann immer soviel auf dem Konto vorrÃ¤tig haben!<br>
+<em>Maut</em> - Wenn Fahrzeuge auf fremden Wegen (zum Beispiel StraÃŸen anderer Spieler) unterwegs sind, kann ein Maut (Wegzoll) anfallen. Dies hÃ¤ngt vom Pakset ab. Je nachdem, ob andere Spieler deine Wege benutzen oder umgekehrt, kann man so Geld verdienen oder muss bezahlen.<br>
 <em>Freileitungen</em> - Der Gewinn durch den Verkauf von Strom.<br>
-<em>Betriebsgewinn</em> - Der operative Gewinn (exkl. Abschreibungen auf Fahrzeuge), also was mit der Transporttätigkeit, Maut, Freileitung an sich verdient wird minus der Betriebskosten und Instandhaltung. Summe aller obigen Positionen.
+<em>Betriebsgewinn</em> - Der operative Gewinn (exkl. Abschreibungen auf Fahrzeuge), also was mit der TransporttÃ¤tigkeit, Maut, Freileitung an sich verdient wird minus der Betriebskosten und Instandhaltung. Summe aller obigen Positionen.
 </p>
 <p>
-<em>Neue Fahrzeuge</em> - Alle Ausgaben (Einnahmen) für den Kauf (Verkauf) von Fahrzeugen.<br>
-<em>Ausgaben Bau</em> - Hier steht der Betrag, der für den Bau von Schienen, Strassen, Signalen usw. ausgegeben wurde. Auch Abrisskosten zählen zu den Baukosten.<br>
-<em>Bruttogewinn</em> - Die Summe aller Einnahmen (Geldzuflüsse) und Ausgaben (Geldabflüsse), der sogenannte Cash-Flow. Summe aller obigen Positionen.
+<em>Neue Fahrzeuge</em> - Alle Ausgaben (Einnahmen) fÃ¼r den Kauf (Verkauf) von Fahrzeugen.<br>
+<em>Ausgaben Bau</em> - Hier steht der Betrag, der fÃ¼r den Bau von Schienen, Strassen, Signalen usw. ausgegeben wurde. Auch Abrisskosten zÃ¤hlen zu den Baukosten.<br>
+<em>Bruttogewinn</em> - Die Summe aller Einnahmen (GeldzuflÃ¼sse) und Ausgaben (GeldabflÃ¼sse), der sogenannte Cash-Flow. Summe aller obigen Positionen.
 <br><br>
-<em>Beförderungen</em> - Die Summe aller Einheiten, die transportiert worden sind.
+<em>BefÃ¶rderungen</em> - Die Summe aller Einheiten, die transportiert worden sind.
 </p>
 <p>
-Die Positionen und Schaltflächen der rechten Hälfte sind wie folgt:
+Die Positionen und SchaltflÃ¤chen der rechten HÃ¤lfte sind wie folgt:
 </p>
 <p>
-<em>Kontostand</em> - Der aktuelle Kontostand. Dieses Geld steht zur Verfügung, um zu bauen oder Fahrzeuge und Züge zu kaufen. Der Kontostand steht auch in der Statusleiste unten in der Mitte. Ist der Kontostand negativ erscheint monatlich eine Warnung.<br>
+<em>Kontostand</em> - Der aktuelle Kontostand. Dieses Geld steht zur VerfÃ¼gung, um zu bauen oder Fahrzeuge und ZÃ¼ge zu kaufen. Der Kontostand steht auch in der Statusleiste unten in der Mitte. Ist der Kontostand negativ erscheint monatlich eine Warnung.<br>
 <em>Fahrzeugwert</em> - Der Wert Deiner Fahrzeugflotte per Ende des letzten Monats.<br>
-<em>Marge</em> - Die erzielte Nettomarge (Betriebsgewinn/Kosten). Je höher diese ist, desto mehr wird aus den angefallenen Kosten herausgeholt. Die Werte werden laufend aktualisiert, sind aber unter dem Monat wegen fehlender Unterhaltskosten zu hoch. Aussagekräftiger sind Zahlen des Vormonats oder Vorjahres. Achtung: Es kann durchaus sinnvoll sein, Linien mit geringer Marge zu betreiben, z.B. um eine Industrie zu versorgen.<br>
-<em>Gesamtvermögen</em> - Die Summe von Kontostand und Fahrzeugwert, also der Firmenwert. Ist das Gesamtvermögen am Ende eines Monats negativ, ist die Firma pleite und das Spiel verloren. Sinkt das Gesamtvermögen unter 10% des Startkapitals, erscheint am Monatsersten eine Warnung.
+<em>Marge</em> - Die erzielte Nettomarge (Betriebsgewinn/Kosten). Je hÃ¶her diese ist, desto mehr wird aus den angefallenen Kosten herausgeholt. Die Werte werden laufend aktualisiert, sind aber unter dem Monat wegen fehlender Unterhaltskosten zu hoch. AussagekrÃ¤ftiger sind Zahlen des Vormonats oder Vorjahres. Achtung: Es kann durchaus sinnvoll sein, Linien mit geringer Marge zu betreiben, z.B. um eine Industrie zu versorgen.<br>
+<em>GesamtvermÃ¶gen</em> - Die Summe von Kontostand und Fahrzeugwert, also der Firmenwert. Ist das GesamtvermÃ¶gen am Ende eines Monats negativ, ist die Firma pleite und das Spiel verloren. Sinkt das GesamtvermÃ¶gen unter 10% des Startkapitals, erscheint am Monatsersten eine Warnung.
 </p>
 
 <h1><strong>Mission-Spiele</strong></h1>
 <p>
-Bei Mission-Spielen wird zusätzlich der Mission-Auftrag und der erreichte Mission-Status (in %) angezeigt.
+Bei Mission-Spielen wird zusÃ¤tzlich der Mission-Auftrag und der erreichte Mission-Status (in %) angezeigt.
 </p>

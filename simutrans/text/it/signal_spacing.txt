@@ -10,7 +10,7 @@ Metodo di utilizzo:
 
 -- Ctrl-click su un segnale fa apparire l'interfaccia.<br>
 
--- Click-and-drag lungo il tracciato mostra la preview dei nuovi segnali, rilasciando il bottone i segnali diventeranno definitivi. I segnali saranno costruiti permettendo ai treni di muoversi lungo il percorso solo nella direzione che si Ë usata per trascinare i segnali.<br>
+-- Click-and-drag lungo il tracciato mostra la preview dei nuovi segnali, rilasciando il bottone i segnali diventeranno definitivi. I segnali saranno costruiti permettendo ai treni di muoversi lungo il percorso solo nella direzione che si √® usata per trascinare i segnali.<br>
 
 -- Gioco in rete: per prima cosa ctrl-click sul tracciato e poi rilasciare il bottone del mouse. Premere il tasto e muovere il mouse per vedere l'anteprima. Rilasciare il bottone per costruire.<br>
 </p>
@@ -19,7 +19,7 @@ Parametri:
 </p>
 <p>
 
--- <em>Spaziatura dei segnali:</em> numero di piastrelle consecutive oltre le quali verr‡ piazzato il segnale (i percorsi in diagonale valgono 1/2 piastrella). Questo valore Ë visualizzato sull'icona selezionando il segnale.<br>
+-- <em>Spaziatura dei segnali:</em> numero di piastrelle consecutive oltre le quali verr√† piazzato il segnale (i percorsi in diagonale valgono 1/2 piastrella). Questo valore √® visualizzato sull'icona selezionando il segnale.<br>
 
 -- <em>Rimozione segnali intermedi:</em> se selezionato tutti gli altri segnali sul percorso saranno cancellati.<br>
 

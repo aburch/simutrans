@@ -71,7 +71,11 @@ void sprachengui_t::init_font_from_lang()
 	{
 		const char* org = "CURRENCY";
 		const char* trans = translator::translate(org);
-		set_currency_string((trans != org) ? trans : "$");
+		if (trans != org  && env_t::currency_symbol[0] == 0) {
+			// no special symbol selected
+			set_currency_string(trans,env_t::currency_left);
+			env_t::currency_symbol[0] = 0;
+		}
 	}
 
 	const char * p = translator::translate("SEP_THOUSAND");

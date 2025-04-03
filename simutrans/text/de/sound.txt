@@ -3,18 +3,18 @@
 <h1><strong>Sound- & Musikeinstellungen</strong></h1>
  
 <p>
-Zum Abspielen von Sounds und Musik muss die SDL-Version von Simutrans installiert sein. Unter Windows wird die sdl.dll benötigt. Sounds (WAV-Format) und Musikstücke (MIDI-Format) werden im Verzeichnis simutrans/sound abgelegt.<br>
+Zum Abspielen von Sounds und Musik muss die SDL-Version von Simutrans installiert sein. Unter Windows wird die sdl.dll benÃ¶tigt. Sounds (WAV-Format) und MusikstÃ¼cke (MIDI-Format) werden im Verzeichnis simutrans/sound abgelegt.<br>
 Wird Simutrans mit -nosound oder -nomidi gestartet, dann sind Sound bzw. Musik nicht benutztbar.<br>
 ACHTUNG: Insbesondere Musik funktioniert nur auf bestimmten Systemen. 
 </p>
 <p>
-Durch Verschieben der Regler nach links oder rechts kannst Du die Lautstärke der Musik und der Geräusche festlegen. Je weiter rechts die Regler stehen, desto lauter erfolgt die Ausgabe.
+Durch Verschieben der Regler nach links oder rechts kannst Du die LautstÃ¤rke der Musik und der GerÃ¤usche festlegen. Je weiter rechts die Regler stehen, desto lauter erfolgt die Ausgabe.
 </p>
 <p>
-<em>Klanglautstärke:</em> Lautstärke der Klänge im Spiel. Die Klänge können, mit dem Knopf Klänge aus, ganz ausgeschalten werden.<br>
-<em>Musiklautstärke:</em> Lautstärke der Musik im Spiel. Die Musik kann, mit dem Knopf Musik aus, ganz ausgeschlaten werden.<br>
+<em>KlanglautstÃ¤rke:</em> LautstÃ¤rke der KlÃ¤nge im Spiel. Die KlÃ¤nge kÃ¶nnen, mit dem Knopf KlÃ¤nge aus, ganz ausgeschalten werden.<br>
+<em>MusiklautstÃ¤rke:</em> LautstÃ¤rke der Musik im Spiel. Die Musik kann, mit dem Knopf Musik aus, ganz ausgeschlaten werden.<br>
 </p>
 <p>
-Das Musikstück, das gespielt werden soll, kannst Du mit den Pfeilknöpfen auswählen, sofern Musik verfügbar ist.
+Das MusikstÃ¼ck, das gespielt werden soll, kannst Du mit den PfeilknÃ¶pfen auswÃ¤hlen, sofern Musik verfÃ¼gbar ist.
 </p>
-<p>Wenn die Zufallsauswahl aktiviert ist werden die Musikstücke in zufälliger Reihenfolge abgespielt.</p>
+<p>Wenn die Zufallsauswahl aktiviert ist werden die MusikstÃ¼cke in zufÃ¤lliger Reihenfolge abgespielt.</p>

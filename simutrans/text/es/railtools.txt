@@ -3,7 +3,7 @@
 <h1><strong>Herramientas de Ferrocarriles</strong></h1>
 
 <p>
-<strong>Herramientas de Ferrocarriles</strong> sirven para construir una red de transporte con ferrocarriles. Puedes construir: vias de tren (electrificarlas y eliminarlas); puentes; tuneles; señales; cocheras; estaciones; y extensiones. Si estas jugando con <a href="new_world.txt">cronologia</a>, a medida que pase el tiempo apareceran mas opciones.
+<strong>Herramientas de Ferrocarriles</strong> sirven para construir una red de transporte con ferrocarriles. Puedes construir: vias de tren (electrificarlas y eliminarlas); puentes; tuneles; seÃ±ales; cocheras; estaciones; y extensiones. Si estas jugando con <a href="new_world.txt">cronologia</a>, a medida que pase el tiempo apareceran mas opciones.
 </p>
 <p>
 Pulsa en el icono del tren en la barra de la parte superior de la pantalla para abrir la barra de herramientas. Situa el cursor sobre los iconos de la barra (tras abrirla) para ver el nombre, los <a href="finances.txt">costes</a> de construccion, los costes de mantenimiento entre parentesis, limite de velocidad maxima y longitud maxima.
@@ -23,7 +23,7 @@ Para electrificar un via: pulsa en la herramienta o pulsa la tecla [e] (el curso
 {Consejos: Usa la herramienta Eliminar para volver a vias no electrificadas.}
 </p>
 <p>
-<em>Remove Track:</em> herramienta que elimina vias normales y electrificadas, cuando no hay vehiculos presentes, entre dos puntos (ATENCION: estaciones, señales, puentes y tuneles entre ambos puntos tambien se eliminan). El uso de esta herramienta implica <a href="finances.txt">costes de construccion</a>.<br>
+<em>Remove Track:</em> herramienta que elimina vias normales y electrificadas, cuando no hay vehiculos presentes, entre dos puntos (ATENCION: estaciones, seÃ±ales, puentes y tuneles entre ambos puntos tambien se eliminan). El uso de esta herramienta implica <a href="finances.txt">costes de construccion</a>.<br>
 Para eliminar vias: pulsa en la herramienta (cambia el cursor a una cruz roja); despues pulsa en la via (situa una cruz roja en el punto seleccionado); por ultimo pulsa en un segundo punto de la via, para eliminar el tramo entre ambos puntos.<br>
 {Consejos: Cambia de jugador para poder borrar sus vias de ferrocarril.}
 </p>
@@ -42,14 +42,14 @@ Si el tunel no puede encontrar una salida adecuada (una cuesta libre de obstacul
 {Consejos: Usa las Herramientas de Modelado del Terreno y la herramienta Eliminar para crear terreno adecuado para las entradas y salidas de tuneles. Usa las Herramientas de Ferrocarilles para conectar las salidas del tunel mediante vias.}
 </p>
 <p>
-<em>Señales:</em> herramientas que construyen señales para ferrocarriles en una via. Las señales dirigen y regulan el flujo de los vehiculos en vias, puentes, cruces y <a href="station.txt">Paradas</a> (donde los vehiculos cargan y descargan pasajeros y mercancias).<br>
-Se pueden construir versiones de sentido unico y doble. Para construir una señal de doble sentido en una via: pulsa en la herramienta para seleccionarla (el cursor cambia a una señal); y despues pulsa en la via. Para construir una señal de sentido unico: pulsa de nuevo en el mismo punto, con el cursor de señal, para pasar de un tipo de señal a otro .<br>
-IMPORTANTE: Ten cuidado con no situar señales de sentido unico que impidan a los vehiculos llegar a su destino, por defecto los vehiculos conducen por la derecha (se puede cambiar en el archivo simuconf.tab).<br>
-- <em>Señales:</em> los vehiculos prosiguen solo si el tramo hasta la siguiente señal o destino  en la <a href="schedule.txt">Ruta</a> (una <a href="station.txt">Parada</a> o punto de paso) no esta ocupado por otro vehiculo. En el modo de sentido unico los vehiculos solo van en una direccion.<br>
-- <em>RailClose:</em> los vehiculos no prosiguen mas alla de la señal (solo disponible en modo de sentido unico).<br>
-- <em>PreSignals:</em> los vehiculos prosiguen si el area (entre tres señales consecutivas o hasta el proximo destino en la <a href="schedule.txt">Ruta</a>) no esta ocupado por otro vehiculo. En el modo de sentido unico los vehiculos solo van en una direccion.<br>
-- <em>ChooseSignals:</em> dirigen los vehiculos a una estacion vacia, dentro de una <a href="station.txt">Parada</a> multiplataforma: un vehiculo que pasa por esta señal puede usar una estacion vacia como proximo destino, y no justamente el que se le ha asignado en su <a href="schedule.txt">Ruta</a>. Si no hay estaciones vacias o una ruta clara hasta el proximo destino, el vehiculo esperara en la señal.<br>
-{Consejos:  elimina las señales con la herramienta Eliminar. Manten pulsado [Ctrl] para situar señales en puentes sobre vias.}
+<em>SeÃ±ales:</em> herramientas que construyen seÃ±ales para ferrocarriles en una via. Las seÃ±ales dirigen y regulan el flujo de los vehiculos en vias, puentes, cruces y <a href="station.txt">Paradas</a> (donde los vehiculos cargan y descargan pasajeros y mercancias).<br>
+Se pueden construir versiones de sentido unico y doble. Para construir una seÃ±al de doble sentido en una via: pulsa en la herramienta para seleccionarla (el cursor cambia a una seÃ±al); y despues pulsa en la via. Para construir una seÃ±al de sentido unico: pulsa de nuevo en el mismo punto, con el cursor de seÃ±al, para pasar de un tipo de seÃ±al a otro .<br>
+IMPORTANTE: Ten cuidado con no situar seÃ±ales de sentido unico que impidan a los vehiculos llegar a su destino, por defecto los vehiculos conducen por la derecha (se puede cambiar en el archivo simuconf.tab).<br>
+- <em>SeÃ±ales:</em> los vehiculos prosiguen solo si el tramo hasta la siguiente seÃ±al o destino  en la <a href="schedule.txt">Ruta</a> (una <a href="station.txt">Parada</a> o punto de paso) no esta ocupado por otro vehiculo. En el modo de sentido unico los vehiculos solo van en una direccion.<br>
+- <em>RailClose:</em> los vehiculos no prosiguen mas alla de la seÃ±al (solo disponible en modo de sentido unico).<br>
+- <em>PreSignals:</em> los vehiculos prosiguen si el area (entre tres seÃ±ales consecutivas o hasta el proximo destino en la <a href="schedule.txt">Ruta</a>) no esta ocupado por otro vehiculo. En el modo de sentido unico los vehiculos solo van en una direccion.<br>
+- <em>ChooseSignals:</em> dirigen los vehiculos a una estacion vacia, dentro de una <a href="station.txt">Parada</a> multiplataforma: un vehiculo que pasa por esta seÃ±al puede usar una estacion vacia como proximo destino, y no justamente el que se le ha asignado en su <a href="schedule.txt">Ruta</a>. Si no hay estaciones vacias o una ruta clara hasta el proximo destino, el vehiculo esperara en la seÃ±al.<br>
+{Consejos:  elimina las seÃ±ales con la herramienta Eliminar. Manten pulsado [Ctrl] para situar seÃ±ales en puentes sobre vias.}
 </p>
 <p>
 <a href="depot.txt"><em>Cochera ferroviaria:</em></a> herramienta para construir una cochera para comprar y gestionar trenes y vagones.<br>
@@ -61,7 +61,7 @@ Para construir una cochera ferroviaria: pulsa en la herramienta (el cursor cambi
 <em>Estaciones de tren:</em>herramientas para construir estaciones, usadas por vehiculos sobre vias para cargar y descargar mercancias, pasajeros y correo.<br>
 Una estacion, cuando no se construye adyacente a una <a href="station.txt">Parada</a> existente creara una nueva Parada.<br>
 Las Paradas sobre vias tienen un coste de mantenimiento y se construyen sobre vias (pero no en curvas ni cruces).<br>
-Las Paradas sobre vias tienen un area de influencia para mercancias, pasajeros y correo. Las diferentes estaciones tienen distintas capacidades para pasajeros y correo. En la esquina de algunos iconos de herramientas hay un pequeño icono (usado en <a href="haltlist.txt">Lista de Estaciones</a> e Informacion de la Parada) que muestra que elementos puede manejar la Parada.<br>
+Las Paradas sobre vias tienen un area de influencia para mercancias, pasajeros y correo. Las diferentes estaciones tienen distintas capacidades para pasajeros y correo. En la esquina de algunos iconos de herramientas hay un pequeÃ±o icono (usado en <a href="haltlist.txt">Lista de Estaciones</a> e Informacion de la Parada) que muestra que elementos puede manejar la Parada.<br>
 Para construir una estacion: pulsa en la herramienta para seleccionarla (el cursor cambia a una estacion), y despues pulsa en la via.<br>
 {Consejos: Elimina las paradas en via mediante la herramienta Eliminar. Extiende las estaciones y construye estaciones multiples (construyendo varias secciones de estacion en vias adyacentes) para acomodar mas vehiculos y mas largos, incrementando la capacidad y el area de influencia para pasajeros y mercancias. Pulsa la tecla [v] para mostrar/ocultar el area de influencia de las paradas para pasajeros y mercancias. Manten pulsado [Ctrl] para construir puentes sobre vias.}.
 </p>

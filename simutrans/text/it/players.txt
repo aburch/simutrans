@@ -3,12 +3,12 @@
 <h1>Lista Giocatori</h1>
 
 <p>
-Con questo menù si può vedere come stanno andando le AI concorrenti,
-con la possibilità di attivare o disattivare ognuna di esse.
+Con questo menÃ¹ si puÃ² vedere come stanno andando le AI concorrenti,
+con la possibilitÃ  di attivare o disattivare ognuna di esse.
 </p>
 <p>
-Alla destra del colore di ogni concorrente è mostrato il relativo
+Alla destra del colore di ogni concorrente Ã¨ mostrato il relativo
 bilancio. Per attivare o disattivare i concorrenti, si selezioni
 il bottone relativo.
-Il concorrente attivo per default è quello turchese.
+Il concorrente attivo per default Ã¨ quello turchese.
 </p>

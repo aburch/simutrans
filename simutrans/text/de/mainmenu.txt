@@ -1,74 +1,74 @@
-<title>Hauptmenü</title>
+<title>HauptmenÃ¼</title>
 
-<h1><strong>Hauptmenü, die Buttonleiste</strong></h1>
+<h1><strong>HauptmenÃ¼, die Buttonleiste</strong></h1>
 
 <p>
-<em>Einstellungen:</em> Über die Diskette gelangst Du zu den <a href="options.txt">Einstellungen</a> sowie zum Laden und Speichern. Du kannst auch eine neue Karte generieren lassen bzw. das Spiel beenden.
+<em>Einstellungen:</em> Ãœber die Diskette gelangst Du zu den <a href="options.txt">Einstellungen</a> sowie zum Laden und Speichern. Du kannst auch eine neue Karte generieren lassen bzw. das Spiel beenden.
 </p>
 <p>
-<a href="map.txt"><em>Reliefkarte:</em></a> Die Übersichtskarte über die Welt mit ihren Objekten zeigt die Bewegungen der Spielerfahrzeuge an und gestattet Dir einige statistische Ansichten. Wenn Du einen Punkt auf der Reliefkarte anwählst, springt die Spielkarte zum entsprechenden Bildausschnitt.
+<a href="map.txt"><em>Reliefkarte:</em></a> Die Ãœbersichtskarte Ã¼ber die Welt mit ihren Objekten zeigt die Bewegungen der Spielerfahrzeuge an und gestattet Dir einige statistische Ansichten. Wenn Du einen Punkt auf der Reliefkarte anwÃ¤hlst, springt die Spielkarte zum entsprechenden Bildausschnitt.
 </p>
 <p>
-<em>Lupe:</em> Die Lupe symbolisiert das Abfragewerkzeug. Ist es aktiv, wird der Cursor ebenfalls zur Lupe. Wählst Du mit ihr ein Objekt an (Gebäude, Fahrzeug), werden Angaben (Infofenster) darüber eingeblendet. Empfehlenswert ist es, immer wieder zu der Abfrage zurückzuwechseln, vor allem, wenn Du gerade mit dem Abrisswerkzeug gearbeitet hast. So vermeidest Du, ein Objekt aus Versehen abzureissen, anstatt die Objektinformationen aufzurufen.
+<em>Lupe:</em> Die Lupe symbolisiert das Abfragewerkzeug. Ist es aktiv, wird der Cursor ebenfalls zur Lupe. WÃ¤hlst Du mit ihr ein Objekt an (GebÃ¤ude, Fahrzeug), werden Angaben (Infofenster) darÃ¼ber eingeblendet. Empfehlenswert ist es, immer wieder zu der Abfrage zurÃ¼ckzuwechseln, vor allem, wenn Du gerade mit dem Abrisswerkzeug gearbeitet hast. So vermeidest Du, ein Objekt aus Versehen abzureissen, anstatt die Objektinformationen aufzurufen.
 </p>
 <p>
-<a href="slopetools.txt"><em>Geländewerkzeuge:</em></a> Die Rampe öffnet ein Menü, mit welchem Du die Höhen- und Hanglagen in der Karte verändern kannst. Gelände anheben/absenken sind links auch im Hauptmenü verfügbar.
+<a href="slopetools.txt"><em>GelÃ¤ndewerkzeuge:</em></a> Die Rampe Ã¶ffnet ein MenÃ¼, mit welchem Du die HÃ¶hen- und Hanglagen in der Karte verÃ¤ndern kannst. GelÃ¤nde anheben/absenken sind links auch im HauptmenÃ¼ verfÃ¼gbar.
 </p>
 <p>
-<em>Bauwerkzeugmenüs:</em> Hinter den Werkzeugen verbergen sich die jeweiligen Baumenüs.
-<br/>· <a href="railtools.txt"><em>Eisenbahnen</em></a>
-<br/>· <a href="monorailtools.txt"><em>Magnetbahnen/Monorails</em></a>
-<br/>· <a href="tramtools.txt"><em>Straßenbahnen</em></a>
-<br/>· <a href="roadtools.txt"><em>Straßen</em></a>
-<br/>· <a href="shiptools.txt"><em>Häfen und Werften</em></a>
-<br/>· <a href="airtools.txt"><em>Flughäfen</em></a>
+<em>BauwerkzeugmenÃ¼s:</em> Hinter den Werkzeugen verbergen sich die jeweiligen BaumenÃ¼s.
+<br/>Â· <a href="railtools.txt"><em>Eisenbahnen</em></a>
+<br/>Â· <a href="monorailtools.txt"><em>Magnetbahnen/Monorails</em></a>
+<br/>Â· <a href="tramtools.txt"><em>StraÃŸenbahnen</em></a>
+<br/>Â· <a href="roadtools.txt"><em>StraÃŸen</em></a>
+<br/>Â· <a href="shiptools.txt"><em>HÃ¤fen und Werften</em></a>
+<br/>Â· <a href="airtools.txt"><em>FlughÃ¤fen</em></a>
 </p>
 <p>
-<em>An Fahrzeuge gelangen:</em> Jedes der Baumenüs enthält ein Depotwerkzeug (s. Hilfen zu den Baumenüs). Nach dem Bau eines Depots wird bei dessen Anwahl das <a href="depot.txt">Depotfenster</a> geöffnet. </p>
+<em>An Fahrzeuge gelangen:</em> Jedes der BaumenÃ¼s enthÃ¤lt ein Depotwerkzeug (s. Hilfen zu den BaumenÃ¼s). Nach dem Bau eines Depots wird bei dessen Anwahl das <a href="depot.txt">Depotfenster</a> geÃ¶ffnet. </p>
 <p>
-<a href="special.txt"><em>Spezialbauwerkzeuge:</em></a> Das sich öffnende Menü enthält verschiedene Bauwerkzeuge, die den Aufbau der Transportnetze ergänzen.
+<a href="special.txt"><em>Spezialbauwerkzeuge:</em></a> Das sich Ã¶ffnende MenÃ¼ enthÃ¤lt verschiedene Bauwerkzeuge, die den Aufbau der Transportnetze ergÃ¤nzen.
 </p>
 <p>
-<em>Abrisswerkzeug:</em> Nach der Auswahl des Werkzeuges wird der Cursor zur durchkreuzten Wolke. Ein mit dem Werkzeug angewähltes Objekt wird ohne weitere Warnung von der Karte entfernt, sofern Du zu dessen Abriss berechtigt bist. Bei Abrissarbeiten entstehen unterschiedliche Kosten, die sofort von Deinem Kassenbestand abgebucht werden.
-<br/><em>·</em> Eigene Bauwerke sowie Stadtstraßen und private Gebäude wie Wohn- , Büro- und Gewerbeliegenschaften (oranger Fensterbalken im Infofenster) können abgerissen werden. Beachte, dass beim Gebäudeabriss auch die Gebäudekosten als Unkosten anfallen.
-<br/><em>·</em> Spezielle Gebäude wie Rathäuser oder Sehenswürdigkeiten sowie Einrichtungen anderer Spieler können nur durch den jeweiligen Eigentümer abgerissen werden (Vorsicht bei erschlossenen Industrien und Rathäusern).
-<br/><em>·</em> Auf Schienen und Straßen sind bestimmte Abrissreihenfolgen festgelegt. Sofern auf der Abrisskachel vorhanden, werden zuerst Signale, danach Haltestellen, schliesslich eine ggf. vorhandene Fahrleitung, und zuletzt der Betriebsweg selbst abgerissen.
-<br/><em>·</em> Sollen Abrissarbeiten auf Brücken oder Schwebebahnen durchgeführt werden, muss beim Abreissen die <em>Ctrl</em>(<em>Strg</em>)-Taste gedrückt gehalten werden. Sonst werden die Objekte auf der unteren Ebene, z.B. ein Haus unter einer Brücke, entfernt.
+<em>Abrisswerkzeug:</em> Nach der Auswahl des Werkzeuges wird der Cursor zur durchkreuzten Wolke. Ein mit dem Werkzeug angewÃ¤hltes Objekt wird ohne weitere Warnung von der Karte entfernt, sofern Du zu dessen Abriss berechtigt bist. Bei Abrissarbeiten entstehen unterschiedliche Kosten, die sofort von Deinem Kassenbestand abgebucht werden.
+<br/><em>Â·</em> Eigene Bauwerke sowie StadtstraÃŸen und private GebÃ¤ude wie Wohn- , BÃ¼ro- und Gewerbeliegenschaften (oranger Fensterbalken im Infofenster) kÃ¶nnen abgerissen werden. Beachte, dass beim GebÃ¤udeabriss auch die GebÃ¤udekosten als Unkosten anfallen.
+<br/><em>Â·</em> Spezielle GebÃ¤ude wie RathÃ¤user oder SehenswÃ¼rdigkeiten sowie Einrichtungen anderer Spieler kÃ¶nnen nur durch den jeweiligen EigentÃ¼mer abgerissen werden (Vorsicht bei erschlossenen Industrien und RathÃ¤usern).
+<br/><em>Â·</em> Auf Schienen und StraÃŸen sind bestimmte Abrissreihenfolgen festgelegt. Sofern auf der Abrisskachel vorhanden, werden zuerst Signale, danach Haltestellen, schliesslich eine ggf. vorhandene Fahrleitung, und zuletzt der Betriebsweg selbst abgerissen.
+<br/><em>Â·</em> Sollen Abrissarbeiten auf BrÃ¼cken oder Schwebebahnen durchgefÃ¼hrt werden, muss beim Abreissen die <em>Ctrl</em>(<em>Strg</em>)-Taste gedrÃ¼ckt gehalten werden. Sonst werden die Objekte auf der unteren Ebene, z.B. ein Haus unter einer BrÃ¼cke, entfernt.
 </p>
 <p>
-<a href="lines.txt"><em>Linienverwaltung:</em></a> Linien können eingerichtet, geändert und gelöscht werden, sowie Informationen über die Linien eingesehen werden.
+<a href="lines.txt"><em>Linienverwaltung:</em></a> Linien kÃ¶nnen eingerichtet, geÃ¤ndert und gelÃ¶scht werden, sowie Informationen Ã¼ber die Linien eingesehen werden.
 </p>
 <p>
-<em>Listenverwaltung:</em> Das Symbol des Listenblattes führt zu einem Untermenü mit sechs Listen:
-<br/>· <a href="haltlist.txt"><em>Haltestellenliste</em></a>
-<br/>· <a href="convoi.txt"><em>Fahrzeugliste</em></a>
-<br/>· <a href="citylist_filter.txt"><em>Stadtliste</em></a>
-<br/>· <a href="goods_filter.txt"><em>Warenliste</em></a>
-<br/>· <a href="factorylist_filter.txt"><em>Fabrikliste</em></a>
-<br/>· <a href="curiositylist_filter.txt"><em>Touristenzielliste</em></a>
+<em>Listenverwaltung:</em> Das Symbol des Listenblattes fÃ¼hrt zu einem UntermenÃ¼ mit sechs Listen:
+<br/>Â· <a href="haltlist.txt"><em>Haltestellenliste</em></a>
+<br/>Â· <a href="convoi.txt"><em>Fahrzeugliste</em></a>
+<br/>Â· <a href="citylist_filter.txt"><em>Stadtliste</em></a>
+<br/>Â· <a href="goods_filter.txt"><em>Warenliste</em></a>
+<br/>Â· <a href="factorylist_filter.txt"><em>Fabrikliste</em></a>
+<br/>Â· <a href="curiositylist_filter.txt"><em>Touristenzielliste</em></a>
 </p>
 <p>
-<a href="mailbox.txt"><em>Briefkasten:</em></a> Alle Meldungen, die seit dem Spielstart bzw. seit dem letzten Laden eines Spielstandes angefallen sind, werden in einer Liste aufgeführt.
+<a href="mailbox.txt"><em>Briefkasten:</em></a> Alle Meldungen, die seit dem Spielstart bzw. seit dem letzten Laden eines Spielstandes angefallen sind, werden in einer Liste aufgefÃ¼hrt.
 </p>
 <p>
-<a href="finances.txt"><em>Finanzfenster:</em></a> Das Kontefei von Hajo, dem Initiator von Simutrans, schmückt die Geldnote, welche in Simutrans die Finanzkraft repräsentiert. Das sich öffnender Fenster zeigt alles Wissenswerte über Deine momentane Finanzlage.
+<a href="finances.txt"><em>Finanzfenster:</em></a> Das Kontefei von Hajo, dem Initiator von Simutrans, schmÃ¼ckt die Geldnote, welche in Simutrans die Finanzkraft reprÃ¤sentiert. Das sich Ã¶ffnender Fenster zeigt alles Wissenswerte Ã¼ber Deine momentane Finanzlage.
 </p>
 <p>
 <em>Screenshot:</em> Bei der Nutzung des Kamera-Buttons wird ein Schnappschuss des aktuellen Kartenausschnittes als Bitmap-Datei im Verzeichnis simutrans/screenshot gespeichert.
 </p>
 <p>
-<em>Pause:</em> Falls Du Dir eine Pause vom harten Alltag des Transportunternehmers gönnen möchtest, bestelle über den Button ruhig eine heiße Tasse Tee oder Kaffee. Der Service ist in Simutrans natürlich gratis.<br>
-<em>Vorlauf:</em>Falls Dir Simutrans zu langsam läuft, kannst Du hier beschleunigen. Es kann auch zu ruckeln führen, speziell mit Schiffen!
+<em>Pause:</em> Falls Du Dir eine Pause vom harten Alltag des Transportunternehmers gÃ¶nnen mÃ¶chtest, bestelle Ã¼ber den Button ruhig eine heiÃŸe Tasse Tee oder Kaffee. Der Service ist in Simutrans natÃ¼rlich gratis.<br>
+<em>Vorlauf:</em>Falls Dir Simutrans zu langsam lÃ¤uft, kannst Du hier beschleunigen. Es kann auch zu ruckeln fÃ¼hren, speziell mit Schiffen!
 </p>
 <p>
 <strong>Statusleiste</strong>
 </p>
 <p>
-Über der Statuszeile, am unteren Hauptfensterrand, werden gelegentlich Nachrichten angezeigt. Welche Meldungen erscheinen sollen, lässt sich in den Mailbox-Optionen festlegen. Die Statusleiste enthält Anzeigen, die sich im Spielverlauf permanent aktualisieren:
-<br/>· <em>Datum und Uhrzeit:</em> In Simutrans ist ein Jahr in 12 Monate und ein Monat in 24 Stunden unterteilt. Über das Datum wird die Verfügbarkeit von Fahrzeugen und Gebäuden gesteuert, wenn die 'timeline' aktiviert ist (siehe unten). Vor der Jahreszahl werden die meteorologischen Jahreszeiten angezeigt. In einigen Szenarien kann sich der Untergrund mit den Jahreszeiten ändern.
-<br/>· <em>Spieler:</em> Der Name des aktuellen Spielers wird in dessen Spielerfarbe angezeigt, sofern es ein Computerspieler ist.
-<br/>· <em>Kasse:</em> Der Kassenbestand des aktuell agierenden Spielers wird angezeigt und permanent aktualisiert.
-<br/>· <em>Positionskoordinaten:</em> In der Klammer werden die X- und Y-Koordinaten sowie die Höhenebene der Kachel angezeigt, über welcher sich der Cursor gerade befindet.
-<br/>· <em>Spielgeschwindigkeit:</em> Der Wert (T=1.00) gibt die momentane Spielgeschwindigkeit an, siehe unter <a href="game_control.txt">Spielsteuerung</a>, Abschnitt Spielgeschwindigkeit. Bei Vorlauf wird die T-Anzeige durch zwei Pfeile ersetzt.
-<br/>· <em>mit Epochen:</em> Zeigt an, ob die timeline aktiviert ist oder nicht, siehe <a href="new_world.txt">Neue Welt erstellen</a>.
+Ãœber der Statuszeile, am unteren Hauptfensterrand, werden gelegentlich Nachrichten angezeigt. Welche Meldungen erscheinen sollen, lÃ¤sst sich in den Mailbox-Optionen festlegen. Die Statusleiste enthÃ¤lt Anzeigen, die sich im Spielverlauf permanent aktualisieren:
+<br/>Â· <em>Datum und Uhrzeit:</em> In Simutrans ist ein Jahr in 12 Monate und ein Monat in 24 Stunden unterteilt. Ãœber das Datum wird die VerfÃ¼gbarkeit von Fahrzeugen und GebÃ¤uden gesteuert, wenn die 'timeline' aktiviert ist (siehe unten). Vor der Jahreszahl werden die meteorologischen Jahreszeiten angezeigt. In einigen Szenarien kann sich der Untergrund mit den Jahreszeiten Ã¤ndern.
+<br/>Â· <em>Spieler:</em> Der Name des aktuellen Spielers wird in dessen Spielerfarbe angezeigt, sofern es ein Computerspieler ist.
+<br/>Â· <em>Kasse:</em> Der Kassenbestand des aktuell agierenden Spielers wird angezeigt und permanent aktualisiert.
+<br/>Â· <em>Positionskoordinaten:</em> In der Klammer werden die X- und Y-Koordinaten sowie die HÃ¶henebene der Kachel angezeigt, Ã¼ber welcher sich der Cursor gerade befindet.
+<br/>Â· <em>Spielgeschwindigkeit:</em> Der Wert (T=1.00) gibt die momentane Spielgeschwindigkeit an, siehe unter <a href="game_control.txt">Spielsteuerung</a>, Abschnitt Spielgeschwindigkeit. Bei Vorlauf wird die T-Anzeige durch zwei Pfeile ersetzt.
+<br/>Â· <em>mit Epochen:</em> Zeigt an, ob die timeline aktiviert ist oder nicht, siehe <a href="new_world.txt">Neue Welt erstellen</a>.
 </p>

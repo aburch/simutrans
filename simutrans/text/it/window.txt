@@ -14,7 +14,7 @@ In Simutrans si gioca attraverso l'<strong>Interfaccia di gioco</strong> che con
 
 <p>
 
-<em>Barra del titolo</em>: nella parte sinistra della barra del titolo dell'<strong>Interfaccia di gioco</strong> è riportata la versione e la data di rilascio di Simutrans che sta girando.<br>
+<em>Barra del titolo</em>: nella parte sinistra della barra del titolo dell'<strong>Interfaccia di gioco</strong> Ã¨ riportata la versione e la data di rilascio di Simutrans che sta girando.<br>
 
 La parte destra contiene i controlli per minimizzare e massimizzare l'<strong>Interfaccia di gioco</strong> e per uscire da Simutrans.
 
@@ -22,13 +22,13 @@ La parte destra contiene i controlli per minimizzare e massimizzare l'<strong>In
 
 <p>
 
-<em>Icone</em>: una riga di icone, usata per accedere alle barre degli strumenti e dei controlli mentre si gioca a Simutrans, è direttamente sotto la <em>barra del titolo</em>. <em>Icone</em> (cliccare per utilizzarle) sono raggruppate in tre set:
+<em>Icone</em>: una riga di icone, usata per accedere alle barre degli strumenti e dei controlli mentre si gioca a Simutrans, Ã¨ direttamente sotto la <em>barra del titolo</em>. <em>Icone</em> (cliccare per utilizzarle) sono raggruppate in tre set:
 
 </p>
 
 <p>
 
-- <a href="general.txt"><it>Menù principale</it></a> include:<br>
+- <a href="general.txt"><it>MenÃ¹ principale</it></a> include:<br>
 
 - <it>floppy-disc</it>: apre <a href="options.txt">Opzioni di gioco</a><br>
 
@@ -58,7 +58,7 @@ La parte destra contiene i controlli per minimizzare e massimizzare l'<strong>In
 
 <p>
 
-- <a href="general.txt"><it>Menù gestione</it></a> include:<br>
+- <a href="general.txt"><it>MenÃ¹ gestione</it></a> include:<br>
 
 - <em>rete</em>: apre la <a href="linemanagement.txt">gestione linee</a><br>
 
@@ -78,15 +78,15 @@ La parte destra contiene i controlli per minimizzare e massimizzare l'<strong>In
 
 {Consiglio: le immagini possono essere catturate premendo <a href="keys.txt">[c]</a>.}<br>
 
-- <em>tazzina di caffè</em>: mette o toglie dalla pausa il gioco.<br>
+- <em>tazzina di caffÃ¨</em>: mette o toglie dalla pausa il gioco.<br>
 
-{Consiglio: può essere usato anche il tasto [p]}.<br>
+{Consiglio: puÃ² essere usato anche il tasto [p]}.<br>
 
-- <em>>></em>: seleziona e deseleziona l'accelerazione del tempo. (cambia la velocità con cui <em>T</em> passa nel gioco).<br>
+- <em>>></em>: seleziona e deseleziona l'accelerazione del tempo. (cambia la velocitÃ  con cui <em>T</em> passa nel gioco).<br>
 
-{Consiglio: può essere usato anche il tasto <a href="keys.txt">[W]</a><br>
+{Consiglio: puÃ² essere usato anche il tasto <a href="keys.txt">[W]</a><br>
 
-IMPORTANTE: il gioco non può essere rallentato;<a href="display.txt"><strong>Display Information</strong></a>indica se il computer può resistere al cambiamento.}<br>
+IMPORTANTE: il gioco non puÃ² essere rallentato;<a href="display.txt"><strong>Display Information</strong></a>indica se il computer puÃ² resistere al cambiamento.}<br>
 
 - <it>?</it>: apre <a href="general.txt">Aiuto Simutrans</a>
 
@@ -94,7 +94,7 @@ IMPORTANTE: il gioco non può essere rallentato;<a href="display.txt"><strong>Dis
 
 <p>
 
-La <em>vista di gioco</em> di una porzione della mappa corrente è rappresentata sotto le <em>icone</em>.<br>
+La <em>vista di gioco</em> di una porzione della mappa corrente Ã¨ rappresentata sotto le <em>icone</em>.<br>
 
 Puoi ingrandire o rimpicciolire la vista o muoverti per la mappa utilizzando il <a href="mouse.txt">mouse</a> o la <a href="keys.txt">tastiera</a>.
 
@@ -120,12 +120,12 @@ Le informazioni riportate, da sinistra a destra, includono:<br>
 
 <em>coordinate</em>: indicano la posizione del cursore nella vista di gioco. Sono riportate le coordinate X e Y e l'altezza.<br>
 
-<em>T</em>: indica la velocità a cui passa il tempo nel gioco.<br>
+<em>T</em>: indica la velocitÃ  a cui passa il tempo nel gioco.<br>
 
-{Consigli: Usa <a href="keys.txt">[.]</a> / [,] per accelerare/decelerare il tempo, T ; <a href="display.txt"><strong>Visualizza informazioni</strong></a>indica se il computer può resistere al cambiamento.<br>
+{Consigli: Usa <a href="keys.txt">[.]</a> / [,] per accelerare/decelerare il tempo, T ; <a href="display.txt"><strong>Visualizza informazioni</strong></a>indica se il computer puÃ² resistere al cambiamento.<br>
 
 L'uso di <a href="fast_forward.txt">scorrimento veloce</a> sostituisce <em>T</em> con ">>" on bottom-bar.}<br>
 
-<em>linea del tempo</em>: indica se la <a href="new_world.txt">linea del tempo</a> è stata selezionata nel gioco corrente.
+<em>linea del tempo</em>: indica se la <a href="new_world.txt">linea del tempo</a> Ã¨ stata selezionata nel gioco corrente.
 
 </p>

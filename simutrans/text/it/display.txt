@@ -6,7 +6,7 @@
 <strong>Grafica</strong> permette di controllare l'aspetto grafico del gioco e fornisce informazioni sulle performance.
 </p>
 <p>
-Click sul pulsante Grafica nel men˘ <a href="options.txt">Opzioni di Gioco</a> per aprire il men˘ <strong>Grafica</strong>.
+Click sul pulsante Grafica nel men√π <a href="options.txt">Opzioni di Gioco</a> per aprire il men√π <strong>Grafica</strong>.
 </p>
 <p>
 Click sui bottoni quadrati permette di selezionare / deselezionare le opzioni, mentre si possono utilizzare i <a href="mouse.txt">bottoni freccia</a> per regolare i 
@@ -14,60 +14,60 @@ Click sui bottoni quadrati permette di selezionare / deselezionare le opzioni, m
 settaggi:
 </p>
 <p>
-<em>Mostra griglia:</em> evidenzia i bordi dei quadrati in cui Ë suddivisa la mappa.
+<em>Mostra griglia:</em> evidenzia i bordi dei quadrati in cui √® suddivisa la mappa.
 </p>
 <p>
-<em>Modalit‡ sotterranea:</em> visualizza cosa si trova subito sotto al livello del suolo (utile per costruire tunnel, metropolitane, ferrovie sotterranee)
+<em>Modalit√† sotterranea:</em> visualizza cosa si trova subito sotto al livello del suolo (utile per costruire tunnel, metropolitane, ferrovie sotterranee)
 </p>
 <p>
 <em>Sliced underground mode:</em> seleziona il livello del terreno da visualizzare.<br>
-In questa modalit‡ il terreno viene suddiviso "a fette" di pari livello, viene visualizzato il livello selezionato utilizzando i bottoni freccia.
+In questa modalit√† il terreno viene suddiviso "a fette" di pari livello, viene visualizzato il livello selezionato utilizzando i bottoni freccia.
 </p>
 <p>
-<em>Modalit‡ giorno e notte:</em> attiva / disattiva la variazione della luminosit‡ in base all'ora del giorno.
+<em>Modalit√† giorno e notte:</em> attiva / disattiva la variazione della luminosit√† in base all'ora del giorno.
 </p>
 <p>
 <em>
-Luminosit‡:</em> permette di impostare la massima luminosit‡ ad un determinato valore indicato utilizzando i bottoni freccia; 0 imposta la massim‡ luminosit‡, 9 la minima.
+Luminosit√†:</em> permette di impostare la massima luminosit√† ad un determinato valore indicato utilizzando i bottoni freccia; 0 imposta la massim√† luminosit√†, 9 la minima.
 </p>
 <p>
 <em>Inverti scrolling:</em> inverte la direzione dello scroll nella <a href="window.txt">finestra del gioco</a>.<br>
-Tenendo premuto il tasto destro nella finestra di gioco Ë possibile trascinare o spostare il terreno.
+Tenendo premuto il tasto destro nella finestra di gioco √® possibile trascinare o spostare il terreno.
 </p>
 <p>
-<em>Vel. scrolling:</em> imposta la velocit‡ dello scroll nella <a href="window.txt">finestra del gioco</a>.
+<em>Vel. scrolling:</em> imposta la velocit√† dello scroll nella <a href="window.txt">finestra del gioco</a>.
 </p>
 <p>
 <em>Nascondi trasparenti:</em> tutti gli oggetti nascosti (siano essi alberi od edifici) saranno resi trasparenti.
 </p>
 <p>
-<em>Nascondi alberi:</em> selezionare questa opzione comporta che se "nascondi trasparenti" Ë selezionato gli alberi saranno resi trasparenti, altrimenti saranno 
+<em>Nascondi alberi:</em> selezionare questa opzione comporta che se "nascondi trasparenti" √® selezionato gli alberi saranno resi trasparenti, altrimenti saranno 
 
 miniaturizzati.
 </p>
 <p>
-<em>Copertura stazione trasparente:</em> con questa opzione Ë possibile modificare l'aspetto grafico con cui viene indicata la copertura della stazione.
+<em>Copertura stazione trasparente:</em> con questa opzione √® possibile modificare l'aspetto grafico con cui viene indicata la copertura della stazione.
 </p>
 <p>
-<em>Mostra copertura stazione:</em> visualizza un segnaposto, il cui aspetto Ë selezionabile da "copertura stazione trasparente", sulle caselle che possono usufruire dei 
+<em>Mostra copertura stazione:</em> visualizza un segnaposto, il cui aspetto √® selezionabile da "copertura stazione trasparente", sulle caselle che possono usufruire dei 
 
 servizi della stazione.
 </p>
 <p>
-<em>Mostra nomi stazioni:</em> in prossimit‡ di ogni stazione ne viene visualizzato il nome.
+<em>Mostra nomi stazioni:</em> in prossimit√† di ogni stazione ne viene visualizzato il nome.
 </p>
 <p>
-<em>Visualizza barre di attesa:</em> in prossimit‡ di ogni stazione viene visualizzata una barra contenente informazioni su tutti i prodotti che vi sono in attesa.
+<em>Visualizza barre di attesa:</em> in prossimit√† di ogni stazione viene visualizzata una barra contenente informazioni su tutti i prodotti che vi sono in attesa.
 </p>
 <p>
-<em>Pedoni in citt‡:</em> abilita la visualizzazione dei pedoni che transitano sulle strade delle <a href="citywindow.txt">aree urbane</a>.
+<em>Pedoni in citt√†:</em> abilita la visualizzazione dei pedoni che transitano sulle strade delle <a href="citywindow.txt">aree urbane</a>.
 </p>
 <p>
 <em>Pedoni alle fermate:</em> abilita la visualizzazione dei pedoni quando un veicolo arriva ad una <a href="station.txt">fermata</a>.
 </p>
 <p>
-<em>Densit‡ di traffico:</em> imposta il numero di auto private che circolano nelle <a href="citywindow.txt">aree urbane</a>.<br>
-Il numero di auto private cresce al crescere della dimensione della citt‡ ed alla densit‡ di traffico impostata. Impostando densit‡ di traffico a 0 non verranno generate 
+<em>Densit√† di traffico:</em> imposta il numero di auto private che circolano nelle <a href="citywindow.txt">aree urbane</a>.<br>
+Il numero di auto private cresce al crescere della dimensione della citt√† ed alla densit√† di traffico impostata. Impostando densit√† di traffico a 0 non verranno generate 
 
 auto private.
 </p>
@@ -81,7 +81,7 @@ auto private.
 <p>
 Sotto alle impostazioni sono visualizzate delle informazioni sulle prestazioni di simutrans durante il suo funzionamento.<br>
 I numeri sono normalmente visualizzati in bianco, se sono gialli o rossi occorre modificare le impostazioni.<br>
-Modifiche alla velocit‡ di scorrimento del gioco, <a href="window.txt">T</a>, (utilizzando l'icona Fast Forward  >> in alto alla finestra di gioco, o [,]/ [.]) puÚ 
+Modifiche alla velocit√† di scorrimento del gioco, <a href="window.txt">T</a>, (utilizzando l'icona Fast Forward  >> in alto alla finestra di gioco, o [,]/ [.]) pu√≤ 
 
 modificare il colore dei numeri.
 </p>
@@ -89,14 +89,14 @@ modificare il colore dei numeri.
 <em>Tempo del frame:</em> tempo tra tra un frame e il successivo.
 </p>
 <p>
-<em>Inattivi:</em> quando Ë maggiore di 0 il computer puÚ eseguire altri software.
+<em>Inattivi:</em> quando √® maggiore di 0 il computer pu√≤ eseguire altri software.
 </p>
 <p>
 <em>
-FPS:</em> valori elevati significano che i veicoli scorrono pi˘ fluidamenti. Se il numero rimane rosso significa che il computer Ë troppo lento per le attuali impostazioni, 
+FPS:</em> valori elevati significano che i veicoli scorrono pi√π fluidamenti. Se il numero rimane rosso significa che il computer √® troppo lento per le attuali impostazioni, 
 
 provate a ridurre la dimensione della finestra di gioco.
 </p>
 <p>
-<em>Sim:</em> se il numero rimane rosso significa che il computer Ë troppo lento per la mappa attuale, provate con una mappa pi˘ piccola o con meno aree urbane.
+<em>Sim:</em> se il numero rimane rosso significa che il computer √® troppo lento per la mappa attuale, provate con una mappa pi√π piccola o con meno aree urbane.
 </p>

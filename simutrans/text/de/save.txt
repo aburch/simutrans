@@ -3,18 +3,18 @@
 <h1><strong>Dialog Speichern</strong></h1>
  
 <p>
-Gib zum Speichern des Spielstandes einen Namen in das Textfeld <em>Dateiname</em> ein und bestätige mit <em>ENTER</em> oder drücke den <em>OK</em> Button.
+Gib zum Speichern des Spielstandes einen Namen in das Textfeld <em>Dateiname</em> ein und bestÃ¤tige mit <em>ENTER</em> oder drÃ¼cke den <em>OK</em> Button.
 <br/><br/>
-<strong>Achtung:</strong> Wählst Du einen bereits bestehenden Eintrag an, wird der vorhandene Spielstand ohne weitere Meldung überschrieben.
-<br/> Autosave-Spielstände werden bei aktivierten Autosave automatisch überschrieben.
+<strong>Achtung:</strong> WÃ¤hlst Du einen bereits bestehenden Eintrag an, wird der vorhandene Spielstand ohne weitere Meldung Ã¼berschrieben.
+<br/> Autosave-SpielstÃ¤nde werden bei aktivierten Autosave automatisch Ã¼berschrieben.
 </p>
 
 <p>
-<em> X - Löschen:</em> <strong>Achtung</strong>: Das X vor jedem Namen löscht den entsprechenden Spielstand. Es wird nicht nachgefragt sondern sofort gelöscht. Das X wird nur angezeigt, wenn in der <it>simuconf.tab</it> der Parameter  <it>show_delete_buttons = 1</it> gesetzt ist.
+<em> X - LÃ¶schen:</em> <strong>Achtung</strong>: Das X vor jedem Namen lÃ¶scht den entsprechenden Spielstand. Es wird nicht nachgefragt sondern sofort gelÃ¶scht. Das X wird nur angezeigt, wenn in der <it>simuconf.tab</it> der Parameter  <it>show_delete_buttons = 1</it> gesetzt ist.
 </p>
 
 <p>
-<em>Schaltfläche mit Namen:</em> Durch einen Klick auf einen Button wird der entsprechende Spielstand geladen. Der Spielstand muss mit dem gestartetem <em>pak (Grafikset)</em> und der <em>Simutrans-Version</em> kompatibel sein.
+<em>SchaltflÃ¤che mit Namen:</em> Durch einen Klick auf einen Button wird der entsprechende Spielstand geladen. Der Spielstand muss mit dem gestartetem <em>pak (Grafikset)</em> und der <em>Simutrans-Version</em> kompatibel sein.
 </p>
  
 <p>
@@ -26,5 +26,5 @@ Gib zum Speichern des Spielstandes einen Namen in das Textfeld <em>Dateiname</em
 </p>
 
 <p>
-<em>Abbrechen</em>: Schließt den Dialog ohne das Spiel zu speichern.
+<em>Abbrechen</em>: SchlieÃŸt den Dialog ohne das Spiel zu speichern.
 </p>

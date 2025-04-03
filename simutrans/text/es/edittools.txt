@@ -4,7 +4,7 @@
 
 <p>
 <strong>Herramientas de edicion de mapa</strong> permite personalizar el terreno de la partida actual.<br>
-Las herramientas pueden: cambiar poblaciones de las ciudades; crear carreteras urbanas, atracciones turisticas, centrales energeticas e industrias; la opcion Eliminar para jugar como otro jugador; y tambien para avanzar un año en la cronologia del juego.
+Las herramientas pueden: cambiar poblaciones de las ciudades; crear carreteras urbanas, atracciones turisticas, centrales energeticas e industrias; la opcion Eliminar para jugar como otro jugador; y tambien para avanzar un aÃ±o en la cronologia del juego.
 </p>
 <p>
 La barra de herramientas se abre cuando juegas como el jugador servicio publico, que se puede seleccionar desde el menu <a href="players.txt">Jugadores</a> o el boton <a href="special.txt">P+</a> en el menu Herramientas especiales de construccion(tambien pulsando la tecla <a href="keys.txt">[P]</a>). La barra de herramientas continua abierta incluso cuando usas de nuevo la opcion cambiar de jugador.<br>
@@ -49,6 +49,6 @@ Para usarlo: pulsa en la herramienta para seleccionar (el cursor cambiara de for
 Para usarlo: pulsa en la herramienta seleccionada (el cursor cambia a un candado), y despues pulsa en cualquier parte. No requiere confirmacion.
 </p>
 <p>
-<em>Avanzar cronologia un año:</em> avanza el tiempo en un año. Si estas jugando con <a href="new_world.txt">cronologia</a>, a medida que pasa el tiempo apareceran mas transportes y opciones de construcion, y los vehiculos mas lentos que no sean rentables desapareceran (ya que los ingresos se calculan a partir de la velocidad media del vehiculo) .<br>
+<em>Avanzar cronologia un aÃ±o:</em> avanza el tiempo en un aÃ±o. Si estas jugando con <a href="new_world.txt">cronologia</a>, a medida que pasa el tiempo apareceran mas transportes y opciones de construcion, y los vehiculos mas lentos que no sean rentables desapareceran (ya que los ingresos se calculan a partir de la velocidad media del vehiculo) .<br>
 Para usarlo: pulsa en la herramienta. No requiere confirmacion (la fecha cambia en la parte izquierda de la barra en la parte inferior de la pantalla).
 </p>

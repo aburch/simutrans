@@ -3,19 +3,19 @@
 <h1><strong>Informazioni convoglio</strong></h1>
 
 <p>
-<strong>Informazioni convoglio</strong> riporta le informazioni riguardanti un convoglio (un veicolo o una combinazione di essi) che Ë usato per trasportare merci o passeggeri.<br>
-Elenca quanto trasportato da un convoglio e ha la possibilit‡ di accedere a maggiori informazioni e di venderlo, seguirlo nella vista di gioco, cambiargli nome e <a href="schedule.txt">assegnargli una linea</a>.
+<strong>Informazioni convoglio</strong> riporta le informazioni riguardanti un convoglio (un veicolo o una combinazione di essi) che √® usato per trasportare merci o passeggeri.<br>
+Elenca quanto trasportato da un convoglio e ha la possibilit√† di accedere a maggiori informazioni e di venderlo, seguirlo nella vista di gioco, cambiargli nome e <a href="schedule.txt">assegnargli una linea</a>.
 </p>
 
 <p>
-Un convoglio Ë composto da almento un veicolo motorizzato e da ogni rimorchio per merci o persone.<br>
+Un convoglio √® composto da almento un veicolo motorizzato e da ogni rimorchio per merci o persone.<br>
 Esempi di convogli includono: un gruppo di cavalli che trainano un carro; una locomotiva attaccata a un tender e a dei vagoni; un bus o un camion attaccati a un rimorchio; tram collegati; una nave; un rimorchiatore che traina una chiatta; un aereo.<br>
 I convogli sono assemblati e comprati da un <a href="depot.txt">deposito</a> a seconda del tipo di trasporto.<br>
-{Consigli: un convoglio ha un limite di unit‡ a seconda del tipo: treni 24; veicoli stradali 4}
+{Consigli: un convoglio ha un limite di unit√† a seconda del tipo: treni 24; veicoli stradali 4}
 </p>
 <p>
 Clicca su un convoglio nella vista di gioco con lo <a href="inspection_tool.txt">strumento ispezione</a> o clicca su un convoglio riportato nella <a href="convoi.txt">Lista veicoli</a> o <a href="linemanagement.txt">Gestione linee</a> per aprire le <strong>Informazioni convoglio</strong><br>
-La barra del titolo delle <strong>Informazioni convoglio</strong> mostra un unico ID e nome del convoglio (per default Ë quello del primo veicolo acquistato o assemblato nel <a href="depot.txt">deposito</a>).<br>
+La barra del titolo delle <strong>Informazioni convoglio</strong> mostra un unico ID e nome del convoglio (per default √® quello del primo veicolo acquistato o assemblato nel <a href="depot.txt">deposito</a>).<br>
 <strong>Informazioni convoglio</strong> contiene una casella con il nome, una mini vista con informazioni sul convoglio, bottoni per le opzioni e una lisa di beni caricati al momento (se non sono visibili tutti <a href="mouse.txt">ridimensiona</a> <strong>Informazioni convoglio</strong> o usa gli slider per muoverli).
 </p>
 <p>
@@ -29,9 +29,9 @@ Le informazioni riportate in alto a <strong>Informazioni convoglio</strong> incl
 Clicca sul nome e scrivine uno nuovo per cambiarlo.
 </p>
 <p>
-- <em>velocit‡:</em> la velocit‡ corrente Ë riportata in km/h.<br>
-Tra parentesi la velocit‡ massima del convoglio (determinata dall'unit‡ pi˘ lenta del convoglio).<br>
-Una barra verde indica la velocit‡ corrente relativa alla massima consentita.
+- <em>velocit√†:</em> la velocit√† corrente √® riportata in km/h.<br>
+Tra parentesi la velocit√† massima del convoglio (determinata dall'unit√† pi√π lenta del convoglio).<br>
+Una barra verde indica la velocit√† corrente relativa alla massima consentita.
 </p>
 <p>
 - <em>guadagno:</em> profitto generato dal veicolo (incasso meno costi operativi) nell'anno di gioco corrente.<br>
@@ -39,9 +39,9 @@ Tra parentesi il costo operativo per quadrato di gioco.
 </p>
 <p>
 - <em>Peso:</em> combinazione di peso del convoglio e delle merci in tonnellate.<br>
-Tra parentesi c'Ë il peso delle merci caricate.<br>
-Una barra del progresso verde indica la capacit‡ utilizzata per caricare merci e passeggeri.<br>
-Una barra gialla indica <a href="schedule.txt">In attesa</a> del livello minimo (quantit‡ minima di merci o persone richieste per partire) impostato nel Controllo linee.<br>
+Tra parentesi c'√® il peso delle merci caricate.<br>
+Una barra del progresso verde indica la capacit√† utilizzata per caricare merci e passeggeri.<br>
+Una barra gialla indica <a href="schedule.txt">In attesa</a> del livello minimo (quantit√† minima di merci o persone richieste per partire) impostato nel Controllo linee.<br>
 {Consigli: per impostare o modificare i livelli minimi per tutti i convogli in una linea, utilizzare il bottone Aggiorna linea in <a href="linemanagement.txt">Gestione linee</a> o i <a href="depot.txt">Controlli nel deposito</a>. Per impostarli solo per un certo convoglio, usare il bottone <em>Imposta linea</em> nelle <strong>Informazioni convoglio</strong> or Controlli deposito.}
 </p>
 <p>
@@ -59,10 +59,10 @@ Clicca sulla mini vista per vedere il convoglio sulla vista di gioco.
 Clicca sui bottoni nelle <strong>Informazioni convoglio</strong> per aprire i controlli o selezionare le opzioni:
 </p>
 <p>
-<a href="schedule.txt"><em>Linee:</em></a> apre i controlli per cambiare percorso e la quantit‡ minima di merci e passeggeri richiesta dal convoglio per procedere.
+<a href="schedule.txt"><em>Linee:</em></a> apre i controlli per cambiare percorso e la quantit√† minima di merci e passeggeri richiesta dal convoglio per procedere.
 </p>
 <p>
-<em>vai al deposito:</em> manda il convoglio al <a href="depot.txt">deposito</a> appropriato pi˘ vicino. Ogni elemento caricato Ë perduto e si riceve l'incasso per il trasporto al deposito.<br>
+<em>vai al deposito:</em> manda il convoglio al <a href="depot.txt">deposito</a> appropriato pi√π vicino. Ogni elemento caricato √® perduto e si riceve l'incasso per il trasporto al deposito.<br>
 Nel deposito il convoglio mantiene la propria <a href="linemanagement.txt">Linea</a>.
 </p>
 <p>
@@ -70,25 +70,25 @@ Nel deposito il convoglio mantiene la propria <a href="linemanagement.txt">Linea
 Per deselezionare l'opzione, cliccare ancora sul bottone o con il destro sulla <a href="map.txt">Mappa</a>.
 </p>
 <p>
-<em>grafico:</em> clicca sul bottone per visualizzare il grafico (quando quest'ultimo Ë visibile, il bottone Ë evidenziato) nelle <strong>Informazioni convoglio</strong>.<br>
-Il grafico mostra le statistiche per gli ultimi 12 mesi (asse x) quando Ë selezionata un'opzione.<br>
-Clicca sui bottoni delle opzioni del grafico per avere delle informazioni su di esso (il bottone Ë evidenziato quando l'opzione Ë selezionata).<br>
+<em>grafico:</em> clicca sul bottone per visualizzare il grafico (quando quest'ultimo √® visibile, il bottone √® evidenziato) nelle <strong>Informazioni convoglio</strong>.<br>
+Il grafico mostra le statistiche per gli ultimi 12 mesi (asse x) quando √® selezionata un'opzione.<br>
+Clicca sui bottoni delle opzioni del grafico per avere delle informazioni su di esso (il bottone √® evidenziato quando l'opzione √® selezionata).<br>
 I colori e linee del grafico corrispondono a quelli dei bottoni:<br>
-- <em>Capacit‡ disponibile</em> indica lo spazio inutilizzato del convoglio.<br>
-- <em>Trasportati</em> indica la quantit‡ di merce, passeggeri e posta trasportati.<br>
+- <em>Capacit√† disponibile</em> indica lo spazio inutilizzato del convoglio.<br>
+- <em>Trasportati</em> indica la quantit√† di merce, passeggeri e posta trasportati.<br>
 - <em>Entrate</em> indica i ricavi generati dal trasporto.<br>
 - <em>Costi operativi</em> indica i costi sostenuti durante il transito del convoglio.<br>
 - <em>Profitto</em> indica il profitto ricevuto dal trasporto (Entrate meno costi operativi).
 </p>
 <p>
-<em>Dettagli</em> apre <a href="convoidetail.txt">Dettagli convoglio</a> che contiene pi˘ informazioni e opzioni per vendere un convoglio.
+<em>Dettagli</em> apre <a href="convoidetail.txt">Dettagli convoglio</a> che contiene pi√π informazioni e opzioni per vendere un convoglio.
 </p>
 <p>
 <em>Ordina passeggeri/merci per:</em> elenca quanto correntemente caricato su un convoglio.<br>
-Le informazioni riportate includono la quantit‡ caricata e la capacit‡ del convoglio, tipo di merce, destinazione finale e prossima <a href="station.txt">fermata</a>.<br>
+Le informazioni riportate includono la quantit√† caricata e la capacit√† del convoglio, tipo di merce, destinazione finale e prossima <a href="station.txt">fermata</a>.<br>
 Il pulsante (cambia nome con la selezione) ordina gli elementi caricati in gruppi di passeggeri, posta e merci:<br>
  - <em>destinazione:</em> ordina gli elementi alfanumericamente secondo l'ordine ASCII (lettere maiuscole prima delle minuscole), secondo il nome della fermata di destinazione.<br>
  - <em>via (dettaglio):</em> ordina gli elementi alfanumericamente secondo l'ordine ASCII (lettere maiuscole prima delle minuscole), secondo il nome della prossima fermata.<br>
- - <em>via (ammontare):</em> ordina gli elementi trasportati alla prossima fermata secondo la quantit‡.<br>
- - <em>ammontare:</em> ordina gli elementi secondo la quantit‡ in ordine decrescente.
+ - <em>via (ammontare):</em> ordina gli elementi trasportati alla prossima fermata secondo la quantit√†.<br>
+ - <em>ammontare:</em> ordina gli elementi secondo la quantit√† in ordine decrescente.
 </p>

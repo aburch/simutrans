@@ -1,88 +1,88 @@
 <title>Details zu Stadtwachstum</title>
 <h1><strong>Stadtwachstum</strong></h1>
-<p>Dieser Text erläutert wie es zum Stadtwachstum kommt. Wie es berechnet wird. Welche Gebäude entstehen und warum. Und wie man über die diversen Parameter Einfluss auf die Stadtentwicklung nehmen kann. 
+<p>Dieser Text erlÃ¤utert wie es zum Stadtwachstum kommt. Wie es berechnet wird. Welche GebÃ¤ude entstehen und warum. Und wie man Ã¼ber die diversen Parameter Einfluss auf die Stadtentwicklung nehmen kann. 
 </p>
-<p>Eine Stadt wächst dann wenn Personen und Post an ihr Ziel befördert werden.<br>
-Und sie wächst auch dann wenn zur Stadt gehörende Märkte, Kraftwerke und Fabriken mit Waren versorgt werden.
+<p>Eine Stadt wÃ¤chst dann wenn Personen und Post an ihr Ziel befÃ¶rdert werden.<br>
+Und sie wÃ¤chst auch dann wenn zur Stadt gehÃ¶rende MÃ¤rkte, Kraftwerke und Fabriken mit Waren versorgt werden.
 </p>  
 <p><it>Wachstumsfaktor Personenverkehr</it><br>
 Die relevanten Werte zum berechnen stehen im <a href="citywindow.txt">Stadtinformation Dialog</a><br>
-· <em>Beförderungen:</em> Anzahl Passagiere ihre Reise angetreten haben. Das sind die lächelnden Passagiere in den Haltestellen.<br>
-· <em>zu Fuß:</em> Anzahl Passagiere die zu Fuß gehen.<br>
-· <em>Passagiere:</em> Alle Passagiere die befördert werden wollen.<br>
-Wachstumsfaktor = (<em>Beförderungen</em> + <em>zu Fuß</em>) / <em>Passagiere</em> * <em>passenger_multiplier</em><br>
+Â· <em>BefÃ¶rderungen:</em> Anzahl Passagiere ihre Reise angetreten haben. Das sind die lÃ¤chelnden Passagiere in den Haltestellen.<br>
+Â· <em>zu FuÃŸ:</em> Anzahl Passagiere die zu FuÃŸ gehen.<br>
+Â· <em>Passagiere:</em> Alle Passagiere die befÃ¶rdert werden wollen.<br>
+Wachstumsfaktor = (<em>BefÃ¶rderungen</em> + <em>zu FuÃŸ</em>) / <em>Passagiere</em> * <em>passenger_multiplier</em><br>
 Der <em>passenger_multiplier</em> wird in der simuconf.tab oder im den <a href="settings.txt">Einstellungen</a> gesetzt. <br>
- Standartwert wenn nicht geändert ist 40.<br>
+ Standartwert wenn nicht geÃ¤ndert ist 40.<br>
 Der Wachstumsfaktor bewegt sich dann im Bereich 0 bis 40.
 </p>
   
 <p><it>Wachstumsfaktor Post Transport</it><br>
-· <em>abgeschickt:</em> Anzahl Postsendungen die unterwegs sind.<br>
-· <em>Wurfsendungen:</em> Anzahl Postsendungen die vom Absender zu Fuß zugestellt worden sind.<br>
-· <em>Post:</em> Alle in der Stadt anfallenden Postsendungen.<br>
+Â· <em>abgeschickt:</em> Anzahl Postsendungen die unterwegs sind.<br>
+Â· <em>Wurfsendungen:</em> Anzahl Postsendungen die vom Absender zu FuÃŸ zugestellt worden sind.<br>
+Â· <em>Post:</em> Alle in der Stadt anfallenden Postsendungen.<br>
 Wachstumsfaktor = (<em>abgeschickt</em> + <em>Wurfsendungen</em>) / <em>Post</em> * <em>mail_multiplier</em><br>
 Der <em>mail_multiplier</em> wird in der simuconf.tab oder im den <a href="settings.txt">Einstellungen</a> gesetzt. <br>
- Standartwert wenn nicht geändert ist 20.<br>
+ Standartwert wenn nicht geÃ¤ndert ist 20.<br>
 Der Wachstumsfaktor bewegt sich dann im Bereich 0 bis 20.
 </p>
   
 <p><it>Wachstumsfaktor Waren Transport</it><br>
-· <em>Angekommen:</em> Anzahl gefüllter Eingangs-Lager von Fabriken die zur Stadt gehören.<br>
-· <em>Waren:</em> Anzahl Eingangs-Lager der Fabriken die zur Stadt gehören.<br>
-<strong>Achtung:</strong> Die Werte "Angekommen" und "Waren" sind etwas schwer Verständlich. Es werden die Eingangslager der Fabriken gezählt, aber nur bei Kraftwerken und Endverbrauchern. Mit Endverbraucher sind hier z.B. Märkte gemeint, aber Vorsicht auch eine verarbeitende Fabrik kann als Endverbraucher gelten, wenn sie mit keinem Abnehmer verbunden ist. Des weiteren zählen Fabriken ohne verbunden Lieferanten nicht. Es werden die Eingangslager bei jedem Tick gezählt, das sind nicht Tage eines Monats sondern im Pak128.german z.B. hat der Monat 50 Ticks. Wenn Arbeiter aus mehreren Städten in einer Fabrik arbeiten, dann wird diese Fabrik jeder dieser Städte als zugehörig betrachtet. Das gilt auch, wenn die Fabrik im Stadtgebiet einer anderen Stadt steht. Für das Stadtwachstum zählt letztlich das Verhältnis von gefüllten zu leeren Eingangslagern der Endverbraucher. Für ein hohes Stadtwachstum, könnte man auch die ungenutzte Fabriken mittels Öffentliche Hand entfernen.<br>
+Â· <em>Angekommen:</em> Anzahl gefÃ¼llter Eingangs-Lager von Fabriken die zur Stadt gehÃ¶ren.<br>
+Â· <em>Waren:</em> Anzahl Eingangs-Lager der Fabriken die zur Stadt gehÃ¶ren.<br>
+<strong>Achtung:</strong> Die Werte "Angekommen" und "Waren" sind etwas schwer VerstÃ¤ndlich. Es werden die Eingangslager der Fabriken gezÃ¤hlt, aber nur bei Kraftwerken und Endverbrauchern. Mit Endverbraucher sind hier z.B. MÃ¤rkte gemeint, aber Vorsicht auch eine verarbeitende Fabrik kann als Endverbraucher gelten, wenn sie mit keinem Abnehmer verbunden ist. Des weiteren zÃ¤hlen Fabriken ohne verbunden Lieferanten nicht. Es werden die Eingangslager bei jedem Tick gezÃ¤hlt, das sind nicht Tage eines Monats sondern im Pak128.german z.B. hat der Monat 50 Ticks. Wenn Arbeiter aus mehreren StÃ¤dten in einer Fabrik arbeiten, dann wird diese Fabrik jeder dieser StÃ¤dte als zugehÃ¶rig betrachtet. Das gilt auch, wenn die Fabrik im Stadtgebiet einer anderen Stadt steht. FÃ¼r das Stadtwachstum zÃ¤hlt letztlich das VerhÃ¤ltnis von gefÃ¼llten zu leeren Eingangslagern der Endverbraucher. FÃ¼r ein hohes Stadtwachstum, kÃ¶nnte man auch die ungenutzte Fabriken mittels Ã–ffentliche Hand entfernen.<br>
 <br>
 Wachstumsfaktor = (<em>Angekommen</em>) / <em>Waren</em> * <em>goods_multiplier</em><br>
 Der <em>goods_multiplier</em> wird in der simuconf.tab oder im den <a href="settings.txt">Einstellungen</a> gesetzt. <br>
-Standartwert wenn nicht geändert ist 20.<br>
+Standartwert wenn nicht geÃ¤ndert ist 20.<br>
 Der Wachstumsfaktor bewegt sich dann im Bereich 0 bis 20.
 </p>
 
 <p><it>Wachstum der Einwohner in der Stadt</it><br>
 Die Wachstumsfaktoren von Passagieren, Post und Waren werden addiert und durch den growthfactor_? geteilt.<br>
-Zum Teilen verwendet werden je nach Stadtgröße:<br>
+Zum Teilen verwendet werden je nach StadtgrÃ¶ÃŸe:<br>
 Dorf kleiner 1000 Einwohner <em>growthfactor_villages=400</em><br>
 Stadt mit 1000 bis 10.000 Einwohner <em>growthfactor_cities=200</em><br>
-Großstädte größer 10.000 Einwohner <em>growthfactor_capitals=100</em><br>
+GroÃŸstÃ¤dte grÃ¶ÃŸer 10.000 Einwohner <em>growthfactor_capitals=100</em><br>
 Die <em>growthfactor_?</em> werden in der simuconf.tab oder im den <a href="settings.txt">Einstellungen</a> gesetzt. <br>
-Um den hier errechneten Wert werden die Arbeitslosen und Obdachlosen erhöht.<br> 
-Erst wenn die Stadt Wohngebäude errichtet erhöht sich die Zahl der Einwohner. <br>
+Um den hier errechneten Wert werden die Arbeitslosen und Obdachlosen erhÃ¶ht.<br> 
+Erst wenn die Stadt WohngebÃ¤ude errichtet erhÃ¶ht sich die Zahl der Einwohner. <br>
 <br>
-Durch die gestaffelte Regelung bleiben Dörfer länger Dörfer. Beziehungsweise wird ein eher quadratisches Wachstum nachempfunden, da die Einwohnerzahl in Simutrans linear wächst.<br>
+Durch die gestaffelte Regelung bleiben DÃ¶rfer lÃ¤nger DÃ¶rfer. Beziehungsweise wird ein eher quadratisches Wachstum nachempfunden, da die Einwohnerzahl in Simutrans linear wÃ¤chst.<br>
 <br>
-<strong>Niedrigere Werte bei growthfactor_? oder höhere bei den ?_multiplier erhöhen das Wachstum.</strong><br>
+<strong>Niedrigere Werte bei growthfactor_? oder hÃ¶here bei den ?_multiplier erhÃ¶hen das Wachstum.</strong><br>
 <br>
 Jedes pak kann eine eigene simuconf.tab mit eigenen Werten haben. 
 Aus den Standartwerten ergibt sich bei 50 Ticks pro Monat.<br>
-Eine Dorf wächst bei optimaler Versorgung um maximal 10 Einwohner pro Monat, oder um 120 Einwohner pro Jahr.<br>
-Eine Stadt wächst um 20 Einwohner oder 240 pro Jahr.<br> 
-Eine Großstadt um 40 pro Monat oder 480 pro Jahr.<br>
-Diese theoretischen Wachstumszahlen werden in der Praxis nicht ganz erreicht, weil es der Stadt nicht immer gelingt neue Häuser zu platzieren. Beim Bau von besonderen Gebäuden kann es auch zu Ausreißern nach oben im Wachstum kommen.<br>
+Eine Dorf wÃ¤chst bei optimaler Versorgung um maximal 10 Einwohner pro Monat, oder um 120 Einwohner pro Jahr.<br>
+Eine Stadt wÃ¤chst um 20 Einwohner oder 240 pro Jahr.<br> 
+Eine GroÃŸstadt um 40 pro Monat oder 480 pro Jahr.<br>
+Diese theoretischen Wachstumszahlen werden in der Praxis nicht ganz erreicht, weil es der Stadt nicht immer gelingt neue HÃ¤user zu platzieren. Beim Bau von besonderen GebÃ¤uden kann es auch zu AusreiÃŸern nach oben im Wachstum kommen.<br>
 </p>
 
 <p><it>Entstehung Stadtautos</it><br>
-Anzahl = random((<em>citycar_level</em> / 16) * log10(Einwohner * (1 - max(Faktor beförderte Personen, Post, Waren))))<br> 
+Anzahl = random((<em>citycar_level</em> / 16) * log10(Einwohner * (1 - max(Faktor befÃ¶rderte Personen, Post, Waren))))<br> 
 Der <em>citycar_level</em> wird in der simuconf.tab oder im den <a href="settings.txt">Einstellungen</a> gesetzt. <br>
 Kurz: aus den Kategorien Personen, Post oder Waren wird die mit den meisten Transporten genommen und davon die nicht transportieren mit der Einwohnerzahl und <em>citycar_level</em> verrechnet ergibt die Anzahl Stadtautos.
 </p>
 
 <p><it>Zusammenhang von Stadtwachstum, Arbeits- und Obdachlosenzahlen</it><br>
-Bei einer neu gegründeten Stadt sind zunächst <strong>alle Einwohner arbeitslos und obdachlos.</strong><br>
-Die Arbeits- und Obdachlosigkeit bekämpft die Stadt (und nur sie!) mit dem Bau von Stadtgebäuden.<br>
-Sie baut neue Gebäude oder ersetzt Gebäude durch solche mit einem höheren Level.<br>
-Die Zahl der Arbeits- oder Wohnungslosen sinkt dann um Level * 10 des neuen Gebäudes.<br>
-<strong>Je besser das Verhältnis von zufriedenen zu generierten Passagieren (und Post) ist, desto schneller wachsen die Städte.</strong> Und je schneller sie wachsen, desto schneller steigen Arbeits- und Obdachlosenzahlen an, und desto schneller muss die Stadt wieder bauen, und umso mehr Kunden wollen Deinen Service nutzen. Ein Trugschluss ist es, mit der Beförderung von Arbeitern zu einer Fabrik die Arbeitslosigkeit senken zu wollen, im Gegenteil: Viele Passagiere werden zufrieden, und über das dadurch beschleunigte Wachstum steigen die Arbeitslosenzahlen sogar noch schneller an!<br>
-Die Titelzeile des Infofensters ist orange wenn die Arbeits- oder Obdachlosenzahlen über 70 steigen. 
+Bei einer neu gegrÃ¼ndeten Stadt sind zunÃ¤chst <strong>alle Einwohner arbeitslos und obdachlos.</strong><br>
+Die Arbeits- und Obdachlosigkeit bekÃ¤mpft die Stadt (und nur sie!) mit dem Bau von StadtgebÃ¤uden.<br>
+Sie baut neue GebÃ¤ude oder ersetzt GebÃ¤ude durch solche mit einem hÃ¶heren Level.<br>
+Die Zahl der Arbeits- oder Wohnungslosen sinkt dann um Level * 10 des neuen GebÃ¤udes.<br>
+<strong>Je besser das VerhÃ¤ltnis von zufriedenen zu generierten Passagieren (und Post) ist, desto schneller wachsen die StÃ¤dte.</strong> Und je schneller sie wachsen, desto schneller steigen Arbeits- und Obdachlosenzahlen an, und desto schneller muss die Stadt wieder bauen, und umso mehr Kunden wollen Deinen Service nutzen. Ein Trugschluss ist es, mit der BefÃ¶rderung von Arbeitern zu einer Fabrik die Arbeitslosigkeit senken zu wollen, im Gegenteil: Viele Passagiere werden zufrieden, und Ã¼ber das dadurch beschleunigte Wachstum steigen die Arbeitslosenzahlen sogar noch schneller an!<br>
+Die Titelzeile des Infofensters ist orange wenn die Arbeits- oder Obdachlosenzahlen Ã¼ber 70 steigen. 
 </p>
 
-<p><it>Entstehung der Gebäude in der Stadt</it><br>
-- <em>Industrie: (ind)</em> Industriegebäude dienen als Arbeitsstätten innerhalb der Stadt. Ihr Bau oder ihre Erneuerung verringert die Arbeitslosenzahl. Ihre Postrate ist halb so gross wie ihre Passagierrate. Diese Gebäude sind normale Stadthäuser und kennen keinen Warenverkehr.<br/>
-- <em>Wohngebäude: (res)</em> In den Wohngebäuden leben die Einwohner. Ihr Bau oder ihre Erneuerung verringert die Obdachlosenzahl. Ihre Postrate ist gleich der Passagierrate.<br/>
-- <em>Gewerbeobjekte: (com)</em> Zu den Gewerbeobjekten zählen u.a. Ladengeschäfte, Lokale, Freizeiteinrichtungen und Bürogebäude. Die Gebäude sind oft auch mit Wohnungen kombiniert. Ihr Bau oder ihre Erneuerung verringert sowohl die Arbeitslosen- wie Obdachlosenzahl. Ihre Postrate ist doppelt so hoch wie ihre Passagierrate.<br>
-· <em>Monumente: (mon)</em> Monumente werden zufällig, aber nur einmalig auf der Karte gebaut.<br>
-· <em>Öffentliche Gebäude: (tow, cur)</em> Für die Errichtung von öffentlichen Gebäuden wie grössere Rathäuser, Denkmäler und Stadtattraktionen sind die Schwellenwerte in den paks mit dem Parameter build_time=? festgelegt, ebenso eine Wahrscheinlichkeit, mit der die Attraktion gebaut wird.<br>
+<p><it>Entstehung der GebÃ¤ude in der Stadt</it><br>
+- <em>Industrie: (ind)</em> IndustriegebÃ¤ude dienen als ArbeitsstÃ¤tten innerhalb der Stadt. Ihr Bau oder ihre Erneuerung verringert die Arbeitslosenzahl. Ihre Postrate ist halb so gross wie ihre Passagierrate. Diese GebÃ¤ude sind normale StadthÃ¤user und kennen keinen Warenverkehr.<br/>
+- <em>WohngebÃ¤ude: (res)</em> In den WohngebÃ¤uden leben die Einwohner. Ihr Bau oder ihre Erneuerung verringert die Obdachlosenzahl. Ihre Postrate ist gleich der Passagierrate.<br/>
+- <em>Gewerbeobjekte: (com)</em> Zu den Gewerbeobjekten zÃ¤hlen u.a. LadengeschÃ¤fte, Lokale, Freizeiteinrichtungen und BÃ¼rogebÃ¤ude. Die GebÃ¤ude sind oft auch mit Wohnungen kombiniert. Ihr Bau oder ihre Erneuerung verringert sowohl die Arbeitslosen- wie Obdachlosenzahl. Ihre Postrate ist doppelt so hoch wie ihre Passagierrate.<br>
+Â· <em>Monumente: (mon)</em> Monumente werden zufÃ¤llig, aber nur einmalig auf der Karte gebaut.<br>
+Â· <em>Ã–ffentliche GebÃ¤ude: (tow, cur)</em> FÃ¼r die Errichtung von Ã¶ffentlichen GebÃ¤uden wie grÃ¶ssere RathÃ¤user, DenkmÃ¤ler und Stadtattraktionen sind die Schwellenwerte in den paks mit dem Parameter build_time=? festgelegt, ebenso eine Wahrscheinlichkeit, mit der die Attraktion gebaut wird.<br>
 </p>
-<p><it>Auswahl welches Gebäude gebaut wird: (ind, res, com)?:</it><br>
-Berechnung der Score Werte von denen der Typ des Stadtgebäudes abhängt.
+<p><it>Auswahl welches GebÃ¤ude gebaut wird: (ind, res, com)?:</it><br>
+Berechnung der Score Werte von denen der Typ des StadtgebÃ¤udes abhÃ¤ngt.
 Die Parameter sind in der cityrules.tab zu finden.<br>
  defaults von Simutrans (res_start_score usw.)<br>
 ---  ( start, near ind, near com, near res) <br>
@@ -93,8 +93,8 @@ Die Parameter sind in der cityrules.tab zu finden.<br>
 </p>
 
 <p><it>Erzeugung neuer Industrieketten:</it><br>
-· <em>Industrieketten/Fabriken:</em> Diese können vom Spieler mit Waren beliefert werden, oder liefern Waren.<br> 
-Wächst die Stadt über <em>industry_increase_every</em> hinaus, werden zusätzlich Fabriken oder auch  ganze Ketten gebaut. Diese Schwelle verdoppelt sich jedes mal. Wird der verdoppelte Wert überschritten, werden erneut Fabriken gebaut. Der Wert 0 verhindert das bauen von Fabriken. ?Die Fabrik kann in der auslösenden Stadt stehen, kann aber auch an einem beliebigen anderen Ort stehen.?<br>
+Â· <em>Industrieketten/Fabriken:</em> Diese kÃ¶nnen vom Spieler mit Waren beliefert werden, oder liefern Waren.<br> 
+WÃ¤chst die Stadt Ã¼ber <em>industry_increase_every</em> hinaus, werden zusÃ¤tzlich Fabriken oder auch  ganze Ketten gebaut. Diese Schwelle verdoppelt sich jedes mal. Wird der verdoppelte Wert Ã¼berschritten, werden erneut Fabriken gebaut. Der Wert 0 verhindert das bauen von Fabriken. ?Die Fabrik kann in der auslÃ¶senden Stadt stehen, kann aber auch an einem beliebigen anderen Ort stehen.?<br>
 Der Wert von <em>industry_increase_every</em> kann in der simuconf.tab oder im den <a href="settings.txt">Einstellungen</a> gesetzt werden.<br>
 <strong>Die Errichtung von Fabriken hat keine Auswirkung auf die Arbeitslosen- oder Obdachlosenzahl.
 </strong><br>

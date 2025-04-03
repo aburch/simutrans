@@ -3,7 +3,7 @@
 <h1><strong>Herramientas de Monorail/Maglev</strong></h1>
 
 <p>
-<strong>Herramientas de Monorail/Maglev</strong> construye un red de transporte mediante Monorail/Maglev. Las herramientas pueden crear o eliminar: vias de monorail y maglev; puentes; tuneles; señales; cocheras; estaciones; y extensiones. Si estas jugando con<a href="new_world.txt">cronologia</a>, a medida que pase el tiempo apareceran nuevas herramientas.
+<strong>Herramientas de Monorail/Maglev</strong> construye un red de transporte mediante Monorail/Maglev. Las herramientas pueden crear o eliminar: vias de monorail y maglev; puentes; tuneles; seÃ±ales; cocheras; estaciones; y extensiones. Si estas jugando con<a href="new_world.txt">cronologia</a>, a medida que pase el tiempo apareceran nuevas herramientas.
 </p>
 <p>
 Pulsa en el icono de Herramientas de monorail/maglev en la barra de la parte superior de la pantalla para abrir el menu de herramientas.<br>
@@ -18,7 +18,7 @@ Para construir la via: pulsa en el icono de la herramienta Via (el cursor cambia
 {Consejos: Los diferentes tipos de via se pueden conectar (excepto cuando intentas construir sobre vias de otros <a href="players.txt">jugadores</a>). Usa las <a href="slopetools.txt">Herramientas del terreno</a> para modificar el terreno, para permitir la construccion de vias. Usa la herramienta Eliminar para eliminar partes individuales de la via y algunos obstaculos. Usa la tecla <a href="keys.txt">[Ctrl]</a> al mismo tiempo para acceder a funciones extra. Deshaz la ultima ruta construida pulsando la tecla [z]. No se reembolsan los costes de construccion.}
 </p>
 <p>
-<em>Remove monorails:</em> herramienta para eliminar vias de monorail/maglev, cuando no hay vehiculos presentes, entre dos puntos (las estaciones y señales tambien se eliminan).<br>
+<em>Remove monorails:</em> herramienta para eliminar vias de monorail/maglev, cuando no hay vehiculos presentes, entre dos puntos (las estaciones y seÃ±ales tambien se eliminan).<br>
 El uso de esta herramienta implica un <a href="finances.txt">coste de construccion</a>.<br>
 Para eliminar vias: pulsa en la herramienta (el cursor cambia a un cruz roja); despues pulsa en la via que quieres eliminar (en el punto seleccionado para borrar se muestra una cruz roja); por ultimo pulsa en otro punto de la via, para eliminar la parte entre ambos puntos.<br>
 {Consejos: Opera como otro jugador para eliminar sus vias.}
@@ -29,13 +29,13 @@ Para construir una rampa o puente: pulsa en el icono de la herramienta (el curso
 {Consejos: Usa la herramienta Eliminar para destruir puente (pulsa en el final del puente) y algunos de los obstaculos para la construccion del puente. Usa las herramientas de Vias para conectar las partes finales del puente a las vias.}
 </p>
 <p>
-<em>Señales de Monorail:</em> herramientas para construir señales para vehiculos monorrail y maglev en la via. Las señales dirigen y regulan el flujo de vehiculos en vias y puente, cruces y <a href="station.txt">Paradas</a> (donde los vehiculos cargan y descargan pasajeros).<br>
-Se pueden contruir señales de sentido unico o doble sentido. Para construir un señal de doble sentido en una via: pulsa en el icono de la herramienta (cambia el cursor a una señal); despues pulsa en la via. Para construir una señal de sentido unico: pulsa de nuevo en el mismo punto, con el cursor de señal, para pasar de un tipo de señal a otro.<br>
-IMPORTANTE: Ten cuidado en no poner señales de sentido unico, ya que pueden evitar que un vehiculo llegue a su destino, por defecto los vehiculos conducen por la derecha (se puede cambiar en el archivo simuconf.tab).<br>
-- <em>Señales:</em> los vehiculos continuan solo si el tramo de via hasta la siguiente señal o destino de la <a href="schedule.txt">Ruta</a> (a <a href="station.txt">Parada</a> o punto de paso) no esta ocupado por otro vehiculo. En el modo de sentido unico, los vehiculos se mueven en una unica direccion.<br>
-- <em>PreSignals:</em> los vehiculos continuan si el tramo de via (entre tres señales consecutivas o hasta el proximo destino en la <a href="schedule.txt">Ruta</a>) no esta ocupado por otro vehiculo. En el modo sentido unico, las preseñales dejan pasar a los vehiculos unicamente en un sentido.<br>
-- <em>ChooseSignals:</em> dirigen vehiculos hacia una estacion vacia, una <a href="station.txt">Estacion</a> multiple: un vehiculo pasando esta señal puede usar una estacion vacia en su proximo destino, y no justamente el que esta asignado en su <a href="schedule.txt">Ruta</a>. Si no hay estaciones vacias o una ruta clara hasta su proximo destino, los vehiculos esperaran en la señal.<br>
-{Consejo:  Elimina las señales con la herramienta Eliminar. Manten pulsado  [Ctrl] para poner señales en puentes sobre otras vias.}
+<em>SeÃ±ales de Monorail:</em> herramientas para construir seÃ±ales para vehiculos monorrail y maglev en la via. Las seÃ±ales dirigen y regulan el flujo de vehiculos en vias y puente, cruces y <a href="station.txt">Paradas</a> (donde los vehiculos cargan y descargan pasajeros).<br>
+Se pueden contruir seÃ±ales de sentido unico o doble sentido. Para construir un seÃ±al de doble sentido en una via: pulsa en el icono de la herramienta (cambia el cursor a una seÃ±al); despues pulsa en la via. Para construir una seÃ±al de sentido unico: pulsa de nuevo en el mismo punto, con el cursor de seÃ±al, para pasar de un tipo de seÃ±al a otro.<br>
+IMPORTANTE: Ten cuidado en no poner seÃ±ales de sentido unico, ya que pueden evitar que un vehiculo llegue a su destino, por defecto los vehiculos conducen por la derecha (se puede cambiar en el archivo simuconf.tab).<br>
+- <em>SeÃ±ales:</em> los vehiculos continuan solo si el tramo de via hasta la siguiente seÃ±al o destino de la <a href="schedule.txt">Ruta</a> (a <a href="station.txt">Parada</a> o punto de paso) no esta ocupado por otro vehiculo. En el modo de sentido unico, los vehiculos se mueven en una unica direccion.<br>
+- <em>PreSignals:</em> los vehiculos continuan si el tramo de via (entre tres seÃ±ales consecutivas o hasta el proximo destino en la <a href="schedule.txt">Ruta</a>) no esta ocupado por otro vehiculo. En el modo sentido unico, las preseÃ±ales dejan pasar a los vehiculos unicamente en un sentido.<br>
+- <em>ChooseSignals:</em> dirigen vehiculos hacia una estacion vacia, una <a href="station.txt">Estacion</a> multiple: un vehiculo pasando esta seÃ±al puede usar una estacion vacia en su proximo destino, y no justamente el que esta asignado en su <a href="schedule.txt">Ruta</a>. Si no hay estaciones vacias o una ruta clara hasta su proximo destino, los vehiculos esperaran en la seÃ±al.<br>
+{Consejo:  Elimina las seÃ±ales con la herramienta Eliminar. Manten pulsado  [Ctrl] para poner seÃ±ales en puentes sobre otras vias.}
 </p>
 <p>
  <a href="depot.txt"><em>Cochera<em> de Monorail</em>:</em></a> herramienta que construye una cochera para comprar y gestionar vehiculos y vagones de monorrail/maglev.Las cocheras implican un coste de mantenimiento y se construyen al final de una via de monorrail/maglev.<br>

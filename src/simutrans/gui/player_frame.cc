@@ -108,6 +108,17 @@ ki_kontroll_t::ki_kontroll_t() :
 	freeplay.pressed = welt->get_settings().is_freeplay();
 	add_component( &freeplay, 5 );
 
+	// currency position
+	currency_left.init(button_t::square_automatic, "currency left");
+	currency_left.add_listener(this);
+	currency_left.pressed = get_currency_left();
+	add_component(&currency_left, 3);
+
+	strcpy(currency_symbol, get_currency_string());
+	currency_string.set_text(currency_symbol, lengthof(currency_symbol));
+	currency_string.add_listener(this);
+	add_component(&currency_string, 2);
+
 	update_data(); // calls reset_min_windowsize
 
 	set_windowsize(get_min_windowsize());
@@ -117,11 +128,20 @@ ki_kontroll_t::ki_kontroll_t() :
 /**
  * This method is called if an action is triggered
  */
-bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
+bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp, value_t p )
 {
 	// Free play button?
 	if(	comp == &freeplay	) {
 		welt->call_change_player_tool(karte_t::toggle_freeplay, 255, 0);
+		return true;
+	}
+
+	if (comp == &currency_string  || comp == &currency_left) {
+		bool text_changed = strcmp(get_currency_string(), currency_symbol);
+		if (text_changed) {
+			strcpy(env_t::currency_symbol, currency_symbol);
+		}
+		set_currency_string(text_changed ? env_t::currency_symbol : get_currency_string(), currency_left.pressed);
 		return true;
 	}
 

@@ -1,4 +1,4 @@
-Nederlands
+Â§Nederlands
 PROP_FONT_FILE
 Prop-Latin1.bdf
 ################################################################################
@@ -10,7 +10,7 @@ Prop-Latin1.bdf
 #                        Simutrans Base Translation File                       #
 #                             Scenario: Base texts                             #
 #                            Language: nl Nederlands                           #
-#                             Encoding: ISO-8859-1                             #
+#                                Encoding: UTF-8                               #
 #                             Font: Prop-Latin1.bdf                            #
 #                            Date Created: 3.04 2025                           #
 #                                                                              #
@@ -294,7 +294,7 @@ New %s now available:\n%s\n
 New factory chain\nfor %s near\n%s built with\n%i factories.
 Er is een nieuwe productieketen\nvoor %s bij\n%s gebouwd,\nbestaande uit %i fabrieken.
 New vehicle now available:\n%s\n
-Nieuw voertuig is \nnu beschikbaar:\n\n» %s «\n
+Nieuw voertuig is \nnu beschikbaar:\n\nÂ» %s Â«\n
 Now %u clients connected.
 %i spelers verbonden.
 Remove vehicle from map. Use with care!
@@ -324,7 +324,7 @@ lijn filter
 \ndirection:
 \nrichtingen:
 \nelektrified
-geëlektrificeerd
+geÃ«lektrificeerd
 \nHeightfield has wrong image type.\n
 \nHoogteveld heeft een onjuiste\nbestands opmaak.\n
 \nis reserved by:
@@ -332,7 +332,7 @@ geëlektrificeerd
 \nminimum speed:
 \nminimumsnelheid:
 \nnot elektrified
-niet geëlektrificeerd
+niet geÃ«lektrificeerd
 \nRibi (masked)
 \nRichtingen (gemaskeerd)
 \nRibi (unmasked)
@@ -598,7 +598,7 @@ Capaciteit: %.0f MW\n
 Capacity: %d%s %s\n
 Capaciteit: %3d%s %s\n
 Capacity: %s\nLoad: %d (%d%%)
-Capaciteit: %s\n» %d (%d%%)
+Capaciteit: %s\nÂ» %d (%d%%)
 Cars are not available yet!
 Voertuigen zijn nog niet beschikbaar!
 cars.\nstate
@@ -622,7 +622,7 @@ Inwoners
 City attraction
 Toeristische attractie
 City industries
-Aantal industrieën (stad)
+Aantal industrieÃ«n (stad)
 City list
 Stedenlijst
 City size
@@ -730,7 +730,7 @@ Voertuigen: %d\nWinst: %s
 Convoys
 Voertuigen
 Copy Convoi
-Kopiëren
+KopiÃ«ren
 Copy the selected convoi and its schedule or line
 Kopieer dit voertuig inclusief dienstregeling of lijn
 cost for removal
@@ -748,7 +748,7 @@ Attractie bouwen
 curlist_title
 Bezienswaardigheden
 CURRENCY
-?
+â‚¬
 Currently playing:
 Momenteel spelend:
 Customers live in:
@@ -874,9 +874,9 @@ Bestand:
 Files from:
 Bestanden uit:
 Finances of %s
-Financiën van %s
+FinanciÃ«n van %s
 Finanzen
-Financiën
+FinanciÃ«n
 find mismatch
 Vergelijk je pak
 fl_title
@@ -1050,11 +1050,11 @@ Stop invoegen voor de huidige
 Intercity road len:
 Lengte provinciale wegen
 Intro. date:
-Geïntroduceerd:
+GeÃ¯ntroduceerd:
 invalid
 ongeldig
 Invalid coordinate
-Ongeldige coördinaat
+Ongeldige coÃ¶rdinaat
 isometric map
 isometrische kaart
 January
@@ -1080,7 +1080,7 @@ Het depot is leeg
 Keyboard_Help\n
 Toetsenbord help\n
 koord
-coördinaten
+coÃ¶rdinaten
 Kreuzung
 Kruising
 labellist_title
@@ -1090,7 +1090,7 @@ Laad Hoogtekaart
 Land attraction
 Bezienswaardigheid
 Land industries
-Aantal industrieën (land)
+Aantal industrieÃ«n (land)
 LANG_CHOOSE\n
 Maak de keuze uit\nde volgende talen:\n
 LARGE_NUMBER_STRING
@@ -1130,7 +1130,7 @@ Vrachtverkeer
 Load game
 Spel laden
 load height data from file
-Bestand met reliëfinformatie laden
+Bestand met reliÃ«finformatie laden
 Load scenario
 Laad scenario
 loaded
@@ -1152,7 +1152,7 @@ Blokkeer speleromschakeling.
 Lokomotive_tab
 Locomotieven
 m3
-m³
+mÂ³
 Maglev
 Magneetbaan
 maglev vehicle
@@ -1194,7 +1194,7 @@ Max. inkomsten:
 Max. speed:
 Max. snelheid:
 Maximum 254 stops\nin a schedule!\n
-Niet meer dan 254 haltes\nin één dienstregeling!\n
+Niet meer dan 254 haltes\nin Ã©Ã©n dienstregeling!\n
 maximum length of rivers
 Maximale rivierlengte
 Maximum tile height difference reached.
@@ -1274,7 +1274,7 @@ Nieuw voertuig
 New Line
 Nieuwe lijn
 New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.
-Nieuwe lijn gecreëerd!\nJe kunt de lijn nu toewijzen\ndoor deze te kiezen uit\nde lijnen hierboven.
+Nieuwe lijn gecreÃ«erd!\nJe kunt de lijn nu toewijzen\ndoor deze te kiezen uit\nde lijnen hierboven.
 New Vehicles
 Nieuwe voertuigen
 no buildings hidden
@@ -1334,7 +1334,7 @@ Enkel de eerste paks die verschillen zijn aangegeven. Waarschijnlijk zijn er nog
 Only land chains
 Alleen plattelandsfabrieken
 Only one transformer per factory!
-Slecht één transformator per fabriek
+Slecht Ã©Ã©n transformator per fabriek
 Only show goods which are currently handled by factories
 Toon enkel de goederen die momenteel verwerkt kunnen worden
 Operation
@@ -1666,7 +1666,7 @@ Signaal afstand
 Sim:
 Simloops:
 Similar view as the main window
-Zelfde oriëntatie als het hoofdscherm
+Zelfde oriÃ«ntatie als het hoofdscherm
 Size (%d MB):
 Omvang (%d MB):
 sliced underground mode

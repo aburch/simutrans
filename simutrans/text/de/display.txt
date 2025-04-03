@@ -2,65 +2,65 @@
  
 <h1><strong>Anzeigeeinstellungen</strong></h1>
 <p>
-Der Dialog Anzeige ist in die Reiter <em>Oberfläche</em>, <em>Kartendarstellung</em>, <em>Bäume & Gebäude</em>, <em>Stationen</em> und <em>Verkehr</em> unterteilt.
+Der Dialog Anzeige ist in die Reiter <em>OberflÃ¤che</em>, <em>Kartendarstellung</em>, <em>BÃ¤ume & GebÃ¤ude</em>, <em>Stationen</em> und <em>Verkehr</em> unterteilt.
 </p>
-<h1><it>Oberfläche</it></h1>
+<h1><it>OberflÃ¤che</it></h1>
 <p>
-· <em>Auswahl Oberfläche</em> öffnet ein Fenster wo Darstellung der Oberfläche geändert werden kann.<br/>
-· <a href="load_font.txt">Zeichensatzauswahl</a> öffnet ein Fenster wo die Größe und die Art der Schrift geändert werden kann.<br/>
-· <em>Position Hauptmenü</em> legt fest, wo sich das Hauptmenü (oben, links, rechts, unten) befindet.<br/>
-· <em>Vollbildmodus</em> legt fest, ob Simutrans im Vollbild ausgeführt wird.<br/>
-· <em>rahmenloser Fenstermodus</em> legt fest, das Simutrans als Fenster im Vollbild ohne Fensterelementen ausgeführt wird.<br/>
-· <em>Tool deaktivieren mit erneuter Auswahl</em> legt fest, das ein erneuter Klick auf den Button das Tool wieder deaktiviert.<br/>
+Â· <em>Auswahl OberflÃ¤che</em> Ã¶ffnet ein Fenster wo Darstellung der OberflÃ¤che geÃ¤ndert werden kann.<br/>
+Â· <a href="load_font.txt">Zeichensatzauswahl</a> Ã¶ffnet ein Fenster wo die GrÃ¶ÃŸe und die Art der Schrift geÃ¤ndert werden kann.<br/>
+Â· <em>Position HauptmenÃ¼</em> legt fest, wo sich das HauptmenÃ¼ (oben, links, rechts, unten) befindet.<br/>
+Â· <em>Vollbildmodus</em> legt fest, ob Simutrans im Vollbild ausgefÃ¼hrt wird.<br/>
+Â· <em>rahmenloser Fenstermodus</em> legt fest, das Simutrans als Fenster im Vollbild ohne Fensterelementen ausgefÃ¼hrt wird.<br/>
+Â· <em>Tool deaktivieren mit erneuter Auswahl</em> legt fest, das ein erneuter Klick auf den Button das Tool wieder deaktiviert.<br/>
 <br/>
 <strong>Auslastungsanzeigen</strong>
 <br/>
 Im unteren Teil des Dialogs werden einige Information zur Auslastung des Computers angezeigt:
 <br/>
-· <em>Bildfrequenz</em>: zeigt die tatsächliche Zeit zwischen zwei Frames.<br>
-· <em>Leerlauf</em>: Zeigt an, wie lange der Computer zwischen zwei Bildschirmupdates pausiert.<br>
-· <em>Bildrate</em>: Je höher der Wert, desto gleichmäßiger (ruckelfrei) bewegen sich die Fahrzeuge. Der Wert stellt die Bildfolgen pro Spielsekunde dar. Im Schnellen Vorlauf und im Netzwerkmodus ist die Bildrate fixiert, ansonsten wird sie nach Rechenlast angepasst. Den Wert kann man mit dem Kommandzeilenparameter <strong>-fps</strong> oder in der <strong>simuconf.tab</strong> einstellen.<br>
-· <em>Simloops</em>: Anzahl der Simulationsschleifen pro Spielsekunde. Wenn der Wert dauerhaft unter 5 fällt, ist der Computer voll ausgelastet. Einige Funktionen in Simutrans können aussetzen, zum Beispiel fahren Züge nicht mehr ab. In dem Fall sollte eine kleinere Karte mit weniger Städten gespielt werden.
+Â· <em>Bildfrequenz</em>: zeigt die tatsÃ¤chliche Zeit zwischen zwei Frames.<br>
+Â· <em>Leerlauf</em>: Zeigt an, wie lange der Computer zwischen zwei Bildschirmupdates pausiert.<br>
+Â· <em>Bildrate</em>: Je hÃ¶her der Wert, desto gleichmÃ¤ÃŸiger (ruckelfrei) bewegen sich die Fahrzeuge. Der Wert stellt die Bildfolgen pro Spielsekunde dar. Im Schnellen Vorlauf und im Netzwerkmodus ist die Bildrate fixiert, ansonsten wird sie nach Rechenlast angepasst. Den Wert kann man mit dem Kommandzeilenparameter <strong>-fps</strong> oder in der <strong>simuconf.tab</strong> einstellen.<br>
+Â· <em>Simloops</em>: Anzahl der Simulationsschleifen pro Spielsekunde. Wenn der Wert dauerhaft unter 5 fÃ¤llt, ist der Computer voll ausgelastet. Einige Funktionen in Simutrans kÃ¶nnen aussetzen, zum Beispiel fahren ZÃ¼ge nicht mehr ab. In dem Fall sollte eine kleinere Karte mit weniger StÃ¤dten gespielt werden.
 </p>
 
 <h1><it>Kartendarstellung</it></h1>
 <p>
-· <em>Gitternetz einblenden</em>: Blendet in der Welt ein Gitternetz ein und aus.<br>
-· <em>Untergrundansicht</em>: In diesem Modus kann man Tunnelstrecken bauen, sofern schon eine Strecke unter der Erde besteht. Die Tunnelstrecken aller Ebenen werden zusammen angezeigt.<br>
+Â· <em>Gitternetz einblenden</em>: Blendet in der Welt ein Gitternetz ein und aus.<br>
+Â· <em>Untergrundansicht</em>: In diesem Modus kann man Tunnelstrecken bauen, sofern schon eine Strecke unter der Erde besteht. Die Tunnelstrecken aller Ebenen werden zusammen angezeigt.<br>
  
-· <em>Ebene durch Karte</em>: Auch in diesem Modus kann man Tunnelstrecken bauen. Die Karte wird auf der eingestellten Ebene aufgeschnitten und nur Tunnelstrecken auf der jeweiligen Ebene werden angezeigt. Mit den Pfeilen kann die Ebene eingestellt werden. Es kann aber auch direkt die Nummer der Ebene eingegeben werden.<br>
-· <em>Tag und Nacht wechseln</em>: Soll es nachts dunkel werden in Simutrans? Gebäudefenster, Fahrzeuge und Signalmittel zeigen sich in Nachtbeleuchtung.<br>
-· <em>Helligkeit</em>: Lege mit den Pfeilen die Helligkeit des Spiels fest. Nutze auch die Tasten <em>)</em> (heller) und <em>(</em> (dunkler). Werte über 0 lassen sich nur über die Tastatur einstellen. <strong>ACHTUNG</strong>: Die Einstellbarkeit ist nach oben und unten nicht begrenzt, es kommt aber sehr bald zu einer Falschfarbenanzeige.<br>
-· <em>Inverses Kartenscrolling</em>: Kehre die Scrollrichtung bei Bedarf um, die Karte bewegt sich dann in Mausrichtung.<br>
-· <em>Zifferntasten bewegen immer die Karte</em><br>
-· <em>Scrollgeschwindigkeit</em>: Diese Einstellung erhöht die Kartenscrollgeschwindigkeit.<br>
-· <em>Datums- und Uhrzeitformat</em> ändert die Darstellung der Spielzeit unten links in der Statuszeile.
+Â· <em>Ebene durch Karte</em>: Auch in diesem Modus kann man Tunnelstrecken bauen. Die Karte wird auf der eingestellten Ebene aufgeschnitten und nur Tunnelstrecken auf der jeweiligen Ebene werden angezeigt. Mit den Pfeilen kann die Ebene eingestellt werden. Es kann aber auch direkt die Nummer der Ebene eingegeben werden.<br>
+Â· <em>Tag und Nacht wechseln</em>: Soll es nachts dunkel werden in Simutrans? GebÃ¤udefenster, Fahrzeuge und Signalmittel zeigen sich in Nachtbeleuchtung.<br>
+Â· <em>Helligkeit</em>: Lege mit den Pfeilen die Helligkeit des Spiels fest. Nutze auch die Tasten <em>)</em> (heller) und <em>(</em> (dunkler). Werte Ã¼ber 0 lassen sich nur Ã¼ber die Tastatur einstellen. <strong>ACHTUNG</strong>: Die Einstellbarkeit ist nach oben und unten nicht begrenzt, es kommt aber sehr bald zu einer Falschfarbenanzeige.<br>
+Â· <em>Inverses Kartenscrolling</em>: Kehre die Scrollrichtung bei Bedarf um, die Karte bewegt sich dann in Mausrichtung.<br>
+Â· <em>Zifferntasten bewegen immer die Karte</em><br>
+Â· <em>Scrollgeschwindigkeit</em>: Diese Einstellung erhÃ¶ht die Kartenscrollgeschwindigkeit.<br>
+Â· <em>Datums- und Uhrzeitformat</em> Ã¤ndert die Darstellung der Spielzeit unten links in der Statuszeile.
 </p>
 
-<h1><it>Bäume & Gebäude</it></h1>
+<h1><it>BÃ¤ume & GebÃ¤ude</it></h1>
 <p>
-· <em>Transparent statt minimieren</em>: Wählt den Modus aus, der benutzt werden soll, um Häuser oder Bäume zur besseren Übersicht zu verstecken. Diese Einstellung hat Auswirkungen auf die beiden nächsten Einstellungen.<br>
-· <em>Bäume minimieren</em>: Zeigt nur ganz kleine bzw. transparent Bäume an.<br>
-· <em>Gebäudeanzeigemodus</em>: Es kann mit Hilfe der Pfeile ausgewählt werden, ob keine Gebäude, nur Stadtgebäude oder alle Gebäude minimiert werden.<br>
-· <em>Mauszeiger freihalten</em>: Je nach Einstellung werden eine bestimmte Anzahl von Feldern um den Mauszeiger minimiert bzw. tranparent. Die Anzahl der Felder kann mit den Pfeilen oder direkt durch Eingabe eingestellt werden.<br>
-· <em>Industriestatusanzeige</em>: Blendet den Industrienamen sowie Wareneingang (blau) und Warenausgang (orange) auf der Hauptkarte ein.
+Â· <em>Transparent statt minimieren</em>: WÃ¤hlt den Modus aus, der benutzt werden soll, um HÃ¤user oder BÃ¤ume zur besseren Ãœbersicht zu verstecken. Diese Einstellung hat Auswirkungen auf die beiden nÃ¤chsten Einstellungen.<br>
+Â· <em>BÃ¤ume minimieren</em>: Zeigt nur ganz kleine bzw. transparent BÃ¤ume an.<br>
+Â· <em>GebÃ¤udeanzeigemodus</em>: Es kann mit Hilfe der Pfeile ausgewÃ¤hlt werden, ob keine GebÃ¤ude, nur StadtgebÃ¤ude oder alle GebÃ¤ude minimiert werden.<br>
+Â· <em>Mauszeiger freihalten</em>: Je nach Einstellung werden eine bestimmte Anzahl von Feldern um den Mauszeiger minimiert bzw. tranparent. Die Anzahl der Felder kann mit den Pfeilen oder direkt durch Eingabe eingestellt werden.<br>
+Â· <em>Industriestatusanzeige</em>: Blendet den Industrienamen sowie Wareneingang (blau) und Warenausgang (orange) auf der Hauptkarte ein.
 </p>
 
 <h1><it>Stationen</it></h1>
 <p>
-· <em>transparente Stationsabdeckung</em>: Wählt den Modus aus, der benutzt werden soll, um die Reichweite von Halten anzuzeigen. Ist transparent gewählt färbt sich der Boden entsprechend der ersten Spielerfarbe des Besitzers, während ausgeschaltet je Fliese nur ein Kästchen in Spielerfarbe zu sehen ist.<br>
-· <em>Stationsabdeckung anzeigen</em>: Zeigt die Stationsabdeckung an oder blendet sie aus.<br>
-· <em>Markierungen auf der Hauptkarte</em>: Legt den Modus fest, wie Markierungen bzw. Schilder im Spiel angezeigt werden. Diese können mit der ersten Spielerfarbe im Hintergrund, mit transparentem Grund und als Schriftfarbe die Spielerfarbe, in Standardschriftfarbe mit einem spielerfarbenen Feld davor oder überhaupt nicht angezeigt werden.<br>
-· <em>Güterwarenbalken anzeigen</em>: Blendet die Anzeige für wartende Waren an den Halten ein oder aus.<br>
+Â· <em>transparente Stationsabdeckung</em>: WÃ¤hlt den Modus aus, der benutzt werden soll, um die Reichweite von Halten anzuzeigen. Ist transparent gewÃ¤hlt fÃ¤rbt sich der Boden entsprechend der ersten Spielerfarbe des Besitzers, wÃ¤hrend ausgeschaltet je Fliese nur ein KÃ¤stchen in Spielerfarbe zu sehen ist.<br>
+Â· <em>Stationsabdeckung anzeigen</em>: Zeigt die Stationsabdeckung an oder blendet sie aus.<br>
+Â· <em>Markierungen auf der Hauptkarte</em>: Legt den Modus fest, wie Markierungen bzw. Schilder im Spiel angezeigt werden. Diese kÃ¶nnen mit der ersten Spielerfarbe im Hintergrund, mit transparentem Grund und als Schriftfarbe die Spielerfarbe, in Standardschriftfarbe mit einem spielerfarbenen Feld davor oder Ã¼berhaupt nicht angezeigt werden.<br>
+Â· <em>GÃ¼terwarenbalken anzeigen</em>: Blendet die Anzeige fÃ¼r wartende Waren an den Halten ein oder aus.<br>
 </p>
 
 <h1><it>Verkehr</it></h1>
 <p>
-· <em>Fußgänger (Stadt)</em>: Wenn aktiviert werden sich Fußgänger durch die Städte bewegen.<br>
-· <em>Fußgänger (an Halten)</em>: Wenn aktiviert werden Fußgänger an Haltestellen aus Fahrzeugen aussteigen.<br>
-· <em>Verkehrsdichte:</em> Dieser Wert beeinflusst die Anzahl der privaten PKWs in den Städten.<br>
-· <em>Fahrzeuge: Tooltipps</em>: Je nach Modus werden Tooltipps verschieden angezeigt. Wenn Maustooltipps gewählt ist werden Tooltipps nur auf dem Feld angezeigt, wo sich die Maus befindet. Sind alle Tooltipps ausgewählt werden immer alle Tipps angezeigt. Fehlertooltipps werden nur bei Zwischenfällen angezeigt.<br>
-· <em>Fahrzeugverfolgung im Tunnel</em> <br>
-· <em>Fahrplanhalte hervorheben</em>: Ist diese Funktion aktiviert werden bei geöffneten Fahrplan alle Halte- und Wegpunkte angezeigt.<br>
-· <em>Finanzbewegungen auf der Hauptkarte</em>
+Â· <em>FuÃŸgÃ¤nger (Stadt)</em>: Wenn aktiviert werden sich FuÃŸgÃ¤nger durch die StÃ¤dte bewegen.<br>
+Â· <em>FuÃŸgÃ¤nger (an Halten)</em>: Wenn aktiviert werden FuÃŸgÃ¤nger an Haltestellen aus Fahrzeugen aussteigen.<br>
+Â· <em>Verkehrsdichte:</em> Dieser Wert beeinflusst die Anzahl der privaten PKWs in den StÃ¤dten.<br>
+Â· <em>Fahrzeuge: Tooltipps</em>: Je nach Modus werden Tooltipps verschieden angezeigt. Wenn Maustooltipps gewÃ¤hlt ist werden Tooltipps nur auf dem Feld angezeigt, wo sich die Maus befindet. Sind alle Tooltipps ausgewÃ¤hlt werden immer alle Tipps angezeigt. Fehlertooltipps werden nur bei ZwischenfÃ¤llen angezeigt.<br>
+Â· <em>Fahrzeugverfolgung im Tunnel</em> <br>
+Â· <em>Fahrplanhalte hervorheben</em>: Ist diese Funktion aktiviert werden bei geÃ¶ffneten Fahrplan alle Halte- und Wegpunkte angezeigt.<br>
+Â· <em>Finanzbewegungen auf der Hauptkarte</em>
 </p>

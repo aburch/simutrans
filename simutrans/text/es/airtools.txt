@@ -3,51 +3,51 @@
 <h1><strong>Herramientas de Aeropuertos</strong></h1>
 
 <p>
-<strong>Herramientas de Aeropuertos</strong> contiene herramientas para construir una red de transporte aéreo. Las herramientas pueden construir o eliminar: Pistas de Rodaje y Pistas de Aterrizaje para aviones, Paradas Aéreas (usadas para dejar o recoger mercancías y pasajeros), hangares de aviones (para comprar y gestionar los aviones) y algunos edificios más de aeropuertos. Si tienes activa la <a href="new_world.txt">cronología</a>, entonces a medida que pase el tiempo en Simutrans aparecerán más opciones.
+<strong>Herramientas de Aeropuertos</strong> contiene herramientas para construir una red de transporte aÃ©reo. Las herramientas pueden construir o eliminar: Pistas de Rodaje y Pistas de Aterrizaje para aviones, Paradas AÃ©reas (usadas para dejar o recoger mercancÃ­as y pasajeros), hangares de aviones (para comprar y gestionar los aviones) y algunos edificios mÃ¡s de aeropuertos. Si tienes activa la <a href="new_world.txt">cronologÃ­a</a>, entonces a medida que pase el tiempo en Simutrans aparecerÃ¡n mÃ¡s opciones.
 </p>
 <p>
-Pulsa el icono del avión en la parte superior de la pantalla para abrir el menú.<br>
-Posiciona el ratón sobre cada icono de la barra (tras abrir el menú) para ver el nombre y otros datos: <a href="finances.txt">coste</a> de construcción, coste de mantenimiento entre paréntesis, y límite de velocidad máxima.
+Pulsa el icono del aviÃ³n en la parte superior de la pantalla para abrir el menÃº.<br>
+Posiciona el ratÃ³n sobre cada icono de la barra (tras abrir el menÃº) para ver el nombre y otros datos: <a href="finances.txt">coste</a> de construcciÃ³n, coste de mantenimiento entre parÃ©ntesis, y lÃ­mite de velocidad mÃ¡xima.
 </p>
 <p>
 {Consejos:Una forma sencilla de construir un aeropuerto simple es:<br>
 1) Construir y conectar Pistas de Rodaje y Pistas de Aterrizaje;<br>
-2) Construir Paradas Aéreas al final de las Pistas de Rodaje;<br>
+2) Construir Paradas AÃ©reas al final de las Pistas de Rodaje;<br>
 3) Construir las extensiones del aeropuerto (por ejemplo, Torres o Terminales).}
 </p>
 <p>
 Las herramientas pueden incluir, de izquierda a derecha:
 </p>
 <p>
-<em>Pista de Rodaje:</em> Herramienta que construye los pasillos por donde se moverán los aviones para ir de las Paradas Aéreas a las Pistas de Aterrizaje. Las Pistas de Rodaje son construidas al nivel del suelo en el juego.<br>
-IMPORTANTE: Si las Pistas de Rodaje están conectadas al final de las pistas de aterrizaje, puede que los aviones no puedan despegar ni aterrizar.<br>
-Para construir una Pista de Rodaje: pulsa en la herramienta para seleccionar (el cursor cambiará a pista de rodaje), después pulsa en el terreno para marcar el punto de inicio (muestra una excavadora y las coordenadas del punto en la parte inferior derecha de la pantalla), finamente pulsa en el terreno o en la Pista de Aterrizaje para marcar el punto de finalización.<br>
-{Consejo: Usa Eliminar para quitar partes individuales de una Pista de Rodaje. La opción Deshacer<a href="keys.txt">[z]</a> no reembolsa los costes de construcción.}
+<em>Pista de Rodaje:</em> Herramienta que construye los pasillos por donde se moverÃ¡n los aviones para ir de las Paradas AÃ©reas a las Pistas de Aterrizaje. Las Pistas de Rodaje son construidas al nivel del suelo en el juego.<br>
+IMPORTANTE: Si las Pistas de Rodaje estÃ¡n conectadas al final de las pistas de aterrizaje, puede que los aviones no puedan despegar ni aterrizar.<br>
+Para construir una Pista de Rodaje: pulsa en la herramienta para seleccionar (el cursor cambiarÃ¡ a pista de rodaje), despuÃ©s pulsa en el terreno para marcar el punto de inicio (muestra una excavadora y las coordenadas del punto en la parte inferior derecha de la pantalla), finamente pulsa en el terreno o en la Pista de Aterrizaje para marcar el punto de finalizaciÃ³n.<br>
+{Consejo: Usa Eliminar para quitar partes individuales de una Pista de Rodaje. La opciÃ³n Deshacer<a href="keys.txt">[z]</a> no reembolsa los costes de construcciÃ³n.}
 </p>
 <p>
-<em>Pista de Aterrizaje:</em> Herramienta para construir pistas, usadas por los aviones para despegar y aterrizar. Las pistas de aterrizaje son construidas al nivel del suelo, y se pueden cruzarse entre sí.<br>
-Para construir una pista de aterrizaje: pulsa en la herramienta para seleccionar(el cursor cambiará a vía), después pulsa en el terreno para indicar el punto de inicio (muestra un excavadora), finalmente pulsa en el terreno para indicar el punto de finalización.<br>
-{Consejo: Deja el final de las pistas de aterrizaje sin conexión, porque sino los aviones no podrán despegar ni aterrizar. Usa Eliminar para quitar partes individuales de las pistas de aterrizaje. La opción Deshacer [z] no reembolsa los costes de construcción.}
+<em>Pista de Aterrizaje:</em> Herramienta para construir pistas, usadas por los aviones para despegar y aterrizar. Las pistas de aterrizaje son construidas al nivel del suelo, y se pueden cruzarse entre sÃ­.<br>
+Para construir una pista de aterrizaje: pulsa en la herramienta para seleccionar(el cursor cambiarÃ¡ a vÃ­a), despuÃ©s pulsa en el terreno para indicar el punto de inicio (muestra un excavadora), finalmente pulsa en el terreno para indicar el punto de finalizaciÃ³n.<br>
+{Consejo: Deja el final de las pistas de aterrizaje sin conexiÃ³n, porque sino los aviones no podrÃ¡n despegar ni aterrizar. Usa Eliminar para quitar partes individuales de las pistas de aterrizaje. La opciÃ³n Deshacer [z] no reembolsa los costes de construcciÃ³n.}
 </p>
 <p>
-<em>Eliminar pistas:</em> Herramienta que elimina un segmento de Pista de Rodaje o de una Pista de Aterrizaje, cuando no hay aviones presentes, entre dos puntos. El uso de esta herramienta supone un <a href="finances.txt">coste de construcción</a>.<br>
-Para eliminar una pista: pulsa en la herramienta (el cursor cambiará a un X roja); después pulsa en la pista que quieres eliminar (en el tramo a borrar se muestra una X roja); finalmente pulsa en otro punto de la pista, para eliminar un tramo desde el punto inicial.
-{Consejo: Deja el final de las Pistas de Aterrizaje sin conexión, ya que sino los aviones no podrán despegar ni aterrizar. Usa Eliminar para quitar partes individuales de las pistas.}
+<em>Eliminar pistas:</em> Herramienta que elimina un segmento de Pista de Rodaje o de una Pista de Aterrizaje, cuando no hay aviones presentes, entre dos puntos. El uso de esta herramienta supone un <a href="finances.txt">coste de construcciÃ³n</a>.<br>
+Para eliminar una pista: pulsa en la herramienta (el cursor cambiarÃ¡ a un X roja); despuÃ©s pulsa en la pista que quieres eliminar (en el tramo a borrar se muestra una X roja); finalmente pulsa en otro punto de la pista, para eliminar un tramo desde el punto inicial.
+{Consejo: Deja el final de las Pistas de Aterrizaje sin conexiÃ³n, ya que sino los aviones no podrÃ¡n despegar ni aterrizar. Usa Eliminar para quitar partes individuales de las pistas.}
 </p>
 <p>
 <a href="depot.txt"><em>Hangar:</em></a> Herramienta para crear hangares para comprar y gestionar aviones. Los hangares tienen costes de mantenimiento y deben ser construidos en el tramo final de una Pista de Rodaje.<br>
-Para construir un hangar: pulsa en la herramienta (el cursor cambiará a un depósito), después pulsa en el tramo final de una Pista de Rodaje.<br>
+Para construir un hangar: pulsa en la herramienta (el cursor cambiarÃ¡ a un depÃ³sito), despuÃ©s pulsa en el tramo final de una Pista de Rodaje.<br>
 {Consejo: Elimina hangares con la herramienta Eliminar.}
 </p>
 <p>
-<em>Paradas Aéreas</em> & <em>puertas de embarque:</em> Herramientas para construir Paradas, para que los aviones embarquen o dejen pasajeros o mercancías.<br>
-Una Parada Aérea, cuando no es construida adyacente a una <a href="station.txt">Parada</a> ya existente, creará una nueva Parada.<br>
-Las Paradas Aéreas deben ser construidas sobre el final de un tramo de Pista de Rodaje; y tienen un coste de mantenimiento y áreas de cobertura para pasajeros, correo y mercancías. Un avión solo aterrizará en un aeropuerto si hay una Parada Aérea libre y disponible.<br>
-Para construir una Parada Aérea: pulsa en la herramienta elegida,y después pulsa sobre el tramo final de una Pista de Rodaje.<br>
-{Consejos: Elimina Paradas Aéreas con la herramienta Eliminar. Pulsa [v] para mostrar/ocultar el área de cobertura para pasajeros y mercancías.}
+<em>Paradas AÃ©reas</em> & <em>puertas de embarque:</em> Herramientas para construir Paradas, para que los aviones embarquen o dejen pasajeros o mercancÃ­as.<br>
+Una Parada AÃ©rea, cuando no es construida adyacente a una <a href="station.txt">Parada</a> ya existente, crearÃ¡ una nueva Parada.<br>
+Las Paradas AÃ©reas deben ser construidas sobre el final de un tramo de Pista de Rodaje; y tienen un coste de mantenimiento y Ã¡reas de cobertura para pasajeros, correo y mercancÃ­as. Un aviÃ³n solo aterrizarÃ¡ en un aeropuerto si hay una Parada AÃ©rea libre y disponible.<br>
+Para construir una Parada AÃ©rea: pulsa en la herramienta elegida,y despuÃ©s pulsa sobre el tramo final de una Pista de Rodaje.<br>
+{Consejos: Elimina Paradas AÃ©reas con la herramienta Eliminar. Pulsa [v] para mostrar/ocultar el Ã¡rea de cobertura para pasajeros y mercancÃ­as.}
 </p>
 <p>
-<em>Edificios de Aeropuertos:</em> Herramientas para construir extensiones para <a href="station.txt">Paradas</a> las cuales podrían incrementar los costes de mantenimiento, así como la capacidad y el área de cobertura de pasajeros y mercancías. En la esquina de algunas herramientas, un icono (usado en <a href="haltlist.txt">Lista de Estaciones</a> e Información sobre la Parada) muestra qué elementos podrá aceptar la Parada si se añade dicha extensión.<br>
-Para construir una extensión: Pulsa en la herramienta de extensión seleccionada (el cursor cambiará a extensión), después pulsa en el lugar elegido, cerca de una parada existente. La nueva extensión será considerada parte de la parada.<br>
-{Consejo: Elimina extensiones con la herramienta Eliminar. Pulsa [v] para mostrar/ocultar el área de cobertura de pasajeros y mercancías.}
+<em>Edificios de Aeropuertos:</em> Herramientas para construir extensiones para <a href="station.txt">Paradas</a> las cuales podrÃ­an incrementar los costes de mantenimiento, asÃ­ como la capacidad y el Ã¡rea de cobertura de pasajeros y mercancÃ­as. En la esquina de algunas herramientas, un icono (usado en <a href="haltlist.txt">Lista de Estaciones</a> e InformaciÃ³n sobre la Parada) muestra quÃ© elementos podrÃ¡ aceptar la Parada si se aÃ±ade dicha extensiÃ³n.<br>
+Para construir una extensiÃ³n: Pulsa en la herramienta de extensiÃ³n seleccionada (el cursor cambiarÃ¡ a extensiÃ³n), despuÃ©s pulsa en el lugar elegido, cerca de una parada existente. La nueva extensiÃ³n serÃ¡ considerada parte de la parada.<br>
+{Consejo: Elimina extensiones con la herramienta Eliminar. Pulsa [v] para mostrar/ocultar el Ã¡rea de cobertura de pasajeros y mercancÃ­as.}
 </p>

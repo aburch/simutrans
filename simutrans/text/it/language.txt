@@ -5,17 +5,17 @@
 <p>
 Questa finestra di dialogo permette di scegliere la lingua di
 Simutrans. Se si seleziona la lingua prima di creare una nuova mappa,
-i nomi delle citt‡ saranno creati in base a quella lingua.
-Si puÚ cambiare la lingua in ogni momento: i contenuti delle finestre aperte
+i nomi delle citt√† saranno creati in base a quella lingua.
+Si pu√≤ cambiare la lingua in ogni momento: i contenuti delle finestre aperte
 non verranno sempre aggiornati immediatamente, ma solo dopo la loro chiusura
 e riapertura. Molti testi sono invece aggiornati immediatamente.
 </p>
 <p>
-Se si preferisce avere i nomi delle citt‡ nella propria lingua, Ë necessario
+Se si preferisce avere i nomi delle citt√† nella propria lingua, √® necessario
 selezionarla PRIMA di iniziare un nuovo gioco.
 </p>
 <p>
-Se la propria lingua non Ë supportata, alcune ulteriori traduzioni sono
+Se la propria lingua non √® supportata, alcune ulteriori traduzioni sono
 disponibili al seguente indirizzo:
    http://www.simutrans.de/english/download/simu/download.html
 ma purtroppo potrebbero essere incomplete o non aggiornate.

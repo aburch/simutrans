@@ -2,30 +2,30 @@
 
 <h1><strong>Construyendo puentes</strong></h1>
 
-<p> Se puede utilizar un puente para salvar un valle u otro obstáculo. </p>
-<p> Cada puente tiene una longitud máxima posible especificada. Para salvar tramos más largos solo tendrás que buscar otro en el menú, o utilizar las islas y dividir la distancia total en varias partes. Se pueden construir puentes incluso a través de valles profundos con terreno irregular, la restricción solo se aplica en los campos iniciales y finales. El puente debe comenzar y terminar en una superficie horizontal, en una pendiente inclinada en la dirección del puente o en una cresta artificial. El inicio y el final del puente no tienen por qué estar a la misma altura, puede haber una diferencia de un nivel entre ellos. Los puentes sólo se pueden construir en la dirección de los límites de la casilla, es decir, (todavía) no se pueden construir en diagonal. Sin embargo, existe un tipo de vía férrea que se asemeja a un puente porque está sobre el suelo. Esta pista también se puede construir en diagonal.</p>
-<p>Todos los puentes, ya sean de ferrocarril, de carretera, de transporte o de cables de alta tensión, se construyen de la misma manera. El puente de carretera tiene una excepción: también se le pueden añadir vías de tranvía.<br></p>
+<p> Se puede utilizar un puente para salvar un valle u otro obstÃ¡culo. </p>
+<p> Cada puente tiene una longitud mÃ¡xima posible especificada. Para salvar tramos mÃ¡s largos solo tendrÃ¡s que buscar otro en el menÃº, o utilizar las islas y dividir la distancia total en varias partes. Se pueden construir puentes incluso a travÃ©s de valles profundos con terreno irregular, la restricciÃ³n solo se aplica en los campos iniciales y finales. El puente debe comenzar y terminar en una superficie horizontal, en una pendiente inclinada en la direcciÃ³n del puente o en una cresta artificial. El inicio y el final del puente no tienen por quÃ© estar a la misma altura, puede haber una diferencia de un nivel entre ellos. Los puentes sÃ³lo se pueden construir en la direcciÃ³n de los lÃ­mites de la casilla, es decir, (todavÃ­a) no se pueden construir en diagonal. Sin embargo, existe un tipo de vÃ­a fÃ©rrea que se asemeja a un puente porque estÃ¡ sobre el suelo. Esta pista tambiÃ©n se puede construir en diagonal.</p>
+<p>Todos los puentes, ya sean de ferrocarril, de carretera, de transporte o de cables de alta tensiÃ³n, se construyen de la misma manera. El puente de carretera tiene una excepciÃ³n: tambiÃ©n se le pueden aÃ±adir vÃ­as de tranvÃ­a.<br></p>
 
 <h1>Construyendo un puente</h1>
-<p>El siguiente procedimiento se puede aplicar a todo tipo de puentes, si aquí está escrito un camino, puedes sustituirlo por un ferrocarril u otro tipo de transporte que tenga puentes:<br>
-(i) Construya un camino hacia ambos extremos previstos del puente, siendo el camino y el primer y último espacio del futuro puente. <br>
-(ii) Haga clic en el símbolo del puente. Elige el que más te convenga según sus parámetros. <br>
-(iii) Haga clic en el campo con el origen del puente deseado y mantenga presionado el botón.<br>
-(iv) Mueva el cursor del mouse sobre el cuadrado donde debe terminar el puente y suelte el botón. El puente está terminado.</p>
-<p>También existe un procedimiento alternativo. Sin embargo, debes tener ambos extremos del camino debidamente preparados con anticipación, de lo contrario puedes terminar gastando dinero en un puente largo que no deseas. En lugar de los pasos (iii) y (iv), haga clic en el comienzo del puente deseado y suelte el botón. El puente se extenderá hasta el tramo de carretera del otro lado.</p>
+<p>El siguiente procedimiento se puede aplicar a todo tipo de puentes, si aquÃ­ estÃ¡ escrito un camino, puedes sustituirlo por un ferrocarril u otro tipo de transporte que tenga puentes:<br>
+(i) Construya un camino hacia ambos extremos previstos del puente, siendo el camino y el primer y Ãºltimo espacio del futuro puente. <br>
+(ii) Haga clic en el sÃ­mbolo del puente. Elige el que mÃ¡s te convenga segÃºn sus parÃ¡metros. <br>
+(iii) Haga clic en el campo con el origen del puente deseado y mantenga presionado el botÃ³n.<br>
+(iv) Mueva el cursor del mouse sobre el cuadrado donde debe terminar el puente y suelte el botÃ³n. El puente estÃ¡ terminado.</p>
+<p>TambiÃ©n existe un procedimiento alternativo. Sin embargo, debes tener ambos extremos del camino debidamente preparados con anticipaciÃ³n, de lo contrario puedes terminar gastando dinero en un puente largo que no deseas. En lugar de los pasos (iii) y (iv), haga clic en el comienzo del puente deseado y suelte el botÃ³n. El puente se extenderÃ¡ hasta el tramo de carretera del otro lado.</p>
 
-<p>Un error común al construir un puente es que no está conectado a la carretera (o al ferrocarril) en los extremos. Arrastra la carretera (ferrocarril) también a las casillas de inicio y fin del puente; de lo contrario, los coches (trenes) no pasarán por encima.</p>
+<p>Un error comÃºn al construir un puente es que no estÃ¡ conectado a la carretera (o al ferrocarril) en los extremos. Arrastra la carretera (ferrocarril) tambiÃ©n a las casillas de inicio y fin del puente; de lo contrario, los coches (trenes) no pasarÃ¡n por encima.</p>
 
-<p>Consejo: A veces no vale la pena construir un puente. Los puentes generalmente tienen costes de mantenimiento más elevados que las carreteras normales (vías, líneas eléctricas, ..). Comprueba si merece la pena rellenar la depresión para detectar pequeñas irregularidades del terreno.<br></p>
+<p>Consejo: A veces no vale la pena construir un puente. Los puentes generalmente tienen costes de mantenimiento mÃ¡s elevados que las carreteras normales (vÃ­as, lÃ­neas elÃ©ctricas, ..). Comprueba si merece la pena rellenar la depresiÃ³n para detectar pequeÃ±as irregularidades del terreno.<br></p>
 
-<h1>Eliminación del puente</h1>
-<p>Haga clic en el botón <em>Eliminar</em> y luego haga clic en el inicio o el final de la plataforma del puente.</p>
+<h1>EliminaciÃ³n del puente</h1>
+<p>Haga clic en el botÃ³n <em>Eliminar</em> y luego haga clic en el inicio o el final de la plataforma del puente.</p>
 
 <p>
--><a href="roadtools.txt">Ayuda para la construcción de carreteras</a><br>
--><a href="railtools.txt">Ayuda para la construcción de ferrocarriles</a>
+-><a href="roadtools.txt">Ayuda para la construcciÃ³n de carreteras</a><br>
+-><a href="railtools.txt">Ayuda para la construcciÃ³n de ferrocarriles</a>
 </p>
 
 <p>
--><a href="about.txt">Acerca de la traducción</a>
+-><a href="about.txt">Acerca de la traducciÃ³n</a>
 </p>

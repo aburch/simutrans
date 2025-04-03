@@ -1,10 +1,10 @@
-<title>Höhenkarte-Lademenü</title>
+<title>HÃ¶henkarte-LademenÃ¼</title>
 
-<h1><strong>Höhenkarte-Lademenü</strong></h1>
+<h1><strong>HÃ¶henkarte-LademenÃ¼</strong></h1>
 
 <p>
-Im Höhenkarte-Lademenü werden alle Relief-Karten gelistet, welche sich im Verzeichnis <em>simutrans/maps</em> bzw. <em>Benutzerverzeichnis/simutrans/maps</em> befinden. Es handelt sich um Graustufenbilder, die Du in verschiedenen Grafik- und Bildbetrachtungsprogrammen aus farbigen Bitmapdateien oder aus Graustufenbitmaps erstellen kannst. Sie werden im Format <em>.ppm</em> gespeichert.
+Im HÃ¶henkarte-LademenÃ¼ werden alle Relief-Karten gelistet, welche sich im Verzeichnis <em>simutrans/maps</em> bzw. <em>Benutzerverzeichnis/simutrans/maps</em> befinden. Es handelt sich um Graustufenbilder, die Du in verschiedenen Grafik- und Bildbetrachtungsprogrammen aus farbigen Bitmapdateien oder aus Graustufenbitmaps erstellen kannst. Sie werden im Format <em>.ppm</em> gespeichert.
 </p>
 <p>
-Weitere Details zur Nutzung von Lade-Menüs findest Du in der Hilfe zum <a href="load.txt">Lademenü</a>.
+Weitere Details zur Nutzung von Lade-MenÃ¼s findest Du in der Hilfe zum <a href="load.txt">LademenÃ¼</a>.
 </p>

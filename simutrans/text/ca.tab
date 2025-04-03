@@ -1,4 +1,4 @@
-Catala
+Â§Catala
 PROP_FONT_FILE
 Prop-Latin1.bdf
 ################################################################################
@@ -10,7 +10,7 @@ Prop-Latin1.bdf
 #                        Simutrans Base Translation File                       #
 #                             Scenario: Base texts                             #
 #                              Language: ca Catala                             #
-#                             Encoding: ISO-8859-1                             #
+#                                Encoding: UTF-8                               #
 #                             Font: Prop-Latin1.bdf                            #
 #                            Date Created: 3.04 2025                           #
 #                                                                              #
@@ -28,7 +28,7 @@ Ascendent
 cl_btn_sort_desc
 Descendent
 cl_btn_sort_id
-Identificació interna
+IdentificaciÃ³ interna
 cl_btn_sort_income
 Ingressos
 cl_btn_sort_name
@@ -86,11 +86,11 @@ Transbordaments
 arctic
 clima molt fred
 desert
-clima desèrtic
+clima desÃ¨rtic
 mediterran
 Mediterrani
 rocky
-Alpí
+AlpÃ­
 temperate
 Templat
 tropic
@@ -106,11 +106,11 @@ No es poden comprar vehicles obsolets!
 Cannot alter water
 No es pot alterar l'aigua
 Cannot built depot here!
-No puc construir una cotxera aquí.
+No puc construir una cotxera aquÃ­.
 Cannot built this station/building\nin underground mode here.
 L'edifici no es\npot construir sota terra.\n
 Cannot create generic line!\nSelect line type by\nusing filter tabs.
-No puc crear una línia genèrica!\nSeleccioneu el tipus de línia\nemprant el filtre.
+No puc crear una lÃ­nia genÃ¨rica!\nSeleccioneu el tipus de lÃ­nia\nemprant el filtre.
 Cannot create socket
 No s'ha pogut crear el socket
 Convoi handles exhausted!
@@ -118,65 +118,65 @@ Els controladors de combois estan esgotats!
 Convoy already deleted!
 El comboi ja ha estat eliminat!
 Das Feld gehoert\neinem anderen Spieler\n
-Aquesta parcel·la\nés propietat\nd'un altre jugador!\n
+Aquesta parcelÂ·la\nÃ©s propietat\nd'un altre jugador!\n
 Der Besitzer erlaubt das Entfernen nicht
-El propietari no dóna\npermís per a\neliminar-ho.\n
+El propietari no dÃ³na\npermÃ­s per a\neliminar-ho.\n
 Diese Zusammenstellung kann nicht fahren!\n
-No puc conduirn\naquesta combinació!\n
+No puc conduirn\naquesta combinaciÃ³!\n
 Flugzeughalt muss auf\nRunway liegen!\n
-Una aturada d'avió\nha de col·locar-se sobre una pista de\nrodatge!
+Una aturada d'aviÃ³\nha de colÂ·locar-se sobre una pista de\nrodatge!
 Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
-Aquest edifici aeroportuari\n\nno es pot construir aquí!\n
+Aquest edifici aeroportuari\n\nno es pot construir aquÃ­!\n
 Hier kann kein\nSignal aufge-\nstellt werden!\n
-¡No podeu\ninstal·lar senyals\naquí!\n
+Â¡No podeu\ninstalÂ·lar senyals\naquÃ­!\n
 In order to lock the game, you have to protect the public player by password!
-Per a protegir la partida ha de crear una contrasenya pel jugador Servei Públic!
+Per a protegir la partida ha de crear una contrasenya pel jugador Servei PÃºblic!
 Lost connection\nto server!
-S'ha perdut la connexió\namb el servidor!
+S'ha perdut la connexiÃ³\namb el servidor!
 Lost synchronisation\nwith server.
-S'ha perdut la sincronització\namb el servidor.
+S'ha perdut la sincronitzaciÃ³\namb el servidor.
 Maglevhalt muss auf\nMaglevschiene liegen!\n
-L'estació de monocarril ha d'estar\nsobre una via de monocarril
+L'estaciÃ³ de monocarril ha d'estar\nsobre una via de monocarril
 Monorailhalt muss auf\nMonorail liegen!\n
-Una estació de monocarril\ns'ha de construir sobre una\nvia de monocarril!
+Una estaciÃ³ de monocarril\ns'ha de construir sobre una\nvia de monocarril!
 Monorails are not available yet!
 Els monocarrils encara no estan disponibles!
 Narrowgaugehalt muss auf\nNarrowgauge liegen!\n
-L'estació s'ha de construir sobre una via estreta!
+L'estaciÃ³ s'ha de construir sobre una via estreta!
 No suitable way on the ground!
 Les estacions s'han de construir sobre un tram de via recta!
 No through station here!
-No es pot construir l'estació aquí!\nEs necessita una secció recta de via!
+No es pot construir l'estaciÃ³ aquÃ­!\nEs necessita una secciÃ³ recta de via!
 Not enough money!
-No tens prou diners\nper a construir això!
+No tens prou diners\nper a construir aixÃ²!
 On narrowgauge track only!\n
-Només per via estreta!
+NomÃ©s per via estreta!
 Only public player can lock games!
-Només el jugador Servei Públic pot protegir la partida!
+NomÃ©s el jugador Servei PÃºblic pot protegir la partida!
 Out of funds
-No tens prou diners\nper a això!
+No tens prou diners\nper a aixÃ²!
 Post muss neben\nHaltestelle\nliegen!\n
-¡Ubiqueu una oficina postal\nprop d'una estació!\n
+Â¡Ubiqueu una oficina postal\nprop d'una estaciÃ³!\n
 Protocoll error (expecting game)
 Error de protocol (s'esperava una partida)
 Schiffhalt muss im\nWasser liegen!\n
-¡Sols podeu col·locar\nestacions marítimes\na l'aigua!\n
+Â¡Sols podeu colÂ·locar\nestacions marÃ­times\na l'aigua!\n
 Server busy
 Servidor ocupat.
 Terraforming not possible\nhere in underground view
-No és possible modificar el\nterreny en mode subterrani.\n
+No Ã©s possible modificar el\nterreny en mode subterrani.\n
 Upgrade must have\na higher level
-L'actualització ha de tenir\nun nivell superior.
+L'actualitzaciÃ³ ha de tenir\nun nivell superior.
 Vehicle %s cannot choose because stop too short!
-El vehicle %s no pot escollir perquè l'estació és massa curta!
+El vehicle %s no pot escollir perquÃ¨ l'estaciÃ³ Ã©s massa curta!
 Zughalt muss auf\nSchiene liegen!\n
-¡Sols podeu col·locar\naturades de\nferrocarril a\nles vies!\n
+Â¡Sols podeu colÂ·locar\naturades de\nferrocarril a\nles vies!\n
 #___________________________________help_text___________________________________
 #___________________________________help_text___________________________________
 <h1>Index</h1><p>*: only english</p><p>General</p>%s<p>Usage</p>%s<p>Tools</p>%s<p>Start</p>%s<p>How to play</p>%s<p>Others:</p>%s
-<title>Ajuda</title><h1>Índex</h1><p><it>Sobre Simutrans</it></p>%1$s<p><it>Com es fa servir</it></p>%2$s<p><it>Com començar una partida</it></p>%4$s<p><it>Com jugar</it></p>%5$s<p><it>Eines</it></p>%3$s<p><it>Altres finestres</it></p>%6$s
+<title>Ajuda</title><h1>Ãndex</h1><p><it>Sobre Simutrans</it></p>%1$s<p><it>Com es fa servir</it></p>%2$s<p><it>Com comenÃ§ar una partida</it></p>%4$s<p><it>Com jugar</it></p>%5$s<p><it>Eines</it></p>%3$s<p><it>Altres finestres</it></p>%6$s
 <title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n
-<title>Teclat</title>\n<h1><strong>Ajuda del teclat</strong></h1>\n<p>\nL'<strong>ajuda del teclat</strong> mostra les funcions per a les tecles que es poden prémer.\n</p>\n<p>\nL'<strong>ajuda del teclat</strong> s'obre quan es prem una tecla no assignada a l'<a href="general.txt">ajuda general</a>.\n</p>\n<p>\nLes tecles premudes diferencien les majúscules (fent servir [<em>Shift</em>] per a aquestes lletres).\n</p>\n<p>\nLes tecles que tenen funcions assignades són:\n</p>\n<p>\n[<em>Tecles de direcció</em>]: desplaça la pantalla del joc en la direcció de la fletxa.<br>\n[<em>Esborrar</em>]: tanca totes les finestres, barres de tasques i ajudes contextuals del joc en curs.<br>\n[<em>Esborrar</em>], o [<em>Escape</em>]: tanca la finestra d'un nivell superior, barres de tasques o ajuda contextual del joc en curs.<br>\n[<em>Introduïu</em>]: s'empra per a confirmar accions.<br>\n[<em>Pàgina amunt</em>], o [<em>></em>]: amplia la imatge.<br>\n[<em>Pàgina baix</em>], o [<em>símbol "menor que"</em>]: allunya la imatge.\n[<em>F1</em>]: obre l'<a href="general.txt">ajuda de Simutrans</a>.<br></p>\n<p>\n[<em>1</em>]: desplaça el joc cap al sud.<br>\n[<em>2</em>]: desplaça el joc cap al sudest.<br>\n[<em>3</em>]: Desplaça el joc cap a l'est.<br>\n[<em>4</em>]: desplaça el joc cap al sudoest.<br>\n[<em>6</em>]: desplaça el joc cap al nordest.<br>\n[<em>7</em>]: desplaça el joc cap a l'oest.<br>\n[<em>8</em>]: desplaça el joc cap al nordoest.<br>\n[<em>9</em>]: desplaça el joc cap al nord.\n</p>\n<p>\n[<em>Shift</em>] + <a href="mouse.txt">ratolí</a>: empreu-ho per al <a href="map.txt">mapa</a> per a veure les connexios de la<a href="industry_info.txt">cadena industrial</a>.<br>\n[<em>CTRL</em>] + eina: construeix (senyals i <a href="station.txt">aturades</a>) a un nivell superior; o carreteres de baixa velocitat damunt una de més ràpida; o carreteres i vies rectes (sobretot diagonals).<br>\n[<em>CTRL</em>] + ([<em>F2</em>] a [<em>F12</em>]): memoritza l'eina activa a una de les tecles de [F2]
+<title>Teclat</title>\n<h1><strong>Ajuda del teclat</strong></h1>\n<p>\nL'<strong>ajuda del teclat</strong> mostra les funcions per a les tecles que es poden prÃ©mer.\n</p>\n<p>\nL'<strong>ajuda del teclat</strong> s'obre quan es prem una tecla no assignada a l'<a href="general.txt">ajuda general</a>.\n</p>\n<p>\nLes tecles premudes diferencien les majÃºscules (fent servir [<em>Shift</em>] per a aquestes lletres).\n</p>\n<p>\nLes tecles que tenen funcions assignades sÃ³n:\n</p>\n<p>\n[<em>Tecles de direcciÃ³</em>]: desplaÃ§a la pantalla del joc en la direcciÃ³ de la fletxa.<br>\n[<em>Esborrar</em>]: tanca totes les finestres, barres de tasques i ajudes contextuals del joc en curs.<br>\n[<em>Esborrar</em>], o [<em>Escape</em>]: tanca la finestra d'un nivell superior, barres de tasques o ajuda contextual del joc en curs.<br>\n[<em>IntroduÃ¯u</em>]: s'empra per a confirmar accions.<br>\n[<em>PÃ gina amunt</em>], o [<em>></em>]: amplia la imatge.<br>\n[<em>PÃ gina baix</em>], o [<em>sÃ­mbol "menor que"</em>]: allunya la imatge.\n[<em>F1</em>]: obre l'<a href="general.txt">ajuda de Simutrans</a>.<br></p>\n<p>\n[<em>1</em>]: desplaÃ§a el joc cap al sud.<br>\n[<em>2</em>]: desplaÃ§a el joc cap al sudest.<br>\n[<em>3</em>]: DesplaÃ§a el joc cap a l'est.<br>\n[<em>4</em>]: desplaÃ§a el joc cap al sudoest.<br>\n[<em>6</em>]: desplaÃ§a el joc cap al nordest.<br>\n[<em>7</em>]: desplaÃ§a el joc cap a l'oest.<br>\n[<em>8</em>]: desplaÃ§a el joc cap al nordoest.<br>\n[<em>9</em>]: desplaÃ§a el joc cap al nord.\n</p>\n<p>\n[<em>Shift</em>] + <a href="mouse.txt">ratolÃ­</a>: empreu-ho per al <a href="map.txt">mapa</a> per a veure les connexios de la<a href="industry_info.txt">cadena industrial</a>.<br>\n[<em>CTRL</em>] + eina: construeix (senyals i <a href="station.txt">aturades</a>) a un nivell superior; o carreteres de baixa velocitat damunt una de mÃ©s rÃ pida; o carreteres i vies rectes (sobretot diagonals).<br>\n[<em>CTRL</em>] + ([<em>F2</em>] a [<em>F12</em>]): memoritza l'eina activa a una de les tecles de [F2]
 Decrease water height
 Drenar l'aigua un nivell
 Highlight railroad tracks
@@ -184,25 +184,25 @@ Destacar ferrocarrils
 Highlite depots
 Destacar cotxeres
 Highlite electrical transmission lines
-Destacar línies elèctriques
+Destacar lÃ­nies elÃ¨ctriques
 Highlite factories
-Destacar indústries
+Destacar indÃºstries
 Highlite forests
 Destacar boscos
 Highlite tourist attraction
-Destacar atraccions turístiques
+Destacar atraccions turÃ­stiques
 Increase water height
 Augmentar l'aigua un nivell
 Overlay city limits
-Veure límits de ciutats
+Veure lÃ­mits de ciutats
 Overlay passenger destinations when a town window is open
-Destacar els destins dels passatgers quan s'obre una finestra d'una població
+Destacar els destins dels passatgers quan s'obre una finestra d'una poblaciÃ³
 Overlay schedules/network
-Veure línies/xarxes
+Veure lÃ­nies/xarxes
 Overlay town names
 Veure noms de poblacions
 Please click on the map to add\nwaypoints or stops to this\nschedule.
-Faci clic sobre el mapa\nper afegir punts de pas o\nparades a la línia.
+Faci clic sobre el mapa\nper afegir punts de pas o\nparades a la lÃ­nia.
 Set tile climate %s
 Convertir aquest terra en clima %s.
 Show capacity and if halt is overcrowded
@@ -220,33 +220,33 @@ Veure cobertura/xarxa del servei de correus
 Show passenger coverage/passenger network
 Veure cobertura/xarxa del servei de passatgers
 Show speedlimit of ways
-Veure els límits de velocitats de les infraestructures
+Veure els lÃ­mits de velocitats de les infraestructures
 Show the change of waiting at halts
-Veure el canvi del temps d'espera des de l'últim mes
+Veure el canvi del temps d'espera des de l'Ãºltim mes
 Show the owenership of infrastructure
 Veure els propietaris de les infraestructures
 Show transported freight/freight network
 Veure xarxa de transport de mercaderies
 Show usage of network
-Veure l'ús de les xarxes
+Veure l'Ãºs de les xarxes
 Shows a listing with all industries on the map.
-Veure totes les indústries al mapa
+Veure totes les indÃºstries al mapa
 Sum of departure/arrivals at halts
 Veure total de sortides i arribades a les estacions
 #____________________________________ki_text____________________________________
 #____________________________________ki_text____________________________________
 %s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n
-%s ara\nofereix serveis de bus\nentre %s\ni l'atracció\n%s\na (%i,%i).\n
+%s ara\nofereix serveis de bus\nentre %s\ni l'atracciÃ³\n%s\na (%i,%i).\n
 %s now\noffers bus services\nbetween %s\nand factory\n%s\nat (%i,%i).\n
-%s ara\nofereix serveis de bus\nentre %s\ni la indústria\n%s\na (%i,%i).\n
+%s ara\nofereix serveis de bus\nentre %s\ni la indÃºstria\n%s\na (%i,%i).\n
 %s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i).
 %s ara\nofereix servei de\n%i camions entre\n%s a (%i,%i)\ni %s\na (%i,%i).\n
 %s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i).
-%s\nha obert una línia\nferroviària entre\n%s a (%i,%i)\ni %s\na (%i,%i).
+%s\nha obert una lÃ­nia\nferroviÃ ria entre\n%s a (%i,%i)\ni %s\na (%i,%i).
 Airline service by\n%s\nnow between\n%s \nand %s.\n
-Línia aèria per\n%s\nara en servei entre\n%s \ni %s.\n
+LÃ­nia aÃ¨ria per\n%s\nara en servei entre\n%s \ni %s.\n
 Ferry service by\n%s\nnow between\n%s \nand %s.\n
-Línia de Ferry per\n%s\nara en servei entre\n%s \ni %s.\n
+LÃ­nia de Ferry per\n%s\nara en servei entre\n%s \ni %s.\n
 Travellers now\nuse %s's\nbusses between\n%s \nand %s.\n
 Ara els viatgers\nagafen els autobusos\nde %s entre\n %s\ni %s.\n
 #___________________________________menu_text___________________________________
@@ -268,37 +268,37 @@ Carreteres
 SHIPTOOLS
 Vaixells
 SLOPETOOLS
-Eines d'alçades i talussos
+Eines d'alÃ§ades i talussos
 SPECIALTOOLS
-Eines especials de construcció
+Eines especials de construcciÃ³
 TRAMTOOLS
 Eines de tramvia
 #_________________________________message_text__________________________________
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
-%s ha construït una nova base d'operacions.
+%s ha construÃ¯t una nova base d'operacions.
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
-L'economía creix:\n%s prop de %s s'hi afegeixen a la cadena de producció.\n%i noves indústries establertes.
+L'economÃ­a creix:\n%s prop de %s s'hi afegeixen a la cadena de producciÃ³.\n%i noves indÃºstries establertes.
 New %s now available:\n%s\n
 Nou %s ara disponible:\n%s\n
 New factory chain\nfor %s near\n%s built with\n%i factories.
-Nova cadena industrial\nper %s\naprop de %s\nconstruïda amb\n%i indústries.
+Nova cadena industrial\nper %s\naprop de %s\nconstruÃ¯da amb\n%i indÃºstries.
 New vehicle now available:\n%s\n
-\n Nou vehicle disponible:\n\n\n » %s «\n\n
+\n Nou vehicle disponible:\n\n\n Â» %s Â«\n\n
 Now %u clients connected.
 Actualment hi ha %u client(s) connectat(s).
 Remove vehicle from map. Use with care!
-Eliminar vehicle del mapa. Fes-ho servir amb precaució!
+Eliminar vehicle del mapa. Fes-ho servir amb precauciÃ³!
 Screenshot\ngespeichert.\n
 Fotografia\nsalvada.\n
 Sends the convoi to the last depot it departed from!
-Envia el comboi a la cotxera d'on va sortir l'última vegada.
+Envia el comboi a la cotxera d'on va sortir l'Ãºltima vegada.
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
-Fent-hi una festassa, a\n%s\nhan inaugurat un nou monument.\nHan fet feliços a %i ciutadans.
+Fent-hi una festassa, a\n%s\nhan inaugurat un nou monument.\nHan fet feliÃ§os a %i ciutadans.
 #___________________________________obsolete____________________________________
 #___________________________________obsolete____________________________________
 Line Filter
-Buscar línia
+Buscar lÃ­nia
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
 (%i)-
@@ -316,17 +316,17 @@ fins a
 \nBauzeit von
 \n hi apareix amb data
 \nCan't open heightfield file.\n
-\nNo puc obrir el plànol\ntopogràfic.\n
+\nNo puc obrir el plÃ nol\ntopogrÃ fic.\n
 \ndirection:
 \ndestinacions:
 \nelektrified
 \nelectrificat\n
 \nHeightfield has wrong image type.\n
-\nEl plànol té un tipus d'imatge incorrecte.\n
+\nEl plÃ nol tÃ© un tipus d'imatge incorrecte.\n
 \nis reserved by:
 \nreservat pel tren
 \nminimum speed:
-\nvelocitat mínima:
+\nvelocitat mÃ­nima:
 \nnot elektrified
 \nsense electrificar\n
 \nRibi (masked)
@@ -336,49 +336,49 @@ fins a
 \nSet phases:
 \nAjustar fase:
 \nsingle way
-\nSentit únic
+\nSentit Ãºnic
 \nway1 reserved by
-L'accés 1 està reservat per \n
+L'accÃ©s 1 estÃ  reservat per \n
 \nway2 reserved by
-L'accés 2 està reservat per \n
+L'accÃ©s 2 estÃ  reservat per \n
 \nwith sign/signal\n
-\nNo té senyalètica\n
+\nNo tÃ© senyalÃ¨tica\n
 %d buildings\n
 %d edificis\n
 %d Einzelfahrzeuge im Depot
-%d vehicles aturats aquí.
+%d vehicles aturats aquÃ­.
 %i km/h (max. %ikm/h)
-%i km/h (màx. %ikm/h)
+%i km/h (mÃ x. %ikm/h)
 %i years %i months old.
 %i anys %i mesos d'antiguitat.
 %s at (%i,%i) now public stop.
-%s a (%i,%i) és ara una estació pública.
+%s a (%i,%i) Ã©s ara una estaciÃ³ pÃºblica.
 %s building %s %s
 %s %s %s
 %s city %d %s
 %s ciutat %d %s
 %s factory %s %s
-%s - Estació %s
+%s - EstaciÃ³ %s
 %s has entered a depot.
 %s ha entrat a la cotxera.
 %s land %d %s
 %s comarca %d %s
 %s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s\nha construït\nun nou ajuntament\nen arribar\nals %i habitants
+%s\nha construÃ¯t\nun nou ajuntament\nen arribar\nals %i habitants
 %s\nis crowded.
-%s\nestà saturada!
+%s\nestÃ  saturada!
 %s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
-%s\nvelocitat %i\nv.màxima %i\ndx:%i dy:%i
+%s\nvelocitat %i\nv.mÃ xima %i\ndx:%i dy:%i
 %s\nwas liquidated.
 %s\ ha aturat la seva activitat.
 %u Player (%u locked)\n
 %u jugadors (%u bloquejats)\n
 <create new line>
-Crear línia nova
+Crear lÃ­nia nova
 <no line>
-<no existeix cap línia>
+<no existeix cap lÃ­nia>
 1 Einzelfahrzeug im Depot
-Aquí roman 1 vehicle.
+AquÃ­ roman 1 vehicle.
 1LIGHT_CHOOSE
 Lluentor:
 1WORLD_CHOOSE
@@ -386,19 +386,19 @@ Opcions del nou mapa:
 2LIGHT_CHOOSE
 Colors:
 2WORLD_CHOOSE
-Número de mapa:
+NÃºmero de mapa:
 3LIGHT_CHOOSE
-Vel. desplaç.:
+Vel. desplaÃ§.:
 4LIGHT_CHOOSE
-Inverteix desplaçament
+Inverteix desplaÃ§ament
 5LIGHT_CHOOSE
 Mostra peatons a aturades
 5WORLD_CHOOSE
-Número ciutats:
+NÃºmero ciutats:
 6LIGHT_CHOOSE
 Peatons a les ciutats
 6WORLD_CHOOSE
-Dens. de trànsit:
+Dens. de trÃ nsit:
 8WORLD_CHOOSE
 Usa mode dia i nit
 A bridge must start on a way!
@@ -420,9 +420,9 @@ Transformador industrial
 Accelerate time
 Accelera temps
 Act. load: %u MW\n
-Càrrega actual: %u MW\n
+CÃ rrega actual: %u MW\n
 Active player only
-Només jugador actiu
+NomÃ©s jugador actiu
 Add forest
 Afegir bosc
 Add random citycar
@@ -434,9 +434,9 @@ Afegeix aturada.
 Add stops for backward travel
 Afegeix aturades per a la tornada.
 aircraft_tab
-Avions de càrrega
+Avions de cÃ rrega
 airplane
-avió
+aviÃ³
 Airport
 Aeroport
 AIRTOOLS
@@ -446,7 +446,7 @@ Totes
 all convoi tooltips
 Estat dels combois
 Allow city growth
-Permetre creixement urbà
+Permetre creixement urbÃ 
 Allow player change
 Permet canvi de jugador
 allowed climates:\n
@@ -454,7 +454,7 @@ Climes disponibles:\n
 Alters a schedule.
 Afegir/treure aturades a/d'una ruta
 Angenommene Waren
-Indústries properes demanden
+IndÃºstries properes demanden
 anhaengen
 Afegeix
 Anhaenger_tab
@@ -462,9 +462,9 @@ Remolcs
 Anheben
 Eleva terreny
 Appends stops at the end of the schedule
-Afegeix parades al final de la línia
+Afegeix parades al final de la lÃ­nia
 Apply Line
-Aplica línia
+Aplica lÃ­nia
 April
 Abril
 Arbeiter aus:
@@ -480,7 +480,7 @@ Transformador
 August
 Agost
 Autohalt muss auf\nStrasse liegen!\n
-Les aturades\nhan d'estar\ndamunt una calçada.
+Les aturades\nhan d'estar\ndamunt una calÃ§ada.
 Available
 Disponible
 Bahndepot
@@ -494,49 +494,49 @@ Arbre
 baum builder
 Sembra arbres
 Baustelle
-Lloc en\nconstrucció
+Lloc en\nconstrucciÃ³
 Bauzeit
-Període de construcció
+PerÃ­ode de construcciÃ³
 Beenden
 Surt
 Beginner mode
 Mode novell
 Besonderes Gebaeude
-Atracció turística
+AtracciÃ³ turÃ­stica
 BF
- - Estació
+ - EstaciÃ³
 bio
-biològic
+biolÃ²gic
 Blockstrecke ist\nbelegt\n
 Un altre tren\nempra\naquest segment de via\n
 Boden
 Terra
 Bonusspeed: %i km/h
-Màxima velocitat real: %i km/h
+MÃ xima velocitat real: %i km/h
 Boost (%%)
-Incrementar producció (%%)
+Incrementar producciÃ³ (%%)
 bridge is too high for its type!
-No puc construir un pont d'aquest tipus a tanta alçària.
+No puc construir un pont d'aquest tipus a tanta alÃ§Ã ria.
 Bridge is too long for this type!\n
-La distància entre pilars és massa llarga per a aquest tipus de pont.
+La distÃ ncia entre pilars Ã©s massa llarga per a aquest tipus de pont.
 Bruecke
 Pont
 Bruecke muss an\neinfachem\nHang beginnen!\n
-El pont deu\ncomençar a un\npendent recte!\n
+El pont deu\ncomenÃ§ar a un\npendent recte!\n
 Brueckenboden
 pont
 Build air depot
 Construir hangar
 build choosesignals
-Posa un senyal de selecció d'andana
+Posa un senyal de selecciÃ³ d'andana
 Build city market
-Posa un mercat a la ciutat més propera
+Posa un mercat a la ciutat mÃ©s propera
 Build drain
-Transformador elèctric
+Transformador elÃ¨ctric
 build HQ
 Obre la base d'operacions
 Build land consumer
-Posa una central elèctrica
+Posa una central elÃ¨ctrica
 Build maglev depot
 Posa una cotxera de tren levitant
 Build monorail depot
@@ -544,7 +544,7 @@ Posa una cotxera de monorail
 Build narrowgauge depot
 Construir cotxera de via estreta
 Build powerline
-Posa una línia elèctrica
+Posa una lÃ­nia elÃ¨ctrica
 Build presignals
 Posa senyals de bloqueig
 Build road depot
@@ -552,7 +552,7 @@ Posa un garatge
 Build ship depot
 Posa unes drassanes
 Build signals
-Instal·la senyals
+InstalÂ·la senyals
 Build train depot
 Construeix cotxera de trens
 Build tram depot
@@ -560,19 +560,19 @@ Posa una cotxera de tramvia
 Build truck depot
 Construeix cotxera de camions
 Building costs estimates
-Cost estimat de construcció
+Cost estimat de construcciÃ³
 Buildings
 Edificis
 Built artifical slopes
 Construeix rampes artificials
 Built random attraction
-Construeix una atracció aleatòria
+Construeix una atracciÃ³ aleatÃ²ria
 Bus_tab
 Autobusos
 Can only move from halt to halt or waypoint to waypoint.
-Només es pot moure entre aturades o punts de pas.
+NomÃ©s es pot moure entre aturades o punts de pas.
 Cancel
-Cancel·la
+CancelÂ·la
 Cannot connect to offline server!
 No es pot connectar a un servidor apagat!
 Capacity:
@@ -588,25 +588,25 @@ Els cotxes encara no estan disponibles.
 cars.\nstate
 cotxes\n
 Cash
-Balanç
+BalanÃ§
 Change player
 Canvia de jugador
 Chart
-Gràfic
+GrÃ fic
 Chat_msg
 Xat
 Choose direction
-Escollir direcció
+Escollir direcciÃ³
 Choose operation executed on clicking stored/new vehicles
-Trieu quina operació voleu fer quan feu clic a vehicles nous o emmagatzemats.
+Trieu quina operaciÃ³ voleu fer quan feu clic a vehicles nous o emmagatzemats.
 chooses a random map
 Tria un mapa a l'atzar.
 citicens
 Ciutadans
 City attraction
-Atracció turística de ciutat
+AtracciÃ³ turÃ­stica de ciutat
 City industries
-Indústries urbanes
+IndÃºstries urbanes
 City list
 Llistat de ciutats
 City size
@@ -616,7 +616,7 @@ Carrer
 citybuilding builder
 Constructor d'edificis
 CityLimit
-Límits de la ciutat
+LÃ­mits de la ciutat
 cl_title
 Llistat de vehicles
 cl_txt_sort
@@ -626,9 +626,9 @@ Mostra/oculta les vies reservades
 clf_chk_aircrafts
 avions
 clf_chk_cars
-Autobús/camió
+AutobÃºs/camiÃ³
 clf_chk_indepot
-és a cotxeres
+Ã©s a cotxeres
 clf_chk_maglev
 Tren levitant
 clf_chk_monorail
@@ -640,9 +640,9 @@ Trens de via estreta
 clf_chk_noincome
 Sense ingressos
 clf_chk_noline
-no té línia assignada
+no tÃ© lÃ­nia assignada
 clf_chk_noroute
-no troba el camí
+no troba el camÃ­
 clf_chk_noschedule
 Sense ruta assignada
 clf_chk_obsolete
@@ -660,7 +660,7 @@ Tramvies
 clf_chk_type_filter
 Tipus:
 clf_chk_waren
-Tipus de càrrega:
+Tipus de cÃ rrega:
 clf_title
 Mostra sols aquests vehicles:
 Climate Control
@@ -672,13 +672,13 @@ Per favor, trieu\nun color de la\ntaula:\n
 Company bankrupt
 Companyia en fallida
 Company_msg
-Competència
+CompetÃ¨ncia
 Comparing pak files ...
 Comparant arxius pak...
 Configure AI
-Configuració IA
+ConfiguraciÃ³ IA
 Configure AI setttings
-Propietats Configuració IA
+Propietats ConfiguraciÃ³ IA
 Congratulation\nScenario was complete in\n%i months %i years.
 Enhorabona!\nHeu complet l'objectiu en \%i mesos i %i anys!
 Connected stops
@@ -690,9 +690,9 @@ Fet per
 Constructed by %s
 Fet per %s
 construction speed
-Velocitat de construcció
+Velocitat de construcciÃ³
 Construction_Btn
-Cost de construcció
+Cost de construcciÃ³
 Consumed
 Consumit
 convoi %d of %d
@@ -702,9 +702,9 @@ Textos d'error en combois
 Convoi has been sent\nto the nearest depot\nof appropriate type.\n
 He enviat el convoi\na la cotxera adient.\n
 Convoi is sold when all wagons are empty.
-Vendré el vehicle quan estigui buid.
+VendrÃ© el vehicle quan estigui buid.
 convoi mouseover tooltips
-Textos de ratolí en combois
+Textos de ratolÃ­ en combois
 convoi passed last\nmonth %i\n
 \nconvois que circularen\nel mes passat: %i\n
 Convois
@@ -718,17 +718,17 @@ Copia el convoi
 Copy the selected convoi and its schedule or line
 Copia el convoi i la seva ruta
 cost for removal
-cost de demolició
+cost de demoliciÃ³
 Costs
 Costos
 Create a new line based on this schedule
-Crea una nova línia basada en aquesta ruta
+Crea una nova lÃ­nia basada en aquesta ruta
 curiosity builder
 Constructor de monuments
 curlist_title
 Llistat d'atraccions
 CURRENCY
-?
+â‚¬
 Currently playing:
 Llista de pistes:
 Customers live in:
@@ -744,11 +744,11 @@ baixar nivell subterrani
 Del Stop
 Elimina
 Delete Line
-Esborra la línia
+Esborra la lÃ­nia
 Delete the current stop
 Eliminar aquesta parada
 Delete the selected line (if without associated convois).
-Eliminar la línia seleccionada (si no té combois associats)
+Eliminar la lÃ­nia seleccionada (si no tÃ© combois associats)
 Delete this file.
 Esborra aquest fitxer.
 Delivered
@@ -764,57 +764,57 @@ Va sortir
 Depots
 Cotxeres
 Der Tunnel ist nicht frei!\n
-El túnel no està buid.\n
+El tÃºnel no estÃ  buid.\n
 Destination
-Destinació
+DestinaciÃ³
 Destroying map ...
 Destruint mapa...
 Details
 Detalls
 Die Bruecke ist nicht frei!\n
-El pont no està lliure!\n
+El pont no estÃ  lliure!\n
 diesel
-dièsel
+diÃ¨sel
 Direkt erreichbare Haltestellen
 Aturades connectades directament
 disable midi
-Lleva la música MIDI
+Lleva la mÃºsica MIDI
 Display settings
 Ajustaments pantalla
 Distance
-Distància
+DistÃ ncia
 Dock
 Moll
 Dock must be built on single slope!
-Els molls només poden bastir-se damunt un pendent.
+Els molls nomÃ©s poden bastir-se damunt un pendent.
 Du hast %d Monate Zeit, deine Schulden zurueckzuzahlen
-Teniu %d mesos per a pagar allò que deveu.
+Teniu %d mesos per a pagar allÃ² que deveu.
 Durchsatz
-Màx. prod. 
+MÃ x. prod. 
 Economy
 Economia i ciutats
 Eigenbesitz\n
-Propietat pública\n
+Propietat pÃºblica\n
 Ein %s\npasst hier nicht.\n
-Un '%s'\nno es pot emprar aquí.\n
+Un '%s'\nno es pot emprar aquÃ­.\n
 Einstellungen aendern
 Canvia opcions
 electric
-elèctric
+elÃ¨ctric
 Electricity
 Electricitat
 Electricity producer\n\n
 Productor d'electricitat\n\n
 Electrics_tab
-Elèctrics
+ElÃ¨ctrics
 Electrify track
-Electrifica la línia
+Electrifica la lÃ­nia
 enlarge map
 Eixamplar mapa
 enter a value between %i and %i
 entri un valor entre %i i %i
 Enter address
-Introduir adreça
+Introduir adreÃ§a
 Enter Password
 Introduir contrasenya
 Error
@@ -824,21 +824,21 @@ Per favor, espereu.\nEstic creant un\nmapa nou ...\n\n (Pot trigar-se\n alguns m
 Es wird bereits\nein Fahrplan\neingegeben\n
 Esteu planificant\nuna ruta.\nFinalitzeu-la abans\nde tornar-ne a crear!\n
 Fabrikanschluss
-Indústries connectades
+IndÃºstries connectades
 Fabrikname
-nom de la fàbrica
+nom de la fÃ brica
 Factories
-Fàbriques
+FÃ briques
 factory details
-Detalls de la fàbrica
+Detalls de la fÃ brica
 factorybuilder
-Constructor d'indústries
+Constructor d'indÃºstries
 Fahrplan
 Enruta
 Fahrtziel
-Destinació:
+DestinaciÃ³:
 Fahrzeuge koennen so nicht entfernt werden
-No podeu eliminar\nels vehicles\naquí.\n
+No podeu eliminar\nels vehicles\naquÃ­.\n
 Fahrzeuge:
 Vehicles:
 Farbe
@@ -862,9 +862,9 @@ Finances
 find mismatch
 Comparant paks
 fl_title
-Llistat d'indústries
+Llistat d'indÃºstries
 Flug_tab
-Passatgers d'avió
+Passatgers d'aviÃ³
 follow me
 Seguiu-me.
 Follow the convoi on the map.
@@ -872,7 +872,7 @@ Segueix el convoi en el mapa.
 Forest
 Boscos
 Found new city
-Crear una nova població
+Crear una nova poblaciÃ³
 Fracht
 Mercaderia
 Frame time:
@@ -882,17 +882,17 @@ Capacitat
 freeplay mode
 Sense fallida
 Friction:
-quoeficient de fricció:
+quoeficient de fricciÃ³:
 fuel_cell
 pila de combustible
 Full load
-Càrrega mínima
+CÃ rrega mÃ­nima
 Fundament
-Cimentació
+CimentaciÃ³
 Fussgaenger
 Vianant
 Game info
-Informació de la partida
+InformaciÃ³ de la partida
 GAME PAUSED
 JOC EN PAUSA
 Game_msg
@@ -904,7 +904,7 @@ Edifici
 Generated
 Generat
 Generation: %.0f MW
-Generació: %.0f MW\n
+GeneraciÃ³: %.0f MW\n
 Gewicht
 Pes
 Gewinn
@@ -914,15 +914,15 @@ Atorga al(s) vehicle(s) seleccionat(s) un itinerari individual.
 gl_btn_sort_catg
 per categoria
 gl_title
-Llistat de béns
+Llistat de bÃ©ns
 go home
-Vés a cotxera.
+VÃ©s a cotxera.
 Goods
 Mercaderies
 Goods AI
 Mercaderies IA
 Goods list
-Llistat de béns
+Llistat de bÃ©ns
 Gross Profit
 Benefici brut
 Groundobj
@@ -930,7 +930,7 @@ Objecte
 Grow city
 Amplia la ciutat.
 Growth
-Creixement urbà
+Creixement urbÃ 
 H
  - Parada
 Happy
@@ -954,11 +954,11 @@ amagar noms d'estacions
 hide transparent
 transparents, no amagats
 hide trees
-Amagar àrbres
+Amagar Ã rbres
 Hier warten/lagern:
 Passatge/mercaderia esperant:
 Higher transport fees, crossconnect all factories
-Taxes de transport més grans, desactivar Just-in-Time
+Taxes de transport mÃ©s grans, desactivar Just-in-Time
 Highlite schedule
 Destacar parades d'itineraris
 hl_title
@@ -972,33 +972,33 @@ Aeroports
 hlf_chk_anleger
 Vaixells
 hlf_chk_bahnhof
-Estació de ferrocarril
+EstaciÃ³ de ferrocarril
 hlf_chk_bushalt
-Parada d'autobús
+Parada d'autobÃºs
 hlf_chk_frachthof
-Zona de càrrega
+Zona de cÃ rrega
 hlf_chk_keine_verb
-Sense connexió
+Sense connexiÃ³
 hlf_chk_maglevstop
-Estació de maglev
+EstaciÃ³ de maglev
 hlf_chk_monorailstop
-Estació de monocarril
+EstaciÃ³ de monocarril
 hlf_chk_name_filter
 Nom filtre:
 hlf_chk_narrowgaugestop
-Estació via estreta
+EstaciÃ³ via estreta
 hlf_chk_overflow
 Saturat
 hlf_chk_spezial_filter
 Filtre especial:
 hlf_chk_tramstop
-Estació de tramvia:
+EstaciÃ³ de tramvia:
 hlf_chk_type_filter
 Tipus transport:
 hlf_chk_waren_abgabe
-Producció:
+ProducciÃ³:
 hlf_chk_waren_annahme
-Tipus de càrrega:
+Tipus de cÃ rrega:
 hlf_title
 Mostra sols aquestes estacions:
 Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
@@ -1006,13 +1006,13 @@ Cotxera inicial no trobada!\nHa d'enviar manualment\nel comboi a la cotxera.
 Homeless
 Sense sostre:
 hydrogene
-Hidrògen
+HidrÃ²gen
 Idle:
 Inactiu:
 ignore climates
 ignorar climes
 In the industry legend show only currently existing factories
-Només indústries existents
+NomÃ©s indÃºstries existents
 Increase Industry density
 Afegir cadena industrial
 increase underground view level
@@ -1030,13 +1030,13 @@ Inserta una parada abans d'aquesta parada.
 Intercity road len:
 Long. carretera interurbana:
 Intro. date:
-Introducció:
+IntroducciÃ³:
 invalid
-no vàlid.
+no vÃ lid.
 Invalid coordinate
-Ordre no vàlida
+Ordre no vÃ lida
 isometric map
-Mapa isomètric
+Mapa isomÃ¨tric
 January
 Gener
 join game
@@ -1048,9 +1048,9 @@ Anar a
 June
 Juny
 Kann Spielstand\nnicht laden.\n
-¡És impossible llegir/obrir\nl'arxiu guardat!\n
+Â¡Ã‰s impossible llegir/obrir\nl'arxiu guardat!\n
 Kann Spielstand\nnicht speichern.\n
-¡És impossible obrir\nl'arxiu per a\nguardar-lo!\n
+Â¡Ã‰s impossible obrir\nl'arxiu per a\nguardar-lo!\n
 Kein Besitzer\n
 Sense propietari
 keine
@@ -1062,7 +1062,7 @@ Ajuda del teclat\n
 koord
 Coordenades
 Kreuzung
-Cruïlla
+CruÃ¯lla
 labellist_title
 Llista de marcadors
 Lade Relief
@@ -1070,7 +1070,7 @@ Carrega topografia
 Laden
 Carrega
 Land attraction
-Atracció turística d'interior
+AtracciÃ³ turÃ­stica d'interior
 Land industries
 Cadenes industrials:
 LANG_CHOOSE\n
@@ -1090,21 +1090,21 @@ buit
 Legend
 Llegenda del mapa
 Leistung
-Potència
+PotÃ¨ncia
 Leistung: %d kW
-Potència: %d kW
+PotÃ¨ncia: %d kW
 Leitung
-Línia elèctrica
+LÃ­nia elÃ¨ctrica
 letzen Monat: diesen Monat:
 darrer mes:     aquest mes:
 Line
-Línia
+LÃ­nia
 Line Management
-Administració de línies
+AdministraciÃ³ de lÃ­nies
 Lineless convoys serving this stop
-Comboi sense línia servint aquesta parada:
+Comboi sense lÃ­nia servint aquesta parada:
 Lines serving this stop
-Línies servint aquesta parada
+LÃ­nies servint aquesta parada
 LKW_tab
 Camions
 Load game
@@ -1126,13 +1126,13 @@ Carregant el mapa...
 Loading paks ...
 Carregant paks ...
 Loading skins ...
-Carregant temes d'aparença ...
+Carregant temes d'aparenÃ§a ...
 Lock game
-Bloquejar canvi de jugador (demana confirmació)
+Bloquejar canvi de jugador (demana confirmaciÃ³)
 Lokomotive_tab
-Màquines de tren
+MÃ quines de tren
 m3
-m³
+mÂ³
 maglev vehicle
 vehicle maglev
 maglev_track
@@ -1142,15 +1142,15 @@ Cotxera de maglev
 Mail Demand %d\n
 Demanda de correu %d\n
 Mailbox
-Bústia
+BÃºstia
 Mailbox Options
-Opcions de la bústia
+Opcions de la bÃºstia
 Maintenance
 Manteniment
 make stop public (or join with public stop next) costs %i per tile and level
-Fer pública la parada (o fusionar-la amb la següent) costa %i$ per quadricula i nivell
+Fer pÃºblica la parada (o fusionar-la amb la segÃ¼ent) costa %i$ per quadricula i nivell
 Manual (Human)
-Manual (Humà)
+Manual (HumÃ )
 Manufactured:
 Fabricat:
 Map roughness
@@ -1158,45 +1158,45 @@ Terreny abrupte:
 map zoom
 ampliar mapa
 March
-Març
+MarÃ§
 Margin (%%)
 Marge (%%)
 Marker
-Col·loca un cartell
+ColÂ·loca un cartell
 max
-màx.
+mÃ x.
 Max Boost (%%)
-Augment máx.(%%)
+Augment mÃ¡x.(%%)
 Max income:
-Ingressos màx.
+Ingressos mÃ x.
 Max. speed:
-Vel. màx.
+Vel. mÃ x.
 Maximum 254 stops\nin a schedule!\n
-Màxim 254 parades\nper línia!\n
+MÃ xim 254 parades\nper lÃ­nia!\n
 maximum length of rivers
-long. màxima rius
+long. mÃ xima rius
 Maximum tile height difference reached.
-La diferència total\nd'alçada entre dos\ncaselles ha de ser\ninferior a dos nivells.
+La diferÃ¨ncia total\nd'alÃ§ada entre dos\ncaselles ha de ser\ninferior a dos nivells.
 Maxspeed
-Velocitat màxima
+Velocitat mÃ xima
 May
 Maig
 Median Citizen per town
-Població per ciutat:
+PoblaciÃ³ per ciutat:
 Meldung
 Missatge
 Menge
 quantitat
 MessageOptionsText
-\nAny nou\n\nNotícies AI\n\nNotícies Ciutats\n\nSense Ruta\n\nNoves Indústries\n\nXat\n\nNous Vehicles\n\nEstacions Saturades\n\nProblemes\n\nEmbussos\n\nEscenari
+\nAny nou\n\nNotÃ­cies AI\n\nNotÃ­cies Ciutats\n\nSense Ruta\n\nNoves IndÃºstries\n\nXat\n\nNous Vehicles\n\nEstacions Saturades\n\nProblemes\n\nEmbussos\n\nEscenari
 min
-mín.
+mÃ­n.
 minimum length of rivers
-long. mínima rius
+long. mÃ­nima rius
 Missing pakfiles
 Falten objectes (pak)!
 Modify the selected line
-Modificar la línia seleccionada.
+Modificar la lÃ­nia seleccionada.
 Monate alt
 Mesos d'antiguitat
 Monorail
@@ -1214,13 +1214,13 @@ Espera (mesos)
 Months
 Mesos
 Mountain height
-Alçada muntanyes:
+AlÃ§ada muntanyes:
 Movingobj
-Objecte mòbil
+Objecte mÃ²bil
 Music playing disabled/not available
-Música desactivada o no disponible
+MÃºsica desactivada o no disponible
 Music volume:
-Volum de la música:
+Volum de la mÃºsica:
 mute sound
 treure so
 Name
@@ -1244,13 +1244,13 @@ Valor net prop de zero
 Neue Karte
 Nou
 Neue Welt
-Crea un nou món
+Crea un nou mÃ³n
 new convoi
 Nou comboi
 New Line
-Nova línia
+Nova lÃ­nia
 New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.
-Nova línia creada!\nPots assignar la línia\nseleccionant-la des del\ndesplegable 'línia' d'adalt.
+Nova lÃ­nia creada!\nPots assignar la lÃ­nia\nseleccionant-la des del\ndesplegable 'lÃ­nia' d'adalt.
 New Vehicles
 Vehicles nous
 Nickname:
@@ -1260,25 +1260,25 @@ no hi ha edificis ocults
 no convois
 sense combois
 No goods are loaded onto this convoi.
-Aquesta configuració no transporta mercaderies
+Aquesta configuraciÃ³ no transporta mercaderies
 no goods waiting
 No hi ha mercaderia esperant
 no load
-Sense càrrega
+Sense cÃ rrega
 No Route
 Sense ruta
 No stop here!
 Aquesta eina s'ha de fer servir sobre una parada!
 No suitable ground!
-No és el terreny adient!
+No Ã©s el terreny adient!
 No terminal station here!
-No hi ha estació terminal!
+No hi ha estaciÃ³ terminal!
 no timeline
 tots temps
 no tree
 sense arbres
 Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
-¡Assigneu una ruta\nal vehicle abans\nde donar-li l'ordre\nde sortida!\n
+Â¡Assigneu una ruta\nal vehicle abans\nde donar-li l'ordre\nde sortida!\n
 none
 res
 nord
@@ -1288,7 +1288,7 @@ Nord-est
 nordwest
 Nord-oest
 Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-No està permès!\nLa línia ferroviaria no pot\ncambiar-se ara.\nProvi-ho més tard.
+No estÃ  permÃ¨s!\nLa lÃ­nia ferroviaria no pot\ncambiar-se ara.\nProvi-ho mÃ©s tard.
 Not enough fields would remain.
 No hi ha prou\nespai al voltant\d'aquesta granja.
 November
@@ -1306,25 +1306,25 @@ Acceptar
 Oktober
 Octubre
 On loan since %i month(s)
-En números vermells durant %i mesos
+En nÃºmeros vermells durant %i mesos
 On this map, you are not\nallowed to change player!\n
-La partida està bloquejada!\nNo es pot canviar de jugador!\n
+La partida estÃ  bloquejada!\nNo es pot canviar de jugador!\n
 Only city chains
-Només indústries de ciutat
+NomÃ©s indÃºstries de ciutat
 Only first %d differing paks reported. There are probably more.
-Només els primers %d paks diferents reportats. Probablement n'hi hagi més.
+NomÃ©s els primers %d paks diferents reportats. Probablement n'hi hagi mÃ©s.
 Only land chains
-Només cadenes industrials de ciutat
+NomÃ©s cadenes industrials de ciutat
 Only one transformer per factory!
-Cada fàbrica només pot tenir un transformador!
+Cada fÃ brica nomÃ©s pot tenir un transformador!
 Only show goods which are currently handled by factories
-Només mostrar mercaderies processades actualment per les indústries
+NomÃ©s mostrar mercaderies processades actualment per les indÃºstries
 open
 obert
 Operation
-Costos d'operació
+Costos d'operaciÃ³
 Ops Profit
-Benefici operació
+Benefici operaciÃ³
 Optionen
 Opcions
 Or enter a server manually:
@@ -1334,13 +1334,13 @@ Origen
 ost
 Est
 Output
-Producció
+ProducciÃ³
 Ownership
 Propietari
 Pak which may cause severe errors:
-Els següents objectes (pak) falten, cosa que pot provocar errors en les xarxes de transport:
+Els segÃ¼ents objectes (pak) falten, cosa que pot provocar errors en les xarxes de transport:
 Pak which may cause visual errors:
-Els següents objectes (pak) han estat substituïts per objectes semblants:
+Els segÃ¼ents objectes (pak) han estat substituÃ¯ts per objectes semblants:
 Pak(s) different:
 Pak(s) diferents:
 Pak(s) missing on client:
@@ -1348,7 +1348,7 @@ Pak(s) no trobats al cliente:
 Pak(s) not on server:
 Pak(s) no trobats al servidor:
 Pakset differences
-Diferències de paksets
+DiferÃ¨ncies de paksets
 paletten
 paquets
 Pas_tab
@@ -1358,7 +1358,7 @@ Passatgers
 Passagierrate
 Nivell de passatgers
 Passagierziele
-Destinació del passatge/correu
+DestinaciÃ³ del passatge/correu
 Passenger AI
 IA de passatgers
 Passenger Demand %d\n
@@ -1376,7 +1376,7 @@ Passatgers <%i> Correu <%i>
 PaxDest
 Destins
 Percent Electricity
-Producció elèctrica (%% demanda):
+ProducciÃ³ elÃ¨ctrica (%% demanda):
 Planes are not available yet!
 Encara no estan disponibles els avions!
 Plant tree
@@ -1384,9 +1384,9 @@ Plantar un arbre
 player
 Jugador
 player -1
-Humà
+HumÃ 
 player 0
-servei públic
+servei pÃºblic
 player 1
 Napik 128 AS
 player 10
@@ -1420,27 +1420,27 @@ Correu
 Postrate
 Nivell de correu
 Power
-Potència
+PotÃ¨ncia
 Power (MW)
-Potència (MW)
+PotÃ¨ncia (MW)
 Power:
-Potència:
+PotÃ¨ncia:
 Powerlines
-Línies elèctriques
+LÃ­nies elÃ¨ctriques
 Problems_msg
 Problemes
 Produced
-Produït
+ProduÃ¯t
 Production of %s has been stopped:\n%s\n
 El %s %s\ns'ha deixat de fabricar\n
 Production/Boost
-Producció/Augment
+ProducciÃ³/Augment
 Produktion
-Producció
+ProducciÃ³
 Profit
 Benefici
 promote to line
-Passar a línia\n\n
+Passar a lÃ­nia\n\n
 q1
 Primavera
 q2
@@ -1452,17 +1452,17 @@ Hivern
 Query server
 Contactar servidor
 rail car
-Vagó
+VagÃ³
 random
 aleatori
 Random age
-Període a l'atzar
+PerÃ­ode a l'atzar
 Random map
 Mapa l'atzar
 Rathaus
 Ajuntament
 Rating
-Qualificació
+QualificaciÃ³
 ratio_pax
 rati pass.
 Relevant
@@ -1484,7 +1484,7 @@ Eliminar monocarril
 remove narrowgauge tracks
 Eliminar trams de via estreta
 remove powerlines
-Eliminar línies elèctriques
+Eliminar lÃ­nies elÃ¨ctriques
 remove roads
 Eliminar carreteres
 remove tracks
@@ -1496,7 +1496,7 @@ Substituir altres senyals:
 replace stop
 Actualitzar parada
 request closing
-Petició de tancament
+PeticiÃ³ de tancament
 residential house
 Edifici residencial
 Restore natural slope
@@ -1510,17 +1510,17 @@ Viatge tornada
 Revenue
 Ingressos
 Revision:
-Revisió:
+RevisiÃ³:
 road
 carretera
 road vehicle
 vehicle de carretera
 Roadsign
-Senyal de trànsit
+Senyal de trÃ nsit
 Rotate map
 Girar mapa
 Rotation
-Rotació
+RotaciÃ³
 Routing
 Encaminant
 sack
@@ -1538,9 +1538,9 @@ Errors de script
 Scenario Goal
 Objectius
 Scenario Info
-Informació
+InformaciÃ³
 Scenario information
-Informació
+InformaciÃ³
 Scenario Result
 Resultat
 Scenario Rules
@@ -1548,7 +1548,7 @@ Normes
 Schedule changing!
 Canviant ruta!
 Schienentunnel
-Construeix túnel ferroviari
+Construeix tÃºnel ferroviari
 Schiff_tab
 Vaixells
 Schiffdepot
@@ -1560,7 +1560,7 @@ Captura de pantalla
 Seasons
 Estacions
 Sehenswuerdigkeit
-Atracció turística
+AtracciÃ³ turÃ­stica
 Select a server to join:
 Seleccionar un servidor per connectar-hi:
 Sell the selected vehicle(s)
@@ -1576,15 +1576,15 @@ SEP_THOUSAND_EXPONENT
 September
 Setembre
 Server did not respond!
-El servidor no ha respòs!
+El servidor no ha respÃ²s!
 Serves Line:
-Serveix la línia:
+Serveix la lÃ­nia:
 Service
 Servei
 set signal spacing
 Establir espai entre senyals
 Setting
-Configuració
+ConfiguraciÃ³
 Ship
 Vaixell
 shops and stores
@@ -1594,15 +1594,15 @@ Veure tot
 show all building
 Veure tots els edificis
 Show also vehicles no longer in production.
-Veure també els vehicles obsolets.
+Veure tambÃ© els vehicles obsolets.
 Show also vehicles that do not match for current action.
-Veure també vehicles que no poden fer-se servir en l'acció seleccionada.
+Veure tambÃ© vehicles que no poden fer-se servir en l'acciÃ³ seleccionada.
 Show even servers with wrong version or pakset
 Veure fins i tot servidors amb versions i paksets no compatibles.
 show grid
-Veure quadrícula
+Veure quadrÃ­cula
 Show industry
-Llista d'indústries
+Llista d'indÃºstries
 Show legend
 Llegenda
 Show map scale
@@ -1614,7 +1614,7 @@ Veure obsolets
 Show offline
 Veure apagats
 Show only used
-Veure només els usats
+Veure nomÃ©s els usats
 Show schedules
 Veure itineraris
 Show servers that are offline
@@ -1632,17 +1632,17 @@ Veure/amagar reserves de blocs
 show/hide object owner
 Veure/amagar propietari
 Show/hide statistics
-Veure/amagar estadístiques
+Veure/amagar estadÃ­stiques
 Shows buttons on special topics.
 Mostra els botons de la llegenda del mapa
 Shows consumer/suppliers for factories
-Mostra consumidors/proveïdors de les indústries
+Mostra consumidors/proveÃ¯dors de les indÃºstries
 Shows the color code for several selections.
-Representa al mapa la selecció fent servir una escala de colors
+Representa al mapa la selecciÃ³ fent servir una escala de colors
 Shows the currently selected schedule
 Mostra l'itinerari seleccionat\n
 Shrink city
-Reduïr ciutat
+ReduÃ¯r ciutat
 shuffle midis
 barrejar midis
 Signal
@@ -1656,7 +1656,7 @@ Vista semblant a la principal del joc
 Size (%d MB):
 Mida de mapa (%d MB):
 sliced underground mode
-Vista per alçades
+Vista per alÃ§ades
 slot empty
 Slot buit
 Smart hide objects
@@ -1672,11 +1672,11 @@ Ajustaments de so
 Sound volume:
 Volum dels efectes:
 special freight
-Càrrega especial
+CÃ rrega especial
 Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
 Bonus per velocitat\nCarretera %i km/h, Ferrocarril %i km/h\nVaixells %i km/h, Avions %i km/h.\n\n
 Speedlimit
-Límit velocitat
+LÃ­mit velocitat
 Speichern
 Guarda
 Spieler
@@ -1686,23 +1686,23 @@ Jugadors
 Spielerliste
 Llista de jugadors
 Spielstand wurde\ngeladen!\n
-\n¡Partida carregada!\n
+\nÂ¡Partida carregada!\n
 Spielstand wurde\ngespeichert!\n
-\n¡Partida salvada!\n
+\nÂ¡Partida salvada!\n
 Sprache
 Idioma
 Sprachen
 Idiomes
 Stadtinformation
-Estadístiques de la població
+EstadÃ­stiques de la poblaciÃ³
 Start
 Arrenca
 Start the selected vehicle(s)
 Arrencar els vehicles seleccionats.
 Starte Spiel
-Començar
+ComenÃ§ar
 Station tiles:
-Caselles d'estació:
+Caselles d'estaciÃ³:
 Station_msg
 Estacions
 Status
@@ -1710,7 +1710,7 @@ Estat parades
 steam
 vapor
 Step timeline one year
-Avançar cronologia un any.
+AvanÃ§ar cronologia un any.
 Stops
 Parades
 Storage
@@ -1718,9 +1718,9 @@ Magatzem
 Storage capacity
 Capacitat d'emmagatzematge
 Strassendepot
-Cotxera camió/bus
+Cotxera camiÃ³/bus
 Strassentunnel
-Construeix túnel de carretera
+Construeix tÃºnel de carretera
 street car
 tramvia
 sued
@@ -1734,25 +1734,25 @@ Cota estival
 Supplied: %.0f %%
 Subministrat: %.0f %%
 Suppliers
-Proveïdors
+ProveÃ¯dors
 Tage alt
 dies antiguitat
 There are still vehicles\nstored in this depot!\n
-Encara hi ha vehicles\napartats en aquest dipòsit\n
+Encara hi ha vehicles\napartats en aquest dipÃ²sit\n
 This Month
 Aquest mes:
 This Year
 Aquest any:
 Tile not empty.
-La casella no és buida\nSi us plau, elimini tot\nabans de construir\nun nou talús.
+La casella no Ã©s buida\nSi us plau, elimini tot\nabans de construir\nun nou talÃºs.
 timeline
 Cronologia
 tl_title
 Llista de totes les ciutats
 To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers.
-%s ha construït\nun %s\namb l'ajuda de\n%i contribuents.\nEs preveu un augment\ndel turisme!
+%s ha construÃ¯t\nun %s\namb l'ajuda de\n%i contribuents.\nEs preveu un augment\ndel turisme!
 To heavy traffic\nresults in traffic jam.\n
-L'excés de transit ha\nprovocat un embús!\n
+L'excÃ©s de transit ha\nprovocat un embÃºs!\n
 Toggle day/night view
 Activar vista dia/nit
 Toggle vehicle tooltips
@@ -1760,7 +1760,7 @@ Activar missatges de vehicles
 tonnen
 t
 Total inhabitants:
-Població: 
+PoblaciÃ³: 
 Tourist attractions
 Zones de turisme:
 Tourists
@@ -1776,7 +1776,7 @@ via
 Tracks
 Vies
 Traffic
-Trànsit
+TrÃ nsit
 Train
 Tren
 Trains are not available yet!
@@ -1794,27 +1794,27 @@ Els tramvies encara no estan disponibles!
 Transferring game ...
 Transferint partida...
 Transformer only next to factory!
-Els transformadors s'han d'ubicar al costat d'una indústria!
+Els transformadors s'han d'ubicar al costat d'una indÃºstria!
 Translation
-Traducció
+TraducciÃ³
 transparent station coverage
 cobertura transparent
 Transported
 Viatges
 TrolleyBus_tab
-troleibús
+troleibÃºs
 Truck
-Camió
+CamiÃ³
 Tunnel muss an\neinfachem\nHang beginnen!\n
-¡El túnel ha de\ncomençar a una\npendent recta!\n
+Â¡El tÃºnel ha de\ncomenÃ§ar a una\npendent recta!\n
 Tunnel must start on single way!
-Un túnel ha de començar en una sola carretera!
+Un tÃºnel ha de comenÃ§ar en una sola carretera!
 Tunnelboden
-Túnel
+TÃºnel
 underground mode
-vista subterrània
+vista subterrÃ nia
 UNDO failed!
-No es pot desfer.\nNomés es pot desfer la\nconstrucció d'una ruta si\nno s'han construït sobre la\ncarretera senyals, estacions,\nparades ni cap altra cosa.
+No es pot desfer.\nNomÃ©s es pot desfer la\nconstrucciÃ³ d'una ruta si\nno s'han construÃ¯t sobre la\ncarretera senyals, estacions,\nparades ni cap altra cosa.
 Undo last ways construction
 Desfer la darrera via/carretera creada
 Unemployed
@@ -1828,9 +1828,9 @@ Modificar itinerari
 upgrade HQ
 Millorar seu central
 Usage: %.0f %%
-Ús: %.0f %%
+Ãšs: %.0f %%
 Usage/Output
-Consum/Producció
+Consum/ProducciÃ³
 Use beginner mode
 Activar mode lliure
 Use timeline start year
@@ -1838,7 +1838,7 @@ Cronologia des de
 Vehicle %s can't find a route!
 El vehicle %s\nno pot trobar l'itinerari!
 Vehicle %s is stucked!
-El vehicle %s està embussat!
+El vehicle %s estÃ  embussat!
 Vehicle details
 Detalls del vehicle
 Verbrauch
@@ -1850,7 +1850,7 @@ Vendre
 Verkehrsteilnehmer
 cotxes de ciutat
 Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-¡Teniu un deute!\n\n¡Us resten %d mesos\nper a pagar-lo!\n
+Â¡Teniu un deute!\n\nÂ¡Us resten %d mesos\nper a pagar-lo!\n
 via
  per (detall)
 via %s\n
@@ -1898,9 +1898,9 @@ Vendre
 Withdraw All
 Vendre tot
 WRONGSAVE
-La versió salvada és\nincompatible. No se pot llegir\nl'arxiu.\n
+La versiÃ³ salvada Ã©s\nincompatible. No se pot llegir\nl'arxiu.\n
 Year %i has started.
-Ha començat l'any %i.
+Ha comenÃ§at l'any %i.
 Years
 Anys
 Your primary color:
@@ -1908,7 +1908,7 @@ El seu color primari:
 Your secondary color:
 El seu color secundari:
 Zielort
-destí
+destÃ­
 zooming in
 apropar
 zooming out
@@ -1918,19 +1918,19 @@ Massa prop de\nl'extrem del mapa\nper a construir.\n
 #__________________________________record_text__________________________________
 #__________________________________record_text__________________________________
 New world record for maglevs: %.1f km/h by %s.
-Nou rècord mundial de maglevs: %.1f km/h per %s.
+Nou rÃ¨cord mundial de maglevs: %.1f km/h per %s.
 New world record for monorails: %.1f km/h by %s.
-Nou rècord mundial de monocarrils: %.1f km/h per %s.
+Nou rÃ¨cord mundial de monocarrils: %.1f km/h per %s.
 New world record for motorcars: %.1f km/h by %s.
-Nou rècord mundial d'automòbils: %.1f km/h per %s.
+Nou rÃ¨cord mundial d'automÃ²bils: %.1f km/h per %s.
 New world record for narrowgauges: %.1f km/h by %s.
-Nou rècord mundial de trens de via estreta: %.1f km/h per %s.
+Nou rÃ¨cord mundial de trens de via estreta: %.1f km/h per %s.
 New world record for planes: %.1f km/h by %s.
-Nou rècord mundial d'avions: %.1f km/h per %s.
+Nou rÃ¨cord mundial d'avions: %.1f km/h per %s.
 New world record for railways: %.1f km/h by %s.
-Nou rècord mundial de ferrocarrils: %.1f km/h per %s.
+Nou rÃ¨cord mundial de ferrocarrils: %.1f km/h per %s.
 New world record for ship: %.1f km/h by %s.
-Nou rècord mundial de vaixells: %.1f km/h per %s.
+Nou rÃ¨cord mundial de vaixells: %.1f km/h per %s.
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &0_CITY_SYLL
@@ -1938,7 +1938,7 @@ de Mar
 &1_CITY_SYLL
  d'Avall
 &2_CITY_SYLL
- de Túria
+ de TÃºria
 &3_CITY_SYLL
 -roja
 &4_CITY_SYLL
@@ -1958,13 +1958,13 @@ ssa
 &B_CITY_SYLL
 per
 &C_CITY_SYLL
-Això no existeix!
+AixÃ² no existeix!
 &D_CITY_SYLL
-Això no existeix!
+AixÃ² no existeix!
 &E_CITY_SYLL
-Això no existeix!
+AixÃ² no existeix!
 %0_CITY_SYLL
-Això no existeix!
+AixÃ² no existeix!
 %1_CITY_SYLL
 Vila
 %2_CITY_SYLL
@@ -1988,11 +1988,11 @@ Casa
 %B_CITY_SYLL
 Beni
 %D_CITY_SYLL
-Això no existeix!
+AixÃ² no existeix!
 %E_CITY_SYLL
-Això no existeix!
+AixÃ² no existeix!
 %F_CITY_SYLL
-Això no existeix!
+AixÃ² no existeix!
 1center
 %s %s
 1extern
@@ -2016,19 +2016,19 @@ Això no existeix!
 4extern
 %s%s Bosc
 4suburb
-Això no existeix!
+AixÃ² no existeix!
 5center
 %s%s Passeig
 5extern
-Això no existeix!
+AixÃ² no existeix!
 5suburb
-Això no existeix!
+AixÃ² no existeix!
 6center
-%s Connexió %s
+%s ConnexiÃ³ %s
 6extern
-Això no existeix!
+AixÃ² no existeix!
 6suburb
-Això no existeix!
+AixÃ² no existeix!
 7center
 %s ciutat %s
 Acenter

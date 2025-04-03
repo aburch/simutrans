@@ -1,17 +1,17 @@
-<title>Pianta alberi</title> <h1><strong>Pianta alberi</strong></h1> <p> La finestra di dialogo è divisa in quattro sezioni. <br> · 
+<title>Pianta alberi</title> <h1><strong>Pianta alberi</strong></h1> <p> La finestra di dialogo Ã¨ divisa in quattro sezioni. <br> Â· 
 
-Quella in alto a sinistra è una lista di selezione dei tipi di alberi a disposizione<br> · In fondo a sinistra a sinistra è presentata 
+Quella in alto a sinistra Ã¨ una lista di selezione dei tipi di alberi a disposizione<br> Â· In fondo a sinistra a sinistra Ã¨ presentata 
 
-un'immagine dell'albero scelto<br> · In alto a destra possono essere selezionate alcune opzioni<br> · In fondo a destra ci sono le 
+un'immagine dell'albero scelto<br> Â· In alto a destra possono essere selezionate alcune opzioni<br> Â· In fondo a destra ci sono le 
 
 informazioni sull'albero selezionato<br> </p> <h1>Lista di selezione</h1> <p> Nella lista di selezione sono elencati tutti i tipi di 
 
 alberi che sono disponibili con le opzioni specificate in alto a destra. Ci sono due tab che ti permettono di cambiare come i tipi di 
 
-albero sono identificati.<br> · <em>Traduzioni:</em> Presenta il nome dell'albero nella propria lingua. Se non è disponibile la 
+albero sono identificati.<br> Â· <em>Traduzioni:</em> Presenta il nome dell'albero nella propria lingua. Se non Ã¨ disponibile la 
 
-traduzione, sarà utilizzato il nome dell'oggetto.<br> · <em>Oggetto:</em> Presenta il nome interno dell'oggetto in Simutrans per il 
+traduzione, sarÃ  utilizzato il nome dell'oggetto.<br> Â· <em>Oggetto:</em> Presenta il nome interno dell'oggetto in Simutrans per il 
 
-tipo di albero.<br> <br> </p> <h1>Opzioni</h1> <p> · <em>Ignora clima:</em> Questa opzione disattiva le restrizioni climatiche 
+tipo di albero.<br> <br> </p> <h1>Opzioni</h1> <p> Â· <em>Ignora clima:</em> Questa opzione disattiva le restrizioni climatiche 
 
-associati i vari tipi di albero.<br> · <em>Anno casuale:</em> L'anno in cui l'albero sarà piantato è casuale.<br> </p>
+associati i vari tipi di albero.<br> Â· <em>Anno casuale:</em> L'anno in cui l'albero sarÃ  piantato Ã¨ casuale.<br> </p>

@@ -1,59 +1,59 @@
-<title>Straßenbau</title>
+<title>StraÃŸenbau</title>
 
-<h1><strong>Straßenbauwerkzeuge</strong></h1>
+<h1><strong>StraÃŸenbauwerkzeuge</strong></h1>
 
 <p>
-Diese Werkzeugleiste dient dem Bau von Straßen, Brücken, Tunneln, Signalisationen, Depots und Haltestellen.
+Diese Werkzeugleiste dient dem Bau von StraÃŸen, BrÃ¼cken, Tunneln, Signalisationen, Depots und Haltestellen.
 Bei der Auswahl eines Wergzeuges verwandelt sich der Cursor in das jeweilige Symbol.
 </p>
 <p>
-<em>Wege und Straßen</em> können mit unterschiedlichen Höchstgeschwindigkeiten befahren werden. Ist die Timeline aktiviert, werden Strassen mit schnellerer Höchstgeschwindigkeit erst nach und nach verfügbar. Höchstgeschwindigkeit und Baukosten werden in den blauen Tooltips angezeigt.
-Der Abriss kostet für alle Straßen genausoviel wie deren Bau.
+<em>Wege und StraÃŸen</em> kÃ¶nnen mit unterschiedlichen HÃ¶chstgeschwindigkeiten befahren werden. Ist die Timeline aktiviert, werden Strassen mit schnellerer HÃ¶chstgeschwindigkeit erst nach und nach verfÃ¼gbar. HÃ¶chstgeschwindigkeit und Baukosten werden in den blauen Tooltips angezeigt.
+Der Abriss kostet fÃ¼r alle StraÃŸen genausoviel wie deren Bau.
 <br/> <br/>
-Simutrans benutzt nur leere Felder bzw. bereits vorhandene Straßen.
-Brücken, Tunnel, Eisenbahnstrecken usw. werden nicht in die Bauaktion mit einbezogen.
-Allerdings werden automatisch Bahnübergänge gebaut. Am Hang kann nur in Neigungsrichtung gebaut werden.
+Simutrans benutzt nur leere Felder bzw. bereits vorhandene StraÃŸen.
+BrÃ¼cken, Tunnel, Eisenbahnstrecken usw. werden nicht in die Bauaktion mit einbezogen.
+Allerdings werden automatisch BahnÃ¼bergÃ¤nge gebaut. Am Hang kann nur in Neigungsrichtung gebaut werden.
 <br/><br/>
-Beim ersten Platzieren des Strassenbauwerkzeuges in der Weltkarte wird der Anfang der Strecke festgelegt, beim zweiten der Endpunkt. Das Spiel baut zwischen beiden Punkten die kürzestmögliche Strecke.
+Beim ersten Platzieren des Strassenbauwerkzeuges in der Weltkarte wird der Anfang der Strecke festgelegt, beim zweiten der Endpunkt. Das Spiel baut zwischen beiden Punkten die kÃ¼rzestmÃ¶gliche Strecke.
 Wenn keine Verbindung gefunden wird, passiert nach dem Anklicken des Endpunktes nichts.
-Eine Bauaktion lässt sich mittels <em>z</em> gratis rückgängig machen (ohne Baukostenerstattung), solange nichts anderes gebaut wurde.
+Eine Bauaktion lÃ¤sst sich mittels <em>z</em> gratis rÃ¼ckgÃ¤ngig machen (ohne Baukostenerstattung), solange nichts anderes gebaut wurde.
 </p>
 <p>
-<em>Straßenbrücken</em> beginnen immer an Straßenenden.
-Für das Brückenende sucht Simutrans in der geraden Weiterführung des Straßenendes ein vorhandenes Straßenende, welches in die Richtung des Anfangspunktes weist.
-Wird eine passende Hanglage vorgefunden, so wird die Brücke an sie angelehnt.
-Die weiter führende Straße kann in dem Fall auch nachträglich gebaut werden, muss aber bis auf die Brücke fortgebaut werden.
-Um eine Brücke an einem Hang beginnen zu lassen, die Straße bis auf den Hang bauen und dann das Brückenbauwerkzeug benutzen. (In neueren Versionen kann eine Brücke auch an einer senkrechten Wand enden. Dazu sollte vorher dort schon eine Straße gebaut worden sein.)
+<em>StraÃŸenbrÃ¼cken</em> beginnen immer an StraÃŸenenden.
+FÃ¼r das BrÃ¼ckenende sucht Simutrans in der geraden WeiterfÃ¼hrung des StraÃŸenendes ein vorhandenes StraÃŸenende, welches in die Richtung des Anfangspunktes weist.
+Wird eine passende Hanglage vorgefunden, so wird die BrÃ¼cke an sie angelehnt.
+Die weiter fÃ¼hrende StraÃŸe kann in dem Fall auch nachtrÃ¤glich gebaut werden, muss aber bis auf die BrÃ¼cke fortgebaut werden.
+Um eine BrÃ¼cke an einem Hang beginnen zu lassen, die StraÃŸe bis auf den Hang bauen und dann das BrÃ¼ckenbauwerkzeug benutzen. (In neueren Versionen kann eine BrÃ¼cke auch an einer senkrechten Wand enden. Dazu sollte vorher dort schon eine StraÃŸe gebaut worden sein.)
 </p>
 <p>
-<em>Straßentunnel</em> können nur gerade und nur in einer Höhenebene gebaut werden.
-Als Startpunkt des Tunnels muss ein Straßenende in einer Hanglage verbaut sein.
-Setze das Tunnelbauwerkzeug auf das Straßenstück. Der Tunnel wird komplett gebaut, wenn Simutrans in der gegenüberliegneden Bergflanke eine gerade Hanglage vorfindet.
-Erhältst Du eine Hinweismeldung, war das gegenüberliegende Hangstück nicht gerade.
+<em>StraÃŸentunnel</em> kÃ¶nnen nur gerade und nur in einer HÃ¶henebene gebaut werden.
+Als Startpunkt des Tunnels muss ein StraÃŸenende in einer Hanglage verbaut sein.
+Setze das Tunnelbauwerkzeug auf das StraÃŸenstÃ¼ck. Der Tunnel wird komplett gebaut, wenn Simutrans in der gegenÃ¼berliegneden Bergflanke eine gerade Hanglage vorfindet.
+ErhÃ¤ltst Du eine Hinweismeldung, war das gegenÃ¼berliegende HangstÃ¼ck nicht gerade.
 Eine wichtige Bauhilfe stellt die Nutzung des Gitternetzes dar
-(in der größten Kartenansicht schaltet die Taste <em>#</em> es ein und aus); mit ihm lässt sich der Durchstoßpunkt besser finden.<br>
+(in der grÃ¶ÃŸten Kartenansicht schaltet die Taste <em>#</em> es ein und aus); mit ihm lÃ¤sst sich der DurchstoÃŸpunkt besser finden.<br>
 Willst du nur ein Tunnelportal bauen, dann kannst du einen Ctrl (Strg)+Mausklick machen. Danach kann du dann in den Untergrundmodus wechseln (mit <em>U</em> oder unter <a href="display.txt">Anzeigeeinstellungen</a>) und mit dem Tunnelwerkzeug weitere Strecken bauen.
 </p>
 <p>
-Die <em>Verkehrssignalisation</em> wird genutzt, um die Bewegungen der Strassenfahrzeuge zu kontrollieren. Die meisten Schilder sind selbsterklärend. Eine Besonderheit ist das Schild <a href="privatesign_info.txt ">Privatweg</a>, das nur Fahrzeuge bestimmte Spieler passieren lässt.
+Die <em>Verkehrssignalisation</em> wird genutzt, um die Bewegungen der Strassenfahrzeuge zu kontrollieren. Die meisten Schilder sind selbsterklÃ¤rend. Eine Besonderheit ist das Schild <a href="privatesign_info.txt ">Privatweg</a>, das nur Fahrzeuge bestimmte Spieler passieren lÃ¤sst.
 </p>
 <p>
-Der <em>Wegweiser</em> dient zur Verteilung von Fahrzeugen auf gleichartige Halteplätze an der selben Haltestelle, wenn (bei Vorbeifahrt am Wegweiser) der vom Fahrplan festgelegte Halteplatz besetzt ist.
+Der <em>Wegweiser</em> dient zur Verteilung von Fahrzeugen auf gleichartige HalteplÃ¤tze an der selben Haltestelle, wenn (bei Vorbeifahrt am Wegweiser) der vom Fahrplan festgelegte Halteplatz besetzt ist.
 Er wird in Fahrtrichtung vor der Haltestelle aufgestellt.<br/>
-Die <em>Ampeln</em> können an Kreuzungen und Einmündungen aufgestellt werden und regeln den Verkehr. Durch geschicktes Einstellen der <a href="trafficlight_info.txt">Ampelphasen</a> lassen sich grüne Wellen realisieren.<br/>
-Die <em>Baustellenabschrankung</em> sorgt dafür, dass kein Fahrzeug mehr ein Strassenstück befährt.
-Die Straße wird ganz oder einseitig gesperrt. Bei der einseitigen Sperrung mehrmals klicken um die Straßenseite zu wechseln.<br/>
+Die <em>Ampeln</em> kÃ¶nnen an Kreuzungen und EinmÃ¼ndungen aufgestellt werden und regeln den Verkehr. Durch geschicktes Einstellen der <a href="trafficlight_info.txt">Ampelphasen</a> lassen sich grÃ¼ne Wellen realisieren.<br/>
+Die <em>Baustellenabschrankung</em> sorgt dafÃ¼r, dass kein Fahrzeug mehr ein StrassenstÃ¼ck befÃ¤hrt.
+Die StraÃŸe wird ganz oder einseitig gesperrt. Bei der einseitigen Sperrung mehrmals klicken um die StraÃŸenseite zu wechseln.<br/>
 Das <em>Einfahrt verboten</em> Schild macht eine Strasse zur Einbahnstrasse, der Verkehr rollt dort nur noch in Gegenrichtung.<br/>
-Das Schild <em>Mindestgeschwindigkeit</em> lässt auf einem Strassenstück nur noch Fahrzeuge fahren, die mehr als 80 km/h erreichen können.
+Das Schild <em>Mindestgeschwindigkeit</em> lÃ¤sst auf einem StrassenstÃ¼ck nur noch Fahrzeuge fahren, die mehr als 80 km/h erreichen kÃ¶nnen.
 </p>
 <p>
 Mit den beiden letzten Signalen zusammen kann man Autobahnen nachbilden.
 </p>
 <p>
-Im <em>Depot</em> kannst Du Bus-, Post- und Güterkonvois zusammenstellen sowie Linien einrichten und die Konvois nach der Zuordnung von Linien starten. Das Depot kann nur auf einem ebenen Straßenende platziert werden.
+Im <em>Depot</em> kannst Du Bus-, Post- und GÃ¼terkonvois zusammenstellen sowie Linien einrichten und die Konvois nach der Zuordnung von Linien starten. Das Depot kann nur auf einem ebenen StraÃŸenende platziert werden.
 </p>
 <p>
 <em>Haltestellen</em> sind detailiert in der Hilfe zum <a href="station.txt">Haltestellenfenster</a> beschrieben.
-Es gibt unterschiedliche Typen von Haltestellen: Bushaltestellen ermöglichen den Passagierverkehr;
-Frachthöfe den Güterverkehr;  Posthaltestellen (wenn vorhanden) den Postverkehr, diese können das Postgebäude ersetzen. Wo welches Fahrzeug letztlich hält, macht keinen Unterschied.<br/>
+Es gibt unterschiedliche Typen von Haltestellen: Bushaltestellen ermÃ¶glichen den Passagierverkehr;
+FrachthÃ¶fe den GÃ¼terverkehr;  Posthaltestellen (wenn vorhanden) den Postverkehr, diese kÃ¶nnen das PostgebÃ¤ude ersetzen. Wo welches Fahrzeug letztlich hÃ¤lt, macht keinen Unterschied.<br/>
 </p>

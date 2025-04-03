@@ -3,45 +3,45 @@
 <h1><strong>Fahrzeugfenster</strong></h1>
 
 <p>
-Wählst Du mit dem Lupenwerkzeug einen Fahrzeugverband an, wird dessen Infofenster geöffnet. Du kannst das Fenster auch aus der <a href="linemanagement.txt">Linienverwaltung</a> oder <a href="convoi.txt">Fahrzeugliste</a> heraus aufrufen. Wähle dazu einen Eintrag in der Liste an. Das Fenster zeigt Dir einige technische Daten, eine Statistik und die Beladeliste.
+WÃ¤hlst Du mit dem Lupenwerkzeug einen Fahrzeugverband an, wird dessen Infofenster geÃ¶ffnet. Du kannst das Fenster auch aus der <a href="linemanagement.txt">Linienverwaltung</a> oder <a href="convoi.txt">Fahrzeugliste</a> heraus aufrufen. WÃ¤hle dazu einen Eintrag in der Liste an. Das Fenster zeigt Dir einige technische Daten, eine Statistik und die Beladeliste.
 </p>
 <p>
 <em>Namensfeld:</em> Der Name des Fahrzeugverbandes entspricht per Vorgabe der Bezeichnung des Fahrzeugs, das als erstes in den Konvoi aufgenommen wurde.
 </p>
 <p>
 <em>Aktuelle Daten:</em><br/>
-· <em>Geschwindigkeit, Wartungskosten:</em> Die erste Geschwindigkeitsangabe ist die Höchstgeschwindigheit des Fahrzeugverbandes, die zweite die des Zugfahrzeugs. Der Wert in Klammern stellt die Laufkosten pro zurückgelegtem Feld des gesamten Fahrzeugverbandes dar. Die grüne Säule rechts daneben gibt die aktuelle Geschwindigkeit in relativ zur Höchstgeschwindigkeit an. Wird die aktuelle Geschwindigkeit nie erreicht, ist der Fahrzeugverband eventuell überladen oder der Weg lässt gerade keine höhere Geschwindigkeit zu.<br/>
-· <em>Leistung:</em> Mit der Leistung wird die gesamte Antriebsleistung der aller Zugfahrzeuge in kW angegeben.<br/>
-· <em>Gewicht:</em> Die erste Angabe stellt das Leergewicht des Fahrzeugverbandes dar, der Wert in Klammern ist das Gewicht der Ladung. Für das Gesamtgewicht müssen beide Werte zusammengezählt werden.<br/>
-· <em>Gewinn:</em> Der Gewinn seit dem 1. Januar des Jahres wird angegeben. Ist der Wert negativ, fährt der Fahrzeugverband mit Verlust.<br/>
-· <em>Ladegrad:</em> Der grüne Farbbalken gibt Dir Aufschluss über die aktuelle prozentuale Beladung des Fahrzeugverbandes. Ein (teil)gelber Balken bedeutet, dass der Fahrzeugverband auf die im <a href="schedule.txt">Fahrplan</a> eingestellte Mindestbeladung wartet.<br/>
-· <em>Fahrtziel:</em> Das aktuelle Fahrplanziel wird angezeigt. Ist das Ziel eine Haltestelle, gibt Dir der erste Wert in Klammer darüber Auskunft, auf welchen minimalen Beladegrad der Fahrzeugverband warten wird. Du kannst den Wert für den Fahrzeugverband im <a href="schedule.txt">Fahrplan</a> ändern. Sollen alle Fahrzeuge der Linie von der Änderung betroffen sein, suche die Linie in der<a href="linemanagement.txt">Linienverwaltung</a> auf. Der farbige Balken dahinter gibt die Entfernung bis zum nächsten Halt an.<br/>
-· <em>Bedient Linie:</em> Der Fahrzeugverband fährt nach dem Plan der angegebenen Linie. Weicht der Fahrplan nach einer Änderung vom Linienplan ab, oder fährt der Fahrzeugverband in keiner Linie, wird die Zeile nicht angezeigt. Mit dem Dreieck kann man direkt die Linie in der <a href="linemanagement.txt">Linienverwaltung</a> öffnen.
+Â· <em>Geschwindigkeit, Wartungskosten:</em> Die erste Geschwindigkeitsangabe ist die HÃ¶chstgeschwindigheit des Fahrzeugverbandes, die zweite die des Zugfahrzeugs. Der Wert in Klammern stellt die Laufkosten pro zurÃ¼ckgelegtem Feld des gesamten Fahrzeugverbandes dar. Die grÃ¼ne SÃ¤ule rechts daneben gibt die aktuelle Geschwindigkeit in relativ zur HÃ¶chstgeschwindigkeit an. Wird die aktuelle Geschwindigkeit nie erreicht, ist der Fahrzeugverband eventuell Ã¼berladen oder der Weg lÃ¤sst gerade keine hÃ¶here Geschwindigkeit zu.<br/>
+Â· <em>Leistung:</em> Mit der Leistung wird die gesamte Antriebsleistung der aller Zugfahrzeuge in kW angegeben.<br/>
+Â· <em>Gewicht:</em> Die erste Angabe stellt das Leergewicht des Fahrzeugverbandes dar, der Wert in Klammern ist das Gewicht der Ladung. FÃ¼r das Gesamtgewicht mÃ¼ssen beide Werte zusammengezÃ¤hlt werden.<br/>
+Â· <em>Gewinn:</em> Der Gewinn seit dem 1. Januar des Jahres wird angegeben. Ist der Wert negativ, fÃ¤hrt der Fahrzeugverband mit Verlust.<br/>
+Â· <em>Ladegrad:</em> Der grÃ¼ne Farbbalken gibt Dir Aufschluss Ã¼ber die aktuelle prozentuale Beladung des Fahrzeugverbandes. Ein (teil)gelber Balken bedeutet, dass der Fahrzeugverband auf die im <a href="schedule.txt">Fahrplan</a> eingestellte Mindestbeladung wartet.<br/>
+Â· <em>Fahrtziel:</em> Das aktuelle Fahrplanziel wird angezeigt. Ist das Ziel eine Haltestelle, gibt Dir der erste Wert in Klammer darÃ¼ber Auskunft, auf welchen minimalen Beladegrad der Fahrzeugverband warten wird. Du kannst den Wert fÃ¼r den Fahrzeugverband im <a href="schedule.txt">Fahrplan</a> Ã¤ndern. Sollen alle Fahrzeuge der Linie von der Ã„nderung betroffen sein, suche die Linie in der<a href="linemanagement.txt">Linienverwaltung</a> auf. Der farbige Balken dahinter gibt die Entfernung bis zum nÃ¤chsten Halt an.<br/>
+Â· <em>Bedient Linie:</em> Der Fahrzeugverband fÃ¤hrt nach dem Plan der angegebenen Linie. Weicht der Fahrplan nach einer Ã„nderung vom Linienplan ab, oder fÃ¤hrt der Fahrzeugverband in keiner Linie, wird die Zeile nicht angezeigt. Mit dem Dreieck kann man direkt die Linie in der <a href="linemanagement.txt">Linienverwaltung</a> Ã¶ffnen.
 </p>
 <p>
-<em>Fahrplan:</em> Über die Schaltfläche kannst Du den <a href="schedule.txt">Fahrplan</a> des Fahrzeugverbandes aufrufen.
+<em>Fahrplan:</em> Ãœber die SchaltflÃ¤che kannst Du den <a href="schedule.txt">Fahrplan</a> des Fahrzeugverbandes aufrufen.
 </p>
 <p>
 <em>Sichtfenster:</em> Den Fahrzeugverbandes siehts Du im Kartenausschnitt rechts daneben. Klickst Du ins Sichtfenster, springt die Kartenansicht und zentriert die aktuelle Position. Soll der Fahrzeugverband dauerhaft in Bildmitte zu sehen sein, benutze den Knopf <em>verfolgen</em> unter dem Kartenausschnitt.
 </p>
 <p>
-<em>nach Hause:</em> Bedienst Du den Schalter, bricht der Fahrzeugverband seinen Weg im Fahrplan ab und steuert auf dem kürzesten Weg das nächstgelegene geeignete <a href="depot.txt">Depot</a> an. Beim Erreichen des Depots geht sämtliche Fracht verloren; immerhin wird Dir der Ertrag für die geleistete Strecke ausbezahlt. Die Linie bzw. der Fahrplan sowie der letzte angesteuerte Fahrplanpunkt bleiben weiterhin gültig.
+<em>nach Hause:</em> Bedienst Du den Schalter, bricht der Fahrzeugverband seinen Weg im Fahrplan ab und steuert auf dem kÃ¼rzesten Weg das nÃ¤chstgelegene geeignete <a href="depot.txt">Depot</a> an. Beim Erreichen des Depots geht sÃ¤mtliche Fracht verloren; immerhin wird Dir der Ertrag fÃ¼r die geleistete Strecke ausbezahlt. Die Linie bzw. der Fahrplan sowie der letzte angesteuerte Fahrplanpunkt bleiben weiterhin gÃ¼ltig.
 </p>
 <p>
 <em>nicht laden:</em> Der Fahrzeugverband wird ab sofort alle Mindestladung ignorieren und nur noch Fracht abladen.
 </p>
 <p>
-<em>Chart:</em> Nach der Bedienung des Schalters öffnet bzw. schließt sich ein Statistikbereich mit grafischer Anzeige. Die Kurven entsprechen in den Farben jenen der selektierten Schalter und gewähren eine statistische Übersicht (monatsweise) über die letzten 12 Monate. Der aktuelle Monat steht links.<br/>
-· <em>Freie Kapazität:</em> Der nicht genutzte Laderaum. Addiert für jeden Fahrplanabschnitt.<br/>
-· <em>Beförderungen:</em> Der genutzte Laderaum. Addiert für jeden Fahrplanabschnitt.<br/>
-· <em>Einnahmen:</em> Die Transporterlöse des Fahrzeugverbandes.<br/>
-· <em>Betriebskosten:</em> Die anfallenden Kosten für den Betrieb des Fahrzeugverbandes. Die Schwankungen entstehen durch die unterschiedliche Laufleistung des Fahrzeugverbandes im Monat. Es entstehen nur Kosten, wenn der Fahrzeugverband sich bewegt.<br/>
-· <em>Profit:</em> Der Profit ergibt sich aus Einnahmen minus Betriebskosten.<br/>
-· <em>Strecke/Monat:</em> Die zurückgelegt Strecke aller Fahrzeuge der Linie.<br/>
-· <em>Geschwindigkeit:</em> <br/>
-· <em>Maut:</em> Kosten die durch Nutzung von Verkehrswegen anderer Spieler angefallen sind.<br/>
+<em>Chart:</em> Nach der Bedienung des Schalters Ã¶ffnet bzw. schlieÃŸt sich ein Statistikbereich mit grafischer Anzeige. Die Kurven entsprechen in den Farben jenen der selektierten Schalter und gewÃ¤hren eine statistische Ãœbersicht (monatsweise) Ã¼ber die letzten 12 Monate. Der aktuelle Monat steht links.<br/>
+Â· <em>Freie KapazitÃ¤t:</em> Der nicht genutzte Laderaum. Addiert fÃ¼r jeden Fahrplanabschnitt.<br/>
+Â· <em>BefÃ¶rderungen:</em> Der genutzte Laderaum. Addiert fÃ¼r jeden Fahrplanabschnitt.<br/>
+Â· <em>Einnahmen:</em> Die TransporterlÃ¶se des Fahrzeugverbandes.<br/>
+Â· <em>Betriebskosten:</em> Die anfallenden Kosten fÃ¼r den Betrieb des Fahrzeugverbandes. Die Schwankungen entstehen durch die unterschiedliche Laufleistung des Fahrzeugverbandes im Monat. Es entstehen nur Kosten, wenn der Fahrzeugverband sich bewegt.<br/>
+Â· <em>Profit:</em> Der Profit ergibt sich aus Einnahmen minus Betriebskosten.<br/>
+Â· <em>Strecke/Monat:</em> Die zurÃ¼ckgelegt Strecke aller Fahrzeuge der Linie.<br/>
+Â· <em>Geschwindigkeit:</em> <br/>
+Â· <em>Maut:</em> Kosten die durch Nutzung von Verkehrswegen anderer Spieler angefallen sind.<br/>
 </p>
 <p>
 <em>Beladeliste:</em>
-Zeigt die Anzahl aller geladen Güter/Passagiere auf, geordnet nach Art. Diese Liste kann sortiert werden, nach <em>Zielort</em>, <em>via</em> (nächstes Ziel), <em>via Menge</em> (wieviel hat insgesamt den nächsten Halt als Ziel) oder <em>Menge</em> (am meisten zuerst). Diese Einstellung wird dann beim nächsten Öffnen für alle Fahrzeugverbände gemerkt.
+Zeigt die Anzahl aller geladen GÃ¼ter/Passagiere auf, geordnet nach Art. Diese Liste kann sortiert werden, nach <em>Zielort</em>, <em>via</em> (nÃ¤chstes Ziel), <em>via Menge</em> (wieviel hat insgesamt den nÃ¤chsten Halt als Ziel) oder <em>Menge</em> (am meisten zuerst). Diese Einstellung wird dann beim nÃ¤chsten Ã–ffnen fÃ¼r alle FahrzeugverbÃ¤nde gemerkt.
 </p>

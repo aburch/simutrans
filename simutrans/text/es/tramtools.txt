@@ -3,7 +3,7 @@
 <h1><strong>Herramientas de Tranvia/tren ligero</strong></h1>
 
 <p>
-<strong>Herramientas de Tranvia/tren ligero</strong> contruye una red de transporte con tranvias. Las herramientas pueden construir: vias de trnvia (y electrificarlas o eliminarlas), señales, cocheras de tranvia, y paradas de tranvia.
+<strong>Herramientas de Tranvia/tren ligero</strong> contruye una red de transporte con tranvias. Las herramientas pueden construir: vias de trnvia (y electrificarlas o eliminarlas), seÃ±ales, cocheras de tranvia, y paradas de tranvia.
 Si estas jugando con <a href="new_world.txt">cronologia</a>, a medidad que pase el tiempo iran apareciendo nuevas opciones.
 </p>
 <p>
@@ -26,19 +26,19 @@ Para electrificar una via: pulsa en la herramienta para seleccionarla o la tecla
 {Consejos: Usa la herramienta Eliminar para quitar la electrificacion de la via.}
 </p>
 <p>
-<em>Remove Tracks:</em> herramienta que elimina vias normales y electrificadas, cuando no hay vehiculos presentes, entre dos puntos (las estaciones, paradas, señales, tuneles y puentes en el camino tambien se eliminan). El  uso de esta herramienta conlleva <a href="finances.txt">costes de construcion</a>.<br>
+<em>Remove Tracks:</em> herramienta que elimina vias normales y electrificadas, cuando no hay vehiculos presentes, entre dos puntos (las estaciones, paradas, seÃ±ales, tuneles y puentes en el camino tambien se eliminan). El  uso de esta herramienta conlleva <a href="finances.txt">costes de construcion</a>.<br>
 Para eliminar un via: pulsa en la herramienta para seleccionarla (el cursor cambia a una cruz roja); despues pulsa en la via que vas a borrar (en el punto seleccionado se muestra una cruz roja); y por ultimo pulsa en un segundo punto que este conectado con el primero, eliminando el tramo de via entre ambos.<br>
 {Consejos: Deberas cambiar de jugador para eliminar vias de otros jugadores.}
 </p>
 <p>
-<em>Señales:</em> herramientas que construyen señales para vehiculos sobre railes en una via. Las señales dirigen y regulan el flujo de los vehiculos en vias, puentes, cruces y <a href="station.txt">Paradas</a> (donde los vehiculos cargan y descargan pasajeros y mercancias).<br>
-Se pueden construir versiones de sentido unico y doble. Para construir una señal de doble sentido en una via: pulsa en la herramienta para seleccionarla (el cursor cambia a una señal); y despues pulsa en la via. Para construir una señal de sentido unico: pulsa de nuevo en el mismo punto, con el cursor de señal, para pasar de un tipo de señal a otro .<br>
-IMPORTANTE: Ten cuidado con no situar señales de sentido unico que impidan a los vehiculos llegar a su destino, por defecto los vehiculos conducen por la derecha (se puede cambiar en el archivo simuconf.tab).<br>
-- <em>Señales:</em> los vehiculos prosiguen solo si el tramo hasta la siguiente señal o destino  en la <a href="schedule.txt">Ruta</a> (una <a href="station.txt">Parada</a> o punto de paso) no esta ocupado por otro vehiculo. En el modo de sentido unico los vehiculos solo van en una direccion.<br>
-- <em>RailClose:</em> los vehiculos no prosiguen mas alla de la señal (solo disponible en modo de sentido unico).<br>
-- <em>PreSignals:</em> los vehiculos prosiguen si el area (entre tres señales consecutivas o hasta el proximo destino en la <a href="schedule.txt">Ruta</a>) no esta ocupado por otro vehiculo. En el modo de sentido unico los vehiculos solo van en una direccion.<br>
-- <em>ChooseSignals:</em> dirigen los vehiculos a una estacion vacia, dentro de una <a href="station.txt">Parada</a> multiplataforma: un vehiculo que pasa por esta señal puede usar una estacion vacia como proximo destino, y no justamente el que se le ha asignado en su <a href="schedule.txt">Ruta</a>. Si no hay estaciones vacias o una ruta clara hasta el proximo destino, el vehiculo esperara en la señal.<br>
-{Consejos:  elimina las señales con la herramienta Eliminar. Manten pulsado [Ctrl] para situar señales en puentes sobre vias.}
+<em>SeÃ±ales:</em> herramientas que construyen seÃ±ales para vehiculos sobre railes en una via. Las seÃ±ales dirigen y regulan el flujo de los vehiculos en vias, puentes, cruces y <a href="station.txt">Paradas</a> (donde los vehiculos cargan y descargan pasajeros y mercancias).<br>
+Se pueden construir versiones de sentido unico y doble. Para construir una seÃ±al de doble sentido en una via: pulsa en la herramienta para seleccionarla (el cursor cambia a una seÃ±al); y despues pulsa en la via. Para construir una seÃ±al de sentido unico: pulsa de nuevo en el mismo punto, con el cursor de seÃ±al, para pasar de un tipo de seÃ±al a otro .<br>
+IMPORTANTE: Ten cuidado con no situar seÃ±ales de sentido unico que impidan a los vehiculos llegar a su destino, por defecto los vehiculos conducen por la derecha (se puede cambiar en el archivo simuconf.tab).<br>
+- <em>SeÃ±ales:</em> los vehiculos prosiguen solo si el tramo hasta la siguiente seÃ±al o destino  en la <a href="schedule.txt">Ruta</a> (una <a href="station.txt">Parada</a> o punto de paso) no esta ocupado por otro vehiculo. En el modo de sentido unico los vehiculos solo van en una direccion.<br>
+- <em>RailClose:</em> los vehiculos no prosiguen mas alla de la seÃ±al (solo disponible en modo de sentido unico).<br>
+- <em>PreSignals:</em> los vehiculos prosiguen si el area (entre tres seÃ±ales consecutivas o hasta el proximo destino en la <a href="schedule.txt">Ruta</a>) no esta ocupado por otro vehiculo. En el modo de sentido unico los vehiculos solo van en una direccion.<br>
+- <em>ChooseSignals:</em> dirigen los vehiculos a una estacion vacia, dentro de una <a href="station.txt">Parada</a> multiplataforma: un vehiculo que pasa por esta seÃ±al puede usar una estacion vacia como proximo destino, y no justamente el que se le ha asignado en su <a href="schedule.txt">Ruta</a>. Si no hay estaciones vacias o una ruta clara hasta el proximo destino, el vehiculo esperara en la seÃ±al.<br>
+{Consejos:  elimina las seÃ±ales con la herramienta Eliminar. Manten pulsado [Ctrl] para situar seÃ±ales en puentes sobre vias.}
 </p>
 <p>
 <a href="depot.txt"><em>Cochera</em> de <em>Tranvia:</em></a> herramienta para construir una cochera para comprar y gestionar tranvias.<br>
@@ -50,7 +50,7 @@ Para construir una cochera de tranvia: pulsa en la herramienta (el cursor cambia
 <em>Paradas sobre vias:</em> herramientas para construir estaciones, usadas por vehiculos sobre vias para cargar y descargar mercancias, pasajeros y correo.<br>
 Una estacion, cuando no se construye adyacente a una <a href="station.txt">Parada</a> existente creara una nueva Parada.<br>
 Las Paradas sobre vias tienen un coste de mantenimiento y se construyen sobre vias (pero no en curvas ni cruces).<br>
-Las Paradas sobre vias tienen un area de influencia para mercancias, pasajeros y correo. Las diferentes estaciones tienen distintas capacidades para pasajeros y correo. En la esquina de algunos iconos de herramientas hay un pequeño icono (usado en <a href="haltlist.txt">Lista de Estaciones</a> e Informacion de la Parada) que muestra que elementos puede manejar la Parada.<br>
+Las Paradas sobre vias tienen un area de influencia para mercancias, pasajeros y correo. Las diferentes estaciones tienen distintas capacidades para pasajeros y correo. En la esquina de algunos iconos de herramientas hay un pequeÃ±o icono (usado en <a href="haltlist.txt">Lista de Estaciones</a> e Informacion de la Parada) que muestra que elementos puede manejar la Parada.<br>
 Para construir una estacion: pulsa en la herramienta para seleccionarla (el cursor cambia a una estacion), y despues pulsa en la via.<br>
 {Consejos: Elimina las paradas en via mediante la herramienta Eliminar. Extiende las estaciones y construye estaciones multiples (construyendo varias secciones de estacion en vias adyacentes) para acomodar mas vehiculos y mas largos, incrementando la capacidad y el area de influencia para pasajeros y mercancias. Manten pulsado [Ctrl] para construir puentes sobre vias.}
 </p>
@@ -62,7 +62,7 @@ Para construir una extension: pulsa en la herramienta para seleccionarla (el cur
 <p>
 <em>Paradas de carretera:</em> herramientas para construir lugares donde los tranvias y los vehiculos de carretera cargan y descargan pasajeros, mercancias y correo.<br>
 Una parada de carretera, cuando no se construye adyacente a una <a href="station.txt">Parada</a> existente creara una nueva Parada
-Las paradas de carretera se construyen sobre <a href="roadtools.txt">carreteras</a> y tienen un coste de mantenimiento y una area de influencia para mercancias, correo y pasajeros. En la esquina de algunos iconos de herramientas hay un pequeño icono (usado en <a href="haltlist.txt">Lista de Estaciones</a> e Informacion de la Parada) que muestra que elementos puede manejar la Parada. Las diferentes Paradas de carretera pueden tener distintas capacidades para pasajeros, mercancia y correo.<br>
+Las paradas de carretera se construyen sobre <a href="roadtools.txt">carreteras</a> y tienen un coste de mantenimiento y una area de influencia para mercancias, correo y pasajeros. En la esquina de algunos iconos de herramientas hay un pequeÃ±o icono (usado en <a href="haltlist.txt">Lista de Estaciones</a> e Informacion de la Parada) que muestra que elementos puede manejar la Parada. Las diferentes Paradas de carretera pueden tener distintas capacidades para pasajeros, mercancia y correo.<br>
 Para construir una Parada de carretera: pulsa en la herramienta para seleccionarla (el cursor cambia a una Parada de carretera), despues pulsa en el lugar deseado de la carretera,<br>
 {Consejos: Elimina las paradas de carretera mediante la herramienta Eliminar.Manten pulsado [Ctrl] para construir puentes sobre carreteras.}
 </p>

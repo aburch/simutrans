@@ -13,7 +13,7 @@ Las industrias son un destino y origen para pasajeros y correo. Los vehiculos ca
 <p>
 El numero inicial de cadenas industriales de suministro se puede establecer en la ventana <a href="new_world.txt">Crear un nuevo Mundo</a>.
 A medida que las <a href="citywindow.txt">ciudades</a> crecen, pueden aparecen nuevas industrias. Una nueva industria aparece cada vez que la poblacion de una ciudad dobla su poblacion en 2000 habitantes.<br>
-{Consejos: Añade industrias a una ciudad usando <a href="edittools.txt">Construir un nuevo mercado en la ciudad mas cercan</a> en en menu Herramientas especiales de cosntruccion. Cambia cuando las nuevas industrias son generadas en el archivo cityrules.tab (industry_increase_every = 0 no genera nuevas industrias )}.
+{Consejos: AÃ±ade industrias a una ciudad usando <a href="edittools.txt">Construir un nuevo mercado en la ciudad mas cercan</a> en en menu Herramientas especiales de cosntruccion. Cambia cuando las nuevas industrias son generadas en el archivo cityrules.tab (industry_increase_every = 0 no genera nuevas industrias )}.
 </p>
 <p>
 Pulsa en una industria con la herramienta <a href="inspection_tool.txt">Explorar</a> o en una industria listada en la <a href="factorylist_filter.txt">Lista de Fabricas</a> para abrir la ventana de <strong>Informacion de la Fabrica</strong>.<br>
@@ -25,7 +25,7 @@ Se muestra otra informacion y opciones, incluyendo:
 </p>
 <p>
 Produccion: cantidad maxima de mercancias que suministrara la industria (si es un proveedor) o consumira (si es un consumidor final) en unidades por mes/dia.<br>
-{Consejos: Añadiendo <a href="special.txt">subestaciones transformadoras</a> y suministro electrico a una industria incrementa la cantidad de mercancias producidas/consumidas}.
+{Consejos: AÃ±adiendo <a href="special.txt">subestaciones transformadoras</a> y suministro electrico a una industria incrementa la cantidad de mercancias producidas/consumidas}.
 </p>
 <p>
 <em>Representacion de la Industria</em> muestra una vista del edificio de la industria. Pulsa en el grafico para centrar la vista de juego en el edificio.

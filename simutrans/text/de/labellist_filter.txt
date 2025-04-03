@@ -5,13 +5,13 @@
 <p>
 In der Markerliste werden alle gesetzten Marker der Karte angezeigt.
 <br>
-Mit der Option <em>nur eigene Marker</em> wird die angezeigte Liste auf die eigenen Marker eingeschränkt.
+Mit der Option <em>nur eigene Marker</em> wird die angezeigte Liste auf die eigenen Marker eingeschrÃ¤nkt.
 </p>
 <p>
-Es stehen 2 Schaltflächen zum sortieren der Liste zur Verfügung.
-Die linke Schaltfläche sortiert nach:
-· <em>Bezeichnung</em>
-· <em>nach Orten</em>
-· <em>Spieler</em>
-Die rechte Schaltfläche sortiert jeweils nach <em>aufsteigend</em> und <em>absteigend</em>.
+Es stehen 2 SchaltflÃ¤chen zum sortieren der Liste zur VerfÃ¼gung.
+Die linke SchaltflÃ¤che sortiert nach:
+Â· <em>Bezeichnung</em>
+Â· <em>nach Orten</em>
+Â· <em>Spieler</em>
+Die rechte SchaltflÃ¤che sortiert jeweils nach <em>aufsteigend</em> und <em>absteigend</em>.
 </p>

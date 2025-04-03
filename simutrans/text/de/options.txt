@@ -4,31 +4,31 @@
 
 <p>
 Der Dialog Einstellungen ist zweigeteilt. Auf der linken Seite befinden sich die Spieleinstellungen.
-Auf der rechten Seite kannst Du Spielstände laden, speichern, eine neue Karte starten, Missionen laden sowie das Spiel beenden.
+Auf der rechten Seite kannst Du SpielstÃ¤nde laden, speichern, eine neue Karte starten, Missionen laden sowie das Spiel beenden.
 </p>
 <p>
-·<a href="language.txt"><em>Sprache</em></a>: Wähle die Sprache, welche Simutrans nutzen soll. Die Sprachdateien befinden sich im Verzeichnis simutrans/text. In den Unterverzeichnissen sind die Hilfetexte der Sprachen abgelegt.
+Â·<a href="language.txt"><em>Sprache</em></a>: WÃ¤hle die Sprache, welche Simutrans nutzen soll. Die Sprachdateien befinden sich im Verzeichnis simutrans/text. In den Unterverzeichnissen sind die Hilfetexte der Sprachen abgelegt.
 <br>
-·<a href="players.txt"><em>Spieler</em></a>: Stelle die Anzahl der Computerspieler ein.
+Â·<a href="players.txt"><em>Spieler</em></a>: Stelle die Anzahl der Computerspieler ein.
 <br>
-·<a href="color.txt"><em>Spielerfarbe</em></a>: Einstellen der eigenen Spielerfarbe.
+Â·<a href="color.txt"><em>Spielerfarbe</em></a>: Einstellen der eigenen Spielerfarbe.
 <br>
-·<a href="display.txt"><em>Anzeige</em></a>: Einstellungen für Grafik und Maus sowie Angaben über die Auslastung des Computers.
+Â·<a href="display.txt"><em>Anzeige</em></a>: Einstellungen fÃ¼r Grafik und Maus sowie Angaben Ã¼ber die Auslastung des Computers.
 <br>
-·<a href="sound.txt"><em>Sound</em></a>: Einstellungen für Sound und Musik.
+Â·<a href="sound.txt"><em>Sound</em></a>: Einstellungen fÃ¼r Sound und Musik.
 </p>
 <p>
-·<a href="new_world.txt"><em>Neues Spiel</em></a>: Starte eine neue Karte.
+Â·<a href="new_world.txt"><em>Neues Spiel</em></a>: Starte eine neue Karte.
 <br>
-·<a href="load.txt"><em>Laden Spiel</em></a>: Spielstand laden.
+Â·<a href="load.txt"><em>Laden Spiel</em></a>: Spielstand laden.
 <br>
-·<a href="save.txt"><em>Speichern</em></a>: Spielstand speichern.
+Â·<a href="save.txt"><em>Speichern</em></a>: Spielstand speichern.
 <br>
-·<a href="scenario.txt"><em>Wähle Mission</em></a>: Öffnet das Auswahlfenster der vorhandenen Missionen.
+Â·<a href="scenario.txt"><em>WÃ¤hle Mission</em></a>: Ã–ffnet das Auswahlfenster der vorhandenen Missionen.
 <br>
-·<a href=""><em>Missionsstatus</em></a>: Diese Schaltfläche ist nur aktiv, wenn eine Mission gespielt wird. Sie öffnet das Missionsinformationsfenster.
+Â·<a href=""><em>Missionsstatus</em></a>: Diese SchaltflÃ¤che ist nur aktiv, wenn eine Mission gespielt wird. Sie Ã¶ffnet das Missionsinformationsfenster.
 </p>
 <p>
-· <em>Beenden</em>: Das Spiel wird beendet (ohne den Spielstand zu sichern).
+Â· <em>Beenden</em>: Das Spiel wird beendet (ohne den Spielstand zu sichern).
 <br>
 </p>

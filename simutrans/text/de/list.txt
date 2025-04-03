@@ -3,8 +3,8 @@
 <h1><strong>Listenverwaltung</strong></h1>
 
 <p>
-Die Listenverwaltung wird über die <a href="mainmenu.txt">Hauptmenüleiste</a> aufgerufen.<br/>
-Im Listenverwaltungsmenü gibt es mehrere Einträge. Je nach Grafikset können Einträge fehlen. <br/>
+Die Listenverwaltung wird Ã¼ber die <a href="mainmenu.txt">HauptmenÃ¼leiste</a> aufgerufen.<br/>
+Im ListenverwaltungsmenÃ¼ gibt es mehrere EintrÃ¤ge. Je nach Grafikset kÃ¶nnen EintrÃ¤ge fehlen. <br/>
 </p>
 <p>
 <a href="linemanagement.txt">Linienverwaltung</a><br/>

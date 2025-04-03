@@ -17,7 +17,7 @@ El coste de destruir <a href="inspection_tool.txt">edificios de la ciudad</a> se
 <strong>Herramienta Eliminar</strong> puede ser usada para eliminar peatones y coches de ciudades.
 </p>
 <p>
-El orden de eliminacion de los elementos de una cuadricula del juego es: peatones o coches privados, señaales, parada o estacion, tendido electrico, puente o tunel, via y finalmente carretera.
+El orden de eliminacion de los elementos de una cuadricula del juego es: peatones o coches privados, seÃ±aales, parada o estacion, tendido electrico, puente o tunel, via y finalmente carretera.
 </p>
 <p>
 {Consejos: Para eliminar un vehiculo de un jugador, puedes venderlo desde <a href="convoidetail.txt">Detalles del Convoy</a>.<br>

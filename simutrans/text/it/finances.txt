@@ -3,7 +3,7 @@
 <h1>Finanze</h1>
 
 <p>
-Attraverso questa finestra si può vedere lo stato delle proprie finanze, accessibile
+Attraverso questa finestra si puÃ² vedere lo stato delle proprie finanze, accessibile
 premendo "f" o cliccando sull'immagine sulla destra della toolbar.<br>
 Qui si trovano le informazioni relative alle finanze degli ultimi due anni, con entrate e uscite.
 </p>
@@ -11,7 +11,7 @@ Qui si trovano le informazioni relative alle finanze degli ultimi due anni, con 
 <p>Le voci sono le seguenti:</p>
 
 <p>
-<em>Costruzioni</em>   - Qui c'è tutto ciò che è stato costruito durante l'anno, inclusi segnali,
+<em>Costruzioni</em>   - Qui c'Ã¨ tutto ciÃ² che Ã¨ stato costruito durante l'anno, inclusi segnali,
                        binari e uffici postali.
 </p>
 <p>
@@ -32,6 +32,6 @@ Qui si trovano le informazioni relative alle finanze degli ultimi due anni, con 
 </p>
 <p>
 <em>Saldo</em>         - Il bilancio totale della compagnia. E' il denaro disponibile
-                         per nuovi investimenti. Questa informazione si può trovare anche
+                         per nuovi investimenti. Questa informazione si puÃ² trovare anche
                          nella barra di stato sul bordo inferiore dello schermo.
 </p>

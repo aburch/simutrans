@@ -1,13 +1,13 @@
 <title>Aiuto - Suono & Musica</title>
 
-<h1>Proprietà di Suono & Musica</h1>
+<h1>ProprietÃ  di Suono & Musica</h1>
 <p>
-Da questo menù è possibile impostare il volume dei suoni, della
+Da questo menÃ¹ Ã¨ possibile impostare il volume dei suoni, della
 musica e quale colonna sonora ascoltare durante il gioco.
 </p>
 <p>
-Per cambiare il volume dei suoni o della musica si può agire sul
-controllo a scorrimento (sinistra = volume più basso).
-Per cambiare la colonna sonora è invece sufficiente agire sulle
+Per cambiare il volume dei suoni o della musica si puÃ² agire sul
+controllo a scorrimento (sinistra = volume piÃ¹ basso).
+Per cambiare la colonna sonora Ã¨ invece sufficiente agire sulle
 frecce in fondo alla finestra.
 </p>

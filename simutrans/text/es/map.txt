@@ -57,7 +57,7 @@ Pulsa en los botones de opcion para mostrar/ocultar detalles en el mapa acerca d
 <em>En espera:</em> nivel de las mercancias y pasajeros esperando por transporte en una  <a href="station.txt">Parada</a> (usa la escala min-max).
 </p>
 <p>
-<em>Vias:</em> vias de tren, tranvia y señales; las vias, puentes y tuneles se muestran en blanco (en rojo si estan electrificadas) y las señales se muestran en amarillo.
+<em>Vias:</em> vias de tren, tranvia y seÃ±ales; las vias, puentes y tuneles se muestran en blanco (en rojo si estan electrificadas) y las seÃ±ales se muestran en amarillo.
 </p>
 <p>
 <em>Limite de velocidad:</em> las carreteras y vias se muestran en relacion a la maxima velocidad permitida (usa la escala min-max).

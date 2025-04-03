@@ -4,26 +4,26 @@
 
 <p>
 In der Mailbox sammeln sich alle Meldungen, die seit dem Spielstart bzw. dem letzten Laden eines Spielstandes angefallen sind.<br/>
-Bei einigen Meldungen kannst Du den Bildschirm auf den Ort zentrieren, welcher die Meldung ausgelöst hat. Klicke dazu die Meldung an.
+Bei einigen Meldungen kannst Du den Bildschirm auf den Ort zentrieren, welcher die Meldung ausgelÃ¶st hat. Klicke dazu die Meldung an.
 </p>
 <p>
-<em>Optionen:</em> Über den Optionen-Schalter gelangst Du zum Dialog mit den Mailboxeinstellungen. Dort kannst Du für jede Mitteilung einstellen, ob und wie sie angezeigt werden soll. Anzeigekombinationen sind möglich.
+<em>Optionen:</em> Ãœber den Optionen-Schalter gelangst Du zum Dialog mit den Mailboxeinstellungen. Dort kannst Du fÃ¼r jede Mitteilung einstellen, ob und wie sie angezeigt werden soll. Anzeigekombinationen sind mÃ¶glich.
 </p>
 <p>
 <em>Mitteilungen:</em><br>
-· <em>Neues Jahr:</em> Ein neues Jahr hat begonnen.<br>
-· <em>KI baut:</em> Ein Computergegner hat eine neue Linie in Betrieb genommen.<br>
-· <em>Stadtnachrichten:</em> Die Stadt baut ein größeres Rathaus.<br>
-· <em>Keine Route:</em> Das in der Meldung angegebene Fahrzeug findet keinen Weg mehr.<br>
-· <em>Neue Industrie:</em> Durch das Stadtwachstum wurde eine neue Industriekette mit Stadtgeschäft gebaut.<br>
-· <em>Neue Attraktion:</em> Ein neues Touristenziel oder Denkmal wurde errichtet.<br>
-· <em>Neue Fahrzeuge:</em> Ein neues Fahrzeug ist verfügbar, oder ein Fahrzeug ist veraltet.<br>
-· <em>Bahnhof voll:</em> Die angegebene Haltestelle ist überfüllt.<br>
-· <em>Warnungen:</em> Du hast 3 Monate Zeit, deine Schulden zurückzuzahlen, etc.
+Â· <em>Neues Jahr:</em> Ein neues Jahr hat begonnen.<br>
+Â· <em>KI baut:</em> Ein Computergegner hat eine neue Linie in Betrieb genommen.<br>
+Â· <em>Stadtnachrichten:</em> Die Stadt baut ein grÃ¶ÃŸeres Rathaus.<br>
+Â· <em>Keine Route:</em> Das in der Meldung angegebene Fahrzeug findet keinen Weg mehr.<br>
+Â· <em>Neue Industrie:</em> Durch das Stadtwachstum wurde eine neue Industriekette mit StadtgeschÃ¤ft gebaut.<br>
+Â· <em>Neue Attraktion:</em> Ein neues Touristenziel oder Denkmal wurde errichtet.<br>
+Â· <em>Neue Fahrzeuge:</em> Ein neues Fahrzeug ist verfÃ¼gbar, oder ein Fahrzeug ist veraltet.<br>
+Â· <em>Bahnhof voll:</em> Die angegebene Haltestelle ist Ã¼berfÃ¼llt.<br>
+Â· <em>Warnungen:</em> Du hast 3 Monate Zeit, deine Schulden zurÃ¼ckzuzahlen, etc.
 </p>
 <p>
 <em>Bedeutungen der Schalter:</em><br/>
-· <em>linke Spalte:</em> Die Meldung wird im Ticker (Lauftext über der Statusleiste) ausgegeben.<br/>
-· <em>mittlere  Spalte:</em> Ein Dialog erscheint für kurze Zeit und beendet sich dann selbst.<br/>
-· <em>rechte  Spalte:</em> Ein Dialog informiert Dich. Er wird solange angezeigt, bis Du ihn schließt.
+Â· <em>linke Spalte:</em> Die Meldung wird im Ticker (Lauftext Ã¼ber der Statusleiste) ausgegeben.<br/>
+Â· <em>mittlere  Spalte:</em> Ein Dialog erscheint fÃ¼r kurze Zeit und beendet sich dann selbst.<br/>
+Â· <em>rechte  Spalte:</em> Ein Dialog informiert Dich. Er wird solange angezeigt, bis Du ihn schlieÃŸt.
 </p>

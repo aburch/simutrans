@@ -2,26 +2,26 @@
 
 <h1><strong>Touristenzielliste</strong></h1>
 <p>
-Die Touristenzielliste wird über die <a href="list.txt">Listenverwaltung</a> geöffnet.<br/>
-In der Touristenzielliste sind alle Sehenswürdigkeiten aufgeführt. Geplant ist die Erweiterung um Denkmäler. Ein Klick auf einen Eintrag öffnet den Gebäudetext (wir hoffen, sie haben Spaß daran) und stellt die Karte dar. Es gibt keine Sortierfunktionen.
+Die Touristenzielliste wird Ã¼ber die <a href="list.txt">Listenverwaltung</a> geÃ¶ffnet.<br/>
+In der Touristenzielliste sind alle SehenswÃ¼rdigkeiten aufgefÃ¼hrt. Geplant ist die Erweiterung um DenkmÃ¤ler. Ein Klick auf einen Eintrag Ã¶ffnet den GebÃ¤udetext (wir hoffen, sie haben SpaÃŸ daran) und stellt die Karte dar. Es gibt keine Sortierfunktionen.
 </p>
 <p>
-· <em>Status:</em> Die Statusfarben sind<br>
-- <em>Grün:</em> Die Attraktion ist für den Passagierverkehr erschlossen.<br>
-- <em>Blau:</em> Die Attraktion ist für den Postverkehr erschlossen.<br>
-- <em>Türkis:</em> Die Attraktion ist für den Passagier- und Postverkehr erschlossen.<br>
-- <em>Orange:</em> Eine Haltestelle, die die Attraktion erschließt, ist überfüllt.<br>
-- <em>Rot:</em> Alle Haltestellen, die die Attraktion erschließen, sind überfüllt.<br>
-· Ein <em>Gebäude</em> neben dem Statusquadrat bedeutet, dass es sich um eine Stadtattraktion handelt.
+Â· <em>Status:</em> Die Statusfarben sind<br>
+- <em>GrÃ¼n:</em> Die Attraktion ist fÃ¼r den Passagierverkehr erschlossen.<br>
+- <em>Blau:</em> Die Attraktion ist fÃ¼r den Postverkehr erschlossen.<br>
+- <em>TÃ¼rkis:</em> Die Attraktion ist fÃ¼r den Passagier- und Postverkehr erschlossen.<br>
+- <em>Orange:</em> Eine Haltestelle, die die Attraktion erschlieÃŸt, ist Ã¼berfÃ¼llt.<br>
+- <em>Rot:</em> Alle Haltestellen, die die Attraktion erschlieÃŸen, sind Ã¼berfÃ¼llt.<br>
+Â· Ein <em>GebÃ¤ude</em> neben dem Statusquadrat bedeutet, dass es sich um eine Stadtattraktion handelt.
 </p>
 <p>
-· <em>Name:</em> Die Bezeichnung der Attraktion, gefolgt von den Kartenkoordinaten
+Â· <em>Name:</em> Die Bezeichnung der Attraktion, gefolgt von den Kartenkoordinaten
 </p>
 <p>
-· <em>Passagierlevel:</em> Nach dem Bindestrich folgen noch Passagier- und Postlevel. Attraktionen erzeugen von sich aus keine Passagiere, doch jeder Tourist, der dorthin will, erzeugt gleichzeitig seine Rückreise. Post wird ebenfalls nicht von sich aus erzeugt, doch eine geringe Anregung genügt, und die Touristen senden massenweise Ansichtskarten in die Welt hinaus.
+Â· <em>Passagierlevel:</em> Nach dem Bindestrich folgen noch Passagier- und Postlevel. Attraktionen erzeugen von sich aus keine Passagiere, doch jeder Tourist, der dorthin will, erzeugt gleichzeitig seine RÃ¼ckreise. Post wird ebenfalls nicht von sich aus erzeugt, doch eine geringe Anregung genÃ¼gt, und die Touristen senden massenweise Ansichtskarten in die Welt hinaus.
 </p>
 <p>
-· <em>Erschliessung der Touristenziele:</em> Einige Touristenziele bedecken eine grosse Landfläche.
-Um eine Fabrik anzuschließen reicht es aus, dass ein einziges Fabrikfeld im Bereich einer Haltestelle liegt.
-Im Gegensatz dazu werden von Attraktionen nur die Felder erschlossenen, die tatsächlich im Einzugsbereich von Haltestellen liegen. Um das Passagieraufkommen einer Attraktion vollständig zu nutzen, müssen also alle zugehörigen Felder durch den Einzugsbereich von Haltestellen abgedeckt werden. Touristen, deren Ziel auf einem nicht erschlossenen Feld liegt, finden sonst keine Route.
+Â· <em>Erschliessung der Touristenziele:</em> Einige Touristenziele bedecken eine grosse LandflÃ¤che.
+Um eine Fabrik anzuschlieÃŸen reicht es aus, dass ein einziges Fabrikfeld im Bereich einer Haltestelle liegt.
+Im Gegensatz dazu werden von Attraktionen nur die Felder erschlossenen, die tatsÃ¤chlich im Einzugsbereich von Haltestellen liegen. Um das Passagieraufkommen einer Attraktion vollstÃ¤ndig zu nutzen, mÃ¼ssen also alle zugehÃ¶rigen Felder durch den Einzugsbereich von Haltestellen abgedeckt werden. Touristen, deren Ziel auf einem nicht erschlossenen Feld liegt, finden sonst keine Route.
 </p>

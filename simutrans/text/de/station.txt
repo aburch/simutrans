@@ -2,80 +2,80 @@
 
 <h1><strong>Haltestellenfenster</strong></h1>
 <p>
-Das Haltestellenfenster wird angezeigt, wenn Du mit dem Abfragewerkzeug (Lupe) auf ein Feld mit einer Haltestelle oder einem Erweiterungsgebäude klickst. Haltestellen sind Ausgangs-, Ziel- oder Umschlagplätze für Passagiere, Post und Güter. Hält ein Fahrzeug an einer Haltestelle, dann werden automatisch Passagiere, Post und Güter aus, um- bzw. eingladen. Haltestellen können aus einem oder mehreren Elementen wie Bahnhöfen, Bus- oder Tramhalten, Häfen, Flughäfen sowie Erweiterungsgebäuden bestehen.</p>
+Das Haltestellenfenster wird angezeigt, wenn Du mit dem Abfragewerkzeug (Lupe) auf ein Feld mit einer Haltestelle oder einem ErweiterungsgebÃ¤ude klickst. Haltestellen sind Ausgangs-, Ziel- oder UmschlagplÃ¤tze fÃ¼r Passagiere, Post und GÃ¼ter. HÃ¤lt ein Fahrzeug an einer Haltestelle, dann werden automatisch Passagiere, Post und GÃ¼ter aus, um- bzw. eingladen. Haltestellen kÃ¶nnen aus einem oder mehreren Elementen wie BahnhÃ¶fen, Bus- oder Tramhalten, HÃ¤fen, FlughÃ¤fen sowie ErweiterungsgebÃ¤uden bestehen.</p>
 <p>
-Baust Du eine Bushaltestelle auf einer Straße, Hafen im Kanal oder an der Küste, Bahnhofshalle auf der Schiene oder ein Terminal für ein Flugzeug, so entsteht dort automatisch eine neue Haltestelle. Baust Du ein Element auf eine Kachel unmittelbar neben oder über eine bestehende Haltestelle (auch schräg über Eck) wird die bereits bestehende Haltestelle erweitert. Auf diese Weise können U-Bahn-Station, ebenerdiger Bahnhof, Hochbahn, Anlegestellen für Schiffe oder auch Flughafenterminals in einer einzigen Haltestelle vereinigt werden, an der Passagiere von einem Verkehrsmittel ins andere umsteigen können. Der Weg muss im Bereich der Haltestelle gerade, kreuzungsfrei und eben sein, darf aber auch auf Brücken, Hochstrecken oder in Tunnels liegen. Einige Elemente können zusätzliche Einschränkungen haben und zum Beispiel nur auf Wegenden gebaut werden.</p>
+Baust Du eine Bushaltestelle auf einer StraÃŸe, Hafen im Kanal oder an der KÃ¼ste, Bahnhofshalle auf der Schiene oder ein Terminal fÃ¼r ein Flugzeug, so entsteht dort automatisch eine neue Haltestelle. Baust Du ein Element auf eine Kachel unmittelbar neben oder Ã¼ber eine bestehende Haltestelle (auch schrÃ¤g Ã¼ber Eck) wird die bereits bestehende Haltestelle erweitert. Auf diese Weise kÃ¶nnen U-Bahn-Station, ebenerdiger Bahnhof, Hochbahn, Anlegestellen fÃ¼r Schiffe oder auch Flughafenterminals in einer einzigen Haltestelle vereinigt werden, an der Passagiere von einem Verkehrsmittel ins andere umsteigen kÃ¶nnen. Der Weg muss im Bereich der Haltestelle gerade, kreuzungsfrei und eben sein, darf aber auch auf BrÃ¼cken, Hochstrecken oder in Tunnels liegen. Einige Elemente kÃ¶nnen zusÃ¤tzliche EinschrÃ¤nkungen haben und zum Beispiel nur auf Wegenden gebaut werden.</p>
 <p>
-An einer Haltestelle dürfen nur Fahrzeuge halten, die den gleichen <em>Besitzer</em> wie die Haltestelle haben. Eine Ausnahme sind Haltestellen, die der öffentlichen Hand gehören. Hier können alle Spieler halten und so gegenseitig Passagiere, Post und Güter austauschen.</p>
+An einer Haltestelle dÃ¼rfen nur Fahrzeuge halten, die den gleichen <em>Besitzer</em> wie die Haltestelle haben. Eine Ausnahme sind Haltestellen, die der Ã¶ffentlichen Hand gehÃ¶ren. Hier kÃ¶nnen alle Spieler halten und so gegenseitig Passagiere, Post und GÃ¼ter austauschen.</p>
 <p>
 Auf der rechten Seite des Haltestellenfensters siehst Du ein <em>Bild der Haltestelle</em>. Klicke darauf, um das Hauptfenster auf die Haltestelle zu zentrieren.
 </p>
 <p>
-Jede Haltestelle hat drei wesentliche Eigenschaften: <em>Kapazität</em>, <em>Einzugsgebiet</em> und <em>Akzeptanz</em>. Neben den Halten gibt es Erweiterungsgebäude die die Kapazität der Haltestelle erhöhen, das Einzugsgebiet vergrößern, und/oder den Umschlag weiterer Kategorien (Passagiere, Post, Güter) ermöglichen.</p>
+Jede Haltestelle hat drei wesentliche Eigenschaften: <em>KapazitÃ¤t</em>, <em>Einzugsgebiet</em> und <em>Akzeptanz</em>. Neben den Halten gibt es ErweiterungsgebÃ¤ude die die KapazitÃ¤t der Haltestelle erhÃ¶hen, das Einzugsgebiet vergrÃ¶ÃŸern, und/oder den Umschlag weiterer Kategorien (Passagiere, Post, GÃ¼ter) ermÃ¶glichen.</p>
 <p>
-Haltestellen haben ein begrenztes <em>Einzugsgebiet</em>. Du kannst es mittels <em>v</em> oder unter <a href="display.txt">Anzeigeeinstellungen</a> ein- oder ausblenden. Passagiere, Post und Güter werden nur für Ziele innerhalb dieses Gebietes angenommen. Sehenswürdigkeiten müssen über ihre ganze Baufläche von Haltestellen erschlossen sein, sonst wird ein Teil der Passagiere, die einen Ausflug dorthin planen, unzufrieden. (s.u.)</p>
+Haltestellen haben ein begrenztes <em>Einzugsgebiet</em>. Du kannst es mittels <em>v</em> oder unter <a href="display.txt">Anzeigeeinstellungen</a> ein- oder ausblenden. Passagiere, Post und GÃ¼ter werden nur fÃ¼r Ziele innerhalb dieses Gebietes angenommen. SehenswÃ¼rdigkeiten mÃ¼ssen Ã¼ber ihre ganze BauflÃ¤che von Haltestellen erschlossen sein, sonst wird ein Teil der Passagiere, die einen Ausflug dorthin planen, unzufrieden. (s.u.)</p>
 <p>
-Der Name einer Haltestelle kann in dem Feld oben direkt geändert werden. Jede Änderung erscheint sofort auf der Karte. Unter dem Namensfeld befindet sich eine Reihe von <em>Icons</em>. Links ist der Statusbalken (s. u.). Die Icons daneben zeigen Dir, welche Kategorien (Passagiere, Post, Güter) die Station akzeptiert. Damit eine dieser drei Kategorien akzeptiert wird, muss mindestens ein Element der Haltestelle diese akzeptieren. Welche Akzeptanz ein Haltestellenelement ermöglicht, kannst Du an den Symbolen auf den Icons in den entsprechenden Baumenüs erkennen. Die folgenden Symbole zeigen an, welche Verkehrsmittel (Straßenfahrzeug, Zug, Schiff, etc.) die Haltestelle anfahren.</p>
+Der Name einer Haltestelle kann in dem Feld oben direkt geÃ¤ndert werden. Jede Ã„nderung erscheint sofort auf der Karte. Unter dem Namensfeld befindet sich eine Reihe von <em>Icons</em>. Links ist der Statusbalken (s. u.). Die Icons daneben zeigen Dir, welche Kategorien (Passagiere, Post, GÃ¼ter) die Station akzeptiert. Damit eine dieser drei Kategorien akzeptiert wird, muss mindestens ein Element der Haltestelle diese akzeptieren. Welche Akzeptanz ein Haltestellenelement ermÃ¶glicht, kannst Du an den Symbolen auf den Icons in den entsprechenden BaumenÃ¼s erkennen. Die folgenden Symbole zeigen an, welche Verkehrsmittel (StraÃŸenfahrzeug, Zug, Schiff, etc.) die Haltestelle anfahren.</p>
 <p>
-Rechts davon steht die <em>Lagerkapazität</em> für Passagiere, Post und Fracht. Sind an einer Station mehr Einheiten eines Gutes vorhanden als die Kapazität, werden keine neuen mehr angenommen, die Haltestelle ist überfüllt. Die Kapazität steigt mit jedem Element, das an die Haltestelle angebaut wird. Welche Kapazität ein bestimmtes Element hat, wird in den Baumenus angezeigt. Die Auslastung der Haltestelle zeigt der Statusbalken ganz links an (derselbe, der auch auf der Karte über dem Namen steht). Er hat folgende Bedeutung:<br/>
-- Grün: Bei der Haltestelle ist alles in Ordnung.<br/>
+Rechts davon steht die <em>LagerkapazitÃ¤t</em> fÃ¼r Passagiere, Post und Fracht. Sind an einer Station mehr Einheiten eines Gutes vorhanden als die KapazitÃ¤t, werden keine neuen mehr angenommen, die Haltestelle ist Ã¼berfÃ¼llt. Die KapazitÃ¤t steigt mit jedem Element, das an die Haltestelle angebaut wird. Welche KapazitÃ¤t ein bestimmtes Element hat, wird in den Baumenus angezeigt. Die Auslastung der Haltestelle zeigt der Statusbalken ganz links an (derselbe, der auch auf der Karte Ã¼ber dem Namen steht). Er hat folgende Bedeutung:<br/>
+- GrÃ¼n: Bei der Haltestelle ist alles in Ordnung.<br/>
 - Gelb: Die Haltestelle ist nicht erschlossen (kein Fahrzeug kam vorbei, nichts wartet).<br/>
-- Orange: Die Haltestelle ist mäßig überfüllt.<br/>
-- Rot: Die Haltestelle ist völlig überfüllt (mehr als 200 Einheiten über Limit) oder mehr als 200 Passagiere/Post haben ihre Reise wegen Überfüllung nicht angetreten oder eine Fabrik konnte ihre Waren nicht loswerden und musste deswegen die Produktion einstellen. In der <a href="mailbox.txt">Mailbox</a> kannst Du einrichten, ob und wie Simutrans Dich jeweils am Monatsersten über solche Haltestellen informieren soll.</p>
+- Orange: Die Haltestelle ist mÃ¤ÃŸig Ã¼berfÃ¼llt.<br/>
+- Rot: Die Haltestelle ist vÃ¶llig Ã¼berfÃ¼llt (mehr als 200 Einheiten Ã¼ber Limit) oder mehr als 200 Passagiere/Post haben ihre Reise wegen ÃœberfÃ¼llung nicht angetreten oder eine Fabrik konnte ihre Waren nicht loswerden und musste deswegen die Produktion einstellen. In der <a href="mailbox.txt">Mailbox</a> kannst Du einrichten, ob und wie Simutrans Dich jeweils am Monatsersten Ã¼ber solche Haltestellen informieren soll.</p>
 <p>
-Akzeptiert eine Haltestelle Passagiere oder Post, stehen unterhalb der Symbole weitere Informationen. Das zufriedene Gesicht (&#31;) gibt an, wieviel Passagiere/Post von dieser Haltestelle aus ihre geplante Reise angetreten haben. Das unzufriedenen Gesicht (&#31;) zählt die Passagiere/Post, die wegen Überfüllung ihre Reisepläne fallengelassen haben. <em>ohne Route</em> zählt die, die keine Verbindung zu ihrem Ziel gefunden und die Reise somit nicht angetreten haben. Es gibt mehrere mögliche Ursachen:<br/>
+Akzeptiert eine Haltestelle Passagiere oder Post, stehen unterhalb der Symbole weitere Informationen. Das zufriedene Gesicht (&#31;) gibt an, wieviel Passagiere/Post von dieser Haltestelle aus ihre geplante Reise angetreten haben. Das unzufriedenen Gesicht (&#31;) zÃ¤hlt die Passagiere/Post, die wegen ÃœberfÃ¼llung ihre ReiseplÃ¤ne fallengelassen haben. <em>ohne Route</em> zÃ¤hlt die, die keine Verbindung zu ihrem Ziel gefunden und die Reise somit nicht angetreten haben. Es gibt mehrere mÃ¶gliche Ursachen:<br/>
 - Das Reiseziel liegt nicht im Einzugsbereich einer Haltestelle, oder diese nimmt keine Passagiere/Post an;<br/>
 - Es besteht keine Verbindung zum Ziel;<br/>
-- Es wären mehr Umstiege notwendig, um das Ziel zu erreichen, als sich die Passagiere gefallen lassen. Die maximale Zahl der Umstiege, die für die Passagiere (und auch Güter) zumutbar ist, ist in der Variablen <em>max_transfers</em> in der Datei <em>simutrans/config/simuconf.tab</em> festgelegt.</p>
+- Es wÃ¤ren mehr Umstiege notwendig, um das Ziel zu erreichen, als sich die Passagiere gefallen lassen. Die maximale Zahl der Umstiege, die fÃ¼r die Passagiere (und auch GÃ¼ter) zumutbar ist, ist in der Variablen <em>max_transfers</em> in der Datei <em>simutrans/config/simuconf.tab</em> festgelegt.</p>
 <p>
-Je mehr zufriedene Passagiere pro Monat befördert wurden, umso schneller werden die Städte auf der Karte wachsen. Für weitere Information siehe <a href="citywindow.txt">Stadtinformation</a>.</p>
+Je mehr zufriedene Passagiere pro Monat befÃ¶rdert wurden, umso schneller werden die StÃ¤dte auf der Karte wachsen. FÃ¼r weitere Information siehe <a href="citywindow.txt">Stadtinformation</a>.</p>
 
 <p>
-Im unteren Bereich des Haltestellenfensters befindet sich die <em>Passagier- und Warenliste</em>. Hier sind sämtliche Passagiere und Güter aufgelistet, die an der Haltestelle auf den Weitertransport warten.<br>
+Im unteren Bereich des Haltestellenfensters befindet sich die <em>Passagier- und Warenliste</em>. Hier sind sÃ¤mtliche Passagiere und GÃ¼ter aufgelistet, die an der Haltestelle auf den Weitertransport warten.<br>
 Zuerst wird die Gesammtmenge der Ware angezeigt, z.B.</p>
 <p>
-<em>·</em>83 Passagiere warten
+<em>Â·</em>83 Passagiere warten
 </p>
 <p>
-Diese wird dann weiter aufgeschlüsselt nach den einzelnen Zielen. Ist zum Erreichen des Ziels einer oder mehrere Umstiege notwendig, wird die nächste Umsteigehaltestelle angehängt.
+Diese wird dann weiter aufgeschlÃ¼sselt nach den einzelnen Zielen. Ist zum Erreichen des Ziels einer oder mehrere Umstiege notwendig, wird die nÃ¤chste Umsteigehaltestelle angehÃ¤ngt.
 </p>
 <p>
-<em>··</em>27 Passagiere > Berlin Mitte H über Berlin Hauptbahnhof<br>
-<em>··</em>11 Passagiere > Stuttgart Bahnhof
+<em>Â·Â·</em>27 Passagiere > Berlin Mitte H Ã¼ber Berlin Hauptbahnhof<br>
+<em>Â·Â·</em>11 Passagiere > Stuttgart Bahnhof
 </p>
 <p>
-Es gibt verschiedene Arten der Auflistung und Sortierung. Du kannst sie über die linke der drei Schaltflächen oberhalb der Liste ändern. Die Einstellung wird gespeichert und für alle anderen Haltestellenfenster übernommen.<br>
+Es gibt verschiedene Arten der Auflistung und Sortierung. Du kannst sie Ã¼ber die linke der drei SchaltflÃ¤chen oberhalb der Liste Ã¤ndern. Die Einstellung wird gespeichert und fÃ¼r alle anderen Haltestellenfenster Ã¼bernommen.<br>
 <em>via</em>:<br>
 Die Liste wird nach den ersten Transferhaltestellen alphabetisch sortiert.<br>
 <em>via Menge</em>:<br>
-Die Aufschlüsselung erfolgt nach der ersten Transferhaltestelle. Die Liste wird nach der Menge sortiert.<br>
+Die AufschlÃ¼sselung erfolgt nach der ersten Transferhaltestelle. Die Liste wird nach der Menge sortiert.<br>
 <em>Menge</em>:<br>
-Die Listensortierung erfolgt nach der Menge der Passagiere/Güterarten, die das gleiche Ziel haben.<br>
+Die Listensortierung erfolgt nach der Menge der Passagiere/GÃ¼terarten, die das gleiche Ziel haben.<br>
 <em>Zielort</em>:<br>
-Die Einträge werden alphabetisch nach Zielorten sortiert.
+Die EintrÃ¤ge werden alphabetisch nach Zielorten sortiert.
 </p>
 <p>
-Die Schaltfläche <em>Details</em> öffnet das Fenster <a href="station_details.txt">Haltestellendetails</a>. Dort findest Du zusätzliche Informationen über die Haltestelle.
+Die SchaltflÃ¤che <em>Details</em> Ã¶ffnet das Fenster <a href="station_details.txt">Haltestellendetails</a>. Dort findest Du zusÃ¤tzliche Informationen Ã¼ber die Haltestelle.
 </p>
 <p>
-Über die Schaltfläche <em>Statistik</em> kannst Du einen grafischen Statistikbereich ein- und ausblenden. Die Statistik zeigt die Entwicklung einiger Werte über die letzten 12 Monate. Über die Schaltflächen unter der Statistik lassen sich die entsprechenden Werte ein- und ausblenden.<br>
+Ãœber die SchaltflÃ¤che <em>Statistik</em> kannst Du einen grafischen Statistikbereich ein- und ausblenden. Die Statistik zeigt die Entwicklung einiger Werte Ã¼ber die letzten 12 Monate. Ãœber die SchaltflÃ¤chen unter der Statistik lassen sich die entsprechenden Werte ein- und ausblenden.<br>
 <em>Zufrieden / Unzufrieden / Keine Route</em>:<br/>
 Alle zufriedenen / unzufriedenen Passagiere, bzw. Passagiere, die keine Route gefunden haben.<br>
 <em>Angekommen / Abgefahren</em>:<br/>
-Alle angekommenen / abgefahrenen Passagiere und Güter, unabhängig davon, ob die Haltestelle das Endziel oder Umsteigepunkt war.<br/>
+Alle angekommenen / abgefahrenen Passagiere und GÃ¼ter, unabhÃ¤ngig davon, ob die Haltestelle das Endziel oder Umsteigepunkt war.<br/>
 <em>Wartend</em>:<br/>
-Die Gesammtzahl aller wartenden Passagiere und Güter.<br/>
+Die Gesammtzahl aller wartenden Passagiere und GÃ¼ter.<br/>
 <em>Fahrzeuge</em>:<br/>
 Die Zahl aller Fahrzeuge, welche die Haltestelle angefahren haben.
 </p>
 <br/>
 <br/>
 <p>
-Über einer Haltestelle in der Welt befinden sich mehrere Anzeigeelemente. Unter <a href="display.txt">Anzeigeeinstellungen</a> oder durch mehrmalige Betätigung von <em>!</em> kannst Du die einzelnen Elemente ein- oder ausblenden.</p>
+Ãœber einer Haltestelle in der Welt befinden sich mehrere Anzeigeelemente. Unter <a href="display.txt">Anzeigeeinstellungen</a> oder durch mehrmalige BetÃ¤tigung von <em>!</em> kannst Du die einzelnen Elemente ein- oder ausblenden.</p>
 <p>
-Der <em>Name der Haltestelle</em> steht in einem Kasten in der Farbe des Spielers, dem sie gehört. Er kann im Haltestellenfenster geändert werden.</p>
+Der <em>Name der Haltestelle</em> steht in einem Kasten in der Farbe des Spielers, dem sie gehÃ¶rt. Er kann im Haltestellenfenster geÃ¤ndert werden.</p>
 <p>
-Über dem Haltestellennamen befindet sich ein waagrechter <em>Statusbalken</em>. Hier kannst Du den Status der Haltestelle erkennen (s.o).</p>
+Ãœber dem Haltestellennamen befindet sich ein waagrechter <em>Statusbalken</em>. Hier kannst Du den Status der Haltestelle erkennen (s.o).</p>
 <p>
-Über dem Statusbalken befinden sich senkrechte <em>Farbsäulen</em>. Jede Säule steht für eine bestimmte Ware. Die Farben der Säulen entsprechen jenen der Farbquadrate in der <a href="goods_filter.txt">Warenliste</a>. Je höher die Säule, desto mehr Einheiten dieser Ware warten auf den Weitertransport. Befindet sich ein kleiner weißer Pfeil über der Säule, warten mehr Einheiten des Gutes als die Haltestelle aufnehmen kann. Es werden nur Säulen von Waren (bzw. Warengruppen) angezeigt, die auch tatsächlich umgeschlagen werden.
+Ãœber dem Statusbalken befinden sich senkrechte <em>FarbsÃ¤ulen</em>. Jede SÃ¤ule steht fÃ¼r eine bestimmte Ware. Die Farben der SÃ¤ulen entsprechen jenen der Farbquadrate in der <a href="goods_filter.txt">Warenliste</a>. Je hÃ¶her die SÃ¤ule, desto mehr Einheiten dieser Ware warten auf den Weitertransport. Befindet sich ein kleiner weiÃŸer Pfeil Ã¼ber der SÃ¤ule, warten mehr Einheiten des Gutes als die Haltestelle aufnehmen kann. Es werden nur SÃ¤ulen von Waren (bzw. Warengruppen) angezeigt, die auch tatsÃ¤chlich umgeschlagen werden.
 </p>

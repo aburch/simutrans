@@ -4,7 +4,7 @@
 
 <p>
 <strong>Crear un Nuevo Mundo</strong> establece las opciones para una nueva partida, con un nuevo mapa y nuevas opciones.<br>
-Se incluyen muchas variables : tamaño del terreno, numero inicial de cuidades e industrias.<br>
+Se incluyen muchas variables : tamaÃ±o del terreno, numero inicial de cuidades e industrias.<br>
 Se muestra una vista previa del terreno, segun las opciones elegidas.
 </p>
 <p>
@@ -23,7 +23,7 @@ Puls en la caja de texto y escribe el numero deseado o usa los botones de flecha
 La vista previa muestra el terreno seleccionado (el agua es azul, el terreno bajo es mas oscuro que el terreno elevado).
 </p>
 <p>
-<em>Tamaño:</em> establece el tamaño del mapa (la cifra superior es el ancho, la inferior es el alto).<br>
+<em>TamaÃ±o:</em> establece el tamaÃ±o del mapa (la cifra superior es el ancho, la inferior es el alto).<br>
 El numero entre parentesis es la cantidad de memoria requerida por el mapa<br>
 IMPORTANTE: Los mapas granges necesitan mas memoria y tardan mas tiempo en crearse. El juego y los graficos requieren aproximadamente 88MB en el pak64 y 144MB en el pak128. Como regla general,en un ordenador con 256MB RAM no intentes mapas mas grandes de 512 x 512.
 </p>
@@ -38,7 +38,7 @@ IMPORTANTE: Los mapas granges necesitan mas memoria y tardan mas tiempo en crear
 </p>
 <p>
 <em>Poblacion media por ciudad:</em> establece la poblacion inicial de las ciudades.<br>
-Esta opcion es un valor medio, Simutrans tendera a generar mas ciudades pequeñas que grandes.
+Esta opcion es un valor medio, Simutrans tendera a generar mas ciudades pequeÃ±as que grandes.
 </p>
 <p>
 <em>Longitud carretera interurbana:</em> establece la longitud inicial de las carretera entre las ciudades.
@@ -60,7 +60,7 @@ Los nuevos consumidores (y los posibles suministradores, no necesariamente en ci
 Estas aparecen en las afueras de las ciudades, ademas de las atracciones generadas dentro de los pueblos y ciudades al inicion de la partida. Las atracciones tambien generan pasajeros y correo.
 </p>
 <p>
-<em>Usar cronologia desde el año:</em> establece el año de inicio de la partida.
+<em>Usar cronologia desde el aÃ±o:</em> establece el aÃ±o de inicio de la partida.
 Cuando la opcion esta seleccionada, a medida que pasa el tiempo en la partida, pueden aparecer mas vehiculos y edificios.<br>
 Cuando no esta seleccionada: la partida comienza en el ao elegido pero estan disponibles todos los vehiculos y edificios; las ciudades aparecen con edificios de todos los periodos; y los vehiculos mas lentos no son tan rentables (ya que en el calculo de los ingresos influye la velocidad media del vehiculo de transporte).
 </p>

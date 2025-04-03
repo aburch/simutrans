@@ -39,7 +39,7 @@ Los destinos se muestran como puntos coloreados segun el mes actual de juego (mi
 <em>Grafico</em> muestra las estadisticas del area urbana. <br>
 El eje y es la cantidad, el eje X es el tiempo.<br>
 Pulsa en la etiqueta para cambiar la escla de tiempo del eje X:<br>
-<em>Años:</em> muestra valores anuales para los ultimos diez años de juego.<br>
+<em>AÃ±os:</em> muestra valores anuales para los ultimos diez aÃ±os de juego.<br>
 <em>Meses:</em> muestra valores mensuales para los ultimos 12 meses de juego
 </p>
 

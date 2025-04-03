@@ -15,7 +15,7 @@ Las herramientas para construir los lugares donde los Convoys pueden cargar o de
 </p>
 <p>
 Pulsa en una Parada con la <a href="inspection_tool.txt">Herramienta Explorar</a> o pulsa en una Parada listada en la <a href="haltlist.txt">Lista de Estaciones</a> o en <a href="linemanagement.txt">Administracion de Lineas</a> para abrir la ventana <strong>Informacion de la Parada</strong> que muestra el nombre de la Parada como titulo de la ventana.<br>
-<strong>Informacion de la Parada</strong> contiene una caja de texto con el nombre; un mini vista de la Parada; informacion acerca de la Parada; botones de opcion; y una lista de todos los elementos preparados para transportar en la Parada (si no son visibles todos los elementos <a href="mouse.txt">ajusta el tamaño</a> de la ventana <strong>Informacion de la Parada</strong> o usa la barra de desplazamiento):
+<strong>Informacion de la Parada</strong> contiene una caja de texto con el nombre; un mini vista de la Parada; informacion acerca de la Parada; botones de opcion; y una lista de todos los elementos preparados para transportar en la Parada (si no son visibles todos los elementos <a href="mouse.txt">ajusta el tamaÃ±o</a> de la ventana <strong>Informacion de la Parada</strong> o usa la barra de desplazamiento):
 </p>
 <p>
 <em>Nombre</em>: nombre asignado a la Parada, que se muestra en una caja de texto en la parte superior de la ventana <strong>Informacion de la Parada</strong>.<br>
@@ -34,7 +34,7 @@ Para cambiar el nombre: pulsa en la caja de texto del nombre y teclea uno nuevo.
 <p>
 Iconos graficos tambien usado en la Lista de Estaciones y Administracion de Lista:<br>
 - <em>icono(s) de carga</em> indica que elementos (pasajeros, mercancias y correo) puede manejar una Parada.<br>
-{Consejos: añadiendo las extensiones apropiadas se puede cambiar la categoria de las mercancias que puede manejar una Parada. Las <a href="special.txt">Oficinas de Correo</a> se pueden añadir a las paradas para manejar correo}.<br>
+{Consejos: aÃ±adiendo las extensiones apropiadas se puede cambiar la categoria de las mercancias que puede manejar una Parada. Las <a href="special.txt">Oficinas de Correo</a> se pueden aÃ±adir a las paradas para manejar correo}.<br>
 - <em>icono(s) de vehiculos</em> indica que tipos de vehiculos pueden usar la Parada. Los iconos incluidos: autobus (para pasajeros), camion (para mercancias), tren (por via ferrea), barco y avion. Los tranvias se indican mediante el icono del autobus o del tren dependiendo del tipo de Parada.
 </p>
 <p>

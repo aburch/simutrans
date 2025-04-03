@@ -3,22 +3,22 @@
 <h1>Strumenti Strade</h1>
 
 <p>
-Con questa finestra di dialogo si puÚ avere accesso a tutti gli strumenti
+Con questa finestra di dialogo si pu√≤ avere accesso a tutti gli strumenti
 necessari per costruire strade, fermate dell'autobus, tunnel, depositi,
 passaggi a livello e piazzali di carico.
 </p>
 <p>
-Nell'angolo in alto a sinistra Ë presente il simbolo che identifica lo
+Nell'angolo in alto a sinistra √® presente il simbolo che identifica lo
 strumento per costruire le strade. Per iniziare a costruire una strada bisogna
 prima cliccare sul punto di inizio, quindi spostarsi sul punto in cui la si
-vuole far terminare e cliccare nuovamente con il tasto sinistro del mouse: verr‡
+vuole far terminare e cliccare nuovamente con il tasto sinistro del mouse: verr√†
 costruita una strada fra i due punti indicati.
 </p>
 <p>
 Proseguendo a destra, troviamo il simbolo che contraddistingue lo strumento
 per la costruzione delle fermate dell'autobus. Queste fermate sono usate per
 permettere agli autobus di caricare i passeggeri in attesa. Ogni fermata
-ha la capacit‡ di due autobus, una per ciascuna direzione. Per costruirne
+ha la capacit√† di due autobus, una per ciascuna direzione. Per costruirne
 una basta cliccare nel punto in cui si desidera posizionarla. Possono essere
 costruite sulle strade ma non in curve o incroci.
 </p>
@@ -28,23 +28,23 @@ I tunnel vengono utilizzati per creare una strada diretta attraverso una
 montagna, evitando di doverla aggirare o scalare (le strade tortuose e/o in
 salita rallentano molto i veicoli). Per costruire un tunnel, per prima cosa
 occorre aver costruito le due strade ai lati della montagna (devono essere
-allo stesso livello). Cliccando su una delle due terminazioni il tunnel verr‡
+allo stesso livello). Cliccando su una delle due terminazioni il tunnel verr√†
 automaticamente costruito.
 </p>
 <p>
-Sotto questo simbolo c'Ë quello per il passaggio a livello. Viene usato per
-consentire ai treni di attraversare le strade. Per costruirne uno, Ë sufficiente
-cliccare nel punto di una strada gi‡ esistente in cui lo si desidera piazzare.
+Sotto questo simbolo c'√® quello per il passaggio a livello. Viene usato per
+consentire ai treni di attraversare le strade. Per costruirne uno, √® sufficiente
+cliccare nel punto di una strada gi√† esistente in cui lo si desidera piazzare.
 </p>
 <p>
-Alla sinistra di questo simbolo c'Ë quello per costruire i depositi.
-I depositi sono gli edifici in cui Ë possibile comprare tutti i veicoli
+Alla sinistra di questo simbolo c'√® quello per costruire i depositi.
+I depositi sono gli edifici in cui √® possibile comprare tutti i veicoli
 stradali, come furgoni, bus, camion e rimorchi. Per posizionare un deposito
-basta cliccare sull'estremit‡ di una strada gi‡ esistente.
+basta cliccare sull'estremit√† di una strada gi√† esistente.
 </p>
 <p>
-L'ultimo simbolo presente Ë il piazzale di carico. Sono usati dai camion per
+L'ultimo simbolo presente √® il piazzale di carico. Sono usati dai camion per
 caricare e scaricare le merci; sono in grado di ospitare un numero massimo di
-due veicoli. Per costruirne una il procedimento Ë lo stesso dei depositi (vedi
+due veicoli. Per costruirne una il procedimento √® lo stesso dei depositi (vedi
 sopra).
 </p>

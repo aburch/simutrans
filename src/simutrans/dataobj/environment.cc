@@ -50,6 +50,9 @@ uint8 env_t::follow_convoi_underground = 2;
 bool env_t::random_pedestrians = true;
 bool env_t::stop_pedestrians = true;
 
+char env_t::currency_symbol[16] = "";
+bool env_t::currency_left = false;
+
 plainstring env_t::default_theme;
 const char *env_t::savegame_version_str = SAVEGAME_VER_NR;
 bool env_t::straight_way_without_control = false;
@@ -637,6 +640,10 @@ void env_t::rdwr(loadsave_t *file)
 	}
 	if (file->is_version_atleast(124, 2)) {
 		file->rdwr_bool(leftdrag_in_minimap);
+	}
+	if (file->is_version_atleast(124, 3)) {
+		file->rdwr_bool(currency_left);
+		file->rdwr_str(currency_symbol,lengthof(currency_symbol));
 	}
 
 	// server settings are not saved, since they are server specific

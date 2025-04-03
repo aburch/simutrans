@@ -3,13 +3,13 @@
 <h1><strong>Kurzinformation / Netzwerkspiele</strong></h1>
 
 <p>
-Hier wird kompakt über einen Spielstand informiert. Neben einer kleinen Karte wird das Datum, die Kartengröße und die Zahl der Städte, Fabriken, Bewohner, Fahrzeuge usw. angezeigt.</p>
+Hier wird kompakt Ã¼ber einen Spielstand informiert. Neben einer kleinen Karte wird das Datum, die KartengrÃ¶ÃŸe und die Zahl der StÃ¤dte, Fabriken, Bewohner, Fahrzeuge usw. angezeigt.</p>
 
 <p>
-Falls das aktuelle Spiel kein Netzwerkspiel ist, kann man aus einer Liste oben Server auswählen, deren Programmversion und Pakset zu dem gerade Laufendem passt. Ist die Liste leer, gibt es gerade keinen passenden Server. Dann kann man sich durch <em>Alle zeigen</em> alle Server anzeigen lassen.</p>
+Falls das aktuelle Spiel kein Netzwerkspiel ist, kann man aus einer Liste oben Server auswÃ¤hlen, deren Programmversion und Pakset zu dem gerade Laufendem passt. Ist die Liste leer, gibt es gerade keinen passenden Server. Dann kann man sich durch <em>Alle zeigen</em> alle Server anzeigen lassen.</p>
 
 <p>
-Nach dem Auswählen eines Server wird dieser angefragt. Läuft der Server gerade nicht, kann dies einen Moment dauern bis eine Fehlermeldung erscheint und der Eintrag rot unterlegt wird. Im Regelfall wird der Server aber mit seinen Kurzinformationen antworten. (s.o.)</p>
+Nach dem AuswÃ¤hlen eines Server wird dieser angefragt. LÃ¤uft der Server gerade nicht, kann dies einen Moment dauern bis eine Fehlermeldung erscheint und der Eintrag rot unterlegt wird. Im Regelfall wird der Server aber mit seinen Kurzinformationen antworten. (s.o.)</p>
 
 <p>
-Stimmen Programmversion und Pakset überein, dann sind diese Einträge schwarz. Mittels <em>Online spielen</em> tritt man dem Server bei und kann dann mitspielen. Ist dagegen der Pakset-Eintrag rot, dann sind in deinem Pakset Dateien zuviel, unterschiedlich oder fehlen. In diesem Fall kann man sich mit <em>Abweichende Paks</em> die Abweichung anzeigen lassen.</p>
+Stimmen Programmversion und Pakset Ã¼berein, dann sind diese EintrÃ¤ge schwarz. Mittels <em>Online spielen</em> tritt man dem Server bei und kann dann mitspielen. Ist dagegen der Pakset-Eintrag rot, dann sind in deinem Pakset Dateien zuviel, unterschiedlich oder fehlen. In diesem Fall kann man sich mit <em>Abweichende Paks</em> die Abweichung anzeigen lassen.</p>

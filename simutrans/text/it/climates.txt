@@ -3,7 +3,7 @@
 <h1><strong>Imposta clima</strong></h1>
 
 <p>
-La finestra <strong>Imposta clima</strong> imposta le opzioni per gli aspetti topografici e meteorologici del mondo. Si può aprire dalle finestre <a href="new_world.txt">Crea nuovo gioco</a> e <a href="language.txt">Lingue</a>.
+La finestra <strong>Imposta clima</strong> imposta le opzioni per gli aspetti topografici e meteorologici del mondo. Si puÃ² aprire dalle finestre <a href="new_world.txt">Crea nuovo gioco</a> e <a href="language.txt">Lingue</a>.
 </p>
 
 <p>
@@ -15,7 +15,7 @@ Per modificare ogni impostazione, cliccare sulle frecce a lato di ognuna di esse
 </p>
 
 <p>
-<em>Livello acqua</em> - Imposta quant'è alto il livello dell'acqua nella mappa. Valori più alti riducono la terra ferma a favore dei mari.
+<em>Livello acqua</em> - Imposta quant'Ã¨ alto il livello dell'acqua nella mappa. Valori piÃ¹ alti riducono la terra ferma a favore dei mari.
 </p>
 
 <p>
@@ -23,16 +23,16 @@ Per modificare ogni impostazione, cliccare sulle frecce a lato di ognuna di esse
 </p>
 
 <p>
-<em>Asprezza mappa</em> - Imposta l'asprezza del terreno. Un numero grande crea delle linee di costa più ondulate. Per creare una mappa realistica, impostare un valore alto.<br>
+<em>Asprezza mappa</em> - Imposta l'asprezza del terreno. Un numero grande crea delle linee di costa piÃ¹ ondulate. Per creare una mappa realistica, impostare un valore alto.<br>
 </p>
 
 <p>
 <it>Limite neve</it>
-<br>È l'altezza oltre la quale appare la neve.
+<br>Ãˆ l'altezza oltre la quale appare la neve.
 </p>
 <p>
 
-<em>Limite neve estivo</em> - È il limite della neve durante l'estate. È il valore più alto da impostare tra le opzioni del clima.
+<em>Limite neve estivo</em> - Ãˆ il limite della neve durante l'estate. Ãˆ il valore piÃ¹ alto da impostare tra le opzioni del clima.
 </p>
 
 <p>

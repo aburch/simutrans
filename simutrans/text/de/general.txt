@@ -4,63 +4,63 @@
 
 <p>
 <strong>Hilfe zum Spiel</strong>
-<br/>·<a href="simutrans.txt">Simutrans</a>
-<br/>·<a href="use.txt">Nutzung der Hilfe</a>
-<br/>·<a href="game_control.txt">Spielsteuerung</a>
-<br/>··<a href="underground.txt">Untergrund</a>
-<br/>·<a href="keys.txt">Tastaturbelegung</a>
-<br/>·<a href="mainmenu.txt">Hauptmenü</a>
-<br/>·<a href="new_world.txt">Neue Welt</a>
+<br/>Â·<a href="simutrans.txt">Simutrans</a>
+<br/>Â·<a href="use.txt">Nutzung der Hilfe</a>
+<br/>Â·<a href="game_control.txt">Spielsteuerung</a>
+<br/>Â·Â·<a href="underground.txt">Untergrund</a>
+<br/>Â·<a href="keys.txt">Tastaturbelegung</a>
+<br/>Â·<a href="mainmenu.txt">HauptmenÃ¼</a>
+<br/>Â·<a href="new_world.txt">Neue Welt</a>
 </p>
 <p>
-<strong>Hauptmenü</strong> (siehe auch <a href="mainmenu.txt">Hauptmenü</a>)
-<br/>·<a href="map.txt">Reliefkarte</a>
-<br/>·<a href="options.txt">Optionen</a> (s.u.)
-<br/>· Abfragewerkzeug
-<br/>·<a href="slopetools.txt">Geländewerkzeuge</a>
-<br/>·<a href="railtools.txt">Eisenbahnbauwerkzeuge</a>
-<br/>·<a href="monorailtools.txt">Monorailbauwerkzeuge</a>
-<br/>·<a href="tramtools.txt">Trambauwerkzeuge</a>
-<br/>·<a href="roadtools.txt">Straßenbauwerkzeug</a>
-<br/>·<a href="shiptools.txt">Häfen und Werft</a>
-<br/>·<a href="airtools.txt">Flughafenbauwerkzeuge</a>
-<br/>·<a href="special.txt">Spezialbauwerkzeuge</a>
-<br/>· Löschwerkzeug
+<strong>HauptmenÃ¼</strong> (siehe auch <a href="mainmenu.txt">HauptmenÃ¼</a>)
+<br/>Â·<a href="map.txt">Reliefkarte</a>
+<br/>Â·<a href="options.txt">Optionen</a> (s.u.)
+<br/>Â· Abfragewerkzeug
+<br/>Â·<a href="slopetools.txt">GelÃ¤ndewerkzeuge</a>
+<br/>Â·<a href="railtools.txt">Eisenbahnbauwerkzeuge</a>
+<br/>Â·<a href="monorailtools.txt">Monorailbauwerkzeuge</a>
+<br/>Â·<a href="tramtools.txt">Trambauwerkzeuge</a>
+<br/>Â·<a href="roadtools.txt">StraÃŸenbauwerkzeug</a>
+<br/>Â·<a href="shiptools.txt">HÃ¤fen und Werft</a>
+<br/>Â·<a href="airtools.txt">Flughafenbauwerkzeuge</a>
+<br/>Â·<a href="special.txt">Spezialbauwerkzeuge</a>
+<br/>Â· LÃ¶schwerkzeug
 <br/>
-<br/>·<a href="linemanagement.txt">Linienverwaltung</a>
-<br/>·<a href="list.txt">Listenverwaltung</a>
-<br/>· ·<a href="haltlist.txt">Haltestellenliste</a> mit <a href="haltlist_filter.txt">Filtereinstellungen</a>
-<br/>· · öffnet <a href="station.txt">Haltestellenfenster</a> und <a href="station_details.txt">Haltestellen Detailinformation</a>
-<br/>· ·<a href="convoi.txt">Fahrzeugliste</a> mit <a href="convoi_filter.txt">Filtereinstellungen zur Fahrzeugliste</a>
-<br/>· · öffnet <a href="convoiinfo.txt">Fahrzeugfenster</a> und <a href="convoidetail.txt">Fahrzeugdetailfenster</a>
-<br/>· ·<a href="citylist_filter.txt">Stadtliste</a>
-<br/>· · öffnet <a href="citywindow.txt">Stadtinformation</a>
-<br/>· ·<a href="goods_filter.txt">Warenliste</a>
-<br/>· · öffnet <a href="industry_info.txt">Fabrikfenster</a>
-<br/>· ·<a href="factorylist_filter.txt">Fabrikliste</a>
-<br/>· ·<a href="curiositylist_filter.txt">Touristenzielliste</a>
-<br/>·<a href="mailbox.txt">Mailbox und Mailbox Optionen</a>
-<br/>·<a href="finances.txt">Finanzen</a>
+<br/>Â·<a href="linemanagement.txt">Linienverwaltung</a>
+<br/>Â·<a href="list.txt">Listenverwaltung</a>
+<br/>Â· Â·<a href="haltlist.txt">Haltestellenliste</a> mit <a href="haltlist_filter.txt">Filtereinstellungen</a>
+<br/>Â· Â· Ã¶ffnet <a href="station.txt">Haltestellenfenster</a> und <a href="station_details.txt">Haltestellen Detailinformation</a>
+<br/>Â· Â·<a href="convoi.txt">Fahrzeugliste</a> mit <a href="convoi_filter.txt">Filtereinstellungen zur Fahrzeugliste</a>
+<br/>Â· Â· Ã¶ffnet <a href="convoiinfo.txt">Fahrzeugfenster</a> und <a href="convoidetail.txt">Fahrzeugdetailfenster</a>
+<br/>Â· Â·<a href="citylist_filter.txt">Stadtliste</a>
+<br/>Â· Â· Ã¶ffnet <a href="citywindow.txt">Stadtinformation</a>
+<br/>Â· Â·<a href="goods_filter.txt">Warenliste</a>
+<br/>Â· Â· Ã¶ffnet <a href="industry_info.txt">Fabrikfenster</a>
+<br/>Â· Â·<a href="factorylist_filter.txt">Fabrikliste</a>
+<br/>Â· Â·<a href="curiositylist_filter.txt">Touristenzielliste</a>
+<br/>Â·<a href="mailbox.txt">Mailbox und Mailbox Optionen</a>
+<br/>Â·<a href="finances.txt">Finanzen</a>
 <br/>
-<br/>· Bildschirm speichern
-<br/>· Pause
-<br/>· Simulation maximal beschleunigen <strong>(kann zu ruckeln führen)!</strong>
+<br/>Â· Bildschirm speichern
+<br/>Â· Pause
+<br/>Â· Simulation maximal beschleunigen <strong>(kann zu ruckeln fÃ¼hren)!</strong>
 </p>
 <p>
 <strong>Dialoge unter Optionen</strong>
-<br/>·<a href="options.txt">Einstellungen</a>
-<br/>·<a href="language.txt">Sprachauswahl</a>
-<br/>·<a href="color.txt">Farbauswahl</a>
-<br/>·<a href="display.txt">Anzeigeeinstellungen</a>
-<br/>·<a href="sound.txt">Sound- & Musikeinstellungen</a>
-<br/>·<a href="players.txt">Spieler Menü</a>
-<br/>·<a href="load.txt">Lade Menü</a>
-<br/>·<a href="save.txt">Speichern Menü</a>
-<br/>·<a href="new_world.txt">Neue Welt</a> und <a href="load_relief.txt">Lade Relief Menü</a>
+<br/>Â·<a href="options.txt">Einstellungen</a>
+<br/>Â·<a href="language.txt">Sprachauswahl</a>
+<br/>Â·<a href="color.txt">Farbauswahl</a>
+<br/>Â·<a href="display.txt">Anzeigeeinstellungen</a>
+<br/>Â·<a href="sound.txt">Sound- & Musikeinstellungen</a>
+<br/>Â·<a href="players.txt">Spieler MenÃ¼</a>
+<br/>Â·<a href="load.txt">Lade MenÃ¼</a>
+<br/>Â·<a href="save.txt">Speichern MenÃ¼</a>
+<br/>Â·<a href="new_world.txt">Neue Welt</a> und <a href="load_relief.txt">Lade Relief MenÃ¼</a>
 </p>
 <p>
 <strong>Weitere Dialoge</strong>
-<br/>·<a href="edittools.txt">Karteneditor</a>
-<br/>·<a href="depot.txt">Depotfenster</a>
-<br/>·<a href="schedule.txt">Fahr- und Linienplanfenster</a>
+<br/>Â·<a href="edittools.txt">Karteneditor</a>
+<br/>Â·<a href="depot.txt">Depotfenster</a>
+<br/>Â·<a href="schedule.txt">Fahr- und Linienplanfenster</a>
 </p>

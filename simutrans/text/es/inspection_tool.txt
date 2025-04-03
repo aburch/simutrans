@@ -38,9 +38,9 @@ Pulsando en los siguientes elementos,se abren distintas ventanas de dialogo:
 - <em>Ciudad de</em>: indica a que area urbana pertence el edificio.<br>
 - <em>Nivel de Pasajeros:</em> es la popularidad relativa como destino de pasajeros.<br>
 - <em>Nivel de Correo:</em> es la popularidad relativa como destino para correo.<br>
-- <em>Aparece desde</em>: indica el año en que aparece el edificio si esta jugando con<a href="new_world.txt">cronologia</a>.<br>
+- <em>Aparece desde</em>: indica el aÃ±o en que aparece el edificio si esta jugando con<a href="new_world.txt">cronologia</a>.<br>
 - <em>Valor:</em>: indica los costes de eliminacion del edificio si se usa la herramienta <a href="window.txt">Eliminar</a>.<br>
-- <em>Pintado por </em>: nombre de la persona que diseño y pinto el edificio para Simutrans
+- <em>Pintado por </em>: nombre de la persona que diseÃ±o y pinto el edificio para Simutrans
 </p>
 <p>
 <em>Monumentos</em> / <a href="curiositylist_filter.txt"><em>Atracciones turisticas</em></a> abre una ventana de dialogo que da informacion acerca de una atraccion (el titulo de la ventana indica si es un monumento o una atraccion turistica). La informacion contenida incluye:<br>
@@ -48,15 +48,15 @@ Pulsando en los siguientes elementos,se abren distintas ventanas de dialogo:
 - <em>descripcion</em> da informacion acerca de la atraccion.<br>
 - <em>Nivel de Pasajeros:</em> es la popularidad relativa como destino de pasajeros.<br>
 - <em>Nivel de Correo:</em>es la popularidad relativa como destino para correo.<br>
-- <em>Aparece desde</em>:indica el año en que aparece el edificio si esta jugando con<a href="new_world.txt">cronologia</a>.<br>
--<em>Pintado por </em>: nombre de la persona que diseño y pinto la atraccion para Simutrans
+- <em>Aparece desde</em>:indica el aÃ±o en que aparece el edificio si esta jugando con<a href="new_world.txt">cronologia</a>.<br>
+-<em>Pintado por </em>: nombre de la persona que diseÃ±o y pinto la atraccion para Simutrans
 </p>
 <p>
 <em>Carreteras y Vias</em> abre una ventana de dialogo que da informacion acerca de una carretera o via (el titulo de la ventana indica el tipo de via que es - en el caso de vias de tranvia sobre carreteras, indica el tipo de carretera).<br>
 Information contained in dialogue:<br>
 - <em>Vel. Max</em>: velocidad maxima permitida en esa via o carretera.<br>
 - <em>Ribi (unmasked)</em>:<br> es un contador interno que indica la direccion de la via.<br>
-- <em>Ribi (masked)</em>: es un contador interno que indica la direccion de la via teniendo en cuenta las señales.<br>
+- <em>Ribi (masked)</em>: es un contador interno que indica la direccion de la via teniendo en cuenta las seÃ±ales.<br>
 - <em>with sign/signal</em> is shown if there is a signal or sign present.<br>
 - <em>electrificado</em>/<em>no electrificado</em> indica si la via esta electrificada.<br>
 - <em>vehiculos el mes pasado</em> indica el numero de <a href="convoiinfo.txt">Vehiculos</a> que han usado la via en el mes previo de juego.<br>
@@ -66,9 +66,9 @@ Information contained in dialogue:<br>
 En el caso de la vias del tranviaconstruidas sobre carreteras: la informacion se muestra dos veces, la primera por la carretera y la segunda por la via del tranvia.
 </p>
 <p>
-<em>Señales</em>/<em>Signos</em> abre la ventana de dialogo, el titulo de la ventana indica si es una señal normal o de carretera.
+<em>SeÃ±ales</em>/<em>Signos</em> abre la ventana de dialogo, el titulo de la ventana indica si es una seÃ±al normal o de carretera.
 La informacion mostrada incluye:<br>
-- <em>direccion</em> es un contador interno que indica la direccion impuesta por la señal.
+- <em>direccion</em> es un contador interno que indica la direccion impuesta por la seÃ±al.
 </p>
 <p>
 <a href="special.txt"><em>Tendido electrico</em></a> / <em>Subestacion transformadora</em> abre una ventana de dialogo que da informacion acerca del suministro de electricidad (el titulo de la ventana es 'Linea Electrica'). La informacion mostrada incluye :<br>

@@ -1,4 +1,4 @@
-Eesti
+Â§Eesti
 PROP_FONT_FILE
 Prop-Latin1.bdf
 ################################################################################
@@ -10,7 +10,7 @@ Prop-Latin1.bdf
 #                        Simutrans Base Translation File                       #
 #                             Scenario: Base texts                             #
 #                              Language: et Eesti                              #
-#                             Encoding: ISO-8859-1                             #
+#                                Encoding: UTF-8                               #
 #                             Font: Prop-Latin1.bdf                            #
 #                            Date Created: 3.04 2025                           #
 #                                                                              #
@@ -20,13 +20,13 @@ Prop-Latin1.bdf
 cl_btn_filter_disable
 blokeeritud
 cl_btn_filter_enable
-võimaldatud
+vÃµimaldatud
 cl_btn_filter_settings
 Seaded
 cl_btn_sort_asc
 suurenev
 cl_btn_sort_desc
-vähenev
+vÃ¤henev
 cl_btn_sort_id
 Sisemine ID
 cl_btn_sort_income
@@ -34,9 +34,9 @@ Sissetulek
 cl_btn_sort_name
 Nimi
 cl_btn_sort_type
-Tüüp
+TÃ¼Ã¼p
 clf_btn_alle
-kõik
+kÃµik
 clf_btn_invers
 inv.
 clf_btn_keine
@@ -50,13 +50,13 @@ arktiline kliima
 Cannot built depot here!
 Siia ei saa depood ehitada.
 Cannot create generic line!\nSelect line type by\nusing filter tabs.
-Ei saa luua üldist liini!\nVali liini tüüp\nkasutades sakke.
+Ei saa luua Ã¼ldist liini!\nVali liini tÃ¼Ã¼p\nkasutades sakke.
 #____________________________________ki_text____________________________________
 #____________________________________ki_text____________________________________
 %s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n
-%s nüüd\npakub bussiühendust\n %s\nja\n%svahel\(%i,%i).\n
+%s nÃ¼Ã¼d\npakub bussiÃ¼hendust\n %s\nja\n%svahel\(%i,%i).\n
 %s now\noffers bus services\nbetween %s\nand factory\n%s\nat (%i,%i).\n
-%s nüüd\npakub bussiühendust\n %s\nja\n%svahel\(%i,%i).\n
+%s nÃ¼Ã¼d\npakub bussiÃ¼hendust\n %s\nja\n%svahel\(%i,%i).\n
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
 (in depot)
@@ -66,7 +66,7 @@ Ei saa luua üldist liini!\nVali liini tüüp\nkasutades sakke.
 %d convois
 %d konvoid
 %d Einzelfahrzeuge im Depot
-%d sõidukit siin
+%d sÃµidukit siin
 %i km/h (max. %ikm/h)
 %i km/h(maks. %ikm/h)
 %s building %s %s
@@ -78,47 +78,47 @@ Ei saa luua üldist liini!\nVali liini tüüp\nkasutades sakke.
 %s land %d %s
 %s maa %d %s
 %s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s\nehitas\nuue raekoja\nkui jõudis\n%i elanikuni.
+%s\nehitas\nuue raekoja\nkui jÃµudis\n%i elanikuni.
 %s\nis crowded.
-%s\n on ülerahvastatud
+%s\n on Ã¼lerahvastatud
 <no line>
 <liine pole>
 1 convoi
 1 konvoi
 1 Einzelfahrzeug im Depot
-1 sõiduk siin.
+1 sÃµiduk siin.
 1LIGHT_CHOOSE
 Heledus:
 1WORLD_CHOOSE
-Uue mängu seaded:
+Uue mÃ¤ngu seaded:
 2LIGHT_CHOOSE
-Värvid:
+VÃ¤rvid:
 2WORLD_CHOOSE
 Kaart number:
 3LIGHT_CHOOSE
 Kerimiskiirus:
 4LIGHT_CHOOSE
-Pöördkerimine
+PÃ¶Ã¶rdkerimine
 5LIGHT_CHOOSE
-Jalakäijad peatustes
+JalakÃ¤ijad peatustes
 5WORLD_CHOOSE
 Linnade arv
 6LIGHT_CHOOSE
-Jalakäijad linnas
+JalakÃ¤ijad linnas
 6WORLD_CHOOSE
 Liiklustihedus:
 8WORLD_CHOOSE
-päeva ja öö vaheldumine
+pÃ¤eva ja Ã¶Ã¶ vaheldumine
 A bridge must start on a way!
 Sild peab\nhakkama \nteel.
 Abfrage
-Ülevaatamise vahend
+Ãœlevaatamise vahend
 Abnehmer
 Tarbija
 About
 Teave
 Abriss
-Hävita/Eemalda
+HÃ¤vita/Eemalda
 Absenken
 Madalda maad
 Add Stop
@@ -132,35 +132,35 @@ Lennujaam
 AIRTOOLS
 Lennujaama vahendid
 All
-Kõik
+KÃµik
 Allow player change
-Luba mängija vahetamist
+Luba mÃ¤ngija vahetamist
 Alters a schedule.
-Lisa/eemalda peatus sõiduplaani/sõiduplaanist
+Lisa/eemalda peatus sÃµiduplaani/sÃµiduplaanist
 Angenommene Waren
-Kaubad mida läheduses olevad tööstused vajavad
+Kaubad mida lÃ¤heduses olevad tÃ¶Ã¶stused vajavad
 anhaengen
 Lisama
 Anhaenger_tab
-Järelkärud
+JÃ¤relkÃ¤rud
 Anheben
-Tõsta maad
+TÃµsta maad
 Apply Line
 Rakenda liin
 April
 aprill
 Arbeiter aus:
-Töötajad elavad:
+TÃ¶Ã¶tajad elavad:
 Arrived
-Kohale jõudnud
+Kohale jÃµudnud
 Assets
-Väärtused
+VÃ¤Ã¤rtused
 Aufloesen
-Võta koost lahti
+VÃµta koost lahti
 August
 august
 Autohalt muss auf\nStrasse liegen!\n
-Auto- või bussipeatus \npeab olema \nasetatud teele.
+Auto- vÃµi bussipeatus \npeab olema \nasetatud teele.
 Available
 Kasutatav
 Bahndepot
@@ -174,11 +174,11 @@ Puu
 Baustelle
 Ehitusala
 Beenden
-Välju
+VÃ¤lju
 Beginner mode
 Algaja re?iim
 Besonderes Gebaeude
-Vaatamisväärsus
+VaatamisvÃ¤Ã¤rsus
 BF
 jaam
 bio
@@ -188,17 +188,17 @@ Blockstrecke ist\nbelegt\n
 Boden
 Maa
 Bridge is too long for this type!\n
-Sild on liiga\npikk valitud\nsillatüübi jaoks.
+Sild on liiga\npikk valitud\nsillatÃ¼Ã¼bi jaoks.
 Bruecke
 Sild
 Bruecke muss an\neinfachem\nHang beginnen!\n
-Sillad peavad\nalgama sirgelt\nteelõigult!
+Sillad peavad\nalgama sirgelt\nteelÃµigult!
 Brueckenboden
 sild
 build choosesignals
 Ehita signaale
 Build city market
-Ehita uus market lähimasse linna.
+Ehita uus market lÃ¤himasse linna.
 Build drain
 Trafo
 build HQ
@@ -232,19 +232,19 @@ Ehita suvaline atraktsioon.
 Bus_tab
 Bussid
 Cancel
-Tühista
+TÃ¼hista
 Capacity: %s\nLoad: %d (%d%%)
-Mahutavus: %s\nÂ» %d (%d%%)
+Mahutavus: %s\nÃ‚Â» %d (%d%%)
 Cars are not available yet!
 Autod ei ole veel saadaval.
 Cash
 Kontobilanss
 Change player
-Vaheta mängijat
+Vaheta mÃ¤ngijat
 Chart
 Diagramm
 Choose operation executed on clicking stored/new vehicles
-Vali tegevus vajutades uutele/olemasolevatele sõidukitele
+Vali tegevus vajutades uutele/olemasolevatele sÃµidukitele
 chooses a random map
 Valib juhusliku kaardi.
 citicens
@@ -256,11 +256,11 @@ Linnade nimekiri
 City size
 Linna suurus
 city_road
-Linnatänav
+LinnatÃ¤nav
 CityLimit
 Linna piirid
 cl_title
-Sõidukite nimekiri
+SÃµidukite nimekiri
 cl_txt_sort
 Sordi:
 clf_chk_aircrafts
@@ -278,7 +278,7 @@ liini pole
 clf_chk_noroute
 marsruuti pole
 clf_chk_noschedule
-sõiduplaani pole
+sÃµiduplaani pole
 clf_chk_ships
 Laevad
 clf_chk_spezial_filter
@@ -288,29 +288,29 @@ kinni
 clf_chk_trains
 Rongid
 clf_chk_type_filter
-Filtri tüübid:
+Filtri tÃ¼Ã¼bid:
 clf_chk_waren
 Filtreeri kaupu:
 clf_title
-Sõidukinimekirja filter
+SÃµidukinimekirja filter
 Climate Control
 Sea kliimaolud
 COLOR_CHOOSE\n
 Palun vali \ncolour tabelist:\n
 Constructed by
-Värvis
+VÃ¤rvis
 Constructed by %s
-Värvis %s
+VÃ¤rvis %s
 Construction_Btn
 Ehitus maksab
 convoi %d of %d
 Konvoi number %d %d-st
 Convoi has been sent\nto the nearest depot\nof appropriate type.\n
-Sõiduk on saadetud lähimasse sobivasse depoosse.
+SÃµiduk on saadetud lÃ¤himasse sobivasse depoosse.
 Convoi is sold when all wagons are empty.
-Sõiduk müüakse niipea kui see on täiesti tühi.
+SÃµiduk mÃ¼Ã¼akse niipea kui see on tÃ¤iesti tÃ¼hi.
 CURRENCY
-?
+â‚¬
 Neue Karte
 Uus kaart
 player 2
@@ -324,11 +324,11 @@ Suurus (%d MB):
 %1_CITY_SYLL
 Harju
 %2_CITY_SYLL
-Järve
+JÃ¤rve
 %3_CITY_SYLL
-Põhja
+PÃµhja
 %4_CITY_SYLL
-Põlva
+PÃµlva
 %5_CITY_SYLL
 Kevade
 %6_CITY_SYLL
@@ -342,15 +342,15 @@ Puju
 2center
 %s kesk %s
 2extern
-%s välis %s
+%s vÃ¤lis %s
 3center
-%s põhi %s
+%s pÃµhi %s
 3extern
 %s maa %s
 4center
 %s sise %s
 4extern
-%s välis %s
+%s vÃ¤lis %s
 5center
 %s vahetus %s
 6center

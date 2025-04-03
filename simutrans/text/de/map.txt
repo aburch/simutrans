@@ -3,49 +3,49 @@
 <h1><strong>Kartenfenster</strong></h1>
 
 <p>
-Das Kartenfenster öffnest Du entweder mit dem <em>m</em> auf der Tastatur oder über das <em>Kartensymbol</em> in der Hauptmenüleiste.</p>
+Das Kartenfenster Ã¶ffnest Du entweder mit dem <em>m</em> auf der Tastatur oder Ã¼ber das <em>Kartensymbol</em> in der HauptmenÃ¼leiste.</p>
 <p>
-Die Reliefkarte zeigt die Welt mit allen Objekten wie Industrien, Verkehrswegen, Städten und Fahrzeugen. Du kannst schnell zu jedem beliebigen Ort auf der Karte springen, indem Du die Position in der Reliefkarte anklickst.</p>
+Die Reliefkarte zeigt die Welt mit allen Objekten wie Industrien, Verkehrswegen, StÃ¤dten und Fahrzeugen. Du kannst schnell zu jedem beliebigen Ort auf der Karte springen, indem Du die Position in der Reliefkarte anklickst.</p>
 <p></p>
 <strong>Auswahl</strong>
 <p>
-Blendet die farbigen Schaltflächen ein, mit denen verschiedene Informationen in der Karte hervorgehoben werden können. Wenn nicht anders beschrieben, werden Anzeigen nach einem Farbschema von rot bis blau relativ zueinander eingefärbt.</p>
+Blendet die farbigen SchaltflÃ¤chen ein, mit denen verschiedene Informationen in der Karte hervorgehoben werden kÃ¶nnen. Wenn nicht anders beschrieben, werden Anzeigen nach einem Farbschema von rot bis blau relativ zueinander eingefÃ¤rbt.</p>
 <p>
-<em>Städtenamen</em> blendet die Städtenamen weiss in der Karte ein. (Kann auch durch Drücken der <em>Strg</em>-Taste erreicht werden.<br/>
+<em>StÃ¤dtenamen</em> blendet die StÃ¤dtenamen weiss in der Karte ein. (Kann auch durch DrÃ¼cken der <em>Strg</em>-Taste erreicht werden.<br/>
 <em>Passagiere</em> markiert grob alle Gebiete in Spielerfarbe, welche im Einzugsgebiet von Haltestellen mit Personenverkehr liegen. Eine genaue Anzeige auf der Hauptkarte liefert die Taste <em>v</em>.<br/>
-<em>Post</em>markiert grob alle Gebiete in Spielerfarbe, welche im Einzugsgebiet von Haltestellen mit Briefkästen bzw. Postämtern liegen.<br/>
-<em>Fracht</em> zeigt, wieviel Fracht (Einheiten von Passagieren und Gütern) auf den Verkehrswegen transportiert wird.<br/>
+<em>Post</em>markiert grob alle Gebiete in Spielerfarbe, welche im Einzugsgebiet von Haltestellen mit BriefkÃ¤sten bzw. PostÃ¤mtern liegen.<br/>
+<em>Fracht</em> zeigt, wieviel Fracht (Einheiten von Passagieren und GÃ¼tern) auf den Verkehrswegen transportiert wird.<br/>
 <em>Haltstatus</em> zeigt an, ob an einer Haltestelle unzufriedene Passagiere erzeugt werden. Die gleiche Anzeigefarbe wird auch in der <a href="haltlist.txt">Haltestellenliste</a> und im Statusbalken beim <a href="station.txt">Haltestellennamen</a> verwendet.<br/>
 <em>An-/Abfahrten</em> zeigt an, wieviele Fahrten zu und ab einer Haltestelle gegangen sind.<br/>
 <em>Verkehr</em> zeigt die Auslastung einer Strecke an.<br/>
 <em>Abfahrtsort</em> zeigt an, wieviele Waren und Personen diese Haltestelle als Ausgangspunkt haben.<br/>
 <em>Zielort</em> zeigt an, wieviele Waren und Personen diese Haltestelle als Endpunkt haben.<br/>
-<em>Wartend</em> zeigt an, wieviele Waren und Personen an einer Haltestelle auf Beförderung warten.<br/>
-<em>Gleistrassen</em> hebt Eisenbahnlinien weiß hervor; elektrifizierte Bahnstrecken werden braun hervorgehoben. Signale werden mit gelben Punkten markiert.<br/>
-<em>Tempolimit</em> zeigt Höchstgeschwindigkeiten auf Straßen und Schienen an.<br/>
-<em>Freileitungen</em> trägt die Hochspannungsleitungen in die Karte ein. Die Farbe kodiert die aktuelle Stromleistung beim öffnen der Karte (wird nicht automatisch aktualisiert!).<br/>
-<em>Attraktionen</em> vergrößert die eingetragenen Touristenattraktionen in der Karte und färbt sie nach ihrem Passagieraufkommen ein.<br/>
-<em>Fabriken</em> vergrößert die Anzeige der Industrien in der Karte.
+<em>Wartend</em> zeigt an, wieviele Waren und Personen an einer Haltestelle auf BefÃ¶rderung warten.<br/>
+<em>Gleistrassen</em> hebt Eisenbahnlinien weiÃŸ hervor; elektrifizierte Bahnstrecken werden braun hervorgehoben. Signale werden mit gelben Punkten markiert.<br/>
+<em>Tempolimit</em> zeigt HÃ¶chstgeschwindigkeiten auf StraÃŸen und Schienen an.<br/>
+<em>Freileitungen</em> trÃ¤gt die Hochspannungsleitungen in die Karte ein. Die Farbe kodiert die aktuelle Stromleistung beim Ã¶ffnen der Karte (wird nicht automatisch aktualisiert!).<br/>
+<em>Attraktionen</em> vergrÃ¶ÃŸert die eingetragenen Touristenattraktionen in der Karte und fÃ¤rbt sie nach ihrem Passagieraufkommen ein.<br/>
+<em>Fabriken</em> vergrÃ¶ÃŸert die Anzeige der Industrien in der Karte.
 </p><p>
 <em>Depots</em> Hebt alle Depots in orange, gelb, rot und rosa hevor, je nach Wegtyp.
 <br/>
-<em>Wälder</em> Geschlossene Waldgebiete (mit mehr als zwei Bäumen pro Kachel) werden hellgrün hervorgehoben.
+<em>WÃ¤lder</em> Geschlossene Waldgebiete (mit mehr als zwei BÃ¤umen pro Kachel) werden hellgrÃ¼n hervorgehoben.
 <br/>
-<em>Stadtgrenzen:</em> Umrahmungen der Stadtgebiete, d.h. alle Gebiete, die zu einer Stadt direkt gehören.
+<em>Stadtgrenzen:</em> Umrahmungen der Stadtgebiete, d.h. alle Gebiete, die zu einer Stadt direkt gehÃ¶ren.
 <br/>
-<em>Reiseziele:</em> Falls eine Stadt ausgewählt ist, werden die Reiseziele dieser Stadt auf der Karte angezeigt (analog zu der kleinen Karte der <a href="citywindow.txt">Stadtinformation</a>.
+<em>Reiseziele:</em> Falls eine Stadt ausgewÃ¤hlt ist, werden die Reiseziele dieser Stadt auf der Karte angezeigt (analog zu der kleinen Karte der <a href="citywindow.txt">Stadtinformation</a>.
 </p>
 <p>
 <strong>Werteskala</strong><br>
-Blendet den Balken ein, der die Farben zeigt, nach denen einige Objektauswahlen bestimmte Kartenbereiche entsprechend dem dargestellten Wert einfärben.
+Blendet den Balken ein, der die Farben zeigt, nach denen einige Objektauswahlen bestimmte Kartenbereiche entsprechend dem dargestellten Wert einfÃ¤rben.
 </p>
 <p>
 <strong>Industrieliste</strong><br>
 Farbskala der Industrien.
 </p>
 <p>
-<strong>Vergrößerung</strong><br>
-Wähle die Vergrößerung von 1:6 bis 16:1 <em>Pfeilschalter</em> oder <em>Mausrad</em>.<br>
+<strong>VergrÃ¶ÃŸerung</strong><br>
+WÃ¤hle die VergrÃ¶ÃŸerung von 1:6 bis 16:1 <em>Pfeilschalter</em> oder <em>Mausrad</em>.<br>
 Bei 1:1 entspricht eine Kachel einem Pixel auf der Karte.
 </p>
 <p>
@@ -59,6 +59,6 @@ Die Reliefkarte wird analog zur Spielfeld-Ausrichtung ausgerichtet.
 Hinweis: Sollte nichts angezeigt werden, dann einmal in das Kartenfenster klicken.
 </p>
 <p>
-<strong>Linienpläne</strong><br>
-Bei geöffneter <a href="linemanagement.txt">Linienverwaltung</a> wird die dort markierte Linie in der Reliefkarte angezeigt.
+<strong>LinienplÃ¤ne</strong><br>
+Bei geÃ¶ffneter <a href="linemanagement.txt">Linienverwaltung</a> wird die dort markierte Linie in der Reliefkarte angezeigt.
 </p>

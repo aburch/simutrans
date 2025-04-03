@@ -23,7 +23,7 @@ Para construir un canal: pulsa en la herramienta para seleccionar (el cursor cam
 Para eliminar un canal: pulsa en la herramienta (el cursor cambia de forma, una cruz); despues pulsa en el canal a eliminar (en el punto seleccionado se muestra una cruz roja); y por ultimo pulsa en otro punto del canal, removiendo dicha parte del canal hasta el punto inicial.
 </p>
 <p>
-<em>Puente levadizo:</em> herramienta que construy una esclusa y un puente levadizo para elevar/descender un barco o barcaza a otro nivel en un canal. El puente tiene un tamaño maximo y se construye al final del canal, en un lugar adecuado (otro canal en terreno elevado, sin limite).<br>
+<em>Puente levadizo:</em> herramienta que construy una esclusa y un puente levadizo para elevar/descender un barco o barcaza a otro nivel en un canal. El puente tiene un tamaÃ±o maximo y se construye al final del canal, en un lugar adecuado (otro canal en terreno elevado, sin limite).<br>
 Para construir un puente: pulsa en la herramienta para seleccionar puente levadizo (el cursor cambia de forma, un puente), pulsa en el final del canal. Algunos obstaculos o la falta de espacio adecuado para el final de puente puede hacer que no se construya: construye un canal a ambos lados para crear el puente levadizo, y prueba de nuevo.<br>
 {Tips: Use Destroy/Remove to remove bridges (click on hoist-end) & some obstructions to bridge building.<br>
 Use <em>Canal</em> tools to connect bridge-ends to water ways.}.
@@ -43,7 +43,7 @@ Un puerto, cuando no es construido adyacente a una <a href="station.txt">Parada<
 La Parada del Canal tiene un area de influencia para mercancias, pasajeros y correo. La esquina del icono de la herramienta es un mini icono que (usado en la <a href="haltlist.txt">Lista de Estaciones</a> y en la ventana de <a href="station.txt">Informacion de la Parada</a>) muestra que elementos permite manejar el puerto, a una parada. Los diferentes puertos pueden tener diferente capacidad para mercancias, pasajeros y correo. <br>
 Para construir un puerto: pulsa en la herramienta seleccionada (el cursor cambia de forma, un puerto) y despues pulsa en una zona de la costa, cerca del agua<br>
 {Consejos: Elimina los puertos mediante la herramienta Eliminar.<br>
-El tamaño de los puertos se puede aumentar, construyendo en cuadriculas adyacentes. Los transportes maritimos pueden usar cualquier cuadricula del agua dentro del area influencia de un puerto.<br>
+El tamaÃ±o de los puertos se puede aumentar, construyendo en cuadriculas adyacentes. Los transportes maritimos pueden usar cualquier cuadricula del agua dentro del area influencia de un puerto.<br>
 Las Paradas maritimas no aparecen en la <a href="haltlist.txt">Lista de Estaciones/Paradas</a>.<br>
 La <a href="industry_info.txt">Industria</a> maritima tal como Plataformas Petroliferas no requieren un puerto, los vehiculos maritimos pueden usar cualquier cuadricula dentro del area de influencia de una Industria maritima.<br>
 Pulsa la tecla [v] para mostrar/ocultar el area de influencia para mercancias y pasajeros.}

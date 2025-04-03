@@ -3,18 +3,18 @@
 <h1><strong>Strumento rimozione</strong></h1>
 
 <p>
-Lo <strong>strumento rimozione</strong> Ë usato per distruggere e rimuovere gli elementi non voluti e gli ostacoli alle costruzioni sul singolo quadrato nella <a href="window.txt">vista di gioco</a>.
+Lo <strong>strumento rimozione</strong> √® usato per distruggere e rimuovere gli elementi non voluti e gli ostacoli alle costruzioni sul singolo quadrato nella <a href="window.txt">vista di gioco</a>.
 </p>
 <p>
 Utilizzo: clicca sull'icona con la croce rossa (<it>bulldozer</it> nel pak128) in cima alla vista di gioco o premi <a href="keys.txt">[a]</a> per aprire lo <strong>strumento di rimozione</strong> (cambia il cursore in una croce rossa sopra una nuvola di polvere).<br>
-Posizionare il cursore sulla vista di gioco e un bordo giallo indicher‡ la posizione dove lo strumento far‡ effetto (le coordinate sulla mappa saranno riportate nella barra in fondo). Poi clicca sull'elemento nella vista di gioco per rimuovere.
+Posizionare il cursore sulla vista di gioco e un bordo giallo indicher√† la posizione dove lo strumento far√† effetto (le coordinate sulla mappa saranno riportate nella barra in fondo). Poi clicca sull'elemento nella vista di gioco per rimuovere.
 </p>
 <p>
-Il costo dell'operazione Ë riportato nella vista di gioco sotto il <a href="finances.txt">sito di costruzione</a>. Esso sar‡ uguale al costo di costruzione.<br>
-Il costo di distruzione degli <a href="inspection_tool.txt">edifici cittadini</a> Ë riportato nella finestra di dialogo aperta con lo <it>strumento ispezione</it>. Per tagliare un albero sono necessari 100 crediti.
+Il costo dell'operazione √® riportato nella vista di gioco sotto il <a href="finances.txt">sito di costruzione</a>. Esso sar√† uguale al costo di costruzione.<br>
+Il costo di distruzione degli <a href="inspection_tool.txt">edifici cittadini</a> √® riportato nella finestra di dialogo aperta con lo <it>strumento ispezione</it>. Per tagliare un albero sono necessari 100 crediti.
 </p>
 <p>
-<strong>Strumento rimozione</strong> puÚ essere usato per rimuovere pedoni e auto cittadine.
+<strong>Strumento rimozione</strong> pu√≤ essere usato per rimuovere pedoni e auto cittadine.
 </p>
 <p>
 Gli elementi presenti nel singolo quadrato di gioco sono rimossi nell'ordine: pedoni o auto private, segnali, fermate o piattaforme, elettrificazioni, strade.

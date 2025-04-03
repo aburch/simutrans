@@ -1,22 +1,22 @@
 <title>Spielerliste</title>
 
-<h1><strong>Spieler Menü</strong></h1>
+<h1><strong>Spieler MenÃ¼</strong></h1>
 
 <p>
-Im Spieler-Menü sind alle Spieler aufgelistet.<br>
+Im Spieler-MenÃ¼ sind alle Spieler aufgelistet.<br>
 Ganz oben befindet sich der menschliche Spieler.<br>
-Darunter befindet sich die <em>Öffentliche Hand</em>. Die öffentliche Hand kümmert sich nur um den Ausbau der Städte und Industrien sowie Sehenswürdigkeiten und Denkmälern.</p>
+Darunter befindet sich die <em>Ã–ffentliche Hand</em>. Die Ã¶ffentliche Hand kÃ¼mmert sich nur um den Ausbau der StÃ¤dte und Industrien sowie SehenswÃ¼rdigkeiten und DenkmÃ¤lern.</p>
 <p>
-Wenn Du auf den Pfeil vor dem jeweiligen Spieler klickst, dann wechselst Du zu diesem Spieler. Voraussetzung dafür ist, das der Spielerwechsel nicht deaktiviert wurde.</p>
+Wenn Du auf den Pfeil vor dem jeweiligen Spieler klickst, dann wechselst Du zu diesem Spieler. Voraussetzung dafÃ¼r ist, das der Spielerwechsel nicht deaktiviert wurde.</p>
 <p>
-Darunter befinden sich mehrere Felder, wo weitere Spieler (KI-Spieler) ausgewählt werden können. Ist das Feld grau, so ist noch kein Spieler ausgewählt. Nach der Auswahl eines Spielers, erscheint vor dem Feld eine kleine Schaltfläche, mit der der Spieler aktiviert und deaktiviert werden kann.</p>
+Darunter befinden sich mehrere Felder, wo weitere Spieler (KI-Spieler) ausgewÃ¤hlt werden kÃ¶nnen. Ist das Feld grau, so ist noch kein Spieler ausgewÃ¤hlt. Nach der Auswahl eines Spielers, erscheint vor dem Feld eine kleine SchaltflÃ¤che, mit der der Spieler aktiviert und deaktiviert werden kann.</p>
 <p>
-Aktivierte Computerspieler (KI-Spieler) werden sich alsbald auf die Suche nach neuen Transportmöglichkeiten machen und eigene Linien eröffnen. Wenn Du den KI-Spieler wieder deaktivierst, wird er keine neuen Verbindungen mehr suchen, den bisherigen Betrieb aber weiterführen.</p>
+Aktivierte Computerspieler (KI-Spieler) werden sich alsbald auf die Suche nach neuen TransportmÃ¶glichkeiten machen und eigene Linien erÃ¶ffnen. Wenn Du den KI-Spieler wieder deaktivierst, wird er keine neuen Verbindungen mehr suchen, den bisherigen Betrieb aber weiterfÃ¼hren.</p>
 <p>
-<em>KI-Spieler:</em> Die Firmennamen der KI-Spieler stehen auf Schaltflächen, die die Spielerfarben des entsprechenden KI-Spielers tragen. Drücke eine dieser Schaltflächen, um dessen <a href="finances.txt">Finanzfenster</a> einzusehen.
-Das aktuelle Barvermögen der KI-Spieler wird rechts angezeigt.</p>
+<em>KI-Spieler:</em> Die Firmennamen der KI-Spieler stehen auf SchaltflÃ¤chen, die die Spielerfarben des entsprechenden KI-Spielers tragen. DrÃ¼cke eine dieser SchaltflÃ¤chen, um dessen <a href="finances.txt">Finanzfenster</a> einzusehen.
+Das aktuelle BarvermÃ¶gen der KI-Spieler wird rechts angezeigt.</p>
 <p>
-Unter der Liste mit den Spielern befindet sich die Option <em>Ohne Bankrott</em>. Aktivierst Du diese Option, dann gehen die Spieler (und du selbst) nicht Pleite, wenn das Gesamtvermögen negativ wird.</p>
+Unter der Liste mit den Spielern befindet sich die Option <em>Ohne Bankrott</em>. Aktivierst Du diese Option, dann gehen die Spieler (und du selbst) nicht Pleite, wenn das GesamtvermÃ¶gen negativ wird.</p>
 <p>
-Für Spiele im Netzwerkmodus können Spieler passwortgeschützt werden. Ein passwortgeschützter Spieler ist durch ein rotes Kästchen neben dem Namen markiert. Ist kein Passwort gesetzt oder der Spieler freigeschaltet, ist dieses Kästchen grün. Durch Klick auf das Kästchen öffnet sich ein Dialog zur Passworteingabe.
+FÃ¼r Spiele im Netzwerkmodus kÃ¶nnen Spieler passwortgeschÃ¼tzt werden. Ein passwortgeschÃ¼tzter Spieler ist durch ein rotes KÃ¤stchen neben dem Namen markiert. Ist kein Passwort gesetzt oder der Spieler freigeschaltet, ist dieses KÃ¤stchen grÃ¼n. Durch Klick auf das KÃ¤stchen Ã¶ffnet sich ein Dialog zur Passworteingabe.
 </p>

@@ -27,7 +27,7 @@ De izquierda a derecha, las columnas seleccionan los criterios para mostrar los 
 Pulsa en los botones cuadrados para seleccionar las opciones del mensaje para los siguientes mensajes:
 </p>
 <p>
-<em>Año nuevo:</em> un nuevo periodo de 12 meses ha comenzado.
+<em>AÃ±o nuevo:</em> un nuevo periodo de 12 meses ha comenzado.
 </p>
 <p>
 <em>Noticias de la IA :</em> un <a href="players.txt">jugador</a> controlado por la maquina ha abierto una nueva linea.

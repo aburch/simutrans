@@ -3,12 +3,12 @@
 <h1><strong>Sprachauswahl</strong></h1>
 
 <p>
-Über die Sprachauswahl kannst Du die Sprache einstellen, in der Simutrans angezeigt wird. Wenn die Sprache vor dem Erzeugen einer neuen Karte ausgewählt wird, werden auch die Ortsnamen in der entsprechenden Sprache erstellt.
+Ãœber die Sprachauswahl kannst Du die Sprache einstellen, in der Simutrans angezeigt wird. Wenn die Sprache vor dem Erzeugen einer neuen Karte ausgewÃ¤hlt wird, werden auch die Ortsnamen in der entsprechenden Sprache erstellt.
 </p>
 <p>
-Die Sprache kann jederzeit geändert werden. Geöffnete Dialoge behalten teilweise die alte Sprache bei und werden erst nach erneutem Öffnen in der neuen Sprache angezeigt.
+Die Sprache kann jederzeit geÃ¤ndert werden. GeÃ¶ffnete Dialoge behalten teilweise die alte Sprache bei und werden erst nach erneutem Ã–ffnen in der neuen Sprache angezeigt.
 </p> 
 <p>
-Du kannst helfen, Simutrans in andere Sprachen zu übersetzen.<br>
-Gehe dafür auf https://translator.simutrans.com
+Du kannst helfen, Simutrans in andere Sprachen zu Ã¼bersetzen.<br>
+Gehe dafÃ¼r auf https://translator.simutrans.com
 </p>

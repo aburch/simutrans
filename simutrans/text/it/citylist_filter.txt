@@ -1,17 +1,17 @@
-<title>lista citt‡</title>
+<title>lista citt√†</title>
 
-<h1><strong>Lista citt‡</strong></h1>
+<h1><strong>Lista citt√†</strong></h1>
 
 <p>
-<strong>Lista citt‡</strong> visualizza i dettagli sulle <a href="citywindow.txt">aree urbane</a> (villaggi, paesi e citt‡) popolazioni.
+<strong>Lista citt√†</strong> visualizza i dettagli sulle <a href="citywindow.txt">aree urbane</a> (villaggi, paesi e citt√†) popolazioni.
 </p>
 <p>
-Per aprire: clicca sullo strumento Lista citt‡ nella <a href="list.txt">Gestione liste</a> o premi <a href="keys.txt">[T]</a>.<br>
-<strong>Lista citt‡</strong> ha due pulsanti opzione che determinano l'ordine in cui le aree urbane (e le loro popolazioni) sono presentate.<br>
-{Consiglio: Se le voci nella lista sono solo parzialmente visibili, <a href="mouse.txt">modifica la dimensione</a> di <strong>Lista citt‡</strong> oppure muovi la lista con lo slider.}
+Per aprire: clicca sullo strumento Lista citt√† nella <a href="list.txt">Gestione liste</a> o premi <a href="keys.txt">[T]</a>.<br>
+<strong>Lista citt√†</strong> ha due pulsanti opzione che determinano l'ordine in cui le aree urbane (e le loro popolazioni) sono presentate.<br>
+{Consiglio: Se le voci nella lista sono solo parzialmente visibili, <a href="mouse.txt">modifica la dimensione</a> di <strong>Lista citt√†</strong> oppure muovi la lista con lo slider.}
 </p>
 <p>
-<em>Abitanti totali:</em> Ë il numero totale di cittadini nel gioco (la popolazione di tutte le aree urbane). La variazione di popolazione Ë riportata tra parentesi.
+<em>Abitanti totali:</em> √® il numero totale di cittadini nel gioco (la popolazione di tutte le aree urbane). La variazione di popolazione √® riportata tra parentesi.
 </p>
 <p>
 <em>Ordinati per:</em> ha le opzioni per determinare l'ordine delle aree urbane elencate nella lista.<br>
@@ -20,17 +20,17 @@ Clicca sul pulsante opzione per muoversi tra le opzioni (cambia il nome del bott
 <p>
 - <em>Nome</em> ordina alfanumericamente secondo il codice ASCII (le lettere maiuscole sono prima delle minuscole) i<a href="convoi_info.txt">nomi</a> assegnati.<br>
 - <em>Cittadini</em> ordina secondo la popolazione.<br>
-- <em>Crescita popolazione</em> ordine secondo la crescita (che Ë dipendente dalle dimensioni dell'area urbana e dal numero numero di passeggeri trasportati).
+- <em>Crescita popolazione</em> ordine secondo la crescita (che √® dipendente dalle dimensioni dell'area urbana e dal numero numero di passeggeri trasportati).
 </p>
 <p>
 - <em>Ascendente</em> / <em>Discendente</em> inverte l'ordine della lista.
 </p>
 <p>
-Cliacca su un elemento della<strong>Lista citt‡</strong>per vedere pi˘ <a href="citywindow.txt">informazioni</a> circa l'area urbana.<br>
+Cliacca su un elemento della<strong>Lista citt√†</strong>per vedere pi√π <a href="citywindow.txt">informazioni</a> circa l'area urbana.<br>
 Per ogni area sono riportati:
 </p>
 <p>
-<em>nome</em> assegnato all'area urbana (puÚ essere cambiata nelle Informazioni citt‡)..
+<em>nome</em> assegnato all'area urbana (pu√≤ essere cambiata nelle Informazioni citt√†)..
 </p>
 <p>
 <em>numero di abitanti</em> dell'area urbana, con l'aumento di popolazione tra parentesi.

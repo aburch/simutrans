@@ -34,7 +34,7 @@ Entre parentesis, el limite maximo de velocidad del Convoy (determinado por la u
 La barra verde indica la velocidad actual en relacion al limite maximo de velocidad.
 </p>
 <p>
-- <em>Ingresos:</em> beneficios generados por el vehiculo (ingresos generados restando los costes de operacion) en el año actual de juego.<br>
+- <em>Ingresos:</em> beneficios generados por el vehiculo (ingresos generados restando los costes de operacion) en el aÃ±o actual de juego.<br>
 Entre parentesis, el coste operacional del Convoy en creditos Hajo por cuadricula.
 </p>
 <p>

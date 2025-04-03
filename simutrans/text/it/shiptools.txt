@@ -2,16 +2,16 @@
 
 <h1>Finestra Strumenti Imbarcazioni</h1>
 <p>
-Questa finestra d‡ accesso a tutti i tool con i quali si possono
+Questa finestra d√† accesso a tutti i tool con i quali si possono
 costruire depositi di imbarcazioni e porti.
 </p>
 <p>
-Il primo strumento a sinistra Ë quello per costruire un porto.
+Il primo strumento a sinistra √® quello per costruire un porto.
 Selezionandolo, il cursore si trasforma in un porto.
 I porti sono utilizzati per consentire alle imbarcazioni di caricare e
-scaricare merci e passeggeri provenienti da fabbriche e citt‡ vicine.
+scaricare merci e passeggeri provenienti da fabbriche e citt√† vicine.
 Per costruire un porto, si faccia clic su un bordo (rettilineo) di
-costa: verr‡ creato un porto composto da due caselle.
+costa: verr√† creato un porto composto da due caselle.
 Si possono costruire porti anche molto grandi, tanto quanto la
 conformazione delle coste lo permette, ripetendo l'operazione
 precedente su porzioni di costa adiacenti.
@@ -27,6 +27,6 @@ si affaccia sulla sinistra, l'altro sulla destra.
 Selezionando uno di essi, il cursore assume la forma di un deposito.
 I depositi sono usati per costruire tutti i possibili tipi di
 imbarcazioni che sono disponibili.
-Per posizionare un deposito Ë sufficiente fare clic sulla porzione
+Per posizionare un deposito √® sufficiente fare clic sulla porzione
 d'acqua in cui lo si vuole mettere.
 </p>

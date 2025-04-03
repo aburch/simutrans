@@ -3,32 +3,32 @@
 <h1><strong>Erweiterte Einstellungen</strong></h1>
 
 <p>
-In den erweiterten Einstellungen können alle Parameter verändert werden, die auch dauerhaft per in der Konfigurationsdatei (<it>simuconf.tab</it>) gespeichert sind. Der Name des jeweiligen Parameter ist identisch mit dem in der Konfigurationsdatei.
+In den erweiterten Einstellungen kÃ¶nnen alle Parameter verÃ¤ndert werden, die auch dauerhaft per in der Konfigurationsdatei (<it>simuconf.tab</it>) gespeichert sind. Der Name des jeweiligen Parameter ist identisch mit dem in der Konfigurationsdatei.
 </p>
 <p>
-<strong>Achtung!</strong> Wenn die Bedeutung eines Parameters nicht bekannt ist, dann sollte dieser nicht verändert werden. Einige Parameterkombinationen können Simutrans unspielbar machen oder zu Abstürzen führen.
+<strong>Achtung!</strong> Wenn die Bedeutung eines Parameters nicht bekannt ist, dann sollte dieser nicht verÃ¤ndert werden. Einige Parameterkombinationen kÃ¶nnen Simutrans unspielbar machen oder zu AbstÃ¼rzen fÃ¼hren.
 </p>
 <p>
-Die Parameter können mittels <it>simuconf.tab</it> auf die Standardwerte zurückgesetzt werden. Mittels <em>Default.sve</em> wird der Stand des letzten gestarteteten Spiels wieder geladen.
+Die Parameter kÃ¶nnen mittels <it>simuconf.tab</it> auf die Standardwerte zurÃ¼ckgesetzt werden. Mittels <em>Default.sve</em> wird der Stand des letzten gestarteteten Spiels wieder geladen.
 </p>
 
 Es gibt dabei vier Unterkategorien:
 
-<p>· Allgemeines:<br/>
-Einstellungen zur Anzeige und zum Zeitablauf. Nützlich dürfte insbesondere <em>autosave</em> sein, welches den Abstand zwischen automatisch gespeicherten Spielständen in Monaten angibt.
+<p>Â· Allgemeines:<br/>
+Einstellungen zur Anzeige und zum Zeitablauf. NÃ¼tzlich dÃ¼rfte insbesondere <em>autosave</em> sein, welches den Abstand zwischen automatisch gespeicherten SpielstÃ¤nden in Monaten angibt.
 </p>
-<p>· Wirtschaft &amp; Städte:<br/>
-Hier befinden sich alle Einstellungen für das Wirtschaftsystem und das Wachstum von Städten.
+<p>Â· Wirtschaft &amp; StÃ¤dte:<br/>
+Hier befinden sich alle Einstellungen fÃ¼r das Wirtschaftsystem und das Wachstum von StÃ¤dten.
 </p>
-<p>· Verbindungen:<br/>
-Hier können die Einstellungen für Waren- und Passagierverbindungen, sowei für den Wegebau eingestellt werden.
+<p>Â· Verbindungen:<br/>
+Hier kÃ¶nnen die Einstellungen fÃ¼r Waren- und Passagierverbindungen, sowei fÃ¼r den Wegebau eingestellt werden.
 </p>
-<p>· Kosten:<br/>
-Diese Seite enthält alle Kosten, die in Simutrans nicht durch pak-Dateien vorgegeben sind. Dies sind vor allem Instandhaltungs- und Wartungskosten sowie Kosten für Aufschüttungen.
+<p>Â· Kosten:<br/>
+Diese Seite enthÃ¤lt alle Kosten, die in Simutrans nicht durch pak-Dateien vorgegeben sind. Dies sind vor allem Instandhaltungs- und Wartungskosten sowie Kosten fÃ¼r AufschÃ¼ttungen.
 </p>
 <p>
 Die komplette Beschreibung aller Einstellungen findet sich in der Konfigurationsdatei <it>simuconf.tab</it> in Verzeichnis <it>config</it> im Programmverzeichnis.
 </p>
 <p>
-Die meisten Parameteränderungen nur vor dem Start eines Spieles möglich. Einige können auch durch Speichern und erneutes Laden aktiviert werden.
+Die meisten ParameterÃ¤nderungen nur vor dem Start eines Spieles mÃ¶glich. Einige kÃ¶nnen auch durch Speichern und erneutes Laden aktiviert werden.
 </p>

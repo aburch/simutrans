@@ -3,31 +3,31 @@
 <h1><strong>Fahrzeugliste</strong></h1>
 
 <p>
-Die Fahrzeugliste wird über die <a href="list.txt">Listenverwaltung</a> oder mit <em>Shift</em>+<em>V</em> aufgerufen und beinhaltet alle Fahrzeugverbände, also Züge, Busse, LKWs, Trams, Flugzeuge, Schiffe und Magnetbahnen des Spielers. In die Liste sind eine Sortier- und eine Filterfunktion eingebaut, um unter vielen Fahrzeugverbänden den gesuchten schneller auffinden zu können.<br/>
-Der <em>Filter</em> kann entweder "an" oder "aus" sein. Wenn Du einen Fahrzeugverband nicht findest, wähle die Filtereinstellung "aus". Die Voreinstellung ist "aus". Über <a href="convoi_filter.txt"><em>einstellen</em></a> können die Filterkriterien ausgewählt werden.
+Die Fahrzeugliste wird Ã¼ber die <a href="list.txt">Listenverwaltung</a> oder mit <em>Shift</em>+<em>V</em> aufgerufen und beinhaltet alle FahrzeugverbÃ¤nde, also ZÃ¼ge, Busse, LKWs, Trams, Flugzeuge, Schiffe und Magnetbahnen des Spielers. In die Liste sind eine Sortier- und eine Filterfunktion eingebaut, um unter vielen FahrzeugverbÃ¤nden den gesuchten schneller auffinden zu kÃ¶nnen.<br/>
+Der <em>Filter</em> kann entweder "an" oder "aus" sein. Wenn Du einen Fahrzeugverband nicht findest, wÃ¤hle die Filtereinstellung "aus". Die Voreinstellung ist "aus". Ãœber <a href="convoi_filter.txt"><em>einstellen</em></a> kÃ¶nnen die Filterkriterien ausgewÃ¤hlt werden.
 </p>
 <p>
 <em>Anzeigen in der Fahrzeugliste:</em><br>
-· Eine Ordnungszahl. Diese nummeriert nur die Liste durch und hat keinen Bezug zum Fahrzeugverband dahinter.<br>
-· Der Name (per Vorgabe der Name des ersten Fahrzeugs, das in den Fahrzeugverband eingereiht wurde).<br>
-· Der Gewinn des Fahrzeugverbandes für das laufende Jahr.<br>
-· Die Linie, welche dem Fahrzeugverband zugewiesen ist. Ist dem Fahrzeugverband keine Linie zugewiesen, wird auch nichts angezeigt. Bei Fahrzeugverbänden, die sich im Depot befinden, wird hier "(in depot)" angezeigt.<br>
-· Ein Bild des Fahrzeugverbandes, mit einem Balken für den aktuellen Ladegrad (siehe <a href="convoiinfo.txt">Fahrezugfenster</a>).
+Â· Eine Ordnungszahl. Diese nummeriert nur die Liste durch und hat keinen Bezug zum Fahrzeugverband dahinter.<br>
+Â· Der Name (per Vorgabe der Name des ersten Fahrzeugs, das in den Fahrzeugverband eingereiht wurde).<br>
+Â· Der Gewinn des Fahrzeugverbandes fÃ¼r das laufende Jahr.<br>
+Â· Die Linie, welche dem Fahrzeugverband zugewiesen ist. Ist dem Fahrzeugverband keine Linie zugewiesen, wird auch nichts angezeigt. Bei FahrzeugverbÃ¤nden, die sich im Depot befinden, wird hier "(in depot)" angezeigt.<br>
+Â· Ein Bild des Fahrzeugverbandes, mit einem Balken fÃ¼r den aktuellen Ladegrad (siehe <a href="convoiinfo.txt">Fahrezugfenster</a>).
 </p>
 <p>
 Die Farbe des Names des Fahrzeuges hat folgende Bedeutung:<br>
 - <em>schwarz:</em> alles ok.<br>
 - <em>rot:</em> Erwirtschaftet keinen Profit.<br>
-- <em>weiß:</em> Steht in einem Depot.<br>
+- <em>weiÃŸ:</em> Steht in einem Depot.<br>
 - <em>gelb:</em> Steht seit Jahresbeginn (vermutlich an einer Haltestelle und wartet auf Fracht).<br>
 - <em>orange:</em> Steckt fest oder findet keine Weg zum Ziel.<br>
 </p>
 <p>
-<em>Sortierkriterien:</em> Die Sortierung der Fahrzeugliste kann nach 3 Sortierkriterien erfolgen. Die Anzeige-Reihenfolge wird nur beim Öffenen des Fensters und bei der Änderung der Sortierkriterien aktualisiert.
+<em>Sortierkriterien:</em> Die Sortierung der Fahrzeugliste kann nach 3 Sortierkriterien erfolgen. Die Anzeige-Reihenfolge wird nur beim Ã–ffenen des Fensters und bei der Ã„nderung der Sortierkriterien aktualisiert.
 </p>
 <p>
-· <em>Bezeichnung:</em> Die Sortierung erfolgt in der Namensreihenfolge. Sie orientiert sich am ASCII-Code der Zeichen, also Zahlen, danach Großbuchstaben, danach Kleinbuchstaben, jeweils in numerischer bzw. alphabetischer Reihenfolge.<br/>
-· <em>Gewinn:</em> Die Fahrzeugverbände werden nach ihrem im laufenden Jahr erzielten Gewinn (Einnahmen-Betriebskosten) sortiert.<br/>
-· <em>Typ:</em> Die Liste wird nach Fahrzeugtypen sortiert. Die Typreihenfolge ist: Straßenfahrzeuge, Schienenfahrzeuge, Schiffe, Flugzeuge. Gleiche Zugmaschinen werden zusammengefasst. Innerhalb einer Fahrzeugkategorie wird alphanumerisch sortiert.<br/>
-· <em>aufsteigend/absteigend:</em> Stellt die Liste auf den Kopf. Bei aufsteigend stehen die kleinsten Werte oben, bei absteigend die größten.
+Â· <em>Bezeichnung:</em> Die Sortierung erfolgt in der Namensreihenfolge. Sie orientiert sich am ASCII-Code der Zeichen, also Zahlen, danach GroÃŸbuchstaben, danach Kleinbuchstaben, jeweils in numerischer bzw. alphabetischer Reihenfolge.<br/>
+Â· <em>Gewinn:</em> Die FahrzeugverbÃ¤nde werden nach ihrem im laufenden Jahr erzielten Gewinn (Einnahmen-Betriebskosten) sortiert.<br/>
+Â· <em>Typ:</em> Die Liste wird nach Fahrzeugtypen sortiert. Die Typreihenfolge ist: StraÃŸenfahrzeuge, Schienenfahrzeuge, Schiffe, Flugzeuge. Gleiche Zugmaschinen werden zusammengefasst. Innerhalb einer Fahrzeugkategorie wird alphanumerisch sortiert.<br/>
+Â· <em>aufsteigend/absteigend:</em> Stellt die Liste auf den Kopf. Bei aufsteigend stehen die kleinsten Werte oben, bei absteigend die grÃ¶ÃŸten.
 </p>

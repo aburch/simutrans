@@ -10,45 +10,45 @@ Inoltre, nell'angolo in alto a sinistra appare una finestra per la
 selezione della lingua di gioco.
 </p>
 <p>
-Il primo parametro Ë il numero della mappa. Esso determina il 'layout'
-della mappa, ad es. quantit‡ e dislocazione dell'acqua, delle colline,
-degli alberi, la posizione delle citt‡ e delle fabbriche.
+Il primo parametro √® il numero della mappa. Esso determina il 'layout'
+della mappa, ad es. quantit√† e dislocazione dell'acqua, delle colline,
+degli alberi, la posizione delle citt√† e delle fabbriche.
 Viene mostrata un'anteprima per ogni mappa. Il numero di mappa di
-default Ë 33.
+default √® 33.
 </p>
 <p>
-Le dimensioni della mappa determinano quanto grande essa sar‡. E' possibile
+Le dimensioni della mappa determinano quanto grande essa sar√†. E' possibile
 impostare un valore compreso fra 128x128 e 576x576 quadrati. Il default
-Ë 256x256.
+√® 256x256.
 </p>
 <p>
-La densit‡ delle industrie determina quante fabbriche saranno inserite
-nella mappa. Pi˘ bassa Ë la densit‡ e pi˘ difficile diveter‡ il gioco,
-poichË ci saranno meno possibilit‡ di trasporto di beni. Il default
-Ë 125.
+La densit√† delle industrie determina quante fabbriche saranno inserite
+nella mappa. Pi√π bassa √® la densit√† e pi√π difficile diveter√† il gioco,
+poich√® ci saranno meno possibilit√† di trasporto di beni. Il default
+√® 125.
 </p>
 <p>
-Il numero di citt‡ indica il numero di insediamenti urbani che verranno
-inseriti nella mappa e puÚ variare da 2 a 64. Il default Ë 16.
+Il numero di citt√† indica il numero di insediamenti urbani che verranno
+inseriti nella mappa e pu√≤ variare da 2 a 64. Il default √® 16.
 </p>
 <p>
-La densit‡ del traffico determina il numero di auto private che
-circoleranno nelle citt‡. Il default Ë 8.
+La densit√† del traffico determina il numero di auto private che
+circoleranno nelle citt√†. Il default √® 8.
 </p>
 <p>
-Il livello dell'acqua determina quanto acqua sar‡ presente nella mappa.
-Pi˘ basso Ë questo valore e pi˘ terreno sar‡ presente, e viceversa.
-Il default Ë 4.
+Il livello dell'acqua determina quanto acqua sar√† presente nella mappa.
+Pi√π basso √® questo valore e pi√π terreno sar√† presente, e viceversa.
+Il default √® 4.
 </p>
 <p>
-L'altezza delle montagne indica l'altitudine della pi˘ alta montagna
-della mappa. Il default Ë 160.
-L'asprezza del terreno indica quanto pianeggiante sar‡ la mappa. Pi˘ questo valore Ë
+L'altezza delle montagne indica l'altitudine della pi√π alta montagna
+della mappa. Il default √® 160.
+L'asprezza del terreno indica quanto pianeggiante sar√† la mappa. Pi√π questo valore √®
 basso e meno colline e valli saranno presenti. il range di valori fra cui
-scegliere varia da 1 a 3. Il default Ë 2.
+scegliere varia da 1 a 3. Il default √® 2.
 </p>
 <p>
-Il pulsante "Mappa casuale" selezioner‡ un numero di mappa a caso.
+Il pulsante "Mappa casuale" selezioner√† un numero di mappa a caso.
 Questa operazione non modifica qualsiasi altra opzione che si avesse
 selezionato precedentemente.
 </p>

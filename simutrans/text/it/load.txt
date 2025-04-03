@@ -6,5 +6,5 @@
 Quando si seleziona l'opzione di caricamento, appare una nuova finestra
 che mostra i nomi dei giochi salvati precedentemente.
 Facendo clic sul nome del file del gioco che si vuole caricare questo
-verr‡ caricato e fatto partire.
+verr√† caricato e fatto partire.
 </p>

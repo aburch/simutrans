@@ -27,30 +27,30 @@ Da sinistra a destra, le colonne indicano come sono presentati i messaggi: come 
 Clicca sui bottoni quadrati per selezionare le opzioni dei messaggi (i bottoni sono evidenziati quando selezionati) per i seguenti messaggi:
 </p>
 <p>
-<em>Anno nuovo:</em> un nuovo anno Ë iniziato.
+<em>Anno nuovo:</em> un nuovo anno √® iniziato.
 </p>
 <p>
 <em>Notizie AI:</em> un <a href="players.txt">giocatore gestito dal computer</a>
  ha aperto una nuova linea.
 </p>
 <p>
-<em>Notizie citt‡:</em> un'<a href="citywindow.txt">area urbana</a> sta costruendo un municipio pi˘ grande.
+<em>Notizie citt√†:</em> un'<a href="citywindow.txt">area urbana</a> sta costruendo un municipio pi√π grande.
 </p>
 <p>
-<em>Nessuna via:</em> un veicolo non puÚ trovare una via per la sua prossima <a href="schedule.txt">destinazione</a> (a <a href="station.txt">Fermata</a> o punto di transito).
+<em>Nessuna via:</em> un veicolo non pu√≤ trovare una via per la sua prossima <a href="schedule.txt">destinazione</a> (a <a href="station.txt">Fermata</a> o punto di transito).
 </p>
 <p>
-<em>Nuove industrie:</em> una nuova catena <a href="industryinfo.txt">industriale</a> (un consumatore finale e ogni fornitore necessario) Ë stata costruita per la crescita della <a href="citywindow.txt">citt‡</a>.
+<em>Nuove industrie:</em> una nuova catena <a href="industryinfo.txt">industriale</a> (un consumatore finale e ogni fornitore necessario) √® stata costruita per la crescita della <a href="citywindow.txt">citt√†</a>.
 </p>
 <p>
 <em>Turismo:</em> sono stati costruiti un'<a href="curiositylist_filter.txt">attrazione</a> o un memorial.
 </p>
 <p>
-<em>Nuovi veicoli:</em> un nuovo veicolo Ë disponibile o ritirato (se Ë utilizzata la <a href="new_world.txt">linea temporale</a>).
+<em>Nuovi veicoli:</em> un nuovo veicolo √® disponibile o ritirato (se √® utilizzata la <a href="new_world.txt">linea temporale</a>).
 </p>
 <p>
-<em>Stazione piena:</em> una <a href="station.txt">fermata</a> Ë troppo piena.
+<em>Stazione piena:</em> una <a href="station.txt">fermata</a> √® troppo piena.
 </p>
 <p>
-<em>Problemi:</em> la societ‡ di un giocatore Ë in debito o altri messaggi di problemi.
+<em>Problemi:</em> la societ√† di un giocatore √® in debito o altri messaggi di problemi.
 </p>

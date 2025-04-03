@@ -26,8 +26,8 @@ Para usarlo: pulsa en la Parada en la lista para seleccionar (> por nombre muest
 Los botones de opcion (pulsa para usar, el boton se oscurece cuando se selecciona) incluyen:
 </p>
 <p>
-<em>Añadir </em> <a href="station.txt"><em>Parada:</em></a> esta opcion pone una Parada usada por vehiculos para cargar y descargar mercancias y pasajeros (los vehiculos de transporte maritimo pueden usar cualquier cuadricula de agua en el area de influencia del puerto) o un punto de paso en la ruta.<br>
-Para añadir una Parada o Punto de paso: pulsa en la opcion a seleccionar (cambia el cursor a un cartelito), entonces pulsa en el punto requerido para la Parada o Punto de paso (un punto en la carretera, via de tren o agua segun el tipo de vehiculo). La Parada o Punto de paso , es listada en <strong>Enrutar</strong>.<br>
+<em>AÃ±adir </em> <a href="station.txt"><em>Parada:</em></a> esta opcion pone una Parada usada por vehiculos para cargar y descargar mercancias y pasajeros (los vehiculos de transporte maritimo pueden usar cualquier cuadricula de agua en el area de influencia del puerto) o un punto de paso en la ruta.<br>
+Para aÃ±adir una Parada o Punto de paso: pulsa en la opcion a seleccionar (cambia el cursor a un cartelito), entonces pulsa en el punto requerido para la Parada o Punto de paso (un punto en la carretera, via de tren o agua segun el tipo de vehiculo). La Parada o Punto de paso , es listada en <strong>Enrutar</strong>.<br>
 {Consejos: Los vehiculos no cargan ni descargan pasajeros ni mercancias en los Puntos de paso.}
 </p>
 <p>
@@ -41,7 +41,7 @@ La nueva Parada/Punto de paso aparecera en la lista de <strong>Enrutar</strong> 
 Pulsa en el boton Eliminar, y despues pulsa en un elemento de la lista para eliminarlo.
 </p>
 <p>
-<em>Viaje de vuelta:</em> esta opcion añade las <a href="station.txt">Paradas</a> y Punto de paso existentes en orden inverso a la ruta. Los niveles de <em>Carga (Min) </em>tambien se copian. Pulsa en el boton de opcion para usar: <strong>Enrutar</strong> lista la nueva ruta.
+<em>Viaje de vuelta:</em> esta opcion aÃ±ade las <a href="station.txt">Paradas</a> y Punto de paso existentes en orden inverso a la ruta. Los niveles de <em>Carga (Min) </em>tambien se copian. Pulsa en el boton de opcion para usar: <strong>Enrutar</strong> lista la nueva ruta.
 </p>
 <p>
 <em>Convertir en</em> <a href="linemanagement.txt"><em>Linea:</em></a> (solo disponible cuando se abre <strong>Enrutar</strong> desde la ventana <a href="convoiinfo.txt">Informacion de Convoy</a>) creando una nueva Linea

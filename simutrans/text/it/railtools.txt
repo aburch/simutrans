@@ -7,73 +7,73 @@ Questa finestra contiene gli strumenti per costruire binari, segnali,
 tunnel, depositi, passaggi a livello e stazioni.
 </p>
 <p>
-Nell'angolo in alto a sinistra c'Ë il tool per costruire i binari.
+Nell'angolo in alto a sinistra c'√® il tool per costruire i binari.
 Per costruire una ferrovia, prima si faccia clic sulla casella
-di partenza e quindi su quella di arrivo. Simutrans costruir‡ un binario
+di partenza e quindi su quella di arrivo. Simutrans costruir√† un binario
 fra le due caselle. Per costruire il binario verrano usate solo caselle libere:
 non verranno attraversate strade, costruiti ponti o tunnel.
-Se nessuna connessione Ë possibile, non accade nulla.
+Se nessuna connessione √® possibile, non accade nulla.
 </p>
 <p>
-Il prossimo tool alla destra del precedente Ë quello per piazzare
+Il prossimo tool alla destra del precedente √® quello per piazzare
 segnali ferroviari. I segnali sono usati per vincolare il movimento dei
 treni. E' possibile usarli per permettere a due treni di percorrere lo stesso
 tratto di binario, piazzandoli ogni poche caselle lungo la linea
 interessata.
 Per costruire un segnale si deve fare clic nel punto della linea in cui lo
-si vuole piazzare. I segnali appaiono ai lati delle caselle, ma in realt‡
-viene messo un segnale su ogni bordo delle caselle adiacenti. Questo Ë
-importante in quanto una casella in cui Ë presente un segnale non puÚ contenerne
+si vuole piazzare. I segnali appaiono ai lati delle caselle, ma in realt√†
+viene messo un segnale su ogni bordo delle caselle adiacenti. Questo √®
+importante in quanto una casella in cui √® presente un segnale non pu√≤ contenerne
 un altro.
 I segnali di senso unico possono essere usati per costringere un treno
 ad andare in una data direzione.
 Per costruire un segnale di senso unico basta piazzare un normale segnale
-ferroviario e fare clic su di esso. Con ulteriori click del mouse si cambier‡
-la direzione e infine si ritorner‡ ad avere un normale segnale ferroviario.
+ferroviario e fare clic su di esso. Con ulteriori click del mouse si cambier√†
+la direzione e infine si ritorner√† ad avere un normale segnale ferroviario.
 <strong>Attenzione: un segnale errato potrebbe impedire ai treni di muoversi
 come desiderato!</strong>
 Per rimuovere un segnale si deve usare il tool di rimozione sul segnale stesso
-o sui suoi bordi; questo rimuover‡ il segnale lasciando intatti i binari.
+o sui suoi bordi; questo rimuover√† il segnale lasciando intatti i binari.
 </p>
 <p>
 L'ultimo simbolo della prima riga permette di costruire i tunnel.
 I tunnel sono utilizzati per creare una linea ferroviaria che
 attraversa una montagna, evitando quindi di doverla aggirare o
 costruire percorsi in salita.
-Per costruire un tunnel Ë necessario prima predisporre i binari
+Per costruire un tunnel √® necessario prima predisporre i binari
 ai lati della montagna, entrambi allo stesso livello.
-Quindi basta fare clic su una delle due estremit‡ per connetterle
+Quindi basta fare clic su una delle due estremit√† per connetterle
 con un tunnel.
 </p>
 <p>
-Sotto il tool tunnel Ë presente quello per i passaggi a livello.
+Sotto il tool tunnel √® presente quello per i passaggi a livello.
 Gli attraversamenti sono utilizzati per permettere intersezioni
-con eventuali strade. Per costruirne uno, Ë sufficiente fare
+con eventuali strade. Per costruirne uno, √® sufficiente fare
 clic nel punto della linea ferroviaria in cui si desidera crearlo.
 </p>
 <p>
-Alla sinistra del precedente, c'Ë il simbolo per la costruzione
+Alla sinistra del precedente, c'√® il simbolo per la costruzione
 di un deposito.
 I depositi sono usati per comprare e gestire i veicoli ferroviari,
 motrici e vagoni.
-Per costruire un deposito basta fare clic ad una estremit‡ di una
-linea ferroviaria gi‡ esistente.
+Per costruire un deposito basta fare clic ad una estremit√† di una
+linea ferroviaria gi√† esistente.
 </p>
 <p>
-L'ultimo simbolo Ë quello delle stazioni.
+L'ultimo simbolo √® quello delle stazioni.
 Le stazioni sono usate dai treni per caricare e scaricare merci e
 passeggeri e possono essere di qualsiasi forma e dimensione.
 Attualmente, le stazioni possono contenere un numero infinito di
-unit‡ di merci, ma le fabbriche vi spediscono merci solo se sono
-gi‡ in attesa meno di 1000 unit‡.
+unit√† di merci, ma le fabbriche vi spediscono merci solo se sono
+gi√† in attesa meno di 1000 unit√†.
 Le stazioni sono costituite da singoli segmenti. Per costruire un
 segmento si faccia clic sulla casella in cui lo si vuole mettere.
-Le stazioni possono essere costruite sopra binari gi‡ esistenti, ma
+Le stazioni possono essere costruite sopra binari gi√† esistenti, ma
 non possono essere messe su colline, curve o intersezioni.
-Ogni segmento costruito adiacente ad una stazione gi‡ esistente diverr‡
+Ogni segmento costruito adiacente ad una stazione gi√† esistente diverr√†
 parte integrante di quella stazione.
-Ogni segmento puÚ ospitare un massimo di 2 veicoli ferroviari, quindi ci si
+Ogni segmento pu√≤ ospitare un massimo di 2 veicoli ferroviari, quindi ci si
 assicuri che la lunghezza delle stazioni sia sufficiente a contenere
-il pi˘ lungo treno che vi passa: <strong>i vagoni che rimangono fuori da una stazione
-non vengono nË caricati nË scaricati!</strong>
+il pi√π lungo treno che vi passa: <strong>i vagoni che rimangono fuori da una stazione
+non vengono n√® caricati n√® scaricati!</strong>
 </p>

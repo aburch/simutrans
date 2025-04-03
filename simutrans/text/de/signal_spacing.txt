@@ -3,9 +3,9 @@
 <h1>Hinweise zur Benutzung:</h1><br>
 
 <p>
-Strg+Mausklick auf ein <a href="signale.txt">Signal</a>werkzeug öffnet dieses Fenster.</p>
+Strg+Mausklick auf ein <a href="signale.txt">Signal</a>werkzeug Ã¶ffnet dieses Fenster.</p>
 
-<p>Ähnlich wie beim Bauen von <a href="railtools.txt">Schienen</a> oder <a href="roadtoools.txt">Straßen</a> wird mit Klick-und-Ziehen auf der Strecke eine Vorschau der Signale gezeigt, ung gebaut, sobald die Maustaste losgelassen wird.</p>
+<p>Ã„hnlich wie beim Bauen von <a href="railtools.txt">Schienen</a> oder <a href="roadtoools.txt">StraÃŸen</a> wird mit Klick-und-Ziehen auf der Strecke eine Vorschau der Signale gezeigt, ung gebaut, sobald die Maustaste losgelassen wird.</p>
 
 <p>Die Durchfahrtsrichtung der Signale wird durch die Richtung vorgegeben, in die die Maus gezogen wurde. Stehen schon Signale in entgegengesetzter Richtung, dann wird gar kein Signal gebaut.</p>
 
@@ -13,12 +13,12 @@ Strg+Mausklick auf ein <a href="signale.txt">Signal</a>werkzeug öffnet dieses Fe
 
 <h1>Einstellungen in diesem Fenster:</h1>
 
-<p><em>Signalabstand:</em> Abstand in Kacheln, der zwischen den Signalen eingehalten wird. Diagonalen zählen als eine halbe Kachel.
+<p><em>Signalabstand:</em> Abstand in Kacheln, der zwischen den Signalen eingehalten wird. Diagonalen zÃ¤hlen als eine halbe Kachel.
 Dieser Wert wird auf dem Signal-Icon gezeigt, falls das entsprechende Werkzeug aktiv ist.</p>
 
 <p><em>Signale an Zwischenstellen entfernen:</em> Falls aktiviert, werden andere Signale, die auf dem Weg stehen, entfernt.</p>
 
-<p><em>Andere Signale ersetzen:</em> Falls aktiviert, werden andere Signale entfernt, die auf Stellen stehen, wo mit diesem Werkzeug ein Signal gesetzt werden würde.</p>
+<p><em>Andere Signale ersetzen:</em> Falls aktiviert, werden andere Signale entfernt, die auf Stellen stehen, wo mit diesem Werkzeug ein Signal gesetzt werden wÃ¼rde.</p>
 
-<p>Diese Einstellungen können für jedes Signal und Verkehrszeichen unabhängig gesetzt werden.
+<p>Diese Einstellungen kÃ¶nnen fÃ¼r jedes Signal und Verkehrszeichen unabhÃ¤ngig gesetzt werden.
 </p>

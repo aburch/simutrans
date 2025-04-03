@@ -3,29 +3,29 @@
 <h1><strong>Filtereinstellungen zur Fahrzeugliste</strong></h1>
 
 <p>
-Im Fenster der <em>Fahrzeugliste - Einstellungen</em> können die Filteroptionen für die Anzeige in der <a href="convoi.txt">Fahrzeugliste</a> gesetzt werden. Ein eingedrückter Knopf bedeutet, dass das Kriterium erfüllt sein muss, um durch den Filter zur Anzeige zu gelangen. Dabei werden die Eigenschaften innerhalb einer Hauptgruppe mit logischem "OR" (eines der angewählten Kriterien muss erfüllt sein) und zwischen den Hauptmenüs mit logischem "AND" (alle angewählten Kriterien müssen erfüllt sein) verknüpft. Die Wirkung der Filtereinstellungen ist positiv, es werden nur Fahrzeugverbände angezeigt, welche die eingestellten Kriterien erfüllen.</p>
+Im Fenster der <em>Fahrzeugliste - Einstellungen</em> kÃ¶nnen die Filteroptionen fÃ¼r die Anzeige in der <a href="convoi.txt">Fahrzeugliste</a> gesetzt werden. Ein eingedrÃ¼ckter Knopf bedeutet, dass das Kriterium erfÃ¼llt sein muss, um durch den Filter zur Anzeige zu gelangen. Dabei werden die Eigenschaften innerhalb einer Hauptgruppe mit logischem "OR" (eines der angewÃ¤hlten Kriterien muss erfÃ¼llt sein) und zwischen den HauptmenÃ¼s mit logischem "AND" (alle angewÃ¤hlten Kriterien mÃ¼ssen erfÃ¼llt sein) verknÃ¼pft. Die Wirkung der Filtereinstellungen ist positiv, es werden nur FahrzeugverbÃ¤nde angezeigt, welche die eingestellten Kriterien erfÃ¼llen.</p>
 <p>
-<em>Namen filtern:</em> Im Textfeld kann der Name eines Fahrzeugverbandes bzw. mehrerer Fahrzeugverbände angegeben werden. Es werden nur diejenigen Fahrzeugverbände in die gefilterte Liste aufgenommen, deren Bezeichner mit dem Name des Filters in allen Zeichen (inkl. Leerzeichen) identisch ist. <strong>Achtung:</strong> Platzhalterfunktionen wie * oder ? werden nicht unterstützt.
+<em>Namen filtern:</em> Im Textfeld kann der Name eines Fahrzeugverbandes bzw. mehrerer FahrzeugverbÃ¤nde angegeben werden. Es werden nur diejenigen FahrzeugverbÃ¤nde in die gefilterte Liste aufgenommen, deren Bezeichner mit dem Name des Filters in allen Zeichen (inkl. Leerzeichen) identisch ist. <strong>Achtung:</strong> Platzhalterfunktionen wie * oder ? werden nicht unterstÃ¼tzt.
 </p>
 <p>
-<em>Typen filtern:</em> Die gefilterte Liste zeigt nur Fahrzeugverbände an, welche dem gefilterten Typ entsprechen. Trams und Magnetbahnen sind den Zügen zugeordnet.</p>
+<em>Typen filtern:</em> Die gefilterte Liste zeigt nur FahrzeugverbÃ¤nde an, welche dem gefilterten Typ entsprechen. Trams und Magnetbahnen sind den ZÃ¼gen zugeordnet.</p>
 <p>
 <em>Spezialfilter:</em><br>
-· <em>ohne Route:</em> Derzeit ist diese Funktion außer Betrieb.<br>
-· <em>ohne Fahrplan:</em> Fahrzeugverbände ohne Fahrplan werden gelistet.<br>
-· <em>kein Gewinn:</em> Fahrzeugverbände ohne positiven Profit im aktuellen Jahr werden gelistet.<br>
-· <em>im Depot:</em> Fahrzeugverbände, die in einem Depot stehen werden gelistet.<br>
-· <em>ohne Linie:</em> Fahrzeugverbände, die keiner Linie zugeordnet sind, werden gelistet.
+Â· <em>ohne Route:</em> Derzeit ist diese Funktion auÃŸer Betrieb.<br>
+Â· <em>ohne Fahrplan:</em> FahrzeugverbÃ¤nde ohne Fahrplan werden gelistet.<br>
+Â· <em>kein Gewinn:</em> FahrzeugverbÃ¤nde ohne positiven Profit im aktuellen Jahr werden gelistet.<br>
+Â· <em>im Depot:</em> FahrzeugverbÃ¤nde, die in einem Depot stehen werden gelistet.<br>
+Â· <em>ohne Linie:</em> FahrzeugverbÃ¤nde, die keiner Linie zugeordnet sind, werden gelistet.
 </p>
 <p>
-<em>Waren filtern:</em> Fahrzeugverbände werden nach ihrer transportierten Warenart ausgewählt. Der Filter berücksichtigt teilweise nicht das Ladegut, sondern orientiert sich nach den Fahrzeugeigenschaften. So kann etwa ein Erzzug unter Steine auftauchen, wenn er Steinwagen benutzt.
+<em>Waren filtern:</em> FahrzeugverbÃ¤nde werden nach ihrer transportierten Warenart ausgewÃ¤hlt. Der Filter berÃ¼cksichtigt teilweise nicht das Ladegut, sondern orientiert sich nach den Fahrzeugeigenschaften. So kann etwa ein Erzzug unter Steine auftauchen, wenn er Steinwagen benutzt.
 </p>
 <p>
 <em>Filterschalter:</em><br>
-· <em>alle:</em> Alle Güterarten ausgewählt.<br>
-· <em>keine:</em> Alle Güterarten abgewählt.<br>
-· <em>inv.:</em> Bei Betätigung wird die Güterauswahl umgekehrt.
+Â· <em>alle:</em> Alle GÃ¼terarten ausgewÃ¤hlt.<br>
+Â· <em>keine:</em> Alle GÃ¼terarten abgewÃ¤hlt.<br>
+Â· <em>inv.:</em> Bei BetÃ¤tigung wird die GÃ¼terauswahl umgekehrt.
 </p>
 <p>
-<em>Warenschalter:</em> Über die Schalter der Warenarten kannst Du eine beliebige Filterauswahl treffen.
+<em>Warenschalter:</em> Ãœber die Schalter der Warenarten kannst Du eine beliebige Filterauswahl treffen.
 </p>

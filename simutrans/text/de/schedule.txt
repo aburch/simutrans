@@ -3,37 +3,37 @@
 <h1><strong>Fahrplanfenster</strong></h1>
 
 <p>
-Im Fahrplanfenster kannst Du den Fahrplan für den ausgewählten Fahrzeugverband oder den Linienfahrplan für die ausgewählte Linie bearbeiten. Ein Fahrzeugverband, dessen Fahrplan aufgerufen wurde, hält an und wartet, bis das Fahrplanfenster wieder geschlossen ist.
+Im Fahrplanfenster kannst Du den Fahrplan fÃ¼r den ausgewÃ¤hlten Fahrzeugverband oder den Linienfahrplan fÃ¼r die ausgewÃ¤hlte Linie bearbeiten. Ein Fahrzeugverband, dessen Fahrplan aufgerufen wurde, hÃ¤lt an und wartet, bis das Fahrplanfenster wieder geschlossen ist.
 </p>
 <p>
-<em>Bedient Linie</em> (nur bei Fahrzeugverbänden ausserhalb des Depots): Das Textfeld zeigt die Linie an, in welcher der Fahrzeugverband fährt. Klicke zum Ändern der Linie ins Feld. Es öffnet sich eine Auswahlliste, in welcher alle verfügbaren Linien gelistet sind. Du kannst auch den Eintrag "keine Linie" wählen und den Fahrzeugverband nach einem individuellen Fahrplan fahren lassen.<br>
-Die Schaltfläche <em>Neue Linie</em> erstellt eine neue Linie mit dem aktuellen Fahrplan.
+<em>Bedient Linie</em> (nur bei FahrzeugverbÃ¤nden ausserhalb des Depots): Das Textfeld zeigt die Linie an, in welcher der Fahrzeugverband fÃ¤hrt. Klicke zum Ã„ndern der Linie ins Feld. Es Ã¶ffnet sich eine Auswahlliste, in welcher alle verfÃ¼gbaren Linien gelistet sind. Du kannst auch den Eintrag "keine Linie" wÃ¤hlen und den Fahrzeugverband nach einem individuellen Fahrplan fahren lassen.<br>
+Die SchaltflÃ¤che <em>Neue Linie</em> erstellt eine neue Linie mit dem aktuellen Fahrplan.
 </p>
 <p>
-<em>Wartezeit:</em> Die Wartezeit ist nur aktiv, wenn das Fahrzeug auf eine Mindestbeladung in diesem Fahrplanhalt warten soll. Die Wartezeit ist in Teilen pro Monat angegeben, also von ganzer Monat (1/1), halber Monat (1/2), ... 1 Tag (1/32), ... usw. Ist die Wartezeit überschirtten, fährt das Fahrzeug weiter, auch wenn die Mindestbeladung noch nicht erreicht wurde.
+<em>Wartezeit:</em> Die Wartezeit ist nur aktiv, wenn das Fahrzeug auf eine Mindestbeladung in diesem Fahrplanhalt warten soll. Die Wartezeit ist in Teilen pro Monat angegeben, also von ganzer Monat (1/1), halber Monat (1/2), ... 1 Tag (1/32), ... usw. Ist die Wartezeit Ã¼berschirtten, fÃ¤hrt das Fahrzeug weiter, auch wenn die Mindestbeladung noch nicht erreicht wurde.
 </p>
 <p>
-<em>Mindestbeladung:</em> Die Mindestbeladung wird nur in Fahrplanhalten abgefragt. Du kannst mittels der Pfeilschalter für jede Haltestelle des Fahrplans einen der verfügbaren Werte zwischen 0% und 100% einstellen. Der Fahrzeugverband wartet an der Haltestelle, bis der eingestellte Wert der Mindestbeladung erreicht ist. Zum Auswählen der Haltestelle klicke auf diese, achte aber darauf das der Schalter "Löschen" nicht eingedrückt ist.
+<em>Mindestbeladung:</em> Die Mindestbeladung wird nur in Fahrplanhalten abgefragt. Du kannst mittels der Pfeilschalter fÃ¼r jede Haltestelle des Fahrplans einen der verfÃ¼gbaren Werte zwischen 0% und 100% einstellen. Der Fahrzeugverband wartet an der Haltestelle, bis der eingestellte Wert der Mindestbeladung erreicht ist. Zum AuswÃ¤hlen der Haltestelle klicke auf diese, achte aber darauf das der Schalter "LÃ¶schen" nicht eingedrÃ¼ckt ist.
 </p>
 <p>
-<em>Fahrplanhalte:</em> Die gelisteten Haltestellen und freien Wegpunkte werden vom Konvoi der Reihe nach angefahren. Die Fahrplanhalte sind durchnummeriert. Der <strong>eingedrückte Pfeil</strong> vor einer Zeile zeigt an, zu welchem Fahrplanhalt der Fahrzeugverband momentan unterwegs ist. Wartet er auf Beladung, zeigt der Pfeil auf die aktuelle Haltestelle. Beim Verlassen des letzten Fahrplanhaltes wird wieder der erste Fahrplanhalt angesteuert.
+<em>Fahrplanhalte:</em> Die gelisteten Haltestellen und freien Wegpunkte werden vom Konvoi der Reihe nach angefahren. Die Fahrplanhalte sind durchnummeriert. Der <strong>eingedrÃ¼ckte Pfeil</strong> vor einer Zeile zeigt an, zu welchem Fahrplanhalt der Fahrzeugverband momentan unterwegs ist. Wartet er auf Beladung, zeigt der Pfeil auf die aktuelle Haltestelle. Beim Verlassen des letzten Fahrplanhaltes wird wieder der erste Fahrplanhalt angesteuert.
 </p><br>
 <h1><strong>Fahrplanbearbeitung</strong></h1>
 <p>
-Die <em>Schaltfächen</em> haben folgende Bedeutung:<br/>
-· <em>Hinzufügen:</em> Der neue Fahrplanhalt wird am Ende der Liste angefügt.<br>
-· <em>Einfügen:</em> Der neue Fahrplanhalt wird vor dem mit <strong>eingedrücktem Pfeil</strong> gekennzeichneten Fahrplanhalt eingefügt.<br>
-· <em>Löschen:</em> Der per Mausklick angewählte Fahrplanhalt wird aus der Liste gelöscht. Nach löschen eines Fahrplanhaltes wird die Schaltfläche <em>Hinzufügen</em> wider aktiviert.
+Die <em>SchaltfÃ¤chen</em> haben folgende Bedeutung:<br/>
+Â· <em>HinzufÃ¼gen:</em> Der neue Fahrplanhalt wird am Ende der Liste angefÃ¼gt.<br>
+Â· <em>EinfÃ¼gen:</em> Der neue Fahrplanhalt wird vor dem mit <strong>eingedrÃ¼cktem Pfeil</strong> gekennzeichneten Fahrplanhalt eingefÃ¼gt.<br>
+Â· <em>LÃ¶schen:</em> Der per Mausklick angewÃ¤hlte Fahrplanhalt wird aus der Liste gelÃ¶scht. Nach lÃ¶schen eines Fahrplanhaltes wird die SchaltflÃ¤che <em>HinzufÃ¼gen</em> wider aktiviert.
 </p>
 <p>
-· <em>Rückfahrkarte:</em> Alle Fahrplanhalte werden bis zum Maximum von 254 Gesamteinträgen in umgekehrter Reihenfolge (ohne 1. und letzten Halt) an den bestehenden Fahrplan angefügt. Bei Verwendung von Richtungsstrecken (einseitige Signale bei Eisen-, Straßen- und Einschienenbahnen) wird die Rückfahrkarte allerdings nicht einsetzbar sein, da der Haltepunkt bei der Rückfahrt nicht direkt angefahren werden kann. Wenn ein Weg gefunden wird, erfolgt dieser dann mit einem großen Umweg.
+Â· <em>RÃ¼ckfahrkarte:</em> Alle Fahrplanhalte werden bis zum Maximum von 254 GesamteintrÃ¤gen in umgekehrter Reihenfolge (ohne 1. und letzten Halt) an den bestehenden Fahrplan angefÃ¼gt. Bei Verwendung von Richtungsstrecken (einseitige Signale bei Eisen-, StraÃŸen- und Einschienenbahnen) wird die RÃ¼ckfahrkarte allerdings nicht einsetzbar sein, da der Haltepunkt bei der RÃ¼ckfahrt nicht direkt angefahren werden kann. Wenn ein Weg gefunden wird, erfolgt dieser dann mit einem groÃŸen Umweg.
 </p>
 <p>
-Bei der Nutzung einer der Schaltflächen "Hinzufügen" oder "Einfügen" ändert sich der Cursor in einen Haltepunktmarker. Klickst Du mit dem Werkzeug auf ein Haltestellenfeld oder auf einen freien Wegpunkt, welcher vom Fahrzeugverband befahren werden kann (je nach Fahrzeugart zBsp. Straßen-, Wasser-, oder Gleisfeld), wird der Punkt als Fahrplanhalt in die Liste der Fahrplanhalte aufgenommen.<br>
-· Haltepunkte werden mit dem Namen der Haltestelle, der eingestellten Mindestbeladung und den Koordinaten des Feldes in die Liste eingetragen.<br>
-· Freie Wegpunkte werden mit der Bezeichnung "freier Wegpunkt" und den Koordinaten des Feldes in die Liste eingetragen. Ein Halt erfolgt nicht. Die Strecke bis zum nächsten Fahrplanhalt wird eingelesen, ein kurzes Abbremsen des Konvois ist möglich. Vermeide nach Möglichkeit die Platzierung von Wegpunkten in Kurven. Es wird zwar keine Störung verursacht, doch ordentliches Fahrverhalten kann nicht gewährleistet werden.<br/>
-· Bis zu 254 Fahrplanhalte können je Fahrplan eingerichtet werden.
+Bei der Nutzung einer der SchaltflÃ¤chen "HinzufÃ¼gen" oder "EinfÃ¼gen" Ã¤ndert sich der Cursor in einen Haltepunktmarker. Klickst Du mit dem Werkzeug auf ein Haltestellenfeld oder auf einen freien Wegpunkt, welcher vom Fahrzeugverband befahren werden kann (je nach Fahrzeugart zBsp. StraÃŸen-, Wasser-, oder Gleisfeld), wird der Punkt als Fahrplanhalt in die Liste der Fahrplanhalte aufgenommen.<br>
+Â· Haltepunkte werden mit dem Namen der Haltestelle, der eingestellten Mindestbeladung und den Koordinaten des Feldes in die Liste eingetragen.<br>
+Â· Freie Wegpunkte werden mit der Bezeichnung "freier Wegpunkt" und den Koordinaten des Feldes in die Liste eingetragen. Ein Halt erfolgt nicht. Die Strecke bis zum nÃ¤chsten Fahrplanhalt wird eingelesen, ein kurzes Abbremsen des Konvois ist mÃ¶glich. Vermeide nach MÃ¶glichkeit die Platzierung von Wegpunkten in Kurven. Es wird zwar keine StÃ¶rung verursacht, doch ordentliches Fahrverhalten kann nicht gewÃ¤hrleistet werden.<br/>
+Â· Bis zu 254 Fahrplanhalte kÃ¶nnen je Fahrplan eingerichtet werden.
 </p>
 <p>
-· Wenn du fertig bist, dann schließe einfach das Fahrplanfenster. Der Fahrzeugverband liest den Fahrplan neu ein und setzt die Reise zum dann als nächsten Halt markierten Punkt fort. Wird eine Linie als ganzes geändert, halten alle ihr zugewiesenen Fahrzeuge an, lesen den neuen Fahrplan ein und fahren weiter. Sind Zwischenhalte eingefügt worden, kann dies dazu führen, dass einige Konvois umkehren, da an derselben Position ihres Fahrplans nach der Änderung ein anderer Fahrplanhalt steht.
+Â· Wenn du fertig bist, dann schlieÃŸe einfach das Fahrplanfenster. Der Fahrzeugverband liest den Fahrplan neu ein und setzt die Reise zum dann als nÃ¤chsten Halt markierten Punkt fort. Wird eine Linie als ganzes geÃ¤ndert, halten alle ihr zugewiesenen Fahrzeuge an, lesen den neuen Fahrplan ein und fahren weiter. Sind Zwischenhalte eingefÃ¼gt worden, kann dies dazu fÃ¼hren, dass einige Konvois umkehren, da an derselben Position ihres Fahrplans nach der Ã„nderung ein anderer Fahrplanhalt steht.
 </p>

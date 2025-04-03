@@ -9,15 +9,15 @@
 Pulsa en el icono del dolar en la parte superior, o presiona <a href="keys.txt">[f]</a>, o pulsa en el nombre del jugador en <a href="players.txt">Jugadores</a>, para abrir <strong>Finanzas</strong>.
 </p>
 <p>
-Los valores (en Creditos Hajo ) estan listados para el año actual y los siguientes.<br>
-<em>Este año:</em> año actual en juego.<br>
-<em>Ultimos años:</em> años previos de juego.
+Los valores (en Creditos Hajo ) estan listados para el aÃ±o actual y los siguientes.<br>
+<em>Este aÃ±o:</em> aÃ±o actual en juego.<br>
+<em>Ultimos aÃ±os:</em> aÃ±os previos de juego.
 </p>
 <p>
-Los valores anuales pueden mostrarse en un grafico de los ultimos diez años, o de los ultimos doce meses del año actual en juego.<br>
+Los valores anuales pueden mostrarse en un grafico de los ultimos diez aÃ±os, o de los ultimos doce meses del aÃ±o actual en juego.<br>
 Pulsa en el boton con el nombre de valor para mostrar los detalles en el grafico: El eje Y es la cantidad, el eje X es el tiempo.<br>
-Pulsa en el pestaña del grafico para cambiar la escala del eje X:<br>
-<em>Años:</em> muestra los valores anuales de los ultimos 10 años de juego.<br>
+Pulsa en el pestaÃ±a del grafico para cambiar la escala del eje X:<br>
+<em>AÃ±os:</em> muestra los valores anuales de los ultimos 10 aÃ±os de juego.<br>
 <em>Meses:</em> muestra los valores mensuales de los 12 ultimos meses de juego
 </p>
 <p>

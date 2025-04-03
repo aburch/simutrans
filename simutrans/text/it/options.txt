@@ -3,17 +3,17 @@
 <h1>Opzioni di gioco</h1>
 
 <p>
-Questa finestra di dialogo Ë usata per modificare gran parte delle opzioni
+Questa finestra di dialogo √® usata per modificare gran parte delle opzioni
 del gioco. Molte di queste sono raggruppate in sotto-finestre che possono
 essere aperte agendo sui pultanti relativi.
-Questa finestra Ë anche utilizzata per caricare, salvare e uscire dal gioco.
+Questa finestra √® anche utilizzata per caricare, salvare e uscire dal gioco.
 </p>
 
 <p>
 Lingue - Si sceglie la lingua di Simutrans<br>
 Colore giocatore - Si sceglie il colore della propria compagnia<br>
-Schermo - Si impostano le propriet‡ di visualizzazione<br>
-Audio - Si impostano le propriet‡ audio<br>
+Schermo - Si impostano le propriet√† di visualizzazione<br>
+Audio - Si impostano le propriet√† audio<br>
 Giocatori - Si imposta il numero di intelligenze artificiali (AI) nel gioco<br>
 Carica - Si carica un gioco salvato<br>
 Salva - Si salva il gioco in corso<br>

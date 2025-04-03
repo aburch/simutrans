@@ -1,18 +1,18 @@
-<title>Aufschüttungen und Böschungen</title>
+<title>AufschÃ¼ttungen und BÃ¶schungen</title>
 
-<h1><strong>Gelände verändern</strong></h1>
+<h1><strong>GelÃ¤nde verÃ¤ndern</strong></h1>
 
 <p>
-Wenn eine Bahnlinie/Straße durch unwegsames Gelände geführt werden soll, empfehlen sich die Erdbewegungswerkzeuge. Sie können nur eingesetzt werden, wenn alle betroffenen Felder unbebaut sind.</p>
+Wenn eine Bahnlinie/StraÃŸe durch unwegsames GelÃ¤nde gefÃ¼hrt werden soll, empfehlen sich die Erdbewegungswerkzeuge. Sie kÃ¶nnen nur eingesetzt werden, wenn alle betroffenen Felder unbebaut sind.</p>
 <p>
-<em> Gelände anheben/absenken</em> Der Cursor verwandelt sich in einen nach oben/unten zeigenden Pfeil. Mit dem Werkzeug wird das Gelände am Gitterpunkt unter dem Cursor angehoben/abgesenkt. Das Gitternetz (nur in der größten Kartenansicht) lässt sich mittels der Taste <em>#</em> ein- und ausschalten.</p>
+<em> GelÃ¤nde anheben/absenken</em> Der Cursor verwandelt sich in einen nach oben/unten zeigenden Pfeil. Mit dem Werkzeug wird das GelÃ¤nde am Gitterpunkt unter dem Cursor angehoben/abgesenkt. Das Gitternetz (nur in der grÃ¶ÃŸten Kartenansicht) lÃ¤sst sich mittels der Taste <em>#</em> ein- und ausschalten.</p>
 <p>
-<em>Rampen legen</em>Die nächsten vier Werkzeuge legen Rampen in südlicher, nördlicher, westlicher und östlicher Richtung an. Mit einem fünften Tool werden Hangfelder eingeebnet. Über so bearbeitetes Gelände können dann normal Wege gebaut werden.</p>
+<em>Rampen legen</em>Die nÃ¤chsten vier Werkzeuge legen Rampen in sÃ¼dlicher, nÃ¶rdlicher, westlicher und Ã¶stlicher Richtung an. Mit einem fÃ¼nften Tool werden Hangfelder eingeebnet. Ãœber so bearbeitetes GelÃ¤nde kÃ¶nnen dann normal Wege gebaut werden.</p>
 <p>
-Beim Einsatz der Geländewerkzeuge können senkrechte Böschungen entstehen. Über diese Klippen können keine Wege gebaut werden, sie können aber Endpunkte Brücken sein.</p>
+Beim Einsatz der GelÃ¤ndewerkzeuge kÃ¶nnen senkrechte BÃ¶schungen entstehen. Ãœber diese Klippen kÃ¶nnen keine Wege gebaut werden, sie kÃ¶nnen aber Endpunkte BrÃ¼cken sein.</p>
 <p>
 <em>Niveau absenken/anheben</em> Senkt oder hebt das Grundniveau eines Feldes. Mit diesem Werkzeug kann man im Untergrundmodus Rampen erzeugen.
 <br>
 <strong>Achtung:</strong> Auf dem Kartenboden erzeugt Absenken auf das neue Niveau des Meeresspiegel einen Kanal.</p>
 <p>
-<em>Renaturierung</em> Stellt den ursprünglichen Zustand wieder her.</p>
+<em>Renaturierung</em> Stellt den ursprÃ¼nglichen Zustand wieder her.</p>

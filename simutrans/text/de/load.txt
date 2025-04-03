@@ -1,22 +1,22 @@
-<title>Lademenü</title>
+<title>LademenÃ¼</title>
 
 <h1>Spielauswahldialog (Ladedialog)</h1>
 
-<p>Der Ladendialog öffnet ein gespeichertes Spiel zum Weiterspielen.
+<p>Der Ladendialog Ã¶ffnet ein gespeichertes Spiel zum Weiterspielen.
 <br>
-<strong>Achtung:</strong> Das aktuelle Spiel (welches gerade im Hintergrund läuft) wird beim Laden eines anderen Spiels ohne Rückfrage beendet.
+<strong>Achtung:</strong> Das aktuelle Spiel (welches gerade im Hintergrund lÃ¤uft) wird beim Laden eines anderen Spiels ohne RÃ¼ckfrage beendet.
 </p>
  
 <p>
-<em>Eingabefeld Dateiname:</em> Durch Eingabe eines Dateinames kann der Spielstand geladen werden. Es muss die Entertaste oder der OK Button gedrückt werden.
+<em>Eingabefeld Dateiname:</em> Durch Eingabe eines Dateinames kann der Spielstand geladen werden. Es muss die Entertaste oder der OK Button gedrÃ¼ckt werden.
 </p>
  
 <p>
-<em> X - Löschen:</em> <strong>Achtung</strong>: Das X vor jedem Namen löscht den entsprechenden Spielstand. Es wird nicht nachgefragt sondern sofort gelöscht. Das X wird nur angezeigt, wenn in der <it>simuconf.tab</it> der Parameter  <it>show_delete_buttons = 1</it> gesetzt ist.
+<em> X - LÃ¶schen:</em> <strong>Achtung</strong>: Das X vor jedem Namen lÃ¶scht den entsprechenden Spielstand. Es wird nicht nachgefragt sondern sofort gelÃ¶scht. Das X wird nur angezeigt, wenn in der <it>simuconf.tab</it> der Parameter  <it>show_delete_buttons = 1</it> gesetzt ist.
 </p>
  
 <p>
-<em>Schaltfläche mit Namen:</em> Durch einen Klick auf einen Button wird der entsprechende Spielstand geladen. Der Spielstand muss mit dem gestartetem <em>pak (Grafikset)</em> und der <em>Simutrans-Version</em> kompatibel sein.
+<em>SchaltflÃ¤che mit Namen:</em> Durch einen Klick auf einen Button wird der entsprechende Spielstand geladen. Der Spielstand muss mit dem gestartetem <em>pak (Grafikset)</em> und der <em>Simutrans-Version</em> kompatibel sein.
 </p>
  
 <p>
@@ -28,18 +28,18 @@
 </p>
  
 <p>
-<em>Dieses Spiel als Server starten.</em> Wird diese Option gesetzt, dann startet das ausgewählte Spiel als Serverspiel und kann über das Netzwerk/Internet erreicht werden.
+<em>Dieses Spiel als Server starten.</em> Wird diese Option gesetzt, dann startet das ausgewÃ¤hlte Spiel als Serverspiel und kann Ã¼ber das Netzwerk/Internet erreicht werden.
 </p>
 
 <p>
-<em>OK</em> Läd das Spiel was im Feld Dateiname angegeben wird.
+<em>OK</em> LÃ¤d das Spiel was im Feld Dateiname angegeben wird.
 </p>
 
 <p>
-<em>Abrechen</em> Schließt den Dialog ohne ein Spiel zu laden.
+<em>Abrechen</em> SchlieÃŸt den Dialog ohne ein Spiel zu laden.
 </p>
 
 <p>
 <u>Autosave</u><br>
-Spielstände, die durch die autosave-Option gespeichert wurden, tragen den Namen 'autosave' mit 2 angehängten Ziffern. Die Ziffern geben den gespeicherten Monat an.
+SpielstÃ¤nde, die durch die autosave-Option gespeichert wurden, tragen den Namen 'autosave' mit 2 angehÃ¤ngten Ziffern. Die Ziffern geben den gespeicherten Monat an.
 </p>

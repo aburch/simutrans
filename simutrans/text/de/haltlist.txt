@@ -3,27 +3,27 @@
 <h1><strong>Haltestellenliste</strong></h1>
 
 <p>
-Die Haltestellenliste beinhaltet alle Haltestellen, also Bahnhöfe, Frachthöfe, Bus- und Tramhaltestellen, Anlegestellen sowie Flughäfen des aktiven Spielers. In die Liste ist eine Sortierfunktion eingebaut. Über einen Filter kannst Du Haltestellen nach definierten Kriterien anzeigen lassen.<br/>
-Der <em>Filter</em> kann entweder "an" oder "aus" sein. Wenn Du eine Haltestelle nicht findest, prüfe, ob der Filter "aus" ist. Die Voreinstellung ist "an". Über <em>einstellen</em> können die <a href="haltlist_filter.txt">Filterkriterien</a> ausgewählt werden.
+Die Haltestellenliste beinhaltet alle Haltestellen, also BahnhÃ¶fe, FrachthÃ¶fe, Bus- und Tramhaltestellen, Anlegestellen sowie FlughÃ¤fen des aktiven Spielers. In die Liste ist eine Sortierfunktion eingebaut. Ãœber einen Filter kannst Du Haltestellen nach definierten Kriterien anzeigen lassen.<br/>
+Der <em>Filter</em> kann entweder "an" oder "aus" sein. Wenn Du eine Haltestelle nicht findest, prÃ¼fe, ob der Filter "aus" ist. Die Voreinstellung ist "an". Ãœber <em>einstellen</em> kÃ¶nnen die <a href="haltlist_filter.txt">Filterkriterien</a> ausgewÃ¤hlt werden.
 </p>
 <p>
-<em>Sortieren nach:</em> Der Schalter verfügt über 4 Stellungen, welche Du nacheinander wählen kannst.<br/>
-· <em>Bezeichnung:</em> Die Liste wird in der Namensreihenfolge alphanumerisch sortiert.<br>
-· <em>Wartend:</em> Die Haltestellen werden nach der Anzahl wartender Personen und Güter sortiert. Dabei werden die Werte aller wartenden Einheiten addiert.<br>
-· <em>Typ:</em> Die Sortierung der Liste erfolgt nach Fahrzeugtypen in folgender Reihenfolge: Lastwagen, Schienenfahrzeuge, Schiffe, Busse und Flugzeuge. Bohrinseln haben keinen Typ.<br>
-· <em>Nr.:</em> Die Liste wird nach den Ordnungszahlen der Haltestellen sortiert.<br>
-· <em>aufsteigend/absteigend:</em> Die Liste wird bei jeder Schalterbedienung in umgedrehter Reihenfolge dargestellt.
+<em>Sortieren nach:</em> Der Schalter verfÃ¼gt Ã¼ber 4 Stellungen, welche Du nacheinander wÃ¤hlen kannst.<br/>
+Â· <em>Bezeichnung:</em> Die Liste wird in der Namensreihenfolge alphanumerisch sortiert.<br>
+Â· <em>Wartend:</em> Die Haltestellen werden nach der Anzahl wartender Personen und GÃ¼ter sortiert. Dabei werden die Werte aller wartenden Einheiten addiert.<br>
+Â· <em>Typ:</em> Die Sortierung der Liste erfolgt nach Fahrzeugtypen in folgender Reihenfolge: Lastwagen, Schienenfahrzeuge, Schiffe, Busse und Flugzeuge. Bohrinseln haben keinen Typ.<br>
+Â· <em>Nr.:</em> Die Liste wird nach den Ordnungszahlen der Haltestellen sortiert.<br>
+Â· <em>aufsteigend/absteigend:</em> Die Liste wird bei jeder Schalterbedienung in umgedrehter Reihenfolge dargestellt.
 </p>
 <p>
-<em>Listeneinträge</em><br>
-· <em>Ordnungszahl:</em> Vom Spiel werden für alle Haltestellen Ordnungszahlen vergebenen.<br>
-· <em>Name der Haltestelle:</em> Die Namen entsprechen jenen, welche über den Haltestellen angezeigt werden. Mit einem klick auf den Haltestellennamen öffnet sich das <a href="station.txt">Haltestellenfenster</a> und die Hauptkarte zentriert auf die Haltestelle. Im Haltestellenfenster kannst Du den Namen der Haltestelle ändern.<br>
-· <em>Angenommene Kategorien:</em> Unter der Ordnungsnummer können drei Symbole für Passagiere, Post und Güter erscheinen. Fehlen Symbole, so werden die entsprechenden Kategorien nicht angenommen. Dies kann durch Erweiterung der Haltestelle mit zusätzlichen Haltestellengrafiken oder Nebengebäuden geändert werden.<br>
-· <em>Wartende Güter und Passagiere:</em> Personen und jede Güterart sind in einer Zeile gelistet.<br>
-· <em>Statusanzeige der Haltestelle:</em><br/>
-- Grün: Bei der Haltestelle ist alles in Ordnung.<br/>
+<em>ListeneintrÃ¤ge</em><br>
+Â· <em>Ordnungszahl:</em> Vom Spiel werden fÃ¼r alle Haltestellen Ordnungszahlen vergebenen.<br>
+Â· <em>Name der Haltestelle:</em> Die Namen entsprechen jenen, welche Ã¼ber den Haltestellen angezeigt werden. Mit einem klick auf den Haltestellennamen Ã¶ffnet sich das <a href="station.txt">Haltestellenfenster</a> und die Hauptkarte zentriert auf die Haltestelle. Im Haltestellenfenster kannst Du den Namen der Haltestelle Ã¤ndern.<br>
+Â· <em>Angenommene Kategorien:</em> Unter der Ordnungsnummer kÃ¶nnen drei Symbole fÃ¼r Passagiere, Post und GÃ¼ter erscheinen. Fehlen Symbole, so werden die entsprechenden Kategorien nicht angenommen. Dies kann durch Erweiterung der Haltestelle mit zusÃ¤tzlichen Haltestellengrafiken oder NebengebÃ¤uden geÃ¤ndert werden.<br>
+Â· <em>Wartende GÃ¼ter und Passagiere:</em> Personen und jede GÃ¼terart sind in einer Zeile gelistet.<br>
+Â· <em>Statusanzeige der Haltestelle:</em><br/>
+- GrÃ¼n: Bei der Haltestelle ist alles in Ordnung.<br/>
 - Gelb: Die Haltestelle ist nicht erschlossen (kein Fahrzeug kam vorbei, nichts warted).<br>
-- Orange: Die Haltestelle ist mäßig überfüllt mit Umsteigepassagieren/Waren.<br>
-- Rot: Die Haltestelle ist völlig überfüllt (mehr als 1,5fache Kapaziät) bzw. mehr als 200 Personen/Briefe haben ihre Reise wegen Überfüllung nicht angetreten oder eine Fabrik konnte ihre Waren nicht loswerden und musste deswegen die Produktion einstellen.<br>
-<br/>· <em>Symbol des Haltestellelentyps:</em> Die Symbole ermöglichen Dir eine schnelle Orientierung über die Fahrzeugtypen der Haltestellen. Die Symbole sind Bus, Lastwagen, Lok, Schiff, Flugzeug, Magnetbahn. Liegt eine Tram-Haltestelle auf einer Straße, ist deren Symbol eine Straßenbahn, ansonsten ist es eine Lok.
+- Orange: Die Haltestelle ist mÃ¤ÃŸig Ã¼berfÃ¼llt mit Umsteigepassagieren/Waren.<br>
+- Rot: Die Haltestelle ist vÃ¶llig Ã¼berfÃ¼llt (mehr als 1,5fache KapaziÃ¤t) bzw. mehr als 200 Personen/Briefe haben ihre Reise wegen ÃœberfÃ¼llung nicht angetreten oder eine Fabrik konnte ihre Waren nicht loswerden und musste deswegen die Produktion einstellen.<br>
+<br/>Â· <em>Symbol des Haltestellelentyps:</em> Die Symbole ermÃ¶glichen Dir eine schnelle Orientierung Ã¼ber die Fahrzeugtypen der Haltestellen. Die Symbole sind Bus, Lastwagen, Lok, Schiff, Flugzeug, Magnetbahn. Liegt eine Tram-Haltestelle auf einer StraÃŸe, ist deren Symbol eine StraÃŸenbahn, ansonsten ist es eine Lok.
 </p>

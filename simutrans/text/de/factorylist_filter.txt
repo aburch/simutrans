@@ -3,30 +3,30 @@
 <h1><strong>Fabrikliste</strong></h1>
 
 <p>
-Die Fabrikliste wird über die <a href="list.txt">Listenverwaltung</a> geöffnet.<br/>
-In der Fabrikliste sind alle Fabriken der Welt gelistet. Die Sortierung ist nach allen aufgeführten Kriterien möglich; klicke zum Wechseln auf den Button. Ein Klick auf einen Eintrag öffnet das Infofenster zur Fabrik und zentriert die Karte auf diese.
+Die Fabrikliste wird Ã¼ber die <a href="list.txt">Listenverwaltung</a> geÃ¶ffnet.<br/>
+In der Fabrikliste sind alle Fabriken der Welt gelistet. Die Sortierung ist nach allen aufgefÃ¼hrten Kriterien mÃ¶glich; klicke zum Wechseln auf den Button. Ein Klick auf einen Eintrag Ã¶ffnet das Infofenster zur Fabrik und zentriert die Karte auf diese.
 </p>
 <p>
-· <em>Status:</em> Zeigt den Status der Fabrik an.<br/>
+Â· <em>Status:</em> Zeigt den Status der Fabrik an.<br/>
 Die Farben bedeuten:<br/>
 - <em>Weiss:</em> Industrie produziert nicht<br/>
 - <em>Gelb:</em> Industrie ist nicht angeschlossen<br/>
-- <em>Grün:</em> Industrie hat Optimum<br/>
-- <em>Orange:</em> Industrie funktioniert, aber Verbesserungen sind möglich<br/>
-- <em>Rot:</em> Industrie muß überprüft werden
+- <em>GrÃ¼n:</em> Industrie hat Optimum<br/>
+- <em>Orange:</em> Industrie funktioniert, aber Verbesserungen sind mÃ¶glich<br/>
+- <em>Rot:</em> Industrie muÃŸ Ã¼berprÃ¼ft werden
 </p>
 <p>
-· <em>Strom:</em> Zeigt an, ob die Fabrik ans Stromnetz angeschlossen ist. Dies wird durch einen roten Blitz dargestellt.
+Â· <em>Strom:</em> Zeigt an, ob die Fabrik ans Stromnetz angeschlossen ist. Dies wird durch einen roten Blitz dargestellt.
 </p>
 <p>
-· <em>Fabrikname:</em> Die Bezeichnung für die Fabrik.
+Â· <em>Fabrikname:</em> Die Bezeichnung fÃ¼r die Fabrik.
 </p>
 <p>
-· <em>Eingang:</em> Die Summe aller im Rohstofflager der Fabrik wartenden Güter.
+Â· <em>Eingang:</em> Die Summe aller im Rohstofflager der Fabrik wartenden GÃ¼ter.
 </p>
 <p>
-· <em>Ausgang:</em> Die Summe aller im Fertigwarenlager transportbereiter Güter.
+Â· <em>Ausgang:</em> Die Summe aller im Fertigwarenlager transportbereiter GÃ¼ter.
 </p>
 <p>
-· <em>Produktion:</em> Die Produktionsrate der Fabrik.
+Â· <em>Produktion:</em> Die Produktionsrate der Fabrik.
 </p>

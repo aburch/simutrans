@@ -1,63 +1,63 @@
-<title>Aiuto statistiche citt‡</title>
+<title>Aiuto statistiche citt√†</title>
 
-<h1><strong>Statistiche citt‡</strong></h1>
+<h1><strong>Statistiche citt√†</strong></h1>
 
 <p>
-<strong>Statistiche citt‡</strong> visualizza le statistiche dell'area urbana selezionata e puÚ essere usata per cambiarne il nome. Un'area urbana Ë una citt‡, un paese o un villaggio; tutte le aree urbane sono chiamate citt‡.
+<strong>Statistiche citt√†</strong> visualizza le statistiche dell'area urbana selezionata e pu√≤ essere usata per cambiarne il nome. Un'area urbana √® una citt√†, un paese o un villaggio; tutte le aree urbane sono chiamate citt√†.
 </p>
 <p>
-Ogni citt‡ ha il suo Municipio e cresce attorno ad esso. Il trasporto di passeggeri e di posta aiuta la crescita, che provoca la costruzione di strade o l'assorbimento di quelle esistenti da parte del <a href="players.txt">servizio pubblico</a>; appaiono nuovi edifici cittadini e <a href="industry_info.txt">industrie</a> e i limiti della citt‡ di espandono.
+Ogni citt√† ha il suo Municipio e cresce attorno ad esso. Il trasporto di passeggeri e di posta aiuta la crescita, che provoca la costruzione di strade o l'assorbimento di quelle esistenti da parte del <a href="players.txt">servizio pubblico</a>; appaiono nuovi edifici cittadini e <a href="industry_info.txt">industrie</a> e i limiti della citt√† di espandono.
 </p>
 <p>
-Clicca su un Municipio nella vista di gioco con lo <a href="inspection_tool.txt">Strumento ispezione</a> o su una citt‡ elencata nella <a href="citylist_filter.txt">Lista citt‡</a> per aprire le <strong>Statistiche citt‡</strong>. Qui puoi vedere e modificare il nome della citt‡, alcune statistiche, due mini mappe e un grafico dove puoi vedere lo sviluppo nel tempo di certi fattori riguardanti la citt‡.
+Clicca su un Municipio nella vista di gioco con lo <a href="inspection_tool.txt">Strumento ispezione</a> o su una citt√† elencata nella <a href="citylist_filter.txt">Lista citt√†</a> per aprire le <strong>Statistiche citt√†</strong>. Qui puoi vedere e modificare il nome della citt√†, alcune statistiche, due mini mappe e un grafico dove puoi vedere lo sviluppo nel tempo di certi fattori riguardanti la citt√†.
 </p>
 <p>
-<em>Nome:</em> il nome assegnato alla citt‡ appare in un riquadro nella parte alta di <strong>Statistiche citt‡</strong>. <br>
-I nomi di queste aree urbane sono usati per creare quelli delle <a href="station.txt">fermate</a> nei limiti della citt‡. 
+<em>Nome:</em> il nome assegnato alla citt√† appare in un riquadro nella parte alta di <strong>Statistiche citt√†</strong>. <br>
+I nomi di queste aree urbane sono usati per creare quelli delle <a href="station.txt">fermate</a> nei limiti della citt√†. 
 Per cambiare il nomer cliccare semplicemente sul riquadro e inserirne uno nuovo.<br>
-{Suggerimento: Usa <a href="keys.txt">[!]</a> per vedere il nome della citt‡ sopra il Municipio nella finestra di gioco. Guarda readme_citylist.txt (in ...simutrans/text/) per pi˘ informazioni su come sono generati i nomi delle citt‡}.
+{Suggerimento: Usa <a href="keys.txt">[!]</a> per vedere il nome della citt√† sopra il Municipio nella finestra di gioco. Guarda readme_citylist.txt (in ...simutrans/text/) per pi√π informazioni su come sono generati i nomi delle citt√†}.
 </p>
 <p>
-Sotto il riquadro del nome sono presentate le statistiche base della citt‡:<br>
-<em>Dimensioni:</em> numero di cittadini corrente. Il recente aumento di popolazione Ë riportato tra parentesi.<br>
-<em>Edifici:</em> numero di edifici (residenziali/commerciali e industriali) nella citt‡.<br>
-<em>Coordinate sulla mappa:</em> indica i limiti della citt‡ (cambieranno con la crescita della citt‡). Il primo paio di valori indica l'angolo in alto a sinistra e il secondo quello in basso a destra. Con la crescita delle citt‡, i limiti si possono sovrapporre.
+Sotto il riquadro del nome sono presentate le statistiche base della citt√†:<br>
+<em>Dimensioni:</em> numero di cittadini corrente. Il recente aumento di popolazione √® riportato tra parentesi.<br>
+<em>Edifici:</em> numero di edifici (residenziali/commerciali e industriali) nella citt√†.<br>
+<em>Coordinate sulla mappa:</em> indica i limiti della citt√† (cambieranno con la crescita della citt√†). Il primo paio di valori indica l'angolo in alto a sinistra e il secondo quello in basso a destra. Con la crescita delle citt√†, i limiti si possono sovrapporre.
 </p>
 <p>
-Numero corrente di <em>disoccupati</em> e <em>senza tetto</em> nella citt‡. Essi aumenteranno quando la citt‡ espander‡ i propri limiti e scenderanno quando saranno eretti nuovi edifici. L'equilibrio tra questi numeri determina che tipo di edifici (residenziale/commerciale/industriale) verr‡ costruito.
+Numero corrente di <em>disoccupati</em> e <em>senza tetto</em> nella citt√†. Essi aumenteranno quando la citt√† espander√† i propri limiti e scenderanno quando saranno eretti nuovi edifici. L'equilibrio tra questi numeri determina che tipo di edifici (residenziale/commerciale/industriale) verr√† costruito.
 </p>
 <p>
-Il bottone <em>Permetti crescita citt‡</em> ti permette di attivare o disattivare la crescita delle citt‡.
+Il bottone <em>Permetti crescita citt√†</em> ti permette di attivare o disattivare la crescita delle citt√†.
 </p>
 <p>
-Le <em>Mini mappe</em> del mondo nelle <strong>Statistiche citt‡</strong> mostrano le destinazioni dei passeggeri e posta generati nella citt‡ come pallini colorati.<br>
-La mini mappa sulla destra riporta i dati dell'ultimo mese, e quella a sinistra del mese precedente. Il colore di ogni punto indica se la destinazione puÚ essere raggiunta o meno:<br>
-- punto giallo: c'Ë un percorso e una <a href="station.txt">fermata</a> non troppo affollata per iniziare il viaggio (faccina felice nelle Informazioni sulla fermata).<br>
-- punto arancione: non c'Ë un tragitto per questa destinazione.<br>
-- punto rosso: c'Ë un tragitto fino alla destinazione, ma la fermata della partenza era troppo affollata (faccia triste nelle Informazioni sulla fermata).
+Le <em>Mini mappe</em> del mondo nelle <strong>Statistiche citt√†</strong> mostrano le destinazioni dei passeggeri e posta generati nella citt√† come pallini colorati.<br>
+La mini mappa sulla destra riporta i dati dell'ultimo mese, e quella a sinistra del mese precedente. Il colore di ogni punto indica se la destinazione pu√≤ essere raggiunta o meno:<br>
+- punto giallo: c'√® un percorso e una <a href="station.txt">fermata</a> non troppo affollata per iniziare il viaggio (faccina felice nelle Informazioni sulla fermata).<br>
+- punto arancione: non c'√® un tragitto per questa destinazione.<br>
+- punto rosso: c'√® un tragitto fino alla destinazione, ma la fermata della partenza era troppo affollata (faccia triste nelle Informazioni sulla fermata).
 </p>
 <p>
-Sotto le mini mappe c'Ë un <em>grafico</em> che mostra le statistiche per la citt‡. <br>
-Sull'asse delle y c'Ë la quantit‡, mentre sulle x il tempo. 
+Sotto le mini mappe c'√® un <em>grafico</em> che mostra le statistiche per la citt√†. <br>
+Sull'asse delle y c'√® la quantit√†, mentre sulle x il tempo. 
 Clicca su uno dei due tab sopra per cambiare la scala dell'asse delle x:<br>
 <em>Anni:</em> visualizza valori annuali per gli ultimi 12 anni.<br>
 <em>Mesi:</em> visualizza valori mensili per gli ultimi 12 mesi.
 </p>
 
 <p>
-Cliccando sul bottone delle opzioni del grafico, attiverai e disattiverai le relative curve. Quando un bottone Ë selezionato, appare come premuto.<br>
+Cliccando sul bottone delle opzioni del grafico, attiverai e disattiverai le relative curve. Quando un bottone √® selezionato, appare come premuto.<br>
 Le curve hanno lo stesso colore del loro bottone:<br>
-<em>Popolazione:</em> il numero di abitanti che vivono nella citt‡.<br>
-<em>Crescita citt‡:</em> aumento o calo di popolazione (dipendente dalle dimensioni della citt‡ e dal servizio di trasporto fornito a passeggeri e posta).<br>
-<em>N∞ edifici:</em> quanti edifici sono presenti nella citt‡.<br>
-<em>Auto da citt‡:</em> quante auto sono state generate.<br>
+<em>Popolazione:</em> il numero di abitanti che vivono nella citt√†.<br>
+<em>Crescita citt√†:</em> aumento o calo di popolazione (dipendente dalle dimensioni della citt√† e dal servizio di trasporto fornito a passeggeri e posta).<br>
+<em>N¬∞ edifici:</em> quanti edifici sono presenti nella citt√†.<br>
+<em>Auto da citt√†:</em> quante auto sono state generate.<br>
 <em>Viaggi:</em> quanti passeggeri sono entrati nella rete di trasporto (rappresentato da una <a href="station.txt">faccina felice</a> nelle informazioni sulla fermata)<br>
-<em>Passeggeri:</em> il numero totale di passeggeri generati dalla citt‡.<br>
-<em>Posta spedita:</em> quantit‡ di posta che Ë entrata nella rete di trasporti.<br>
-<em>Posta:</em> quantit‡ totale di posta generata nella citt‡.<br>
-<em>Approvvigionamento:</em> numero di volte che ci sono state merci nelle fabbriche della citt‡.<br>
-<em>Merci:</em> numero di volte che il magazzino delle fabbriche in citt‡ Ë stato controllato.<br>
+<em>Passeggeri:</em> il numero totale di passeggeri generati dalla citt√†.<br>
+<em>Posta spedita:</em> quantit√† di posta che √® entrata nella rete di trasporti.<br>
+<em>Posta:</em> quantit√† totale di posta generata nella citt√†.<br>
+<em>Approvvigionamento:</em> numero di volte che ci sono state merci nelle fabbriche della citt√†.<br>
+<em>Merci:</em> numero di volte che il magazzino delle fabbriche in citt√† √® stato controllato.<br>
 </p>
 <p>
-{Suggerimento: le impostazioni relative alle citt‡ possono essere cambiate in simuconf.tab e cityrules.tab}.
+{Suggerimento: le impostazioni relative alle citt√† possono essere cambiate in simuconf.tab e cityrules.tab}.
 </p>

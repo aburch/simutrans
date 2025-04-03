@@ -24,13 +24,13 @@ En lo alto de la ventana
 <em>Valor de Venta:</em> el dinero recibido si se vende el Convoy (precio de compra menos un ligera depreciacion).
 </p>
 <p>
-CUIDADO: Pulsa en el boton <em>Modo Venta</em> para vender el Convoy inmediatamente. No requiere confirmacion de la opracion de venta. El Convoy es eliminado del juego y se añade la cantidad de la venta al balance de jugador .
+CUIDADO: Pulsa en el boton <em>Modo Venta</em> para vender el Convoy inmediatamente. No requiere confirmacion de la opracion de venta. El Convoy es eliminado del juego y se aÃ±ade la cantidad de la venta al balance de jugador .
 </p>
 <p>
 <strong>Detalles del Convoy</strong> lista todas la unidades del Convoy.<br>
 La informacion listada para todas las unidades de convoy incluyen:<br>
 - <em>grafico del vehiculo:</em> un dibujo de la unidad (tambien usado en <a href="depot.txt">depositos</a>).<br>
-- <em>Fabricado:</em> mes y año de fabricacion, asi como fecha de introduccion si estas jugando con <a href="new_world.txt">cronologia</a>.<br>
+- <em>Fabricado:</em> mes y aÃ±o de fabricacion, asi como fecha de introduccion si estas jugando con <a href="new_world.txt">cronologia</a>.<br>
 - <em>Valor de Venta:</em> cantidad recibida en caso de venta.<br>
 - <em>Potencia:</em> potencia generada (por vehiculos motorizados).<br>
 - <em>Friccion:</em> nivel actual de friccion.<br>

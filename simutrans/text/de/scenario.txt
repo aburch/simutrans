@@ -3,20 +3,20 @@
 <h1><strong>Spielziele</strong></h1>
 
 <p>
-Simutrans hat normalerweise kein bestimmtes Ziel. Es gibt jedoch die Möglichkeit, Spiele mit Spielziel zu definieren. Im Spielzieldialog werden Spiele mit einem Spielziel aufgelistet. Nach der Anwahl eines Eintrages wird eine neue Karte mit Spielziel ohne weitere Rückfrage geladen.
+Simutrans hat normalerweise kein bestimmtes Ziel. Es gibt jedoch die MÃ¶glichkeit, Spiele mit Spielziel zu definieren. Im Spielzieldialog werden Spiele mit einem Spielziel aufgelistet. Nach der Anwahl eines Eintrages wird eine neue Karte mit Spielziel ohne weitere RÃ¼ckfrage geladen.
 </p>
 <p>
 <em>Achtung!</em> Das aktuelle Spiel wird verworfen und nicht automatisch gesichert!
 </p>
 <p>
-Der aktuelle Stand in Prozent kann im Finanzdialog eingesehen werden. Wird das Spielziel am Ende eines Monates erreicht (also 100%) und das Konto ist nicht überzogen, erscheint eine Mitteilung. Das Spiel kann aber trotzdem normal fortgesetzt werden. Folgende Spielziele gibt es:
+Der aktuelle Stand in Prozent kann im Finanzdialog eingesehen werden. Wird das Spielziel am Ende eines Monates erreicht (also 100%) und das Konto ist nicht Ã¼berzogen, erscheint eine Mitteilung. Das Spiel kann aber trotzdem normal fortgesetzt werden. Folgende Spielziele gibt es:
 </p>
 <p>
-<br/>· Beliefere eine Fabrik (und alle ihre Zulieferer).</li>
-<br/>· Erreiche den vorgegebenen Kontostand.</li>
-<br/>· Baue ein Hauptquartier und die vorgegebene Anzahl profitabler Züge.</li>
-<br/>· Transportiere mondestens die vorgegebene Anzahl von Reisenden pro Monat.</li>
+<br/>Â· Beliefere eine Fabrik (und alle ihre Zulieferer).</li>
+<br/>Â· Erreiche den vorgegebenen Kontostand.</li>
+<br/>Â· Baue ein Hauptquartier und die vorgegebene Anzahl profitabler ZÃ¼ge.</li>
+<br/>Â· Transportiere mondestens die vorgegebene Anzahl von Reisenden pro Monat.</li>
 </p>
 <p>
-Weitere Spielziele können hinzugefügt werden. Die Dateien befinden sich im Verzeichnis <em>scenario</em>. Dieses befindet sich im Verzeichnis des verwendeten Paksets. Die Szenarios bestehen jeweils aus einem Spielstand und einer Beschreibungsdatei mit dem Spielziel.
+Weitere Spielziele kÃ¶nnen hinzugefÃ¼gt werden. Die Dateien befinden sich im Verzeichnis <em>scenario</em>. Dieses befindet sich im Verzeichnis des verwendeten Paksets. Die Szenarios bestehen jeweils aus einem Spielstand und einer Beschreibungsdatei mit dem Spielziel.
 </p>

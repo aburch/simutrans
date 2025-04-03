@@ -1,28 +1,28 @@
-<title>Über Simutrans</title>
+<title>Ãœber Simutrans</title>
 
 <h1><strong>Simutrans</strong></h1>
 
 <p>
-Versetze Dich in die Situation eines jungen Transportunternehmers. Du startest mit einem geringen, jedoch ausreichenden Grundkapital. Wähle eine der 10'000 verfügbaren Simutrans-Karten oder lade eine Reliefkarte. Die gleiche Ausgangskarte wird sich bei mehrmaligem Laden immer wieder mit einem anderen Szenario generieren. Als Basis der Generierungen dienen Deine getroffenen Grundeinstellungen.
+Versetze Dich in die Situation eines jungen Transportunternehmers. Du startest mit einem geringen, jedoch ausreichenden Grundkapital. WÃ¤hle eine der 10'000 verfÃ¼gbaren Simutrans-Karten oder lade eine Reliefkarte. Die gleiche Ausgangskarte wird sich bei mehrmaligem Laden immer wieder mit einem anderen Szenario generieren. Als Basis der Generierungen dienen Deine getroffenen Grundeinstellungen.
 </p>
 <p>
-Beurteile die angetroffene Situation. Die Entwicklung der kleinen Welt liegt nun in Deiner Hand. Du kannst etwa den einen oder den anderen Industriezweig erschließen, also Fertigungsbetriebe mit den Produkten der vertragsverbundenen Rohstoffproduzenten beliefern. Baue die benötigten Transportverbindungen. Dir stehen Schiene, Straße und Schifffahrt als Verkehrsträger zur Verfügung. Natürlich können Passagiere und Güter zwischen Verkehrsträgern umsteigen bzw. umgeladen werden.
+Beurteile die angetroffene Situation. Die Entwicklung der kleinen Welt liegt nun in Deiner Hand. Du kannst etwa den einen oder den anderen Industriezweig erschlieÃŸen, also Fertigungsbetriebe mit den Produkten der vertragsverbundenen Rohstoffproduzenten beliefern. Baue die benÃ¶tigten Transportverbindungen. Dir stehen Schiene, StraÃŸe und Schifffahrt als VerkehrstrÃ¤ger zur VerfÃ¼gung. NatÃ¼rlich kÃ¶nnen Passagiere und GÃ¼ter zwischen VerkehrstrÃ¤gern umsteigen bzw. umgeladen werden.
 </p>
 <p>
-Der Vorteil der Strategie des anfänglichen Gütertransportes besteht darin, mit oft wenig Aufwand nach kurzer Zeit die Mittel für kostenträchtigere Vorhaben zur Verfügung zu haben. Der Nachteil soll nicht verschwiegen werden: Die Städte zeigen derzeit keinerlei Wachstum.
+Der Vorteil der Strategie des anfÃ¤nglichen GÃ¼tertransportes besteht darin, mit oft wenig Aufwand nach kurzer Zeit die Mittel fÃ¼r kostentrÃ¤chtigere Vorhaben zur VerfÃ¼gung zu haben. Der Nachteil soll nicht verschwiegen werden: Die StÃ¤dte zeigen derzeit keinerlei Wachstum.
 </p>
 <p>
-Eine andere Strategie besteht darin, vom Spielbeginn an das Wachstum der Städte anzuregen. Werden den Stadtbewohnern Beförderungsmöglichkeiten zur Verfügung gestellt, können sie nun ihre Reiselust ausleben. Doch jeder potentielle Reisende interessiert sich unabhängig von Deinen Linienangeboten für ein ganz bestimmtes Reiseziel. Versuche also, so viele Städte wie möglich zu erschließen, sorge für Verbindungen der Städte untereinander. Achte auch auf die Erschließung der öffentlichen Einrichtungen wie Vergnügungseinrichtungen, Ruinen und sagenumwobene Königschlösser. Viele Touristen werden zu den Sehenswürdigkeiten strömen, ohne die Mären und die Legenden, welche um die oft düsteren Gemäuer ranken, je zerstören zu können. Transportiere auch die anfallende Post der Einwohner.
+Eine andere Strategie besteht darin, vom Spielbeginn an das Wachstum der StÃ¤dte anzuregen. Werden den Stadtbewohnern BefÃ¶rderungsmÃ¶glichkeiten zur VerfÃ¼gung gestellt, kÃ¶nnen sie nun ihre Reiselust ausleben. Doch jeder potentielle Reisende interessiert sich unabhÃ¤ngig von Deinen Linienangeboten fÃ¼r ein ganz bestimmtes Reiseziel. Versuche also, so viele StÃ¤dte wie mÃ¶glich zu erschlieÃŸen, sorge fÃ¼r Verbindungen der StÃ¤dte untereinander. Achte auch auf die ErschlieÃŸung der Ã¶ffentlichen Einrichtungen wie VergnÃ¼gungseinrichtungen, Ruinen und sagenumwobene KÃ¶nigschlÃ¶sser. Viele Touristen werden zu den SehenswÃ¼rdigkeiten strÃ¶men, ohne die MÃ¤ren und die Legenden, welche um die oft dÃ¼steren GemÃ¤uer ranken, je zerstÃ¶ren zu kÃ¶nnen. Transportiere auch die anfallende Post der Einwohner.
 </p>
 <p>
-Guter Service spricht sich rum. Je mehr Reisende mit deinem Service zufrieden waren und je mehr Post Du befördern konntest, desto zügiger werden die Städte wachsen. Neuer Wohnraum wird gebaut. Komplette Produktionsketten werden aus dem Boden schießen, als bestände die ganze Welt nur aus Maurern und Polieren. Die Betriebe handeln untereinander Abnahmeverträge aus. Für den expansionsbereiten Transportunternehmer und erfahrenen Logisten entwickeln sich ungeahnte Möglichkeiten.
+Guter Service spricht sich rum. Je mehr Reisende mit deinem Service zufrieden waren und je mehr Post Du befÃ¶rdern konntest, desto zÃ¼giger werden die StÃ¤dte wachsen. Neuer Wohnraum wird gebaut. Komplette Produktionsketten werden aus dem Boden schieÃŸen, als bestÃ¤nde die ganze Welt nur aus Maurern und Polieren. Die Betriebe handeln untereinander AbnahmevertrÃ¤ge aus. FÃ¼r den expansionsbereiten Transportunternehmer und erfahrenen Logisten entwickeln sich ungeahnte MÃ¶glichkeiten.
 </p>
 <p>
-Eine gute Wegeplanung wird Dich bei der optimalen Nutzung der Straßen- und Schienennetze unterstützen. Lass nicht mehr Fahrzeuge in einer Linie fahren, als Bedarf besteht. Knauser aber auch nicht. Vermeide nach Kräften Angebotsengpässe im Reiseverkehr. Ein zur Hälfte ausgelastetes Fahrzeug fährt immer noch profitabel.
+Eine gute Wegeplanung wird Dich bei der optimalen Nutzung der StraÃŸen- und Schienennetze unterstÃ¼tzen. Lass nicht mehr Fahrzeuge in einer Linie fahren, als Bedarf besteht. Knauser aber auch nicht. Vermeide nach KrÃ¤ften AngebotsengpÃ¤sse im Reiseverkehr. Ein zur HÃ¤lfte ausgelastetes Fahrzeug fÃ¤hrt immer noch profitabel.
 </p>
 <p>
-Es besteht keine zeitliche Beschränkung. Spiele, bis Deine gesteckten Ziele auch wirklich erreicht sind. Du kannst mit bis zu 6 KI-Spielern im Kampf um Märkte und Transportaufträge wetteifern. Schnappe anderen Spielern Passagiere und Güter vor der Nase weg. Vielleicht magst Du auch ganz auf KI-Spieler verzichten? Die Entscheidungen liegen bei Dir. Doch verausgab Dich vor allem in der Frühphase Deines aufstrebenden Unternehmens nicht. Auch Transportunternehmern droht der Konkurs, wenn sie Schulden nicht fristgerecht tilgen können.
+Es besteht keine zeitliche BeschrÃ¤nkung. Spiele, bis Deine gesteckten Ziele auch wirklich erreicht sind. Du kannst mit bis zu 6 KI-Spielern im Kampf um MÃ¤rkte und TransportauftrÃ¤ge wetteifern. Schnappe anderen Spielern Passagiere und GÃ¼ter vor der Nase weg. Vielleicht magst Du auch ganz auf KI-Spieler verzichten? Die Entscheidungen liegen bei Dir. Doch verausgab Dich vor allem in der FrÃ¼hphase Deines aufstrebenden Unternehmens nicht. Auch Transportunternehmern droht der Konkurs, wenn sie Schulden nicht fristgerecht tilgen kÃ¶nnen.
 </p>
 <p>
-Das <strong>Simutrans-Team</strong> und die nach Kräften mitwirkende Community wünschen Dir viel Langzeitspaß und grauzellen-trainierende Knobelkuren bei der Erkundung und der Erschließung völlig individueller Welten.
+Das <strong>Simutrans-Team</strong> und die nach KrÃ¤ften mitwirkende Community wÃ¼nschen Dir viel LangzeitspaÃŸ und grauzellen-trainierende Knobelkuren bei der Erkundung und der ErschlieÃŸung vÃ¶llig individueller Welten.
 </p>

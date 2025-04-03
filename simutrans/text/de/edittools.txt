@@ -2,46 +2,46 @@
 
 <h1><strong>Karteneditor</strong></h1>
 <p>
-Mit den Werkzeugen des Karteneditors kannst Du in den natürlichen Wachstumsprozess von Städten und Industrien eingegreifen. Das Menü lässt sich über einen Button im Menü <a href="special.txt">Spezialwerkzeuge</a> öffnen.
+Mit den Werkzeugen des Karteneditors kannst Du in den natÃ¼rlichen Wachstumsprozess von StÃ¤dten und Industrien eingegreifen. Das MenÃ¼ lÃ¤sst sich Ã¼ber einen Button im MenÃ¼ <a href="special.txt">Spezialwerkzeuge</a> Ã¶ffnen.
 </p>
 <p>
-Eine zu leicht spielbar organisierte Welt wird Dir bereits mit wenig Spielerfahrung jeden Anreiz und jeden Spielspaß rauben. Setze die Werkzeuge gar nicht oder überlegt ein. Realisiere bauliche Situationen, wie sie bei der Autogenerierung praktisch nicht erreicht werden können. Ein dichtes und schwer handhabbares Industrierevier auf einer Insel, der Fremdenverkehrsort mit seiner Attraktion in der schwer zugänglichen Gebirgslage, der Erlebnispark in der Nähe einer kleinen Stadt, die Erdölförderung nur an ausgewählten Küstenstreifen oder die Landwirtschaft als Schwerpunkt in einer ländlichen Umgebung stellen nur einige Beispiele aus der reichen Möglichkeitenpalette dar.
+Eine zu leicht spielbar organisierte Welt wird Dir bereits mit wenig Spielerfahrung jeden Anreiz und jeden SpielspaÃŸ rauben. Setze die Werkzeuge gar nicht oder Ã¼berlegt ein. Realisiere bauliche Situationen, wie sie bei der Autogenerierung praktisch nicht erreicht werden kÃ¶nnen. Ein dichtes und schwer handhabbares Industrierevier auf einer Insel, der Fremdenverkehrsort mit seiner Attraktion in der schwer zugÃ¤nglichen Gebirgslage, der Erlebnispark in der NÃ¤he einer kleinen Stadt, die ErdÃ¶lfÃ¶rderung nur an ausgewÃ¤hlten KÃ¼stenstreifen oder die Landwirtschaft als Schwerpunkt in einer lÃ¤ndlichen Umgebung stellen nur einige Beispiele aus der reichen MÃ¶glichkeitenpalette dar.
 </p>
 <p>
-· <em>Stadtwachstum:</em> Setze eines der beiden Werkzeuge in dem Gebiet der Stadt ein, deren Einwohnerzahl Du ändern möchtest. Nutzt Du das Werkzeug im Überschneidungsgebiet von Städten, wirkt sich die Aktion nur auf eine Stadt aus.<br/>
-- <em>Einwohnerzahl erhöhen:</em> Das Wachstumswerkzeug stellt einen nach oben weisen Pfeil dar. Bei jeder Werkzeugnutzung wird die Stadt um 100 Einwohner wachsen. Es werden sofort Gebäude erneuert oder frisch gebaut, da mit der Aktion die Arbeits- und Obdachlosenzahlen steigen.<br>
-- <em>Einwohnerzahl verringern:</em> Das Wachstumswerkzeug stellt einen nach unten weisen Pfeil dar. Die Einwohnerzahl der Stadt wird bei jeder Werkzeugnutzung um 100 schrumpfen. Alle Gebäude bleiben erhalten. Die Werte für Arbeitslose und Obdachlose geraten in negative Bereiche. Die Stadt wird erst wieder bauliche Entwicklung zeigen, wenn durch Wachstum Bedarf an Baumaßnahmen entstanden ist.
+Â· <em>Stadtwachstum:</em> Setze eines der beiden Werkzeuge in dem Gebiet der Stadt ein, deren Einwohnerzahl Du Ã¤ndern mÃ¶chtest. Nutzt Du das Werkzeug im Ãœberschneidungsgebiet von StÃ¤dten, wirkt sich die Aktion nur auf eine Stadt aus.<br/>
+- <em>Einwohnerzahl erhÃ¶hen:</em> Das Wachstumswerkzeug stellt einen nach oben weisen Pfeil dar. Bei jeder Werkzeugnutzung wird die Stadt um 100 Einwohner wachsen. Es werden sofort GebÃ¤ude erneuert oder frisch gebaut, da mit der Aktion die Arbeits- und Obdachlosenzahlen steigen.<br>
+- <em>Einwohnerzahl verringern:</em> Das Wachstumswerkzeug stellt einen nach unten weisen Pfeil dar. Die Einwohnerzahl der Stadt wird bei jeder Werkzeugnutzung um 100 schrumpfen. Alle GebÃ¤ude bleiben erhalten. Die Werte fÃ¼r Arbeitslose und Obdachlose geraten in negative Bereiche. Die Stadt wird erst wieder bauliche Entwicklung zeigen, wenn durch Wachstum Bedarf an BaumaÃŸnahmen entstanden ist.
 </p>
 <p>
-· <em>Gründe neue Stadt:</em> Hast Du zu wenige Städte auf Deiner Karte, kannst Du mit diesem Werkzeug neue Städte gründen. Die Stadt entsteht dort, wo Dumit dem Werkzeug hinklickst. Aber <strong>Vorsicht</strong>, jede Stadtgründung kostet Dich eine Menge Geld.
+Â· <em>GrÃ¼nde neue Stadt:</em> Hast Du zu wenige StÃ¤dte auf Deiner Karte, kannst Du mit diesem Werkzeug neue StÃ¤dte grÃ¼nden. Die Stadt entsteht dort, wo Dumit dem Werkzeug hinklickst. Aber <strong>Vorsicht</strong>, jede StadtgrÃ¼ndung kostet Dich eine Menge Geld.
 </p>
 <p>
-· <em>Stadtstraße bauen:</em> Das Bauwerkzeug stellt eine Straße dar. Straßen, die Du mit dem Werkzeug baust, können von allen Spielern kostenlos genutzt werden.
+Â· <em>StadtstraÃŸe bauen:</em> Das Bauwerkzeug stellt eine StraÃŸe dar. StraÃŸen, die Du mit dem Werkzeug baust, kÃ¶nnen von allen Spielern kostenlos genutzt werden.
 </p>
 <p>
-· <em>Industriedichte erhöhen:</em> Es wird eine zufällige Industriekette gebaut.
+Â· <em>Industriedichte erhÃ¶hen:</em> Es wird eine zufÃ¤llige Industriekette gebaut.
 </p>
 <p>
-· <em>Industrieanlagen bauen:</em> Öffnet den Dialog <a href="factory_build.txt">Industrieanlagen bauen</a>.
+Â· <em>Industrieanlagen bauen:</em> Ã–ffnet den Dialog <a href="factory_build.txt">Industrieanlagen bauen</a>.
 </p>
 <p>
-· <em>Industrieanlagen verbinden:</em> Mit diesem Werkzeug können Industrien verbunden werden. Dies funktioniert nur dann, wenn eine Warenverbindung möglich ist.
+Â· <em>Industrieanlagen verbinden:</em> Mit diesem Werkzeug kÃ¶nnen Industrien verbunden werden. Dies funktioniert nur dann, wenn eine Warenverbindung mÃ¶glich ist.
 </p>
 <p>
-· <em>Sehenswürdigkeiten bauen:</em> Öffnet den Dialog <a href="curiosity_build.txt">Sehenswürdigkeiten bauen</a>.
+Â· <em>SehenswÃ¼rdigkeiten bauen:</em> Ã–ffnet den Dialog <a href="curiosity_build.txt">SehenswÃ¼rdigkeiten bauen</a>.
 </p>
 <p>
-· <em>Stadtgebäude bauen:</em> Öffnet den Dialog <a href="citybuilding_build.txt">Stadtgebäude bauen</a>.
+Â· <em>StadtgebÃ¤ude bauen:</em> Ã–ffnet den Dialog <a href="citybuilding_build.txt">StadtgebÃ¤ude bauen</a>.
 </p>
 <p>
-· <em>Pflanze Baum:</em> Öffnet den Dialog <a href="baum_build.txt">Pflanze Baum</a>.
+Â· <em>Pflanze Baum:</em> Ã–ffnet den Dialog <a href="baum_build.txt">Pflanze Baum</a>.
 </p>
 <p>
-· <em>Wald aufforsten:</em> Markiere eine Fläche, auf die kreisförmig ein Wald aufgeforstet wird.
+Â· <em>Wald aufforsten:</em> Markiere eine FlÃ¤che, auf die kreisfÃ¶rmig ein Wald aufgeforstet wird.
 </p>
 <p>
-· <em>Jahr überspringen:</em>Die Simutrans-Zeit wird um ein Jahr nach vorne gestellt. Neue Fahrzeuge werden verfügbar, wenn ihr Einführungsjahr erreicht wird.
+Â· <em>Jahr Ã¼berspringen:</em>Die Simutrans-Zeit wird um ein Jahr nach vorne gestellt. Neue Fahrzeuge werden verfÃ¼gbar, wenn ihr EinfÃ¼hrungsjahr erreicht wird.
 </p>
 <p>
-· <em>Spielerwechsel sperren:</em> Klicke mit dem Werkzeug auf eine beliebigen Kartenposition. Dadurch ist der Wechsel zur öffentlichen Hand oder zu den Computerspielern nicht mehr möglich.
+Â· <em>Spielerwechsel sperren:</em> Klicke mit dem Werkzeug auf eine beliebigen Kartenposition. Dadurch ist der Wechsel zur Ã¶ffentlichen Hand oder zu den Computerspielern nicht mehr mÃ¶glich.
 </p>

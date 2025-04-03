@@ -5,7 +5,7 @@
 <p>
 Attraverso questa finestra di dialogo si possono avere
 informazioni su una specifica fermata/stazione su cui si
-è cliccato. Si possono vedere le merci in attesa, quali
+Ã¨ cliccato. Si possono vedere le merci in attesa, quali
 merci sono necessarie alle fabbriche vicine e quali altre
 fermate e stazioni sono connesse direttamente a questa.
 </p>
@@ -13,7 +13,7 @@ fermate e stazioni sono connesse direttamente a questa.
 <p>
 E' possibile anche cambiare il nome della fermata/stazione
 utilizzando il box vicino al top della finestra, dove il
-nome è visualizzato. Per farlo, si deve cliccare il box e
+nome Ã¨ visualizzato. Per farlo, si deve cliccare il box e
 editare il nome, premendo Invio quando si ha finito.
 </p>
 <p>
@@ -25,7 +25,7 @@ una per ogni tipo di merce, per es.<br>
 83 passeggeri in attesa<br>
 </p>
 <p>
-Quindi ognuna di queste voci è divisa in sotto-voci che
+Quindi ognuna di queste voci Ã¨ divisa in sotto-voci che
 indicano dove le merci sono dirette e l'esatto ammontare di
 ognuna, per es:
 </p>
@@ -36,7 +36,7 @@ ognuna, per es:
 - 2  passeggeri > Castelforte ferm. C.so Roma
 </p>
 <p>
-Nell'angolo in alto a destra della finestra c'è un bottone
+Nell'angolo in alto a destra della finestra c'Ã¨ un bottone
 etichettato 'Dettagli'. Si clicchi su di esso per aprire
 una finestra separata che illustra le merci richieste da
 fabbriche vicine e tutte le rotte dirette a partire da

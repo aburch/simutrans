@@ -3,11 +3,11 @@
 <h1><strong>Privatweg</strong></h1>
 
 <p>
-Mit diesem Schild kann festgelegt werden, wer auf diesem Weg passieren darf. Die einzigen Fahrzeuge der öffentlichen Hand sind die Stadtautos. Alle anderen Felder betreffen die anderen Spieler.
+Mit diesem Schild kann festgelegt werden, wer auf diesem Weg passieren darf. Die einzigen Fahrzeuge der Ã¶ffentlichen Hand sind die Stadtautos. Alle anderen Felder betreffen die anderen Spieler.
 </p>
 <p>
-Spieler aktiviert, heißt dass Fahrzeuge des Spieler passieren dürfen. Dieser Spieler sieht dann auch ein offenes Tor oder wie immer auch die Durchfahrt angezeigt wird.
+Spieler aktiviert, heiÃŸt dass Fahrzeuge des Spieler passieren dÃ¼rfen. Dieser Spieler sieht dann auch ein offenes Tor oder wie immer auch die Durchfahrt angezeigt wird.
 </p>
 <p>
-Dieses Verkehrzeichen gibt es in den Wegebauwerkzeugen, z.B bei den <a href="railtools.txt">Eisenbahnwerkzeugen</a> oder den <a href="roadtools.txt">Straßenbauwerkzeugen</a>.
+Dieses Verkehrzeichen gibt es in den Wegebauwerkzeugen, z.B bei den <a href="railtools.txt">Eisenbahnwerkzeugen</a> oder den <a href="roadtools.txt">StraÃŸenbauwerkzeugen</a>.
 </p>

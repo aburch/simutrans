@@ -3,49 +3,49 @@
 <h1><strong>Stadtinformation</strong></h1>
 
 <p>
-Die Stadtinformation zeigt Statistiken über die ausgewählte Stadt. Du kannst sie durch anklicken des Rathauses mit der Lupe öffnen. Das anklicken des Stadtnamens in der <a href="citylist_filter.txt">Stadtliste</a> öffnet die Stadtinformation ebenfalls.
+Die Stadtinformation zeigt Statistiken Ã¼ber die ausgewÃ¤hlte Stadt. Du kannst sie durch anklicken des Rathauses mit der Lupe Ã¶ffnen. Das anklicken des Stadtnamens in der <a href="citylist_filter.txt">Stadtliste</a> Ã¶ffnet die Stadtinformation ebenfalls.
 </p>
 <p>
-· <em>Name der Stadt:</em> Hier kannst du den Stadtname ändern. Bei Stadtgründung wird ein zufälliger aus der Datei <em>pak/text/citylist_de.txt</em> gewählt.<br>
+Â· <em>Name der Stadt:</em> Hier kannst du den Stadtname Ã¤ndern. Bei StadtgrÃ¼ndung wird ein zufÃ¤lliger aus der Datei <em>pak/text/citylist_de.txt</em> gewÃ¤hlt.<br>
 Vom Stadtnamen werden die Haltestellennamen abgeleitet. 
 </p>
 <p>
-· <em>Größe:</em> Die Einwohnerzahl der Stadt wird angezeigt.<br/>
-· <em>Bevölkerungszunahme:</em> Die Zahl in Klammern hinter der Größe gibt das derzeitigen Wachstum der Bevölkerung an. <br>
-· <em>Gebäude:</em> Anzahl der Häuser in der Stadt.<br/>
-· <em>Stadtgebiet:</em> Das Gebiet der Stadt umfasst das Quadrat, welches durch die beiden Koordinatenpaare (links oben und rechts unten) gebildet wird. Innerhalb der Stadtgrenzen realisiert die Stadt ihre Bauvorhaben. Mit dem Wachstum der Stadt erweitern sich deren Grenzen. Stadtgebiete können sich überlappen.<br/>
-· Die Stadt generiert Passagiere und Post zunächst für Bebauungen entsprechend den in den Gebäudeinfofenstern angegebenen Passagier- und Postraten. Reise- und Versandziele können alle Felder der Stadtgebiete (also auch der Ausflug zu den Grünflächen der Städte), der Ausflugziele und Fabriken sein.
+Â· <em>GrÃ¶ÃŸe:</em> Die Einwohnerzahl der Stadt wird angezeigt.<br/>
+Â· <em>BevÃ¶lkerungszunahme:</em> Die Zahl in Klammern hinter der GrÃ¶ÃŸe gibt das derzeitigen Wachstum der BevÃ¶lkerung an. <br>
+Â· <em>GebÃ¤ude:</em> Anzahl der HÃ¤user in der Stadt.<br/>
+Â· <em>Stadtgebiet:</em> Das Gebiet der Stadt umfasst das Quadrat, welches durch die beiden Koordinatenpaare (links oben und rechts unten) gebildet wird. Innerhalb der Stadtgrenzen realisiert die Stadt ihre Bauvorhaben. Mit dem Wachstum der Stadt erweitern sich deren Grenzen. Stadtgebiete kÃ¶nnen sich Ã¼berlappen.<br/>
+Â· Die Stadt generiert Passagiere und Post zunÃ¤chst fÃ¼r Bebauungen entsprechend den in den GebÃ¤udeinfofenstern angegebenen Passagier- und Postraten. Reise- und Versandziele kÃ¶nnen alle Felder der Stadtgebiete (also auch der Ausflug zu den GrÃ¼nflÃ¤chen der StÃ¤dte), der Ausflugziele und Fabriken sein.
 </p>
 <p>
-· Anzahl <em>Arbeitslose</em> und <em>Obdachlose</em> Mit diesen Werten entscheidet die Stadt ob sie baut und wenn ja, ob sie Wohnhäuser, Industrie- oder Gewerbegebäude baut.<br>
-· <em>Stadt darf wachsen:</em> Ein nicht gedrückter Knopf blockiert das Wachstums. Dann werden Häuser und Straßen nicht erneuert oder verändert. Nützlich bei manuell gebauten Städten.<br/>
+Â· Anzahl <em>Arbeitslose</em> und <em>Obdachlose</em> Mit diesen Werten entscheidet die Stadt ob sie baut und wenn ja, ob sie WohnhÃ¤user, Industrie- oder GewerbegebÃ¤ude baut.<br>
+Â· <em>Stadt darf wachsen:</em> Ein nicht gedrÃ¼ckter Knopf blockiert das Wachstums. Dann werden HÃ¤user und StraÃŸen nicht erneuert oder verÃ¤ndert. NÃ¼tzlich bei manuell gebauten StÃ¤dten.<br/>
 </p>
 <p>
-<em>Minikarten mit Passagier- und Postziele:</em> Die beide Weltkarten zeigt die Ziele der Stadtbürger. Links für den letzten und damit für einen kompletten Monat, rechts bisher aufgelaufene Ziele im aktuellen Monat. <br>
- - <em>gelber Punkt:</em> Für jede angetretene Reise und für jede abgesandte Postsendung wird das Ziel mit einem gelben Punkt markiert. <br>
+<em>Minikarten mit Passagier- und Postziele:</em> Die beide Weltkarten zeigt die Ziele der StadtbÃ¼rger. Links fÃ¼r den letzten und damit fÃ¼r einen kompletten Monat, rechts bisher aufgelaufene Ziele im aktuellen Monat. <br>
+ - <em>gelber Punkt:</em> FÃ¼r jede angetretene Reise und fÃ¼r jede abgesandte Postsendung wird das Ziel mit einem gelben Punkt markiert. <br>
  - <em>Dunkel oranger Punkt:</em> Dieser wird an das beabsichtigte Ziele platziert, wenn keine Route gefunden wurde. <br>
- - <em>Hell oranger Punkt:</em> Dieser markiert das Ziel, wenn der Passagier unglücklich ist, weil bereits die Starthaltestelle überfüllt ist. Er sucht nicht im Fahrplan nach einer Route sondern geht sofort wieder nach Hause.
+ - <em>Hell oranger Punkt:</em> Dieser markiert das Ziel, wenn der Passagier unglÃ¼cklich ist, weil bereits die Starthaltestelle Ã¼berfÃ¼llt ist. Er sucht nicht im Fahrplan nach einer Route sondern geht sofort wieder nach Hause.
 </p>
 <p>
-<em>Statistiken:</em> Die Farben der Kurven entsprechen jenen der Statistikschalter. Werte werden je nach der Einstellung der Anzeigezeiträume jahresweise oder monatweise aufaddiert. Die neuesten Werte stehen links. Klickt man einen Punkt der Kurve an, so wird der genaue Wert angezeigt.<br>
-· <em>Einwohner:</em> Die Entwicklung der Einwohnerzahl wird dargestellt.<br>
-· <em>Wachstum:</em> Das Bevölkerungswachstum der Stadt wird dargestellt.<br>
-· <em>Stadtgebäude:</em> Anzahl der Stadt Gebäude in der Stadt.<br>
-· <em>Stadtautos:</em> Passagiere die nicht befördert werden, fahren mit dem eigenen Auto.<br>
-· <em>Beförderungen:</em> Anzahl Passagiere die ihre Reise angetreten haben. Das sind die lächelnden Passagiere in den Haltestellen.<br>
-· <em>zu Fuß:</em> Anzahl Passagiere die zu Fuß gehen.<br>
-· <em>Passagiere:</em> Alle Personen der Stadt die befördert werden wollen.<br>
-Je näher beieinander die Graphen für "Beförderungen" und "Passagiere" liegen, desto schneller wächst die Stadt.<br>
-· <em>abgeschickt:</em> Anzahl Postsendungen die unterwegs sind.<br>
-· <em>Wurfsendungen:</em> Anzahl Postsendungen die vom Absender zu Fuß zugestellt worden sind.<br>
-· <em>Post:</em> Alle in der Stadt anfallenden Postsendungen.<br>
-Je näher beieinander die Graphen für "abgeschickt" und "Post" liegen, desto schneller wächst die Stadt.<br>
-· <em>Angekommen:</em> Anzahl Eingangs-Lager der Fabriken die zur Stadt gehören und die Waren enthalten. Es wird bei jedem Tick gezählt.<br>
-· <em>Waren:</em> Anzahl Eingangs-Lager der Fabriken die zur Stadt gehören. <br>
-Je näher beieinander die Graphen für "Angekommen" und "Waren" liegen, desto schneller wächst die Stadt.<br>Die Eingangslager zählen für diese Stadt, wenn auch Arbeiter der Fabrik in dieser Stadt wohnen. Das wird in der erste Tab der Fabrik angezeigt.<br> 
+<em>Statistiken:</em> Die Farben der Kurven entsprechen jenen der Statistikschalter. Werte werden je nach der Einstellung der AnzeigezeitrÃ¤ume jahresweise oder monatweise aufaddiert. Die neuesten Werte stehen links. Klickt man einen Punkt der Kurve an, so wird der genaue Wert angezeigt.<br>
+Â· <em>Einwohner:</em> Die Entwicklung der Einwohnerzahl wird dargestellt.<br>
+Â· <em>Wachstum:</em> Das BevÃ¶lkerungswachstum der Stadt wird dargestellt.<br>
+Â· <em>StadtgebÃ¤ude:</em> Anzahl der Stadt GebÃ¤ude in der Stadt.<br>
+Â· <em>Stadtautos:</em> Passagiere die nicht befÃ¶rdert werden, fahren mit dem eigenen Auto.<br>
+Â· <em>BefÃ¶rderungen:</em> Anzahl Passagiere die ihre Reise angetreten haben. Das sind die lÃ¤chelnden Passagiere in den Haltestellen.<br>
+Â· <em>zu FuÃŸ:</em> Anzahl Passagiere die zu FuÃŸ gehen.<br>
+Â· <em>Passagiere:</em> Alle Personen der Stadt die befÃ¶rdert werden wollen.<br>
+Je nÃ¤her beieinander die Graphen fÃ¼r "BefÃ¶rderungen" und "Passagiere" liegen, desto schneller wÃ¤chst die Stadt.<br>
+Â· <em>abgeschickt:</em> Anzahl Postsendungen die unterwegs sind.<br>
+Â· <em>Wurfsendungen:</em> Anzahl Postsendungen die vom Absender zu FuÃŸ zugestellt worden sind.<br>
+Â· <em>Post:</em> Alle in der Stadt anfallenden Postsendungen.<br>
+Je nÃ¤her beieinander die Graphen fÃ¼r "abgeschickt" und "Post" liegen, desto schneller wÃ¤chst die Stadt.<br>
+Â· <em>Angekommen:</em> Anzahl Eingangs-Lager der Fabriken die zur Stadt gehÃ¶ren und die Waren enthalten. Es wird bei jedem Tick gezÃ¤hlt.<br>
+Â· <em>Waren:</em> Anzahl Eingangs-Lager der Fabriken die zur Stadt gehÃ¶ren. <br>
+Je nÃ¤her beieinander die Graphen fÃ¼r "Angekommen" und "Waren" liegen, desto schneller wÃ¤chst die Stadt.<br>Die Eingangslager zÃ¤hlen fÃ¼r diese Stadt, wenn auch Arbeiter der Fabrik in dieser Stadt wohnen. Das wird in der erste Tab der Fabrik angezeigt.<br> 
 </p>
 <p><em>Stadtwachstum:</em><br>
-Nun bist Du als Spieler gefragt: Erschließe die Stadt mit dem öffentlichen Verkehr für Personen und Post. Versorge die Märkte mit Waren.<br>
+Nun bist Du als Spieler gefragt: ErschlieÃŸe die Stadt mit dem Ã¶ffentlichen Verkehr fÃ¼r Personen und Post. Versorge die MÃ¤rkte mit Waren.<br>
 Ohne Versorgung kein Wachstum in der Stadt.<br>
 <a href="citygrowth.txt">Detaillierte Informationen zum Stadtwachstum findest du hier</a>
 </p>

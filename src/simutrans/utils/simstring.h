@@ -75,8 +75,10 @@ char get_fraction_sep();
 const char *get_large_money_string();
 
 // currency (default "$")
-void set_currency_string(const char* c);
+void set_currency_string(const char* c, bool left);
 const char* get_currency_string();
+bool get_currency_left();
+
 
 /**
  * Set thousand exponent (3=1000, 4=10000), used in money_to_string and

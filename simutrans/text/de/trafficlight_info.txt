@@ -3,9 +3,9 @@
 <h1><strong>Ampelphasen einstellen</strong></h1>
 
 <p>
-Mit diesem Dialog werden die Ampelphasen eingestellt. Dabei gibt es zwei Richtungen: Nord-Süd (erstes Feld) und Ost-West (zweites Feld). Da alle Ampel auf der Karte synchron schalten, kann man im dritten Feld eine Verschiebung angeben, um eine grüne Welle zu realisieren.
+Mit diesem Dialog werden die Ampelphasen eingestellt. Dabei gibt es zwei Richtungen: Nord-SÃ¼d (erstes Feld) und Ost-West (zweites Feld). Da alle Ampel auf der Karte synchron schalten, kann man im dritten Feld eine Verschiebung angeben, um eine grÃ¼ne Welle zu realisieren.
 </p>
 
 <p>
-Ampeln gibt es in den <a href="roadtools.txt">Straßenbauwerkzeugen</a>.
+Ampeln gibt es in den <a href="roadtools.txt">StraÃŸenbauwerkzeugen</a>.
 </p>

@@ -5,12 +5,12 @@
 <p>
 Questa finestra elenca tutti i nomo di file dei giochi salvati
 precedentemente. Se si vuole sostituire un file esistente, si faccia
-clic sul bottone sul quale vi compare il nome: Simutrans salver‡
+clic sul bottone sul quale vi compare il nome: Simutrans salver√†
 il gioco con quel nome.
 </p>
 <p>
 Se si vuole invece salvare il gioco con un nuovo nome, si selezioni
 con il mouse la casella di inserimento e vi si scriva dentro il nuovo
-nome. Cliccando il bottone "Salva", il gioco verr‡ salvato con il nuovo
+nome. Cliccando il bottone "Salva", il gioco verr√† salvato con il nuovo
 nome.
 </p>

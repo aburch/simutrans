@@ -33,7 +33,7 @@ Velocidad de desplazamiento:</em> establece la velocidad de desplazamiento de la
 </p>
 <p>
 <em>Densidad de trafico:</em> establece el numero de vehiculos privador en las <a href="citywindow.txt">areas urbanas</a>.<br>
-El numero de nuevos vehiculos priados que apareccen en las areas urbanas en crecimiento depende del tamaño y la densidad de trafico. Los valores altos crean mas trafico, el 0 no genera nada.
+El numero de nuevos vehiculos priados que apareccen en las areas urbanas en crecimiento depende del tamaÃ±o y la densidad de trafico. Los valores altos crean mas trafico, el 0 no genera nada.
 </p>
 <p>
 {Consejos: Se pueden cambiar mas opciones y valores en el archivo simuconf.tab}.

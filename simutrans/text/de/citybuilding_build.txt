@@ -1,35 +1,35 @@
-<title>Stadtgebäude bauen</title>
+<title>StadtgebÃ¤ude bauen</title>
 
-<h1><strong>Stadtgebäude bauen</strong></h1>
+<h1><strong>StadtgebÃ¤ude bauen</strong></h1>
 
 <p>
 Der Dialog ist in vier Bereiche aufgeteilt.
 <br>
-· oben links befindet sich die Auswahlliste mit den Stadtgebäuden<br>
-· unten links wird das Bild des ausgewählten Stadtgebäudes angezeigt<br>
-· oben rechts befinden sich einige Optionen<br>
-· unten rechts werden die Informationen des ausgewählten Stadtgebäudes angezeigt<br>
+Â· oben links befindet sich die Auswahlliste mit den StadtgebÃ¤uden<br>
+Â· unten links wird das Bild des ausgewÃ¤hlten StadtgebÃ¤udes angezeigt<br>
+Â· oben rechts befinden sich einige Optionen<br>
+Â· unten rechts werden die Informationen des ausgewÃ¤hlten StadtgebÃ¤udes angezeigt<br>
 </p>
 <h1>Auswahlliste</h1>
 <p>
-In der Auswahlliste werden alle zur Verfügung stehenden Stadtgebäude angezeigt, wenn die entsprechenden Optionen aktiviert (<em>Wohnhaus</em>, <em>Gewerbegebäude</em>, <em>Industriegebäude</em>) sind.
+In der Auswahlliste werden alle zur VerfÃ¼gung stehenden StadtgebÃ¤ude angezeigt, wenn die entsprechenden Optionen aktiviert (<em>Wohnhaus</em>, <em>GewerbegebÃ¤ude</em>, <em>IndustriegebÃ¤ude</em>) sind.
 Oben befinden sich zwei Reiter, die die Anzeige umschalten.<br>
-· <em>Übersetzung:</em> Zeigt die Namen so an, wie diese im Spiel verwendet werden. Dies ist abhängig von der eingestellten Sprache. Wenn keine Übersetzung für die eingestellte Sprache vorhanden ist, wird der Objektname angezeigt.<br>
-· <em>Objekt:</em> Zeigt die internen Objektnamen an.<br>
+Â· <em>Ãœbersetzung:</em> Zeigt die Namen so an, wie diese im Spiel verwendet werden. Dies ist abhÃ¤ngig von der eingestellten Sprache. Wenn keine Ãœbersetzung fÃ¼r die eingestellte Sprache vorhanden ist, wird der Objektname angezeigt.<br>
+Â· <em>Objekt:</em> Zeigt die internen Objektnamen an.<br>
 <br>
 Die Schriftfarben haben folgende Bedeutung:<br>
-· <em>blaue Schrift</em> kennzeichnet Wohnhäuser.<br>
-· <em>grüne Schrift</em> kennzeichnet Gewerbegebäude.<br>
-· <em>schwarze Schrift</em> kennzeichnet Industriegebäude.<br>
+Â· <em>blaue Schrift</em> kennzeichnet WohnhÃ¤user.<br>
+Â· <em>grÃ¼ne Schrift</em> kennzeichnet GewerbegebÃ¤ude.<br>
+Â· <em>schwarze Schrift</em> kennzeichnet IndustriegebÃ¤ude.<br>
 </p>
 <h1>Optionen</h1>
 <p>
-· <em>alle Klimazonen:</em> Diese Option deaktiviert die Klimazonenzuordnung beim Bau des Stadtgebäudes.<br>
-· <em>Mit Epoche ab Jahr:</em> Es werden nur die Gebäude in der Auswahlliste angezeigt, die im aktuellem Spieljahr zur Verfügung stehen.<br>
-· <em>Auch veraltete zeigen:</em> Es werden auch die Gebäude in der Auswahlliste angezeigt, die in früheren Spieljahren mal zur Verfügung standen.<br>
-· <em>Wohnhaus:</em> Es werden die Wohnhäuser in der Auswahlliste angezeigt.<br>
-· <em>Gewerbegebäude:</em> Es werden die Gewerbegebäude in der Auswahlliste angezeigt.<br>
-· <em>Industriegebäude:</em> Es werden die Industriegebäude in der Auswahlliste angezeigt.
+Â· <em>alle Klimazonen:</em> Diese Option deaktiviert die Klimazonenzuordnung beim Bau des StadtgebÃ¤udes.<br>
+Â· <em>Mit Epoche ab Jahr:</em> Es werden nur die GebÃ¤ude in der Auswahlliste angezeigt, die im aktuellem Spieljahr zur VerfÃ¼gung stehen.<br>
+Â· <em>Auch veraltete zeigen:</em> Es werden auch die GebÃ¤ude in der Auswahlliste angezeigt, die in frÃ¼heren Spieljahren mal zur VerfÃ¼gung standen.<br>
+Â· <em>Wohnhaus:</em> Es werden die WohnhÃ¤user in der Auswahlliste angezeigt.<br>
+Â· <em>GewerbegebÃ¤ude:</em> Es werden die GewerbegebÃ¤ude in der Auswahlliste angezeigt.<br>
+Â· <em>IndustriegebÃ¤ude:</em> Es werden die IndustriegebÃ¤ude in der Auswahlliste angezeigt.
 <br>
-· <em>Rotation:</em> Sofern das ausgewählte Stadtgebäude mehrere Ansichten hat, kann hier eine bestimmte Ansicht ausgewählt werden. Die Grafik unten links wird entsprechen gewechselt. Bei der Auswahl von <em>Zufällig</em>, wird beim Bau des Stadtgebäudes irgendeine Ansicht gewählt.<br>
+Â· <em>Rotation:</em> Sofern das ausgewÃ¤hlte StadtgebÃ¤ude mehrere Ansichten hat, kann hier eine bestimmte Ansicht ausgewÃ¤hlt werden. Die Grafik unten links wird entsprechen gewechselt. Bei der Auswahl von <em>ZufÃ¤llig</em>, wird beim Bau des StadtgebÃ¤udes irgendeine Ansicht gewÃ¤hlt.<br>
 </p>

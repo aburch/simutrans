@@ -2,113 +2,113 @@
 
 <h1><strong>Depotfenster</strong></h1>
 <p>
-<em>Depotarten:</em> Die Depots für Züge, Straßenfahrzeuge, Schiffe, Trams, Flugzeuge und Magnetschwebebahnen halten die jeweiligen Fahrzeugarten bereit. Im Depotfenster kannst Du Fahrzeuge kaufen und verkaufen sowie Fahrzeugverbände zusammenstellen, Zusammenstellungen ändern und auflösen. Im Aufbau unterscheiden sich die Depotfenster nicht.
+<em>Depotarten:</em> Die Depots fÃ¼r ZÃ¼ge, StraÃŸenfahrzeuge, Schiffe, Trams, Flugzeuge und Magnetschwebebahnen halten die jeweiligen Fahrzeugarten bereit. Im Depotfenster kannst Du Fahrzeuge kaufen und verkaufen sowie FahrzeugverbÃ¤nde zusammenstellen, Zusammenstellungen Ã¤ndern und auflÃ¶sen. Im Aufbau unterscheiden sich die Depotfenster nicht.
 <br/> <br/>
-<em>Fenstertitelleiste:</em> Rechts neben dem Fragezeichen befinden sich 2 Pfeilschaltflächen. Mit den Pfeilen kannst Du nacheinander zu den anderen Depots des gleichen Typs wechseln.
+<em>Fenstertitelleiste:</em> Rechts neben dem Fragezeichen befinden sich 2 PfeilschaltflÃ¤chen. Mit den Pfeilen kannst Du nacheinander zu den anderen Depots des gleichen Typs wechseln.
 <br/> <br/>
-<em>Fahrzeuglisten:</em> Fahrzeugverbände, die sich im Depot befinden, werden in Fahrzeuglisten erfasst. Die Zeile gibt Aufschluss darüber, wieviele Fahrzeugverbände sich im Depot befinden. Sie zeigt auch an, welche Liste gerade ausgewählt ist.
+<em>Fahrzeuglisten:</em> FahrzeugverbÃ¤nde, die sich im Depot befinden, werden in Fahrzeuglisten erfasst. Die Zeile gibt Aufschluss darÃ¼ber, wieviele FahrzeugverbÃ¤nde sich im Depot befinden. Sie zeigt auch an, welche Liste gerade ausgewÃ¤hlt ist.
 <br/> <br/>
-<em>Auswahl eines Fahrzeugverbandes:</em> Mit den beiden Pfeilschaltflächen links und rechts des Edit-Feldes kannst Du allen Fahrzeugverbände durchschalten, die sich derzeit im Depot befinden. Möchtest Du einen neuen zusammenstellen, schalte bis zum Eintrag "Neuer Fahrzeugverband".
-<br/>Im editierbaren Feld kannst Du den Namen des Fahrzeugverbandes nach Belieben ändern. Klicke mit der Maus in das Feld. Bestätige den Abschluss der Arbeit mit <em>RETURN</em>.
+<em>Auswahl eines Fahrzeugverbandes:</em> Mit den beiden PfeilschaltflÃ¤chen links und rechts des Edit-Feldes kannst Du allen FahrzeugverbÃ¤nde durchschalten, die sich derzeit im Depot befinden. MÃ¶chtest Du einen neuen zusammenstellen, schalte bis zum Eintrag "Neuer Fahrzeugverband".
+<br/>Im editierbaren Feld kannst Du den Namen des Fahrzeugverbandes nach Belieben Ã¤ndern. Klicke mit der Maus in das Feld. BestÃ¤tige den Abschluss der Arbeit mit <em>RETURN</em>.
 </p>
 <p>
-<em>Linienauswahl:</em> Du kannst eine bestehende Linie auswählen. Für die Durchschaltung der Linien stehen Dir die Pfeilschalter links und rechts der Linienauswahl zur Verfügung. Ein Klick in das Anzeigefeld öffnet ein Auswahlliste. In ihr kannst Du mit der Maus den gewünschten Eintrag auswählen. Es ist auch möglich, dort den Liniennamen zu editieren; aus eigener Erfahrung des Autors wird empfohlen, dies in der <a href="linemanagement.txt">Linienverwaltung</a> zu machen.
+<em>Linienauswahl:</em> Du kannst eine bestehende Linie auswÃ¤hlen. FÃ¼r die Durchschaltung der Linien stehen Dir die Pfeilschalter links und rechts der Linienauswahl zur VerfÃ¼gung. Ein Klick in das Anzeigefeld Ã¶ffnet ein Auswahlliste. In ihr kannst Du mit der Maus den gewÃ¼nschten Eintrag auswÃ¤hlen. Es ist auch mÃ¶glich, dort den Liniennamen zu editieren; aus eigener Erfahrung des Autors wird empfohlen, dies in der <a href="linemanagement.txt">Linienverwaltung</a> zu machen.
 </p>
 <p>
-<em>Fahrzeugansicht:</em> Ein Fahrzeugverband besteht aus mindestens einem Einzelfahrzeug. Flugzeuge erlauben sind immer solo, Straßen- und Schiffsfahrzeugverbände können bis zu 4 Fahrzeuge, Schienenfahrzeugverbände bis zu 24 Einzelfahrzeuge enthalten. Der ausgewählte Fahrzeugverband wird in dem Feld darunter grafisch dargestellt.<br/>
-· Wenn Du die Maus über ein Einzelfahrzeug führst, werden im unteren Bereich des Fensters dessen <a href="depot.txt">Fahrzeugdaten</a> angezeigt.<br/>
-· Klickst Du ein Einzelfahrzeug an, wird es aus dem Fahrzeugverband entfernt und im Depot eingelagert. Eine Ordnungszahl im Einzelfahrzeugdepot zeigt an, wie viele Fahrzeuge des Typs Du eingelagert hast.<br/>
-· Unter der grafischen Ansicht des Fahrzeugverbandes werden die Anzahl der Fahrzeuge, die benötigte Haltenstellenlänge, der Verkaufswert und die bediente Linie angezeigt.
+<em>Fahrzeugansicht:</em> Ein Fahrzeugverband besteht aus mindestens einem Einzelfahrzeug. Flugzeuge erlauben sind immer solo, StraÃŸen- und SchiffsfahrzeugverbÃ¤nde kÃ¶nnen bis zu 4 Fahrzeuge, SchienenfahrzeugverbÃ¤nde bis zu 24 Einzelfahrzeuge enthalten. Der ausgewÃ¤hlte Fahrzeugverband wird in dem Feld darunter grafisch dargestellt.<br/>
+Â· Wenn Du die Maus Ã¼ber ein Einzelfahrzeug fÃ¼hrst, werden im unteren Bereich des Fensters dessen <a href="depot.txt">Fahrzeugdaten</a> angezeigt.<br/>
+Â· Klickst Du ein Einzelfahrzeug an, wird es aus dem Fahrzeugverband entfernt und im Depot eingelagert. Eine Ordnungszahl im Einzelfahrzeugdepot zeigt an, wie viele Fahrzeuge des Typs Du eingelagert hast.<br/>
+Â· Unter der grafischen Ansicht des Fahrzeugverbandes werden die Anzahl der Fahrzeuge, die benÃ¶tigte HaltenstellenlÃ¤nge, der Verkaufswert und die bediente Linie angezeigt.
 </p>
 <p>
-<strong>Die Funktionen der gruppierten Schaltflächen:</strong><br/>
-<em>Start:</em> Schicke einen Fahrzeugverband mit Fahrplan auf die Reise, es wird der im Fahrplan ausgewählte Halt angefahren.<br/>
-<em>Fahrplan:</em> Das <a href="schedule.txt">Fahrplan-Fenster</a> wird geöffnet, in welchem Du einen individuellen Fahrplan erstellen kannst.<br/>
-<em>Auflösen:</em> Der aktuelle Fahrzeugverbandes wird aufgelöst, alle Fahrzeuge werden ins Depot eingelagert.<br/>
+<strong>Die Funktionen der gruppierten SchaltflÃ¤chen:</strong><br/>
+<em>Start:</em> Schicke einen Fahrzeugverband mit Fahrplan auf die Reise, es wird der im Fahrplan ausgewÃ¤hlte Halt angefahren.<br/>
+<em>Fahrplan:</em> Das <a href="schedule.txt">Fahrplan-Fenster</a> wird geÃ¶ffnet, in welchem Du einen individuellen Fahrplan erstellen kannst.<br/>
+<em>AuflÃ¶sen:</em> Der aktuelle Fahrzeugverbandes wird aufgelÃ¶st, alle Fahrzeuge werden ins Depot eingelagert.<br/>
 <em>Verkauf:</em> Der aktuelle Fahrzeugverbandes wird zum aktuellen Verkaufswert verkauft.<br/><br/>
-<em>Neue Linie:</em>Das <a href="schedule.txt">Linienplan-Fenster</a> wird geöffnet, in welchem Du die Haltepunkte einer neuen Linie eintragen kannst.<br/>
+<em>Neue Linie:</em>Das <a href="schedule.txt">Linienplan-Fenster</a> wird geÃ¶ffnet, in welchem Du die Haltepunkte einer neuen Linie eintragen kannst.<br/>
 <em>Linie zuweisen:</em> Weise dem Fahrzeugverbandes die aktuelle Linie der Linienauswahl zu.<br/>
-<em>Linie ändern:</em> Im <a href="schedule.txt">Linienplan-Fenster</a> kannst Du die oben angezeigte Linie bearbeiten.<br/>
-<em>Kopieren:</em> Kaufe einen Fahrzeugverbandes, der in seiner Zusammenstellung dem aktuellen Fahrzeugverbandes entspricht. Der Name und ein zugewiesener Fahrplan/Linie werden übernommen.
+<em>Linie Ã¤ndern:</em> Im <a href="schedule.txt">Linienplan-Fenster</a> kannst Du die oben angezeigte Linie bearbeiten.<br/>
+<em>Kopieren:</em> Kaufe einen Fahrzeugverbandes, der in seiner Zusammenstellung dem aktuellen Fahrzeugverbandes entspricht. Der Name und ein zugewiesener Fahrplan/Linie werden Ã¼bernommen.
 </p>
 <p>
-<em>Einzelfahrzeugdepot:</em> Im Depot sind alle derzeit verfügbaren Fahrzeuge des Depottyps nach ihrem Ladevermögen sortiert abgebildet. Mittels der Tab-Reiter sind sie nach Personen- und Postbeförderung, angetriebene und nicht angetriebene Fahrzeuge eingeteilt.<br/>
-· Elektrisch betriebene Fahrzeuge werden nur angezeigt, wenn das Feld, auf welchem das Depot steht, elektrifiziert ist.<br/>
-· Wenn Du die Maus über ein Fahrzeug führst, werden im unteren Bereich des Fensters dessen <a href="depot.txt">Fahrzeugdaten</a> angezeigt.<br/>
-· Fahrzeuge werden erst ab einem bestimmten Datum verfügbar. Einige Fahrzeuge veralten und werden außer Dienst gestellt. Du kannst sie, über den Knopf <em>Auch veraltete Fahrzeuge zeigen</em>, rechts unten, anzeigen lassen und sie kaufen.<br/>
-· Möchtest Du, dass alle Fahrzeuge unabhängig von deren Einführungs-Datum verfügbar sind, dann wähle die <a href="new_world.txt">Einführungsdaten</a> bei der Welterstellung ab.
+<em>Einzelfahrzeugdepot:</em> Im Depot sind alle derzeit verfÃ¼gbaren Fahrzeuge des Depottyps nach ihrem LadevermÃ¶gen sortiert abgebildet. Mittels der Tab-Reiter sind sie nach Personen- und PostbefÃ¶rderung, angetriebene und nicht angetriebene Fahrzeuge eingeteilt.<br/>
+Â· Elektrisch betriebene Fahrzeuge werden nur angezeigt, wenn das Feld, auf welchem das Depot steht, elektrifiziert ist.<br/>
+Â· Wenn Du die Maus Ã¼ber ein Fahrzeug fÃ¼hrst, werden im unteren Bereich des Fensters dessen <a href="depot.txt">Fahrzeugdaten</a> angezeigt.<br/>
+Â· Fahrzeuge werden erst ab einem bestimmten Datum verfÃ¼gbar. Einige Fahrzeuge veralten und werden auÃŸer Dienst gestellt. Du kannst sie, Ã¼ber den Knopf <em>Auch veraltete Fahrzeuge zeigen</em>, rechts unten, anzeigen lassen und sie kaufen.<br/>
+Â· MÃ¶chtest Du, dass alle Fahrzeuge unabhÃ¤ngig von deren EinfÃ¼hrungs-Datum verfÃ¼gbar sind, dann wÃ¤hle die <a href="new_world.txt">EinfÃ¼hrungsdaten</a> bei der Welterstellung ab.
 </p>
 <p>
 <strong>Depotaktionen</strong><br/><br/>
-<em>Aktionsschalter:</em> Der Schalter rechts unten wechselt bei der Betätigung zwischen 3 Funktionseinstellungen.<br/>
-· <em>anhängen:</em> Das angeklickte Einzelfahrzeug wird am Schluss des Fahrzeugverbandes angehängt.<br/>
-· <em>voranstellen:</em> Das angewählte Einzelfahrzeug wird an der Spitze des Fahrzeugverbandes vorangestellt.<br/>
-· <em>verkaufen:</em> Verkaufe ein eingelagertes Einzelfahrzeug. Der Verkaufswert aller eingelagerter Einzelfahrzeug des Typs ist bei den <a href="depot.txt">Fahrzeugdaten</a> ersichtlich.
+<em>Aktionsschalter:</em> Der Schalter rechts unten wechselt bei der BetÃ¤tigung zwischen 3 Funktionseinstellungen.<br/>
+Â· <em>anhÃ¤ngen:</em> Das angeklickte Einzelfahrzeug wird am Schluss des Fahrzeugverbandes angehÃ¤ngt.<br/>
+Â· <em>voranstellen:</em> Das angewÃ¤hlte Einzelfahrzeug wird an der Spitze des Fahrzeugverbandes vorangestellt.<br/>
+Â· <em>verkaufen:</em> Verkaufe ein eingelagertes Einzelfahrzeug. Der Verkaufswert aller eingelagerter Einzelfahrzeug des Typs ist bei den <a href="depot.txt">Fahrzeugdaten</a> ersichtlich.
 </p>
 <p>
-Die <em>Farbbalken</em> unter den Einzelfahrzeug im Depot ändern sich je nach Schalterstellung. Wenn der Farbbalken auf einer Seite <em>gelb</em> ist, gehört ein weiteres Einzelfahrzeug zur betriebsfähigen Zusammenstellung. Wird dieses Einzelfahrzeug gekauft, wird auch das zugehörige Einzelfahrzeug dazugekauft.<br/><br/>
+Die <em>Farbbalken</em> unter den Einzelfahrzeug im Depot Ã¤ndern sich je nach Schalterstellung. Wenn der Farbbalken auf einer Seite <em>gelb</em> ist, gehÃ¶rt ein weiteres Einzelfahrzeug zur betriebsfÃ¤higen Zusammenstellung. Wird dieses Einzelfahrzeug gekauft, wird auch das zugehÃ¶rige Einzelfahrzeug dazugekauft.<br/><br/>
 Die Farben bedeuten:<br/>
-· <em>grün:</em> Das Einzelfahrzeug kann verwendet werden.<br/>
-· <em>rot:</em> Das Einzelfahrzeug ist für die Aktion nicht verwendbar.<br/>
-· <em>gelb links:</em> Ein anderes Einzelfahrzeug muss vorangestellt werden.<br/>
-· <em>gelb rechts:</em> Ein anderes Einzelfahrzeug muss folgen.<br/>
-· <em>blau:</em> Das aktuelle Jahr liegt außerhalb der Einsatzzeit des Einzelfahrzeug. Das Einzelfahrzeug kann verwendet werden.
+Â· <em>grÃ¼n:</em> Das Einzelfahrzeug kann verwendet werden.<br/>
+Â· <em>rot:</em> Das Einzelfahrzeug ist fÃ¼r die Aktion nicht verwendbar.<br/>
+Â· <em>gelb links:</em> Ein anderes Einzelfahrzeug muss vorangestellt werden.<br/>
+Â· <em>gelb rechts:</em> Ein anderes Einzelfahrzeug muss folgen.<br/>
+Â· <em>blau:</em> Das aktuelle Jahr liegt auÃŸerhalb der Einsatzzeit des Einzelfahrzeug. Das Einzelfahrzeug kann verwendet werden.
 </p>
 <p>
-Ein Fahrzeugverband ist einsatzbereit, wenn er für alle Einzelfahrzeug grüne Balken zeigt. Verbleiben teilgelbe Balken, sind noch Einzelfahrzeug beizustellen, etwa Zugmaschine, Tender oder Schlussfahrzeug.
+Ein Fahrzeugverband ist einsatzbereit, wenn er fÃ¼r alle Einzelfahrzeug grÃ¼ne Balken zeigt. Verbleiben teilgelbe Balken, sind noch Einzelfahrzeug beizustellen, etwa Zugmaschine, Tender oder Schlussfahrzeug.
 </p>
 <p>
-<strong>Achtung</strong> Beachte bei Schienenfahrzeugverbänden, dass alle Fahrzeuge des Fahrzeugverbandes in die angefahrenen Haltestellen passen, sonst werden nur die Fahrzeuge beladen, die in der Haltestelle stehen. Das bedeutet, wenn eine Mindestbeladung eingestellt ist, die größer ist als die Ladekapazität der in der Haltestelle stehenden Einzelfahrzeuge ist, fährt der Fahrzeugverband niemals ab. An jedes Haltestellensegment passen in der Regel 2 Fahrzeuge.
+<strong>Achtung</strong> Beachte bei SchienenfahrzeugverbÃ¤nden, dass alle Fahrzeuge des Fahrzeugverbandes in die angefahrenen Haltestellen passen, sonst werden nur die Fahrzeuge beladen, die in der Haltestelle stehen. Das bedeutet, wenn eine Mindestbeladung eingestellt ist, die grÃ¶ÃŸer ist als die LadekapazitÃ¤t der in der Haltestelle stehenden Einzelfahrzeuge ist, fÃ¤hrt der Fahrzeugverband niemals ab. An jedes Haltestellensegment passen in der Regel 2 Fahrzeuge.
 </p>
 <p>
-Die Anzahl von eingelagerten Einzelfahrzeugen eines Typs ist an einer weißen Zahl links über dem Einzelfahrzeuge ersichtlich. Du kannst die Einzelfahrzeuge verkaufen oder in diesem Depot zu neuen Fahrzeugverbänden wiederverwenden.<br/>
+Die Anzahl von eingelagerten Einzelfahrzeugen eines Typs ist an einer weiÃŸen Zahl links Ã¼ber dem Einzelfahrzeuge ersichtlich. Du kannst die Einzelfahrzeuge verkaufen oder in diesem Depot zu neuen FahrzeugverbÃ¤nden wiederverwenden.<br/>
 </p>
 <p>
 Unter dem Einzelfahrzeugdepot wird die Anzahl aller hier eingelagerter Einzelfahrzeuge angezeigt.
 </p>
 <p>
-<em>Einzelfahrzeugdaten:</em> Führst Du die Maus über ein Einzelfahrzeugen im Fahrzeugverband (oben) oder im Einzelfahrzeugdepot (mittig), werden dessen Daten im unteren Teil des Fensters eingeblendet:
+<em>Einzelfahrzeugdaten:</em> FÃ¼hrst Du die Maus Ã¼ber ein Einzelfahrzeugen im Fahrzeugverband (oben) oder im Einzelfahrzeugdepot (mittig), werden dessen Daten im unteren Teil des Fensters eingeblendet:
 </p>
 <p>
 <em>Linke Spalte angetriebene Fahrzeuge:</em><br/>
-· Typbezeichnung und in Klammern die Betriebsart (Dampf, Diesel, Elektrisch).<br/>
-· Neupreis und in Klammern die Betriebskosten je Streckenkilometer.<br/>
-· Leistung in KW und die Höchstgeschwindigkeit.<br/>
-· Fahrzeuggewicht.<br/>
-· Zuladung (wenn möglich) mit Transporteinheiten und Art des Gutes.<br/>
+Â· Typbezeichnung und in Klammern die Betriebsart (Dampf, Diesel, Elektrisch).<br/>
+Â· Neupreis und in Klammern die Betriebskosten je Streckenkilometer.<br/>
+Â· Leistung in KW und die HÃ¶chstgeschwindigkeit.<br/>
+Â· Fahrzeuggewicht.<br/>
+Â· Zuladung (wenn mÃ¶glich) mit Transporteinheiten und Art des Gutes.<br/>
 <em>Linke Spalte antriebsloser Fahrzeuge:</em><br/>
-· Typbezeichnung .<br/>
-· Neupreis und in Klammern die Betriebskosten je Streckenkilometer.<br/>
-· Zuladung mit Transporteinheiten und Art des Gutes.<br/>
-· Fahrzeuggewicht.<br/>
-· Höchstgeschwindigkeit.
+Â· Typbezeichnung .<br/>
+Â· Neupreis und in Klammern die Betriebskosten je Streckenkilometer.<br/>
+Â· Zuladung mit Transporteinheiten und Art des Gutes.<br/>
+Â· Fahrzeuggewicht.<br/>
+Â· HÃ¶chstgeschwindigkeit.
 </p>
 <p>
 <em>Rechte Spalte:</em><br/>
-· Einführungsdatum.<br/>
-· Außerdienststellungsdatum (nicht bei allen Fahrzeugen).<br/>
-· Bei angetriebenen Fahrzeugen das Übersetzungsverhältnis.<br/>
-· Bei gekauften Fahrzeugen der Verkaufspreis.
+Â· EinfÃ¼hrungsdatum.<br/>
+Â· AuÃŸerdienststellungsdatum (nicht bei allen Fahrzeugen).<br/>
+Â· Bei angetriebenen Fahrzeugen das ÃœbersetzungsverhÃ¤ltnis.<br/>
+Â· Bei gekauften Fahrzeugen der Verkaufspreis.
 </p>
 <p>
 <em>Frachteinheiten:</em><br/>
 Den Warenarten sind 5 Beladeeinheiten zugeordnet:<br/>
-· Flüssigkeiten: m³<br/>
-· Lose Güter: Tonnen (t)<br/>
-· Größere Objekte: Stück<br/>
-· Palettierte Güter: Paletten<br/>
-· Lose Gebindeeinheiten: Sack<br/>
+Â· FlÃ¼ssigkeiten: mÂ³<br/>
+Â· Lose GÃ¼ter: Tonnen (t)<br/>
+Â· GrÃ¶ÃŸere Objekte: StÃ¼ck<br/>
+Â· Palettierte GÃ¼ter: Paletten<br/>
+Â· Lose Gebindeeinheiten: Sack<br/>
 Bei Passagieren wird die Anzahl angegeben.
 </p>
 <p>
-<em>Güterarten:</em><br/>
-Güter sind bei Simutrans nach 6 Kategorien klassifiziert:<br/>
-· Gefriergut, Öl/Benzin, Schüttgut, Sonderfracht, Langholz und Stückgut.
+<em>GÃ¼terarten:</em><br/>
+GÃ¼ter sind bei Simutrans nach 6 Kategorien klassifiziert:<br/>
+Â· Gefriergut, Ã–l/Benzin, SchÃ¼ttgut, Sonderfracht, Langholz und StÃ¼ckgut.
 </p>
 <p>
-· Einigen Güterarten können in den verschiedenen Paks unterschiedliche Frachteinheiten und Güterarten zugewiesen sein.<br/>
-· Sonderfrachten benötigen zum Transport immer spezielle Fahrzeuge.<br/>
-· Andere Fahrzeuge können jedes Gut aus ihrer Kategorie laden.<br/>
-· Aus historischen Gründen haben einige Fahrzeuge immer noch irreführende Bezeichnungen. Das Kohleschiff kann heute nicht nur für Kohle, sondern für jegliches Schüttgut verwendet werden.<br/>
-· Die Fabriken- und Lagerinfos zeigen an, welche Güter zu welcher Kategorie zählen und welche Fahrzeuge dafür geeignet sind. Ist keine Kategorie angegeben sondern ein Spezialfahrzeugtyp, wird ein Spezialfahrzeug benötigt.
+Â· Einigen GÃ¼terarten kÃ¶nnen in den verschiedenen Paks unterschiedliche Frachteinheiten und GÃ¼terarten zugewiesen sein.<br/>
+Â· Sonderfrachten benÃ¶tigen zum Transport immer spezielle Fahrzeuge.<br/>
+Â· Andere Fahrzeuge kÃ¶nnen jedes Gut aus ihrer Kategorie laden.<br/>
+Â· Aus historischen GrÃ¼nden haben einige Fahrzeuge immer noch irrefÃ¼hrende Bezeichnungen. Das Kohleschiff kann heute nicht nur fÃ¼r Kohle, sondern fÃ¼r jegliches SchÃ¼ttgut verwendet werden.<br/>
+Â· Die Fabriken- und Lagerinfos zeigen an, welche GÃ¼ter zu welcher Kategorie zÃ¤hlen und welche Fahrzeuge dafÃ¼r geeignet sind. Ist keine Kategorie angegeben sondern ein Spezialfahrzeugtyp, wird ein Spezialfahrzeug benÃ¶tigt.
 </p>

@@ -3,16 +3,16 @@
 <h1>Finestra Mappa</h1>
 
 <p>
-La finestra mappa Ë visualizzabile sia premendo 'm' sia cliccando sul
+La finestra mappa √® visualizzabile sia premendo 'm' sia cliccando sul
 pulsante relativo nella toolbar.
 </p>
 <p>
 La mappa permette di vedere il mondo in una vista ridotta e verificare
 la posizione di diversi elementi come ad es. fabbriche, ferrovie, strade
-e citt‡.
+e citt√†.
 </p>
 <p>
 E' possibile muoversi in ogni parte del mondo semplicemente cliccando nel punto
-della mappa corrispondente al luogo in cui si vuole andare; il gioco centrer‡
+della mappa corrispondente al luogo in cui si vuole andare; il gioco centrer√†
 la vista generale ingrandita sul posto selezionato.
 </p>

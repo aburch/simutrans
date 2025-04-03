@@ -6,11 +6,11 @@
 <em>Angeschlossene Fabriken:</em> Alle im Einzugsgebiet der Haltestelle befindlichen Fabriken werden alphabetisch gelistet. Die Einzugsgebiete kannst Du mittels der Taste <em>v</em> anzeigen lassen.
 </p>
 <p>
-<em>Angenommene Waren:</em> Alle Warenarten, welche von an die Haltestelle angeschlossenen Fabriken benötigt werden, sind alphabetisch gelistet.</p>
+<em>Angenommene Waren:</em> Alle Warenarten, welche von an die Haltestelle angeschlossenen Fabriken benÃ¶tigt werden, sind alphabetisch gelistet.</p>
 <p>
-<em>Linien, die diese Haltestelle anfahren:</em> Alle Linien, welche die Haltestelle anfahren, sind alphanumerisch gelistet. Ein Klick auf den Pfeil öffnet die <a href="linemanagement.txt">Linienverwaltung</a>.</p>
+<em>Linien, die diese Haltestelle anfahren:</em> Alle Linien, welche die Haltestelle anfahren, sind alphanumerisch gelistet. Ein Klick auf den Pfeil Ã¶ffnet die <a href="linemanagement.txt">Linienverwaltung</a>.</p>
 <p>
-<em>Einzelfahrzeuge, die hier halten:</em> Alle Fahrzeuge, die keiner Linie zugeordnet sind, aber die Haltestelle anfahren, sind alphanumerisch gelistet. Ein Klick auf den Pfeil öffnet das <a href="convoiinfo.txt">Fahrzeugfenster</a>.</p>
+<em>Einzelfahrzeuge, die hier halten:</em> Alle Fahrzeuge, die keiner Linie zugeordnet sind, aber die Haltestelle anfahren, sind alphanumerisch gelistet. Ein Klick auf den Pfeil Ã¶ffnet das <a href="convoiinfo.txt">Fahrzeugfenster</a>.</p>
 <p>
-<em>Verkehrsverbindungen (direkt):</em> Alle Haltestellen sind gelistet, welche direkt über Linien von der Haltestelle aus angefahren werden. Dem Namen der Haltestelle folgt jeweils in einer weiteren Zeile nach einem Bindestrich die Beförderungsart. Über den Pfeil vor dem Haltestellennamen kannst du direkt zu dieser Haltestelle springen.
+<em>Verkehrsverbindungen (direkt):</em> Alle Haltestellen sind gelistet, welche direkt Ã¼ber Linien von der Haltestelle aus angefahren werden. Dem Namen der Haltestelle folgt jeweils in einer weiteren Zeile nach einem Bindestrich die BefÃ¶rderungsart. Ãœber den Pfeil vor dem Haltestellennamen kannst du direkt zu dieser Haltestelle springen.
 </p>

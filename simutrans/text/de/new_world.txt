@@ -3,79 +3,79 @@
 <h1><strong>Erstelle eine neue Welt</strong></h1>
 
 <p>
-Der Neue Welt-Dialog erscheint bei jedem Spielstart. Im laufenden Spiel kann man ihn nach dem Anwählen der Schaltfläche <em>Neue Karte</em> im Dialog <a href="options.txt">Einstellungen</a> aufrufen.
-Dieser wird mit dem <em>Diskettensymbol</em> in der <a href="mainmenu.txt">Hauptmenüleiste</a> geöffnet.
+Der Neue Welt-Dialog erscheint bei jedem Spielstart. Im laufenden Spiel kann man ihn nach dem AnwÃ¤hlen der SchaltflÃ¤che <em>Neue Karte</em> im Dialog <a href="options.txt">Einstellungen</a> aufrufen.
+Dieser wird mit dem <em>Diskettensymbol</em> in der <a href="mainmenu.txt">HauptmenÃ¼leiste</a> geÃ¶ffnet.
 </p>
 <p>
-Im Dialog werden die Parameter eingestellt, die für die Generierung der Karte gelten sollen.
-Die Einstellungen erfolgen über die Pfeilschaltflächen der Einstelloptionen.
-Ein Klick auf einen Pfeil nach links verringert, ein Klick auf einen Pfeil nach rechts erhöht den entsprechenden Wert.
+Im Dialog werden die Parameter eingestellt, die fÃ¼r die Generierung der Karte gelten sollen.
+Die Einstellungen erfolgen Ã¼ber die PfeilschaltflÃ¤chen der Einstelloptionen.
+Ein Klick auf einen Pfeil nach links verringert, ein Klick auf einen Pfeil nach rechts erhÃ¶ht den entsprechenden Wert.
 </p>
 <p>
-<strong>Einstellungen für neue Karte:</strong>
+<strong>Einstellungen fÃ¼r neue Karte:</strong>
 </p>
 <p>
-· <em>Kartennummer: </em> Es stehen 10.000 Simutrans-Karten zur Auswahl. Über sie werden die groben Strukturen der Welt festgelegt.
+Â· <em>Kartennummer: </em> Es stehen 10.000 Simutrans-Karten zur Auswahl. Ãœber sie werden die groben Strukturen der Welt festgelegt.
 </p>
 <p>
-· <em>Vorschaubild:</em> Das Bild zeigt die ausgewählte Karte und aktualisiert sich bei jeder Änderung der Kartenparameter.
+Â· <em>Vorschaubild:</em> Das Bild zeigt die ausgewÃ¤hlte Karte und aktualisiert sich bei jeder Ã„nderung der Kartenparameter.
 </p>
 <p>
-· <em>Kartengröße:</em> Wähle mit den Pfeilschalter, welche Abmessungen die Karte haben soll. Die obere Zahl gibt die Breite (x-Richtung), die untere die Höhe (y-Richtung) der Karte an. Die Einstellbereiche liegen zwischen 64 bis 4096. Der Vorgabewert ist 256x256. Unterscheiden sich die Werte, wird das Vorschaubild verzerrt dargestellt.
-<br/>Die Angabe in Klammern zeigt Dir, wieviel Arbeitsspeicher ein Spiel der eingestellten Kartengröße mindestens belegen wird.
+Â· <em>KartengrÃ¶ÃŸe:</em> WÃ¤hle mit den Pfeilschalter, welche Abmessungen die Karte haben soll. Die obere Zahl gibt die Breite (x-Richtung), die untere die HÃ¶he (y-Richtung) der Karte an. Die Einstellbereiche liegen zwischen 64 bis 4096. Der Vorgabewert ist 256x256. Unterscheiden sich die Werte, wird das Vorschaubild verzerrt dargestellt.
+<br/>Die Angabe in Klammern zeigt Dir, wieviel Arbeitsspeicher ein Spiel der eingestellten KartengrÃ¶ÃŸe mindestens belegen wird.
 </p>
 <p>
-· <em>Zufallskarte:</em> Wähle eine zufällige Karte aus. Die oben gemachten Einstellungen werden nicht verändert.
+Â· <em>Zufallskarte:</em> WÃ¤hle eine zufÃ¤llige Karte aus. Die oben gemachten Einstellungen werden nicht verÃ¤ndert.
 </p>
 <p>
-· <em>Lade Relief:</em> Die getroffenen Einstellungen werden anstatt auf die angezeigte Karte auf ein im Verzeichnis <em>simutrans/maps</em> bzw. <em>Benutzerverzeichnis/simutrans/maps</em> gespeichertes Relief übertragen. Der <a href="load_relief.txt">Relief laden</a> Dialog wird eingeblendet.
+Â· <em>Lade Relief:</em> Die getroffenen Einstellungen werden anstatt auf die angezeigte Karte auf ein im Verzeichnis <em>simutrans/maps</em> bzw. <em>Benutzerverzeichnis/simutrans/maps</em> gespeichertes Relief Ã¼bertragen. Der <a href="load_relief.txt">Relief laden</a> Dialog wird eingeblendet.
 </p>
 <p>
-· <em>Anzahl Städte:</em> Bestimmt die Anzahl der Städte auf der Karte. Der Vorgabewert ist 16. Ist eine Karte zu rauh, oder ist die Zahl der Städte zu hoch, werden weniger als die eingestellte Anzahl von Städten generiert. (Der Mindestabstand der Städte ist in der Datei <em>simutrans/config/cityrules.tab</em> als Wert der Variablen <em>minimum_city_distance</em> angegeben).
+Â· <em>Anzahl StÃ¤dte:</em> Bestimmt die Anzahl der StÃ¤dte auf der Karte. Der Vorgabewert ist 16. Ist eine Karte zu rauh, oder ist die Zahl der StÃ¤dte zu hoch, werden weniger als die eingestellte Anzahl von StÃ¤dten generiert. (Der Mindestabstand der StÃ¤dte ist in der Datei <em>simutrans/config/cityrules.tab</em> als Wert der Variablen <em>minimum_city_distance</em> angegeben).
 </p>
 <p>
-· <em>Mittlere Stadtgröße:</em> Der Wert stellt eine mittlere Bezugsgröße dar. Beim Vorgabewert von 1600 bei 16 Städten werden ca. eine Stadt mit 8000-16000 Einwohnern, ein oder zwei mit 1000-5000 und die übrigen mit 200-600 generiert. Es ist durchaus erwünscht, dass immer mal wieder auch einige sehr große Städte erzeugt werden.
+Â· <em>Mittlere StadtgrÃ¶ÃŸe:</em> Der Wert stellt eine mittlere BezugsgrÃ¶ÃŸe dar. Beim Vorgabewert von 1600 bei 16 StÃ¤dten werden ca. eine Stadt mit 8000-16000 Einwohnern, ein oder zwei mit 1000-5000 und die Ã¼brigen mit 200-600 generiert. Es ist durchaus erwÃ¼nscht, dass immer mal wieder auch einige sehr groÃŸe StÃ¤dte erzeugt werden.
 </p>
 <p>
-· <em>Verbindungsstraßenlänge:</em> An Anfang werden alle Städte miteinander verbunden, wenn dies mit einer Straße kleiner als die angegebenen Zahl möglich ist. Dabei ist eine gerade Straße 2 Einheiten teuer, Kurven und Steigungen mehr.
+Â· <em>VerbindungsstraÃŸenlÃ¤nge:</em> An Anfang werden alle StÃ¤dte miteinander verbunden, wenn dies mit einer StraÃŸe kleiner als die angegebenen Zahl mÃ¶glich ist. Dabei ist eine gerade StraÃŸe 2 Einheiten teuer, Kurven und Steigungen mehr.
 </p>
 <p>
-· <em>Industriezweige:</em> Der Wert gibt an, wieviele Industriezweige beim Kartenstart  erzeugt werden sollen. Durch das Wachstum von Städten werden weitere Industriezweige erzeugt. Wann jeweils ein neuer Industriezweige erzeugt wird, regelt der Wert der Variablen <em>industry_increase_every</em> in der <em>simucon.tab</em>. Der dortige Vorgabewert 2000 bedeutet, dass jeweils, wenn eine Stadt die Größe von 2000, 4000, 8000 usw. Einwohnern erreicht, ein neuer Industriezweig entsteht. Mit dem Wert 0 wird die Errichtung neuer Industriezweige ausgeschaltet. Hat ein Endverbraucher mehrere Waren (z.B. die Apotheke: Medizin und Chemikalien), dann gilt jeder als eigene Industriekette.
+Â· <em>Industriezweige:</em> Der Wert gibt an, wieviele Industriezweige beim Kartenstart  erzeugt werden sollen. Durch das Wachstum von StÃ¤dten werden weitere Industriezweige erzeugt. Wann jeweils ein neuer Industriezweige erzeugt wird, regelt der Wert der Variablen <em>industry_increase_every</em> in der <em>simucon.tab</em>. Der dortige Vorgabewert 2000 bedeutet, dass jeweils, wenn eine Stadt die GrÃ¶ÃŸe von 2000, 4000, 8000 usw. Einwohnern erreicht, ein neuer Industriezweig entsteht. Mit dem Wert 0 wird die Errichtung neuer Industriezweige ausgeschaltet. Hat ein Endverbraucher mehrere Waren (z.B. die Apotheke: Medizin und Chemikalien), dann gilt jeder als eigene Industriekette.
 <br />
-Die Vielfalt an Industriezweigen kann durch Ergänzungspaks erhöht werden.
+Die Vielfalt an Industriezweigen kann durch ErgÃ¤nzungspaks erhÃ¶ht werden.
 </p>
 <p>
-· <em>Touristenattraktionen:</em> Stelle die Anzahl von Ausflugszielen wie Burgen, Jahrmarktattraktionen usw. ein.
+Â· <em>Touristenattraktionen:</em> Stelle die Anzahl von Ausflugszielen wie Burgen, Jahrmarktattraktionen usw. ein.
 </p>
 <p>
-· <em>Mit Einführungsdaten ab:</em> Drücke den Schalter ein, wenn Fahrzeuge und Gebäude erst ab ihrem Entwicklungsjahr verfügbar sein sollen. Das Startjahr wird mit den beiden Pfeilschaltern geändern. Die Vorgabe ist in der <em>simutrans/config/simuconf.tab</em> als Wert der Variablen <em>starting_year</em> eingetragen. Sinnvolle Werte sind z.B. 1910, 1930, 1950. Vor 1835 gibt es nur Pferdefuhrwerke.
+Â· <em>Mit EinfÃ¼hrungsdaten ab:</em> DrÃ¼cke den Schalter ein, wenn Fahrzeuge und GebÃ¤ude erst ab ihrem Entwicklungsjahr verfÃ¼gbar sein sollen. Das Startjahr wird mit den beiden Pfeilschaltern geÃ¤ndern. Die Vorgabe ist in der <em>simutrans/config/simuconf.tab</em> als Wert der Variablen <em>starting_year</em> eingetragen. Sinnvolle Werte sind z.B. 1910, 1930, 1950. Vor 1835 gibt es nur Pferdefuhrwerke.
 </p>
 <p>
-· <em>Anfängermodus:</em> In diesem Modus liefern alle Fabriken an alle geeigneten Abnehmer für diese Waren. Außerdem sind die Frachtgewinne um den Faktor 1,5 erhöht.
+Â· <em>AnfÃ¤ngermodus:</em> In diesem Modus liefern alle Fabriken an alle geeigneten Abnehmer fÃ¼r diese Waren. AuÃŸerdem sind die Frachtgewinne um den Faktor 1,5 erhÃ¶ht.
 </p>
 <p>
-· <em>Einstellungen:</em> Ruft die <a href="settings.txt">Erweiterten Einstellungen</a> auf, wo sich fast alle Parameter von Simutrans beinflussen lassen können.
+Â· <em>Einstellungen:</em> Ruft die <a href="settings.txt">Erweiterten Einstellungen</a> auf, wo sich fast alle Parameter von Simutrans beinflussen lassen kÃ¶nnen.
 </p>
 <p>
-· <em>Einstellungen Landschaft:</em> ruft die <a href="climates.txt">Landschaftseinstellungen</a> auf, wo Klimazonen, Bergigkeit, Grundwasserspiegel, Flüsse und vieles mehr vorgegeben werden kann.
+Â· <em>Einstellungen Landschaft:</em> ruft die <a href="climates.txt">Landschaftseinstellungen</a> auf, wo Klimazonen, Bergigkeit, Grundwasserspiegel, FlÃ¼sse und vieles mehr vorgegeben werden kann.
 </p>
 <p>
-· <em>Lade Spiel:</em> Lade einen bereits vorhandenen Spielstand. (siehe <a href="load.txt">Lade Menü</a>)
+Â· <em>Lade Spiel:</em> Lade einen bereits vorhandenen Spielstand. (siehe <a href="load.txt">Lade MenÃ¼</a>)
 <br/>
 <strong>Achtung:</strong> Der laufende Spielstand wird nicht gespeichert und geht verloren.
 </p>
 <p>
-· <em>Lade Szenario:</em> Es stehen verschiedene Szenarien zur Auswahl. (siehe <a href="scenario.txt">Szenario Menü</a>)
+Â· <em>Lade Szenario:</em> Es stehen verschiedene Szenarien zur Auswahl. (siehe <a href="scenario.txt">Szenario MenÃ¼</a>)
 <br/>
 <strong>Achtung:</strong> Der laufende Spielstand wird nicht gespeichert und geht verloren.
 </p>
 <p>
-· <em>Starte Spiel:</em> Eine neue Karte wird entsprechend den Einstellungen generiert, und ein neues Spiel startet.
+Â· <em>Starte Spiel:</em> Eine neue Karte wird entsprechend den Einstellungen generiert, und ein neues Spiel startet.
 <br/>
 <strong>Achtung:</strong> Der laufende Spielstand wird nicht gespeichert und geht verloren.
 </p>
 <p>
-· <em>Beenden:</em> Das Spiel wird beendet.
+Â· <em>Beenden:</em> Das Spiel wird beendet.
 <br/>
 <strong>Achtung:</strong> Der laufende Spielstand wird nicht gespeichert und geht verloren.
 </p>

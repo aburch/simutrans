@@ -67,6 +67,9 @@ public:
 	/// this the the preferred GUI theme at startup
 	static plainstring default_theme;
 
+	static char currency_symbol[16];
+	static bool currency_left;
+
 	/**
 	 * @name Network-related settings
 	 */

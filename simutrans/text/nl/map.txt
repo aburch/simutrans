@@ -10,7 +10,7 @@ Klik op het MiniKaart icoon in het menu of druk op de <a href="keys.txt">[m]</a>
 Met behulp van de rechts/links pijltjes kan de minikaart in 7 stappen in- en uitgezoomd worden. De knop [<em>#</em> ] <em>isometric view</em> toont de minikaart gelijk aan het het speel-scherm.
 </p>
 <p>
-Het minikaartscherm heeft drie optieknoppen: <em>toon legenda</em>; <em>toon schaal</em> en <em>toon industriën</em>
+Het minikaartscherm heeft drie optieknoppen: <em>toon legenda</em>; <em>toon schaal</em> en <em>toon industriÃ«n</em>
 </p>
 
 <p>
@@ -20,7 +20,7 @@ Water is blauw op de kaart en het land groen. Het hoogte- (land) en diepte- (wat
 Links-klik, of links-klik en sleep het kader op de minikaart om het speel-scherm snel door de simutrans wereld te verplaatsen.
 </p>
 <p>
-Als de muis-cursor op een <a href="industry_info.txt">industrie</a> op de minikaart wordt geplaatst, wordt de naam getoond en worden witte lijntjes getoond naar afnemende industriën. Als eerst de [Shift] wordt ingedrukt wordt m.b.v. rode lijntjes de aanleverende industriën aangegeven.
+Als de muis-cursor op een <a href="industry_info.txt">industrie</a> op de minikaart wordt geplaatst, wordt de naam getoond en worden witte lijntjes getoond naar afnemende industriÃ«n. Als eerst de [Shift] wordt ingedrukt wordt m.b.v. rode lijntjes de aanleverende industriÃ«n aangegeven.
 </p>
 <p>
 <a href="citywindow.txt">Steden en dorpen</a>, attracties, tunnels en kanalen worden donker grijs weergegeven; wegen zwart; spoor- en tramlijnen grijs; bruggen licht grijs; <a href="station.txt">stations/haltes</a> rood/geel; monorail- en maglevlijnen oranje; luchthavens wit en voertuigen geel.
@@ -53,7 +53,7 @@ oranje: station/halte druk. Actie nemen wordt aangeraden; rood: station/halte ov
 
 <it>Wachtend:</it> aantallen passagiers en/of goederen dat bij het <a href="station.txt">station/halte</a> wacht op vervoer (min-max schaal).<br>
 
-<it>Spoorwegen:</it> trein- en tramrails; -bruggen; -tunnels en -seinen (kleur: wit of rood indien geëlectrificeerd; seinen: geel).<br>
+<it>Spoorwegen:</it> trein- en tramrails; -bruggen; -tunnels en -seinen (kleur: wit of rood indien geÃ«lectrificeerd; seinen: geel).<br>
 
 <it>Max snelheid:</it> maximaal toegestane snelheid op spoorwegen en wegen (min-max schaal).<br>
 
@@ -61,7 +61,7 @@ oranje: station/halte druk. Actie nemen wordt aangeraden; rood: station/halte ov
 
 <it>Attracties:</it> positie van toeristische attracties in de simutranswereld. Tevens toont het de aantallen passagiers dat gegenereerd wordt door attracties (min-max schaal).<br>
 
-<it>Fabrieken:</it> positie van <a href="industry_info.txt">industriën</a> in de simutranswereld. De verschillende soorten industriën hebben verschillende kleuren. Klik voor de gedefinieerde kleuren op [<em>toon industriën</em>].<br>
+<it>Fabrieken:</it> positie van <a href="industry_info.txt">industriÃ«n</a> in de simutranswereld. De verschillende soorten industriÃ«n hebben verschillende kleuren. Klik voor de gedefinieerde kleuren op [<em>toon industriÃ«n</em>].<br>
 
 <it>Depots:</it> positie van <a href="depot.txt">depots</a> in de simutranswereld. De kleuren duiden op verschillende typen. Schepen:geel; bus/truck:oranje; trein:rood; vliegtuigen:groen; trams:blauw; en monorail/maglev:grijs.
 </p>

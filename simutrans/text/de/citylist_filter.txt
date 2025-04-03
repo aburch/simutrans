@@ -3,12 +3,12 @@
 <h1><strong>Stadtliste</strong></h1>
 
 <p>
-Die Stadtliste wird mit <em>Shift</em>+<em>T</em> oder über die <a href="list.txt">Listenverwaltung</a> aufgerufen.<br/>
-Im Fenster sind alle Städte der Karte gelistet zusammen mit ihrer Einwohnerzahl und dem aktuellen Wachstum. Die Liste kann nach Name, Einwohnerzahl und Wachstum sortiert werden. Das Feld <em>Statistik</em> öffnet einen Graphen, auf dem Informationen über die Karte abgefragt werden können, so zum Beispiel die Entwicklung der Gesamteinwohnerzahl.
+Die Stadtliste wird mit <em>Shift</em>+<em>T</em> oder Ã¼ber die <a href="list.txt">Listenverwaltung</a> aufgerufen.<br/>
+Im Fenster sind alle StÃ¤dte der Karte gelistet zusammen mit ihrer Einwohnerzahl und dem aktuellen Wachstum. Die Liste kann nach Name, Einwohnerzahl und Wachstum sortiert werden. Das Feld <em>Statistik</em> Ã¶ffnet einen Graphen, auf dem Informationen Ã¼ber die Karte abgefragt werden kÃ¶nnen, so zum Beispiel die Entwicklung der Gesamteinwohnerzahl.
 </p>
 <p>
-<em>Listeneinträge:</em> Klickst Du einen Stadtnamen an, wird die Karte auf die Stadt zentriert, das Fenster der <a href="citywindow.txt">Stadtinformation</a> öffnet sich.<br/>
-· <em>Stadtname:</em> Den Namen der Stadt kannst Du in der <a href="citywindow.txt">Stadtinformation</a> ändern.<br/>
-· <em>Einwohnerzahl:</em> Die Zahl der Einwohner wird angezeigt.<br/>
-· <em>Wachstumsfaktor:</em> Der Wachstumsfaktor lässt Rückschlüsse auf die Wachstumsrate der Stadt und deren Beförderungsversorgung zu. Je höher der Wert ist, desto geringer ist die Differenz zwischen Beförderungsbedarf und der erbrachten Beförderungsleistung.
+<em>ListeneintrÃ¤ge:</em> Klickst Du einen Stadtnamen an, wird die Karte auf die Stadt zentriert, das Fenster der <a href="citywindow.txt">Stadtinformation</a> Ã¶ffnet sich.<br/>
+Â· <em>Stadtname:</em> Den Namen der Stadt kannst Du in der <a href="citywindow.txt">Stadtinformation</a> Ã¤ndern.<br/>
+Â· <em>Einwohnerzahl:</em> Die Zahl der Einwohner wird angezeigt.<br/>
+Â· <em>Wachstumsfaktor:</em> Der Wachstumsfaktor lÃ¤sst RÃ¼ckschlÃ¼sse auf die Wachstumsrate der Stadt und deren BefÃ¶rderungsversorgung zu. Je hÃ¶her der Wert ist, desto geringer ist die Differenz zwischen BefÃ¶rderungsbedarf und der erbrachten BefÃ¶rderungsleistung.
 </p>

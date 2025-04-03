@@ -8,7 +8,7 @@
 
 <p>
 
-<strong>Dettagli fermata</strong> fornisce più informazioni riguardo una fermata (dove i veicoli caricano e scaricano beni e passeggeri).
+<strong>Dettagli fermata</strong> fornisce piÃ¹ informazioni riguardo una fermata (dove i veicoli caricano e scaricano beni e passeggeri).
 
 </p>
 
@@ -52,6 +52,6 @@ Le linee sono elencate alfabeticamente nell'ordine dei caratteri ASCII (le maius
 
 <em>Tragitti diretti da qui:</em> elenca i nomi delle fermate che possono essere raggiunte senza cambiare linea e i tipi di beni (merci o passeggeri) che possono essere trasportati.<br>
 
-Le linee sono elencate alfabeticamente nell'ordine dei caratteri ASCII (le maiuscole prima della minuscole) secondo il tipo di trasporto, nome della fermata e tipo di bene che può essere trasportato (che è anche visualizzato per ogni stazione).
+Le linee sono elencate alfabeticamente nell'ordine dei caratteri ASCII (le maiuscole prima della minuscole) secondo il tipo di trasporto, nome della fermata e tipo di bene che puÃ² essere trasportato (che Ã¨ anche visualizzato per ogni stazione).
 
 </p>

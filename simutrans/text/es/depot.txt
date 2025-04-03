@@ -15,7 +15,7 @@ Pulsa en un deposito con la <a href="inspection_tool.txt">Herramienta de Explora
 La barra de Titulo de la ventana <strong>Controles de Cochera</strong> indica el tipo de transportes que gestiona dicha cochera.
 </p>
 <p>
-<strong>Controles de Cochera</strong> puede cambiar de <a href="mouse.txt">tamaño</a> (pulsa en la flecha hacia abajo en la barra de titulo de la ventana para volver al tamaño original).<br>
+<strong>Controles de Cochera</strong> puede cambiar de <a href="mouse.txt">tamaÃ±o</a> (pulsa en la flecha hacia abajo en la barra de titulo de la ventana para volver al tamaÃ±o original).<br>
 Pulsa en las flechas hacia izquierda/derecha en la barra de titulo para pasar a la siguiente cochera que gestione el mismo tipo de vehiculo (centra la vista del juego en esa cochera).
 </p>
 <p>
@@ -23,7 +23,7 @@ En la parte superior de la ventana <strong>Controles de Cochera</strong> se mues
 </p>
 <p>
 <em>Nombre del </em><a href="convoiinfo.txt"><em>Convoy</em></a>: pulsa en los botones de flechas izquierda/derecha para pasar de un Convoy a otro en la cochera.<br>
-Para cambiar el nombre del Convoy: pulsa en la caja de texto e introduce un nuevo nombre (por defecto esto se hace para el primera unidad comprada o añadida para un nuevo Convoy).
+Para cambiar el nombre del Convoy: pulsa en la caja de texto e introduce un nuevo nombre (por defecto esto se hace para el primera unidad comprada o aÃ±adida para un nuevo Convoy).
 </p>
 <p>
 <em>Nombre de </em><a href="linemanagement.txt"><em>Linea:</em></a>  pulsa en los botones de flechas izquierda/derecha para seleccionar las lineas por tipo de transporte o pulsa en la caja de texto para abrir una lista de Lineas.<br>
@@ -35,7 +35,7 @@ Situa el raton sobre el grafico para ver los detalles acerca del vehiculo (se mu
 Pulsa en el grafico del convoy o en alguna de las unidades para eliminarlo del mismo y almacenarlo en la cochera.
 </p>
 <p>
-Debajo del grafico se muestra el numero de unidades de Convoy seleccionado, longitud de cuadriculas del Convoy (debe caber en una <a href="station.txt"><em>Parada</em></a> del tamaño adecuado para carga y descargar pasajeros y mercancia), y la linea asignada.
+Debajo del grafico se muestra el numero de unidades de Convoy seleccionado, longitud de cuadriculas del Convoy (debe caber en una <a href="station.txt"><em>Parada</em></a> del tamaÃ±o adecuado para carga y descargar pasajeros y mercancia), y la linea asignada.
 </p>
 <p>
 Los botones de opcion (pulsa para usar) de <strong>Controles de Cochera</strong> incluyen:
@@ -63,11 +63,11 @@ Los botones de opcion (pulsa para usar) de <strong>Controles de Cochera</strong>
 <a href="linemanagement.txt"><em>Actualizar Linea:</em></a> abre los controles para cambiar la <a href="schedule.txt">Ruta</a> (una ruta y una minima cantidad de elementos que el Convoy puede cargar en una Parada) de la linea seleccionada.
 </p>
 <p>
-<em>Copiar </em> <a href="convoiinfo.txt"><em>Vehiculo:</em></a> compra y añade otro convoy con la misma composicion, <a href="schedule.txt">Ruta</a> y <a href="linemanagement.txt">Linea</a> que el convoy seleccionado.
+<em>Copiar </em> <a href="convoiinfo.txt"><em>Vehiculo:</em></a> compra y aÃ±ade otro convoy con la misma composicion, <a href="schedule.txt">Ruta</a> y <a href="linemanagement.txt">Linea</a> que el convoy seleccionado.
 </p>
 <p>
 Debajo de los botones de opcion se muestran graficos de los vehiculos disponibles para comprar.<br>
-<em>graficos de los vehiculos:</em> los vehiculos se dividen en categorias, los cuales se pueden ver pulsando en las distintas pestañas. Las pestañas dividen los vehiculos en los siguientes grupos: vehiculos para pasajeros y correo, otros vehiculos (motorizados), y otros trailers y carruajes.<br>
+<em>graficos de los vehiculos:</em> los vehiculos se dividen en categorias, los cuales se pueden ver pulsando en las distintas pestaÃ±as. Las pestaÃ±as dividen los vehiculos en los siguientes grupos: vehiculos para pasajeros y correo, otros vehiculos (motorizados), y otros trailers y carruajes.<br>
 Un numero blanco sobre el grafico del vehiculo indica la cantidad de unidades almacenadas si algun Convoy ha sido desensamblado. Las unidades almacenadas se pueden vender o usarse en un nuevo Convoy.
 </p>
 <p>
@@ -85,19 +85,19 @@ Situa el cursor sobre el grafico del vehiculo para ver informacion acerca del ve
 <em>Valor de Venta:</em> cantidad de dinero recibida por la venta de un vehiculo previamente comprado.
 </p>
 <p>
-Pulsa en los graficos de vehiculos debajo de las pestañas para comprar o vender un vehiculo dependiendo de la opcion del boton de opciones situado en la parte inferior derecha de la ventana de <strong>Controles de cochera</strong>. El boton de opcion tiene tres modos:
+Pulsa en los graficos de vehiculos debajo de las pestaÃ±as para comprar o vender un vehiculo dependiendo de la opcion del boton de opciones situado en la parte inferior derecha de la ventana de <strong>Controles de cochera</strong>. El boton de opcion tiene tres modos:
 </p>
 <p>
-<em>Añadir:</em> compra un vehiculo y lo añade al Convoy seleccionado, o crea un nuevo Convoy.
+<em>AÃ±adir:</em> compra un vehiculo y lo aÃ±ade al Convoy seleccionado, o crea un nuevo Convoy.
 </p>
 <p>
-<em>Poner al frente:</em> compra un vehiculo y lo añade el la parte frontal del convoy actual, o crea un nuevo Convoy.
+<em>Poner al frente:</em> compra un vehiculo y lo aÃ±ade el la parte frontal del convoy actual, o crea un nuevo Convoy.
 </p>
 <p>
 <em>Modo Venta:</em> vende todos los vehiculos almacenados.
 </p>
 <p>
-<em>Barras de colores</em> bajo los vehiculos indica que vehiculos y en que orden pueden ser añadidos a otros, para formar un <a href="convoiinfo.txt">Convoy</a> operativo (las barras de color pueden cambiar con diferentes opciones de los vehiculos).<br>
+<em>Barras de colores</em> bajo los vehiculos indica que vehiculos y en que orden pueden ser aÃ±adidos a otros, para formar un <a href="convoiinfo.txt">Convoy</a> operativo (las barras de color pueden cambiar con diferentes opciones de los vehiculos).<br>
 Los coloures indican:<br>
 - <em>verde:</em> el vehiculo puede ser usado.<br>
 - <em>rojo:</em> el vehiculo no puede ser usado<br>

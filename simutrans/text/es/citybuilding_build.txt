@@ -3,64 +3,64 @@
 <h1><strong>Construir edificios urbanos</strong></h1> 
 
 <p>
-La ventana de <strong>Construir edificios urbanos</strong> te permite colocar edificios urbanos. Es una opción de personalización del mapa, disponible si cambias al jugador del servicio público, y abres las <a href="edittools.txt">Herramientas de Edición de Mapa</a>.<br>
+La ventana de <strong>Construir edificios urbanos</strong> te permite colocar edificios urbanos. Es una opciÃ³n de personalizaciÃ³n del mapa, disponible si cambias al jugador del servicio pÃºblico, y abres las <a href="edittools.txt">Herramientas de EdiciÃ³n de Mapa</a>.<br>
 </p> 
 
 <p>
 La ventana se divide en cuatro secciones:<br>
-1) Parte superior izquierda: Opciones de filtrado y ordenación.<br>
-2) Parte inferior izquierda: Una lista de selección con los edificios disponibles.<br>
-3) Parte superior derecha: Opciones de colocación.<br>
-4) Parte inferior derecha: Información e imagen del edificio seleccionado.<br>
+1) Parte superior izquierda: Opciones de filtrado y ordenaciÃ³n.<br>
+2) Parte inferior izquierda: Una lista de selecciÃ³n con los edificios disponibles.<br>
+3) Parte superior derecha: Opciones de colocaciÃ³n.<br>
+4) Parte inferior derecha: InformaciÃ³n e imagen del edificio seleccionado.<br>
 </p>
 
-<h1>1 - Opciones de filtrado y ordenación</h1>
+<h1>1 - Opciones de filtrado y ordenaciÃ³n</h1>
 
 <p>
-· <em>Usar cronología:</em> La lista de selección solo contendrá los edificios que están disponibles en el año actual de Simutrans. Esto se excluye mutuamente con la opción "Disponible en fecha personalizada".<br>
-· <em>Disponible en fecha personalizada:</em> La lista de selección solo contendrá los edificios que estén disponibles en la fecha especificada. Esto se excluye mutuamente con la opción "Usar cronología".<br>
-· <em>Mostrar obsoletos:</em> Expande la lista de selección para incluir también edificios obsoletos en el año actual de Simutrans.<br> 
-· <em>Clima:</em> Filtra por los climas permitidos.<br>
-· <em>Ordenar por:</em> Ordena la lista según alguno de los siguientes parámetros:<br>
-·· <em>Traducción:</em> Muestra y ordena por el nombre en el idioma dado tal como se define en el pakset. Si no hay traducción disponible, se utilizará el nombre del objeto.<br>
-·· <em>Object:</em> Muestra y ordena por el nombre del objeto interno utilizado por Simutrans.<br>
-·· <em>Nivel de pasajeros:</em> Ordenar por cantidad de pasajeros generados o demandados.<br>
-·· <em>Nivel de correo:</em> Ordenar por cantidad de correo generado o demandado.<br>
-·· <em>Fecha intro.:</em> Ordenar por fecha de introducción (cuando el edificio comienza a aparecer).<br>
-·· <em>Fecha de retirada:</em> Ordenar por fecha de retirada (cuando el edificio deja de aparecer).<br>
-·· <em>Tamaño (área):</em> Ordenar por tamaño de edificio en casillas (Nota: algunos paksets pueden tener sólo edificios de una casilla).<br>
-· <em>Edificios residenciales:</em> Muestra/oculta los edificios residenciales.<br>
-· <em>Tiendas y oficinas:</em> Muestra/oculta los edificios comerciales.<br>
-· <em>Edificios industriales:</em> Muestra/oculta los edificios industriales.<br>
+Â· <em>Usar cronologÃ­a:</em> La lista de selecciÃ³n solo contendrÃ¡ los edificios que estÃ¡n disponibles en el aÃ±o actual de Simutrans. Esto se excluye mutuamente con la opciÃ³n "Disponible en fecha personalizada".<br>
+Â· <em>Disponible en fecha personalizada:</em> La lista de selecciÃ³n solo contendrÃ¡ los edificios que estÃ©n disponibles en la fecha especificada. Esto se excluye mutuamente con la opciÃ³n "Usar cronologÃ­a".<br>
+Â· <em>Mostrar obsoletos:</em> Expande la lista de selecciÃ³n para incluir tambiÃ©n edificios obsoletos en el aÃ±o actual de Simutrans.<br> 
+Â· <em>Clima:</em> Filtra por los climas permitidos.<br>
+Â· <em>Ordenar por:</em> Ordena la lista segÃºn alguno de los siguientes parÃ¡metros:<br>
+Â·Â· <em>TraducciÃ³n:</em> Muestra y ordena por el nombre en el idioma dado tal como se define en el pakset. Si no hay traducciÃ³n disponible, se utilizarÃ¡ el nombre del objeto.<br>
+Â·Â· <em>Object:</em> Muestra y ordena por el nombre del objeto interno utilizado por Simutrans.<br>
+Â·Â· <em>Nivel de pasajeros:</em> Ordenar por cantidad de pasajeros generados o demandados.<br>
+Â·Â· <em>Nivel de correo:</em> Ordenar por cantidad de correo generado o demandado.<br>
+Â·Â· <em>Fecha intro.:</em> Ordenar por fecha de introducciÃ³n (cuando el edificio comienza a aparecer).<br>
+Â·Â· <em>Fecha de retirada:</em> Ordenar por fecha de retirada (cuando el edificio deja de aparecer).<br>
+Â·Â· <em>TamaÃ±o (Ã¡rea):</em> Ordenar por tamaÃ±o de edificio en casillas (Nota: algunos paksets pueden tener sÃ³lo edificios de una casilla).<br>
+Â· <em>Edificios residenciales:</em> Muestra/oculta los edificios residenciales.<br>
+Â· <em>Tiendas y oficinas:</em> Muestra/oculta los edificios comerciales.<br>
+Â· <em>Edificios industriales:</em> Muestra/oculta los edificios industriales.<br>
 </p>
 
-<h1>2 - Lista de selección</h1>
+<h1>2 - Lista de selecciÃ³n</h1>
 
 <p>
-En la lista de selección se muestran todos los edificios que están disponibles con las opciones especificadas. Pulsa en un edificio de la lista para ver más información sobre ese edificio en particular. Para colocar el edificio, pulsa en la ventana del mundo del juego en la ubicación deseada después de seleccionarlo en la lista.
+En la lista de selecciÃ³n se muestran todos los edificios que estÃ¡n disponibles con las opciones especificadas. Pulsa en un edificio de la lista para ver mÃ¡s informaciÃ³n sobre ese edificio en particular. Para colocar el edificio, pulsa en la ventana del mundo del juego en la ubicaciÃ³n deseada despuÃ©s de seleccionarlo en la lista.
 El color del texto tiene el siguiente significado:<br>
-· <em>Texto azul</em> indica que es un edificio residencial.<br>
-· <em>Texto verde</em> indica que es un edificio comercial.<br>
-· <em>Texto negro/em> indica que es un edificio industrial.<br>
+Â· <em>Texto azul</em> indica que es un edificio residencial.<br>
+Â· <em>Texto verde</em> indica que es un edificio comercial.<br>
+Â· <em>Texto negro/em> indica que es un edificio industrial.<br>
 </p> 
 
-<h1>3 - Opciones de colocación</h1>
+<h1>3 - Opciones de colocaciÃ³n</h1>
 
 <p> 
-· <em>Ignorar climas:</em> Esta opción desactiva las restricciones climáticas, permitiendo colocar el edificio en climas no permitidos.<br>
-· <em>Rotación:</em> Si el edificio elegido se puede mostrar desde diferentes ángulos, entonces es posible elegir una vista específica del mismo aquí. La imagen cambiará para reflejar esto. Si esta opción se establece en <em>Aleatorio</em>, se utilizará una vista aleatoria del edificio.
+Â· <em>Ignorar climas:</em> Esta opciÃ³n desactiva las restricciones climÃ¡ticas, permitiendo colocar el edificio en climas no permitidos.<br>
+Â· <em>RotaciÃ³n:</em> Si el edificio elegido se puede mostrar desde diferentes Ã¡ngulos, entonces es posible elegir una vista especÃ­fica del mismo aquÃ­. La imagen cambiarÃ¡ para reflejar esto. Si esta opciÃ³n se establece en <em>Aleatorio</em>, se utilizarÃ¡ una vista aleatoria del edificio.
 </p>
 
-<h1>4 - Información</h1>
+<h1>4 - InformaciÃ³n</h1>
 
 <p>
-La información sobre árboles contiene:<br>
-· <em>Tipo:</em> Tipo de edificio (Residencial, Industrial, o Tiendas y oficinas).<br>
-· <em>Nombre y descripción:</em> Mostrará solo la descripción si no tiene nombre. Mostrará el nombre del objeto solo si no tiene nombre ni descripción.<br>
-· <em>Climas permitidos:</em> Climas en los cuales se permite plantar el árbol (si la opción "Ignorar climas" no está activa).
-· <em>Nivel de pasajeros:</em> Métrica de cantidad de pasajeros generada o demandada.<br>
-· <em>Nivel de correo:</em> Métrica de cantidad de correo generado o demandado.<br>
-· <em>Fecha de introducción:</em> Fecha desde que aparece el edificio.<br>
-· <em>Autor:</em> El nombre del autor que pintó el objeto (si está disponible).<br>
-· <em>Imagen:</em> Imagen del edificio.<br>
+La informaciÃ³n sobre Ã¡rboles contiene:<br>
+Â· <em>Tipo:</em> Tipo de edificio (Residencial, Industrial, o Tiendas y oficinas).<br>
+Â· <em>Nombre y descripciÃ³n:</em> MostrarÃ¡ solo la descripciÃ³n si no tiene nombre. MostrarÃ¡ el nombre del objeto solo si no tiene nombre ni descripciÃ³n.<br>
+Â· <em>Climas permitidos:</em> Climas en los cuales se permite plantar el Ã¡rbol (si la opciÃ³n "Ignorar climas" no estÃ¡ activa).
+Â· <em>Nivel de pasajeros:</em> MÃ©trica de cantidad de pasajeros generada o demandada.<br>
+Â· <em>Nivel de correo:</em> MÃ©trica de cantidad de correo generado o demandado.<br>
+Â· <em>Fecha de introducciÃ³n:</em> Fecha desde que aparece el edificio.<br>
+Â· <em>Autor:</em> El nombre del autor que pintÃ³ el objeto (si estÃ¡ disponible).<br>
+Â· <em>Imagen:</em> Imagen del edificio.<br>
 </p>
