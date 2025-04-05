@@ -1,3 +1,4 @@
+Release of 124.3.1 (r11671 on 5-Apr-2025):
 	CHG: option for pakset dump versus all other debug by appending 'p' to the debug level, e.g. "-debug 0p" to show only pak details to declutter server logs
 	CHG: tram system type way can be laid over other tracks as well (like pak192 narrowgauge over normal rails)
 	CHG: bridge builder is now only a two click tool (total renewal) Can again connect to complex ramps on elevated ways or cross rivers automatically

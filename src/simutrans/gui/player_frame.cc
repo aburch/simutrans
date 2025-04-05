@@ -22,6 +22,7 @@
 #include "password_frame.h" // for the password
 #include "ai_selector.h"
 #include "player_frame.h"
+#include "sprachen.h"
 
 
 class password_button_t : public button_t
@@ -108,12 +109,15 @@ ki_kontroll_t::ki_kontroll_t() :
 	freeplay.pressed = welt->get_settings().is_freeplay();
 	add_component( &freeplay, 5 );
 
+	sprachengui_t::init_currency_from_lang();	// not yet init when reloaded
+
 	// currency position
 	currency_left.init(button_t::square_automatic, "currency left");
 	currency_left.add_listener(this);
 	currency_left.pressed = get_currency_left();
 	add_component(&currency_left, 3);
 
+	// and symbol
 	strcpy(currency_symbol, get_currency_string());
 	currency_string.set_text(currency_symbol, lengthof(currency_symbol));
 	currency_string.add_listener(this);
@@ -138,10 +142,17 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp, value_t p )
 
 	if (comp == &currency_string  || comp == &currency_left) {
 		bool text_changed = strcmp(get_currency_string(), currency_symbol);
+		env_t::currency_left = currency_left.pressed;
 		if (text_changed) {
 			strcpy(env_t::currency_symbol, currency_symbol);
 		}
-		set_currency_string(text_changed ? env_t::currency_symbol : get_currency_string(), currency_left.pressed);
+		else {
+			env_t::currency_left = currency_left.pressed;
+		}
+		// set the values
+		sprachengui_t::init_currency_from_lang();
+		strcpy(currency_symbol, get_currency_string());
+		currency_left.pressed = env_t::currency_left;
 		return true;
 	}
 

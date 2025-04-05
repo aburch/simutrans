@@ -31,6 +31,29 @@ int sprachengui_t::cmp_language_button(sprachengui_t::language_button_t a, sprac
 	return strcmp( a.button->get_text(), b.button->get_text() )<0;
 }
 
+
+// set currency symbol
+void sprachengui_t::init_currency_from_lang()
+{
+	const char* org = "CURRENCY";
+	const char* trans = translator::translate(org);
+	if (trans != org && env_t::currency_symbol[0] == 0) {
+		// no special symbol selected
+		bool left = *translator::translate("CURRENCY_LEFT") == '1';
+		set_currency_string(trans, left);
+		env_t::currency_symbol[0] = 0;
+		env_t::currency_left = left;
+	}
+	else if (env_t::currency_symbol[0]) {
+		set_currency_string(env_t::currency_symbol, env_t::currency_left);
+	}
+	else {
+		env_t::currency_left = false;
+		set_currency_string("$", false);
+	}
+}
+
+
 /**
  * Causes the required fonts for currently selected
  * language to be loaded
@@ -67,16 +90,7 @@ void sprachengui_t::init_font_from_lang()
 		dr_chdir( env_t::user_dir );
 	}
 
-	// currency symbol
-	{
-		const char* org = "CURRENCY";
-		const char* trans = translator::translate(org);
-		if (trans != org  && env_t::currency_symbol[0] == 0) {
-			// no special symbol selected
-			set_currency_string(trans,env_t::currency_left);
-			env_t::currency_symbol[0] = 0;
-		}
-	}
+	init_currency_from_lang();
 
 	const char * p = translator::translate("SEP_THOUSAND");
 	char c = ',';

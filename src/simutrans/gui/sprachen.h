@@ -33,6 +33,9 @@ private:
 	static int cmp_language_button(sprachengui_t::language_button_t a, sprachengui_t::language_button_t b);
 
 public:
+	// currency symbol
+	static void init_currency_from_lang();
+
 	/**
 	 * Causes the required fonts for currently selected
 	 * language to be loaded if true
