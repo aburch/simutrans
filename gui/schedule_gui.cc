@@ -810,7 +810,7 @@ bool schedule_gui_t::infowin_event(const event_t *ev)
 bool schedule_gui_t::action_triggered( gui_action_creator_t *comp, value_t p)
 {
 DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_selector);
-	// for updating tool after any action happened
+	// Always call update_tool for any actions to prevent an unexpected state
 	bool should_set_schedule_tool = true;
 	if(comp == &bt_add) {
 		mode = adding;
