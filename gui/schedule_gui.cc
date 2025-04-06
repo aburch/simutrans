@@ -811,7 +811,7 @@ bool schedule_gui_t::action_triggered( gui_action_creator_t *comp, value_t p)
 {
 DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_selector);
 	// for updating tool after any action happened
-	bool is_updating_tool = true;
+	bool should_set_schedule_tool = true;
 	if(comp == &bt_add) {
 		mode = adding;
 		bt_add.pressed = true;
@@ -829,7 +829,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 		bt_add.pressed = false;
 		bt_insert.pressed = false;
 		bt_remove.pressed = true;
-		is_updating_tool = false;
+		should_set_schedule_tool = false;
 	}
 	else if(comp == &bt_find_parent) {
 		if(!schedule->empty()) {
@@ -1076,7 +1076,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 			init_line_selector();
 		}
 	}
-	update_tool( is_updating_tool );
+	update_tool( should_set_schedule_tool );
 	return true;
 }
 
