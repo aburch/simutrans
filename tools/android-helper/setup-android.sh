@@ -26,7 +26,7 @@ export ANDROID_SDK=/opt/android-sdk-linux
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 export ANDROID_NDK=/opt/android-sdk-linux/ndk/25.1.8937393/
 
-alias bundletool="java -jar /opt/android-sdk-linux/cmdline-tools/latest/bin/bundletool-all-1.15.2.jar
+alias bundletool="java -jar /opt/android-sdk-linux/cmdline-tools/latest/bin/bundletool-all-1.15.2.jar"
 
 PATH=$PATH:/opt/android-sdk-linux/cmdline-tools/latest/bin:/opt/android-sdk-linux/platform-tools:/opt/android-sdk-linux/build-tools/34.0.0:/opt/android-sdk-linux/cmake/3.22.1/bin:/opt/android-sdk-linux/ndk/25.1.8937393:/opt/android-sdk-linux/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/
 

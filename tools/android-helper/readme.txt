@@ -9,5 +9,5 @@ Next ./setup-simutrans-android.sh
 
 These have only to run once. Finally, run build-only.sh, all from the same folder.
 
-The code is under simutrans-android-rpoject/simutrans/jni/simutrans in an svn repositiore (so it does not interfere with the git of the simutrans-android-project around it.
+The code is under simutrans-android-project/simutrans/jni/simutrans in an svn repository (so it does not interfere with the git of the simutrans-android-project around it.
 

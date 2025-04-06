@@ -23,7 +23,9 @@
 #include "../dataobj/translator.h"
 #include "../sys/simsys.h"
 #include "../utils/simstring.h"
+#include "../utils/unicode.h"
 #include "../world/simworld.h"
+
 
 
 int sprachengui_t::cmp_language_button(sprachengui_t::language_button_t a, sprachengui_t::language_button_t b)
@@ -60,35 +62,44 @@ void sprachengui_t::init_currency_from_lang()
  */
 void sprachengui_t::init_font_from_lang()
 {
-	bool reload_font = !has_character( translator::get_lang()->highest_character );
+#if COLOUR_DEPTH != 0
+	const utf8* new_world = (const utf8*)translator::translate("Beenden");
+	size_t len;
+	utf16 testfor_this_character = utf8_decoder_t::decode(new_world, len);
 
-	// the real fonts for the current language
-	std::string old_font = env_t::fontname;
+	bool reload_font = !has_character(testfor_this_character);
+	if(reload_font) {
+		if (env_t::fontsize == 11) {
+			// can only use fixed default with current font size
+			std::string old_font = env_t::fontname;
 
-	static const char *default_name = "PROP_FONT_FILE";
-	const char *prop_font_file = translator::translate(default_name);
+			static const char* default_name = "PROP_FONT_FILE";
+			const char* prop_font_file = translator::translate(default_name);
 
-	// fallback if entry is missing -> use latin-1 font
-	if(  prop_font_file == default_name  ) {
-		prop_font_file = "cyr.bdf";
-	}
+			if (prop_font_file == default_name) {
+				// missing font	
+			}
+			else {
+				// load large font
+				dr_chdir(env_t::base_dir);
+				bool ok = false;
+				char prop_font_file_name[4096];
+				tstrncpy(prop_font_file_name, prop_font_file, lengthof(prop_font_file_name));
+				char* f = strtok(prop_font_file_name, ";");
+				do {
+					std::string fname = FONT_PATH_X;
+					fname += prop_font_file_name;
+					ok = display_load_font(fname.c_str());
+					f = strtok(NULL, ";");
+				} while (!ok && f);
+				dr_chdir(env_t::user_dir);
+				reload_font = false;
+			}
 
-	if(  reload_font  ) {
-		// load large font
-		dr_chdir( env_t::base_dir );
-		bool ok = false;
-		char prop_font_file_name[4096];
-		tstrncpy( prop_font_file_name, prop_font_file, lengthof(prop_font_file_name) );
-		char *f = strtok( prop_font_file_name, ";" );
-		do {
-			std::string fname = FONT_PATH_X;
-			fname += prop_font_file_name;
-			ok = display_load_font(fname.c_str());
-			f = strtok( NULL, ";" );
 		}
-		while(  !ok  &&  f  );
-		dr_chdir( env_t::user_dir );
+		// if nothing is found => display font selector
 	}
+#endif
 
 	init_currency_from_lang();
 
