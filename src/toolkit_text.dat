@@ -20,27 +20,27 @@ note=messages hm_way_tl
 -
 obj=script_toolkit
 name=Bridge %s (%s) is not found!
-note==messages hm_bridge_tl
+note=messages hm_bridge_tl
 -
 obj=script_toolkit
 name=Bridge building path from (%s) to (%s) is not found!
-note==messages hm_bridge_tl
+note=messages hm_bridge_tl
 -
 obj=script_toolkit
 name=Depot key %s is not defined.
-note==messages hm_depot_tl
+note=messages hm_depot_tl
 -
 obj=script_toolkit
 name=No depot was detected between %s.
-note==messages hm_depot_tl
+note=messages hm_depot_tl
 -
 obj=script_toolkit
 name=Selected depot %s is not available.
-note==messages hm_depot_tl
+note=messages hm_depot_tl
 -
 obj=script_toolkit
 name=Depot %s (%s) is not found!
-note==messages hm_depot_tl
+note=messages hm_depot_tl
 -
 obj=script_toolkit
 name=No ways were found at %s.
