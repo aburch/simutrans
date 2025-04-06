@@ -159,8 +159,13 @@ echo "Targeting archive $simarchiv"
 # (otherwise there will be many .svn included under windows)
 distribute()
 {
+if [ "$OST" = "mingw" ]; then
+	# pack all files of the current release (no pixelfont for windows)
+	FILELISTE=`find simutrans -type f "(" -name "*.tab" -o -name "*.mid" -o  -name "*.txt" -o -name "*.dll" -o -name "*.pak" -o -name "*.nut" -o -name "*.dll" ")"`
+else
 	# pack all files of the current release
 	FILELISTE=`find simutrans -type f "(" -name "*.tab" -o -name "*.mid" -o -name "*.bdf" -o -name "*.fnt" -o -name "*.txt"  -o -name "*.dll" -o -name "*.pak" -o -name "*.nut" -o -name "*.dll" ")"`
+fi
 	zip -9 $simarchiv.zip $FILELISTE simutrans/simutrans$simexe simutrans/$updater
 }
 

@@ -730,7 +730,6 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 
 	// universal check for crossings
 	if (to!=from  &&  (bautyp&bautyp_mask)!=leitung) {
-		waytype_t const wtyp = (bautyp == river) ? water_wt : (waytype_t)(bautyp & bautyp_mask);
 		if(!check_crossing(zv,to,desc,player_builder)  ||  !check_crossing(-zv,from, desc,player_builder)) {
 			warn_fail = translator::translate("No suitable crossing");
 			return false;
@@ -899,7 +898,7 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 				}
 				// no bridges and monorails here in the air apart from another powerline bridge
 				if (grund_t* to2 = welt->lookup(to->get_pos() + koord3d(0,0,1))) {
-					ok &= to->find<leitung_t>()  &&  to->get_typ() == grund_t::brueckenboden;
+					ok &= to2->find<leitung_t>()  &&  to2->get_typ() == grund_t::brueckenboden;
 				}
 			}
 

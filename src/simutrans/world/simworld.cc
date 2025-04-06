@@ -6317,7 +6317,6 @@ bool karte_t::interactive(uint32 quit_month)
 
 						// remove passwords before transfer on the server and set default client mask
 						// they will be restored in karte_t::laden
-						uint16 unlocked_players = 0;
 						for (int i = 0; i < PLAYER_UNOWNED; i++) {
 							if (players[i]  &&  !players[i]->access_password_hash().empty()) {
 								players[i]->access_password_hash().clear();

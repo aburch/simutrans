@@ -50,7 +50,10 @@
 #		include <unistd.h>
 #	endif
 #	ifdef __ANDROID__
+#       include "../utils/searchfolder.h"
 #		include <SDL.h>
+#		include <android/font.h>
+#		include <android/font_matcher.h>
 #	endif
 #endif
 
@@ -771,7 +774,25 @@ std::string dr_get_system_font()
 	DBG_MESSAGE("dr_get_system_font()", "Using %s", std::string(wsFontFile.begin(), wsFontFile.end()).c_str());
 	return (std::string)winDir + std::string(wsFontFile.begin(), wsFontFile.end());
 #elif defined(ANDROID)
-	return FONT_PATH_X "Roboto-Regular.ttf";
+#if __ANDROID_API__>28
+	// öж田た불
+	const unsigned char teststr[] = { 0xc3, 0xb6, 0xd0, 0xb6, 0xe7, 0x94, 0xb0, 0xe3, 0x81, 0x9f, 0xeb, 0xb6, 0x88, 0 };
+	AFontMatcher* AFM = AFontMatcher_create();
+	AFont* AF = AFontMatcher_match(AFM, "serif", teststr, lengthof(teststr), NULL);
+	const char* fp = AFont_getFontFilePath(AF);
+	AFont_close(AF);
+	AFontMatcher_destroy(AFM);
+#else
+	const char* addpath;
+	searchfolder_t fonts;
+	for (int i = 0; (addpath = dr_query_fontpath(i)); i++) {
+		fonts.search(addpath, "*.ttf", searchfolder_t::SF_NOADDONS | searchfolder_t::SF_PREPEND_PATH, 4);
+		for (const char* filename : fonts) {
+			return filename;
+		}
+	}
+	return "/system/fonts/DroidSans.ttf";
+#endif
 #elif defined(USE_FONTCONFIG)
 	std::string fontFile = FONT_PATH_X "cyr.bdf";
 	FcInit();
