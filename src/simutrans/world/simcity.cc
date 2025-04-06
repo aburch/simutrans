@@ -601,7 +601,6 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 		// as has_low_density may depend on the order the buildings list is filled
 		if (!ordered) {
 			// check borders
-			koord size = gb_tiles.back()->get_pos().get_2d()-gb_tiles.front()->get_pos().get_2d()+koord( 1, 1 );
 			recalc_city_size();
 		}
 	}

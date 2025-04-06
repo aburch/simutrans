@@ -537,7 +537,6 @@ const char* bridge_builder_t::can_build_bridge(const player_t* pl, koord3d start
 
 	// now the tiles are in priciple ok = find out the bridge height
 	const sint8 max_ramp = 1 + desc->has_double_ramp(); // on flat tile
-	const sint8 max_slope = 1 + desc->has_double_ramp(); // on sloped tile
 	const sint8 clearance = welt->get_settings().get_way_height_clearance();
 
 	if (max(start_pos.z, end_pos.z)-min(start_pos.z, end_pos.z) > max_ramp) {

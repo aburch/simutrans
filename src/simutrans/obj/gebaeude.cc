@@ -424,8 +424,6 @@ FLAGGED_PIXVAL gebaeude_t::get_outline_colour() const
 
 void gebaeude_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 {
-
-	const int raster_width = get_current_tile_raster_width();
 	const bool is_dirty = get_flag(obj_t::dirty);
 	uint8 owner_n = get_owner_nr();
 

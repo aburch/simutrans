@@ -559,7 +559,7 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 			}
 			// but leaving from railroad crossing is more important
 			if (grund_t* gr_current = welt->lookup(get_pos())) {
-				if (crossing_t* cr = gr_current->get_crossing()) {
+				if (gr_current->get_crossing()) {
 					return true;
 				}
 			}
