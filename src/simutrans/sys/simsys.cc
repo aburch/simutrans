@@ -658,7 +658,7 @@ const char *dr_query_fontpath(int which)
 		"~/config/non-packaged/data/fonts/",
 		"/boot/system/data/fonts/ttfonts/",
 #elif defined __ANDROID__
-		"/system/fonts/"
+		"/system/fonts/",
 #else
 		"~/.fonts/",
 		"~/.local/share/fonts/",
