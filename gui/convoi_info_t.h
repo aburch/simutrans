@@ -45,7 +45,7 @@ private:
 	/**
 	* Buffer for freight info text string.
 	*/
-	cbuffer_t freight_info, stops_info;
+	cbuffer_t freight_info;
 
 	gui_textarea_t text;
 	obj_view_t view;
