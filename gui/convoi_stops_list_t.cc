@@ -36,7 +36,7 @@ class gui_halt_detail_t;
 /**
  * One entry in the list of schedule entries.
  */
-class gui_convoi_stops_list_t : public gui_aligned_container_t, public gui_action_creator_t
+class convoi_stops_list_item_t : public gui_aligned_container_t, public gui_action_creator_t
 {
 	schedule_entry_t entry;
 	bool is_current;
@@ -46,7 +46,7 @@ class gui_convoi_stops_list_t : public gui_aligned_container_t, public gui_actio
 	gui_label_buf_t stop;
 
 public:
-	gui_convoi_stops_list_t(player_t* pl, schedule_entry_t e, uint n)
+	convoi_stops_list_item_t(player_t* pl, schedule_entry_t e, uint n)
 	{
 		player = pl;
 		entry  = e;
@@ -68,7 +68,6 @@ public:
 
 	void draw(scr_coord offset) OVERRIDE
 	{
-		update_label();
 		if (is_current) {
 			display_fillbox_wh_clip_rgb(pos.x + offset.x, pos.y + offset.y, size.w, size.h, SYSCOL_LIST_BACKGROUND_SELECTED_F, false);
 		}
@@ -78,6 +77,11 @@ public:
 	void set_active(bool yesno)
 	{
 		is_current = yesno;
+	}
+
+	bool is_active()
+	{
+		return is_current;
 	}
 
 	bool infowin_event(const event_t *ev) OVERRIDE
@@ -134,7 +138,7 @@ void convoi_stops_list_t::update_schedule()
 	}
 	else {
 		for(uint i=0; i<gui_schedule->entries.get_count(); i++) {
-			entries.append( new_component<gui_convoi_stops_list_t>(player, gui_schedule->entries[i], i));
+			entries.append( new_component<convoi_stops_list_item_t>(player, gui_schedule->entries[i], i));
 			entries.back()->add_listener( this );
 		}
 		entries[ gui_schedule->get_current_stop() ]->set_active(true);
@@ -144,7 +148,9 @@ void convoi_stops_list_t::update_schedule()
 
 void convoi_stops_list_t::draw(scr_coord offset)
 {
-	update_schedule();
+	if(  !cnv->get_schedule()->matches(world(),gui_schedule) || !entries[ cnv->get_schedule()->get_current_stop() ]->is_active()  ) {
+		update_schedule();
+	}
 	gui_aligned_container_t::draw(offset);
 }
 

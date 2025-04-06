@@ -21,7 +21,7 @@ class schedule_t;
 class player_t;
 class cbuffer_t;
 class convoi_stops_list_t;
-class gui_convoi_stops_list_t;
+class convoi_stops_list_item_t;
 
 
 /**
@@ -31,7 +31,7 @@ class convoi_stops_list_t : public gui_aligned_container_t, action_listener_t, p
 {
 	convoihandle_t cnv;
 
-	vector_tpl<gui_convoi_stops_list_t*> entries;
+	vector_tpl<convoi_stops_list_item_t*> entries;
 	schedule_t *gui_schedule; // displaied schedule
 public:
 	player_t*  player;
