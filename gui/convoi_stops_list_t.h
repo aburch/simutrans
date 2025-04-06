@@ -32,7 +32,7 @@ class convoi_stops_list_t : public gui_aligned_container_t, action_listener_t, p
 	convoihandle_t cnv;
 
 	vector_tpl<convoi_stops_list_item_t*> entries;
-	schedule_t *gui_schedule; // displaied schedule
+	schedule_t *gui_schedule; // displayed schedule
 public:
 	player_t*  player;
 
