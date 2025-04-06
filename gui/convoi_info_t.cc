@@ -339,9 +339,6 @@ void convoi_info_t::update_labels()
 
 	scroll_stops_list.set_size(  scr_size( scroll_stops_list.get_size().w,get_client_windowsize().h - scroll_stops_list.get_pos().y - D_MARGIN_BOTTOM )  );
 
-	// update schedules
-	stops_list->update_schedule();
-
 	// realign container - necessary if strings changed length
 	container_top->set_size( container_top->get_size() );
 }
