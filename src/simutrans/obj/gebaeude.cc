@@ -21,6 +21,7 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../gui/headquarter_info.h"
 #include "../world/simworld.h"
 #include "simobj.h"
+#include "../simconst.h"
 #include "../simfab.h"
 #include "../display/simimg.h"
 #include "../display/simgraph.h"
@@ -426,6 +427,8 @@ void gebaeude_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 {
 	const bool is_dirty = get_flag(obj_t::dirty);
 	uint8 owner_n = get_owner_nr();
+	const int raster_width = get_current_tile_raster_width();
+	ypos += tile_raster_scale_y(get_yoff(), raster_width); // if there is a slope below
 
 	if (env_t::hide_buildings != 0 && env_t::hide_with_transparency && !zeige_baugrube) {
 		// transparent building
@@ -472,7 +475,6 @@ void gebaeude_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 	// not hidden
 	image_id image = get_image();
 	if (image != IMG_EMPTY) {
-		const int raster_width = get_current_tile_raster_width();
 		const bool is_dirty = get_flag(obj_t::dirty);
 
 		const int start_ypos = ypos;
