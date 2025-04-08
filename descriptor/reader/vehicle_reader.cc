@@ -247,6 +247,30 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->trailer_count = decode_uint8(p);
 		desc->freight_image_type = decode_uint8(p);
 	}
+	else if (version == 12) {
+		// Cost values as sint64
+		desc->price = decode_sint64(p);
+		desc->capacity = decode_uint16(p);
+		desc->loading_time = decode_uint16(p);
+		desc->topspeed = decode_uint16(p);
+		desc->weight = decode_uint32(p);
+		desc->axle_load = decode_uint16(p);
+		desc->power = decode_uint32(p);
+		desc->running_cost = decode_sint64(p);
+		desc->maintenance = decode_sint64(p);
+
+		desc->intro_date = decode_uint16(p);
+		desc->retire_date = decode_uint16(p);
+		desc->gear = decode_uint16(p);
+
+		desc->wtyp = decode_uint8(p);
+		desc->sound = decode_sint8(p);
+		desc->engine_type = decode_uint8(p);
+		desc->len = decode_uint8(p);
+		desc->leader_count = decode_uint8(p);
+		desc->trailer_count = decode_uint8(p);
+		desc->freight_image_type = decode_uint8(p);
+	}
 	else {
 		if( version ) {
 			dbg->fatal( "vehicle_reader_t::read_node()", "Cannot handle too new node version %i", version );

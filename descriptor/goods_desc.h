@@ -26,7 +26,7 @@ class goods_desc_t : public obj_named_desc_t {
 
 
 	/// base value
-	uint16 base_value;
+	sint64 base_value;
 
 	/**
 	 * Value used in revenue calculation.

@@ -80,8 +80,8 @@ public:
 class obj_desc_transport_related_t : public obj_desc_timelined_t {
 
 protected:
-	sint32 maintenance;   ///< monthly cost for bits_per_month=18
-	sint32 price;         ///< cost to build this thing [1/100 credits] per tile/object
+	sint64 maintenance;   ///< monthly cost for bits_per_month=18
+	sint64 price;         ///< cost to build this thing [1/100 credits] per tile/object
 	uint16 axle_load;     ///< up to this load vehicle may pass (default 9999)
 	uint8  wtyp;          ///< waytype of this thing
 	sint32 topspeed;      ///< maximum allowed speed in km/h
@@ -90,9 +90,9 @@ public:
 	obj_desc_transport_related_t() : obj_desc_timelined_t(),
 		maintenance(0), price(0), axle_load(9999), wtyp(255), topspeed(0) {}
 
-	sint32 get_maintenance() const { return maintenance; }
+	sint64 get_maintenance() const { return maintenance; }
 
-	sint32 get_price() const { return price; }
+	sint64 get_price() const { return price; }
 
 	waytype_t get_waytype() const { return static_cast<waytype_t>(wtyp); }
 	waytype_t get_wtyp() const { return get_waytype(); }

@@ -130,6 +130,19 @@ void checksum_t::input(sint32 data)
 	input((uint32)data);
 }
 
+void checksum_t::input(uint64 data)
+{
+	uint64 little_endian = endian(data);
+	assert(sha);
+	sha->Input((const char*)&little_endian, sizeof(uint32));
+}
+
+
+void checksum_t::input(sint64 data)
+{
+	input((uint64)data);
+}
+
 
 void checksum_t::input(const char *data)
 {

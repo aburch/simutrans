@@ -54,8 +54,17 @@ obj_desc_t * groundobj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	const uint16 v = decode_uint16(p);
 	const int version = v & 0x8000 ? v & 0x7FFF : 0;
 	groundobj_desc_t *desc = new groundobj_desc_t();
-
-	if(version == 1) {
+	if (version == 2) {
+		// cost as sint64
+		desc->allowed_climates    = (climate_bits)decode_uint16(p);
+		desc->distribution_weight = decode_uint16(p);
+		desc->number_of_seasons   = decode_uint8(p);
+		desc->trees_on_top        = (bool)decode_uint8(p);
+		desc->speed               = kmh_to_speed( decode_uint16(p) );
+		desc->wtyp                = (waytype_t)decode_uint16(p);
+		desc->price               = decode_sint64(p);
+	}
+	else if(version == 1) {
 		desc->allowed_climates = (climate_bits)decode_uint16(p);
 		desc->distribution_weight = decode_uint16(p);
 		desc->number_of_seasons = decode_uint8(p);

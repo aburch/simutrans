@@ -156,6 +156,22 @@ obj_desc_t *bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->number_of_seasons = decode_uint8(p);
 
 	}
+	else if (version==10) {
+
+		desc->topspeed = decode_uint16(p);
+		desc->price = decode_sint64(p);
+		desc->maintenance = decode_sint64(p);
+		desc->wtyp = decode_uint8(p);
+		desc->pillars_every = decode_uint8(p);
+		desc->max_length = decode_uint8(p);
+		desc->intro_date = decode_uint16(p);
+		desc->retire_date = decode_uint16(p);
+		desc->pillars_asymmetric = (decode_uint8(p)!=0);
+		desc->axle_load = decode_uint16(p); // new
+		desc->max_height = decode_uint8(p);
+		desc->number_of_seasons = decode_uint8(p);
+
+	}
 	else {
 		if( version ) {
 			dbg->fatal( "bridge_reader_t::read_node()", "Cannot handle too new node version %i", version );

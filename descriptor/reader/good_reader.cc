@@ -80,6 +80,13 @@ obj_desc_t * goods_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->color = decode_uint8(p);
 
 	}
+	else if (version == 4) {
+		desc->base_value      = decode_sint64(p);
+		desc->catg            = decode_uint8(p);
+		desc->speed_bonus     = decode_uint16(p);
+		desc->weight_per_unit = decode_uint16(p);
+		desc->color           = decode_uint8(p);
+	}
 	else {
 		if( version ) {
 			dbg->fatal( "goods_reader_t::read_node()", "Cannot handle too new node version %i", version );
