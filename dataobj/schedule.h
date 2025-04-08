@@ -33,6 +33,9 @@ class schedule_t
 	// operational maximum speed of this schedule. 0 => no limit.
 	uint16 max_speed;
 
+	// end the schedule, jump to other line schedule
+	uint16 next_line_id;
+
 	// the id of the departure slot group.
 	// defined in sint64 since uint64 value cannot be handled with rdwr_longlong
 	sint64 departure_slot_group_id;
@@ -115,17 +118,17 @@ public:
 	 * Set the current stop of the schedule .
 	 * If new value is bigger than stops available, the max stop will be used.
 	 */
-	void set_current_stop(uint8 new_current_stop) {
+	void set_current_stop(const uint8 new_current_stop) {
 		current_stop = new_current_stop;
 		make_current_stop_valid();
 	}
 
 	/// advance current_stop by one
-	void advance() {
-		if(  !entries.empty()  ) {
-			current_stop = (current_stop+1)%entries.get_count();
-		}
-	}
+	void advance();
+
+	// read next_line and return the entry of next_line
+	uint8 advanced_entry(uint8 advance_stop_number) const;
+	
 
 	inline bool is_editing_finished() const { return editing_finished; }
 	void finish_editing() { editing_finished = true; }
@@ -189,6 +192,8 @@ public:
 	void rdwr(loadsave_t *file);
 
 	void rotate90( sint16 y_size );
+
+	void set_next_line( linehandle_t );
 
 	/**
 	 * if the passed in schedule matches "this", then return true

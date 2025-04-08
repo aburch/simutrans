@@ -238,6 +238,10 @@ void schedule_t::rdwr(loadsave_t *file)
 		file->rdwr_long(additional_base_waiting_time);
 	}
 
+	if(  file->get_OTRP_version()>=45  ) {
+		filie->rdwr_short(next_line_id);
+	}
+
 	if(file->is_version_less(99, 12)) {
 		for(  uint8 i=0; i<size; i++  ) {
 			koord3d pos;
@@ -673,13 +677,27 @@ schedule_entry_t const& schedule_t::get_next_entry() const {
 	if(  entries.empty()  ) {
 		return dummy_entry;
 	} else {
-		return entries[(current_stop+1)%entries.get_count()];
+		return advanced_entry(1);
+	}
+}
+
+void schedule_t::advance()
+{
+	if(  !entries.empty()  ) {
+		current_stop = advanced_entry(1);
 	}
 }
 
 void schedule_t::set_spacing_for_all(uint16 v) {
 	for(uint8 i=0; i<entries.get_count(); i++) {
 		entries[i].spacing = v;
+	}
+}
+
+uint8 schedule_t::advanced_entry(uint8 const advance_stop_number) const {
+	next_line.set_id(next_line_id);
+	if( !next_line.is_bound() || next_line->get_linetype()!=get_type()) {
+		return (current_stop+advance_stop_number)%entries.get_count();
 	}
 }
 
