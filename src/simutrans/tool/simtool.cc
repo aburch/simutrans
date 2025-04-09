@@ -2953,6 +2953,7 @@ const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start
 		bridge_builder_t::build_bridge( player, start, end, zv, bridge_height, desc, way_builder_t::weg_search(desc->get_waytype(), desc->get_topspeed(), welt->get_timeline_year_month(), type_flat));
 		return NULL; // all checks are performed before building.
 	}
+	return "";
 }
 
 void tool_build_bridge_t::rdwr_custom_data(memory_rw_t *packet)
