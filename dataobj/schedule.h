@@ -129,6 +129,12 @@ public:
 	// read next_line and return the entry of next_line
 	uint8 advanced_entry(uint8 advance_stop_number) const;
 	
+	// next_line setting
+	void set_next_line( linehandle_t l );
+	void unset_next_line();
+	uint16 get_next_line_id() {return next_line_id;}
+	// next_line condition is ok?
+	bool is_next_line() const;
 
 	inline bool is_editing_finished() const { return editing_finished; }
 	void finish_editing() { editing_finished = true; }
@@ -192,8 +198,6 @@ public:
 	void rdwr(loadsave_t *file);
 
 	void rotate90( sint16 y_size );
-
-	void set_next_line( linehandle_t );
 
 	/**
 	 * if the passed in schedule matches "this", then return true

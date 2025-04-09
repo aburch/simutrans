@@ -149,8 +149,13 @@ bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint16 waiting
 		return false;
 	}
 	if(is_stop_allowed(gr)) {
-		entries.append(schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, stop_flags), 4);
-		return true;
+		if( next_line_id == 0 ) {
+			entries.append(schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, stop_flags), 4);
+			return true;
+		} else {
+			entries.insert_at(entries.get_count()-1, schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, stop_flags));
+			return true;
+		}
 	}
 	else {
 		DBG_MESSAGE("schedule_t::append()","forbidden stop at %i,%i,%i",gr->get_pos().x, gr->get_pos().x, gr->get_pos().z );
@@ -695,10 +700,64 @@ void schedule_t::set_spacing_for_all(uint16 v) {
 }
 
 uint8 schedule_t::advanced_entry(uint8 const advance_stop_number) const {
-	next_line.set_id(next_line_id);
-	if( !next_line.is_bound() || next_line->get_linetype()!=get_type()) {
-		return (current_stop+advance_stop_number)%entries.get_count();
+	if( current_stop + advance_stop_number < entries.get_count() ) {
+		return current_stop + advance_stop_number;
 	}
+	else if( !is_next_line() ) {
+		return (current_stop + advance_stop_number)%entries.get_count();
+	} else {
+		linehandle_t l;
+		l.set_id(next_line_id);
+		copy_from(l->get_schedule());
+		return entries.get_count()!=1?1:0;
+	}	
+}
+
+// check if the next line is set.
+// if the next line is wrong, unset it.
+bool schedule_t::is_next_line() const {
+	if(  next_line_id == 0  ) {
+		return false;
+	}
+	linehandle_t temp_line;
+	temp_line.set_id(next_line_id);
+	if(  !temp_line.is_bound()  ||  !temp_line->get_linetype() != get_type()  ) {
+		next_line_id = 0;
+		return false;
+	}
+	// if the next line's first stop is waypoint, my schedule cannot jump to it.
+	halthandle_t halt = haltestelle_t::get_stoppable_halt( temp_line->get_schedule()->entries[0].pos, temp_line->get_owner() );
+	if(  !halt.is_bound()  ) {
+		next_line_id = 0;
+		return false;
+	}
+	return true;
+}
+
+void schedule_t::set_next_line( linehandle_t l ) {
+	unset_next_line();
+	next_line_id = l.get_id();
+	if(  !is_next_line()  ) {
+		return;
+	}
+	// now set the last stop as next_line.entries[0]
+	if(  entries.get_count() < 254  ) {
+		entries.append(l->get_schedule()->entries[0]);
+	} else {
+		// we cannot add the handing-over point, so we remove the last stop and append it.
+		entries.remove_at(254);
+		entries.append(l->get_schedule()->entries[0]);
+	}
+	entries[entries.get_count()-1].set_no_load();
+	entries[entries.get_count()-1].set_unload_all();
+}
+
+void schedule_t::unset_next_line() {
+	if( next_line_id == 0 ) {
+		return;
+	}
+	next_line_id = 0;
+	entries.remove_at(entries.get_count()-1);
 }
 
 void schedule_t::set_spacing_shift_for_all(uint16 v) {
