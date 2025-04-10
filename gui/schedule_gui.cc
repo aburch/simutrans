@@ -242,7 +242,8 @@ schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoih
 	lb_max_speed("Maxspeed"),
 	lb_tbgr_waiting_time("Additional goods routing waiting time"),
 	stats(new schedule_gui_stats_t() ),
-	scrolly(stats)
+	scrolly(stats),
+	next_line_selector(line_scrollitem_t::compare)
 {
 	scrolly.set_maximize( true );
 	schedule = NULL;
@@ -547,6 +548,20 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		departure_slot_group_selector.add_listener(this);
 		add_component(&departure_slot_group_selector);
 	}
+
+	// next_line setting
+	add_table(2,1);
+	{
+		lb_next_line.set_text("Next line:");
+		add_component(&lb_next_line);
+
+		next_line_selector.clear_elements();
+
+		init_next_line_selector();
+		next_line_selector.add_listener(this);
+		add_component(&next_line_selector);
+	}
+	end_table();
 	
 	extract_advanced_settings(false);
 
@@ -751,6 +766,9 @@ bool schedule_gui_t::infowin_event(const event_t *ev)
 		if(  !departure_slot_group_selector.getroffen(ev->cx, ev->cy-D_TITLEBAR_HEIGHT)  ) {
 			departure_slot_group_selector.close_box();
 		}
+		if(  !next_line_selector.getroffen(ev->cx, ev->cy-D_TITLEBAR_HEIGHT)  ) {
+			next_line_selector.close_box();
+		}
 	}
 	else if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  &&  schedule!=NULL  ) {
 
@@ -909,6 +927,13 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 			line_selector.set_selection( 0 );
 		}
 	}
+	else if(comp == &next_line_selector) {
+		uint32 selection = p.i;
+		if(  line_scrollitem_t *li = dynamic_cast<line_scrollitem_t*>(next_line_selector.get_element(selection))  ) {
+			schedule->set_next_line(li->get_line());
+			schedule->start_editing();
+		}
+	}
 	else if(comp == &bt_promote_to_line) {
 		// update line schedule via tool!
 		tool_t *tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
@@ -929,8 +954,10 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 		if(  line >= 0 && line < schedule->get_count()  ) {
 			schedule->set_current_stop( line );
 			if(  mode == removing  ) {
-				stats->highlight_schedule( false );
-				schedule->remove();
+				if(  schedule->get_next_line_id() ==0 || line < schedule->entries.get_count()-1  ) {
+					stats->highlight_schedule( false );
+					schedule->remove();
+				}
 			}
 			update_selection();
 		}
@@ -1128,6 +1155,50 @@ void schedule_gui_t::init_line_selector()
 }
 
 
+void schedule_gui_t::init_next_line_selector()
+{
+	next_line_selector.clear_elements();
+	int selection = 0;
+	vector_tpl<linehandle_t> lines;
+	linehandle_t temp_next_line; 
+
+	player->simlinemgmt.get_lines(schedule->get_type(), &lines);
+
+	// keep assignment with identical schedules
+	if(  schedule->get_next_line_id()  ) {
+		if(  schedule->is_next_line()  ) {
+			temp_next_line.set_id(schedule->get_next_line_id());
+		}
+		else {
+			schedule->set_next_line(linehandle_t());
+		}
+	}
+	int offset = 0;
+	selection = 0;
+	offset = 1;
+	next_line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("<no line>"), SYSCOL_TEXT ) ;
+
+	FOR(  vector_tpl<linehandle_t>, const line,  lines  ) {
+		if(  !*schedule_filter  ||  utf8caseutf8(line->get_name(), schedule_filter)  ) {
+			next_line_selector.new_component<line_scrollitem_t>(line);
+		}
+		if(  !new_line.is_bound()  ) {
+			if(  schedule->matches( welt, line->get_schedule() )  ) {
+				selection = next_line_selector.count_elements()-1;
+				temp_next_line = line;
+			}
+		}
+		else if(  temp_next_line == line  ) {
+			selection = next_line_selector.count_elements()-1;
+		}
+	}
+
+	next_line_selector.set_selection( selection );
+	line_scrollitem_t::sort_mode = line_scrollitem_t::SORT_BY_NAME;
+	next_line_selector.sort( offset );
+}
+
+
 void schedule_gui_t::init_departure_slot_group_selector()
 {
 	departure_slot_group_selector.clear_elements();
@@ -1275,6 +1346,8 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	departure_slot_group_selector.set_visible(yesno);
 	lb_tbgr_waiting_time.set_visible(yesno);
 	numimp_tbgr_waiting_time.set_visible(yesno);
+	lb_next_line.set_visible(yesno);
+	next_line_selector.set_visible(yesno);
 	
 	const bool coupling_waytype = schedule->get_waytype()!=road_wt  &&  schedule->get_waytype()!=air_wt  &&  schedule->get_waytype()!=water_wt;
 	bt_wait_for_child.set_visible(coupling_waytype  &&  yesno);

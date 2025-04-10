@@ -5407,15 +5407,15 @@ void convoi_t::calc_sum_friction_weight() {
 void convoi_t::try_to_jump_to_other_line() 
 {
 	// this convoy does not reach the handing-over point of schedule.
-	if( get_schedule()->get_current_entry()!=get_schedule()->entries.get_count()-1 ) {
+	if( get_schedule()->get_current_stop()!=get_schedule()->entries.get_count()-1 ) {
 		return;
 	}
 	// the next_line is wrong
-	if( !get_schedule()->is_next_line(); ) {
+	if( !get_schedule()->is_next_line() ) {
 		return;
 	}
-	linehandle_t l;
-	l.set_id(get_schedule()->get_next_line_id())
+	linehandle_t l = linehandle_t();
+	l.set_id(get_schedule()->get_next_line_id());
 	// the next_line is bound(), however, the owner is different.
 	if(  l->get_owner() != get_owner() ) {
 		return;

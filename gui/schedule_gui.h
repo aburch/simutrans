@@ -48,7 +48,7 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 
 	// only active with lines
 	button_t bt_promote_to_line;
-	gui_combobox_t line_selector, departure_slot_group_selector;
+	gui_combobox_t line_selector, departure_slot_group_selector, next_line_selector;
 	gui_label_buf_t lb_waitlevel;
 
 	// always needed
@@ -68,7 +68,7 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 		bt_load_before_departure, bt_reverse_convoy, bt_reverse_coupling;
 	gui_numberinput_t numimp_spacing, numimp_spacing_shift, 
 		numimp_delay_tolerance, numimp_max_speed, numimp_tbgr_waiting_time;
-	gui_label_t lb_spacing, lb_spacing_shift, lb_title1, lb_title2, lb_max_speed, lb_tbgr_waiting_time;
+	gui_label_t lb_spacing, lb_spacing_shift, lb_title1, lb_title2, lb_max_speed, lb_tbgr_waiting_time, lb_next_line;
 	char lb_spacing_str[20];
 	char lb_spacing_shift_str[15];
 
@@ -108,6 +108,7 @@ public:
 
 	// for updating info ...
 	void init_line_selector();
+	void init_next_line_selector();
 	void init_departure_slot_group_selector();
 
 	bool infowin_event(event_t const*) OVERRIDE;

@@ -10,6 +10,7 @@
 #include "schedule_entry.h"
 
 #include "../halthandle_t.h"
+#include "../linehandle_t.h"
 
 #include "../tpl/minivec_tpl.h"
 
@@ -35,6 +36,7 @@ class schedule_t
 
 	// end the schedule, jump to other line schedule
 	uint16 next_line_id;
+	void set_next_line_id(uint16 v) {next_line_id = v;}
 
 	// the id of the departure slot group.
 	// defined in sint64 since uint64 value cannot be handled with rdwr_longlong
@@ -60,7 +62,7 @@ class schedule_t
 	}
 
 protected:
-	schedule_t() : editing_finished(false), current_stop(0), flags(0), max_speed(0), departure_slot_group_id(0), additional_base_waiting_time(0) {}
+	schedule_t() : editing_finished(false), current_stop(0), flags(0), max_speed(0), departure_slot_group_id(0), additional_base_waiting_time(0), next_line_id(0) {}
 
 public:
 	enum schedule_type {
@@ -107,12 +109,12 @@ public:
 	/**
 	 * Get current stop of the schedule.
 	 */
-	uint8 get_current_stop() const { return current_stop; }
+	uint8 const& get_current_stop() const { return current_stop; }
 
 	/// returns the current stop, always a valid entry
 	schedule_entry_t const& get_current_entry() const { return current_stop >= entries.get_count() ? dummy_entry : entries[current_stop]; }
 	
-	schedule_entry_t const& get_next_entry() const;
+	schedule_entry_t const& get_next_entry();
 
 	/**
 	 * Set the current stop of the schedule .
@@ -127,14 +129,14 @@ public:
 	void advance();
 
 	// read next_line and return the entry of next_line
-	uint8 advanced_entry(uint8 advance_stop_number) const;
+	void advanced_entry(const uint8 advance_stop_number, uint8& result_entry_number, schedule_t* _schedule);
 	
 	// next_line setting
 	void set_next_line( linehandle_t l );
 	void unset_next_line();
 	uint16 get_next_line_id() {return next_line_id;}
 	// next_line condition is ok?
-	bool is_next_line() const;
+	bool is_next_line();
 
 	inline bool is_editing_finished() const { return editing_finished; }
 	void finish_editing() { editing_finished = true; }

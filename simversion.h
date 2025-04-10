@@ -27,8 +27,8 @@
 #define SIM_SERVER_MINOR    0
 // NOTE: increment before next release to enable save/load of new features
 
-#define OTRP_VERSION_MAJOR 44
-#define OTRP_VERSION_MINOR 1
+#define OTRP_VERSION_MAJOR 45
+#define OTRP_VERSION_MINOR 0
 #define OTRP_VERSION_PATCH 0
 // NOTE: increment OTRP_VERSION_MAJOR when the save data structure changes.
 

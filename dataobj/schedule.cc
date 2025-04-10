@@ -34,7 +34,7 @@ schedule_entry_t schedule_t::dummy_entry(koord3d::invalid, 0, 0, 0);
 
 
 // copy all entries from schedule src to this and adjusts current_stop
-void schedule_t::copy_from(const schedule_t *src)
+void schedule_t::copy_from(schedule_t const *src)
 {
 	// make sure, we can access both
 	if(  src==NULL  ) {
@@ -244,7 +244,7 @@ void schedule_t::rdwr(loadsave_t *file)
 	}
 
 	if(  file->get_OTRP_version()>=45  ) {
-		filie->rdwr_short(next_line_id);
+		file->rdwr_short(next_line_id);
 	}
 
 	if(file->is_version_less(99, 12)) {
@@ -678,18 +678,23 @@ void schedule_t::gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* 
 	}
 }
 
-schedule_entry_t const& schedule_t::get_next_entry() const {
+schedule_entry_t const& schedule_t::get_next_entry() {
 	if(  entries.empty()  ) {
 		return dummy_entry;
 	} else {
-		return advanced_entry(1);
+		schedule_t* next_entry_schedule;
+		uint8 temp_next_entry;
+		advanced_entry(1,temp_next_entry,next_entry_schedule);
+		return next_entry_schedule->entries[temp_next_entry];
 	}
 }
 
 void schedule_t::advance()
 {
 	if(  !entries.empty()  ) {
-		current_stop = advanced_entry(1);
+		schedule_t* temp_schedule;
+		advanced_entry(1,current_stop,temp_schedule);
+		copy_from(temp_schedule);
 	}
 }
 
@@ -699,57 +704,68 @@ void schedule_t::set_spacing_for_all(uint16 v) {
 	}
 }
 
-uint8 schedule_t::advanced_entry(uint8 const advance_stop_number) const {
+void schedule_t::advanced_entry(const uint8 advance_stop_number, uint8& result_entry_number, schedule_t* _schedule) {
 	if( current_stop + advance_stop_number < entries.get_count() ) {
-		return current_stop + advance_stop_number;
+		_schedule = copy();
+		result_entry_number = current_stop + advance_stop_number;
+		return;
 	}
 	else if( !is_next_line() ) {
-		return (current_stop + advance_stop_number)%entries.get_count();
+		_schedule = copy();
+		result_entry_number = (current_stop + advance_stop_number)%entries.get_count();
+		return;
 	} else {
-		linehandle_t l;
+		linehandle_t l = linehandle_t();
 		l.set_id(next_line_id);
-		copy_from(l->get_schedule());
-		return entries.get_count()!=1?1:0;
+		_schedule = l->get_schedule()->copy();
+		result_entry_number = _schedule->entries.get_count()>1 ? uint8(1) : uint8(0);
+		return;
 	}	
 }
 
 // check if the next line is set.
 // if the next line is wrong, unset it.
-bool schedule_t::is_next_line() const {
+bool schedule_t::is_next_line() {
 	if(  next_line_id == 0  ) {
+		dbg->message("schedule_t::is_next_line()","the next line is not set yet");
 		return false;
 	}
-	linehandle_t temp_line;
+	linehandle_t temp_line = linehandle_t();
 	temp_line.set_id(next_line_id);
-	if(  !temp_line.is_bound()  ||  !temp_line->get_linetype() != get_type()  ) {
-		next_line_id = 0;
+	if(  !temp_line.is_bound()  ||  temp_line->linetype_to_waytype(temp_line->get_linetype()) != get_waytype()  ) {
+		dbg->message("schedule_t::is_next_line()","there are no %i line",next_line_id);
+		set_next_line_id(0);
 		return false;
 	}
 	// if the next line's first stop is waypoint, my schedule cannot jump to it.
 	halthandle_t halt = haltestelle_t::get_stoppable_halt( temp_line->get_schedule()->entries[0].pos, temp_line->get_owner() );
 	if(  !halt.is_bound()  ) {
-		next_line_id = 0;
+		dbg->message("schedule_t::is_next_line()","the first entry of %i is not the stop",next_line_id);
+		set_next_line_id(0);
 		return false;
 	}
 	return true;
 }
 
 void schedule_t::set_next_line( linehandle_t l ) {
+	dbg->message("schedule_t::set_next_line()","try to set the next line as %i",l.get_id());
 	unset_next_line();
-	next_line_id = l.get_id();
+	if(  !l.is_bound()  ) {
+		return;
+	}
+	set_next_line_id(l.get_id());
 	if(  !is_next_line()  ) {
 		return;
 	}
 	// now set the last stop as next_line.entries[0]
-	if(  entries.get_count() < 254  ) {
-		entries.append(l->get_schedule()->entries[0]);
-	} else {
+	if(  entries.get_count() >= 254  ) {
 		// we cannot add the handing-over point, so we remove the last stop and append it.
-		entries.remove_at(254);
-		entries.append(l->get_schedule()->entries[0]);
+		entries.remove_at(253);
 	}
-	entries[entries.get_count()-1].set_no_load();
-	entries[entries.get_count()-1].set_unload_all();
+	entries.append(l->get_schedule()->entries[0]);
+	entries[entries.get_count()-1].set_no_load(true);
+	entries[entries.get_count()-1].set_unload_all(true);
+	dbg->message("schedule_t::set_next_line()","the next line is set. the number of entries is %i",entries.get_count());
 }
 
 void schedule_t::unset_next_line() {
@@ -758,6 +774,7 @@ void schedule_t::unset_next_line() {
 	}
 	next_line_id = 0;
 	entries.remove_at(entries.get_count()-1);
+	make_current_stop_valid();
 }
 
 void schedule_t::set_spacing_shift_for_all(uint16 v) {
