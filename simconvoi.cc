@@ -2030,7 +2030,6 @@ void convoi_t::ziel_erreicht()
 			c->set_state(c==self ? LOADING : COUPLED_LOADING);
 			c = c->get_coupling_convoi();
 		}
-
 	}
 	else {
 		// Neither depot nor station: waypoint
@@ -5406,6 +5405,8 @@ void convoi_t::calc_sum_friction_weight() {
 // jump to other line's schedule
 void convoi_t::try_to_jump_to_other_line() 
 {
+	dbg->message("convoi_t::try_to_jump_to_other_line()","%s checks the next schedule",get_name());
+	dbg->message("convoi_t::try_to_jump_to_other_line()","%s's next line is %i",get_name(),get_schedule()->get_next_line_id());
 	// this convoy does not reach the handing-over point of schedule.
 	if( get_schedule()->get_current_stop()!=get_schedule()->entries.get_count()-1 ) {
 		return;
@@ -5420,6 +5421,7 @@ void convoi_t::try_to_jump_to_other_line()
 	if(  l->get_owner() != get_owner() ) {
 		return;
 	}
+	dbg->message("convoi_t::try_to_jump_to_other_line()","%s will change schedule to line %s",get_name(),l->get_name());
 	// ok now jump to the next_line's schedule
 	unset_line();
 	schedule_t *schedule = get_schedule();

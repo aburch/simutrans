@@ -51,6 +51,7 @@ void schedule_t::copy_from(schedule_t const *src)
 	max_speed = src->get_max_speed();
 	departure_slot_group_id = src->get_departure_slot_group_id();
 	additional_base_waiting_time = src->get_additional_base_waiting_time();
+	next_line_id = src->next_line_id;
 }
 
 
@@ -90,6 +91,7 @@ bool schedule_t::is_stop_allowed(const grund_t *gr) const
  */
 halthandle_t schedule_t::get_next_halt( player_t *player, halthandle_t halt ) const
 {
+	dbg->message("schedule_t::get_next_halt","lets search the next stop");
 	if(  entries.get_count()>1  ) {
 		for(  uint i=1;  i < entries.get_count();  i++  ) {
 			halthandle_t h = haltestelle_t::get_stoppable_halt( entries[ (current_stop+i) % entries.get_count() ].pos, player );
@@ -245,6 +247,8 @@ void schedule_t::rdwr(loadsave_t *file)
 
 	if(  file->get_OTRP_version()>=45  ) {
 		file->rdwr_short(next_line_id);
+	} else {
+		next_line_id = 0;
 	}
 
 	if(file->is_version_less(99, 12)) {
@@ -495,7 +499,7 @@ void schedule_t::add_return_way()
 void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 {
 	uint32 s = current_stop + (flags<<8) + (max_speed<<16);
-	buf.printf("%u|%ld|%u|%d|", s, departure_slot_group_id, additional_base_waiting_time, (int)get_type());
+	buf.printf("%u|%ld|%u|%d|%u|", s, departure_slot_group_id, additional_base_waiting_time, (int)get_type(), next_line_id);
 	FOR(minivec_tpl<schedule_entry_t>, const& i, entries) {
 		buf.printf("%s,%i,%i,%i,%i,%i,%i|", i.pos.get_str(), (int)i.minimum_loading, (int)i.waiting_time_shift, i.get_stop_flags(), i.spacing, i.spacing_shift, i.delay_tolerance);
 	}
@@ -553,6 +557,16 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 		dbg->error( "schedule_t::sscanf_schedule()","schedule has wrong type (%d)! should have been %d.", type, get_type() );
 		return false;
 	}
+	while(  *p  &&  *p!='|'  ) {
+		p++;
+	}
+	if(  *p!='|'  ) {
+		dbg->error( "schedule_t::sscanf_schedule()","incomplete entry termination!" );
+		return false;
+	}
+	p++;
+	//  then next line
+	next_line_id = atoi( p );
 	while(  *p  &&  *p!='|'  ) {
 		p++;
 	}
@@ -682,9 +696,10 @@ schedule_entry_t const& schedule_t::get_next_entry() {
 	if(  entries.empty()  ) {
 		return dummy_entry;
 	} else {
-		schedule_t* next_entry_schedule;
+		schedule_t* next_entry_schedule = copy();
 		uint8 temp_next_entry;
 		advanced_entry(1,temp_next_entry,next_entry_schedule);
+		dbg->message("schedule_t::get_next_entry()","schedule count: %i, schedule enrty: %i",next_entry_schedule->get_count(),temp_next_entry);
 		return next_entry_schedule->entries[temp_next_entry];
 	}
 }
@@ -692,9 +707,12 @@ schedule_entry_t const& schedule_t::get_next_entry() {
 void schedule_t::advance()
 {
 	if(  !entries.empty()  ) {
-		schedule_t* temp_schedule;
-		advanced_entry(1,current_stop,temp_schedule);
+		schedule_t* temp_schedule = copy();
+		uint8 temp_current_stop;
+		advanced_entry(uint8(1),temp_current_stop,temp_schedule);
 		copy_from(temp_schedule);
+		current_stop = temp_current_stop;
+		dbg->message("schedule_t::advance()","the next stop is %i, the next_line is %i",current_stop,next_line_id);
 	}
 }
 
@@ -726,21 +744,19 @@ void schedule_t::advanced_entry(const uint8 advance_stop_number, uint8& result_e
 // check if the next line is set.
 // if the next line is wrong, unset it.
 bool schedule_t::is_next_line() {
+	dbg->message("schedule_t::is_next_line()","the next line is %i",next_line_id);
 	if(  next_line_id == 0  ) {
-		dbg->message("schedule_t::is_next_line()","the next line is not set yet");
 		return false;
 	}
 	linehandle_t temp_line = linehandle_t();
 	temp_line.set_id(next_line_id);
 	if(  !temp_line.is_bound()  ||  temp_line->linetype_to_waytype(temp_line->get_linetype()) != get_waytype()  ) {
-		dbg->message("schedule_t::is_next_line()","there are no %i line",next_line_id);
 		set_next_line_id(0);
 		return false;
 	}
 	// if the next line's first stop is waypoint, my schedule cannot jump to it.
 	halthandle_t halt = haltestelle_t::get_stoppable_halt( temp_line->get_schedule()->entries[0].pos, temp_line->get_owner() );
 	if(  !halt.is_bound()  ) {
-		dbg->message("schedule_t::is_next_line()","the first entry of %i is not the stop",next_line_id);
 		set_next_line_id(0);
 		return false;
 	}
@@ -762,7 +778,7 @@ void schedule_t::set_next_line( linehandle_t l ) {
 		// we cannot add the handing-over point, so we remove the last stop and append it.
 		entries.remove_at(253);
 	}
-	entries.append(l->get_schedule()->entries[0]);
+	entries.append(l->get_schedule()->copy()->entries[0]);
 	entries[entries.get_count()-1].set_no_load(true);
 	entries[entries.get_count()-1].set_unload_all(true);
 	dbg->message("schedule_t::set_next_line()","the next line is set. the number of entries is %i",entries.get_count());

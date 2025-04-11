@@ -676,7 +676,7 @@ void schedule_gui_t::update_selection()
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
 		const uint8 current_stop = schedule->get_current_stop();
-		if(  haltestelle_t::get_stoppable_halt(schedule->entries[current_stop].pos, player).is_bound() && (  (current_stop == schedule->entries.get_count()-1)  &&  schedule->is_next_line()  )  ) {
+		if(  haltestelle_t::get_stoppable_halt(schedule->entries[current_stop].pos, player).is_bound() && (  (current_stop != schedule->entries.get_count()-1)  ||  !schedule->is_next_line()  )  ) {
 			
 			const uint8 c = schedule->entries[current_stop].get_coupling_point();
 			bt_find_parent.enable();
@@ -1184,12 +1184,12 @@ void schedule_gui_t::init_next_line_selector()
 		}
 		if(  !new_line.is_bound()  ) {
 			if(  schedule->matches( welt, line->get_schedule() )  ) {
-				selection = next_line_selector.count_elements()-1;
+				selection = next_line_selector.count_elements();
 				temp_next_line = line;
 			}
 		}
 		else if(  temp_next_line == line  ) {
-			selection = next_line_selector.count_elements()-1;
+			selection = next_line_selector.count_elements();
 		}
 	}
 
