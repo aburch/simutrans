@@ -8133,6 +8133,7 @@ bool scenario_check_convoy(karte_t *welt, player_t *player, convoihandle_t cnv, 
  * 's' : change state to [number] (and maybe set open schedule flag)
  * 'l' : apply new line [number]
  * 'd' : go to nearest depot
+ * 'y' : move to depoot immediately
  * 'r' : release the child convoy
  * 'a' : set convoy trading acceptance
  * 'o' : change convoy owner by trading
@@ -8278,6 +8279,16 @@ bool tool_change_convoi_t::init( player_t *player )
 			break;
 
 		case 'd': // goto depot
+		{
+			const char* msg = cnv->send_to_depot(is_local_execution());
+
+			if (is_local_execution()) {
+				create_win( new news_img(msg), w_time_delete, magic_none);
+			}
+		}
+		break;
+
+		case 'y': // move to depot immediately
 		{
 			const char* msg = cnv->send_to_depot(is_local_execution());
 
