@@ -923,7 +923,13 @@ public:
 	 * Has to be called synchronously on all clients in networkmode!
 	 * @returns success message
 	 */
-	const char* send_to_depot(bool local);
+	const char* send_to_depot(bool local);	
+	/**
+	* Sends convoi to nearest depot immediately.
+	* Has to be called synchronously on all clients in networkmode!
+	* @returns success message
+	*/
+	const char* send_to_depot_immediately(bool local);
 
 	/**
 	 * this give the index of the next signal or the end of the route

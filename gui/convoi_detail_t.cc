@@ -164,6 +164,11 @@ void convoi_detail_t::init(convoihandle_t cnv)
 
 		add_table(2,1)->set_force_equal_columns(true);
 		{
+			move_to_depot_button.init(button_t::roundbox| button_t::flexible, "Go To Depot Immediately");
+			move_to_depot_button.set_tooltip("Remove vehicle from map. Use with care!");
+			move_to_depot_button.add_listener(this);
+			add_component(&move_to_depot_button);
+
 			sale_button.init(button_t::roundbox| button_t::flexible, "Verkauf");
 			sale_button.set_tooltip("Remove vehicle from map. Use with care!");
 			sale_button.add_listener(this);
@@ -274,9 +279,10 @@ void convoi_detail_t::update_labels()
 
 void convoi_detail_t::draw(scr_coord offset)
 {
-	const bool selling_allowed = cnv->get_owner()==welt->get_active_player()  &&  !welt->get_active_player()->is_locked()  &&  !cnv->get_coupling_convoi().is_bound();
-	sale_button.enable(selling_allowed);
-	withdraw_button.enable(selling_allowed  &&  !cnv->is_coupled());
+	const bool selling_allowed = cnv->get_owner()==welt->get_active_player()  &&  !welt->get_active_player()->is_locked()  ;
+	sale_button.enable(selling_allowed && !cnv->get_coupling_convoi().is_bound());
+	withdraw_button.enable(selling_allowed  &&  !cnv->get_coupling_convoi().is_bound()  &&  !cnv->is_coupled());
+	move_to_depot_button.enable(selling_allowed  &&  !cnv->is_coupled());
 	withdraw_button.pressed = cnv->get_withdraw();
 
 	bool is_owner = cnv->get_owner()==welt->get_active_player();
@@ -302,6 +308,10 @@ bool convoi_detail_t::action_triggered(gui_action_creator_t *comp,value_t /* */)
 	if(cnv.is_bound()) {
 		if(comp==&sale_button) {
 			cnv->call_convoi_tool( 'x', NULL );
+			return true;
+		}
+		else if(comp==&move_to_depot_button) {
+			cnv->call_convoi_tool( 'y', NULL );
 			return true;
 		}
 		else if(comp==&withdraw_button) {
