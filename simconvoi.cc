@@ -1942,13 +1942,6 @@ void convoi_t::ziel_erreicht()
 	}
 
 	register_journey_time();
-	// update arrived_time
-	c = self;
-	while(  c.is_bound()  ) {
-		c->try_to_jump_to_other_line();
-		c->set_arrived_time(world()->get_ticks());
-		c = c->get_coupling_convoi();
-	}
 
 	halthandle_t halt = haltestelle_t::get_stoppable_halt(schedule->get_current_entry().pos,owner);
 
@@ -5364,6 +5357,8 @@ void convoi_t::register_journey_time() {
 				window->update();
 			}
 		}
+		c->try_to_jump_to_other_line();
+		c->set_time_last_arrived(world()->get_ticks());
 		c = c->get_coupling_convoi();
 	}
 }
