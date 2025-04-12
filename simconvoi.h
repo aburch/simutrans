@@ -327,9 +327,7 @@ private:
 	uint32 scheduled_coupling_delay_tolerance;
 	
 	uint32 time_last_arrived;
-
-	uint32 time_last_arrived;
-
+	
 	/**
 	 *The flag whether this convoi is requested to change lane by the convoi behind this.
 	 *@author teamhimeH
