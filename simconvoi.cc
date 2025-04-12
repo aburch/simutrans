@@ -5358,6 +5358,7 @@ void convoi_t::register_journey_time() {
 				window->update();
 			}
 		}
+		c->try_to_jump_to_other_line();
 		c->set_time_last_arrived(world()->get_ticks());
 		c = c->get_coupling_convoi();
 	}
