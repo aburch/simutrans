@@ -13,6 +13,7 @@
 #include "../simworld.h"
 #include "../simmenu.h"
 #include "simwin.h"
+#include "player_frame_t.h"
 
 #include "../dataobj/schedule.h"
 #include "../dataobj/translator.h"
@@ -25,6 +26,7 @@
 
 #include "../utils/simstring.h"
 #include "convoi_detail_t.h"
+#include "convoi_stops_list_t.h"
 
 #define CHART_HEIGHT (100)
 
@@ -74,7 +76,8 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv) :
 	gui_frame_t(""),
 	text(&freight_info),
 	view(scr_size(max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
-	scroll_freight(&container_freight, true, true)
+	scroll_freight(&container_freight, true, true),
+	scroll_stops_list(&container_stops, true, true)
 {
 	if (cnv.is_bound()) {
 		init(cnv);
@@ -230,7 +233,12 @@ void convoi_info_t::init(convoihandle_t cnv)
 	switch_mode.add_tab(&container_details, translator::translate("Vehicle details"));
 	container_details.set_table_layout(1,0);
 	details = container_details.new_component<convoi_detail_t>(cnv);
-
+	
+	// convoy stops list in tab
+	switch_mode.add_tab(&scroll_stops_list, translator::translate("Stops"));
+	container_stops.set_table_layout(1,0);
+	stops_list = container_stops.new_component<convoi_stops_list_t>(cnv);
+	stops_list->add_listener(this);
 
 	// indicator bars
 	filled_bar.add_color_value(&cnv->get_loading_limit(), color_idx_to_rgb(COL_YELLOW));
@@ -329,6 +337,8 @@ void convoi_info_t::update_labels()
 		scroll_freight.set_size( scroll_freight.get_size() );
 	}
 
+	scroll_stops_list.set_size(  scr_size( scroll_stops_list.get_size().w,get_client_windowsize().h - scroll_stops_list.get_pos().y - D_MARGIN_BOTTOM )  );
+
 	// realign container - necessary if strings changed length
 	container_top->set_size( container_top->get_size() );
 }
@@ -420,14 +430,14 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			remove_component( &line_button );
 			line_bound = false;
 		}
-		 button.set_text(cnv->get_owner()->get_name());
-		 if(  !cnv->get_owner()->is_locked()  ) {
+		button.set_text(cnv->get_owner()->get_name());
+		if(  !cnv->get_owner()->is_locked()  ) {
 			button.set_tooltip("move to the owner");
 			button.enable();
-		 } else {
+		} else {
 			button.set_tooltip("This player is locked");
 			button.disable();
-		 }
+		}
 		go_home_button.disable();
 		no_load_button.disable();
 		set_recovery_button.disable();
@@ -569,7 +579,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			cnv->call_convoi_tool( 'v', NULL );
 			return true;
 		}
-	} 
+	}
 	else {
 		if(  comp == &button  ) {
 			// switch to the owner player

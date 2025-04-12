@@ -25,6 +25,7 @@
 #include "../utils/cbuffer_t.h"
 
 class convoi_detail_t;
+class convoi_stops_list_t;
 
 /**
  * Displays an information window for a convoi
@@ -64,9 +65,10 @@ private:
 	button_t reversed_button;
 
 	gui_tab_panel_t switch_mode;
-	gui_aligned_container_t container_freight, container_stats, container_line, *container_top, container_details;
+	gui_aligned_container_t container_freight, container_stats, container_line, *container_top, container_details, container_stops;
 	convoi_detail_t *details;
-	gui_scrollpane_t scroll_freight;
+	convoi_stops_list_t *stops_list;
+	gui_scrollpane_t scroll_freight,scroll_stops_list;
 
 	button_t sort_button;
 	button_t line_button; // goto line ...

@@ -1213,14 +1213,8 @@ void vehicle_t::hop(grund_t* gr)
 		}
 		else {
 			cnv->register_journey_time();
-			// update arrived_time
-			convoihandle_t c = cnv->self;
-			while(  c.is_bound()  ) {
-				c->set_arrived_time(world()->get_ticks());
-				c = c->get_coupling_convoi();
-			}
 			// advance schedule for all coupling convoys.
-			c = cnv->self;
+			convoihandle_t c = cnv->self;
 			while(  c.is_bound()  ) {
 				c->get_schedule()->advance();
 				c = c->get_coupling_convoi();
@@ -1859,23 +1853,27 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 	constexpr uint16 tooltip_text_size = 1024;
 	char tooltip_text[tooltip_text_size];
 	tooltip_text[0] = 0;
+	constexpr uint16 line_name_size = 512;
+	char line_name[line_name_size];
+	line_name[0] = 0;
+	constexpr uint16 states_text_size = 512;
+	char states_text[states_text_size];
+	states_text[0] = 0;
 	uint8 state = env_t::show_vehicle_states;
 
-	if(  state==3  &&  this == cnv->front()  ) {
+	if(  (  state==3  ||  state==4 )  &&  this == cnv->front()  ) {
 		// show the line name, including when the convoy is coupled.
 		linehandle_t lh = cnv->get_line();
 		if(  lh.is_bound()  ) {
 			// line name
-			tstrncpy( tooltip_text, lh->get_name(), lengthof(tooltip_text) );
+			tstrncpy( line_name, lh->get_name(), lengthof(line_name) );
 		} else {
 			// the convoy belongs to no line -> show convoy name
-			tstrncpy( tooltip_text, cnv->get_name(), lengthof(tooltip_text) );
+			tstrncpy( line_name, cnv->get_name(), lengthof(line_name) );
 		}
-		color = color_idx_to_rgb( cnv->get_owner()->get_player_color1()+7 );
 	}
 
-	if(  leading  &&  state!=3  ) {
-
+	if(  (  leading  &&  state!=3  )  ||  (  state==4  &&  this == cnv->front()  )  ) {
 		if(  state==1  ) {
 			// mouse over check
 			bool mo_this_convoy = false;
@@ -1896,96 +1894,103 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 				state = 0;
 			}
 		}
-		if( state != 2 ) {
+		if( state < 2 ) {
 			// nothing to show
 			return;
 		}
+		grund_t const* const gr = welt->lookup(cnv->get_route()->back());
 
+		
 		// now find out what has happened
 		switch(cnv->get_state()) {
+			case convoi_t::COUPLED:
+			case convoi_t::COUPLED_LOADING:
+				tstrncpy( states_text, translator::translate("coupled"), lengthof(states_text) );
+				break;
+
 			case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
 			case convoi_t::WAITING_FOR_CLEARANCE:
 			case convoi_t::CAN_START:
 			case convoi_t::CAN_START_ONE_MONTH:
-				if(  state>=2  ) {
-					snprintf( tooltip_text, lengthof(tooltip_text), "%s (%s)", translator::translate("Waiting for clearance!"), cnv->get_schedule()->get_current_entry().pos.get_str() );
-					color = color_idx_to_rgb(COL_YELLOW);
-				}
+				snprintf( states_text, lengthof(states_text), "%s (%s)", translator::translate("Waiting for clearance!"), cnv->get_schedule()->get_current_entry().pos.get_str() );
 				break;
 
 			case convoi_t::LOADING:
-				if(  state>=2  ) {
-					if(  cnv->get_departure_time()>0  ) {
-						// the convoy is waiting for departure time.
-						// we use floating operation just for display purpose.
-						const float conversion_ratio = (float)world()->get_settings().get_spacing_shift_divisor()/world()->ticks_per_world_month;
-						const sint32 time_remain = (cnv->get_departure_time() - world()->get_ticks())*conversion_ratio;
-						const sint32 time_remain_delay_coupling = (cnv->get_departure_time() + cnv->get_coupling_delay_tolerance() - world()->get_ticks())*conversion_ratio;
+				if(  cnv->get_departure_time()>0  ) {
+					// the convoy is waiting for departure time.
+					// we use floating operation just for display purpose.
+					const float conversion_ratio = (float)world()->get_settings().get_spacing_shift_divisor()/world()->ticks_per_world_month;
+					const sint32 time_remain = (cnv->get_departure_time() - world()->get_ticks())*conversion_ratio;
+					const sint32 time_remain_delay_coupling = (cnv->get_departure_time() + cnv->get_coupling_delay_tolerance() - world()->get_ticks())*conversion_ratio;
 
-						if( cnv->is_waiting_for_coupling() && time_remain>time_remain_delay_coupling ){
-							snprintf( tooltip_text, tooltip_text_size, translator::translate("Waiting for coupling. %i left!"), time_remain_delay_coupling);
-						}
-						else{
-							snprintf( tooltip_text, tooltip_text_size, translator::translate("Waiting for schedule. %i left!"), time_remain);
-						}
+					if( cnv->is_waiting_for_coupling() && time_remain>time_remain_delay_coupling ){
+						snprintf( states_text, states_text_size, translator::translate("Waiting for coupling. %i left!"), time_remain_delay_coupling);
 					}
-					else if(  cnv->is_waiting_for_coupling()  ) {
-						// the convoy is waiting for coupling.
-						tstrncpy( tooltip_text, translator::translate("Waiting for coupling!"), lengthof(tooltip_text) );
-					} else {
-						// the convoy is waiting for minimum loading.
-						snprintf( tooltip_text, tooltip_text_size, translator::translate("Loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit() );
+					else{
+						snprintf( states_text, states_text_size, translator::translate("Waiting for schedule. %i left!"), time_remain);
 					}
-					color = color_idx_to_rgb(COL_YELLOW);
+				}
+				else if(  cnv->is_waiting_for_coupling()  ) {
+					// the convoy is waiting for coupling.
+					tstrncpy( states_text, translator::translate("Waiting for coupling!"), lengthof(states_text) );
+				} else {
+					// the convoy is waiting for minimum loading.
+					snprintf( states_text, states_text_size, translator::translate("Loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit() );
 				}
 				break;
 
 			case convoi_t::EDIT_SCHEDULE:
 //			case convoi_t::ROUTING_1:
-				if(  state>=2  ) {
-					tstrncpy( tooltip_text, translator::translate("Schedule changing!"), lengthof(tooltip_text) );
-					color = color_idx_to_rgb(COL_YELLOW);
-				}
+				tstrncpy( states_text, translator::translate("Schedule changing!"), lengthof(states_text) );
 				break;
 
 			case convoi_t::DRIVING:
-				if(  state>=2  ) {
-					grund_t const* const gr = welt->lookup(cnv->get_route()->back());
-					if(  gr  &&  gr->get_depot()  ) {
-						tstrncpy( tooltip_text, translator::translate("go home"), lengthof(tooltip_text) );
-						color = color_idx_to_rgb(COL_GREEN);
-					}
-					else if(  cnv->get_no_load()  ) {
-						tstrncpy( tooltip_text, translator::translate("no load"), lengthof(tooltip_text) );
-						color = color_idx_to_rgb(COL_GREEN);
-					}
-					else if(  cnv->is_in_delay_recovery()  ) {
-						tstrncpy( tooltip_text, translator::translate("recovery"), lengthof(tooltip_text) );
-						color = color_idx_to_rgb(COL_GREEN);
-					}
+				if(  gr  &&  gr->get_depot()  ) {
+					tstrncpy( states_text, translator::translate("go home"), lengthof(states_text) );
+					color = color_idx_to_rgb(COL_GREEN);
+				}
+				else if(  cnv->get_no_load()  ) {
+					tstrncpy( states_text, translator::translate("no load"), lengthof(states_text) );
+					color = color_idx_to_rgb(COL_GREEN);
+				}
+				else if(  cnv->is_in_delay_recovery()  ) {
+					tstrncpy( states_text, translator::translate("recovery"), lengthof(states_text) );
+					color = color_idx_to_rgb(COL_GREEN);
+				} else if(  state==4  ) {
+					tstrncpy( states_text, translator::translate("driving"), lengthof(states_text));
 				}
 				break;
 
 			case convoi_t::LEAVING_DEPOT:
-				if(  state>=2  ) {
-					tstrncpy( tooltip_text, translator::translate("Leaving depot!"), lengthof(tooltip_text) );
-					color = color_idx_to_rgb(COL_GREEN);
-				}
+				tstrncpy( states_text, translator::translate("Leaving depot!"), lengthof(states_text) );
 				break;
 
 			case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
 			case convoi_t::CAN_START_TWO_MONTHS:
-				snprintf( tooltip_text, lengthof(tooltip_text), "%s (%s)", translator::translate("clf_chk_stucked"), cnv->get_schedule()->get_current_entry().pos.get_str() );
+				snprintf( states_text, lengthof(states_text), "%s (%s)", translator::translate("clf_chk_stucked"), cnv->get_schedule()->get_current_entry().pos.get_str() );
 				color = color_idx_to_rgb(COL_ORANGE);
 				break;
 
 			case convoi_t::NO_ROUTE:
-				tstrncpy( tooltip_text, translator::translate("clf_chk_noroute"), lengthof(tooltip_text) );
+				tstrncpy( states_text, translator::translate("clf_chk_noroute"), lengthof(states_text) );
 				color = color_idx_to_rgb(COL_RED);
 				break;
 		}
 	}
-
+	if( state==3 && this==cnv->front() ){
+		tstrncpy( tooltip_text, line_name, lengthof(tooltip_text) );
+	} else if (state==4 && this==cnv->front()) {
+		snprintf( tooltip_text, lengthof(tooltip_text), "%s: %s", line_name, states_text);
+	} else if (state==2 && leading) {
+		tstrncpy( tooltip_text, states_text, lengthof(tooltip_text) );
+	}
+	if( state==3 || color == 0 ) {
+		if(state==3 || state==4) {
+			color = color_idx_to_rgb( cnv->get_owner()->get_player_color1()+7 );
+		} else {
+			color = color_idx_to_rgb(COL_YELLOW);
+		}
+	}
 	// something to show?
 	if(  tooltip_text[0]  ) {
 		const int raster_width = get_current_tile_raster_width();

@@ -120,6 +120,7 @@ void convoi_t::init(player_t *player)
 	arrived_time = 0;
 	scheduled_departure_time = 0;
 	scheduled_coupling_delay_tolerance = 0;
+	time_last_arrived = 0;
 
 	requested_change_lane = false;
 
@@ -2020,6 +2021,7 @@ void convoi_t::ziel_erreicht()
 		while(  c.is_bound()  ) {
 			c->set_akt_speed(0);
 			c->set_state(c==self ? LOADING : COUPLED_LOADING);
+			c->set_arrived_time(world()->get_ticks());
 			c = c->get_coupling_convoi();
 		}
 	}
@@ -4064,11 +4066,11 @@ void convoi_t::push_goods_waiting_time_if_needed() {
 
 void convoi_t::push_convoy_stopping_time() {
 	const uint32 current_ticks = welt->get_ticks();
-	if(  arrived_time==0  ||  subtract_ticks(current_ticks, arrived_time) < 0  ) {
-		// arrived_time is not available.
+	if(  time_last_arrived==0  ||  time_last_arrived >= current_ticks  ) {
+		// time_last_arrived is not available.
 		return;
 	}
-	const uint32 stopping_time = subtract_ticks( current_ticks, arrived_time );
+	const uint32 stopping_time = subtract_ticks( current_ticks, time_last_arrived );
 	const linehandle_t line = get_line();
 	schedule_t* line_schedule = line.is_bound() ? line->get_schedule() : schedule;
 	const sint16 current_index_on_line_schedule = line_schedule->get_corresponding_entry_index(schedule, schedule->get_current_stop());
@@ -5335,12 +5337,12 @@ sint32 convoi_t::calc_min_top_speed() {
 }
 
 void convoi_t::register_journey_time() {
-	const uint32 current_ticks = welt->get_ticks();
-	if(  arrived_time==0  ||  subtract_ticks(current_ticks, arrived_time) < 0  ) {
-		// arrived_time is not available.
+	if(  time_last_arrived==0  ||  time_last_arrived >= world()->get_ticks()  ) {
+		// time_last_arrived is not available.
+		time_last_arrived = world()->get_ticks();
 		return;
 	}
-	const uint32 journey_time = subtract_ticks(current_ticks, arrived_time);
+	const uint32 journey_time = subtract_ticks( world()->get_ticks(), time_last_arrived );
 	convoihandle_t c = self;
 	while(  c.is_bound()  ) {
 		schedule_t* line_schedule = c->get_line().is_bound() ? c->get_line()->get_schedule() : c->get_schedule();
