@@ -1213,14 +1213,8 @@ void vehicle_t::hop(grund_t* gr)
 		}
 		else {
 			cnv->register_journey_time();
-			// update arrived_time
-			convoihandle_t c = cnv->self;
-			while(  c.is_bound()  ) {
-				c->set_arrived_time(world()->get_ticks());
-				c = c->get_coupling_convoi();
-			}
 			// advance schedule for all coupling convoys.
-			c = cnv->self;
+			convoihandle_t c = cnv->self;
 			while(  c.is_bound()  ) {
 				c->get_schedule()->advance();
 				c = c->get_coupling_convoi();

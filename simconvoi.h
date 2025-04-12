@@ -326,6 +326,8 @@ private:
 	uint32 scheduled_departure_time;
 	uint32 scheduled_coupling_delay_tolerance;
 
+	uint32 time_last_arrived;
+
 	/**
 	 *The flag whether this convoi is requested to change lane by the convoi behind this.
 	 *@author teamhimeH
@@ -1053,6 +1055,7 @@ public:
 
 	// register journey time to the current schedule entry
 	void register_journey_time();
+	void set_time_last_arrived(uint32 t) { time_last_arrived = t; }
 
 	void toggle_delay_recovery() { in_delay_recovery = !in_delay_recovery; }
 	bool is_in_delay_recovery() const { return in_delay_recovery; }
