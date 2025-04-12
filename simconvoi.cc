@@ -1942,7 +1942,6 @@ void convoi_t::ziel_erreicht()
 	}
 
 	register_journey_time();
-
 	halthandle_t halt = haltestelle_t::get_stoppable_halt(schedule->get_current_entry().pos,owner);
 
 	// check for coupling
