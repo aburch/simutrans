@@ -96,7 +96,9 @@ public:
 			if(  IS_RIGHTCLICK(ev)  ||  ev->mx < stop.get_pos().x) {
 				// just center on it
 				welt->get_viewport()->change_world_position( entry.pos );
-			}
+			} else if( ev->ev_code == MOUSE_WHEELUP || ev->ev_code == MOUSE_WHEELDOWN ) {
+				return false;
+			} 
 			else {
 				call_listeners(number);
 			}
