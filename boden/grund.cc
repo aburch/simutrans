@@ -1931,7 +1931,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player)
 }
 
 
-sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
+sint64 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 {
 	weg_t *weg = get_weg(wegtyp);
 	if(weg!=NULL) {
@@ -1953,7 +1953,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 			}
 		}
 
-		sint32 costs=weg->get_desc()->get_price(); // costs for removal are construction costs
+		sint64 costs=weg->get_desc()->get_price(); // costs for removal are construction costs
 		weg->cleanup( NULL );
 		delete weg;
 
@@ -2087,7 +2087,7 @@ bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t:
 		}
 
 		ribi_t::ribi add=(weg->get_ribi_unmasked()&rem);
-		sint32 costs = 0;
+		sint64 costs = 0;
 
 		for(  sint16 i=get_top();  i>=0;  i--  ) {
 			// we need to delete backwards, since we might miss things otherwise

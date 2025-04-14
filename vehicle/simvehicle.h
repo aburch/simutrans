@@ -331,7 +331,7 @@ public:
 	/**
 	* @return die running_cost in Cr/100Km
 	*/
-	int get_operating_cost() const { return desc->get_running_cost(); }
+	sint64 get_operating_cost() const { return desc->get_running_cost(); }
 
 	/**
 	* Play sound, when the vehicle is visible on screen

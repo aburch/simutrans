@@ -2342,7 +2342,7 @@ sint64 way_builder_t::calc_costs()
 	sint64 costs=0;
 	koord3d offset = koord3d( 0, 0, bautyp & elevated_flag ? welt->get_settings().get_way_height_clearance()+height_offset : 0 );
 
-	sint32 single_cost;
+	sint64 single_cost;
 	sint32 new_speedlimit;
 
 	if( bautyp&tunnel_flag ) {
@@ -2381,7 +2381,7 @@ sint64 way_builder_t::calc_costs()
 
 	for(uint32 i=0; i<get_count(); i++) {
 		sint32 old_speedlimit = -1;
-		sint32 replace_cost = 0;
+		sint64 replace_cost = 0;
 
 		const grund_t* gr = welt->lookup(route[i] + offset);
 		if( gr ) {

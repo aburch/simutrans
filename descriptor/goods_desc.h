@@ -32,7 +32,7 @@ class goods_desc_t : public obj_named_desc_t {
 	 * Value used in revenue calculation.
 	 * Will be set by goods_manager_t.
 	 */
-	uint16 value;
+	sint64 value;
 
 	/**
 	* Category of the good
@@ -71,7 +71,7 @@ public:
 		return get_child<text_desc_t>(2)->get_text();
 	}
 
-	uint16 get_value() const { return value; }
+	sint64 get_value() const { return value; }
 
 	/**
 	* @return speed bonus value of the good

@@ -74,7 +74,7 @@ public:
 
 	waytype_t get_waytype() const { return wtyp; }
 
-	sint32 get_price() const { return price; }
+	sint64 get_price() const { return price; }
 
 	uint16 get_index() const { return index; }
 

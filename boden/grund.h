@@ -762,7 +762,7 @@ public:
 	 * @param wegtyp   um welchen wegtyp geht es
 	 * @param ribi_rem sollen die ribis der nachbar zururckgesetzt werden?
 	 */
-	sint32 weg_entfernen(waytype_t wegtyp, bool ribi_rem);
+	sint64 weg_entfernen(waytype_t wegtyp, bool ribi_rem);
 
 	/**
 	 * Description;
