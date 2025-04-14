@@ -699,7 +699,6 @@ schedule_entry_t const& schedule_t::get_next_entry() {
 		schedule_t* next_entry_schedule = copy();
 		uint8 temp_next_entry;
 		advanced_entry(1,temp_next_entry,next_entry_schedule);
-		// dbg->message("schedule_t::get_next_entry()","schedule count: %i, schedule enrty: %i",next_entry_schedule->get_count(),temp_next_entry);
 		return next_entry_schedule->entries[temp_next_entry];
 	}
 }
@@ -744,7 +743,6 @@ void schedule_t::advanced_entry(const uint8 advance_stop_number, uint8& result_e
 // check if the next line is set.
 // if the next line is wrong, unset it.
 bool schedule_t::is_next_line() {
-	// dbg->message("schedule_t::is_next_line()","the next line is %i",next_line_id);
 	if(  next_line_id == 0  ) {
 		return false;
 	}
@@ -764,7 +762,6 @@ bool schedule_t::is_next_line() {
 }
 
 void schedule_t::set_next_line( linehandle_t l ) {
-	dbg->message("schedule_t::set_next_line()","try to set the next line as %i",l.get_id());
 	unset_next_line();
 	if(  !l.is_bound()  ) {
 		return;
