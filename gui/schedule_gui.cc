@@ -930,7 +930,11 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 		uint32 selection = p.i;
 		if(  line_scrollitem_t *li = dynamic_cast<line_scrollitem_t*>(next_line_selector.get_element(selection))  ) {
 			schedule->set_next_line(li->get_line());
-			schedule->start_editing();
+			// schedule->start_editing();
+		}
+		else {
+			// remove next_line
+			schedule->set_next_line(linehandle_t());
 		}
 	}
 	else if(comp == &bt_promote_to_line) {
@@ -1102,6 +1106,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 			new_line = old_line;
 			init_line_selector();
 		}
+		init_next_line_selector();
 	}
 	update_tool( should_set_schedule_tool );
 	return true;
@@ -1182,13 +1187,7 @@ void schedule_gui_t::init_next_line_selector()
 		if(  !*schedule_filter  ||  utf8caseutf8(line->get_name(), schedule_filter)  ) {
 			next_line_selector.new_component<line_scrollitem_t>(line);
 		}
-		if(  !new_line.is_bound()  ) {
-			if(  schedule->matches( welt, line->get_schedule() )  ) {
-				selection = next_line_selector.count_elements();
-				temp_next_line = line;
-			}
-		}
-		else if(  temp_next_line == line  ) {
+		if(  temp_next_line == line  ) {
 			selection = next_line_selector.count_elements();
 		}
 	}
