@@ -272,8 +272,8 @@ private:
 	/*
 	 * caches the running costs
 	 */
-	sint32 sum_running_costs;
-	sint32 sum_fixed_costs;
+	sint64 sum_running_costs;
+	sint64 sum_fixed_costs;
 
 	/**
 	* Overall performance.

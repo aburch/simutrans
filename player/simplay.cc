@@ -429,7 +429,7 @@ void player_t::update_assets(sint64 const delta, const waytype_t wt)
 }
 
 
-sint32 player_t::get_scenario_completion() const
+sint64 player_t::get_scenario_completion() const
 {
 	return finance->get_scenario_completed();
 }
@@ -502,7 +502,7 @@ void player_t::ai_bankrupt()
 					if(  w  &&  w->get_owner()==this  ) {
 						// tunnels and bridges are handled later? (logic needs to be checked for correct maintenance costs)
 						if (!gr->ist_bruecke()  &&  !gr->ist_tunnel()) {
-							sint32 const costs = w->get_desc()->get_maintenance();
+							sint64 const costs = w->get_desc()->get_maintenance();
 							waytype_t const wt = w->get_desc()->get_finance_waytype();
 							player_t::add_maintenance(this, -costs, wt);
 							player_t::add_maintenance(psplayer, costs, wt);
@@ -544,7 +544,7 @@ void player_t::ai_bankrupt()
 				for (uint8 i = gr->get_top(); i-- != 0;) {
 					obj_t *obj = gr->obj_bei(i);
 					if(obj->get_owner()==this) {
-						sint32 costs = 0;
+						sint64 costs = 0;
 						waytype_t wt = ignore_wt;
 						switch(obj->get_typ()) {
 							case obj_t::roadsign:

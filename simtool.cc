@@ -747,7 +747,7 @@ DBG_MESSAGE("tool_remover()", "removing way");
 			}
 		}
 		wt = w->get_desc()->get_finance_waytype();
-		sint32 cost_sum = gr->weg_entfernen(w->get_waytype(), true);
+		sint64 cost_sum = gr->weg_entfernen(w->get_waytype(), true);
 		player_t::book_construction_costs(player, -cost_sum, k, wt);
 	}
 	else {
@@ -4079,7 +4079,7 @@ void tool_build_wayobj_t::mark_tiles( player_t* player, const koord3d &start, co
 	route_t verbindung;
 	bool can_built = calc_route( verbindung, player, start, end );
 	if( can_built ) {
-		sint32 cost_estimate = 0;
+		sint64 cost_estimate = 0;
 
 		bool keep_existing_faster_ways = !is_ctrl_pressed();
 
@@ -5716,7 +5716,7 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 	signal_info const& s              = current;
 	uint8       const  signal_density = 2 * s.spacing;      // measured in half tiles (straight track count as 2, diagonal as 1, since sqrt(1/2) = 1/2 ;)
 	uint8              next_signal    = signal_density + 1; // to place a sign asap
-	sint32             cost           = 0;
+	sint64             cost           = 0;
 	directions.clear();
 	// dummy roadsign to get images for preview
 	roadsign_t *dummy_rs;
@@ -7389,7 +7389,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 					if (player == wplayer) {
 						w->set_owner(welt->get_public_player());
 						w->set_flag(obj_t::dirty);
-						sint32 cost = w->get_desc()->get_maintenance();
+						sint64 cost = w->get_desc()->get_maintenance();
 						// of tunnel...
 						if (tunnel_t* t = gr->find<tunnel_t>()) {
 							t->set_owner(welt->get_public_player());
@@ -7412,7 +7412,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 					else if (  is_shift_pressed()  &&  wplayer == welt->get_public_player()  ){
 						w->set_owner(player);
 						w->set_flag(obj_t::dirty);
-						sint32 cost = w->get_desc()->get_maintenance();
+						sint64 cost = w->get_desc()->get_maintenance();
 						// of tunnel...
 						if (tunnel_t* t = gr->find<tunnel_t>()) {
 							t->set_owner(player);
@@ -7439,7 +7439,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 				if (wayobj_t* const wo = obj_cast<wayobj_t>(gr->obj_bei(i))) {
 					player_t* woplayer = wo->get_owner();
 					if (player == woplayer) {
-						sint32 const cost = wo->get_desc()->get_maintenance();
+						sint64 const cost = wo->get_desc()->get_maintenance();
 						// change ownership
 						wo->set_owner(welt->get_public_player());
 						wo->set_flag(obj_t::dirty);
@@ -7449,7 +7449,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 						player_t::book_construction_costs(woplayer, cost, koord::invalid, financetype);
 					}
 					else if (  is_shift_pressed()  &&  woplayer == welt->get_public_player()  ){
-						sint32 const cost = wo->get_desc()->get_maintenance();
+						sint64 const cost = wo->get_desc()->get_maintenance();
 						// change ownership
 						wo->set_owner(player);
 						wo->set_flag(obj_t::dirty);
@@ -7501,7 +7501,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 						return NOTICE_UNSUITABLE_GROUND;
 					}
 					// compute maintainance cost
-					sint32 cost = w->get_desc()->get_maintenance();
+					sint64 cost = w->get_desc()->get_maintenance();
 					// tunnel cost overwrites way cost
 					if(  tunnel_t *t = i.grund->find<tunnel_t>()  ) {
 						cost = t->get_desc()->get_maintenance();
