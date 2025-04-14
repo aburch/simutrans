@@ -5419,7 +5419,12 @@ void convoi_t::try_to_jump_to_other_line()
 	}
 	dbg->message("convoi_t::try_to_jump_to_other_line()","%s will change schedule to line %s",get_name(),l->get_name());
 	// ok now jump to the next_line's schedule
-	unset_line();
+	// unset_line();
+	if(!line.is_bound()) {
+		unregister_stops();
+	} else {
+		unset_line();
+	}
 	schedule_t *schedule = get_schedule();
 	schedule->copy_from(l->get_schedule());
 	schedule->set_current_stop(0);
