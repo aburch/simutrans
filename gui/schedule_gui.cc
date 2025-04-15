@@ -96,7 +96,9 @@ public:
 			if(  IS_RIGHTCLICK(ev)  ||  ev->mx < stop.get_pos().x) {
 				// just center on it
 				welt->get_viewport()->change_world_position( entry.pos );
-			}
+			} else if( ev->ev_code == MOUSE_WHEELUP || ev->ev_code == MOUSE_WHEELDOWN ) {
+				return false;
+			} 
 			else {
 				call_listeners(number);
 			}
@@ -810,27 +812,26 @@ bool schedule_gui_t::infowin_event(const event_t *ev)
 bool schedule_gui_t::action_triggered( gui_action_creator_t *comp, value_t p)
 {
 DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_selector);
-
+	// Always call update_tool for any actions to prevent an unexpected state
+	bool should_set_schedule_tool = true;
 	if(comp == &bt_add) {
 		mode = adding;
 		bt_add.pressed = true;
 		bt_insert.pressed = false;
 		bt_remove.pressed = false;
-		update_tool( true );
 	}
 	else if(comp == &bt_insert) {
 		mode = inserting;
 		bt_add.pressed = false;
 		bt_insert.pressed = true;
 		bt_remove.pressed = false;
-		update_tool( true );
 	}
 	else if(comp == &bt_remove) {
 		mode = removing;
 		bt_add.pressed = false;
 		bt_insert.pressed = false;
 		bt_remove.pressed = true;
-		update_tool( false );
+		should_set_schedule_tool = false;
 	}
 	else if(comp == &bt_find_parent) {
 		if(!schedule->empty()) {
@@ -1077,6 +1078,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 			init_line_selector();
 		}
 	}
+	update_tool( should_set_schedule_tool );
 	return true;
 }
 
