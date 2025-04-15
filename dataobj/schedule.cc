@@ -381,6 +381,10 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *schedule)
 	if(  schedule->entries.empty()  ||  entries.empty()  ) {
 		return false;
 	}
+	// is the next line same?
+	if(  next_line_id != schedule->next_line_id  ) {
+		return false;
+	}
 	// now we have to check all entries ...
 	// we need to do this that complicated, because the last stop may make the difference
 	uint16 f1=0, f2=0;

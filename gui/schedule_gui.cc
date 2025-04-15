@@ -359,6 +359,19 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	end_table();
 	
 	// Components for advanced settings
+	// next_line setting
+	add_table(2,1);
+	{
+		lb_next_line.set_text("Next line:");
+		add_component(&lb_next_line);
+
+		next_line_selector.clear_elements();
+
+		init_next_line_selector();
+		next_line_selector.add_listener(this);
+		add_component(&next_line_selector);
+	}
+	end_table();
 	
 	add_table(3,1);
 	{
@@ -549,19 +562,6 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		add_component(&departure_slot_group_selector);
 	}
 
-	// next_line setting
-	add_table(2,1);
-	{
-		lb_next_line.set_text("Next line:");
-		add_component(&lb_next_line);
-
-		next_line_selector.clear_elements();
-
-		init_next_line_selector();
-		next_line_selector.add_listener(this);
-		add_component(&next_line_selector);
-	}
-	end_table();
 	
 	extract_advanced_settings(false);
 
@@ -914,6 +914,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 	}
 	else if(comp == &line_selector) {
 		uint32 selection = p.i;
+		dbg->message("schedule_gui_t::action_triggered()","set_line_selection %p, %i",comp,selection);
 		if(  line_scrollitem_t *li = dynamic_cast<line_scrollitem_t*>(line_selector.get_element(selection))  ) {
 			new_line = li->get_line();
 			stats->highlight_schedule( false );
@@ -928,13 +929,14 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 	}
 	else if(comp == &next_line_selector) {
 		uint32 selection = p.i;
+		dbg->message("schedule_gui_t::action_triggered()","set_next_line_selection %p, %i",comp,selection);
 		if(  line_scrollitem_t *li = dynamic_cast<line_scrollitem_t*>(next_line_selector.get_element(selection))  ) {
 			schedule->set_next_line(li->get_line());
-			// schedule->start_editing();
 		}
 		else {
 			// remove next_line
 			schedule->set_next_line(linehandle_t());
+			next_line_selector.set_selection(0);
 		}
 	}
 	else if(comp == &bt_promote_to_line) {
@@ -1106,8 +1108,8 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 			new_line = old_line;
 			init_line_selector();
 		}
-		init_next_line_selector();
 	}
+	init_next_line_selector();
 	update_tool( should_set_schedule_tool );
 	return true;
 }
@@ -1188,7 +1190,7 @@ void schedule_gui_t::init_next_line_selector()
 			next_line_selector.new_component<line_scrollitem_t>(line);
 		}
 		if(  temp_next_line == line  ) {
-			selection = next_line_selector.count_elements();
+			selection = next_line_selector.count_elements()-1;
 		}
 	}
 
