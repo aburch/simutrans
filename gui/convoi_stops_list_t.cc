@@ -93,6 +93,9 @@ public:
 			// move to the entry tile.
 			view_stop();
 		}
+		else if( ev->ev_code == MOUSE_WHEELUP || ev->ev_code == MOUSE_WHEELDOWN ) {
+			return false;
+		} 
 		else {
 			halthandle_t h = haltestelle_t::get_stoppable_halt( entry.pos,player );
 			if (  h.is_bound()  ) {
