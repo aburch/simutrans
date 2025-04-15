@@ -234,6 +234,7 @@ cbuffer_t schedule_gui_stats_t::buf;
 schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoihandle_t cnv_) :
 	gui_frame_t( translator::translate("Fahrplan"), NULL),
 	line_selector(line_scrollitem_t::compare),
+	next_line_selector(line_scrollitem_t::compare),
 	departure_slot_group_selector(company_color_line_scroll_item_t::compare),
 	lb_waitlevel(SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
 	lb_wait("1/"),
@@ -242,8 +243,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoih
 	lb_max_speed("Maxspeed"),
 	lb_tbgr_waiting_time("Additional goods routing waiting time"),
 	stats(new schedule_gui_stats_t() ),
-	scrolly(stats),
-	next_line_selector(line_scrollitem_t::compare)
+	scrolly(stats)
 {
 	scrolly.set_maximize( true );
 	schedule = NULL;
@@ -358,21 +358,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	}
 	end_table();
 	
-	// Components for advanced settings
-	// next_line setting
-	add_table(2,1);
-	{
-		lb_next_line.set_text("Next line:");
-		add_component(&lb_next_line);
-
-		next_line_selector.clear_elements();
-
-		init_next_line_selector();
-		next_line_selector.add_listener(this);
-		add_component(&next_line_selector);
-	}
-	end_table();
-	
+	// Components for advanced settings	
 	add_table(3,1);
 	{
 		bt_tmp_schedule.init(button_t::square_state, "Temporary schedule");
@@ -562,6 +548,19 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		add_component(&departure_slot_group_selector);
 	}
 
+	// next_line setting
+	add_table(2,1);
+	{
+		lb_next_line.set_text("Next line:");
+		add_component(&lb_next_line);
+
+		next_line_selector.clear_elements();
+
+		init_next_line_selector();
+		next_line_selector.add_listener(this);
+		add_component(&next_line_selector);
+	}
+	end_table();
 	
 	extract_advanced_settings(false);
 
