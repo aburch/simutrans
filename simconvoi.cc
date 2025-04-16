@@ -5537,11 +5537,15 @@ void convoi_t::next_stop_button_pressed() {
 		} else {
 			if( !line.is_bound() ) {
 				unregister_stops();
+			} else {
+				unset_line();
 			}
 			linehandle_t temp_next_line;
 			temp_next_line.set_id(schedule->get_next_line_id());
 			schedule->advance();
+			dbg->message("convoi_t::next_stop_button_pressed()","the next stop is %i",schedule->get_current_entry());
 			set_line(temp_next_line);
+			dbg->message("convoi_t::next_stop_button_pressed()","the next stop is %i",schedule->get_current_entry());
 		}
 		// c->set_schedule() is change convoy status to "EDIT_SCHEDULE".
 		// So, if the convoy is leading, it can recalculate the schedule by calling this function.
