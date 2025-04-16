@@ -5532,7 +5532,17 @@ void convoi_t::next_stop_button_pressed() {
 		if( !c->can_continue_coupling() ) {
 			c->uncouple_convoi();
 		}
-		schedule->advance();
+		if( schedule->get_current_stop() < schedule->get_count()-1 || !schedule->is_next_line() ) {
+			schedule->advance();
+		} else {
+			if( !line.is_bound() ) {
+				unregister_stops();
+			}
+			linehandle_t temp_next_line;
+			temp_next_line.set_id(schedule->get_next_line_id());
+			schedule->advance();
+			set_line(temp_next_line);
+		}
 		// c->set_schedule() is change convoy status to "EDIT_SCHEDULE".
 		// So, if the convoy is leading, it can recalculate the schedule by calling this function.
 		// However, if the convoy is coupled convoy, calling c->set_schedule() destroy coupling information.

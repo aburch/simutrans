@@ -828,7 +828,7 @@ bool schedule_gui_t::infowin_event(const event_t *ev)
 
 bool schedule_gui_t::action_triggered( gui_action_creator_t *comp, value_t p)
 {
-DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_selector);
+dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_selector);
 	// Always call update_tool for any actions to prevent an unexpected state
 	bool should_set_schedule_tool = true;
 	if(comp == &bt_add) {
@@ -1166,7 +1166,7 @@ void schedule_gui_t::init_line_selector()
 void schedule_gui_t::init_next_line_selector()
 {
 	next_line_selector.clear_elements();
-	int selection = 0;
+	uint16 selection = 0;
 	vector_tpl<linehandle_t> lines;
 	linehandle_t temp_next_line; 
 
@@ -1198,6 +1198,8 @@ void schedule_gui_t::init_next_line_selector()
 	next_line_selector.set_selection( selection );
 	line_scrollitem_t::sort_mode = line_scrollitem_t::SORT_BY_NAME;
 	next_line_selector.sort( offset );
+	old_line_count = player->simlinemgmt.get_line_count();
+	last_schedule_count = schedule->get_count();
 }
 
 
