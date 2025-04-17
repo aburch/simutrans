@@ -752,7 +752,7 @@ bool schedule_t::is_next_line() {
 	}
 	linehandle_t temp_line = linehandle_t();
 	temp_line.set_id(next_line_id);
-	if(  !temp_line.is_bound()  ||  temp_line->linetype_to_waytype(temp_line->get_linetype()) != get_waytype()  ) {
+	if(  !temp_line.is_bound()  ||  temp_line->get_schedule()->get_count()<2 ||  temp_line->linetype_to_waytype(temp_line->get_linetype()) != get_waytype()  ) {
 		set_next_line_id(0);
 		return false;
 	}
