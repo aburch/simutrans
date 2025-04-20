@@ -1,3 +1,4 @@
+	ADD: new freight sorting order "via stop owner" groups goods by owner of their next transfer stop
 	FIX: stations on bridge heads drawn too low
 
 

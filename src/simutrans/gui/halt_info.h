@@ -8,18 +8,18 @@
 
 
 #include "gui_frame.h"
-#include "components/gui_label.h"
-#include "components/gui_scrollpane.h"
-#include "components/gui_textarea.h"
-#include "components/gui_textinput.h"
+#include "components/action_listener.h"
 #include "components/gui_button.h"
 #include "components/gui_button_to_chart.h"
-#include "components/gui_location_view.h"
-#include "components/gui_tab_panel.h"
-#include "components/action_listener.h"
 #include "components/gui_chart.h"
-#include "components/gui_image.h"
 #include "components/gui_colorbox.h"
+#include "components/gui_image.h"
+#include "components/gui_label.h"
+#include "components/gui_location_view.h"
+#include "components/gui_scrollpane.h"
+#include "components/gui_tab_panel.h"
+#include "components/gui_textarea.h"
+#include "components/gui_textinput.h"
 
 #include "../utils/cbuffer.h"
 #include "../simhalt.h"
@@ -75,7 +75,7 @@ private:
 	gui_textinput_t input;
 	gui_chart_t chart;
 	location_view_t view;
-	button_t sort_button;
+	button_t sort_mode_button;
 
 	gui_button_to_chart_array_t button_to_chart;
 

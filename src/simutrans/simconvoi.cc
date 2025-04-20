@@ -146,8 +146,7 @@ void convoi_t::init(player_t *player)
 	*name_and_id = 0;
 	name_offset = 0;
 
-	freight_info_resort = true;
-	freight_info_order = 0;
+	old_sort_mode = 255;
 	loading_level = 0;
 	loading_limit = 0;
 
@@ -1699,7 +1698,7 @@ DBG_MESSAGE("convoi_t::add_vehicle()","extend array_tpl to %i totals.",fahr.get_
 		min_top_speed = min( min_top_speed, kmh_to_speed( v->get_desc()->get_topspeed() ) );
 		sum_gesamtweight = sum_weight;
 		calc_loading();
-		freight_info_resort = true;
+		old_sort_mode = 255;
 		// Add good_catg_index:
 		if(v->get_cargo_max() != 0) {
 			const goods_desc_t *ware=v->get_cargo_type();
@@ -1748,7 +1747,7 @@ vehicle_t *convoi_t::remove_vehicle_at(uint16 i)
 		}
 		sum_gesamtweight = sum_weight;
 		calc_loading();
-		freight_info_resort = true;
+		old_sort_mode = 255;
 
 		// der convoi hat jetzt ein neues ende
 		if(vehicle_count > 0) {
@@ -1830,7 +1829,7 @@ void convoi_t::check_freight()
 		fahr[i]->remove_stale_cargo();
 	}
 	calc_loading();
-	freight_info_resort = true;
+	old_sort_mode = 255;
 }
 
 
@@ -2666,19 +2665,12 @@ void convoi_t::info(cbuffer_t & buf) const
 }
 
 
-// sort order of convoi
-void convoi_t::set_sortby(uint8 sort_order)
-{
-	freight_info_order = sort_order;
-	freight_info_resort = true;
-}
-
-
 // caches the last info; resorts only when needed
 void convoi_t::get_freight_info(cbuffer_t & buf)
 {
-	if(freight_info_resort) {
-		freight_info_resort = false;
+	if(  old_sort_mode != env_t::default_sortmode  ){
+
+		old_sort_mode = env_t::default_sortmode;
 		// rebuilt the list with goods ...
 		vector_tpl<ware_t> total_fracht;
 
@@ -2740,7 +2732,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		}
 
 		// show new info
-		freight_list_sorter_t::sort_freight(total_fracht, buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded");
+		freight_list_sorter_t::sort_freight(total_fracht, buf, (freight_list_sorter_t::sort_mode_t)env_t::default_sortmode, &capacity, "loaded");
 	}
 }
 
@@ -3056,7 +3048,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 
 		wants_more |= (amount == max_amount) && (v->get_total_cargo() < v->get_cargo_max());
 	}
-	freight_info_resort |= changed_loading_level;
+	old_sort_mode |= changed_loading_level;
 	if (changed_loading_level) {
 		halt->recalc_status();
 	}

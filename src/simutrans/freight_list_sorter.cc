@@ -12,6 +12,7 @@
 #include "simfab.h"
 #include "simmem.h"
 #include "world/simworld.h"
+#include "player/simplay.h"
 
 #include "dataobj/translator.h"
 
@@ -23,6 +24,31 @@
 
 karte_ptr_t freight_list_sorter_t::welt;
 freight_list_sorter_t::sort_mode_t freight_list_sorter_t::sortby=by_name;
+
+
+
+/**
+ * This variable defines by which column the table is sorted
+ * Values: 0 = destination
+ *                 1 = via
+ *                 2 = via_amount
+ *                 3 = amount
+ *                 4 = via owner of next stop
+ */
+static const char* sort_text[freight_list_sorter_t::SORT_MODES] = {
+		"Zielort",
+		"Menge",
+		"via",
+		"via Menge",
+		"via owner"
+};
+
+const char *freight_list_sorter_t::get_sort_mode_string(uint8 mode)
+{
+	return sort_text[mode];
+}
+
+
 
 
 /**
@@ -160,6 +186,26 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				}
 			}
 		}
+
+		else if(  sort_mode == by_via_owner  ) {
+			// player sort mode merges packets which next stop is owned by the
+			// same player
+			for(  int i=0;  i<pos;  i++  ) {
+				ware_t& wi = wlist[i];
+				if(  wi.get_index()==ware.get_index()  &&  ware.get_via_halt().is_bound() && wi.get_via_halt().is_bound()  &&  ware.get_via_halt()->get_owner() == wi.get_via_halt()->get_owner()  ) {
+					ware_t::goods_amount_t const remaining_amount = wi.add_goods(ware.amount);
+					if(  remaining_amount > 0  ) {
+						// reached goods amount limit, have to discard amount and track category totals separatly
+						if(  categories_goods_amount_lost == NULL  ) {
+							categories_goods_amount_lost = new uint64[256](); // this should be tied to a category index limit constant
+						}
+						categories_goods_amount_lost[wi.get_desc()->get_catg_index()]+= remaining_amount;
+					}
+					--pos;
+					break;
+				}
+			}
+		}
 		pos++;
 	}
 
@@ -226,6 +272,18 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			goods_desc_t const& desc = *ware.get_desc();
 			char const *const good_description_format = sortby == by_via_sum  &&  ware.is_goods_amount_maxed() ? "  >=%u%s %s > " : "  %u%s %s > ";
 			buf.printf(good_description_format, ware.amount, translator::translate(desc.get_mass()), translator::translate(desc.get_name()));
+
+			// special mode: simply retrieve player name
+			if(  sortby == by_via_owner  ) {
+				if(  via_halt.is_bound()  ) {
+					buf.append(via_halt->get_owner()->get_name());
+				}
+				else {
+					buf.append(name);
+				}
+				buf.append("\n");
+				continue;
+			}
 
 			// the target name is not correct for the via sort
 			const bool is_factory_going = ( sortby!=by_via_sum  &&  ware.to_factory ); // exclude merged packets

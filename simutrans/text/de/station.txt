@@ -45,14 +45,16 @@ Diese wird dann weiter aufgeschlüsselt nach den einzelnen Zielen. Ist zum Errei
 </p>
 <p>
 Es gibt verschiedene Arten der Auflistung und Sortierung. Du kannst sie über die linke der drei Schaltflächen oberhalb der Liste ändern. Die Einstellung wird gespeichert und für alle anderen Haltestellenfenster übernommen.<br>
+<em>Zielort</em>:<br>
+Die Einträge werden alphabetisch nach Zielorten sortiert.
+<em>Menge</em>:<br>
+Die Listensortierung erfolgt nach der Menge der Passagiere/Güterarten, die das gleiche Ziel haben.<br>
 <em>via</em>:<br>
 Die Liste wird nach den ersten Transferhaltestellen alphabetisch sortiert.<br>
 <em>via Menge</em>:<br>
-Die Aufschlüsselung erfolgt nach der ersten Transferhaltestelle. Die Liste wird nach der Menge sortiert.<br>
-<em>Menge</em>:<br>
-Die Listensortierung erfolgt nach der Menge der Passagiere/Güterarten, die das gleiche Ziel haben.<br>
-<em>Zielort</em>:<br>
-Die Einträge werden alphabetisch nach Zielorten sortiert.
+Die Listensortierung erfolgt nach der ersten Transferhaltestelle. Die Liste wird nach der Menge sortiert.<br>
+<em>via Spieler</em>:<br>
+Die Listensortierung erfolgt nach dem Besitzer des nächsten Umstieges oder Ziel. Die Liste wird nach der Menge sortiert.<br>
 </p>
 <p>
 Die Schaltfläche <em>Details</em> öffnet das Fenster <a href="station_details.txt">Haltestellendetails</a>. Dort findest Du zusätzliche Informationen über die Haltestelle.

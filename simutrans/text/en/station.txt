@@ -11,7 +11,7 @@ A Stop consists of a place where a <a href="convoiinfo.txt">Convoy</a> can pick-
 <p>
 Tools for the construction of places where Convoys can accept or deliver are available from the toolbar for the respective type of transport: <a href="railtools.txt">?station-platforms</a>; <a href="monorailtools.txt">monorail/maglev train stops</a>; <a href="tramtools.txt">Tram Stops</a>; <a href="roadtools.txt">Road-stops</a>; <a href="shiptools.txt">Docks</a>
 ; and <a href="airtools.txt">Airstops</a>.<br>
-{Tips: Water-transport vehicles may use any square of water in the catchment area of a dock to pick-up and drop off goods and pasengers. Larger Stops can be built by constructing on adjacent squares. Stops can be built that accomodate more than one type of transport}.
+{Tips: Water-transport vehicles may use any square of water in the catchment area of a dock to pick-up and drop off goods and passengers. Larger Stops can be built by constructing on adjacent squares. Stops can be built that accommodate more than one type of transport}.
 </p>
 <p>
 Click on a Stop in game-view with the <a href="inspection_tool.txt">Inspection Tool</a> or click on a Stop listed in <a href="haltlist.txt">Station List</a> or <a href="linemanagement.txt">Line Management</a> to open <strong>Stop Information</strong> which shows the name of the Stop in its titlebar.<br>
@@ -21,15 +21,15 @@ Click on a Stop in game-view with the <a href="inspection_tool.txt">Inspection T
 <em>name</em>: assigned name of Stop is shown in name-box at top of <strong>Stop Information</strong>.<br>
 By default name is assigned automatically when the Stop is first built and depends on <a href="citywindow.txt">urban area</a> related to Stop and any <a href="industry_info.txt">industry</a> within catchment area of Stop.<br>
 To change name: click on name-box and type new name.<br>
-{Tips: Use <a href="keys.txt">[!]</a> to toggle view of name above a Stop in game-view. Use [v] to toggle view of catchment area of Stop in game-view. Option to number Stops available in simuconf.tab}
+{Tips: Use <a href="keys.txt">[!]</a> to toggle view of name above a Stop in game-view. Use [v] to toggle the view of the catchment area of the Stop in game-view. Option to number Stops available in simuconf.tab}
 </p>
 <p>
-<em>status-colour-bar:</em> colours indicate operation of Stop with regards to how overcrowded it is. The status-colour-bar is also used in Station List and Line Management and is the same colour displayed in the colour-bar above a Stop in game-display:<br>
-- <em>yellow:</em> no service and nothing waitung.<br>
+<em>status-colour-bar:</em> colours indicate the status of the Stop, i.e. how overcrowded it is. The status-colour-bar is also used in Station List and Line Management and is the same colour displayed in the colour-bar above a Stop in game-display:<br>
+- <em>yellow:</em> no service and nothing waiting.<br>
 - <em>green:</em> no improvements necessary.<br>
-- <em>orange:</em> stop is slightly overcrowded (with transfer goods mostly).<br>
-- <em>red:</em> stop hold more than 1.5 of its capacity, or more than 200 unhappy passengers, or a factory must stop its production because the station is overcrowded.  These stops will be reported as overcrowded at the beginning of a months.<br>
-{Tips: Use <a href="keys.txt">[!]</a> to toggle view of status-colour-bar (that indicate how crowded Stop is) above a Stop in game-view.}
+- <em>orange:</em> stop is slightly overcrowded (with transfer goods usually).<br>
+- <em>red:</em> stop hold more than 1.5 of its capacity, or more than 200 unhappy passengers, or a factory must stop its production because the station is overcrowded.  These stops will be reported as overcrowded at the beginning of a month.<br>
+{Tips: Use <a href="keys.txt">[!]</a> to toggle view of status-colour-bar (that indicates how crowded a Stop is) above a Stop in game-view.}
 </p>
 <p>
 Graphic Icons are also used in Station List and Line Management:<br>
@@ -45,8 +45,8 @@ Graphic Icons are also used in Station List and Line Management:<br>
 Click on the picture to centre game-view on Stop.
 </p>
 <p>
-<em>Passengers</em> numbers indicate amount of following passengers who start their journey at the Stop:<br>
-- <em>happy face</em> indicates number of passengers, who have arrived at an uncrowded Stop as a result of its catchment area and have found a route to their destination and waited for transport.<br>
+<em>Passengers</em> numbers indicate the amount of passengers and mail who start their journey at the Stop:<br>
+- <em>happy face</em> indicates the number of passengers, who have arrived at an uncrowded Stop as a result of its catchment area and have found a route to their destination and waited for transport.<br>
 - <em>unhappy face</em> indicates number of passengers who have arrived at Stop as a result of its catchment area but did not wait for transport as it was overcrowded.<br>
 - <em>no route</em> indicates number of passengers who have arrived at Stop as a result of its catchment area but left as they did not find a route to their destination.<br>
 {Tips: Keeping passengers happy helps growth of <a href="citywindow.txt">urban areas</a>. Change maximum number of transfers allowed for goods and passengers in simuconf.tab}.
@@ -56,24 +56,25 @@ Click on the picture to centre game-view on Stop.
 Information shown for items includes quantity, type, final destination and first transit Stop.<br>
 Option-button (changes name with selection) sorts of items within groups:<br>
  - <em>destination:</em> sorts items, alphanumerically within ASCII-code order (capital letters before lower case letters), by assigned name of final destination Stop.<br>
+ - <em>amount:</em> sorts items by quantity in descending order.<be>
  - <em>via (detail):</em> sorts items, alphanumerically within ASCII-code order (capital letters before lower case letters), by assigned name of first transfer Stop.<br>
- - <em>via (amount):</em> ?sorts items by quantity headed to first transfer Stop.<br>
- - <em>amount:</em> sorts items by quantity in descending order.<br>
+ - <em>via (amount):</em> sorts items by quantity headed to first transfer Stop.<br>
+ - <em>via (owner):</em> sorts items carried by quantity by the owner of the next <a href="station.txt">stop</a>.<br>
 {Tips: goods-colour-bars above a Stop in game-view (use [!] to toggle) indicate quantity of items that wait for transport and are the same colour as <a href="goods_filter.txt">colour-squares</a> in Goods List.}
 </p>
 <p>
-<em>Chart:</em> click option-button to toggle graph (button is indentented when graph is visible) in <strong>Stop Information</strong>.<br>
+<em>Chart:</em> click option-button to toggle graph (button is indented when graph is visible) in <strong>Stop Information</strong>.<br>
 The graph shows statistics for the last 12 months (x-axis) when a graph-option is selected.<br>
 Click on graph-option-button to see information on graph (button is indented when option selected).<br>
 Colours of lines on graph correspond to colours of graph-option-buttons:<br>
-- <em>Happy</em> indicates number of passengers/mails, who have arrived at an uncrowded Stop as a result of its catchment area and have found a route to their destination and waited for transport.<br>
-- <em>Unhappy</em> indicates number of passengers who have arrived at Stop as a result of its catchment area but did not wait for transport as it was overcrowded.<br>
-- <em>No Route</em> indicates number of passengers who have arrived at Stop as a result of its catchment area but left as they did not find a route to their destination.<br>
-- <em>waiting:</em> amount of goods and passengers at Stop that wait for transport.<br>
-- <em>Arrived:</em> amount of goods and passengers dropped-off by a Convoy at Stop as a final destination or transfer point.<br>
-- <em>Departed:</em> amount of goods and passengers picked-up at Stop by a Convoy.<br>
+- <em>Happy</em> number of passengers/mails, who have arrived at the Stop, have found a route to their destination and so started their journey.<br>
+- <em>Unhappy</em> number of passengers/mail who have arrived at the Stop but did not wait for transport as it was overcrowded.<br>
+- <em>No Route</em> number of passengers/mail who have arrived at the Stop but left as they did not find a route to their destination.<br>
+- <em>waiting:</em> amount of goods, mail, and passengers at the Stop that wait for transport.<br>
+- <em>Arrived:</em> amount of goods, mail, and passengers dropped-off by a Convoy at Stop as a final destination or transfer point.<br>
+- <em>Departed:</em> amount of goods and passengers picked-up at the Stop by a Convoy.<br>
 - <em>Vehicles:</em> amount of Convoys that have departed from Stop.
 </p>
 <p>
-<em>Details:</em> option-button opens <a href="station_details.txt">Stop Details</a> that provides further information about Stop.
+<em>Details:</em> option-button opens <a href="station_details.txt">Stop Details</a> that provides further information about the Stop.
 </p>

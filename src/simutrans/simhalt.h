@@ -351,11 +351,9 @@ private:
 	void transfer_goods(halthandle_t halt);
 
 	/**
-	* parameter to ease sorting
-	* sortierung is local and stores the sortorder for the individual station
+	* parameter to force resorting of freight list
 	*/
-	uint8 sortierung;
-	bool resort_freight_info;
+	uint8 old_sort_mode;
 
 	haltestelle_t(loadsave_t *file);
 	haltestelle_t(koord pos, player_t *player);
@@ -367,12 +365,6 @@ public:
 	* will distribute the goods to changed routes (if there are any)
 	*/
 	void reroute_goods(sint16 &units_remaining);
-
-	/**
-	 * getter/setter for sortby
-	 */
-	uint8 get_sortby() { return sortierung; }
-	void set_sortby(uint8 sm) { resort_freight_info =true; sortierung = sm; }
 
 	/**
 	 * Calculates a status color for status bars

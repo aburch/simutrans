@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: de Deutsch                             #
 #                                Encoding: UTF-8                               #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 3.04 2025                           #
+#                           Date Created: 20.04 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -2299,6 +2299,8 @@ vh_title
 Liste aller Fahrzeuge
 via %s\n
  über %s\n
+via owner
+via Spieler
 voranstellen
 Voranstellen
 Waggon_tab

@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: en English                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 3.04 2025                           #
+#                           Date Created: 20.04 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -1499,6 +1499,8 @@ via %s\n
  via %s\n
 via Menge
 via (amount)
+via owner
+via (owner)
 voranstellen
 Put in front
 Waggon_tab

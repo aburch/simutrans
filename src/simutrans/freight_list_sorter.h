@@ -22,11 +22,16 @@ class freight_list_sorter_t
 {
 public:
 	enum sort_mode_t {
-		by_name    = 0,
-		by_via     = 1,
-		by_via_sum = 2,
-		by_amount  = 3
+		by_name      = 0,
+		by_amount    = 1,
+		by_via       = 2,
+		by_via_sum   = 3,
+		by_via_owner = 4,
+		SORT_MODES
 	};
+
+	// returns the string for the current sort mode (untranslated)
+	static const char *get_sort_mode_string(uint8 mode);
 
 	static void sort_freight(vector_tpl<ware_t> const& warray, cbuffer_t& buf, sort_mode_t sort_mode, const slist_tpl<ware_t>* full_list, const char* what_doing);
 

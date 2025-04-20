@@ -56,9 +56,9 @@ Pulsa en el dibujo para centrar la vista del juego en la Parada.
 La informacion de la carga que se muestra incluye cantidad, tipo, destino final y primera Parada intermedia.<br>
 Los botones de opcion (el nombre cambia cuando lo pulsas) ordena la carga en gtupossorts of items within groups:<br>
  - <em>destino:</em> ordena elementos, alfanumericamente (mayusculas antes que minusculas), por el nombre de la Parada destino final.<br>
+ - <em>cantidad:</em> ordena elementos por cantidad en orden descendente.<br>
  - <em>via (detalle):</em> ordena elementos, alfanumericamente (mayusculas antes que minusculas), por el nombre de la primera Parada intermedia.<br>
  - <em>via (cantidad):</em> ordena elementos por cantidad dirigida a la primera Parada intermedia.<br>
- - <em>cantidad:</em> ordena elementos por cantidad en orden descendente.<br>
 {Consejos: las barras de color de mercancias sobre la Parada (usa la tecla [!] para mostrar) indica la cantidad de elementos que esperan transporte y tienen el mismo color que los <a href="goods_filter.txt">cuadrados de color</a> en la Lista de Mercancias.}
 </p>
 <p>

@@ -4490,6 +4490,10 @@ obj=program_text
 name=CURRENCY_LEFT
 note=local currency to the left of the number
 --
+obj=program_text
+name=via owner
+note=sort label for Freight for next stop owner
+--
 
 #obj=help_text
 #name=Lower values mean more local sounds

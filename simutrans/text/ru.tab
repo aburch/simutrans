@@ -12,7 +12,7 @@ cyr.bdf
 #                             Language: ru Russian                             #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                            Date Created: 3.04 2025                           #
+#                           Date Created: 20.04 2025                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -49,6 +49,8 @@ clf_btn_keine
 Нет
 climate area percentage
 Площадь климата
+Continue Game
+Продолжить игру
 CROSSING_SOUND
 Предупреждающие звуки
 FACTORY_SOUND
@@ -90,7 +92,7 @@ hlf_btn_keine
 humidities
 Граница влажности
 Install
-Установка набора пакетов
+Наборы пакетов
 Lake
 Озёра
 Lake height
@@ -102,7 +104,7 @@ moisture land
 moisture water
 Увеличение по воде
 Networks
-Сетка
+Сеть
 Num pad keys always move map
 Клавиши цифровой клавиатуры всегда перемещают карту
 Open Sea
@@ -110,9 +112,11 @@ Open Sea
 Queueing
 Тенденция ожидания
 rainfall
-Влажность
+влажность
 Reselect closes tools
 Повторный выбор инструментов закрывает их
+Return to menu
+Вернуться в меню
 Road toll
 Дорожный сбор
 Scenario
@@ -135,6 +139,8 @@ TRAFFIC_SOUND
 Транспортные шумы
 Transfers
 Трансфер
+Tutorial
+Обучение
 #_________________________________climates_text_________________________________
 #_________________________________climates_text_________________________________
 arctic
@@ -306,7 +312,7 @@ Please click on the map to add\nwaypoints or stops to this\nschedule.
 Remove double stops from schedule
 Убрать из расписания повторяющиеся остановки
 Set tile climate %s
-Задать климат для %s плитки
+Преобразовать плитку в зону %s
 Show capacity and if halt is overcrowded
 Отображать емкость складов станции и их переполнение грузами.
 Show how many convoi reach a station
@@ -927,6 +933,8 @@ curlist_title
 Список достопримечательностей
 CURRENCY
 ₽
+CURRENCY_LEFT
+Символ валюты
 Currently playing:
 Сейчас звучит:
 Customers live in:
@@ -1263,6 +1271,8 @@ increase underground view level
 увеличить уровень в подземном режиме
 industrial building
 Промышленное строение
+Infinite mouse scrolling
+Бесконечная прокрутка мышью
 Init map ...
 Подготовка карты ...
 Input
@@ -1337,6 +1347,8 @@ Leaving depot!
 Покидает депо!
 leer
 пустой
+Left button drags minimap too
+Левая кнопка мыши перетаскивает мини-карту
 Legend
 обознач.\n\n
 Leistung
@@ -1413,6 +1425,8 @@ Manufactured:
 Построен:
 Map roughness
 Неровность рельефа:
+map view
+Вид карты
 map zoom
 Масштаб
 March
@@ -1811,6 +1825,8 @@ sack
  мешков
 sail
 ветер
+Save
+Сохранить игру
 Saving map ...
 Сохранение карты ...
 Scenario complete: %i%%
@@ -1839,8 +1855,12 @@ Schiffdepot
 Корабельное депо
 Schleppkahn_tab
 Баржи
+Screen scale:
+Масштаб экрана:
 Screenshot
 Сделать скриншот
+Scroll threshold
+Порог прокрутки
 Search:
 Поиск:
 Seasons
@@ -1899,6 +1919,8 @@ Show map scale
 Шкала высот
 Show mismatched
 Показать отличия
+Show networks
+Показать сети
 Show obsolete
 Показать устаревшие\n\n
 Show offline
@@ -1925,6 +1947,8 @@ show/hide object owner
 Вкл/выкл показ владельца объекта
 Show/hide statistics
 Показать/скрыть статистику
+Shows buttons about networks overlay.
+Отображает кнопки о наложении сетей
 Shows buttons on special topics.
 Отобразить кнопки условных обозаначений.
 Shows consumer/suppliers for factories
@@ -1945,6 +1969,8 @@ Sim:
 Сим-циклы:
 Similar view as the main window
 Отображать карту так же, как отображается игровое окно.
+Single toolbar only
+Одна панель инструментов
 Size (%d MB):
 Размер (%d Мб):
 sliced underground mode

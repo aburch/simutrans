@@ -33,15 +33,6 @@ class convoi_detail_t;
  */
 class convoi_info_t : public gui_frame_t, private action_listener_t
 {
-public:
-	enum sort_mode_t {
-		by_destination = 0,
-		by_via         = 1,
-		by_amount_via  = 2,
-		by_amount      = 3,
-		SORT_MODES     = 4
-	};
-
 private:
 	/**
 	* Buffer for freight info text string.
@@ -63,7 +54,7 @@ private:
 	convoi_detail_t *details;
 	gui_scrollpane_t scroll_freight;
 
-	button_t sort_button;
+	button_t sort_mode_button;
 	button_t line_button, line_button2;
 	bool line_bound;
 
@@ -100,7 +91,6 @@ private:
 	void rename_cnv();
 
 	static bool route_search_in_progress;
-	static const char *sort_text[SORT_MODES];
 
 	void show_hide_statistics( bool show );
 

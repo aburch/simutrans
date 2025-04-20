@@ -435,8 +435,7 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 
 	enables = NOT_ENABLED;
 
-	sortierung = freight_list_sorter_t::by_name;
-	resort_freight_info = true;
+	old_sort_mode = 255;
 
 	rdwr(file);
 
@@ -472,7 +471,6 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 	last_status_color = color_idx_to_rgb(COL_PURPLE);
 	last_bar_count = 0;
 
-	sortierung = freight_list_sorter_t::by_name;
 	init_financial_history();
 }
 
@@ -1111,7 +1109,7 @@ void haltestelle_t::reroute_goods(sint16 &units_remaining)
 		}
 	}
 	// likely the display must be updated after this
-	resort_freight_info = true;
+	old_sort_mode = 255;
 	last_catg_index = 255; // all categories are rerouted
 }
 
@@ -1191,7 +1189,7 @@ sint32 haltestelle_t::rebuild_connections()
 		all_links[i].clear();
 		consecutive_halts[i].clear();
 	}
-	resort_freight_info = true; // might result in error in routing
+	old_sort_mode = 255; // might result in error in routing
 
 	last_catg_index = 255; // must reroute everything
 	sint32 connections_searched = 0;
@@ -2086,7 +2084,7 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 			}
 			book(w.amount, HALT_ARRIVED);
 			fabrik_t::update_transit( &w, false );
-			resort_freight_info = true;
+			old_sort_mode = 255;
 			return true;
 		}
 	}
@@ -2160,7 +2158,7 @@ void haltestelle_t::fetch_goods( slist_tpl<ware_t> &load, const goods_desc_t *go
 					load.insert(neu);
 
 					book(neu.amount, HALT_DEPARTED);
-					resort_freight_info = true;
+					old_sort_mode = 255;
 
 					if (requested_amount==0) {
 						return;
@@ -2232,7 +2230,7 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware)
 					tmp.set_via_halt( ware.get_via_halt() );
 				}
 				tmp.amount += ware.amount;
-				resort_freight_info = true;
+				old_sort_mode = 255;
 				return true;
 			}
 		}
@@ -2254,7 +2252,7 @@ void haltestelle_t::add_ware_to_halt(ware_t ware)
 		cargo[ware.get_desc()->get_catg_index()] = warray;
 	}
 	// the ware will be put into the first entry with menge==0
-	resort_freight_info = true;
+	old_sort_mode = 255;
 	for(ware_t & i : *warray) {
 		if (i.amount == 0) {
 			i = ware;
@@ -2368,15 +2366,15 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
  */
 void haltestelle_t::get_freight_info(cbuffer_t & buf)
 {
-	if(resort_freight_info) {
+	if(old_sort_mode != env_t::default_sortmode) {
 		// resort only inf absolutely needed ...
-		resort_freight_info = false;
+		old_sort_mode = env_t::default_sortmode;
 		buf.clear();
 
 		for(unsigned i=0; i<goods_manager_t::get_max_catg_index(); i++) {
 			const vector_tpl<ware_t> * warray = cargo[i];
 			if(warray) {
-				freight_list_sorter_t::sort_freight(*warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting");
+				freight_list_sorter_t::sort_freight(*warray, buf, (freight_list_sorter_t::sort_mode_t)env_t::default_sortmode, NULL, "waiting");
 			}
 		}
 	}

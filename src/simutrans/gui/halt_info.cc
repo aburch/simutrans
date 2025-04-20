@@ -190,14 +190,6 @@ public:
 karte_ptr_t gui_departure_board_t::welt;
 karte_ptr_t gui_halt_detail_t::gui_line_button_t::welt;
 
-
-static const char *sort_text[4] = {
-	"Zielort",
-	"via",
-	"via Menge",
-	"Menge"
-};
-
 const char cost_type[MAX_HALT_COST][64] =
 {
 	"Happy",
@@ -301,8 +293,6 @@ void halt_info_t::init(halthandle_t halt)
 	set_name(halt->get_name());
 	set_owner(halt->get_owner() );
 
-	halt->set_sortby( env_t::default_sortmode );
-
 	set_table_layout(1,0);
 
 	// top part
@@ -378,17 +368,17 @@ void halt_info_t::init(halthandle_t halt)
 	// list of waiting cargo
 	// sort mode
 	container_freight.set_table_layout(1,0);
-	container_freight.add_table(2,1);
-	container_freight.new_component<gui_label_t>("Sort waiting list by");
 
-	// added sort_button
-	sort_button.init(button_t::roundbox, sort_text[env_t::default_sortmode]);
-	sort_button.set_tooltip("Sort waiting list by");
-	sort_button.add_listener(this);
-	container_freight.add_component(&sort_button);
+	container_freight.add_table(2, 1);
+	{
+		container_freight.new_component<gui_label_t>("Sort waiting list by");
+		sort_mode_button.init(button_t::roundbox, freight_list_sorter_t::get_sort_mode_string(env_t::default_sortmode));
+		sort_mode_button.set_tooltip("Sort waiting list by");
+		sort_mode_button.add_listener(this);
+		container_freight.add_component(&sort_mode_button);
+	}
 	container_freight.end_table();
-
-	container_freight.add_component(&text_freight);
+	container_freight.add_component(&text_freight,2);
 
 	// departure board
 	switch_mode.add_tab(&scrolly_departure, translator::translate("Departure board"));
@@ -495,18 +485,21 @@ void halt_info_t::update_components()
 	img_enable[2].set_visible(halt->get_ware_enabled());
 	container_top->set_size( container_top->get_size());
 
-	// buffer update now only when needed by halt itself => dedicated buffer for this
-	int old_len = freight_info.len();
-	halt->get_freight_info(freight_info);
-	if(  old_len != freight_info.len()  ) {
-		text_freight.recalc_size();
-		container_freight.set_size(container_freight.get_min_size());
-	}
+	if (switch_mode.get_aktives_tab() == &scrolly_freight) {
+		sort_mode_button.set_text(freight_list_sorter_t::get_sort_mode_string(env_t::default_sortmode));
 
-	if (switch_mode.get_aktives_tab() == &scrolly_departure) {
+		// buffer update now only when needed by halt itself => dedicated buffer for this
+		int old_len = freight_info.len();
+		halt->get_freight_info(freight_info);
+		if (old_len != freight_info.len()) {
+			text_freight.recalc_size();
+			container_freight.set_size(container_freight.get_min_size());
+		}
+	}
+	else if (switch_mode.get_aktives_tab() == &scrolly_departure) {
 		departure_board->update_departures(halt);
 	}
-	if (switch_mode.get_aktives_tab() == &scrolly_details) {
+	else if (switch_mode.get_aktives_tab() == &scrolly_details) {
 		halt_detail->update_connections(halt);
 	}
 	set_dirty();
@@ -870,7 +863,7 @@ void gui_departure_board_t::update_departures(halthandle_t halt)
 		new_component_span<gui_label_t>("Departures to\n", 3);
 
 		for(dest_info_t hi : destinations ) {
-			if(  freight_list_sorter_t::by_via_sum != env_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  ) {
+			if(  freight_list_sorter_t::by_via > env_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  ) {
 				gui_label_buf_t *lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
 				if( hi.delta_ticks == 0 ) {
 					lb->buf().append( translator::translate( "now" ) );
@@ -963,12 +956,10 @@ void gui_departure_board_t::insert_image(convoihandle_t cnv)
 /**
  * This method is called if an action is triggered
  */
-bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
+bool halt_info_t::action_triggered( gui_action_creator_t *comp, value_t )
 {
-	if (comp == &sort_button) {
-		env_t::default_sortmode = ((int)(halt->get_sortby())+1)%4;
-		halt->set_sortby((freight_list_sorter_t::sort_mode_t) env_t::default_sortmode);
-		sort_button.set_text(sort_text[env_t::default_sortmode]);
+	if (comp == &sort_mode_button) {
+		env_t::default_sortmode = ((int)(env_t::default_sortmode + 1) % (int)freight_list_sorter_t::SORT_MODES);
 	}
 	else if(  comp == &input  ) {
 		if (strcmp(halt->get_name(), edit_name)) {
@@ -1016,8 +1007,7 @@ void halt_info_t::rdwr(loadsave_t *file)
 			set_windowsize(size);
 		}
 	}
-	// sort
-	file->rdwr_byte( env_t::default_sortmode );
+	// sort mode is global ... no need to safe
 
 	scrolly_freight.rdwr(file);
 	scrolly_departure.rdwr(file);
