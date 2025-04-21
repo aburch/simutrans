@@ -41,6 +41,7 @@ private:
 
 	convoihandle_t cnv;
 	button_t sale_button;
+	button_t move_to_depot_button;
 	button_t withdraw_button;
 	button_t copy_convoi_button;
 	button_t trade_convoi_button;
