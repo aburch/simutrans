@@ -1698,7 +1698,6 @@ DBG_MESSAGE("convoi_t::add_vehicle()","extend array_tpl to %i totals.",fahr.get_
 		min_top_speed = min( min_top_speed, kmh_to_speed( v->get_desc()->get_topspeed() ) );
 		sum_gesamtweight = sum_weight;
 		calc_loading();
-		old_sort_mode = 255;
 		// Add good_catg_index:
 		if(v->get_cargo_max() != 0) {
 			const goods_desc_t *ware=v->get_cargo_type();
@@ -1747,7 +1746,6 @@ vehicle_t *convoi_t::remove_vehicle_at(uint16 i)
 		}
 		sum_gesamtweight = sum_weight;
 		calc_loading();
-		old_sort_mode = 255;
 
 		// der convoi hat jetzt ein neues ende
 		if(vehicle_count > 0) {
@@ -1829,7 +1827,6 @@ void convoi_t::check_freight()
 		fahr[i]->remove_stale_cargo();
 	}
 	calc_loading();
-	old_sort_mode = 255;
 }
 
 
@@ -3048,13 +3045,10 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 
 		wants_more |= (amount == max_amount) && (v->get_total_cargo() < v->get_cargo_max());
 	}
-	old_sort_mode |= changed_loading_level;
-	if (changed_loading_level) {
-		halt->recalc_status();
-	}
 
 	// any unloading/loading went on?
 	if (changed_loading_level) {
+		halt->recalc_status();
 		calc_loading();
 	}
 	else {
@@ -3160,7 +3154,8 @@ void convoi_t::calc_loading()
 	loading_limit = 0; // will be set correctly from hat_gehalten() routine
 
 	// since weight has changed
-	recalc_data=true;
+	recalc_data = true;
+	old_sort_mode = 255;
 }
 
 
