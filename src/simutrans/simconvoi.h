@@ -624,6 +624,8 @@ public:
 	*/
 	void get_freight_info(cbuffer_t & buf);
 
+	void reset_freight_info() { old_sort_mode = 255; }
+
 	/**
 	* Opens the schedule window
 	* @see simwin

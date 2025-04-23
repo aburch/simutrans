@@ -2665,7 +2665,7 @@ void convoi_t::info(cbuffer_t & buf) const
 // caches the last info; resorts only when needed
 void convoi_t::get_freight_info(cbuffer_t & buf)
 {
-	if(  old_sort_mode != env_t::default_sortmode  ){
+	if(  old_sort_mode != env_t::default_sortmode  ) {
 
 		old_sort_mode = env_t::default_sortmode;
 		// rebuilt the list with goods ...

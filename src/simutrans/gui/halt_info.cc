@@ -409,6 +409,7 @@ void halt_info_t::init(halthandle_t halt)
 		button_to_chart.append(b, &chart, curve);
 	}
 
+	halt->reset_freight_info();
 	update_components();
 	set_resizemode(diagonal_resize);
 	reset_min_windowsize();
@@ -487,7 +488,6 @@ void halt_info_t::update_components()
 
 	if (switch_mode.get_aktives_tab() == &scrolly_freight) {
 		sort_mode_button.set_text(freight_list_sorter_t::get_sort_mode_string(env_t::default_sortmode));
-
 		// buffer update now only when needed by halt itself => dedicated buffer for this
 		int old_len = freight_info.len();
 		halt->get_freight_info(freight_info);
@@ -960,6 +960,7 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp, value_t )
 {
 	if (comp == &sort_mode_button) {
 		env_t::default_sortmode = ((int)(env_t::default_sortmode + 1) % (int)freight_list_sorter_t::SORT_MODES);
+		halt->reset_freight_info();
 	}
 	else if(  comp == &input  ) {
 		if (strcmp(halt->get_name(), edit_name)) {

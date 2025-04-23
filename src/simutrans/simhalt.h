@@ -670,6 +670,7 @@ public:
 	 * @param[out] buf Goods description text
 	 */
 	void get_freight_info(cbuffer_t & buf);
+	void reset_freight_info() { old_sort_mode = 255; }
 
 	/**
 	 * @param[out] buf short list of the waiting goods (i.e. 110 Wood, 15 Coal)

@@ -239,6 +239,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 	}
 	route_bar.set_height(9);
 
+	cnv->reset_freight_info();
 	update_labels();
 
 	reset_min_windowsize();
@@ -532,6 +533,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 	else if(  comp == &sort_mode_button  ) {
 		// sort by what
 		env_t::default_sortmode = ((int)(env_t::default_sortmode +1)%(int)freight_list_sorter_t::SORT_MODES);
+		cnv->reset_freight_info();
 	}
 
 	bool edit_allowed = (cnv.is_bound() && (cnv->get_owner() == welt->get_active_player() || welt->get_active_player()->is_public_service()));
@@ -767,7 +769,7 @@ void convoi_info_t::rdwr(loadsave_t *file)
 			cnv->set_state(convoi_t::EDIT_SCHEDULE);
 			scd.highlight_schedule(true);
 		}
-
+		cnv->reset_freight_info();
 	}
 }
 
