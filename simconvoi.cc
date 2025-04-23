@@ -4505,8 +4505,8 @@ void convoi_t::check_pending_updates()
 void convoi_t::register_stops()
 {
 	if(  schedule  ) {
-		for(const schedule_entry_t* i = schedule->begin(); i != schedule->end(); ++i) {
-			halthandle_t const halt = haltestelle_t::get_stoppable_halt(i->pos, get_owner());
+		FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->get_entries()) {
+			halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, get_owner());
 			if(  halt.is_bound()  ) {
 				halt->add_convoy(self);
 			}
@@ -4521,8 +4521,8 @@ void convoi_t::register_stops()
 void convoi_t::unregister_stops()
 {
 	if(  schedule  ) {
-		for(const schedule_entry_t* i = schedule->begin(); i != schedule->end(); ++i) {
-			halthandle_t const halt = haltestelle_t::get_stoppable_halt(i->pos, get_owner());
+		FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->get_entries()) {
+			halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, get_owner());
 			if(  halt.is_bound()  ) {
 				halt->remove_convoy(self);
 			}

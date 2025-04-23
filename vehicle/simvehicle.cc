@@ -867,8 +867,8 @@ void vehicle_t::remove_stale_cargo()
 
 			if(  tmp.get_zwischenziel().is_bound()  ) {
 				// the original halt exists, but does we still go there?
-				for(const schedule_entry_t* i = cnv->get_schedule()->begin(); i != cnv->get_schedule()->end(); ++i) {
-					if(  haltestelle_t::get_stoppable_halt( i->pos, cnv->get_owner()) == tmp.get_zwischenziel()  ) {
+				FOR(minivec_tpl<schedule_entry_t>, const& i, cnv->get_schedule()->get_entries()) {
+					if(  haltestelle_t::get_stoppable_halt( i.pos, cnv->get_owner()) == tmp.get_zwischenziel()  ) {
 						found = true;
 						break;
 					}

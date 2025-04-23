@@ -97,12 +97,10 @@ public:
 
 	uint8 get_count() const { return entries.get_count(); }
 
+	const minivec_tpl<schedule_entry_t> &get_entries() const { return entries; }
 	schedule_entry_t& at(uint8 index) { return entries[index]; }
-
 	const schedule_entry_t& at(uint8 index) const { return entries[index]; }
 
-	const schedule_entry_t* begin() const { return entries.begin(); }
-	const schedule_entry_t* end() const { return entries.end(); }
 	schedule_entry_t* begin() { return entries.begin(); }
 	schedule_entry_t* end() { return entries.end(); }
 

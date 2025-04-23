@@ -131,8 +131,8 @@ schedule_gui_stats_t::~schedule_gui_stats_t()
 void schedule_gui_stats_t::highlight_schedule(bool marking)
 {
 	marking &= env_t::visualize_schedule;
-	for(const schedule_entry_t* i = schedule->begin(); i != schedule->end(); ++i) {
-		if (grund_t* const gr = welt->lookup(i->pos)) {
+	FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->get_entries()) {
+		if (grund_t* const gr = welt->lookup(i.pos)) {
 			for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
 				obj_t *obj = gr->obj_bei(idx);
 				if(  marking  ) {

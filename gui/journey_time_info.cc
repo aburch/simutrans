@@ -101,9 +101,8 @@ void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& jou
 
 void copy_stations_to_clipboard(schedule_t* schedule, player_t* player, bool name_only) {
   cbuffer_t clipboard;
-  for (const schedule_entry_t *e = schedule->begin(); e != schedule->end(); e++)
-  {
-    halthandle_t const halt = haltestelle_t::get_stoppable_halt(e->pos, player);
+  FOR(minivec_tpl<schedule_entry_t>, const& e, schedule->get_entries()) {
+    halthandle_t const halt = haltestelle_t::get_stoppable_halt(e.pos, player);
     if(  !halt.is_bound()  ) {
       // do not export waypoint
       continue;
@@ -111,7 +110,7 @@ void copy_stations_to_clipboard(schedule_t* schedule, player_t* player, bool nam
     clipboard.append(halt->get_name());
     if(  !name_only  ) {
       clipboard.append(",");
-      clipboard.append(e->pos.get_str());
+      clipboard.append(e.pos.get_str());
     }
     clipboard.append("\n");
   }

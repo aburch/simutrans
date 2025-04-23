@@ -3773,8 +3773,8 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 			FOR(  vector_tpl<linehandle_t>, const j, check_line  ) {
 				// only add unknown lines
 				if(  !registered_lines.is_contained(j)  &&  j->count_convoys() > 0  ) {
-					for(const schedule_entry_t* k = j->get_schedule()->begin(); k != j->get_schedule()->end(); ++k) {
-						if(  get_stoppable_halt(k->pos, player) == self  ) {
+					FOR(  minivec_tpl<schedule_entry_t>, const& k, j->get_schedule()->get_entries()  ) {
+						if(  get_stoppable_halt(k.pos, player) == self  ) {
 							registered_lines.append(j);
 							break;
 						}
@@ -3788,8 +3788,8 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 		// only check lineless convoys which have matching ownership and which are not yet registered
 		if(  !cnv->get_line().is_bound()  &&  (public_halt  ||  cnv->get_owner()==get_owner())  &&  !registered_convoys.is_contained(cnv)  ) {
 			if(  const schedule_t *const schedule = cnv->get_schedule()  ) {
-				for(const schedule_entry_t* k = schedule->begin(); k != schedule->end(); ++k) {
-					if (get_stoppable_halt(k->pos, cnv->get_owner()) == self) {
+				FOR(  minivec_tpl<schedule_entry_t>, const& k, cnv->get_schedule()->get_entries()  ) {
+					if (get_stoppable_halt(k.pos, cnv->get_owner()) == self) {
 						registered_convoys.append(cnv);
 						break;
 					}
@@ -3897,9 +3897,8 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	// remove lines eventually
 	for(  size_t j = registered_lines.get_count();  j-- != 0;  ) {
 		bool ok = false;
-		const schedule_t* schedule = registered_lines[j]->get_schedule();
-		for(const schedule_entry_t* k = schedule->begin(); k != schedule->end(); ++k) {
-			if(  get_stoppable_halt(k->pos, registered_lines[j]->get_owner()) == self  ) {
+		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_lines[j]->get_schedule()->get_entries()  ) {
+			if(  get_stoppable_halt(k.pos, registered_lines[j]->get_owner()) == self  ) {
 				ok = true;
 				break;
 			}
@@ -3914,9 +3913,8 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	// remove registered lineless convoys as well
 	for(  size_t j = registered_convoys.get_count();  j-- != 0;  ) {
 		bool ok = false;
-		const schedule_t* schedule = registered_convoys[j]->get_schedule();
-		for(const schedule_entry_t* k = schedule->begin(); k != schedule->end(); ++k) {
-			if(  get_stoppable_halt(k->pos, registered_convoys[j]->get_owner()) == self  ) {
+		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_lines[j]->get_schedule()->get_entries()  ) {
+			if(  get_stoppable_halt(k.pos, registered_convoys[j]->get_owner()) == self  ) {
 				ok = true;
 				break;
 			}
