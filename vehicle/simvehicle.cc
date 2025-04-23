@@ -867,8 +867,8 @@ void vehicle_t::remove_stale_cargo()
 
 			if(  tmp.get_zwischenziel().is_bound()  ) {
 				// the original halt exists, but does we still go there?
-				FOR(minivec_tpl<schedule_entry_t>, const& i, cnv->get_schedule()->entries) {
-					if(  haltestelle_t::get_stoppable_halt( i.pos, cnv->get_owner()) == tmp.get_zwischenziel()  ) {
+				for(const schedule_entry_t* i = cnv->get_schedule()->begin(); i != cnv->get_schedule()->end(); ++i) {
+					if(  haltestelle_t::get_stoppable_halt( i->pos, cnv->get_owner()) == tmp.get_zwischenziel()  ) {
 						found = true;
 						break;
 					}
@@ -877,10 +877,10 @@ void vehicle_t::remove_stale_cargo()
 			if(  !found  ) {
 				// the target halt may have been joined or there is a closer one now, thus our original target is no longer valid
 				const int offset = cnv->get_schedule()->get_current_stop();
-				const int max_count = cnv->get_schedule()->entries.get_count();
+				const int max_count = cnv->get_schedule()->get_count();
 				for(  int i=0;  i<max_count;  i++  ) {
 					// try to unload on next stop
-					halthandle_t halt = haltestelle_t::get_stoppable_halt( cnv->get_schedule()->entries[ (i+offset)%max_count ].pos, cnv->get_owner() );
+					halthandle_t halt = haltestelle_t::get_stoppable_halt( cnv->get_schedule()->at( (i+offset)%max_count ).pos, cnv->get_owner() );
 					if(  halt.is_bound()  ) {
 						if(  halt->is_enabled(tmp.get_index())  ) {
 							// ok, lets change here, since goods are accepted here
@@ -3552,7 +3552,7 @@ bool rail_vehicle_t::check_longblock_signal(signal_t *sig, uint16 next_block, si
 		// now search
 		// search for route
 		uint16 len = welt->get_settings().get_advance_to_end() ? 8888 : cnv->get_tile_length();
-		bool success = target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->entries[schedule_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), len );
+		bool success = target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->at(schedule_index).pos, this, speed_to_kmh(cnv->get_min_top_speed()), len );
 		if(  target_rt.is_contained(get_pos())  ) {
 			// do not reserve route going through my current stop&
 			break;
@@ -4182,13 +4182,13 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 	sint16 idx = cnv->get_schedule()->get_current_stop();
 	bool stop_found = false;
 	do {
-		if(  !cnv->is_waypoint(cnv->get_schedule()->entries[idx].pos)  ) {
+		if(  !cnv->is_waypoint(cnv->get_schedule()->at(idx).pos)  ) {
 			stop_found = true;
 			break;
 		}
 		idx = (idx+1)%cnv->get_schedule()->get_count();
 	} while(  idx!=cnv->get_schedule()->get_current_stop()  );
-	if(  !stop_found  ||  cnv->get_schedule()->entries[idx].get_coupling_point()!=2  ) {
+	if(  !stop_found  ||  cnv->get_schedule()->at(idx).get_coupling_point()!=2  ) {
 		// all schedule entries are waypoint or the next stop point is not a coupling point.
 		cnv->unset_convoi_coupling_in_progress();
 		return false;

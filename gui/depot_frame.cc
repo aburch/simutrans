@@ -1699,7 +1699,7 @@ void depot_frame_t::apply_line()
 			// sometimes the user might wish to remove convoy from line
 			// => we clear the schedule completely
 			schedule_t *dummy = cnv->create_schedule()->copy();
-			dummy->entries.clear();
+			dummy->remove_all();
 
 			cbuffer_t buf;
 			dummy->sprintf_schedule(buf);

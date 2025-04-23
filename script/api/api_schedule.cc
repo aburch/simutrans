@@ -82,7 +82,7 @@ schedule_t* script_api::param<schedule_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	// get instance pointer
 	schedule_t* sched = get_attached_instance<schedule_t>(vm, index, param<schedule_t*>::tag());
 	if (sched) {
-		sched->entries.clear();
+		sched->remove_all();
 		// now read the entries
 		sq_pushstring(vm, "entries", -1);
 		SQInteger new_index = index > 0 ? index : index-1;

@@ -3684,7 +3684,7 @@ void calc_reachable_halts(vector_tpl<haltestelle_t::reachable_halt_t>& reachable
 	sint16 first_depot_entry_offset = -1;
 	for(  uint8 i=1;  i<schedule_count;  i++  ) {
 		const uint8 wrap_i = (i + schedule->get_current_stop()) % schedule_count;
-		grund_t *gr = world()->lookup(schedule->entries[wrap_i].pos);
+		grund_t *gr = world()->lookup(schedule->at(wrap_i).pos);
 		if(  gr  &&  gr->has_depot()  ) {
 			first_depot_entry_offset = i;
 			break;
@@ -3707,23 +3707,23 @@ void calc_reachable_halts(vector_tpl<haltestelle_t::reachable_halt_t>& reachable
 	// The estimated journey time from the current stop
 	// The convoy stopping time at the starting point is subtracted because the journey time of
 	// the first entry contains the stopping time at the starting point, which should be excluded.
-	sint32 journey_time = -line_schedule->entries[line_schedule_current_index].get_median_convoy_stopping_time(); 
+	sint32 journey_time = -line_schedule->at(line_schedule_current_index).get_median_convoy_stopping_time(); 
 
 	const uint8 line_schedule_count = line_schedule->get_count();
 	uint8 interval = 0;
 	for(  uint8 i=1;  i<line_schedule_count;  i++  ) {
 		const uint8 wrap_i = (i + line_schedule_current_index) % line_schedule_count;
 
-		const halthandle_t plan_halt = haltestelle_t::get_stoppable_halt(line_schedule->entries[wrap_i].pos, owner);
+		const halthandle_t plan_halt = haltestelle_t::get_stoppable_halt(line_schedule->at(wrap_i).pos, owner);
 		if(plan_halt == current_halt) {
 			// we will come later here again ...
 			break;
 		}
-		else if(  !plan_halt.is_bound()  ||  line_schedule->entries[wrap_i].is_no_unload()  ) {
+		else if(  !plan_halt.is_bound()  ||  line_schedule->at(wrap_i).is_no_unload()  ) {
 			// not a halt or set no_unload. no_unload -> we cannot unload the cargo there.
 			continue;
 		}
-		const grund_t* gr = world()->lookup(line_schedule->entries[wrap_i].pos);
+		const grund_t* gr = world()->lookup(line_schedule->at(wrap_i).pos);
 		if(  gr  &&  gr->has_depot()  ) {
 			// Just ignore the depot entry of the line schedule.
 			continue;
@@ -3732,7 +3732,7 @@ void calc_reachable_halts(vector_tpl<haltestelle_t::reachable_halt_t>& reachable
 		// when something irregular happens on a single convoy.
 		journey_time += line_schedule->get_median_journey_time(wrap_i, cnv->get_speedbonus_kmh());
 		reachable_halts.append(haltestelle_t::reachable_halt_t(plan_halt, (uint32)max(journey_time, 0)));
-		if(  line_schedule->entries[wrap_i].is_unload_all()  ) {
+		if(  line_schedule->at(wrap_i).is_unload_all()  ) {
 			// passengers/cargos cannot keep boarding beyond this stop.
 			break;
 		}
@@ -3740,7 +3740,7 @@ void calc_reachable_halts(vector_tpl<haltestelle_t::reachable_halt_t>& reachable
 			// This is the last schedule entry which the convoy allows to reach.
 			break;
 		}
-		else if( line_schedule->entries[wrap_i].is_transfer_interval() ){
+		else if( line_schedule->at(wrap_i).is_transfer_interval() ){
 			if(interval == 1){
 				break;
 			}
@@ -4055,7 +4055,7 @@ void convoi_t::push_goods_waiting_time_if_needed() {
 	uint32 average_waiting_time = weighed_sum_waiting_time / total_goods_amount;
 	const linehandle_t line = get_line();
 	schedule_t* schedule_to_push = line.is_bound() ? line->get_schedule() : schedule;
-	schedule_to_push->entries[schedule->get_current_stop()].push_waiting_time(average_waiting_time);
+	schedule_to_push->at(schedule->get_current_stop()).push_waiting_time(average_waiting_time);
 
 	// update journey time window
 	gui_goods_waiting_time_t* window = dynamic_cast<gui_goods_waiting_time_t*>(win_get_magic((ptrdiff_t)line.get_rep()));
@@ -4076,7 +4076,7 @@ void convoi_t::push_convoy_stopping_time() {
 	schedule_t* line_schedule = line.is_bound() ? line->get_schedule() : schedule;
 	const sint16 current_index_on_line_schedule = line_schedule->get_corresponding_entry_index(schedule, schedule->get_current_stop());
 	if(  current_index_on_line_schedule>=0  ) {
-		line_schedule->entries[current_index_on_line_schedule].push_convoy_stopping_time(stopping_time);
+		line_schedule->at(current_index_on_line_schedule).push_convoy_stopping_time(stopping_time);
 	}
 }
 
@@ -4392,7 +4392,7 @@ void convoi_t::check_pending_updates()
 			// something to check for ...
 			current = schedule->get_current_entry().pos;
 
-			if(  current_stop<new_schedule->get_count() &&  current==new_schedule->entries[current_stop].pos  ) {
+			if(  current_stop<new_schedule->get_count() &&  current==new_schedule->at(current_stop).pos  ) {
 				// next pos is the same => keep the convoi state
 				is_same = true;
 			}
@@ -4413,30 +4413,30 @@ void convoi_t::check_pending_updates()
 				 * (To detect also places, where only the platform
 				 *  changed, we also compare the halthandle)
 				 */
-				const koord3d next = schedule->get_count()==0 ? koord3d::invalid : schedule->entries[(current_stop+1)%schedule->get_count()].pos;
-				const koord3d nextnext = schedule->get_count()==0 ? koord3d::invalid : schedule->entries[(current_stop+2)%schedule->get_count()].pos;
-				const koord3d nextnextnext = schedule->get_count()==0 ? koord3d::invalid : schedule->entries[(current_stop+3)%schedule->get_count()].pos;
+				const koord3d next = schedule->get_count()==0 ? koord3d::invalid : schedule->at((current_stop+1)%schedule->get_count()).pos;
+				const koord3d nextnext = schedule->get_count()==0 ? koord3d::invalid : schedule->at((current_stop+2)%schedule->get_count()).pos;
+				const koord3d nextnextnext = schedule->get_count()==0 ? koord3d::invalid : schedule->at((current_stop+3)%schedule->get_count()).pos;
 				int how_good_matching = 0;
 				const uint8 new_count = new_schedule->get_count();
 
 				for(  uint8 i=0;  i<new_count;  i++  ) {
 					int quality =
-						matches_halt(current,new_schedule->entries[i].pos)*3 +
-						matches_halt(next,new_schedule->entries[(i+1)%new_count].pos)*4 +
-						matches_halt(nextnext,new_schedule->entries[(i+2)%new_count].pos)*2 +
-						matches_halt(nextnextnext,new_schedule->entries[(i+3)%new_count].pos);
+						matches_halt(current,new_schedule->at(i).pos)*3 +
+						matches_halt(next,new_schedule->at((i+1)%new_count).pos)*4 +
+						matches_halt(nextnext,new_schedule->at((i+2)%new_count).pos)*2 +
+						matches_halt(nextnextnext,new_schedule->at((i+3)%new_count).pos);
 					if(  quality>how_good_matching  ) {
 						// better match than previous: but depending of distance, the next number will be different
-						if(  matches_halt(current,new_schedule->entries[i].pos)  ) {
+						if(  matches_halt(current,new_schedule->at(i).pos)  ) {
 							current_stop = i;
 						}
-						else if(  matches_halt(next,new_schedule->entries[(i+1)%new_count].pos)  ) {
+						else if(  matches_halt(next,new_schedule->at((i+1)%new_count).pos)  ) {
 							current_stop = i+1;
 						}
-						else if(  matches_halt(nextnext,new_schedule->entries[(i+2)%new_count].pos)  ) {
+						else if(  matches_halt(nextnext,new_schedule->at((i+2)%new_count).pos)  ) {
 							current_stop = i+2;
 						}
-						else if(  matches_halt(nextnextnext,new_schedule->entries[(i+3)%new_count].pos)  ) {
+						else if(  matches_halt(nextnextnext,new_schedule->at((i+3)%new_count).pos)  ) {
 							current_stop = i+3;
 						}
 						current_stop %= new_count;
@@ -4449,7 +4449,7 @@ void convoi_t::check_pending_updates()
 					current_stop = new_schedule->get_current_stop();
 				}
 				// if we go to same, then we do not need route recalculation ...
-				is_same = matches_halt(current,new_schedule->entries[current_stop].pos);
+				is_same = matches_halt(current,new_schedule->at(current_stop).pos);
 			}
 		}
 
@@ -4505,8 +4505,8 @@ void convoi_t::check_pending_updates()
 void convoi_t::register_stops()
 {
 	if(  schedule  ) {
-		FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->entries) {
-			halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, get_owner());
+		for(const schedule_entry_t* i = schedule->begin(); i != schedule->end(); ++i) {
+			halthandle_t const halt = haltestelle_t::get_stoppable_halt(i->pos, get_owner());
 			if(  halt.is_bound()  ) {
 				halt->add_convoy(self);
 			}
@@ -4521,8 +4521,8 @@ void convoi_t::register_stops()
 void convoi_t::unregister_stops()
 {
 	if(  schedule  ) {
-		FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->entries) {
-			halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, get_owner());
+		for(const schedule_entry_t* i = schedule->begin(); i != schedule->end(); ++i) {
+			halthandle_t const halt = haltestelle_t::get_stoppable_halt(i->pos, get_owner());
 			if(  halt.is_bound()  ) {
 				halt->remove_convoy(self);
 			}
@@ -5320,7 +5320,7 @@ bool convoi_t::can_start_coupling(convoi_t* parent) const {
 	sint16 t_idx = schedule->get_current_stop();
 	bool stop_found = false;
 	do {
-		if(  !is_waypoint(schedule->entries[t_idx].pos)  ) {
+		if(  !is_waypoint(schedule->at(t_idx).pos)  ) {
 			stop_found = true;
 			break;
 		}
@@ -5330,8 +5330,8 @@ bool convoi_t::can_start_coupling(convoi_t* parent) const {
 		// all schedule entries are waypoint.
 		return false;
 	}
-	const schedule_entry_t t_c = schedule->entries[t_idx];
-	const schedule_entry_t t_n = schedule->entries[(t_idx+1)%schedule->get_count()];
+	const schedule_entry_t t_c = schedule->at(t_idx);
+	const schedule_entry_t t_n = schedule->at((t_idx+1)%schedule->get_count());
 	const schedule_entry_t p_c = parent->get_schedule()->get_current_entry();
 	const schedule_entry_t p_n = parent->get_schedule()->get_next_entry();
 
@@ -5398,7 +5398,7 @@ void convoi_t::register_journey_time() {
 		const sint16 current_index_on_line_schedule = line_schedule->get_corresponding_entry_index(c->get_schedule(), c->get_schedule()->get_current_stop());
 		if(  current_index_on_line_schedule>=0  ) {
 			// register journey time
-			line_schedule->entries[current_index_on_line_schedule].push_journey_time(journey_time);
+			line_schedule->at(current_index_on_line_schedule).push_journey_time(journey_time);
 		}
 		if(  c->get_line().is_bound()  ) {
 			// update journey time window

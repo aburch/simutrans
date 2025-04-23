@@ -7092,10 +7092,11 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 					// check waytype
 					if(schedule  &&  schedule->is_stop_allowed(bd)) {
 						bool updated = false;
-						FOR(minivec_tpl<schedule_entry_t>, & k, schedule->entries) {
-							if ((catch_all_halt && haltestelle_t::get_stoppable_halt( k.pos, cnv->get_owner()) == last_halt) ||
-									old_platform.is_contained(k.pos)) {
-								k.pos   = pos;
+						for (schedule_entry_t *k = schedule->begin(); k != schedule->end(); k++) {
+							if ((catch_all_halt && haltestelle_t::get_stoppable_halt(k->pos, cnv->get_owner()) == last_halt) ||
+								old_platform.is_contained(k->pos))
+							{
+								k->pos = pos;
 								updated = true;
 							}
 						}
@@ -7127,11 +7128,11 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 				// check waytype
 				if(schedule->is_stop_allowed(bd)) {
 					bool updated = false;
-					FOR(minivec_tpl<schedule_entry_t>, & k, schedule->entries) {
+					for(schedule_entry_t* k = schedule->begin(); k != schedule->end(); k++) {
 						// ok!
-						if ((catch_all_halt && haltestelle_t::get_stoppable_halt( k.pos, line->get_owner()) == last_halt) ||
-								old_platform.is_contained(k.pos)) {
-							k.pos   = pos;
+						if ((catch_all_halt && haltestelle_t::get_stoppable_halt( k->pos, line->get_owner()) == last_halt) ||
+								old_platform.is_contained(k->pos)) {
+							k->pos   = pos;
 							updated = true;
 						}
 					}
