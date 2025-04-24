@@ -341,7 +341,7 @@ void simline_t::finish_rd()
 void simline_t::register_stops(schedule_t * schedule)
 {
 DBG_DEBUG("simline_t::register_stops()", "%d schedule entries in schedule %p", schedule->get_count(),schedule);
-	FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->entries) {
+	FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->get_entries()) {
 		halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, player);
 		if(halt.is_bound()) {
 //DBG_DEBUG("simline_t::register_stops()", "halt not null");
@@ -363,7 +363,7 @@ void simline_t::unregister_stops()
 
 void simline_t::unregister_stops(schedule_t * schedule)
 {
-	FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->entries) {
+	FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->get_entries()) {
 		halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, player);
 		if(halt.is_bound()) {
 			halt->remove_line(self);

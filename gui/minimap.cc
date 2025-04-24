@@ -231,7 +231,7 @@ void minimap_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints )
 	bool last_diagonal = false;
 	const bool add_schedule = schedule->get_waytype() != air_wt;
 
-	FOR(  minivec_tpl<schedule_entry_t>, cur, schedule->entries  ) {
+	FOR(  minivec_tpl<schedule_entry_t>, cur, schedule->get_entries()  ){
 
 		//cycle on stops
 		//try to read station's coordinates if there's a station at this schedule stop

@@ -131,7 +131,7 @@ schedule_gui_stats_t::~schedule_gui_stats_t()
 void schedule_gui_stats_t::highlight_schedule(bool marking)
 {
 	marking &= env_t::visualize_schedule;
-	FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->entries) {
+	FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->get_entries()) {
 		if (grund_t* const gr = welt->lookup(i.pos)) {
 			for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
 				obj_t *obj = gr->obj_bei(idx);
@@ -166,7 +166,7 @@ void schedule_gui_stats_t::highlight_schedule(bool marking)
 	}
 	// add if required
 	if(  marking  &&  schedule->get_current_stop() < schedule->get_count() ) {
-		current_stop_mark->set_pos( schedule->entries[schedule->get_current_stop()].pos );
+		current_stop_mark->set_pos( schedule->at(schedule->get_current_stop()).pos );
 		if(  grund_t *gr = welt->lookup(current_stop_mark->get_pos())  ) {
 			gr->obj_add( current_stop_mark );
 			current_stop_mark->set_flag( obj_t::dirty );
@@ -179,9 +179,9 @@ void schedule_gui_stats_t::highlight_schedule(bool marking)
 void schedule_gui_stats_t::update_schedule()
 {
 	// compare schedules
-	bool ok = (last_schedule != NULL)  &&  last_schedule->entries.get_count() == schedule->entries.get_count();
-	for(uint i=0; ok  &&  i<last_schedule->entries.get_count(); i++) {
-		ok = last_schedule->entries[i] == schedule->entries[i];
+	bool ok = (last_schedule != NULL)  &&  last_schedule->get_count() == schedule->get_count();
+	for(uint i=0; ok  &&  i<last_schedule->get_count(); i++) {
+		ok = last_schedule->at(i) == schedule->at(i);
 	}
 	if (ok) {
 		if (!last_schedule->empty()) {
@@ -199,8 +199,8 @@ void schedule_gui_stats_t::update_schedule()
 			new_component<gui_textarea_t>(&buf);
 		}
 		else {
-			for(uint i=0; i<schedule->entries.get_count(); i++) {
-				entries.append( new_component<gui_schedule_entry_t>(player, schedule->entries[i], i));
+			for(uint i=0; i<schedule->get_count(); i++) {
+				entries.append( new_component<gui_schedule_entry_t>(player, schedule->at(i), i));
 				entries.back()->add_listener( this );
 			}
 			entries[ schedule->get_current_stop() ]->set_active(true);
@@ -663,44 +663,44 @@ void schedule_gui_t::update_selection()
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
 		const uint8 current_stop = schedule->get_current_stop();
-		if(  haltestelle_t::get_stoppable_halt(schedule->entries[current_stop].pos, player).is_bound()  ) {
+		if(  haltestelle_t::get_stoppable_halt(schedule->at(current_stop).pos, player).is_bound()  ) {
 			
-			const uint8 c = schedule->entries[current_stop].get_coupling_point();
+			const uint8 c = schedule->at(current_stop).get_coupling_point();
 			bt_find_parent.enable();
 			bt_find_parent.pressed = c==2;
 			bt_wait_for_child.enable();
 			bt_wait_for_child.pressed = c==1;
 			bt_no_load.enable();
-			bt_no_load.pressed = schedule->entries[current_stop].is_no_load();
+			bt_no_load.pressed = schedule->at(current_stop).is_no_load();
 			bt_no_unload.enable();
-			bt_no_unload.pressed = schedule->entries[current_stop].is_no_unload();
+			bt_no_unload.pressed = schedule->at(current_stop).is_no_unload();
 			bt_unload_all.enable();
-			bt_unload_all.pressed = schedule->entries[current_stop].is_unload_all();
-			bt_load_before_departure.pressed = schedule->entries[current_stop].is_load_before_departure();
+			bt_unload_all.pressed = schedule->at(current_stop).is_unload_all();
+			bt_load_before_departure.pressed = schedule->at(current_stop).is_load_before_departure();
 			bt_transfer_interval.enable();
-			bt_transfer_interval.pressed = schedule->entries[current_stop].is_transfer_interval();
+			bt_transfer_interval.pressed = schedule->at(current_stop).is_transfer_interval();
 			bt_reverse_convoy.enable();
-			bt_reverse_convoy.pressed = schedule->entries[current_stop].is_reverse_convoy();
+			bt_reverse_convoy.pressed = schedule->at(current_stop).is_reverse_convoy();
 			bt_reverse_coupling.enable();
-			bt_reverse_coupling.pressed = schedule->entries[current_stop].is_reverse_convoi_coupling();
+			bt_reverse_coupling.pressed = schedule->at(current_stop).is_reverse_convoi_coupling();
 
 			
 			// wait_for_time releated things
-			const bool wft = schedule->entries[current_stop].get_wait_for_time();
+			const bool wft = schedule->at(current_stop).get_wait_for_time();
 			bt_wait_for_time.enable();
 			bt_wait_for_time.pressed = wft;
 			if(  wft  ) {
 				// enable departure time settings only
-				//schedule->entries[current_stop].spacing cannot be zero.
+				//schedule->at(current_stop).spacing cannot be zero.
 				const uint16 divisor = world()->get_settings().get_spacing_shift_divisor();
 				const uint16 month_ratio_second = 86400/divisor;
-				uint32 second = (86400/schedule->entries[current_stop].spacing)/month_ratio_second*month_ratio_second;
+				uint32 second = (86400/schedule->at(current_stop).spacing)/month_ratio_second*month_ratio_second;
 				uint8 hour = second/3600;
 				uint8 minute = (second - hour * 3600)/60;
 				second = second % 60;
-				sprintf(lb_spacing_str, "%d (%02d:%02d:%02d)", divisor/schedule->entries[current_stop].spacing,hour,minute,second);
+				sprintf(lb_spacing_str, "%d (%02d:%02d:%02d)", divisor/schedule->at(current_stop).spacing,hour,minute,second);
 
-				uint32 second_shift = schedule->entries[current_stop].spacing_shift * month_ratio_second;
+				uint32 second_shift = schedule->at(current_stop).spacing_shift * month_ratio_second;
 				uint8 hour_shift = second_shift/3600;
 				uint8 minute_shift = (second_shift - hour_shift * 3600)/60;
 				second_shift = second_shift % 60;
@@ -714,14 +714,14 @@ void schedule_gui_t::update_selection()
 				// disable departure time settings and enable minimum loading
 				lb_load.set_color( SYSCOL_TEXT );
 				numimp_load.enable();
-				if(  schedule->entries[current_stop].minimum_loading>0  ||  schedule->entries[current_stop].get_coupling_point()!=0  ) {
+				if(  schedule->at(current_stop).minimum_loading>0  ||  schedule->at(current_stop).get_coupling_point()!=0  ) {
 					bt_wait_load.enable();
-					uint16 wait = schedule->entries[current_stop].waiting_time_shift;
+					uint16 wait = schedule->at(current_stop).waiting_time_shift;
 					bt_wait_load.pressed = wait>0;
 					if(  wait>0  ) {
 						lb_wait.set_color( SYSCOL_TEXT );
 						numimp_wait_load.enable();
-						if(  schedule->entries[current_stop].minimum_loading  ==  200  ){
+						if(  schedule->at(current_stop).minimum_loading  ==  200  ){
 							bt_load_before_departure.enable();
 						}
 					}
@@ -730,11 +730,11 @@ void schedule_gui_t::update_selection()
 				sprintf(lb_spacing_shift_str,"");
 			}
 			
-			numimp_load.set_value( schedule->entries[current_stop].minimum_loading );
-			numimp_wait_load.set_value( max(1, schedule->entries[current_stop].waiting_time_shift) );
-			numimp_spacing.set_value( schedule->entries[current_stop].spacing );
-			numimp_spacing_shift.set_value( schedule->entries[current_stop].spacing_shift );
-			numimp_delay_tolerance.set_value( schedule->entries[current_stop].delay_tolerance );
+			numimp_load.set_value( schedule->at(current_stop).minimum_loading );
+			numimp_wait_load.set_value( max(1, schedule->at(current_stop).waiting_time_shift) );
+			numimp_spacing.set_value( schedule->at(current_stop).spacing );
+			numimp_spacing_shift.set_value( schedule->at(current_stop).spacing_shift );
+			numimp_delay_tolerance.set_value( schedule->at(current_stop).delay_tolerance );
 		}
 	}
 }
@@ -836,60 +836,60 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 	else if(comp == &bt_find_parent) {
 		if(!schedule->empty()) {
 			if(  bt_find_parent.pressed  ) {
-				schedule->entries[schedule->get_current_stop()].reset_coupling();
+				schedule->at(schedule->get_current_stop()).reset_coupling();
 			} else {
-				schedule->entries[schedule->get_current_stop()].set_try_coupling();
+				schedule->at(schedule->get_current_stop()).set_try_coupling();
 			}
 			bt_wait_for_child.pressed = false;
-			schedule->entries[schedule->get_current_stop()].set_reverse_convoi_coupling(false);
+			schedule->at(schedule->get_current_stop()).set_reverse_convoi_coupling(false);
 			update_selection();
 		}
 	}
 	else if(comp == &bt_wait_for_child) {
 		if(!schedule->empty()) {
 			if(  bt_wait_for_child.pressed  ) {
-				schedule->entries[schedule->get_current_stop()].reset_coupling();
+				schedule->at(schedule->get_current_stop()).reset_coupling();
 			} else {
-				schedule->entries[schedule->get_current_stop()].set_wait_for_coupling();
+				schedule->at(schedule->get_current_stop()).set_wait_for_coupling();
 			}
 			bt_find_parent.pressed = false;
-			schedule->entries[schedule->get_current_stop()].set_reverse_convoi_coupling(false);
+			schedule->at(schedule->get_current_stop()).set_reverse_convoi_coupling(false);
 			update_selection();
 		}
 	}
 	else if(comp == &bt_reverse_convoy) {
 		if(!schedule->empty()) {
-			schedule->entries[schedule->get_current_stop()].set_reverse_convoy(!bt_reverse_convoy.pressed);
+			schedule->at(schedule->get_current_stop()).set_reverse_convoy(!bt_reverse_convoy.pressed);
 			update_selection();
 		}
 	}
 	else if(comp == &bt_reverse_coupling) {
 		if(!schedule->empty()) {
-			schedule->entries[schedule->get_current_stop()].set_reverse_convoi_coupling(!bt_reverse_coupling.pressed);
+			schedule->at(schedule->get_current_stop()).set_reverse_convoi_coupling(!bt_reverse_coupling.pressed);
 			if(  bt_wait_for_child.pressed  ) {
-				schedule->entries[schedule->get_current_stop()].reset_coupling();
+				schedule->at(schedule->get_current_stop()).reset_coupling();
 			} 
 			if(  bt_find_parent.pressed  ) {
-				schedule->entries[schedule->get_current_stop()].reset_coupling();
+				schedule->at(schedule->get_current_stop()).reset_coupling();
 			} 
 			update_selection();
 		}
 	}
 	else if(comp == &numimp_load) {
 		if (!schedule->empty()) {
-			schedule->entries[schedule->get_current_stop()].minimum_loading = (uint8)p.i;
+			schedule->at(schedule->get_current_stop()).minimum_loading = (uint8)p.i;
 			update_selection();
 		}
 	}
 	else if(comp == &bt_wait_load) {
 		if (!schedule->empty()) {
-			schedule->entries[schedule->get_current_stop()].waiting_time_shift = !bt_wait_load.pressed;
+			schedule->at(schedule->get_current_stop()).waiting_time_shift = !bt_wait_load.pressed;
 			update_selection();
 		}
 	}
 	else if(comp == &numimp_wait_load) {
 		if(!schedule->empty()) {
-			schedule->entries[schedule->get_current_stop()].waiting_time_shift = (uint16)p.i;
+			schedule->at(schedule->get_current_stop()).waiting_time_shift = (uint16)p.i;
 			update_selection();
 		}
 	}
@@ -943,19 +943,19 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 	}
 	else if(comp == &bt_no_load) {
 		if (!schedule->empty()) {
-			schedule->entries[schedule->get_current_stop()].set_no_load(!bt_no_load.pressed);
+			schedule->at(schedule->get_current_stop()).set_no_load(!bt_no_load.pressed);
 			update_selection();
 		}
 	}
 	else if(comp == &bt_no_unload) {
 		if (!schedule->empty()) {
-			schedule->entries[schedule->get_current_stop()].set_no_unload(!bt_no_unload.pressed);
+			schedule->at(schedule->get_current_stop()).set_no_unload(!bt_no_unload.pressed);
 			update_selection();
 		}
 	}
 	else if(comp == &bt_unload_all) {
 		if (!schedule->empty()) {
-			schedule->entries[schedule->get_current_stop()].set_unload_all(!bt_unload_all.pressed);
+			schedule->at(schedule->get_current_stop()).set_unload_all(!bt_unload_all.pressed);
 			update_selection();
 		}
 	}
@@ -965,7 +965,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 	}
 	else if(comp == &bt_wait_for_time) {
 		if (!schedule->empty()) {
-			schedule->entries[schedule->get_current_stop()].set_wait_for_time(!bt_wait_for_time.pressed);
+			schedule->at(schedule->get_current_stop()).set_wait_for_time(!bt_wait_for_time.pressed);
 			update_selection();
 		}
 	}
@@ -974,7 +974,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 			if(  schedule->is_same_dep_time()  ) {
 				schedule->set_spacing_for_all((uint16)p.i);
 			} else {
-				schedule->entries[schedule->get_current_stop()].spacing = (uint16)p.i;
+				schedule->at(schedule->get_current_stop()).spacing = (uint16)p.i;
 			}
 			update_selection();
 		}
@@ -984,7 +984,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 			if(  schedule->is_same_dep_time()  ) {
 				schedule->set_spacing_shift_for_all((uint16)p.i);
 			} else {
-				schedule->entries[schedule->get_current_stop()].spacing_shift = (uint16)p.i;
+				schedule->at(schedule->get_current_stop()).spacing_shift = (uint16)p.i;
 			}
 			update_selection();
 		}
@@ -994,14 +994,14 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 			if(  schedule->is_same_dep_time()  ) {
 				schedule->set_delay_tolerance_for_all((uint16)p.i);
 			} else {
-				schedule->entries[schedule->get_current_stop()].delay_tolerance = (uint16)p.i;
+				schedule->at(schedule->get_current_stop()).delay_tolerance = (uint16)p.i;
 			}
 			update_selection();
 		}
 	}
 	else if(comp == &bt_load_before_departure) {
 		if (!schedule->empty()) {
-			schedule->entries[schedule->get_current_stop()].set_load_before_departure(bt_load_before_departure.pressed);
+			schedule->at(schedule->get_current_stop()).set_load_before_departure(bt_load_before_departure.pressed);
 			update_selection();
 		}
 	}
@@ -1021,7 +1021,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 	}
 	else if(comp == &bt_transfer_interval) {
 		if (!schedule->empty()) {
-			schedule->entries[schedule->get_current_stop()].set_transfer_interval(!bt_transfer_interval.pressed);
+			schedule->at(schedule->get_current_stop()).set_transfer_interval(!bt_transfer_interval.pressed);
 			update_selection();
 		}
 	}
