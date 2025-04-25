@@ -25,9 +25,9 @@ void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& jou
   uint32 journey_time_sum = 0;
   set_table_layout(NUM_ARRIVAL_TIME_STORED+2,0);
   uint8 depot_entry_count = 0;
-  for(uint8 idx=0; idx<schedule->entries.get_count(); idx++) {
-    const schedule_entry_t& e = schedule->entries[idx];
-    const uint8 prev_idx = idx > 0 ? idx - 1 : schedule->entries.get_count() - 1;
+  for(uint8 idx=0; idx<schedule->get_count(); idx++) {
+    const schedule_entry_t& e = schedule->at(idx);
+    const uint8 prev_idx = idx > 0 ? idx - 1 : schedule->get_count() - 1;
 
     // journey time between the previous halt
     gui_label_buf_t *lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::left); // empty
@@ -101,7 +101,7 @@ void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& jou
 
 void copy_stations_to_clipboard(schedule_t* schedule, player_t* player, bool name_only) {
   cbuffer_t clipboard;
-  FOR(minivec_tpl<schedule_entry_t>, const& e, schedule->entries) {
+  FOR(minivec_tpl<schedule_entry_t>, const& e, schedule->get_entries()) {
     halthandle_t const halt = haltestelle_t::get_stoppable_halt(e.pos, player);
     if(  !halt.is_bound()  ) {
       // do not export waypoint
@@ -127,8 +127,8 @@ void copy_csv_format(schedule_t* schedule, player_t* player, vector_tpl<uint32*>
   // copy in csv format. separator is \t.
   cbuffer_t clipboard;
   clipboard.append("Station Name\tAverage\t1st\t2nd\t3rd\t4th\t5th\n");
-  for(uint8 i=0; i<schedule->entries.get_count(); i++) {
-    halthandle_t const halt = haltestelle_t::get_stoppable_halt(schedule->entries[i].pos, player);
+  for(uint8 i=0; i<schedule->get_count(); i++) {
+    halthandle_t const halt = haltestelle_t::get_stoppable_halt(schedule->at(i).pos, player);
     if(  halt.is_bound()  ) {
       clipboard.append(halt->get_name());
     } else {
@@ -235,21 +235,21 @@ gui_journey_time_info_t::~gui_journey_time_info_t() {
 
 void gui_journey_time_info_t::update() {
   // append journey_times entries if required.
-  for(uint8 i=journey_times.get_count(); i<schedule->entries.get_count(); i++) {
+  for(uint8 i=journey_times.get_count(); i<schedule->get_count(); i++) {
     journey_times.append(new uint32[NUM_ARRIVAL_TIME_STORED+1]);
   }
-  for(uint8 i=stopping_times.get_count(); i<schedule->entries.get_count(); i++) {
+  for(uint8 i=stopping_times.get_count(); i<schedule->get_count(); i++) {
     stopping_times.append(new uint32[NUM_STOPPING_TIME_STORED+1]);
   }
   
   // calculate journey time and average time
   journey_time_sum = 0;
-  for(uint8 i=0; i<schedule->entries.get_count(); i++) {
+  for(uint8 i=0; i<schedule->get_count(); i++) {
     uint32 sum = 0;
     uint8 cnt = 0;
-    const uint8 kc = (schedule->entries[i].jt_at_index + NUM_ARRIVAL_TIME_STORED - 1) % NUM_ARRIVAL_TIME_STORED;
+    const uint8 kc = (schedule->at(i).jt_at_index + NUM_ARRIVAL_TIME_STORED - 1) % NUM_ARRIVAL_TIME_STORED;
     for(uint8 k=0; k<NUM_ARRIVAL_TIME_STORED; k++) {
-      uint32* ca = schedule->entries[i].journey_time;
+      uint32* ca = schedule->at(i).journey_time;
       uint8 ica = (kc + NUM_ARRIVAL_TIME_STORED - k) % NUM_ARRIVAL_TIME_STORED;
       if(  ca[ica]>0  ) {
         journey_times[i][k+1] = world()->tick_to_divided_time(ca[ica]);
@@ -269,12 +269,12 @@ void gui_journey_time_info_t::update() {
   }
 
   // calculate stopping time
-  for(uint8 i=0; i<schedule->entries.get_count(); i++) {
+  for(uint8 i=0; i<schedule->get_count(); i++) {
     uint32 sum = 0;
     uint8 cnt = 0;
-    const uint8 kc = (schedule->entries[i].cs_at_index + NUM_STOPPING_TIME_STORED - 1) % NUM_STOPPING_TIME_STORED;
+    const uint8 kc = (schedule->at(i).cs_at_index + NUM_STOPPING_TIME_STORED - 1) % NUM_STOPPING_TIME_STORED;
     for(uint8 k=0; k<NUM_STOPPING_TIME_STORED; k++) {
-      uint32* ca = schedule->entries[i].convoy_stopping_time;
+      uint32* ca = schedule->at(i).convoy_stopping_time;
       uint8 ica = (kc + NUM_STOPPING_TIME_STORED - k) % NUM_STOPPING_TIME_STORED;
       if(  ca[ica]>0  ) {
         stopping_times[i][k+1] = world()->tick_to_divided_time(ca[ica]);
@@ -288,9 +288,9 @@ void gui_journey_time_info_t::update() {
   }
   
   // disable copy buttons if schedule is empty
-  bt_copy_names.enable(!schedule->entries.empty());
-  bt_copy_stations.enable(!schedule->entries.empty());
-  bt_copy_csv.enable(!schedule->entries.empty());
+  bt_copy_names.enable(!schedule->empty());
+  bt_copy_stations.enable(!schedule->empty());
+  bt_copy_csv.enable(!schedule->empty());
   
   // update stat
   bool empty_slot_exists = false;

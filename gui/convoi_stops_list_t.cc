@@ -140,8 +140,8 @@ void convoi_stops_list_t::update_schedule()
 		new_component<gui_textarea_t>(&buf);
 	}
 	else {
-		for(uint i=0; i<gui_schedule->entries.get_count(); i++) {
-			entries.append( new_component<convoi_stops_list_item_t>(player, gui_schedule->entries[i], i));
+		for(uint i=0; i<gui_schedule->get_count(); i++) {
+			entries.append( new_component<convoi_stops_list_item_t>(player, gui_schedule->at(i), i));
 			entries.back()->add_listener( this );
 		}
 		entries[ gui_schedule->get_current_stop() ]->set_active(true);

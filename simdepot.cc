@@ -184,8 +184,8 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool schedule_adjust)
 		schedule_t *schedule = acnv->get_schedule();
 		for(  int i=0;  i<schedule->get_count();  i++  ) {
 			// only if convoi found
-			if(schedule->entries[i].pos==get_pos()) {
-				const bool is_last = i==schedule->entries.get_count()-1;
+			if(schedule->at(i).pos==get_pos()) {
+				const bool is_last = i==schedule->get_count()-1;
 				schedule->set_current_stop( i );
 				schedule->remove();
 				if(  is_last  ) {

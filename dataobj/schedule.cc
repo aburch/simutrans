@@ -389,7 +389,7 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *schedule)
 	// we need to do this that complicated, because the last stop may make the difference
 	uint16 f1=0, f2=0;
 	while(  f1+f2<entries.get_count()+schedule->entries.get_count()  ) {
-		if(f1<entries.get_count()  &&  f2<schedule->entries.get_count()  &&  schedule->entries[(uint8)f2].pos == entries[(uint8)f1].pos
+		if(f1<entries.get_count()  &&  f2<schedule->entries.get_count()  &&  schedule->at((uint8)f2).pos == entries[(uint8)f1].pos
 		&&  schedule->entries[(uint8)f2].minimum_loading == entries[(uint8)f1].minimum_loading
 		&&  schedule->entries[(uint8)f2].waiting_time_shift == entries[(uint8)f1].waiting_time_shift
 	    &&  schedule->entries[(uint8)f2].get_stop_flags() == entries[(uint8)f1].get_stop_flags()

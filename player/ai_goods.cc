@@ -1145,7 +1145,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					if(!lines.empty()) {
 						linehandle_t line = lines.back();
 						schedule_t *schedule=line->get_schedule();
-						if(schedule->get_count()>1  &&  haltestelle_t::get_halt(schedule->entries[0].pos,this)==start_halt) {
+						if(schedule->get_count()>1  &&  haltestelle_t::get_halt(schedule->at(0).pos,this)==start_halt) {
 							while(line->count_convoys()>0) {
 								convoihandle_t cnv = line->get_convoy(0);
 								cnv->self_destruct();
@@ -1245,8 +1245,8 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					koord3d start_pos, end_pos;
 					schedule_t *schedule = cnv->get_schedule();
 					if(schedule  &&  schedule->get_count()>1) {
-						start_pos = schedule->entries[0].pos;
-						end_pos = schedule->entries[1].pos;
+						start_pos = schedule->at(0).pos;
+						end_pos = schedule->at(1).pos;
 					}
 
 					cnv->self_destruct();
@@ -1265,8 +1265,8 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 							simlinemgmt.get_lines( simline_t::shipline, &lines );
 							FOR(vector_tpl<linehandle_t>, const line, lines) {
 								schedule_t *schedule=line->get_schedule();
-								if(schedule->get_count()>1  &&  haltestelle_t::get_halt(schedule->entries[0].pos,this)==start_halt) {
-									water_stop = koord( (start_pos.x+schedule->entries[0].pos.x)/2, (start_pos.y+schedule->entries[0].pos.y)/2 );
+								if(schedule->get_count()>1  &&  haltestelle_t::get_halt(schedule->at(0).pos,this)==start_halt) {
+									water_stop = koord( (start_pos.x+schedule->at(0).pos.x)/2, (start_pos.y+schedule->at(0).pos.y)/2 );
 									while(line->count_convoys()>0) {
 										convoihandle_t cnv = line->get_convoy(0);
 										cnv->self_destruct();

@@ -1227,7 +1227,7 @@ void haltestelle_t::remove_fabriken(fabrik_t *fab)
 // Returns the estimated waiting time for the given schedule, for the given index halt.
 // The base waiting ticks is added as a waiting time.
 uint32 estimated_waiting_ticks(const schedule_t* schedule, uint8 index) {
-	const schedule_entry_t schedule_entry = schedule->entries[index];
+	const schedule_entry_t schedule_entry = schedule->at(index);
 	const uint32 average_waiting_time = schedule_entry.get_average_waiting_time();
 	const uint32 base_waiting_ticks = world()->get_settings().get_base_waiting_ticks(schedule->get_waytype());
 	const uint32 additional_ticks_by_schedule = (uint64)schedule->get_additional_base_waiting_time() * world()->ticks_per_world_month / world()->get_settings().get_spacing_shift_divisor();
@@ -1342,7 +1342,7 @@ sint32 haltestelle_t::rebuild_connections()
 
 		// find the index from which to start processing
 		uint8 start_index = 0;
-		while(  start_index < schedule->get_count()  &&  get_stoppable_halt( schedule->entries[start_index].pos, owner ) != self  ) {
+		while(  start_index < schedule->get_count()  &&  get_stoppable_halt( schedule->at(start_index).pos, owner ) != self  ) {
 			++start_index;
 		}
 		if(  start_index==schedule->get_count()  ) {
@@ -1370,7 +1370,7 @@ sint32 haltestelle_t::rebuild_connections()
 		INT_CHECK("simhalt.cc 612");
 
 		// now we add the schedule to the connection array
-		const schedule_entry_t start_entry = schedule->entries[start_index-1];
+		const schedule_entry_t start_entry = schedule->at(start_index-1);
 
 		// We calculate the connection weight by both route cost and journey time,
 		// because it depends on the routing configuration for the goods category.
@@ -1386,7 +1386,7 @@ sint32 haltestelle_t::rebuild_connections()
 		uint8 interval = 0;
 		for(  uint8 j=0;  j<schedule->get_count();  ++j  ) {
 			const uint8 current_entry_index = (start_index+j)%schedule->get_count();
-			const schedule_entry_t current_entry = schedule->entries[current_entry_index];
+			const schedule_entry_t current_entry = schedule->at(current_entry_index);
 			halthandle_t current_halt = get_stoppable_halt(current_entry.pos, owner );
 			if(  !current_halt.is_bound()  ) {
 				// ignore way points.
@@ -3773,7 +3773,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 			FOR(  vector_tpl<linehandle_t>, const j, check_line  ) {
 				// only add unknown lines
 				if(  !registered_lines.is_contained(j)  &&  j->count_convoys() > 0  ) {
-					FOR(  minivec_tpl<schedule_entry_t>, const& k, j->get_schedule()->entries  ) {
+					FOR(  minivec_tpl<schedule_entry_t>, const& k, j->get_schedule()->get_entries()  ) {
 						if(  get_stoppable_halt(k.pos, player) == self  ) {
 							registered_lines.append(j);
 							break;
@@ -3788,7 +3788,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 		// only check lineless convoys which have matching ownership and which are not yet registered
 		if(  !cnv->get_line().is_bound()  &&  (public_halt  ||  cnv->get_owner()==get_owner())  &&  !registered_convoys.is_contained(cnv)  ) {
 			if(  const schedule_t *const schedule = cnv->get_schedule()  ) {
-				FOR(minivec_tpl<schedule_entry_t>, const& k, schedule->entries) {
+				FOR(  minivec_tpl<schedule_entry_t>, const& k, schedule->get_entries()  ) {
 					if (get_stoppable_halt(k.pos, cnv->get_owner()) == self) {
 						registered_convoys.append(cnv);
 						break;
@@ -3897,7 +3897,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	// remove lines eventually
 	for(  size_t j = registered_lines.get_count();  j-- != 0;  ) {
 		bool ok = false;
-		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_lines[j]->get_schedule()->entries  ) {
+		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_lines[j]->get_schedule()->get_entries()  ) {
 			if(  get_stoppable_halt(k.pos, registered_lines[j]->get_owner()) == self  ) {
 				ok = true;
 				break;
@@ -3913,7 +3913,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	// remove registered lineless convoys as well
 	for(  size_t j = registered_convoys.get_count();  j-- != 0;  ) {
 		bool ok = false;
-		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_convoys[j]->get_schedule()->entries  ) {
+		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_convoys[j]->get_schedule()->get_entries()  ) {
 			if(  get_stoppable_halt(k.pos, registered_convoys[j]->get_owner()) == self  ) {
 				ok = true;
 				break;
@@ -4242,8 +4242,8 @@ bool haltestelle_t::is_departure_booked(uint32 dep_tick, uint8 stop_index, lineh
 // Returns if the schedule entry whose journey time is not registered exists.
 bool unregistered_journey_time_exists(const schedule_t* schedule, player_t* player) {
 	for(uint8 i=1; i<schedule->get_count()+1; i++) {
-		const schedule_entry_t& this_entry = schedule->entries[i%schedule->get_count()];
-		const schedule_entry_t& prev_entry = schedule->entries[i-1];
+		const schedule_entry_t& this_entry = schedule->at(i%schedule->get_count());
+		const schedule_entry_t& prev_entry = schedule->at(i-1);
 		if(  
 			this_entry.get_median_journey_time()>0  || // valid record exists
 			this_entry.pos==prev_entry.pos  ||
