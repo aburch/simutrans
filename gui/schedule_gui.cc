@@ -957,7 +957,7 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 		if(  line >= 0 && line < schedule->get_count()  ) {
 			schedule->set_current_stop( line );
 			if(  mode == removing  ) {
-				if(  schedule->get_next_line_id() ==0 || line < schedule->get_count()-1  ) {
+				if(  !schedule->get_next_line().is_bound() || line < schedule->get_count()-1  ) {
 					stats->highlight_schedule( false );
 					schedule->remove();
 				}
@@ -1170,9 +1170,9 @@ void schedule_gui_t::init_next_line_selector()
 	player->simlinemgmt.get_lines(schedule->get_type(), &lines);
 
 	// keep assignment with identical schedules
-	if(  schedule->get_next_line_id()  ) {
+	if(  schedule->get_next_line().is_bound()  ) {
 		if(  schedule->is_next_line()  ) {
-			temp_next_line.set_id(schedule->get_next_line_id());
+			temp_next_line=schedule->get_next_line();
 		}
 		else {
 			schedule->set_next_line(linehandle_t());

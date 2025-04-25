@@ -35,8 +35,7 @@ class schedule_t
 	uint16 max_speed;
 
 	// end the schedule, jump to other line schedule
-	uint16 next_line_id;
-	void set_next_line_id(uint16 v) {next_line_id = v;}
+	linehandle_t next_line;
 
 	// the id of the departure slot group.
 	// defined in sint64 since uint64 value cannot be handled with rdwr_longlong
@@ -64,7 +63,7 @@ class schedule_t
 	}
 
 protected:
-	schedule_t() : editing_finished(false), current_stop(0), flags(0), max_speed(0), departure_slot_group_id(0), additional_base_waiting_time(0), next_line_id(0) {}
+	schedule_t() : editing_finished(false), current_stop(0), flags(0), max_speed(0), departure_slot_group_id(0), additional_base_waiting_time(0) {}
 
 public:
 	enum schedule_type {
@@ -141,7 +140,7 @@ public:
 	// next_line setting
 	void set_next_line( linehandle_t l );
 	void unset_next_line();
-	uint16 get_next_line_id() {return next_line_id;}
+	linehandle_t get_next_line() const {return next_line;}
 	// next_line condition is ok?
 	bool is_next_line();
 

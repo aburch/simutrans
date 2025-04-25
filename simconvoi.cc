@@ -5457,8 +5457,7 @@ void convoi_t::try_to_jump_to_other_line()
 	if( !get_schedule()->is_next_line() ) {
 		return;
 	}
-	linehandle_t l = linehandle_t();
-	l.set_id(get_schedule()->get_next_line_id());
+	linehandle_t l = get_schedule()->get_next_line();
 	// the next_line is bound(), however, the owner is different.
 	if(  l->get_owner() != get_owner() ) {
 		return;
@@ -5588,11 +5587,9 @@ void convoi_t::next_stop_button_pressed() {
 			} else {
 				unset_line();
 			}
-			linehandle_t temp_next_line;
-			temp_next_line.set_id(schedule->get_next_line_id());
 			schedule->advance();
 			dbg->message("convoi_t::next_stop_button_pressed()","the next stop is %i",schedule->get_current_entry());
-			set_line(temp_next_line);
+			set_line(get_schedule()->get_next_line());
 			dbg->message("convoi_t::next_stop_button_pressed()","the next stop is %i",schedule->get_current_entry());
 		}
 		// c->set_schedule() is change convoy status to "EDIT_SCHEDULE".
