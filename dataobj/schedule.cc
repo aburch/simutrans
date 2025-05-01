@@ -711,17 +711,18 @@ schedule_entry_t const& schedule_t::get_next_entry() {
 		schedule_t* next_entry_schedule = copy();
 		uint8 temp_next_entry;
 		advanced_entry(1,temp_next_entry,next_entry_schedule);
-		return next_entry_schedule->entries[temp_next_entry];
+		schedule_entry_t temp_entry = next_entry_schedule->entries[temp_next_entry];
+		return temp_entry;
 	}
 }
 
 void schedule_t::advance()
 {
 	if(  !entries.empty()  ) {
-		schedule_t* temp_schedule = copy();
+		// schedule_t* temp_schedule = copy();
 		uint8 temp_current_stop;
-		advanced_entry(uint8(1),temp_current_stop,temp_schedule);
-		copy_from(temp_schedule);
+		advanced_entry(uint8(1),temp_current_stop,this);
+		// copy_from(temp_schedule);
 		current_stop = temp_current_stop;
 		dbg->message("schedule_t::advance()","the next stop is %i, the next_line is %i",current_stop,next_line.get_id());
 	}
@@ -735,12 +736,12 @@ void schedule_t::set_spacing_for_all(uint16 v) {
 
 void schedule_t::advanced_entry(const uint8 advance_stop_number, uint8& result_entry_number, schedule_t* _schedule) {
 	if( current_stop + advance_stop_number < entries.get_count() ) {
-		_schedule = copy();
+		_schedule = this;
 		result_entry_number = current_stop + advance_stop_number;
 		return;
 	}
 	else if( !is_next_line() ) {
-		_schedule = copy();
+		_schedule = this;
 		result_entry_number = (current_stop + advance_stop_number)%entries.get_count();
 		return;
 	} else {
