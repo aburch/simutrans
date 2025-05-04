@@ -1,5 +1,6 @@
-	ADD: new freight sorting order "via stop owner" groups goods by owner of their next transfer stop
 	FIX: stations on bridge heads drawn too low
+	ADD: new freight sorting order "via owner": groups goods by owner of their next transfer stop and sort by amount (also change order a little and fixed several inconsitencies: Now all windows show same ordering)
+	CHG: Help texts will be first searched in pak directory
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):

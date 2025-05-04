@@ -182,9 +182,13 @@ static char *load_text(char const* const filename )
 {
 	std::string file_prefix= std::string("text") + PATH_SEPARATOR;
 	std::string fullname = file_prefix + translator::get_lang()->iso + PATH_SEPARATOR + filename;
-	dr_chdir(env_t::base_dir);
 
+	dr_chdir(env_t::pak_dir.c_str());
 	FILE* file = dr_fopen(fullname.c_str(), "rb");
+	if (!file) {
+		dr_chdir(env_t::base_dir);
+		file = dr_fopen(fullname.c_str(), "rb");
+	}
 	if (!file) {
 		//Check for the 'base' language(ie en from en_gb)
 		file = dr_fopen((file_prefix + translator::get_lang()->iso_base + PATH_SEPARATOR + filename).c_str(), "rb");
