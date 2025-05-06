@@ -1,6 +1,7 @@
 	FIX: stations on bridge heads drawn too low
 	ADD: new freight sorting order "via owner": groups goods by owner of their next transfer stop and sort by amount (also change order a little and fixed several inconsitencies: Now all windows show same ordering)
 	CHG: Help texts will be first searched in pak directory
+	FIX: could built powerlines under bridges by just building a zero length power bridge starting under a bridge
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):

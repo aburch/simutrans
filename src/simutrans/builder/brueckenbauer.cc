@@ -424,6 +424,10 @@ const char *bridge_builder_t::can_span_bridge(const player_t* player, koord3d st
 	sint16 length = koord_distance(end_pos,start_pos);
 	const sint8 clearance = welt->get_settings().get_way_height_clearance();
 
+	if (length == 1  &&  end_pos.z == start_pos.z  &&  height == 0) {
+		return "";	// just two tiles next to each other on flat ground => no bridge needed!
+	}
+
 	// test max length
 	if (desc->get_max_length() > 0  &&  length-1 > desc->get_max_length()) {
 		return "Bridge is too long for this type!\n";
