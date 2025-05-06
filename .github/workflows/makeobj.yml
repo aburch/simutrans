@@ -43,7 +43,7 @@ jobs:
 
   makeobj_linux-x64-nightly:
     name: makeobj Linux x64
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout
