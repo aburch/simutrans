@@ -436,6 +436,13 @@ const char *bridge_builder_t::can_span_bridge(const player_t* player, koord3d st
 	if (start_pos.z < height) {
 		// ramp on start tile needs clearance; also we are on ground then
 		planquadrat_t* pl = welt->access(start_pos.x,start_pos.y);
+		if (weg_t* w = pl->get_boden_in_hoehe(start_pos.z)->get_weg(desc->get_waytype())) {
+			ribi_t::ribi r = w->get_ribi_unmasked();
+			if (!ribi_t::is_single(r)  ||  ribi_t::is_bend(r|ribi_type(start_pos-end_pos))  ) {
+				// not a single way here => cannot start
+				return "A bridge must start on a way!";
+			}
+		}
 		for (sint8 z = start_pos.z + 1; z < height + clearance; z++) {
 			if (pl->get_boden_in_hoehe(z)) {
 				// something is the way
@@ -446,6 +453,13 @@ const char *bridge_builder_t::can_span_bridge(const player_t* player, koord3d st
 	if (end_pos.z < height) {
 		// ramp on end tile needs clearance; also we are on ground then
 		planquadrat_t* pl = welt->access(end_pos.x, end_pos.y);
+		if (weg_t* w = pl->get_boden_in_hoehe(end_pos.z)->get_weg(desc->get_waytype())) {
+			ribi_t::ribi r = w->get_ribi_unmasked();
+			if (!ribi_t::is_single(r) || ribi_t::is_bend(r | ribi_type(start_pos - end_pos))) {
+				// not a single way here => cannot end here
+				return "A bridge must start on a way!";
+			}
+		}
 		for (sint8 z = end_pos.z + 1; z < height + clearance; z++) {
 			if (pl->get_boden_in_hoehe(z)) {
 				// something is the way

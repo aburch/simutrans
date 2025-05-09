@@ -5,7 +5,7 @@ on: [push]
 jobs:
   makeobj_windows-nightly:
     name: makeobj Windows
-    runs-on: windows-2022
+    runs-on: windows-latest
 
     steps:
       - name: Setup Mingw
@@ -43,7 +43,7 @@ jobs:
 
   makeobj_linux-x64-nightly:
     name: makeobj Linux x64
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
