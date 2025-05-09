@@ -1128,6 +1128,7 @@ grund_t* vehicle_t::hop_check()
 	else {
 		// this is needed since in convoi_t::vorfahren the flag 'leading' is set to null
 		if(check_for_finish) {
+			dbg->message("vehicle_t::hop_check()","%s check_for_finish==true",cnv->get_name());
 			return NULL;
 		}
 	}
@@ -5359,128 +5360,131 @@ void air_vehicle_t::hop(grund_t* gr)
 	// take care of in-flight height ...
 	const sint16 h_cur = (sint16)get_pos().z*TILE_HEIGHT_STEP;
 	const sint16 h_next = (sint16)pos_next.z*TILE_HEIGHT_STEP;
+	if(  !leading  ) {
+		flying_height = cnv->front()->get_flying_height();
+	} else {
+		switch(state) {
+			case departing: {
+				flying_height = 0;
+				target_height = h_cur;
+				// new_friction = max( 1, 28/(1+(route_index-takeoff)*2) ); // 9 5 4 3 2 2 1 1...
+				new_friction = max( 1, 120/(1+(route_index-takeoff)*2) );
 
-	switch(state) {
-		case departing: {
-			flying_height = 0;
-			target_height = h_cur;
-			// new_friction = max( 1, 28/(1+(route_index-takeoff)*2) ); // 9 5 4 3 2 2 1 1...
-			new_friction = max( 1, 120/(1+(route_index-takeoff)*2) );
+				// take off, when a) end of runway or b) last tile of runway or c) fast enough
+				weg_t *weg=welt->lookup(get_pos())->get_weg(air_wt);
+				if(  (weg==NULL  ||  // end of runway (broken runway)
+					weg->get_desc()->get_styp()!=type_runway  ||  // end of runway (grass now ... )
+					(route_index>takeoff+1  &&  ribi_t::is_single(weg->get_ribi_unmasked())) )  ||  // single ribi at end of runway
+					cnv->get_akt_speed()>kmh_to_speed(desc->get_topspeed())/3 // fast enough
+				) {
+					state = flying;
+					new_friction = 1;
+					block_reserver( takeoff, touchdown-1, false );
+					flying_height = h_cur - h_next;
+					// target_height = h_cur+TILE_HEIGHT_STEP*3;
+					target_height = h_cur+TILE_HEIGHT_STEP*(altitude_level+(sint16)get_pos().z);
 
-			// take off, when a) end of runway or b) last tile of runway or c) fast enough
-			weg_t *weg=welt->lookup(get_pos())->get_weg(air_wt);
-			if(  (weg==NULL  ||  // end of runway (broken runway)
-				 weg->get_desc()->get_styp()!=type_runway  ||  // end of runway (grass now ... )
-				 (route_index>takeoff+1  &&  ribi_t::is_single(weg->get_ribi_unmasked())) )  ||  // single ribi at end of runway
-				 cnv->get_akt_speed()>kmh_to_speed(desc->get_topspeed())/3 // fast enough
-			) {
-				state = flying;
-				new_friction = 1;
-				block_reserver( takeoff, touchdown-1, false );
-				flying_height = h_cur - h_next;
-				// target_height = h_cur+TILE_HEIGHT_STEP*3;
-				target_height = h_cur+TILE_HEIGHT_STEP*(altitude_level+(sint16)get_pos().z);
+				}
+				break;
+			}
+			case circling: {
+				new_speed_limit = kmh_to_speed(desc->get_topspeed())/3;
+				new_friction = 4;
+				// calc_altitude_level( desc->get_topspeed() );
+				// do not change height any more while circling
+				flying_height += h_cur;
+				flying_height -= h_next;
+				// if(  target_height-h_next > TILE_HEIGHT_STEP*altitude_level*4/3 + (sint16)get_pos().z  ) {
+					// Move down
+					// target_height -= TILE_HEIGHT_STEP*2;
+				// }
+				// else if(  target_height-h_next < TILE_HEIGHT_STEP*altitude_level*2/3 + (sint16)get_pos().z  ) {
+					// Move up
+					// target_height += TILE_HEIGHT_STEP*2;
+				// }
+				break;
+			}
+			case flying: {
+				// since we are at a tile border, round up to the nearest value
+				flying_height += h_cur;
+				if(  flying_height < target_height  ) {
+					flying_height = (flying_height+TILE_HEIGHT_STEP) & ~(TILE_HEIGHT_STEP-1);
+				}
+				else if(  flying_height > target_height  ) {
+					flying_height = (flying_height-TILE_HEIGHT_STEP);
+				}
+				flying_height -= h_next;
+				// did we have to change our flight height?
+				// if(  target_height-h_next > TILE_HEIGHT_STEP*5  ) {
+				// if(  target_height-h_next > TILE_HEIGHT_STEP*altitude_level*4/3 + (sint16)get_pos().z  ) {
+				if(  target_height-h_next > TILE_HEIGHT_STEP*altitude_level*11/10 + (sint16)get_pos().z  ) {
+					// Move down
+					target_height -= TILE_HEIGHT_STEP*2;
+					// target_height -= TILE_HEIGHT_STEP;
+				}
+				// else if(  target_height-h_next < TILE_HEIGHT_STEP*2  ) {
+				// else if(  target_height-h_next < TILE_HEIGHT_STEP*altitude_level*2/3 + (sint16)get_pos().z   ) {
+				else if(  target_height-h_next < TILE_HEIGHT_STEP*altitude_level*9/10 + (sint16)get_pos().z  ) {
+					// Move up
+					target_height += TILE_HEIGHT_STEP*2;
+					// target_height += TILE_HEIGHT_STEP;
+				}
+				break;
+			}
+			case landing: {
+				new_speed_limit = kmh_to_speed(desc->get_topspeed())/3; // ==approach speed
+				new_friction = 8;
+				flying_height += h_cur;
+				if(  flying_height < target_height  ) {
+					flying_height = (flying_height+TILE_HEIGHT_STEP) & ~(TILE_HEIGHT_STEP-1);
+				}
+				else if(  flying_height > target_height  ) {
+					flying_height = (flying_height-TILE_HEIGHT_STEP);
+				}
 
-			}
-			break;
-		}
-		case circling: {
-			new_speed_limit = kmh_to_speed(desc->get_topspeed())/3;
-			new_friction = 4;
-			// calc_altitude_level( desc->get_topspeed() );
-			// do not change height any more while circling
-			flying_height += h_cur;
-			flying_height -= h_next;
-			// if(  target_height-h_next > TILE_HEIGHT_STEP*altitude_level*4/3 + (sint16)get_pos().z  ) {
-				// Move down
-				// target_height -= TILE_HEIGHT_STEP*2;
-			// }
-			// else if(  target_height-h_next < TILE_HEIGHT_STEP*altitude_level*2/3 + (sint16)get_pos().z  ) {
-				// Move up
-				// target_height += TILE_HEIGHT_STEP*2;
-			// }
-			break;
-		}
-		case flying: {
-			// since we are at a tile border, round up to the nearest value
-			flying_height += h_cur;
-			if(  flying_height < target_height  ) {
-				flying_height = (flying_height+TILE_HEIGHT_STEP) & ~(TILE_HEIGHT_STEP-1);
-			}
-			else if(  flying_height > target_height  ) {
-				flying_height = (flying_height-TILE_HEIGHT_STEP);
-			}
-			flying_height -= h_next;
-			// did we have to change our flight height?
-			// if(  target_height-h_next > TILE_HEIGHT_STEP*5  ) {
-			// if(  target_height-h_next > TILE_HEIGHT_STEP*altitude_level*4/3 + (sint16)get_pos().z  ) {
-			if(  target_height-h_next > TILE_HEIGHT_STEP*altitude_level*11/10 + (sint16)get_pos().z  ) {
-				// Move down
-				target_height -= TILE_HEIGHT_STEP*2;
-				// target_height -= TILE_HEIGHT_STEP;
-			}
-			// else if(  target_height-h_next < TILE_HEIGHT_STEP*2  ) {
-			// else if(  target_height-h_next < TILE_HEIGHT_STEP*altitude_level*2/3 + (sint16)get_pos().z   ) {
-			else if(  target_height-h_next < TILE_HEIGHT_STEP*altitude_level*9/10 + (sint16)get_pos().z  ) {
-				// Move up
-				target_height += TILE_HEIGHT_STEP*2;
-				// target_height += TILE_HEIGHT_STEP;
-			}
-			break;
-		}
-		case landing: {
-			new_speed_limit = kmh_to_speed(desc->get_topspeed())/3; // ==approach speed
-			new_friction = 8;
-			flying_height += h_cur;
-			if(  flying_height < target_height  ) {
-				flying_height = (flying_height+TILE_HEIGHT_STEP) & ~(TILE_HEIGHT_STEP-1);
-			}
-			else if(  flying_height > target_height  ) {
-				flying_height = (flying_height-TILE_HEIGHT_STEP);
-			}
+				// if (route_index >= touchdown - landing_distance)  {
+				if (route_index >= touchdown ){
+					// come down, now!
+					target_height = h_next;
 
-			// if (route_index >= touchdown - landing_distance)  {
-			if (route_index >= touchdown ){
-				// come down, now!
+					// touchdown!
+					if (flying_height==h_next) {
+						const sint32 taxi_speed = kmh_to_speed( min( 60, desc->get_topspeed()/4 ) );
+						if(  cnv->get_akt_speed() <= taxi_speed  ) {
+							new_speed_limit = taxi_speed;
+							new_friction = 16;
+						}
+						else {
+							const sint32 runway_left = search_for_stop - route_index;
+							new_speed_limit = min( new_speed_limit, runway_left*runway_left*taxi_speed ); // ...approach 540 240 60 60
+							const sint32 runway_left_fr = max( 0, 6-runway_left );
+							new_friction = max( new_friction, min( desc->get_topspeed()/12, 4 + 4*(runway_left_fr*runway_left_fr+1) )); // ...8 8 12 24 44 72 108 152
+						}
+					}
+				}
+				else {
+					// runway is on this height
+					const sint16 runway_height = cnv->get_route()->at(touchdown).z*TILE_HEIGHT_STEP;
+
+					// we are too low, ascent asap
+					if (flying_height < runway_height + TILE_HEIGHT_STEP) {
+						target_height = runway_height + TILE_HEIGHT_STEP;
+					}
+					// too high, descent
+					else if (flying_height + h_next - h_cur > runway_height + (sint16)(touchdown-route_index-1)*TILE_HEIGHT_STEP) {
+						target_height = runway_height +  (touchdown-route_index-1)*TILE_HEIGHT_STEP;
+					}
+				}
+				flying_height -= h_next;
+				break;
+			}
+			default: {
+				new_speed_limit = kmh_to_speed( min( 60, desc->get_topspeed()/4 ) );
+				new_friction = 16;
+				flying_height = 0;
 				target_height = h_next;
-
-				// touchdown!
-				if (flying_height==h_next) {
-					const sint32 taxi_speed = kmh_to_speed( min( 60, desc->get_topspeed()/4 ) );
-					if(  cnv->get_akt_speed() <= taxi_speed  ) {
-						new_speed_limit = taxi_speed;
-						new_friction = 16;
-					}
-					else {
-						const sint32 runway_left = search_for_stop - route_index;
-						new_speed_limit = min( new_speed_limit, runway_left*runway_left*taxi_speed ); // ...approach 540 240 60 60
-						const sint32 runway_left_fr = max( 0, 6-runway_left );
-						new_friction = max( new_friction, min( desc->get_topspeed()/12, 4 + 4*(runway_left_fr*runway_left_fr+1) )); // ...8 8 12 24 44 72 108 152
-					}
-				}
+				break;
 			}
-			else {
-				// runway is on this height
-				const sint16 runway_height = cnv->get_route()->at(touchdown).z*TILE_HEIGHT_STEP;
-
-				// we are too low, ascent asap
-				if (flying_height < runway_height + TILE_HEIGHT_STEP) {
-					target_height = runway_height + TILE_HEIGHT_STEP;
-				}
-				// too high, descent
-				else if (flying_height + h_next - h_cur > runway_height + (sint16)(touchdown-route_index-1)*TILE_HEIGHT_STEP) {
-					target_height = runway_height +  (touchdown-route_index-1)*TILE_HEIGHT_STEP;
-				}
-			}
-			flying_height -= h_next;
-			break;
-		}
-		default: {
-			new_speed_limit = kmh_to_speed( min( 60, desc->get_topspeed()/4 ) );
-			new_friction = 16;
-			flying_height = 0;
-			target_height = h_next;
-			break;
 		}
 	}
 
@@ -5503,6 +5507,7 @@ void air_vehicle_t::display_after(int xpos_org, int ypos_org, const sint8 clip_n
 void air_vehicle_t::display_after(int xpos_org, int ypos_org, bool is_global) const
 #endif
 {
+	// dbg->message("air_vehicle_t::display_after()","%s, %i flying with state:%i, hight %i",cnv->get_name(),leading?1:(last?3:2),state,flying_height);
 	if(  image != IMG_EMPTY  &&  !is_on_ground()  ) {
 		int xpos = xpos_org, ypos = ypos_org;
 

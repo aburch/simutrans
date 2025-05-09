@@ -58,7 +58,7 @@ settings_t::settings_t() :
 	max_rail_convoi_length = 24;
 	max_road_convoi_length = 4;
 	max_ship_convoi_length = 4;
-	max_air_convoi_length = 1;
+	max_air_convoi_length = 4;
 
 	world_maximum_height = 32;
 	world_minimum_height = -12;
