@@ -283,7 +283,17 @@ void convoi_detail_t::draw(scr_coord offset)
 	const bool selling_allowed = cnv->get_owner()==welt->get_active_player()  &&  !welt->get_active_player()->is_locked()  ;
 	sale_button.enable(selling_allowed && !cnv->get_coupling_convoi().is_bound());
 	withdraw_button.enable(selling_allowed  &&  !cnv->get_coupling_convoi().is_bound()  &&  !cnv->is_coupled());
-	move_to_depot_button.enable(selling_allowed  &&  !cnv->is_coupled());
+	bool show_move_to_depot_button = selling_allowed  &&  !cnv->is_coupled();
+	if(  show_move_to_depot_button  &&  cnv->get_coupling_convoi().is_bound()  ) {
+		convoihandle_t c = cnv;
+		while( c.is_bound() ) {
+			if(  (cnv->get_owner() != c->get_owner())  ||  (cnv->front()->get_desc()->get_waytype() != c->front()->get_desc()->get_waytype())  ) {
+				show_move_to_depot_button = false;
+			}
+			c = c->get_coupling_convoi();
+		}
+	}
+	move_to_depot_button.enable(show_move_to_depot_button);
 	withdraw_button.pressed = cnv->get_withdraw();
 
 	bool is_owner = cnv->get_owner()==welt->get_active_player();
