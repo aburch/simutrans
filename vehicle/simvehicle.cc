@@ -5131,6 +5131,9 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 	if(  route_index == touchdown - landing_distance) {
 		if(  !block_reserver( touchdown, search_for_stop+1, true )  ) {
 			route_index -= 16;
+			for(uint8 i=1; i<cnv->get_vehicle_count(); i++) {
+				cnv->get_vehikel(i)->change_route_index(-16);
+			}
 			return true;
 		}
 		state = landing;
@@ -5141,6 +5144,9 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		// just check, if the end of runway is free; we will wait there
 		if(  block_reserver( touchdown, search_for_stop+1, true )  ) {
 			route_index += 16;
+			for(uint8 i=1; i<cnv->get_vehicle_count(); i++) {
+				cnv->get_vehikel(i)->change_route_index(16);
+			}
 			// can land => set landing height
 			state = landing;
 		}
@@ -5361,7 +5367,12 @@ void air_vehicle_t::hop(grund_t* gr)
 	const sint16 h_cur = (sint16)get_pos().z*TILE_HEIGHT_STEP;
 	const sint16 h_next = (sint16)pos_next.z*TILE_HEIGHT_STEP;
 	if(  !leading  ) {
+		flight_state front_state;
+		uint32 dummy_takeoff,dummy_stopsearch,dummy_landing;
+		air_vehicle_t *const front_air =  dynamic_cast<air_vehicle_t*>(cnv->front());
+		front_air->get_event_index(front_state,dummy_takeoff,dummy_stopsearch,dummy_landing);
 		flying_height = cnv->front()->get_flying_height();
+		state = front_state;
 	} else {
 		switch(state) {
 			case departing: {
@@ -5507,7 +5518,6 @@ void air_vehicle_t::display_after(int xpos_org, int ypos_org, const sint8 clip_n
 void air_vehicle_t::display_after(int xpos_org, int ypos_org, bool is_global) const
 #endif
 {
-	// dbg->message("air_vehicle_t::display_after()","%s, %i flying with state:%i, hight %i",cnv->get_name(),leading?1:(last?3:2),state,flying_height);
 	if(  image != IMG_EMPTY  &&  !is_on_ground()  ) {
 		int xpos = xpos_org, ypos = ypos_org;
 

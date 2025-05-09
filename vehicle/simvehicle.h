@@ -270,6 +270,7 @@ protected:
 	virtual bool check_next_tile(const grund_t* ) const OVERRIDE {return false;}
 
 public:
+	void change_route_index(sint16 i){route_index+=i;}
 	void calc_image() OVERRIDE;
 	virtual sint16 get_flying_height() const{return 0;}
 
