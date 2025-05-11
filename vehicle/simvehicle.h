@@ -767,7 +767,7 @@ protected:
 	bool find_route_to_stop_position();
 
 public:
-	void change_route_index(sint16 i){route_index+=i;}
+	void increment_route_index(sint16 i){route_index+=i;}
 	air_vehicle_t(loadsave_t *file, bool is_first, bool is_last);
 	air_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv); // start and schedule
 

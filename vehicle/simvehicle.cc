@@ -5132,7 +5132,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		if(  !block_reserver( touchdown, search_for_stop+1, true )  ) {
 			route_index -= 16;
 			for(uint8 i=1; i<cnv->get_vehicle_count(); i++) {
-				dynamic_cast<air_vehicle_t*>(cnv->get_vehikel(i))->change_route_index(-16);
+				dynamic_cast<air_vehicle_t*>(cnv->get_vehikel(i))->increment_route_index(-16);
 			}
 			return true;
 		}
@@ -5145,7 +5145,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		if(  block_reserver( touchdown, search_for_stop+1, true )  ) {
 			route_index += 16;
 			for(uint8 i=1; i<cnv->get_vehicle_count(); i++) {
-				dynamic_cast<air_vehicle_t*>(cnv->get_vehikel(i))->change_route_index(16);
+				dynamic_cast<air_vehicle_t*>(cnv->get_vehikel(i))->increment_route_index(16);
 			}
 			// can land => set landing height
 			state = landing;
