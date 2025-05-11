@@ -270,9 +270,7 @@ protected:
 	virtual bool check_next_tile(const grund_t* ) const OVERRIDE {return false;}
 
 public:
-	void change_route_index(sint16 i){route_index+=i;}
 	void calc_image() OVERRIDE;
-	virtual sint16 get_flying_height() const{return 0;}
 
 
 	// the coordinates, where the vehicle was loaded the last time
@@ -729,7 +727,6 @@ public:
 		circling            = 5,
 		taxiing_to_halt     = 6
 	};
-	sint16 get_flying_height() const{return flying_height;}
 private:
 	// only used for is_target() (do not need saving)
 	ribi_t::ribi approach_dir;
@@ -770,6 +767,7 @@ protected:
 	bool find_route_to_stop_position();
 
 public:
+	void change_route_index(sint16 i){route_index+=i;}
 	air_vehicle_t(loadsave_t *file, bool is_first, bool is_last);
 	air_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv); // start and schedule
 
