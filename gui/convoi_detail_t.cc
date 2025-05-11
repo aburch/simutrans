@@ -285,6 +285,7 @@ void convoi_detail_t::draw(scr_coord offset)
 	withdraw_button.enable(selling_allowed  &&  !cnv->get_coupling_convoi().is_bound()  &&  !cnv->is_coupled());
 	bool show_move_to_depot_button = selling_allowed  &&  !cnv->is_coupled();
 	if(  show_move_to_depot_button  &&  cnv->get_coupling_convoi().is_bound()  ) {
+		// Check if all child convoys can be sent to the same depot.
 		convoihandle_t c = cnv;
 		while( c.is_bound() ) {
 			if(  (cnv->get_owner() != c->get_owner())  ||  (cnv->front()->get_desc()->get_waytype() != c->front()->get_desc()->get_waytype())  ) {
