@@ -1128,6 +1128,7 @@ grund_t* vehicle_t::hop_check()
 	else {
 		// this is needed since in convoi_t::vorfahren the flag 'leading' is set to null
 		if(check_for_finish) {
+			dbg->message("vehicle_t::hop_check()","%s check_for_finish==true",cnv->get_name());
 			return NULL;
 		}
 	}
@@ -5130,6 +5131,9 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 	if(  route_index == touchdown - landing_distance) {
 		if(  !block_reserver( touchdown, search_for_stop+1, true )  ) {
 			route_index -= 16;
+			for(uint8 i=1; i<cnv->get_vehicle_count(); i++) {
+				dynamic_cast<air_vehicle_t*>(cnv->get_vehikel(i))->increment_route_index(-16);
+			}
 			return true;
 		}
 		state = landing;
@@ -5140,6 +5144,9 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		// just check, if the end of runway is free; we will wait there
 		if(  block_reserver( touchdown, search_for_stop+1, true )  ) {
 			route_index += 16;
+			for(uint8 i=1; i<cnv->get_vehicle_count(); i++) {
+				dynamic_cast<air_vehicle_t*>(cnv->get_vehikel(i))->increment_route_index(16);
+			}
 			// can land => set landing height
 			state = landing;
 		}
@@ -5359,7 +5366,26 @@ void air_vehicle_t::hop(grund_t* gr)
 	// take care of in-flight height ...
 	const sint16 h_cur = (sint16)get_pos().z*TILE_HEIGHT_STEP;
 	const sint16 h_next = (sint16)pos_next.z*TILE_HEIGHT_STEP;
-
+	// if this vehicle is not leading, state and flying_height are set as these of front.
+	if(  !leading  ) {
+		flight_state front_state;
+		uint32 dummy_takeoff,dummy_stopsearch,dummy_landing;
+		air_vehicle_t *const front_air =  dynamic_cast<air_vehicle_t*>(cnv->front());
+		front_air->get_event_index(front_state,dummy_takeoff,dummy_stopsearch,dummy_landing);
+		flying_height = front_air->get_flyingheight();
+		state = front_state;
+		
+		// hop to next tile
+		vehicle_t::hop(gr);
+	
+		speed_limit = new_speed_limit;
+		current_friction = new_friction;
+	
+		// friction factors and speed limit may have changed
+		// TODO use the same logic as in vehicle_t::hop
+		cnv->must_recalc_data();
+		return;
+	}
 	switch(state) {
 		case departing: {
 			flying_height = 0;
@@ -5370,9 +5396,9 @@ void air_vehicle_t::hop(grund_t* gr)
 			// take off, when a) end of runway or b) last tile of runway or c) fast enough
 			weg_t *weg=welt->lookup(get_pos())->get_weg(air_wt);
 			if(  (weg==NULL  ||  // end of runway (broken runway)
-				 weg->get_desc()->get_styp()!=type_runway  ||  // end of runway (grass now ... )
-				 (route_index>takeoff+1  &&  ribi_t::is_single(weg->get_ribi_unmasked())) )  ||  // single ribi at end of runway
-				 cnv->get_akt_speed()>kmh_to_speed(desc->get_topspeed())/3 // fast enough
+				weg->get_desc()->get_styp()!=type_runway  ||  // end of runway (grass now ... )
+				(route_index>takeoff+1  &&  ribi_t::is_single(weg->get_ribi_unmasked())) )  ||  // single ribi at end of runway
+				cnv->get_akt_speed()>kmh_to_speed(desc->get_topspeed())/3 // fast enough
 			) {
 				state = flying;
 				new_friction = 1;

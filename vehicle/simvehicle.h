@@ -272,6 +272,7 @@ protected:
 public:
 	void calc_image() OVERRIDE;
 
+
 	// the coordinates, where the vehicle was loaded the last time
 	koord3d last_stop_pos;
 
@@ -726,7 +727,6 @@ public:
 		circling            = 5,
 		taxiing_to_halt     = 6
 	};
-
 private:
 	// only used for is_target() (do not need saving)
 	ribi_t::ribi approach_dir;
@@ -767,6 +767,7 @@ protected:
 	bool find_route_to_stop_position();
 
 public:
+	void increment_route_index(sint16 i){route_index+=i;}
 	air_vehicle_t(loadsave_t *file, bool is_first, bool is_last);
 	air_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv); // start and schedule
 
