@@ -124,12 +124,13 @@ gebaeude_t::~gebaeude_t()
 		// avoid book-keeping
 	}
 
-	assert(get_stadt() == NULL);
 
 	if(sync) {
 		sync = false;
 		welt->sync_buildings.remove(this);
 	}
+
+	assert(get_flag(obj_t::not_on_map)  ||  get_stadt() == NULL);
 
 	// tiles might be invalid, if no description is found during loading
 	if(tile  &&  tile->get_desc()  &&  tile->get_desc()->is_attraction()) {
@@ -1002,8 +1003,13 @@ void gebaeude_t::rdwr(loadsave_t *file)
 			city_index = welt->get_cities().index_of( ptr.stadt );
 		}
 		file->rdwr_long(city_index);
-		if(  file->is_loading()  &&  city_index!=-1  &&  (tile==NULL  ||  tile->get_desc()==NULL  ||  tile->get_desc()->is_connected_with_town())  ) {
-			ptr.stadt = welt->get_cities()[city_index];
+		if(  file->is_loading()  &&  (tile==NULL  ||  tile->get_desc()==NULL  ||  tile->get_desc()->is_connected_with_town())  ) {
+			if (city_index != -1) {
+				ptr.stadt = welt->get_cities()[city_index];
+			}
+			else {
+				ptr.stadt = NULL;
+			}
 		}
 	}
 
