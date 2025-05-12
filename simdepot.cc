@@ -445,9 +445,6 @@ bool scenario_check_convoy(karte_t *welt, player_t *player, convoihandle_t cnv, 
 
 bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 {
-	if(  !can_start_convoi(cnv, local_execution)  ) {
-		return false;
-	}
 	// Check if the convoy is coupled or not.
 	// When coupled, the convoy is not allowed to depart alone!
 	for(uint32 i=0; i < convois.get_count() ; i++) {
@@ -458,6 +455,10 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 			create_win( new news_img(buf), w_time_delete, magic_none);
 			return false;
 		}
+	}
+	// Check the start condition
+	if(  !can_start_convoi(cnv, local_execution)  ) {
+		return false;
 	}
 	// coupling convoys depart
 	if(  cnv->get_coupling_convoi().is_bound()  ) {
@@ -503,6 +504,7 @@ bool depot_t::can_start_convoi(convoihandle_t cnv, bool local_execution)
 			destroy_win((ptrdiff_t)cnv->get_schedule());
 		}
 	}
+	cnv->check_electrification();
 
 	// convoi not in depot anymore, maybe user double-clicked on start-button
 	if(!convois.is_contained(cnv)) {
@@ -522,7 +524,7 @@ bool depot_t::can_start_convoi(convoihandle_t cnv, bool local_execution)
 				create_win( new news_img("Diese Zusammenstellung kann nicht fahren!\n"), w_time_delete, magic_none);
 			}
 		}
-		else if(  !cnv->front()->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed(), cnv->access_route())  ) {
+		else if(  !cnv->front()->calc_route(this->get_pos(), cur_pos, speed_to_kmh(cnv->find_most_parent_convoi()->calc_min_top_speed()), cnv->access_route())  ) {
 			// no route to go ...
 			if(local_execution) {
 				static cbuffer_t buf;

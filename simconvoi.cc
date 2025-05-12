@@ -3715,9 +3715,14 @@ void calc_reachable_halts(vector_tpl<haltestelle_t::reachable_halt_t>& reachable
 		const uint8 wrap_i = (i + line_schedule_current_index) % line_schedule_count;
 
 		const halthandle_t plan_halt = haltestelle_t::get_stoppable_halt(line_schedule->at(wrap_i).pos, owner);
-		if(plan_halt == current_halt) {
-			// we will come later here again ...
-			break;
+		if(  plan_halt == current_halt  ) {
+			if(  !line_schedule->at(wrap_i).is_no_load()  ) {
+				// we will come later here again ...
+				break;
+			} else {
+				// we will stop here again, but not load at that time.
+				continue;
+			}
 		}
 		else if(  !plan_halt.is_bound()  ||  line_schedule->at(wrap_i).is_no_unload()  ) {
 			// not a halt or set no_unload. no_unload -> we cannot unload the cargo there.
@@ -3821,7 +3826,12 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 		}
 
 		// The total amount of goods which are loaded and unloaded
-		uint16 amount = v->unload_cargo(halt, next_depot  );
+		uint16 amount;
+		if(  !schedule->get_current_entry().is_no_unload() ) {
+			amount = v->unload_cargo(halt, next_depot  ||  schedule->get_current_entry().is_unload_all()  );
+		} else {
+			amount = 0;
+		}
 
 		const uint16 capacity_left = v->get_cargo_max() - v->get_total_cargo();
 
@@ -5363,7 +5373,7 @@ bool convoi_t::is_waiting_for_coupling() const {
 
 bool convoi_t::check_electrification() {
 	is_electric = false;
-	convoihandle_t c = self;
+	convoihandle_t c = find_most_parent_convoi();
 	while(  c.is_bound()  ) {
 		for(uint8 i=0;  i<c->get_vehicle_count();  i++) {
 			is_electric |= c->get_vehikel(i)->get_desc()->get_engine_type()==vehicle_desc_t::electric;
