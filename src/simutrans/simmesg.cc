@@ -298,26 +298,34 @@ void message_t::rdwr(loadsave_t* file)
 		if (env_t::server) {
 			// do not save local messages and expired messages
 			uint32 current_time = world()->get_current_month();
-			for (message_node_t* const i : list) {
-				if (i->type & DO_NOT_SAVE_MSG || (i->type & EXPIRE_AFTER_ONE_MONTH_MSG && current_time - i->time > 1)) {
+			for (message_node_t* const m : list) {
+				if (m->type & DO_NOT_SAVE_MSG  ||  (m->type & EXPIRE_AFTER_ONE_MONTH_MSG  &&  current_time - m->time > 1)) {
 					continue;
 				}
-				msg_to_save.append(i);
+				msg_to_save.append(m);
+				if (msg_to_save.get_count() == MAX_SAVED_MESSAGES) {
+					// just the newest messages (which are at the front)
+					break;
+				}
 			}
 		}
 		else {
 			// do not save discardable messages (like changing player)
-			for (message_node_t* const i : list) {
-				if (!(i->type & DO_NOT_SAVE_MSG)) {
-					msg_to_save.append(i);
+			for (message_node_t* const m : list) {
+				if (!(m->type & DO_NOT_SAVE_MSG)) {
+					msg_to_save.append(m);
+					if (msg_to_save.get_count() == MAX_SAVED_MESSAGES) {
+						// just the newest messages (which are at the front)
+						break;
+					}
 				}
 			}
 		}
 		// save only the last MAX_SAVED_MESSAGES
-		msg_count = (uint16)min(MAX_SAVED_MESSAGES, msg_to_save.get_count());
+		msg_count = (uint16)msg_to_save.get_count();
 		file->rdwr_short(msg_count);
-		for (uint32 i = msg_to_save.get_count() - msg_count; i < msg_to_save.get_count(); i++) {
-			msg_to_save[i]->rdwr(file);
+		for (message_node_t* const m : list) {
+			m->rdwr(file);
 		}
 	}
 	else {
