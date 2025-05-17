@@ -2569,8 +2569,7 @@ void convoi_t::vorfahren()
 				grund_t* gr = welt->lookup(v->get_pos());
 				if(gr) {
 					gr->obj_remove(v);
-					if(gr->ist_uebergang()) {
-						crossing_t *cr = gr->find<crossing_t>(2);
+					if(crossing_t *cr = gr->get_crossing()) {
 						cr->release_crossing(v);
 					}
 					// eventually unreserve this
@@ -2939,15 +2938,13 @@ void convoi_t::rdwr(loadsave_t *file)
 					state = INITIAL;
 				}
 				// add to blockstrecke
-				if(v->get_waytype()==track_wt  ||  v->get_waytype()==monorail_wt  ||  v->get_waytype()==maglev_wt  ||  v->get_waytype()==narrowgauge_wt) {
-					schiene_t* sch = (schiene_t*)gr->get_weg(v->get_waytype());
-					if(sch) {
-						sch->reserve(self,ribi_t::none);
-					}
-					// add to crossing
-					if(gr->ist_uebergang()) {
-						gr->find<crossing_t>()->add_to_crossing(v);
-					}
+				if(schiene_t* sch = dynamic_cast<schiene_t*>(gr->get_weg(v->get_waytype()))) {
+					sch->reserve(self,ribi_t::none);
+				}
+				// add to crossing
+				if(crossing_t *cr = gr->get_crossing()) {
+					cr->finish_rd();	// add crossing logic if needed (as finish_rd() was not yet processed
+					cr->add_to_crossing(v);
 				}
 				if(  gr->get_top()>253  ) {
 					dbg->warning( "convoi_t::rdwr()", "cannot put vehicle on ground at (%s)", gr->get_pos().get_str() );
@@ -4243,14 +4240,10 @@ void convoi_t::destroy()
 	for(  uint8 i = anz_vehikel;  i-- != 0;  ) {
 		if(  !fahr[i]->get_flag( obj_t::not_on_map )  ) {
 			// remove from rails/roads/crossings
-			grund_t *gr = welt->lookup(fahr[i]->get_pos());
 			fahr[i]->set_last( true );
+			fahr[i]->set_pos_next(koord3d::invalid);	// to removed from crossings and reservations
 			fahr[i]->leave_tile();
-			if(  gr  &&  gr->ist_uebergang()  ) {
-				gr->find<crossing_t>()->release_crossing(fahr[i]);
-			}
 			fahr[i]->set_flag( obj_t::not_on_map );
-
 		}
 		// no need to substract maintenance, since it is booked as running costs
 
@@ -4703,12 +4696,12 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			if(  gr==NULL  ) {
 				return false;
 			}
-			strasse_t *str = (strasse_t*)gr->get_weg(road_wt);
-			if(  str==0  ) {
+			// not overtaking on railroad crossings or normal crossings ...
+			if (gr->get_crossing()) {
 				return false;
 			}
-			// not overtaking on railroad crossings or normal crossings ...
-			if(  str->is_crossing() ) {
+			strasse_t *str = (strasse_t*)gr->get_weg(road_wt);
+			if(  str==0  ) {
 				return false;
 			}
 			if(  ribi_t::is_threeway(str->get_ribi())  &&  overtaking_mode > oneway_mode  ) {
@@ -4822,11 +4815,15 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		pos_next = route.at(route_index++);
 		grund_t *gr = welt->lookup(pos);
 		// no ground, or slope => about
-		if(  gr==NULL  ) {
+		if(  gr==NULL || gr->get_crossing()  ) {
 			return false;
 		}
 		strasse_t *str = (strasse_t*)gr->get_weg(road_wt);
 		if(  str==NULL  ) {
+			return false;
+		}
+		if (ribi_t::is_threeway(str->get_ribi())) {
+			// no overtaking on normal way crossings ...
 			return false;
 		}
 		overtaking_mode_t overtaking_mode_loop = str->get_overtaking_mode();
@@ -4854,7 +4851,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			}
 		}
 		// not overtaking on railroad crossings or on normal crossings ...
-		if(  overtaking_mode_loop >= twoway_mode  &&  (str->is_crossing()  ||  ribi_t::is_threeway(str->get_ribi()))  ) {
+		if(  overtaking_mode_loop >= twoway_mode  ) {
 			return false;
 		}
 		// street gets too slow (TODO: should be able to be correctly accounted for)
@@ -5240,7 +5237,7 @@ void convoi_t::calc_crossing_reservation() {
 	for(  uint32 i=route.get_count()-1;  i>0;  i--  ) {
 		const grund_t *gr = welt->lookup(route.at(i));
 		const schiene_t *sch1 = dynamic_cast<schiene_t*>(gr ? gr->get_weg(front()->get_waytype()) : NULL);
-		const crossing_t* cr = (sch1  &&  sch1->is_crossing()) ? gr->find<crossing_t>(2) : NULL;
+		const crossing_t* cr = (sch1  &&  gr->get_crossing()) ? gr->get_crossing() : NULL;
 		if(  !cr  ) {
 			// this tile is not a crossing.
 			continue;

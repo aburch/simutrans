@@ -313,8 +313,8 @@ private_car_t::~private_car_t()
 {
 	// first: release crossing
 	grund_t *gr = welt->lookup(get_pos());
-	if(gr  &&  gr->ist_uebergang()) {
-		gr->find<crossing_t>(2)->release_crossing(this);
+	if(gr  &&  gr->get_crossing()) {
+		gr->get_crossing()->release_crossing(this);
 	}
 	
 	// unreserve tiles
@@ -709,14 +709,13 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 	overtaking_mode_t mode_of_start_point = str->get_overtaking_mode();
 	bool enter_passing_lane_from_side_road = false;
 	// check exit from crossings and intersections, allow to proceed after 4 consecutive
-	for(uint8 c=0; !obj   &&  (str->is_crossing()  ||  int_block)  &&  c<4; c++) {
+	for(uint8 c=0; !obj   &&  (gr->get_crossing()  ||  int_block)  &&  c<4; c++) {
 		if(  route[test_index]==koord3d::invalid  ) {
 			// coordinate is not determined. stop inspection.
 			break;
 		}
 		
-		if(  str->is_crossing()  ) {
-			crossing_t* cr = gr->find<crossing_t>(2);
+		if(  crossing_t* cr = gr->get_crossing()  ) {
 			if(  !cr->request_crossing(this)  ) {
 				// wait here
 				current_speed = 48;
@@ -1361,8 +1360,8 @@ void private_car_t::hop(grund_t* to)
 	route_index = (route_index+1)%welt->get_settings().get_citycar_max_look_forward();
 	pos_next = route[route_index];
 	enter_tile(to);
-	if(to->ist_uebergang()) {
-		to->find<crossing_t>(2)->add_to_crossing(this);
+	if(crossing_t* cr = to->get_crossing()) {
+		cr->add_to_crossing(this);
 	}
 }
 
@@ -1489,7 +1488,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 			}
 			sint8 overtaking_mode = str->get_overtaking_mode();
 			// not overtaking on railroad crossings ...
-			if(  str->is_crossing() ) {
+			if(  gr->get_crossing() ) {
 				return false;
 			}
 			if(  ribi_t::is_threeway(str->get_ribi())  &&  overtaking_mode > oneway_mode  ) {
@@ -1577,7 +1576,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 		}
 
 		// not overtaking on railroad crossings ...
-		if(  str->is_crossing() ) {
+		if(  gr->get_crossing() ) {
 			return false;
 		}
 

@@ -122,6 +122,12 @@ public:
 	weg_t() : obj_no_info_t() { init(); }
 
 	virtual ~weg_t();
+	
+	/**
+	 * @returns true if a crossing is needed
+	 */
+	bool needs_crossing(const way_desc_t* other) const;
+
 
 #ifdef MULTI_THREAD
 	void lock_mutex();
