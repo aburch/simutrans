@@ -1105,7 +1105,8 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("show/hide block reservations"); }
 	bool is_selected() const OVERRIDE;
 	bool init( player_t * ) OVERRIDE {
-		schiene_t::show_reservations ^= 1;
+		schiene_t::show_reservations = !schiene_t::show_reservations;
+		env_t::show_single_ways = false;
 		welt->set_dirty();
 		return false;
 	}
@@ -1196,6 +1197,7 @@ public:
 	bool is_selected() const OVERRIDE { return env_t::show_single_ways; }
 	bool init(player_t*) OVERRIDE {
 		env_t::show_single_ways = !env_t::show_single_ways;
+		schiene_t::show_reservations = false;
 		welt->set_dirty();
 		return false;
 	}
