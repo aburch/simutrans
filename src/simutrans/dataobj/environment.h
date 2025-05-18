@@ -304,6 +304,10 @@ public:
 	/// show error/info tooltips over the vehicles
 	static uint8 show_vehicle_states;
 
+	/// display station coverage by transparent overlay
+	/// (otherwise by colored squares)
+	static bool show_single_ways;
+
 	/// show station coverage indicators
 	static uint8 station_coverage_show;
 

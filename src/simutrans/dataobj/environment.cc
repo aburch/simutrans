@@ -135,6 +135,7 @@ bool env_t::hide_trees;
 uint8 env_t::hide_buildings;
 bool env_t::hide_under_cursor;
 uint16 env_t::cursor_hide_range;
+bool env_t::show_single_ways;
 bool env_t::use_transparency_station_coverage;
 uint8 env_t::station_coverage_show;
 sint32 env_t::show_names;
@@ -259,6 +260,7 @@ void env_t::init()
 	townhall_info = false;
 	single_info = true;
 	single_line_gui = false;
+	show_single_ways = false;
 
 	random_pedestrians = true;
 	stop_pedestrians = true;
@@ -644,6 +646,10 @@ void env_t::rdwr(loadsave_t *file)
 	if (file->is_version_atleast(124, 3)) {
 		file->rdwr_bool(currency_left);
 		file->rdwr_str(currency_symbol,lengthof(currency_symbol));
+	}
+
+	if (file->is_version_atleast(124, 4)) {
+		file->rdwr_bool(show_single_ways);
 	}
 
 	// server settings are not saved, since they are server specific

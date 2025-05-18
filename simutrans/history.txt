@@ -25,6 +25,7 @@ Release of 124.3.1 (r11671 on 5-Apr-2025):
 	ADD: CURRENCY is now translateable to a local currency (no conversions though) and can be also modified by the user
 	FIX: make sure, the pak path and working path are really different
 	FIX: single way tile did not force bridge direction
+	ADD: New simple tool 43 to highlught single ribi ways
 
 
 Release of 124.3 (r11590 on 10-Jan-2025):

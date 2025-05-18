@@ -291,6 +291,12 @@ public:
 	inline void set_foreground_image( image_id b ) { foreground_image = b; }
 	image_id get_front_image() const OVERRIDE {return foreground_image;}
 
+	FLAGGED_PIXVAL get_outline_colour() const OVERRIDE;
+
+	/*
+	 * to show single tile
+	 */
+	image_id get_outline_image() const OVERRIDE { return image; }
 
 	// correct maintenance
 	void finish_rd() OVERRIDE;

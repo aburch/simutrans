@@ -669,3 +669,13 @@ const char *weg_t::get_removal_error(const player_t *player)
 	}
 	return obj_t::get_removal_error(player);
 }
+
+
+FLAGGED_PIXVAL weg_t::get_outline_colour() const
+{
+	if (env_t::show_single_ways  &&  ribi_t::is_single(ribi)) {
+		return TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_RED);
+	}
+
+	return 0;
+}

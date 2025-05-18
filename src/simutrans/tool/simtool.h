@@ -1188,6 +1188,22 @@ public:
 	bool is_work_keeps_game_state() const OVERRIDE { return true; }
 };
 
+// highlight line single way tiles
+class tool_show_single_ways_t : public tool_t {
+public:
+	tool_show_single_ways_t() : tool_t(TOOL_SINGLE_WAY_TOOGLE | SIMPLE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("highlight single ways"); }
+	bool is_selected() const OVERRIDE { return env_t::show_single_ways; }
+	bool init(player_t*) OVERRIDE {
+		env_t::show_single_ways = !env_t::show_single_ways;
+		welt->set_dirty();
+		return false;
+	}
+	bool exit(player_t* s) OVERRIDE { return init(s); }
+	bool is_init_keeps_game_state() const OVERRIDE { return true; }
+	bool is_work_keeps_game_state() const OVERRIDE { return true; }
+};
+
 
 
 /******************************** Internal tools ***********/
