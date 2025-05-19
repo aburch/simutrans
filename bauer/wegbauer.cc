@@ -758,12 +758,10 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 			// tram track allowed in road tunnels, but only along existing roads / tracks
 			if(from!=to) {
 				if(from->ist_tunnel()) {
-					dbg->message("way_builder_t::is_allowed_step()","%i,%i,%i is in the tunnel",from->get_pos().x,from->get_pos().y,from->get_pos().z);
 					const ribi_t::ribi ribi = from->get_weg_ribi_unmasked(road_wt)  |  from->get_weg_ribi_unmasked(track_wt)  |  from->get_weg_ribi_unmasked(monorail_wt)  |  from->get_weg_ribi_unmasked(maglev_wt)  |  from->get_weg_ribi_unmasked(narrowgauge_wt)  |  ribi_t::doubles(ribi_type(from->get_grund_hang()));
 					ok = ok && ((ribi & ribi_type(zv))==ribi_type(zv));
 				}
 				if(to->ist_tunnel()) {
-					dbg->message("way_builder_t::is_allowed_step()","%i,%i,%i is in the tunnel",to->get_pos().x,to->get_pos().y,to->get_pos().z);
 					const ribi_t::ribi ribi = to->get_weg_ribi_unmasked(road_wt)  |  to->get_weg_ribi_unmasked(track_wt)  |  to->get_weg_ribi_unmasked(monorail_wt)  |  to->get_weg_ribi_unmasked(maglev_wt)  |  to->get_weg_ribi_unmasked(narrowgauge_wt)  |  ribi_t::doubles(ribi_type(to->get_grund_hang()));
 					ok = ok && ((ribi & ribi_type(-zv))==ribi_type(-zv));
 				}
