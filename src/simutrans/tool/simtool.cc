@@ -54,6 +54,8 @@
 #include "../gui/privatesign_info.h"
 #include "../gui/messagebox.h"
 
+#include "../network/network_socket_list.h"
+
 #include "../obj/zeiger.h"
 #include "../obj/bruecke.h"
 #include "../obj/tunnel.h"
@@ -7216,6 +7218,38 @@ const char *tool_pipette_t::work(player_t *pl, koord3d pos)
 
 	return gr->obj_count()>0 ? "Not allowed to copy object." : NULL;
 }
+
+// pause tool also to unpause server games
+char const* tool_pause_t::get_tooltip(player_t const*) const
+{
+	if (env_t::networkmode) {
+		if (env_t::server) {
+			return translator::translate("Pause");
+		}
+		return translator::translate("deactivated in online mode");
+	}
+	return translator::translate("Pause");
+
+}
+
+bool tool_pause_t::init(player_t*)
+{
+	if (!env_t::networkmode) {
+		welt->set_fast_forward(0);
+		welt->set_pause(welt->is_paused() ^ 1);
+	}
+	else {
+		env_t::pause_server_no_clients = !env_t::pause_server_no_clients;
+		if (socket_list_t::get_playing_clients() == 0) {
+			welt->set_pause(env_t::pause_server_no_clients);
+		}
+	}
+	return false;
+}
+
+
+
+
 
 
 bool tool_show_trees_t::init( player_t* )

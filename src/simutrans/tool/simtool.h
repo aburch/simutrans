@@ -737,17 +737,11 @@ public:
 class tool_pause_t : public tool_t {
 public:
 	tool_pause_t() : tool_t(TOOL_PAUSE | SIMPLE_TOOL) {}
-	char const* get_tooltip(player_t const*) const OVERRIDE { return env_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Pause"); }
-	image_id get_icon(player_t*) const OVERRIDE { return env_t::networkmode ? IMG_EMPTY : icon; }
-	bool is_selected() const OVERRIDE { return welt->is_paused(); }
-	bool init( player_t * ) OVERRIDE {
-		if(  !env_t::networkmode  ) {
-			welt->set_fast_forward(0);
-			welt->set_pause( welt->is_paused()^1 );
-		}
-		return false;
-	}
-	bool exit(player_t *s ) OVERRIDE { return init(s); }
+	char const* get_tooltip(player_t const*) const OVERRIDE;
+	image_id get_icon(player_t*) const OVERRIDE { return (env_t::networkmode && !env_t::server) ? IMG_EMPTY : icon; }
+	bool is_selected() const { return env_t::networkmode ? env_t::pause_server_no_clients : welt->is_paused(); }
+	bool init(player_t*) OVERRIDE;
+	bool exit(player_t *s) OVERRIDE { return init(s); }
 	bool is_init_keeps_game_state() const OVERRIDE { return !env_t::networkmode; }
 	bool is_work_keeps_game_state() const OVERRIDE { return !env_t::networkmode; }
 };
