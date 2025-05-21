@@ -5362,8 +5362,8 @@ bool convoi_t::is_waiting_for_coupling() const {
 }
 
 bool convoi_t::check_electrification() {
+	is_electric = true;
 	convoihandle_t c = find_most_parent_convoi();
-	is_electric = c->front()->get_desc()->get_engine_type()==vehicle_desc_t::electric;
 	while(  c.is_bound()  &&  is_electric  ) {
 		for(uint8 i=0;  i<c->get_vehicle_count();  i++) {
 			is_electric &= !(c->get_vehikel(i)->get_desc()->get_engine_type()!=vehicle_desc_t::electric && c->get_vehikel(i)->get_desc()->get_power()>0);
