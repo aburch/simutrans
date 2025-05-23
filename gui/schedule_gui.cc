@@ -663,6 +663,10 @@ void schedule_gui_t::update_selection()
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
 		const uint8 current_stop = schedule->get_current_stop();
+		bt_reverse_convoy.enable();
+		bt_reverse_convoy.pressed = schedule->at(current_stop).is_reverse_convoy();
+		bt_reverse_coupling.enable();
+		bt_reverse_coupling.pressed = schedule->at(current_stop).is_reverse_convoi_coupling();
 		if(  haltestelle_t::get_stoppable_halt(schedule->at(current_stop).pos, player).is_bound()  ) {
 			
 			const uint8 c = schedule->at(current_stop).get_coupling_point();
@@ -679,10 +683,6 @@ void schedule_gui_t::update_selection()
 			bt_load_before_departure.pressed = schedule->at(current_stop).is_load_before_departure();
 			bt_transfer_interval.enable();
 			bt_transfer_interval.pressed = schedule->at(current_stop).is_transfer_interval();
-			bt_reverse_convoy.enable();
-			bt_reverse_convoy.pressed = schedule->at(current_stop).is_reverse_convoy();
-			bt_reverse_coupling.enable();
-			bt_reverse_coupling.pressed = schedule->at(current_stop).is_reverse_convoi_coupling();
 
 			
 			// wait_for_time releated things

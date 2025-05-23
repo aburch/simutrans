@@ -1216,7 +1216,40 @@ void vehicle_t::hop(grund_t* gr)
 			cnv->register_journey_time();
 			// advance schedule for all coupling convoys.
 			convoihandle_t c = cnv->self;
+			if( cnv->get_schedule()->get_current_entry().is_reverse_convoi_coupling() && cnv->get_coupling_convoi().is_bound() ) {
+				while( c->get_coupling_convoi().is_bound() ) {
+					c = c->get_coupling_convoi();
+				}
+				if ( !c->get_schedule()->get_current_entry().is_reverse_convoi_coupling() ) {
+					dbg->message("vehicle_t::hop()","reversing coupling in waypoint");
+					cnv->self->reverse_convoy_coupling();
+					c = cnv->find_most_parent_convoi();
+					while(  c.is_bound()  ) {
+						if(c->get_schedule()->get_current_entry().is_reverse_convoy()) {
+							c->reverse_vehicles_on_user_request();
+						}
+						c->get_schedule()->advance();
+						c = c->get_coupling_convoi();
+					}
+					// if the next stop position is different, uncouple
+					c = cnv->find_most_parent_convoi();
+					convoihandle_t child = c->get_coupling_convoi(); 
+					while(  child.is_bound()  ) {
+						if( c->get_schedule()->get_current_entry().pos != child->get_schedule()->get_current_entry().pos ) {
+							c->uncouple_convoi();
+						}
+						c = child;
+						child = child->get_coupling_convoi();
+					}
+					cnv->find_most_parent_convoi()->set_state(convoi_t::EDIT_SCHEDULE);
+					return;
+				}
+				c = cnv->self;
+			}
 			while(  c.is_bound()  ) {
+				if(c->get_schedule()->get_current_entry().is_reverse_convoy()) {
+					c->reverse_vehicles_on_user_request();
+				}
 				c->get_schedule()->advance();
 				c = c->get_coupling_convoi();
 			}

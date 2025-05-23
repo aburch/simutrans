@@ -1315,12 +1315,12 @@ bool convoi_t::drive_to()
 				}
 
 				// set next schedule target position if next is a waypoint
-				if(  is_waypoint(ziel)  ) {
+				if(  is_waypoint(ziel) && !schedule->at(current_stop).is_reverse_convoi_coupling()  ) {
 					schedule_target = ziel;
 				}
 
 				// continue route search until the destination is a station
-				while(  is_waypoint(ziel)  ) {
+				while(  is_waypoint(ziel) && !schedule->get_current_entry().is_reverse_convoi_coupling()  ) {
 					start = ziel;
 					schedule->advance();
 					ziel = schedule->get_current_entry().pos;
@@ -2029,10 +2029,43 @@ void convoi_t::ziel_erreicht()
 	else {
 		// Neither depot nor station: waypoint
 		c = self;
+		if( get_schedule()->get_current_entry().is_reverse_convoi_coupling() && get_coupling_convoi().is_bound() ) {
+			while( c->get_coupling_convoi().is_bound() ) {
+				c = c->get_coupling_convoi();
+			}
+			if ( !c->get_schedule()->get_current_entry().is_reverse_convoi_coupling() ) {
+				dbg->message("convoi_t::ziel_erreicht()","reversing coupling in waypoint");
+				self->reverse_convoy_coupling();
+				c = find_most_parent_convoi();
+				while(  c.is_bound()  ) {
+					if(c->get_schedule()->get_current_entry().is_reverse_convoy()) {
+						c->reverse_vehicles_on_user_request();
+					}
+					c->get_schedule()->advance();
+					c = c->get_coupling_convoi();
+				}
+				// if the next stop position is different, uncouple
+				c = find_most_parent_convoi();
+				convoihandle_t child = get_coupling_convoi(); 
+				while(  child.is_bound()  ) {
+					if( c->get_schedule()->get_current_entry().pos != child->get_schedule()->get_current_entry().pos ) {
+						c->uncouple_convoi();
+					}
+					c = child;
+					child = child->get_coupling_convoi();
+				}
+				find_most_parent_convoi()->state=EDIT_SCHEDULE;
+				return;
+			}
+			c = self;
+		}
 		// advance schedule for all coupling convoys.
 		// If uncoupled first, the leading convoy may get in the way and the coupled convoy may not be able to arrive at the waypoint.
 		// So, we advance all convoys' schedules first, and check can continue coupling after advancing schedules.
 		while(  c.is_bound()  ) {
+			if(c->get_schedule()->get_current_entry().is_reverse_convoy()) {
+				c->reverse_vehicles_on_user_request();
+			}
 			c->get_schedule()->advance();
 			c = c->get_coupling_convoi();
 		}
@@ -5076,6 +5109,15 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 	// if route to a depot has been found, update the convoi's schedule
 	const char *txt;
 	if(  !shortest_route->empty()  ) {
+		convoihandle_t c = self;
+		while( c.is_bound() ) {
+			c->reverse_vehicles_to_go_to_depot();
+			if(c->is_reversing_needed) {
+				c->reverse_vehicles();
+				c->is_reversing_needed=false;
+			}
+			c = c->get_coupling_convoi();
+		}
 		betrete_depot(world()->lookup(home)->get_depot(),true);
 		txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
 		set_schedule(get_schedule());
@@ -5524,7 +5566,11 @@ void convoi_t::reverse_convoy_coupling()
 	if (new_parent_convoy->get_coupling_convoi().is_bound()) {
 		new_parent_convoy->reverse_convoy_coupling();
 	}
-	new_parent_convoy->couple_convoi(self);
+	if(is_loading()) {
+		new_parent_convoy->couple_convoi(self);
+	} else {
+		new_parent_convoy->couple_convoi_during_running(self);
+	}
 }
 
 

@@ -519,8 +519,6 @@ private:
 	void reverse_vehicles_to_go_to_depot();
 	void reverse_vehicles();
 
-	// Reverse the order of the coupling/coupled convois
-	void reverse_convoy_coupling();
 
 	// a helper function for convoi_t::drive_to()
 	koord3d calc_first_pos_of_route() const;
@@ -1087,6 +1085,9 @@ public:
 	// go to next stop (skip one stops)
 	// only called by tool_change_convoi_t
 	void next_stop_button_pressed();
+
+	// Reverse the order of the coupling/coupled convois
+	void reverse_convoy_coupling();
 
 	// coupling during running.
 	// Only for during leaving a depot
