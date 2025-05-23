@@ -212,6 +212,11 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	add_component(&child_convoi_selector);
 	is_shown_convoy_coupled = false;
 
+	bt_reverse.init(button_t::square_state,"Reverse");
+	bt_reverse.add_listener(this);
+	bt_reverse.set_tooltip("Reverse this convoy");
+	add_component(&bt_reverse);
+
 	/*
 	* [PANEL]
 	*/
@@ -529,9 +534,11 @@ void depot_frame_t::layout(scr_size *size)
 	lb_child_convoy.set_pos(scr_coord(D_MARGIN_LEFT, ACTIONS_VSTART - D_BUTTON_HEIGHT ));
 	lb_child_convoy.set_width(BUTTON_WIDTH_DEPOT);
 	child_convoi_selector.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE) , ACTIONS_VSTART - D_BUTTON_HEIGHT)); // D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE)*2
-	child_convoi_selector.set_size(scr_size(win_size.w - D_MARGIN_RIGHT - ( D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE) ) - selector_x, D_BUTTON_HEIGHT));
-	child_convoi_selector.set_max_size(scr_size(win_size.w - D_MARGIN_RIGHT - ( D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE) ) - selector_x, LINESPACE * 13 + 2 + 16));
-	
+	child_convoi_selector.set_size(scr_size(win_size.w - D_MARGIN_RIGHT - ( D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE)*2 + D_H_SPACE ), D_BUTTON_HEIGHT));
+	child_convoi_selector.set_max_size(scr_size(win_size.w - D_MARGIN_RIGHT - ( D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE)*2 + D_H_SPACE ), LINESPACE * 13 + 2 + 16));
+	bt_reverse.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE)*3 ,ACTIONS_VSTART - D_BUTTON_HEIGHT));
+	bt_reverse.set_width(BUTTON_WIDTH_DEPOT);
+
 	bt_start.set_pos(scr_coord(D_MARGIN_LEFT, ACTIONS_VSTART));
 	bt_start.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
 	if (!is_shown_convoy_coupled){
@@ -958,6 +965,7 @@ void depot_frame_t::update_data()
 		}
 
 		veh = (veh_action == va_insert ? cnv->front() : cnv->back())->get_desc();
+		bt_reverse.pressed=cnv->is_reversed();
 	}
 
 	repositioning_t& rep = repositioning_t::get_instance();
@@ -1438,6 +1446,9 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 		}
 		else if(  comp == &bt_replacement_seed  ) {
 			depot->call_depot_tool('e', cnv, NULL);
+		}
+		else if(  comp == &bt_reverse  ) {
+			cnv->set_reversed(!cnv->is_reversed());
 		}
 		// image list selection here ...
 		else if(  comp == &convoi  ) {

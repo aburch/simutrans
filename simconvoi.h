@@ -516,7 +516,6 @@ private:
 	void push_convoy_stopping_time();
 
 	void reverse_vehicles_at_halt_if_needed();
-	void reverse_vehicles_to_go_to_depot();
 	void reverse_vehicles();
 
 
@@ -525,6 +524,7 @@ private:
 
 public:
 	bool is_reversed() const { return reversed; }
+	void set_reversed(bool yesno) { reversed = yesno; }
 	// Reorder the vehicle array
 	// Can be executed even with a vehicle array that does not belong to convoy for UI
 	
