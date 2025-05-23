@@ -653,6 +653,7 @@ void schedule_t::gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* 
 			p = translator::translate("Depot");
 		}
 		else {
+			construct_schedule_entry_attributes(buf, entry);
 			p = translator::translate("Wegpunkt");
 		}
 	}
