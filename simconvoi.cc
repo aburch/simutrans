@@ -5076,6 +5076,15 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 	// if route to a depot has been found, update the convoi's schedule
 	const char *txt;
 	if(  !shortest_route->empty()  ) {
+		convoihandle_t c = self;
+		while( c.is_bound() ) {
+			c->reverse_vehicles_to_go_to_depot();
+			if(c->is_reversing_needed) {
+				c->reverse_vehicles();
+				c->is_reversing_needed=false;
+			}
+			c = c->get_coupling_convoi();
+		}
 		betrete_depot(world()->lookup(home)->get_depot(),true);
 		txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
 		set_schedule(get_schedule());
