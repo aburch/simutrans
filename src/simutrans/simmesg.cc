@@ -324,7 +324,7 @@ void message_t::rdwr(loadsave_t* file)
 		// save only the last MAX_SAVED_MESSAGES
 		msg_count = (uint16)msg_to_save.get_count();
 		file->rdwr_short(msg_count);
-		for (message_node_t* const m : list) {
+		for (message_node_t* const m : msg_to_save) {
 			m->rdwr(file);
 		}
 	}
