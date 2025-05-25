@@ -1803,6 +1803,10 @@ void convoi_t::betrete_depot(depot_t *dep, bool is_loading)
 	convoihandle_t child = c->get_coupling_convoi();
 	while(c.is_bound()) {
 		c->uncouple_convoi();
+		if( c->reversed && c->state!=INITIAL) {
+			c->reverse_vehicles();
+			c->reversed = true;
+		}
 		dbg->message("convoi_t::betrete_depot()","%s reach_depot",c->get_name());
 		for(unsigned i=0; i<c->anz_vehikel; i++) {
 			vehicle_t* v = c->fahr[i];
@@ -1874,7 +1878,10 @@ void convoi_t::start()
 		fahr[anz_vehikel-1]->set_last( true );
 		// do not show the vehicle - it will be wrong positioned -vorfahren() will correct this
 		fahr[0]->set_image(IMG_EMPTY);
-
+		if(reversed) {
+			reversed = false;
+			is_reversing_needed = true;
+		}
 		// update finances for used vehicle reduction when first driven
 		owner->update_assets( restwert_delta, get_schedule()->get_waytype());
 
@@ -5026,7 +5033,6 @@ const char* convoi_t::send_to_depot(bool local)
 			schedule_t *schedule = c->get_schedule();
 			schedule->insert(welt->lookup(home));
 			schedule->set_current_stop( (schedule->get_current_stop()+schedule->get_count()-1)%schedule->get_count() );
-			c->reverse_vehicles_to_go_to_depot();
 			c = c->get_coupling_convoi();
 		}
 		txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
@@ -5481,13 +5487,6 @@ void convoi_t::reverse_vehicles_at_halt_if_needed()
 	reverse_vehicles();
 	is_reversing_needed = false;
 	welt->set_dirty();
-}
-
-void convoi_t::reverse_vehicles_to_go_to_depot()
-{
-	// this function is fix the direction of train when it go home (depot).
-	// if the vehicle reversed, this vehicle reversed again.
-	is_reversing_needed = reversed;
 }
 
 // The raw logic to reverse the convoy. Do proper validations before calling this function.
