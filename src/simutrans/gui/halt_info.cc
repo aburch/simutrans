@@ -105,6 +105,7 @@ class gui_halt_detail_t : public gui_aligned_container_t
 		{
 			this->line = line;
 			init(button_t::posbutton, NULL);
+			this->set_targetpos(koord::invalid);
 			add_listener(this);
 		}
 
