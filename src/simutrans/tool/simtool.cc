@@ -4138,6 +4138,7 @@ DBG_MESSAGE("tool_station_building_aux()", "building mail office/station buildin
 	// difficult to distinguish correctly most suitable waytype
 	player_t::book_construction_costs(player,  cost, k, desc->get_finance_waytype());
 	halt->recalc_station_type();
+	halt->recalc_basis_pos();
 
 	return NULL;
 }
@@ -4319,6 +4320,8 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 	}
 
 	halt->recalc_station_type();
+	halt->recalc_basis_pos();
+
 	if(  env_t::station_coverage_show  &&  welt->get_zeiger()->get_pos().get_2d()==k  ) {
 		// since we are larger now ...
 		halt->mark_unmark_coverage( true );
@@ -4542,6 +4545,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 	}
 
 	halt->recalc_station_type();
+	halt->recalc_basis_pos();
 
 	if(  env_t::station_coverage_show  &&  welt->get_zeiger()->get_pos().get_2d()==k  ) {
 		// since we are larger now ...
@@ -4754,6 +4758,7 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 	}
 	hausbauer_t::build_station_extension_depot(halt->get_owner(), bd->get_pos(), layout, desc, &halt);
 	halt->recalc_station_type();
+	halt->recalc_basis_pos();
 
 	if(neu) {
 		char* const name = halt->create_name(k, type_name);

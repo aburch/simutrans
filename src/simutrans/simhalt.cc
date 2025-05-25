@@ -247,11 +247,33 @@ grund_t *haltestelle_t::get_ground_closest_to( const koord here ) const
 	uint32 distance = 0x7FFFFFFFu;
 	grund_t *closest = NULL;
 	for(tile_t const& i : tiles) {
-		uint32 dist = shortest_distance( i.grund->get_pos().get_2d(), here );
+		uint32 dist = koord_distance( i.grund->get_pos(), here );
 		if(  dist < distance  ) {
 			distance = dist;
 			closest = i.grund;
 			if(  distance == 0  ) {
+				break;
+			}
+		}
+	}
+
+	return closest;
+}
+
+// and the same in 3D
+grund_t* haltestelle_t::get_ground_closest_to(const koord3d here, bool only_overground) const
+{
+	uint32 distance = 0x7FFFFFFFu;
+	grund_t* closest = NULL;
+	for (tile_t const& i : tiles) {
+		if (only_overground  &&  i.grund->ist_im_tunnel()) {
+			continue;
+		}
+		uint32 dist = koord_distance(i.grund->get_pos(), here);
+		if (dist < distance  ||  (  dist == distance  &&  abs(i.grund->get_pos().z-here.z) < abs(closest->get_pos().z-here.z)  )  ) {
+			distance = dist;
+			closest = i.grund;
+			if (distance == 0) {
 				break;
 			}
 		}
@@ -276,36 +298,52 @@ koord haltestelle_t::get_next_pos( koord start ) const
 
 
 /* Calculate and set basis position of this station
- * It is the avarage of all tiles' coordinate weighed by level of the building */
+ * It is the avarage of all tiles' coordinate weighed by level of the building
+ * Tries to put it on the map ground
+ */
 void haltestelle_t::recalc_basis_pos()
 {
-	sint64 cent_x, cent_y;
-	cent_x = cent_y = 0;
+	sint64 cent_x = 0, cent_y = 0, cent_z = 0;
 	uint64 level_sum;
 	level_sum = 0;
-	for(tile_t const& i : tiles) {
-		if(  gebaeude_t* const gb = i.grund->find<gebaeude_t>()  ) {
-			uint32 lv;
+	bool has_above = false;
+	for (tile_t const& i : tiles) {
+		if (has_above = !i.grund->ist_im_tunnel()) {
+			break;
+		}
+	}
+	for (tile_t const& i : tiles) {
+		if (has_above && i.grund->ist_im_tunnel()) {
+			// use overground tiles only for center calculation unless its all tunnel
+			continue;
+		}
+		if (gebaeude_t* const gb = i.grund->find<gebaeude_t>()) {
+			sint32 lv;
 			lv = gb->get_tile()->get_desc()->get_level() + 1;
-			cent_x += gb->get_pos().get_2d().x * lv;
-			cent_y += gb->get_pos().get_2d().y * lv;
+			cent_x += gb->get_pos().x * lv;
+			cent_y += gb->get_pos().y * lv;
+			cent_z += gb->get_pos().z * lv;
 			level_sum += lv;
 		}
 	}
-	koord cent;
-	cent = koord((sint16)(cent_x/level_sum),(sint16)(cent_y/level_sum));
+	koord3d cent;
+	cent = koord3d((sint16)(cent_x / level_sum), (sint16)(cent_y / level_sum), (sint8)(cent_z / level_sum));
+	if (!welt->lookup(cent)) {
+		// no ground for label? Put on surface
+		cent = welt->lookup_kartenboden(cent.get_2d())->get_pos();
+	}
 
 	// save old name
 	plainstring name = get_name();
 	// clear name at old place (and the book-keeping)
 	set_name(NULL);
 
-	if ( level_sum > 0 ) {
-		grund_t *new_center = get_ground_closest_to( cent );
-		if(  new_center != tiles.front().grund  &&  new_center->get_text()==NULL  ) {
+	if (level_sum > 0) {
+		grund_t* new_center = get_ground_closest_to(cent, has_above);
+		if (new_center != tiles.front().grund  &&  new_center->get_text() == NULL) {
 			// move to new center, if there is not yet a name on it
-			tiles.remove( new_center );
-			tiles.insert( new_center );
+			tiles.remove(new_center);
+			tiles.insert(new_center);
 			init_pos = new_center->get_pos().get_2d();
 		}
 	}
@@ -314,6 +352,7 @@ void haltestelle_t::recalc_basis_pos()
 
 	return;
 }
+
 
 /**
  * Station factory method. Returns handles instead of pointers.
@@ -2994,6 +3033,7 @@ void haltestelle_t::finish_rd()
 		}
 	}
 	recalc_status();
+	recalc_basis_pos();
 	reconnect_counter = welt->get_schedule_counter()-1;
 	last_search_origin = halthandle_t();
 }

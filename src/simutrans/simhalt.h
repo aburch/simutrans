@@ -587,8 +587,11 @@ public:
 public:
 	void recalc_basis_pos();
 
-	// returns ground closest to this coordinate
-	grund_t *get_ground_closest_to( const koord here ) const;
+	// returns ground closest to this coordinate (and may exclude tunnel tiles)
+	grund_t* get_ground_closest_to(const koord here) const;
+
+	// returns ground closest to this coordinate (and may exclude tunnel tiles)
+	grund_t* get_ground_closest_to(const koord3d here, bool use_above = false) const;
 
 	/**
 	 * return the closest square that belongs to this halt
