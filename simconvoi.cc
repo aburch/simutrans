@@ -5489,13 +5489,6 @@ void convoi_t::reverse_vehicles_at_halt_if_needed()
 	welt->set_dirty();
 }
 
-// void convoi_t::reverse_vehicles_to_go_to_depot()
-// {
-// 	// this function is fix the direction of train when it go home (depot).
-// 	// if the vehicle reversed, this vehicle reversed again.
-// 	is_reversing_needed = reversed;
-// }
-
 // The raw logic to reverse the convoy. Do proper validations before calling this function.
 void convoi_t::reverse_vehicles()
 {
