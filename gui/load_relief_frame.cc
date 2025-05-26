@@ -9,6 +9,7 @@
 #include "../simworld.h"
 #include "load_relief_frame.h"
 #include "welt.h"
+#include "enlarge_map_frame_t.h"
 #include "simwin.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/settings.h"
@@ -55,7 +56,19 @@ bool load_relief_frame_t::item_action(const char *fullpath)
 		}
 
 		static_cast<welt_gui_t*>(new_world_gui)->update_preview(true);
+	} else {
+		dbg->message("load_relief_frame_t::item_action()","load file %s and enlarge map.", fullpath);
+		sets->heightfield = fullpath;
+		// gui_frame_t *enlarge_gui;
+		// static_cast<enlarge_map_frame_t*>(enlarge_gui)->update_from_heightfield(fullpath);
+		return true;
+		// const gui_scrolled_list_t::scrollitem_t *selected = load_mode.get_selected_item();
+		// if (selected) {
+		// 	env_t::height_conv_mode = static_cast<const load_relief_mode_scrollitem_t *>(selected)->get_mode();
+		// }
+		// gui_frame_t *enlarge_gui;
 	}
+
 
 	return false;
 }

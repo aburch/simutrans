@@ -9,12 +9,15 @@
 #include "minimap.h"
 #include "welt.h"
 #include "components/gui_divider.h"
+#include "load_relief_frame.h"
+#include "messagebox.h"
 
 #include "../simdebug.h"
 #include "../simworld.h"
 #include "simwin.h"
 #include "../display/simimg.h"
 
+#include "../dataobj/height_map_loader.h"
 #include "../dataobj/settings.h"
 #include "../dataobj/translator.h"
 
@@ -35,6 +38,61 @@ koord enlarge_map_frame_t::koord_from_rotation(settings_t const* const sets, sin
 		case 2: return offset+koord(w-x,h-y);
 		case 3: return offset+koord(h-y,x);
 	}
+}
+
+bool enlarge_map_frame_t::update_from_heightfield(const char *filename)
+{
+	dbg->message("gui_t::update_from_heightfield()", "%s", filename);
+
+	const sint8 min_h = env_t::default_settings.get_minimumheight();
+	const sint8 max_h = env_t::default_settings.get_maximumheight();
+
+	height_map_loader_t hml(min_h, max_h, env_t::height_conv_mode);
+	sint16 w, h;
+	sint8 *h_field=NULL;
+
+	if(hml.get_height_data_from_file(filename, (sint8)sets->get_groundwater(), h_field, w, h, false )) {
+		sets->set_size_x(w);
+		sets->set_size_y(h);
+		uint16 old_x = welt->get_size().x;
+		uint16 old_y = welt->get_size().y;
+		if(old_x>w||old_y>h) {
+			create_win( new news_img("\nThe size of heightfield file must be larger than this map\n") , w_info, magic_none );
+			return false;
+		}
+		uint16 pre_x = min(sets->get_size_x(), map.get_width());
+		uint16 pre_y = min(sets->get_size_y(), map.get_height());
+
+		inp_x_size.set_value(sets->get_size_x());
+		inp_y_size.set_value(sets->get_size_y());
+
+		const int mx = sets->get_size_x()/pre_x;
+		const int my = sets->get_size_y()/pre_y;
+		for(  int y=0;  y<pre_y;  y++  ) {
+			for(  int x=0;  x<pre_x;  x++  ) {
+				if(  pos.x<=old_x  &&  pos.y<=old_y  ){
+					if(  x==(old_x/mx)  ||  y==(old_y/my)  ){
+						// border
+						map.at(x,y) = color_idx_to_rgb(COL_WHITE);
+					}
+					else {
+						const koord pos(x*mx,y*my);
+						const sint16 height = welt->lookup_hgt( pos );
+						map.at(x,y) = minimap_t::calc_height_color(height, sets->get_groundwater());
+					}
+				}
+				else {
+					map.at(x,y) = minimap_t::calc_height_color( h_field[x*mx+y*my*w], sets->get_groundwater()-1 );
+				}
+			}
+		}
+		map_preview.set_map_data(&map);
+		free(h_field);
+		loaded_heightfield = true;
+		return true;
+	}
+	loaded_heightfield = false;
+	return false;
 }
 
 
@@ -106,6 +164,10 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 
 	new_component<gui_divider_t>();
 
+	// read hightfield data
+	load_map.init(button_t::roundbox | button_t::flexible, "load map");
+	load_map.add_listener( this );
+	add_component( &load_map );
 	// start game
 	start_button.init( button_t::roundbox | button_t::flexible, "enlarge map");
 	start_button.add_listener( this );
@@ -148,7 +210,29 @@ bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *comp,value_t v
 	}
 	else if(comp==&start_button) {
 		destroy_all_win( true );
-		welt->enlarge_map(sets, NULL);
+		dbg->message("enlarge_map_frame_t::action_triggered()","enlarge with loaded heightfield? %s",loaded_heightfield?"true":"false");
+		if(loaded_heightfield) {
+			welt->load_heightfield(sets, false);
+		} else {
+			welt->enlarge_map(sets, NULL);
+		}
+	}
+	else if(comp==&load_map) {
+		if(!loaded_heightfield){
+			inp_x_size.disable();
+			inp_y_size.disable();
+			sets->heightfield = "";
+			load_relief_frame_t* lrf = new load_relief_frame_t(sets);
+			create_win(lrf, w_info, magic_load_t );
+			win_set_pos(lrf, (display_get_width() - lrf->get_windowsize().w-10), env_t::iconsize.h);
+			loaded_heightfield = true;
+		} else {
+			inp_x_size.enable();
+			inp_y_size.enable();
+			sets->heightfield = "";
+			loaded_heightfield = false;
+		}
+
 	}
 	else {
 		return false;
@@ -163,8 +247,15 @@ void enlarge_map_frame_t::draw(scr_coord pos, scr_size size)
 		// map was rotated while we are active ... => rotate too!
 		sets->rotate90();
 		sets->set_size( sets->get_size_y(), sets->get_size_x() );
-		update_preview();
+		if( sets->heightfield.size()==0 || !loaded_heightfield ) {
+			loaded_heightfield = false;
+			inp_x_size.enable();
+			inp_y_size.enable();
+			sets->heightfield = "";
+		}
 	}
+		update_preview();
+	load_map.pressed = loaded_heightfield;
 
 	gui_frame_t::draw(pos, size);
 }
@@ -175,49 +266,52 @@ void enlarge_map_frame_t::draw(scr_coord pos, scr_size size)
  */
 void enlarge_map_frame_t::update_preview()
 {
-	// reset noise seed
-	setsimrand(0xFFFFFFFF, welt->get_settings().get_map_number());
-
-	// "welt" still knows the old size. The new size is saved in "sets".
 	uint16 old_x = welt->get_size().x;
 	uint16 old_y = welt->get_size().y;
-	uint16 pre_x = min(sets->get_size_x(), map.get_width());
-	uint16 pre_y = min(sets->get_size_y(), map.get_height());
+	dbg->message("enlarge_map_frame_t::update_preview()", "update enlarge map preview, %s", sets->heightfield.c_str());
+	if( sets->heightfield.size()==0 || !update_from_heightfield(sets->heightfield.c_str()) ) {
+		// reset noise seed
+		setsimrand(0xFFFFFFFF, welt->get_settings().get_map_number());
 
-	const int mx = sets->get_size_x()/pre_x;
-	const int my = sets->get_size_y()/pre_y;
+		// "welt" still knows the old size. The new size is saved in "sets".
+		uint16 pre_x = min(sets->get_size_x(), map.get_width());
+		uint16 pre_y = min(sets->get_size_y(), map.get_height());
 
-	for(  int j=0;  j<pre_y;  j++  ) {
-		for(  int i=0;  i<pre_x;  i++  ) {
-			PIXVAL color;
-			koord pos(i*mx,j*my);
+		const int mx = sets->get_size_x()/pre_x;
+		const int my = sets->get_size_y()/pre_y;
 
-			if(  pos.x<=old_x  &&  pos.y<=old_y  ){
-				if(  i==(old_x/mx)  ||  j==(old_y/my)  ){
-					// border
-					color = color_idx_to_rgb(COL_WHITE);
+		for(  int j=0;  j<pre_y;  j++  ) {
+			for(  int i=0;  i<pre_x;  i++  ) {
+				PIXVAL color;
+				koord pos(i*mx,j*my);
+
+				if(  pos.x<=old_x  &&  pos.y<=old_y  ){
+					if(  i==(old_x/mx)  ||  j==(old_y/my)  ){
+						// border
+						color = color_idx_to_rgb(COL_WHITE);
+					}
+					else {
+						const sint16 height = welt->lookup_hgt( pos );
+						color = minimap_t::calc_height_color(height, sets->get_groundwater());
+					}
 				}
 				else {
-					const sint16 height = welt->lookup_hgt( pos );
+					// new part
+					const sint16 height = karte_t::perlin_hoehe(sets, pos, koord(old_x,old_y) );
 					color = minimap_t::calc_height_color(height, sets->get_groundwater());
 				}
+				map.at(i,j) = color;
 			}
-			else {
-				// new part
-				const sint16 height = karte_t::perlin_hoehe(sets, pos, koord(old_x,old_y) );
-				color = minimap_t::calc_height_color(height, sets->get_groundwater());
+		}
+		for(  uint j=0;  j<map.get_height();  j++  ) {
+			for(  uint i=(j<pre_y ? pre_x : 0);  i<map.get_width();   i++  ) {
+				map.at(i,j) = color_idx_to_rgb(COL_GREY1);
 			}
-			map.at(i,j) = color;
 		}
+		loaded_heightfield = false;
+		sets->heightfield = "";
+		map_preview.set_map_data(&map);
 	}
-	for(  uint j=0;  j<map.get_height();  j++  ) {
-		for(  uint i=(j<pre_y ? pre_x : 0);  i<map.get_width();   i++  ) {
-			map.at(i,j) = color_idx_to_rgb(COL_GREY1);
-		}
-	}
-	map_preview.set_map_data(&map);
-
-	sets->heightfield = "";
 
 	if(!changed_number_of_towns){// Interpolate number of towns.
 		sint32 new_area = sets->get_size_x() * sets->get_size_y();
