@@ -2,6 +2,9 @@
 	ADD: new freight sorting order "via owner": groups goods by owner of their next transfer stop and sort by amount (also change order a little and fixed several inconsitencies: Now all windows show same ordering)
 	CHG: Help texts will be first searched in pak directory
 	FIX: could built powerlines under bridges by just building a zero length power bridge starting under a bridge
+	ADD: New simple tool 43 to highlight single ribi ways
+	CHG: Pause tool unpauses server waiting for clients
+	FIX: new city buildings were built when exceeded 2x1 size (only renovated)
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):
@@ -25,8 +28,6 @@ Release of 124.3.1 (r11671 on 5-Apr-2025):
 	ADD: CURRENCY is now translateable to a local currency (no conversions though) and can be also modified by the user
 	FIX: make sure, the pak path and working path are really different
 	FIX: single way tile did not force bridge direction
-	ADD: New simple tool 43 to highlught single ribi ways
-	CHG: Pause tool unpauses server waiting for clients
 
 
 Release of 124.3 (r11590 on 10-Jan-2025):
