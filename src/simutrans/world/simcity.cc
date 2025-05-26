@@ -3469,7 +3469,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 	}
 
 	// only renovate, if there is a change in level
-	if (h->get_type() == gb_desc->get_type()  ||  h->get_level() <= gb_desc->get_level()) {
+	if (h->get_level() <= gb_desc->get_level()) {
 		// same level, no reason to replace
 		return;
 	}
