@@ -2873,9 +2873,9 @@ int stadt_t::orient_city_building(const koord k, const building_desc_t *h, koord
 				int streetdir = 0;
 				for(  int i = 0;  i < 4;  i++  ) {
 					// Neighbors goes through these in 'preferred' order, orthogonal first
-					koord offset = ((neighbors[i] - koord(1, 1)) / 2) * h->get_x();
-					gr = welt->lookup_kartenboden(k + offset + neighbors[i]);
-					if(  gr  &&  gr->get_weg_hang() == gr->get_grund_hang()  &&  gr->hat_weg(road_wt)  ){
+					koord offset = (i < 2) ? neighbors[i] + h->get_size(i) - koord(1, 1) : neighbors[i];
+					gr = welt->lookup_kartenboden(k + offset);
+					if(  gr  &&  gr->hat_weg(road_wt)  ){
 						streetdir += (1 << i);
 					}
 				}
@@ -3469,7 +3469,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 	}
 
 	// only renovate, if there is a change in level
-	if (h->get_type() == gb_desc->get_type() && h->get_level() <= gb_desc->get_level()) {
+	if (h->get_type() == gb_desc->get_type()  ||  h->get_level() <= gb_desc->get_level()) {
 		// same level, no reason to replace
 		return;
 	}
@@ -3494,7 +3494,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 				int streetdir = 0;
 				for(  int i = 0;  i < 4;  i++  ) {
 					// Neighbors goes through these in 'preferred' order, orthogonal first
-					koord offset = ((neighbors[i] - koord(1, 1)) / 2) * h->get_x();
+					koord offset = (i < 2) ? neighbors[i] + h->get_size(i) - koord(1, 1) : neighbors[i];
 					grund_t *gr = welt->lookup_kartenboden(k + offset + neighbors[i]);
 					if(  gr  &&  gr->get_weg_hang() == gr->get_grund_hang()  &&  gr->hat_weg(road_wt)  ){
 						streetdir += (1 << i);
