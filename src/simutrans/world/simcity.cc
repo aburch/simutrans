@@ -2868,207 +2868,168 @@ int stadt_t::orient_city_building(const koord k, const building_desc_t *h, koord
 		return -1;
 	}
 
-	// old, highly sophisticated routines for symmetric buildings
-	if(  h->get_x()==h->get_y()  ) {
-		if(  grund_t *gr = welt->lookup_kartenboden(k)  ) {
-			int rotation = 0;
-			int max_layout = h->get_all_layouts()-1;
-			if(  max_layout  ) {
-				// check for pavement
-				int streetdir = 0;
-				for(  int i = 0;  i < 4;  i++  ) {
-					// Neighbors goes through these in 'preferred' order, orthogonal first
-					koord offset = ((neighbors[i] + koord(1, 1)) / 2) * (h->get_x(0)-1);	// symmetric building
-					gr = welt->lookup_kartenboden(k + offset + neighbors[i]);
-					if(  gr  &&  gr->get_weg_hang() == gr->get_grund_hang()  &&  gr->hat_weg(road_wt)  ){
-						streetdir += (1 << i);
-					}
-				}
-				// not completely unique layout, see if any of the neighbouring building gives a hint
-				rotation = building_layout[streetdir] & ~CHECK_NEIGHBOUR;
-				// for four rotation stop here ...
-				if(  max_layout<7  ) {
-					return rotation & max_layout;
-				}
-				// now this is an eight roation building, so we must put in more effort
-				bool unique_orientation = !(building_layout[streetdir] & CHECK_NEIGHBOUR);
-				if(  !unique_orientation  ) {
-					// no unique answer, check nearby buildings (more likely to fail)
-					int gb_dir = 0;
-					for(  int i = 0;  i < 4;  i++  ) {
-						// look for adjacent buildings
-						gr = welt->lookup_kartenboden(k + neighbors[i]);
-						if(  gr  &&  gr->get_typ()==grund_t::fundament  ){
-							if(  gr->find<gebaeude_t>()  ) {
-								gb_dir |= (1<<i);
-							}
-						}
-					}
-					// lets hope this gives an unique answer
-					static uint8 gb_dir_to_layout[16] = { CHECK_NEIGHBOUR, 1, 0, 6, 1, 1, 7, CHECK_NEIGHBOUR, 0, 5, 0, CHECK_NEIGHBOUR, 4, CHECK_NEIGHBOUR, CHECK_NEIGHBOUR, CHECK_NEIGHBOUR };
-					if(  gb_dir_to_layout[gb_dir] == CHECK_NEIGHBOUR  ) {
-						return rotation;
-					}
-					// ok our answer is unique, now we just check for left and right via street nearby
-					rotation = gb_dir_to_layout[gb_dir];
-					if(  rotation<2  ) {
-						// check on which side is the road
-						if(  streetdir & 0x0C  ) {
-							return rotation + 2;
-						}
-					}
-				}
-			}
-			return rotation;
-		}
+	grund_t* gr = welt->lookup_kartenboden(k);
+	if (!gr) {
 		return -1;
 	}
 
-	// if we arrive here, we have an asymmetric multitile building
-	if(  grund_t *gr = welt->lookup_kartenboden(k)  ) {
-		int rotation = -1;
+	// old, highly sophisticated routines for symmetric buildings
+	if(  h->get_x()  ==  h->get_y()  ) {
+		int rotation = 0;
 		int max_layout = h->get_all_layouts()-1;
 		if(  max_layout  ) {
-
-			// we counting the streetiles, but asymmetric buildings will have an uneven number; we init with negative width
-			int streetdir[4];
+			// check for pavement
+			int streetdir = 0;
 			for(  int i = 0;  i < 4;  i++  ) {
-				streetdir[i] = -h->get_x(i&1);
-			}
-			int roads_found = 0;
-
-			// now just counting street tiles north/south of the house ...
-			sint16 extra_offset = h->get_y(0)-1;
-			for(  int offset = -1;  offset <= h->get_x(0);  offset++  ) {
-				gr = welt->lookup_kartenboden(k + koord(offset,1+extra_offset) );
-				if(  gr  &&  gr->hat_weg(road_wt)  ){
-					streetdir[0] ++;
-					roads_found ++;
-				}
-				gr = welt->lookup_kartenboden(k + koord(offset,-1) );
-				if(  gr  &&  gr->hat_weg(road_wt)  ){
-					streetdir[2] ++;
-					roads_found ++;
-				}
-			}
-			// ... and east/west
-			for(  int offset = -1;  offset <= h->get_x(1);  offset++  ) {
 				// Neighbors goes through these in 'preferred' order, orthogonal first
-				gr = welt->lookup_kartenboden(k + koord(1+extra_offset,offset) );
-				if(  gr  &&  gr->hat_weg(road_wt)  ){
-					streetdir[1] ++;
-					roads_found ++;
-				}
-				// Neighbors goes through these in 'preferred' order, orthogonal first
-				gr = welt->lookup_kartenboden(k + koord(-1,offset) );
-				if(  gr  &&  gr->hat_weg(road_wt)  ){
-					streetdir[3] ++;
-					roads_found ++;
+				koord offset = ((neighbors[i] + koord(1, 1)) / 2) * (h->get_x(0)-1);	// symmetric building
+				gr = welt->lookup_kartenboden(k + offset + neighbors[i]);
+				if(  gr  &&  gr->get_weg_hang() == gr->get_grund_hang()  &&  gr->hat_weg(road_wt)  ){
+					streetdir += (1 << i);
 				}
 			}
-
-			// first, make sure we found some roads
-			if(  roads_found > 0  ) {
-
-				// now find the two sides with most streets around
-				int largest_dir_count = -9999, largest_2nd_count = -9999;
-				int largest_dir = -1, largest_2nd_dir = -1;
-				for(  int i=0;  i<4;  i++  ) {
-					if(  streetdir[i] > largest_dir_count  ) {
-						largest_dir_count = streetdir[i];
-						largest_dir = i;
-					}
-					else if(  streetdir[i] > largest_2nd_count  ) {
-						largest_2nd_dir = i;
-					}
-				}
-
-				// so we have two adjacent corners with the most roads
-				if(  max_layout > 3  &&  ((largest_2nd_dir-largest_dir)==1  ||  (largest_2nd_dir-largest_dir)==3)  ) {
-					// corner cases: only roads on two sides
-					if(  streetdir[0]<0  &&  streetdir[1]<0  ) {
-						rotation = 6;
-					}
-					else if(  streetdir[1]<0  &&  streetdir[2]<0  ) {
-						rotation = 7;
-					}
-					else if(  streetdir[2]<0  &&  streetdir[3]<0  ) {
-						rotation = 4;
-					}
-					else if(  streetdir[3]<0  &&  streetdir[0]<0  ) {
-						rotation = 5;
-					}
-					// some valid found?
-					if(  rotation >=0  &&  h->get_x(rotation) <= maxarea.x  &&  h->get_y(rotation) <= maxarea.y  ) {
-						return rotation;
+			// not completely unique layout, see if any of the neighbouring building gives a hint
+			rotation = building_layout[streetdir] & ~CHECK_NEIGHBOUR;
+			// for four rotation stop here ...
+			if(  max_layout<7  ) {
+				return rotation & max_layout;
+			}
+			// now this is an eight roation building, so we must put in more effort
+			bool unique_orientation = !(building_layout[streetdir] & CHECK_NEIGHBOUR);
+			if(  !unique_orientation  ) {
+				// no unique answer, check nearby buildings (more likely to fail)
+				int gb_dir = 0;
+				for(  int i = 0;  i < 4;  i++  ) {
+					// look for adjacent buildings
+					gr = welt->lookup_kartenboden(k + neighbors[i]);
+					if(  gr  &&  gr->get_typ()==grund_t::fundament  ){
+						if(  gr->find<gebaeude_t>()  ) {
+							gb_dir |= (1<<i);
+						}
 					}
 				}
-
-				// now we have to check right of it
-				if(  streetdir[(largest_dir+1)&3] == largest_dir_count  ) {
-					// but since we take the first, if the next two corner have the same street count, better rotate one further
-					if(  streetdir[(largest_dir+2)&3] == largest_dir_count  ) {
-						// both next corners same count
-						rotation = largest_dir+1;
-					}
-					else {
-						rotation = largest_dir;
-					}
-					rotation &= max_layout;
-				}
-				// and left of it
-				else if(  streetdir[(largest_dir+3)&3] == largest_dir_count  ) {
-					// but since we take the first, if the next two corner have the same street count, better rotate one further
-					if(  streetdir[(largest_dir+2)&3] == largest_dir_count  ) {
-						// both next corners same count
-						rotation = largest_dir+3;
-					}
-					else {
-						rotation = largest_dir;
-					}
-					rotation &= max_layout;
-				}
-				// this is the really only longest one
-				else {
-					rotation = largest_dir & max_layout;
-				}
-
-				// some valid found?
-				if(  rotation >= 0  &&  h->get_x(rotation) <= maxarea.x  &&  h->get_y(rotation) <= maxarea.y  ) {
+				// lets hope this gives an unique answer
+				static uint8 gb_dir_to_layout[16] = { CHECK_NEIGHBOUR, 1, 0, 6, 1, 1, 7, CHECK_NEIGHBOUR, 0, 5, 0, CHECK_NEIGHBOUR, 4, CHECK_NEIGHBOUR, CHECK_NEIGHBOUR, CHECK_NEIGHBOUR };
+				if(  gb_dir_to_layout[gb_dir] == CHECK_NEIGHBOUR  ) {
 					return rotation;
 				}
-
-				return -1;
+				// ok our answer is unique, now we just check for left and right via street nearby
+				rotation = gb_dir_to_layout[gb_dir];
+				if(  rotation<2  ) {
+					// check on which side is the road
+					if(  streetdir & 0x0C  ) {
+						return rotation + 2;
+					}
+				}
 			}
+		}
+		return rotation;
+	}
 
-			// no roads or not fitting
-			if(  roads_found == 0  ) {
-				bool even_ok = (maxarea.x <= h->get_x(0)  &&  maxarea.y <= h->get_y(0));
-				bool odd_ok = (maxarea.x <= h->get_x(1)  &&  maxarea.y <= h->get_y(1));
+	// if we arrive here, we have an asymmetric multitile building
+	int rotation = -1;
 
-				if(  even_ok  &&  odd_ok  ) {
-					// no roads at all and both rotations fit => random oreintation (but no corner)
-					return simrand(4) % max_layout;
-				}
-				else if(  even_ok  ) {
-					return (simrand(2)*2) % max_layout;
-				}
-				else if(  odd_ok  ) {
-					return (simrand(2)*2+1) % max_layout;
-				}
-				// nothing fits, should not happen!
-				assert(1);
-			}
+	int max_layout = h->get_all_layouts()-1;
+	if(  max_layout  ) {
 
-			// we have a preferred orientation, but it does not fit  => gave up
+		bool fit0 = maxarea.x >= h->get_x(0)  &&  maxarea.y >= h->get_y(0);
+		bool fit1 = maxarea.x >= h->get_x(1)  &&  maxarea.y >= h->get_y(1);
+
+		if (!(fit0 || fit1)) {
+			// too large
 			return -1;
 		}
 
-		// we landed here but maxlayout == 1, so we have only to test for fit
-		if(  maxarea.x <= h->get_x(0)  &&  maxarea.y <= h->get_y(0)  ) {
-			return 0;
+		// we counting the streetiles (and asymmetric can only have four roations
+		int streetdir[4] = { 0,0,0,0 };
+		int roads_found = 0;
+
+		if (fit0) {
+			// now just counting street tiles north/south of the house ...
+			sint16 extra_offset = h->get_y(0);
+			for (int offset = -1; offset <= h->get_x(0); offset++) {
+				gr = welt->lookup_kartenboden(k + koord(offset, extra_offset));
+				if (gr && gr->hat_weg(road_wt)) {
+					streetdir[0]++;
+					roads_found++;
+				}
+				gr = welt->lookup_kartenboden(k + koord(offset, -1));
+				if (gr && gr->hat_weg(road_wt)) {
+					streetdir[2]++;
+					roads_found++;
+				}
+			}
 		}
 
+		if (fit1) {
+			// ... and east/west
+			for (int offset = -1; offset <= h->get_x(1); offset++) {
+				// Neighbors goes through these in 'preferred' order, orthogonal first
+				sint16 extra_offset = h->get_x(0);
+				gr = welt->lookup_kartenboden(k + koord(extra_offset, offset));
+				if (gr && gr->hat_weg(road_wt)) {
+					streetdir[1]++;
+					roads_found++;
+				}
+				// Neighbors goes through these in 'preferred' order, orthogonal first
+				gr = welt->lookup_kartenboden(k + koord(-1, offset));
+				if (gr && gr->hat_weg(road_wt)) {
+					streetdir[3]++;
+					roads_found++;
+				}
+			}
+		}
+
+		// first, make sure we found some roads
+		if (roads_found > 0) {
+
+			// now find the two sides with most streets around
+			int largest_dir_count = -9999, largest_2nd_count = -9999;
+			int largest_dir = -1, largest_2nd_dir = -1;
+			for (int i = 0; i < 4; i++) {
+				if (streetdir[i] >= largest_dir_count) {
+					largest_2nd_dir = largest_dir_count;
+					largest_dir_count = streetdir[i];
+					largest_dir = i;
+				}
+				else if (largest_2nd_count == -1 && streetdir[i] > 0) {
+					largest_2nd_dir = i;
+				}
+			}
+
+			// if one is a shorter side but equal roads, we prefer it in case of equal
+			if (streetdir[largest_dir] == streetdir[largest_2nd_dir]) {
+				if (h->get_x(largest_dir) > h->get_x(largest_2nd_dir)) {
+					return largest_2nd_dir;
+				}
+			}
+
+			// so we have two adjacent corners with roads
+			if (max_layout > 3 && ((largest_dir - largest_2nd_dir) & 1)) {
+				// corner cases: roads on two sides
+				return 4 + (largest_dir + 3) & 3;
+			}
+
+			// get just the best
+			return ((largest_dir + 1) & 3) & max_layout;
+		}
+
+		// no roads found => random
+		if (get_random_mode() & INTERACTIVE_RANDOM) {
+			// if called form GUI, return invalid -2
+			return -2;
+		}
+
+		rotation = simrand(4) & max_layout;
+		if (  ((rotation & 1) == 0  &&  !fit0)  ||  ((rotation & 1)  &&  !fit1)  ) {
+			return (rotation + 1) % max_layout;
+		}
+		return rotation;
+	}
+
+	// we landed here but maxlayout == 1, so we have only to test for fit
+	if(  maxarea.x <= h->get_x(0)  &&  maxarea.y <= h->get_y(0)  ) {
+		return 0;
 	}
 
 	return -1;
@@ -3484,85 +3445,10 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 	// good enough replacement to renovate?
 	if(  sum > 0  ) {
 		int rotation = orient_city_building(k, h, maxsize);
-#if 0
-		// no renovation for now, if new is smaller
-		int rotation = 0;
-		if(  h->get_all_layouts()>1  ) {
-
-			// only do this of symmetric buildings
-			if(  h->get_x() == h->get_y()  ) {
-				// check for pavement
-				int streetdir = 0;
-				for(  int i = 0;  i < 4;  i++  ) {
-					// Neighbors goes through these in 'preferred' order, orthogonal first
-					koord offset = (i < 2) ? neighbors[i] + h->get_size(i) - koord(1, 1) : neighbors[i];
-					grund_t *gr = welt->lookup_kartenboden(k + offset + neighbors[i]);
-					if(  gr  &&  gr->get_weg_hang() == gr->get_grund_hang()  &&  gr->hat_weg(road_wt)  ){
-						streetdir += (1 << i);
-					}
-				}
-				// not completely unique layout, see if any of the neighbouring building gives a hint
-				rotation = building_layout[streetdir] & ~CHECK_NEIGHBOUR;
-				bool unique_orientation = !(building_layout[streetdir] & CHECK_NEIGHBOUR);
-				// only streets in diagonal corners => make a house there in L direction
-				if(  !streetdir  ) {
-					int count = 0;
-					for(  int i = 4;  i < 8;  i++  ) {
-						// Neighbors goes through these in 'preferred' order, orthogonal first
-						grund_t *gr = welt->lookup_kartenboden(k + neighbors[i]);
-						if(  gr  &&  gr->get_weg_hang() == gr->get_grund_hang()  &&  gr->hat_weg(road_wt)  ) {
-							rotation = i;
-							count ++;
-						}
-					}
-					unique_orientation = (count==1);
-				}
-				if(  !unique_orientation  ) {
-					int max_layout = h->get_all_layouts()-1;
-					for(  int i = 0;  i < 4;  i++  ) {
-						// Neighbors goes through these in 'preferred' order, orthogonal first
-						grund_t *gr = welt->lookup_kartenboden(k + neighbors[i]);
-						if(  gr  &&  gr->get_typ()==grund_t::fundament  ){
-							if(  gebaeude_t *gb = gr->find<gebaeude_t>()  ) {
-								if(  gb->get_tile()->get_desc()->get_all_layouts() > max_layout  ) {
-									// so take the roation of the next bilding with similar or more rotations
-									rotation = gb->get_tile()->get_layout();
-									max_layout = gb->get_tile()->get_desc()->get_all_layouts();
-									if(  h->get_clusters() == 0  &&  gb->get_tile()->get_desc() == h  ) {
-										// we only renovate, if there is not an identical building (unless its a cluster)
-										return;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			else {
-				// any size should fit
-				if (minsize.x == minsize.y) {
-					rotation = simrand(h->get_all_layouts());
-				}
-				// we try to fit the old building
-				else if (minsize.x > minsize.y) {
-					rotation = 0;
-					if (h->get_x(0) < h->get_y(0)) {
-						rotation = 1;
-					}
- 				}
-				else {
-					rotation = 0;
-					if (h->get_x(0) > h->get_y(0)) {
-						rotation = 1;
-					}
-				}
-				// now make sure we find max_size
-				if (maxsize.x < h->get_x(rotation)) {
-					rotation ^= 1;
-				}
-			}
+		if (rotation == -1) {
+			// did not fit
+			return;
 		}
-#endif
 
 		// we only renovate, if there is not an identical building around (unless its a cluster)
 		if(  !h->get_clusters() ) {
