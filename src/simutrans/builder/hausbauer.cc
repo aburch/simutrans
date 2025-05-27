@@ -549,14 +549,13 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord pos, int org_layout, cons
 					for(  uint8 i = 0;  i < gr->obj_count();  i++  ) {
 						obj_t *const obj = gr->obj_bei(i);
 						obj_t::typ const objtype = obj->get_typ();
-						if(  objtype == obj_t::leitung  ||  objtype == obj_t::pillar  ) {
+						if(  objtype == obj_t::leitung  ||  objtype == obj_t::pillar  ||  objtype==obj_t::air_vehicle  ) {
 							keptobjs.append(obj);
 						}
 					}
 					for(  size_t i = 0;  i < keptobjs.get_count();  i++  ) {
 						gr->obj_remove(keptobjs[i]);
 					}
-
 					// delete everything except vehicles
 					gr->obj_loesche_alle(player);
 				}
