@@ -3237,8 +3237,8 @@ void stadt_t::build_city_building(koord k)
 				maxsize = koord(2, 1);
 				new_pos.x -= 1;
 				break;
-			case 0x00110:
-			case 0x00111:
+			case 0b00110:
+			case 0b00111:
 				maxsize = koord(1, 3);
 				new_pos.y -= 1;
 				break;
