@@ -4696,12 +4696,12 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			if(  gr==NULL  ) {
 				return false;
 			}
-			// not overtaking on railroad crossings or normal crossings ...
-			if (gr->get_crossing()) {
-				return false;
-			}
 			strasse_t *str = (strasse_t*)gr->get_weg(road_wt);
 			if(  str==0  ) {
+				return false;
+			}
+			// not overtaking on railroad crossings or normal crossings ...
+			if(  gr->get_crossing() ) {
 				return false;
 			}
 			if(  ribi_t::is_threeway(str->get_ribi())  &&  overtaking_mode > oneway_mode  ) {
@@ -4815,15 +4815,11 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		pos_next = route.at(route_index++);
 		grund_t *gr = welt->lookup(pos);
 		// no ground, or slope => about
-		if(  gr==NULL || gr->get_crossing()  ) {
+		if(  gr==NULL  ) {
 			return false;
 		}
 		strasse_t *str = (strasse_t*)gr->get_weg(road_wt);
 		if(  str==NULL  ) {
-			return false;
-		}
-		if (ribi_t::is_threeway(str->get_ribi())) {
-			// no overtaking on normal way crossings ...
 			return false;
 		}
 		overtaking_mode_t overtaking_mode_loop = str->get_overtaking_mode();
@@ -4851,7 +4847,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			}
 		}
 		// not overtaking on railroad crossings or on normal crossings ...
-		if(  overtaking_mode_loop >= twoway_mode  ) {
+		if(  overtaking_mode_loop >= twoway_mode  &&  (gr->get_crossing()  ||  ribi_t::is_threeway(str->get_ribi()))  ) {
 			return false;
 		}
 		// street gets too slow (TODO: should be able to be correctly accounted for)
