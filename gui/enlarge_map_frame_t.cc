@@ -56,6 +56,10 @@ bool enlarge_map_frame_t::update_from_heightfield(const char *filename)
 		uint16 old_y = welt->get_size().y;
 		if(old_x>w||old_y>h) {
 			create_win( new news_img("\nThe size of heightfield file must be larger than this map\n") , w_info, magic_none );
+			inp_x_size.enable();
+			inp_y_size.enable();
+			sets->heightfield = "";
+			loaded_heightfield = false;
 			return false;
 		}
 		sets->set_size_x(w);
