@@ -52,14 +52,14 @@ bool enlarge_map_frame_t::update_from_heightfield(const char *filename)
 	sint8 *h_field=NULL;
 
 	if(hml.get_height_data_from_file(filename, (sint8)sets->get_groundwater(), h_field, w, h, false )) {
-		sets->set_size_x(w);
-		sets->set_size_y(h);
 		uint16 old_x = welt->get_size().x;
 		uint16 old_y = welt->get_size().y;
 		if(old_x>w||old_y>h) {
 			create_win( new news_img("\nThe size of heightfield file must be larger than this map\n") , w_info, magic_none );
 			return false;
 		}
+		sets->set_size_x(w);
+		sets->set_size_y(h);
 		uint16 pre_x = min(sets->get_size_x(), map.get_width());
 		uint16 pre_y = min(sets->get_size_y(), map.get_height());
 
