@@ -672,15 +672,15 @@ void stadt_t::recalc_city_size()
 		if (i->get_tile()->get_desc()->get_type() != building_desc_t::headquarters) {
 			koord const& gb_pos = i->get_pos().get_2d();
 			lo.clip_max(gb_pos);
-			ur.clip_min(gb_pos);
+			ur.clip_min(gb_pos+i->get_tile()->get_desc()->get_size(i->get_tile()->get_layout()) );
 		}
 	}
 
 	has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/((ur.x-lo.x)*(ur.y-lo.y)+1) > min_building_density);
 	if(  has_low_density  ) {
 		// wider borders for faster growth of sparse small towns
-		lo -= koord(3,3);
-		ur += koord(3,3);
+		lo -= koord(2,2);
+		ur += koord(2,2);
 	}
 	else {
 		lo -= koord(1, 1);
