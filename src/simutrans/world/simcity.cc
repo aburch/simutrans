@@ -2960,14 +2960,16 @@ int stadt_t::orient_city_building(const koord k, const building_desc_t *h, koord
 			// now find the two sides with most streets around
 			int largest_dir_count = -9999, largest_2nd_count = -9999;
 			int largest_dir = -1, largest_2nd_dir = -1;
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < lengthof(streetdir); i++) {
 				if (streetdir[i] >= largest_dir_count) {
-					largest_2nd_dir = largest_dir_count;
+					largest_2nd_count = largest_dir_count;
+					largest_2nd_dir = largest_dir;
 					largest_dir_count = streetdir[i];
 					largest_dir = i;
 				}
 				else if (largest_2nd_count == -1 && streetdir[i] > 0) {
 					largest_2nd_dir = i;
+					largest_2nd_count = streetdir[i];
 				}
 			}
 
