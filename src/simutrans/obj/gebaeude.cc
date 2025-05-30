@@ -1088,6 +1088,11 @@ void gebaeude_t::cleanup(player_t *player)
 
 	player_t::book_construction_costs(player, cost, get_pos().get_2d(), tile->get_desc()->get_finance_waytype());
 
+	if (is_city_building() && tile->get_index() == 0) {
+		assert(get_stadt());
+	}
+
+
 	if (stadt_t *city=get_stadt()) {
 		city->remove_gebaeude_from_stadt(this);
 	}

@@ -470,8 +470,25 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord pos, int org_layout, cons
 	dim = desc->get_size(org_layout);
 	bool needs_ground_recalc = false;
 
+	if (desc->is_city_building()) {
+		grund_t* gr = welt->lookup_kartenboden(pos);
+		sint8 base_height = gr->get_hoehe() + slope_t::max_diff(gr->get_grund_hang());
+		stadt_t* city = static_cast<stadt_t*>(param);
+		for (k.y = 0; k.y < dim.y; k.y++) {
+			for (k.x = 0; k.x < dim.x; k.x++) {
+				if (!city->check_ground_tile_for_house(welt->lookup_kartenboden(pos + k),base_height)) {
+					dbg->error("hausbauer_t::build", "check_ground_tile_for_house failed at (%s)", (pos + k).get_str());
+					// cannot build here!
+					return NULL;
+				}
+			}
+		}
+		// now build it
+		return city->build_city_house(koord3d(pos, base_height), desc, layout);
+	}
+
 	sint8 base_h = -128;
-	if( dim.y+dim.x > 2 ) {
+	if(desc->get_area() > 1) {
 		for( k.y = 0; k.y < dim.y; k.y++ ) {
 			for( k.x = 0; k.x < dim.x; k.x++ ) {
 				if( grund_t* gr = welt->lookup_kartenboden( pos + k ) ) {
@@ -479,6 +496,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord pos, int org_layout, cons
 					if( gr->get_hoehe()!=base_h  &&  welt->lookup( koord3d( pos+k, base_h ) ) ) {
 						// there is already a ground here!
 						dbg->error("hausbauer_t::build","Fail to create new ground at (%s): There is already a ground above!", (pos+k).get_str() );
+						return NULL;
 					}
 				}
 				else {
@@ -867,7 +885,7 @@ const building_desc_t* hausbauer_t::get_special(uint32 bev, building_desc_t::bty
  * @param start_level the minimum level of the house/station
  * @param cl allowed climates
  */
-static const building_desc_t* get_city_building_from_list(const vector_tpl<const building_desc_t*>& list, int start_level, uint16 time, climate cl, uint32 clusters, koord minsize, koord maxsize )
+static const building_desc_t* get_city_building_from_list(const vector_tpl<const building_desc_t*>& list, int start_level, uint16 time, climate cl, uint32 clusters, koord minsize, koord maxsize, vector_tpl<const building_desc_t*>* exclude )
 {
 	weighted_vector_tpl<const building_desc_t *> selections(16);
 	int level = start_level;
@@ -896,22 +914,24 @@ static const building_desc_t* get_city_building_from_list(const vector_tpl<const
 		     desc->get_x() >= minsize.y  &&  desc->get_y() >= minsize.x  ) ) ) {
 			desc_at_least = desc;
 			if( thislevel == level ) {
-//				DBG_MESSAGE("hausbauer_t::get_city_building_from_list()","appended %s at %i", desc->get_name(), thislevel );
-				/* Level, time period, and climate are all OK.
-				 * Now modify the chance rating by a factor based on the clusters.
-				*/
-				// FIXME: the factor should be configurable by the pakset/
-				int chance = desc->get_distribution_weight();
-				if(  clusters  ) {
-					uint32 my_clusters = desc->get_clusters();
-					if(  my_clusters & clusters  ) {
-						chance *= stadt_t::get_cluster_factor();
+				if(!exclude  ||  !exclude->is_contained(desc)) {
+//					DBG_MESSAGE("hausbauer_t::get_city_building_from_list()","appended %s at %i", desc->get_name(), thislevel );
+					/* Level, time period, and climate are all OK.
+					 * Now modify the chance rating by a factor based on the clusters.
+					*/
+					// FIXME: the factor should be configurable by the pakset/
+					int chance = desc->get_distribution_weight();
+					if(  clusters  ) {
+						uint32 my_clusters = desc->get_clusters();
+						if(  my_clusters & clusters  ) {
+							chance *= stadt_t::get_cluster_factor();
+						}
+						else {
+							chance /= stadt_t::get_cluster_factor();
+						}
 					}
-					else {
-						chance /= stadt_t::get_cluster_factor();
-					}
+					selections.append(desc, chance);
 				}
-				selections.append(desc, chance);
 			}
 		}
 	}
@@ -928,21 +948,21 @@ static const building_desc_t* get_city_building_from_list(const vector_tpl<const
 }
 
 
-const building_desc_t* hausbauer_t::get_commercial(int level, uint16 time, climate cl, uint32 clusters, koord minsize, koord maxsize )
+const building_desc_t* hausbauer_t::get_commercial(int level, uint16 time, climate cl, uint32 clusters, koord minsize, koord maxsize, vector_tpl<const building_desc_t*>* exclude)
 {
-	return get_city_building_from_list(city_commercial, level, time, cl, clusters, minsize, maxsize );
+	return get_city_building_from_list(city_commercial, level, time, cl, clusters, minsize, maxsize, exclude );
 }
 
 
-const building_desc_t* hausbauer_t::get_industrial(int level, uint16 time, climate cl, uint32 clusters, koord minsize, koord maxsize )
+const building_desc_t* hausbauer_t::get_industrial(int level, uint16 time, climate cl, uint32 clusters, koord minsize, koord maxsize, vector_tpl<const building_desc_t*>* exclude)
 {
-	return get_city_building_from_list(city_industry, level, time, cl, clusters, minsize, maxsize );
+	return get_city_building_from_list(city_industry, level, time, cl, clusters, minsize, maxsize, exclude );
 }
 
 
-const building_desc_t* hausbauer_t::get_residential(int level, uint16 time, climate cl, uint32 clusters, koord minsize, koord maxsize )
+const building_desc_t* hausbauer_t::get_residential(int level, uint16 time, climate cl, uint32 clusters, koord minsize, koord maxsize, vector_tpl<const building_desc_t*> *exclude)
 {
-	return get_city_building_from_list(city_residential, level, time, cl, clusters, minsize, maxsize );
+	return get_city_building_from_list(city_residential, level, time, cl, clusters, minsize, maxsize, exclude );
 }
 
 

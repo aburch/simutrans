@@ -5878,30 +5878,31 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 
 	koord size = desc->get_size(rotation);
 
-	// process ignore climates switch
-	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : desc->get_allowed_climate_bits();
+	if (stadt_t* city = welt->find_nearest_city(k)) {
+		// we need a city for it
+	
+		// process ignore climates switch
+		climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : desc->get_allowed_climate_bits();
 
-	bool hat_platz = welt->square_is_free( k, desc->get_x(rotation), desc->get_y(rotation), NULL, cl );
-	if(!hat_platz  &&  size.y!=size.x  &&  desc->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#'  ||  default_param[1]=='A')) {
-		// try other rotation too ...
-		rotation = (rotation+1) % desc->get_all_layouts();
-		hat_platz = welt->square_is_free( k, desc->get_x(rotation), desc->get_y(rotation), NULL, cl );
-	}
+		bool hat_platz = welt->square_is_free( k, desc->get_x(rotation), desc->get_y(rotation), NULL, cl );
+		if(!hat_platz  &&  size.y!=size.x  &&  desc->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#'  ||  default_param[1]=='A')) {
+			// try other rotation too ...
+			rotation = (rotation+1) % desc->get_all_layouts();
+			hat_platz = welt->square_is_free( k, desc->get_x(rotation), desc->get_y(rotation), NULL, cl );
+		}
 
-	// Place found...
-	if(hat_platz) {
-		player_t *gb_player = desc->is_city_building() ? NULL : welt->get_public_player();
-		gebaeude_t *gb = hausbauer_t::build(gb_player, k, rotation, desc);
-		if(gb) {
-			// building successful
-			if(  desc->get_type()!=building_desc_t::attraction_land  &&  desc->get_type()!=building_desc_t::attraction_city  ) {
-				stadt_t *city = welt->find_nearest_city( k );
-				if(city) {
+		// Place found...
+		if(hat_platz) {
+			player_t *gb_player = desc->is_city_building() ? NULL : welt->get_public_player();
+			gebaeude_t *gb = hausbauer_t::build(gb_player, k, rotation, desc, city);
+			if(gb) {
+				// building successful
+				if(  desc->get_type()==building_desc_t::monument  ) {
 					city->add_gebaeude_to_stadt(gb);
 				}
+				player_t::book_construction_costs(player, -desc->get_price(welt) * size.x * size.y, k, gb->get_waytype());
+				return NULL;
 			}
-			player_t::book_construction_costs(player, -desc->get_price(welt) * size.x * size.y, k, gb->get_waytype());
-			return NULL;
 		}
 	}
 	return NOTICE_UNSUITABLE_GROUND;

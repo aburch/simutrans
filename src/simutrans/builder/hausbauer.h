@@ -85,13 +85,13 @@ public:
 	static void fill_menu(tool_selector_t* tool_selector, building_desc_t::btype, waytype_t wt, sint16 sound_ok);
 
 	/// @returns a random commercial building matching the requirements.
-	static const building_desc_t* get_commercial(int level, uint16 time, climate c, uint32 clusters, koord minsize, koord maxsize );
+	static const building_desc_t* get_commercial(int level, uint16 time, climate c, uint32 clusters, koord minsize, koord maxsize, vector_tpl<const building_desc_t*>* exclude = NULL);
 
 	/// @returns a random industrial building matching the requirements.
-	static const building_desc_t* get_industrial(int level, uint16 time, climate cl, uint32 clusters, koord minsize, koord maxsize );
+	static const building_desc_t* get_industrial(int level, uint16 time, climate cl, uint32 clusters, koord minsize, koord maxsize, vector_tpl<const building_desc_t*>* exclude = NULL);
 
 	/// @returns a random residential building matching the requirements.
-	static const building_desc_t* get_residential(int level, uint16 time, climate cl, uint32 clusters, koord minsize, koord maxsize );
+	static const building_desc_t* get_residential(int level, uint16 time, climate cl, uint32 clusters, koord minsize, koord maxsize, vector_tpl<const building_desc_t*>* exclude = NULL);
 
 	/// @returns headquarters with level @p level (takes the first matching one)
 	static const building_desc_t* get_headquarters(int level, uint16 time);

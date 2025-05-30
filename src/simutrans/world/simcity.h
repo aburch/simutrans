@@ -248,6 +248,13 @@ private:
 	best_t best_strasse;
 
 public:
+
+	// helper function to check for empty tile
+	bool check_ground_tile_for_house(grund_t* gr, sint8 zpos) const;
+
+	// returns random tile
+	gebaeude_t* build_city_house(koord3d base_pos, const building_desc_t* h, uint8 rotation);
+
 	/**
 	 * Classes for storing and manipulating target factories and their data
 	 */
