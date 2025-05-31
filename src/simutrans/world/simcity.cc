@@ -3048,7 +3048,8 @@ gebaeude_t* stadt_t::build_city_house(koord3d base_pos, const building_desc_t* h
 		for (int y = 0; y < h->get_y(rotation); y++) {
 			koord kpos = base_pos.get_2d() + koord(x, y);
 			grund_t* gr = welt->lookup_kartenboden(kpos);
-			if (gebaeude_t* oldgb = gr->find<gebaeude_t>()) {
+			if (gr->get_typ()==grund_t::fundament) {
+				gebaeude_t* oldgb = gr->find<gebaeude_t>();
 				switch (oldgb->get_tile()->get_desc()->get_type()) {
 					case building_desc_t::city_res: won -= oldgb->get_tile()->get_desc()->get_level() * 10; break;
 					case building_desc_t::city_com: arb -= oldgb->get_tile()->get_desc()->get_level() * 20; break;
@@ -3297,7 +3298,7 @@ void stadt_t::build_city_building(koord k)
 
 void stadt_t::renovate_city_building(gebaeude_t *gb)
 {
-	if(  !gb->is_city_building()  ) {
+	if(  !gb->is_city_building()  &&  gb->get_first_tile() != gb) {
 		return; // only renovate res, com, ind
 	}
 	const building_desc_t::btype alt_typ = gb->get_tile()->get_desc()->get_type();
@@ -3444,8 +3445,11 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 		build_city_house(base_pos, h, rotation);
 
 		// if new building is smaller than old one => convert remaining tiles
-		for (int x = h->get_x(rotation); x < minsize.x; x++) {
-			for (int y = h->get_y(rotation); y < minsize.y; y++) {
+		for (int x = 0; x < minsize.x; x++) {
+			for (int y =0; y < minsize.y; y++) {
+				if (x < h->get_x(rotation)  &&  y < h->get_y(rotation)) {
+					continue;
+				}
 				koord kpos = k + koord(x, y);
 				grund_t* gr = welt->lookup_kartenboden(kpos);
 				gebaeude_t* oldgb = gr->find<gebaeude_t>();
@@ -3478,6 +3482,8 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 				}
 			}
 		}
+
+		recalc_city_size();
 	}
 }
 
