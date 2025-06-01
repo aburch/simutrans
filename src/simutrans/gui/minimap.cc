@@ -1312,11 +1312,12 @@ void minimap_t::draw(scr_coord pos)
 		}
 		else if(  pax_destinations_last_change < current_pax_destinations  ) {
 			// new pax_dest in city.
-			const sparse_tpl<PIXVAL> *pax_dests = selected_city->get_pax_destinations_new();
+			const sparse_tpl<pax_dest_status_t> &pax_dests = selected_city->get_pax_destinations_new();
 			koord pos, min, max;
-			PIXVAL color;
-			for(  uint16 i = 0;  i < pax_dests->get_data_count();  i++  ) {
-				pax_dests->get_nonzero( i, pos, color );
+			pax_dest_status_t dst_status;
+
+			for(  uint16 i = 0;  i < pax_dests.get_data_count();  i++  ) {
+				pax_dests.get_nonzero( i, pos, dst_status);
 				min = koord((pos.x*world->get_size().x)/PAX_DESTINATIONS_SIZE,
 				            (pos.y*world->get_size().y)/PAX_DESTINATIONS_SIZE);
 				max = koord(((pos.x+1)*world->get_size().x)/PAX_DESTINATIONS_SIZE,
@@ -1324,7 +1325,7 @@ void minimap_t::draw(scr_coord pos)
 				pos = min;
 				do {
 					do {
-						set_map_color(pos, color);
+						set_map_color(pos, pax_dest_status_colors[dst_status]);
 						pos.y++;
 					} while(pos.y < max.y);
 					pos.x++;

@@ -37,7 +37,7 @@ class gui_city_minimap_t : public gui_world_component_t
 	uint32 pax_destinations_last_change;
 
 	void init_pax_dest( array2d_tpl<PIXVAL> &pax_dest );
-	void add_pax_dest( array2d_tpl<PIXVAL> &pax_dest, const sparse_tpl<PIXVAL>* city_pax_dest );
+	void add_pax_dest( array2d_tpl<PIXVAL> &pax_dest, const sparse_tpl<pax_dest_status_t> &city_pax_dest);
 
 public:
 	gui_city_minimap_t(stadt_t* city) : city(city),
@@ -335,20 +335,29 @@ void gui_city_minimap_t::init_pax_dest( array2d_tpl<PIXVAL> &pax_dest )
 }
 
 
-void gui_city_minimap_t::add_pax_dest( array2d_tpl<PIXVAL> &pax_dest, const sparse_tpl<PIXVAL>* city_pax_dest )
+void gui_city_minimap_t::add_pax_dest( array2d_tpl<PIXVAL> &pax_dest, const sparse_tpl<pax_dest_status_t> &city_pax_dest)
 {
-	PIXVAL color;
+	pax_dest_status_t dst_status;
 	koord pos;
 	// how large the box in the world?
 	const sint16 dd_x = 1+(minimaps_size.w-1)/PAX_DESTINATIONS_SIZE;
 	const sint16 dd_y = 1+(minimaps_size.h-1)/PAX_DESTINATIONS_SIZE;
 
-	for(  uint16 i = 0;  i < city_pax_dest->get_data_count();  i++  ) {
-		city_pax_dest->get_nonzero(i, pos, color);
+	const PIXVAL city_dest_color_lut[4] = {
+		color_idx_to_rgb(pax_dest_status_colors[0]),
+		color_idx_to_rgb(pax_dest_status_colors[1]),
+		color_idx_to_rgb(pax_dest_status_colors[2]),
+		color_idx_to_rgb(pax_dest_status_colors[3])
+	};
+
+	for(  uint16 i = 0;  i < city_pax_dest.get_data_count();  i++  ) {
+		city_pax_dest.get_nonzero(i, pos, dst_status);
 
 		// calculate display position according to minimap size
 		const sint16 x0 = (pos.x*minimaps_size.w)/PAX_DESTINATIONS_SIZE;
 		const sint16 y0 = (pos.y*minimaps_size.h)/PAX_DESTINATIONS_SIZE;
+
+		const PIXVAL color = city_dest_color_lut[dst_status];
 
 		for(  sint32 y=0;  y<dd_y  &&  y+y0<minimaps_size.h;  y++  ) {
 			for(  sint32 x=0;  x<dd_x  &&  x+x0<minimaps_size.w;  x++  ) {

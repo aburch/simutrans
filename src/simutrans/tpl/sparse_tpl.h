@@ -92,7 +92,7 @@ public:
 	void get_nonzero( uint16 index, koord& pos, T& value ) const {
 		if(  index > data_count  ) {
 			pos = koord::invalid;
-			value = 0;
+			value = T(0);
 			return;
 		}
 		value = data[index];

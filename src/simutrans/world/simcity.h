@@ -72,6 +72,27 @@ static const uint32 GENERATE_RATIO_PASS = 3;
 // Mail generation ratio. This many parts to passenger generation ratio parts.
 static const uint32 GENERATE_RATIO_MAIL = 1;
 
+
+/// When a passenger attempts to travel from a city,
+/// this is the reachability status of the desination
+/// (as shown in the city info window)
+/// @sa haltestelle_t::routing_result_flags
+enum pax_dest_status_t : uint8
+{
+	PAX_DEST_STATUS_REACHABLE         = 1,
+	PAX_DEST_STATUS_ROUTE_OVERCROWDED = 2,
+	PAX_DEST_STATUS_NO_ROUTE          = 3
+};
+
+
+static const uint8 pax_dest_status_colors[4] = {
+	0,
+	COL_YELLOW,      // OK/reachable
+	COL_ORANGE,      // route overcrowded
+	COL_DARK_ORANGE, // no route
+};
+
+
 /**
  * Die Objecte der Klasse stadt_t bilden die Staedte in Simu. Sie
  * wachsen automatisch.
@@ -127,8 +148,8 @@ private:
 
 	weighted_vector_tpl <gebaeude_t *> buildings;
 
-	sparse_tpl<PIXVAL> pax_destinations_old;
-	sparse_tpl<PIXVAL> pax_destinations_new;
+	sparse_tpl<pax_dest_status_t> pax_destinations_old;
+	sparse_tpl<pax_dest_status_t> pax_destinations_new;
 
 	// this counter will increment by one for every change => dialogs can question, if they need to update map
 	uint32 pax_destinations_new_change;
@@ -346,7 +367,7 @@ private:
 	/**
 	 * ein Passagierziel in die Zielkarte eintragen
 	 */
-	void merke_passagier_ziel(koord ziel, PIXVAL color);
+	void merke_passagier_ziel(koord ziel, pax_dest_status_t status);
 
 	/**
 	 * baut Spezialgebaeude, z.B Stadion
@@ -465,10 +486,10 @@ public:
 	koord get_zufallspunkt() const;
 
 	/// @returns passenger destination statistics for the last month
-	const sparse_tpl<PIXVAL>* get_pax_destinations_old() const { return &pax_destinations_old; }
+	const sparse_tpl<pax_dest_status_t> &get_pax_destinations_old() const { return pax_destinations_old; }
 
 	/// @returns passenger destination statistics for the current month
-	const sparse_tpl<PIXVAL>* get_pax_destinations_new() const { return &pax_destinations_new; }
+	const sparse_tpl<pax_dest_status_t> &get_pax_destinations_new() const { return pax_destinations_new; }
 
 	/* this counter will increment by one for every change
 	 * => dialogs can question, if they need to update map
