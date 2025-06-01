@@ -27,7 +27,10 @@ public:
 	void rdwr(loadsave_t *file) OVERRIDE;
 
 	/// @copydoc grund_t::ist_natur
-	inline bool ist_natur() const OVERRIDE { return !hat_wege()  &&  !is_halt(); }
+	bool ist_natur() const OVERRIDE {
+		return (flags & (is_halt_flag | has_way1 | has_way2))==0;
+// equivalen to		return !hat_wege()  &&  !is_halt();
+	}
 
 	/// @copydoc grund_t::get_name
 	const char *get_name() const OVERRIDE;

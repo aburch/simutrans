@@ -253,7 +253,7 @@ public:
 	bool check_ground_tile_for_house(grund_t* gr, sint8 zpos) const;
 
 	// returns random tile
-	gebaeude_t* build_city_house(koord3d base_pos, const building_desc_t* h, uint8 rotation);
+	gebaeude_t* build_city_house(koord3d base_pos, const building_desc_t* h, uint8 rotation, uint32 cl, vector_tpl<const building_desc_t*>* exclude_desc);
 
 	/**
 	 * Classes for storing and manipulating target factories and their data
@@ -364,8 +364,9 @@ private:
 	void check_bau_factory(bool);
 
 
-	// find out, what building matches best
-	void bewerte_res_com_ind(const koord pos, int &ind, int &com, int &res);
+	// find out, what building matches best and return offset, if larger area needs offset
+	// extend_y : swap axis from max_size
+	koord evaluate_size_res_com_ind(const koord pos, int& ind_score, int& com_score, int& res_score, sint16& max_area, uint8& rotations, uint32& neighbor_building_clusters, vector_tpl<const building_desc_t*>& exclude);
 
 	/**
 	 * Build/renovates a city building at Planquadrat (tile) x,y
