@@ -150,6 +150,7 @@ static world_thread_param_t world_thread_param[MAX_THREADS];
 
 void *karte_t::world_xy_loop_thread(void *ptr)
 {
+	dbg->message("karte_t::world_xy_loop_thread()","start");
 	world_thread_param_t *param = reinterpret_cast<world_thread_param_t *>(ptr);
 
 	bool keep_running = false;
@@ -180,6 +181,7 @@ void *karte_t::world_xy_loop_thread(void *ptr)
 
 		simthread_barrier_wait( &world_barrier_end ); // wait for all to finish
 	} while (keep_running);
+	dbg->message("karte_t::world_xy_loop_thread()","end");
 
 	return NULL;
 }
@@ -191,6 +193,7 @@ void karte_t::world_xy_loop(xy_loop_func function, uint8 flags)
 	const bool use_grids = (flags & GRIDS_FLAG) == GRIDS_FLAG;
 	uint16 max_x = use_grids?(cached_grid_size.x+1):cached_grid_size.x;
 	uint16 max_y = use_grids?(cached_grid_size.y+1):cached_grid_size.y;
+	dbg->message("karte_t::world_xy_loop()","start,%i,%i",max_x,max_y);
 #ifdef MULTI_THREAD
 	set_random_mode( INTERACTIVE_RANDOM ); // do not allow simrand() here!
 
@@ -254,6 +257,7 @@ void karte_t::world_xy_loop(xy_loop_func function, uint8 flags)
 	// slow serial way of display
 	(this->*function)( 0, max_x, 0, max_y );
 #endif
+	dbg->message("karte_t::world_xy_loop()","end");
 }
 
 
@@ -5256,6 +5260,7 @@ void karte_t::plans_finish_rd( sint16 x_min, sint16 x_max, sint16 y_min, sint16 
 	min_height = min_h;
 	max_height = max_h;
 #endif
+	dbg->message("karte_t::plans_finish_rd()","end");
 }
 
 

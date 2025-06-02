@@ -1495,8 +1495,9 @@ void vehicle_t::discard_cargo()
 
 void vehicle_t::calc_image()
 {
+	dbg->message("vehicle_t::calc_image()","calc_image,convoi is %s",!cnv?"nonexist":"exist");
 	image_id old_image=get_image();
-	const bool is_reversed = is_loading_savedata?false:cnv->is_reversed();
+	const bool is_reversed = is_loading_savedata||!cnv||(get_waytype()==air_wt)?false:cnv->is_reversed();
 	if (fracht.empty()) {
 		set_image(desc->get_image_id(ribi_t::get_dir(get_image_direction()),NULL,is_reversed));
 	}
@@ -1511,7 +1512,7 @@ void vehicle_t::calc_image()
 
 image_id vehicle_t::get_loaded_image() const
 {
-	return desc->get_image_id(ribi_t::dir_south, fracht.empty() ?  NULL  : fracht.front().get_desc(),cnv->is_reversed());
+	return desc->get_image_id(ribi_t::dir_south, fracht.empty() ?  NULL  : fracht.front().get_desc());
 }
 
 
@@ -1751,6 +1752,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 	if(file->is_loading()) {
 		leading = last = false; // dummy, will be set by convoi afterwards
 		if(desc) {
+			// dbg->message("vehicle_t::rdwr_from_convoi()","image will be calculated");
 			is_loading_savedata = true;
 			calc_image();
 			is_loading_savedata = false;
@@ -1779,7 +1781,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 			has_driven = false;
 		}
 	}
-	dbg->message("vehicle_t::rdwr_from_convoi()","vehicle_t::rdwr_from_convoi() done");
+	// dbg->message("vehicle_t::rdwr_from_convoi()","vehicle_t::rdwr_from_convoi() done");
 }
 
 
