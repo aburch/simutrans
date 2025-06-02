@@ -150,7 +150,6 @@ static world_thread_param_t world_thread_param[MAX_THREADS];
 
 void *karte_t::world_xy_loop_thread(void *ptr)
 {
-	dbg->message("karte_t::world_xy_loop_thread()","start");
 	world_thread_param_t *param = reinterpret_cast<world_thread_param_t *>(ptr);
 
 	bool keep_running = false;
@@ -181,7 +180,6 @@ void *karte_t::world_xy_loop_thread(void *ptr)
 
 		simthread_barrier_wait( &world_barrier_end ); // wait for all to finish
 	} while (keep_running);
-	dbg->message("karte_t::world_xy_loop_thread()","end");
 
 	return NULL;
 }
@@ -193,7 +191,6 @@ void karte_t::world_xy_loop(xy_loop_func function, uint8 flags)
 	const bool use_grids = (flags & GRIDS_FLAG) == GRIDS_FLAG;
 	uint16 max_x = use_grids?(cached_grid_size.x+1):cached_grid_size.x;
 	uint16 max_y = use_grids?(cached_grid_size.y+1):cached_grid_size.y;
-	dbg->message("karte_t::world_xy_loop()","start,%i,%i",max_x,max_y);
 #ifdef MULTI_THREAD
 	set_random_mode( INTERACTIVE_RANDOM ); // do not allow simrand() here!
 
@@ -257,7 +254,6 @@ void karte_t::world_xy_loop(xy_loop_func function, uint8 flags)
 	// slow serial way of display
 	(this->*function)( 0, max_x, 0, max_y );
 #endif
-	dbg->message("karte_t::world_xy_loop()","end");
 }
 
 
@@ -5260,7 +5256,6 @@ void karte_t::plans_finish_rd( sint16 x_min, sint16 x_max, sint16 y_min, sint16 
 	min_height = min_h;
 	max_height = max_h;
 #endif
-	dbg->message("karte_t::plans_finish_rd()","end");
 }
 
 
@@ -5308,23 +5303,23 @@ void karte_t::load(loadsave_t *file)
 	else if(  !env_t::networkmode  ) {
 		msg->clear();
 	}
-	dbg->message("karte_t::load()", "messages loaded");
+DBG_MESSAGE("karte_t::load()", "messages loaded");
 
 	// nachdem die welt jetzt geladen ist koennen die Blockstrecken neu
 	// angelegt werden
 	old_blockmanager_t::finish_rd(this);
-	dbg->message("karte_t::load()", "blocks loaded");
+	DBG_MESSAGE("karte_t::load()", "blocks loaded");
 
 	sint32 mi,mj;
 	file->rdwr_long(mi);
 	file->rdwr_long(mj);
-	dbg->message("karte_t::load()", "Setting view to %d,%d", mi,mj);
+	DBG_MESSAGE("karte_t::load()", "Setting view to %d,%d", mi,mj);
 	viewport->change_world_position( koord3d(mi,mj,0) );
 
 	// right season for recalculations
 	recalc_season_snowline(false);
 
-	dbg->message("karte_t::load()", "%d ways loaded",weg_t::get_alle_wege().get_count());
+DBG_MESSAGE("karte_t::load()", "%d ways loaded",weg_t::get_alle_wege().get_count());
 
 	ls.set_progress( (get_size().y*3)/2+256 );
 
@@ -5340,7 +5335,7 @@ void karte_t::load(loadsave_t *file)
 
 	ls.set_progress( (get_size().y*3)/2+256+get_size().y/8 );
 
-	dbg->message("karte_t::load()", "laden_abschliesen for tiles finished" );
+DBG_MESSAGE("karte_t::load()", "laden_abschliesen for tiles finished" );
 
 	// must finish loading cities first before cleaning up factories
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
@@ -5351,11 +5346,11 @@ void karte_t::load(loadsave_t *file)
 		INT_CHECK("simworld 1278");
 	}
 	swap(stadt, new_weighted_stadt);
-	dbg->message("karte_t::load()", "cities initialized");
+	DBG_MESSAGE("karte_t::load()", "cities initialized");
 
 	ls.set_progress( (get_size().y*3)/2+256+get_size().y/4 );
 
-	dbg->message("karte_t::load()", "clean up factories");
+	DBG_MESSAGE("karte_t::load()", "clean up factories");
 	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
 		f->finish_rd();
 	}
@@ -5435,7 +5430,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		sint16 dummy = 0x7FFF;
 		i->reroute_goods(dummy);
 	}
-	dbg->message("reroute_goods()","for all haltstellen_t took %ld ms", dr_time()-dt );
+	DBG_MESSAGE("reroute_goods()","for all haltstellen_t took %ld ms", dr_time()-dt );
 #endif
 
 	// load history/create world history

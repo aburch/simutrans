@@ -372,7 +372,6 @@ uint32 convoi_t::move_to(uint16 const start_index)
 
 void convoi_t::finish_rd()
 {
-	dbg->message("convoi_t::finish_rd()","%s is read",get_name());
 	if(schedule==NULL) {
 		if(  state!=INITIAL  ) {
 			grund_t *gr = welt->lookup(home_depot);
@@ -413,7 +412,7 @@ void convoi_t::finish_rd()
 
 	bool realign_position = false;
 	if(  anz_vehikel>0  ) {
-dbg->message("convoi_t::finish_rd()","state=%s, next_stop_index=%d", state_names[state], next_stop_index );
+DBG_MESSAGE("convoi_t::finish_rd()","state=%s, next_stop_index=%d", state_names[state], next_stop_index );
 		// only realign convois not leaving depot to avoid jumps through signals
 		if(  steps_driven!=-1  ) {
 			for( uint8 i=0;  i<anz_vehikel;  i++ ) {
@@ -470,7 +469,7 @@ dbg->message("convoi_t::finish_rd()","state=%s, next_stop_index=%d", state_names
 				}
 			}
 		}
-dbg->message("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
+DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 
 		linehandle_t new_line  = line;
 		if(  !new_line.is_bound()  ) {
@@ -2849,7 +2848,6 @@ void convoi_t::rdwr(loadsave_t *file)
 	if(file->is_loading()) {
 		set_name(name_and_id+name_offset); // will add id automatically
 	}
-	dbg->message("convoi_t::rdwr()","reading %s,%i",get_name(),anz_vehikel);
 
 	koord3d dummy_pos;
 	if(file->is_saving()) {
@@ -3274,7 +3272,6 @@ void convoi_t::rdwr(loadsave_t *file)
 		reserve_route();
 		recalc_catg_index();
 	}
-	dbg->message("convoi_t::rdwr()","%s,%i",get_name(),anz_vehikel);
 }
 
 

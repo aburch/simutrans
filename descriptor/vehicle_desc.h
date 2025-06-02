@@ -115,29 +115,34 @@ public:
 	// beware, there are three classes of vehicles
 	// vehicles with and without freight images, and vehicles with different freight images
 	// they can have 4 or 8 directions ...
+	// "is_reverse" is the flag of using freightimagetype[n]="Reverse".
 	image_id get_image_id(ribi_t::dir dir, const goods_desc_t *ware, const bool is_reversed=false) const
 	{
 		const image_t *image=0;
 		const image_list_t *list=0;
+		// freight image is found, this flag is true.
 		bool find_freight_goods=false;
 
 		if(freight_image_type>0  &&  (ware!=NULL||is_reversed)) {
 			// more freight images and a freight: find the right one
 
 			sint8 goods_index=0; // freight images: if not found use first freight
-			sint8 reverse_index=-1; // reversed images
+			sint8 reverse_index=-1; // reversed images. if reverse_index<0, this vehicle do not have freightimagetype="Reverse".
 
 			for( sint8 i=0;  i<freight_image_type;  i++  ) {
 				if (ware == get_child<goods_desc_t>(6 + trailer_count + leader_count + i)) {
+					// searching freight image
 					goods_index = i;
 					find_freight_goods = true;
 				} else if (is_reversed && get_child<goods_desc_t>(6+trailer_count+leader_count+i)==goods_manager_t::get_info("Reverse")) {
+					// searching reversed image (e.g. front car with taillight)
 					reverse_index = i;
 				}
 			}
 
 			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
 			image_array_t const* const list2d = get_child<image_array_t>(5);
+			// no freight and non reversed->use EmptyImage
 			if(find_freight_goods||reverse_index>=0) {
 				goods_index = (find_freight_goods||reverse_index<0)?goods_index:reverse_index;//find the reverse images, we use reversed one.
 				image=list2d->get_image(dir, goods_index);

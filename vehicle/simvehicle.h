@@ -233,7 +233,6 @@ private:
 
 	// calculates the direction of which the image should be displayed.
 	ribi_t::ribi get_image_direction() const;
-	bool is_loading_savedata=false;
 
 protected:
 	void hop(grund_t*) OVERRIDE;
