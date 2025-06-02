@@ -1496,11 +1496,12 @@ void vehicle_t::discard_cargo()
 void vehicle_t::calc_image()
 {
 	image_id old_image=get_image();
+	const bool is_reversed = is_loading_savedata?false:cnv->is_reversed();
 	if (fracht.empty()) {
-		set_image(desc->get_image_id(ribi_t::get_dir(get_image_direction()),NULL));
+		set_image(desc->get_image_id(ribi_t::get_dir(get_image_direction()),NULL,is_reversed));
 	}
 	else {
-		set_image(desc->get_image_id(ribi_t::get_dir(get_image_direction()), fracht.front().get_desc()));
+		set_image(desc->get_image_id(ribi_t::get_dir(get_image_direction()), fracht.front().get_desc(),is_reversed));
 	}
 	if(old_image!=get_image()) {
 		set_flag(obj_t::dirty);
@@ -1510,7 +1511,7 @@ void vehicle_t::calc_image()
 
 image_id vehicle_t::get_loaded_image() const
 {
-	return desc->get_image_id(ribi_t::dir_south, fracht.empty() ?  NULL  : fracht.front().get_desc());
+	return desc->get_image_id(ribi_t::dir_south, fracht.empty() ?  NULL  : fracht.front().get_desc(),cnv->is_reversed());
 }
 
 
@@ -1531,6 +1532,7 @@ void vehicle_t::rdwr(loadsave_t *file)
 void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 {
 	xml_tag_t r( file, "vehikel_t" );
+	dbg->message("vehicle_t::rdwr_from_convoi()","vehicle_t::rdwr_from_convoi() start");
 
 	sint32 fracht_count = 0;
 
@@ -1749,7 +1751,9 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 	if(file->is_loading()) {
 		leading = last = false; // dummy, will be set by convoi afterwards
 		if(desc) {
+			is_loading_savedata = true;
 			calc_image();
+			is_loading_savedata = false;
 
 			// full weight after loading
 			sum_weight =  get_cargo_weight() + desc->get_weight();
@@ -1775,6 +1779,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 			has_driven = false;
 		}
 	}
+	dbg->message("vehicle_t::rdwr_from_convoi()","vehicle_t::rdwr_from_convoi() done");
 }
 
 

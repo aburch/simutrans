@@ -5303,23 +5303,23 @@ void karte_t::load(loadsave_t *file)
 	else if(  !env_t::networkmode  ) {
 		msg->clear();
 	}
-DBG_MESSAGE("karte_t::load()", "messages loaded");
+	dbg->message("karte_t::load()", "messages loaded");
 
 	// nachdem die welt jetzt geladen ist koennen die Blockstrecken neu
 	// angelegt werden
 	old_blockmanager_t::finish_rd(this);
-	DBG_MESSAGE("karte_t::load()", "blocks loaded");
+	dbg->message("karte_t::load()", "blocks loaded");
 
 	sint32 mi,mj;
 	file->rdwr_long(mi);
 	file->rdwr_long(mj);
-	DBG_MESSAGE("karte_t::load()", "Setting view to %d,%d", mi,mj);
+	dbg->message("karte_t::load()", "Setting view to %d,%d", mi,mj);
 	viewport->change_world_position( koord3d(mi,mj,0) );
 
 	// right season for recalculations
 	recalc_season_snowline(false);
 
-DBG_MESSAGE("karte_t::load()", "%d ways loaded",weg_t::get_alle_wege().get_count());
+	dbg->message("karte_t::load()", "%d ways loaded",weg_t::get_alle_wege().get_count());
 
 	ls.set_progress( (get_size().y*3)/2+256 );
 
@@ -5335,7 +5335,7 @@ DBG_MESSAGE("karte_t::load()", "%d ways loaded",weg_t::get_alle_wege().get_count
 
 	ls.set_progress( (get_size().y*3)/2+256+get_size().y/8 );
 
-DBG_MESSAGE("karte_t::load()", "laden_abschliesen for tiles finished" );
+	dbg->message("karte_t::load()", "laden_abschliesen for tiles finished" );
 
 	// must finish loading cities first before cleaning up factories
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
@@ -5346,11 +5346,11 @@ DBG_MESSAGE("karte_t::load()", "laden_abschliesen for tiles finished" );
 		INT_CHECK("simworld 1278");
 	}
 	swap(stadt, new_weighted_stadt);
-	DBG_MESSAGE("karte_t::load()", "cities initialized");
+	dbg->message("karte_t::load()", "cities initialized");
 
 	ls.set_progress( (get_size().y*3)/2+256+get_size().y/4 );
 
-	DBG_MESSAGE("karte_t::load()", "clean up factories");
+	dbg->message("karte_t::load()", "clean up factories");
 	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
 		f->finish_rd();
 	}
@@ -5430,7 +5430,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		sint16 dummy = 0x7FFF;
 		i->reroute_goods(dummy);
 	}
-	DBG_MESSAGE("reroute_goods()","for all haltstellen_t took %ld ms", dr_time()-dt );
+	dbg->message("reroute_goods()","for all haltstellen_t took %ld ms", dr_time()-dt );
 #endif
 
 	// load history/create world history
