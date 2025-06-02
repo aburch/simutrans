@@ -144,12 +144,11 @@ bool hausbauer_t::successfully_loaded()
 
 		if (desc->is_city_building()) {
 			// find city build sizes
-			sint16 max_size = desc->get_area();
-			if (max_size > 9) {
-				dbg->warning("hausbauer_t::successfully_loaded()", "maximum city building size (3x3) but %s is (%ix%i)", desc->get_name(), desc->get_x(), desc->get_y());
+			if (desc->get_size().x > 3 || desc->get_size().y > 3) {
+				dbg->fatal("hausbauer_t::successfully_loaded()", "maximum city building size (3x3) but %s is (%ix%i)", desc->get_name(), desc->get_x(), desc->get_y());
 			}
-			else if (largest_city_building_area < max_size) {
-				dbg->message("hausbauer_t::successfully_loaded()", "maximum city building size %s is (%ix%i)", desc->get_name(), desc->get_x(), desc->get_y());
+			if (largest_city_building_area < max_size) {
+				dbg->message("hausbauer_t::successfully_loaded()", "so far largest city building %s is (%ix%i)", desc->get_name(), desc->get_x(), desc->get_y());
 				largest_city_building_area = max_size;
 			}
 		}
