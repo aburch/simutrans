@@ -73,7 +73,16 @@ function test_building_build_house_invalid_param()
 
 function test_building_build_house_random()
 {
-	local public_pl = player_x(1)
+	local pl        = player_x(0);
+	local public_pl = player_x(1);
+
+	{
+		// a city is required for the building
+		ASSERT_EQUAL(command_x(tool_build_house).work(pl, coord3d(0, 0, 0)), "No suitable ground!")
+	}
+
+	// add the required city
+	ASSERT_EQUAL(command_x(tool_add_city).work(public_pl, coord3d(8, 8, 0), "0"), null)
 
 	// no default_param: random building
 	// built by player, owned by pubic player
@@ -91,12 +100,20 @@ function test_building_build_house_random()
 		ASSERT_TRUE(tile_x(1, 0, 0).is_empty())
 		ASSERT_TRUE(tile_x(1, 1, 0).is_empty())
 	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(8, 8, 0)), null); // remove city
+	ASSERT_EQUAL(command_x(tool_remove_way).work(public_pl, coord3d(7, 9, 0), coord3d(9, 9, 0), "" + wt_road), null);
+	RESET_ALL_PLAYER_FUNDS();
 }
 
 
 function test_building_build_house_valid_desc()
 {
 	local public_pl = player_x(1)
+
+	// add the required city
+	ASSERT_EQUAL(command_x(tool_add_city).work(public_pl, coord3d(8, 8, 0), "0"), null)
 
 	// Valid default_param: Build specific building
 	{
@@ -115,13 +132,18 @@ function test_building_build_house_valid_desc()
 	}
 
 	// clean up
-	RESET_ALL_PLAYER_FUNDS()
+	ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(8, 8, 0)), null); // remove city
+	ASSERT_EQUAL(command_x(tool_remove_way).work(public_pl, coord3d(7, 9, 0), coord3d(9, 9, 0), "" + wt_road), null);
+	RESET_ALL_PLAYER_FUNDS();
 }
 
 
 function test_building_build_house_invalid_desc()
 {
 	local public_pl = player_x(1)
+
+	// add the required city
+	ASSERT_EQUAL(command_x(tool_add_city).work(public_pl, coord3d(8, 8, 0), "0"), null)
 
 	// Valid default_param: Build specific building
 	{
@@ -130,13 +152,18 @@ function test_building_build_house_invalid_desc()
 	}
 
 	// clean up
-	RESET_ALL_PLAYER_FUNDS()
+	ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(8, 8, 0)), null); // remove city
+	ASSERT_EQUAL(command_x(tool_remove_way).work(public_pl, coord3d(7, 9, 0), coord3d(9, 9, 0), "" + wt_road), null);
+	RESET_ALL_PLAYER_FUNDS();
 }
 
 
 function test_building_build_house_auto_rotation_attraction()
 {
 	local public_pl = player_x(1)
+
+	// add the required city
+	ASSERT_EQUAL(command_x(tool_add_city).work(public_pl, coord3d(8, 8, 0), "0"), null)
 
 	// TODO: Actually check rotation
 	{
@@ -155,13 +182,18 @@ function test_building_build_house_auto_rotation_attraction()
 	}
 
 	// clean up
-	RESET_ALL_PLAYER_FUNDS()
+	ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(8, 8, 0)), null); // remove city
+	ASSERT_EQUAL(command_x(tool_remove_way).work(public_pl, coord3d(7, 9, 0), coord3d(9, 9, 0), "" + wt_road), null);
+	RESET_ALL_PLAYER_FUNDS();
 }
 
 
 function test_building_build_house_auto_rotation_citybuilding()
 {
 	local public_pl = player_x(1)
+
+	// add the required city
+	ASSERT_EQUAL(command_x(tool_add_city).work(public_pl, coord3d(8, 8, 0), "0"), null)
 
 	// TODO: Actually check rotation
 	{
@@ -172,24 +204,29 @@ function test_building_build_house_auto_rotation_citybuilding()
 	}
 
 	// clean up
-	ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(0, 0, 0)), null)
-	RESET_ALL_PLAYER_FUNDS()
+	ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(0, 0, 0)), null); // remove house
+	ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(8, 8, 0)), null); // remove city
+	ASSERT_EQUAL(command_x(tool_remove_way).work(public_pl, coord3d(7, 9, 0), coord3d(9, 9, 0), "" + wt_road), null);
+	RESET_ALL_PLAYER_FUNDS();
 }
 
 
 function test_building_build_multi_tile_sloped()
 {
-	local pl = player_x(1)
+	local public_pl = player_x(1)
 	local remover = command_x(tool_remover)
 	local builder = command_x(tool_build_house)
 
 	local building_desc = building_desc_x("STADIUM2") // 3x2 size
 
-	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(public_pl, coord3d(4, 2, 0)), null)
+
+	// add the required city
+	ASSERT_EQUAL(command_x(tool_add_city).work(public_pl, coord3d(8, 8, 0), "0"), null)
 
 	{
-		ASSERT_EQUAL(builder.work(pl, coord3d(3, 1, 0), "11" + building_desc.get_name()), null)
-		ASSERT_EQUAL(remover.work(pl, coord3d(3, 1, 0)), null)
+		ASSERT_EQUAL(builder.work(public_pl, coord3d(3, 1, 0), "11" + building_desc.get_name()), null)
+		ASSERT_EQUAL(remover.work(public_pl, coord3d(3, 1, 0)), null)
 
 		ASSERT_EQUAL(tile_x(3, 1, 0).get_slope(), slope.southeast)
 		ASSERT_EQUAL(tile_x(4, 1, 0).get_slope(), slope.southwest)
@@ -197,9 +234,12 @@ function test_building_build_multi_tile_sloped()
 		ASSERT_EQUAL(tile_x(4, 2, 0).get_slope(), slope.northwest)
 	}
 
-	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 2, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(public_pl, coord3d(4, 2, 1)), null)
 
-	RESET_ALL_PLAYER_FUNDS()
+	// clean up
+	ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(8, 8, 0)), null); // remove city
+	ASSERT_EQUAL(command_x(tool_remove_way).work(public_pl, coord3d(7, 9, 0), coord3d(9, 9, 0), "" + wt_road), null);
+	RESET_ALL_PLAYER_FUNDS();
 }
 
 
@@ -228,6 +268,9 @@ function test_building_buy_house_from_public_player()
 	local building_desc = building_desc_x("RES_01_23") // does not matter which of res,com,ind
 	local old_cash = pl.get_cash()[0]
 	local old_maint = pl.get_current_maintenance()
+
+	// add the required city
+	ASSERT_EQUAL(command_x(tool_add_city).work(public_pl, coord3d(8, 8, 0), "0"), null)
 
 	ASSERT_EQUAL(command_x(tool_build_house).work(public_pl, coord3d(0,0,0), "11" + building_desc.get_name()), null)
 	ASSERT_EQUAL(building_x(0,0,0).get_owner().nr, 16) // building is unowned
@@ -260,7 +303,9 @@ function test_building_buy_house_from_public_player()
 
 	// clean up
 	ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(0,0,0)), null)
-	RESET_ALL_PLAYER_FUNDS()
+	ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(8,8,0)), null); // remove city
+	ASSERT_EQUAL(command_x(tool_remove_way).work(public_pl, coord3d(7, 9, 0), coord3d(9, 9, 0), "" + wt_road), null);
+	RESET_ALL_PLAYER_FUNDS();
 }
 
 
@@ -268,6 +313,9 @@ function test_building_buy_house_attraction()
 {
 	local pl = player_x(0)
 	local public_pl = player_x(1)
+
+	// add the required city
+	ASSERT_EQUAL(command_x(tool_add_city).work(public_pl, coord3d(8, 8, 0), "0"), null)
 
 	local building_desc = building_desc_x("STADIUM2")
 	local builder = command_x(tool_build_house)
@@ -282,7 +330,9 @@ function test_building_buy_house_attraction()
 
 	// clean up
 	ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(0,0,0)), null)
-	RESET_ALL_PLAYER_FUNDS()
+	ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(8,8,0)), null); // remove city
+	ASSERT_EQUAL(command_x(tool_remove_way).work(public_pl, coord3d(7, 9, 0), coord3d(9, 9, 0), "" + wt_road), null);
+	RESET_ALL_PLAYER_FUNDS();
 }
 
 
@@ -293,6 +343,9 @@ function test_building_rotate_house()
 	local builder = command_x(tool_build_house)
 	local rotator = command_x(tool_rotate_building)
 	local remover = command_x(tool_remover)
+
+	// add the required city
+	ASSERT_EQUAL(command_x(tool_add_city).work(public_pl, coord3d(8, 8, 0), "0"), null)
 
 	// invalid coordinate
 	{
@@ -326,7 +379,9 @@ function test_building_rotate_house()
 
 	// clean up
 	ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(0, 0, 0)), null)
-	RESET_ALL_PLAYER_FUNDS()
+	ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(8, 8, 0)), null); // remove city
+	ASSERT_EQUAL(command_x(tool_remove_way).work(public_pl, coord3d(7, 9, 0), coord3d(9, 9, 0), "" + wt_road), null);
+	RESET_ALL_PLAYER_FUNDS();
 }
 
 
@@ -338,20 +393,17 @@ function test_building_rotate_harbour()
 	local harbours = building_desc_x.get_building_list(building_desc_x.harbour)
 	harbours = harbours.filter(@(idx, val) val.get_type() == building_desc_x.harbour)
 	local harbour = harbours[0]
-	local stationbuilder = command_x(tool_build_station)
-	local rotator = command_x(tool_rotate_building)
-	local remover = command_x(tool_remover)
 
 	ASSERT_EQUAL(setclimate.work(pl, coord3d(4, 2, 0), coord3d(5, 2, 0), "" + cl_water), null)
 	ASSERT_EQUAL(setslope(pl, coord3d(3, 2, 0), slope.east), null)
-	ASSERT_EQUAL(stationbuilder.work(pl, coord3d(3, 2, 0), harbour.get_name()), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(3, 2, 0), harbour.get_name()), null)
 
 	{
-		ASSERT_EQUAL(rotator.work(pl, coord3d(3, 2, 0)), "Cannot rotate this building!")
+		ASSERT_EQUAL(command_x(tool_rotate_building).work(pl, coord3d(3, 2, 0)), "Cannot rotate this building!")
 	}
 
 	// clean up
-	ASSERT_EQUAL(remover.work(pl, coord3d(3, 2, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(3, 2, 0)), null)
 	ASSERT_EQUAL(setslope(pl, coord3d(3, 2, 0), slope.flat), null)
 	ASSERT_EQUAL(setclimate.work(pl, coord3d(4, 2, 0), coord3d(5, 2, 0), "" + cl_mediterran), null)
 

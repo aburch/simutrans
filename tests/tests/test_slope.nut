@@ -194,6 +194,7 @@ function test_slope_restore_on_foundation()
 {
 	local pl = player_x(0)
 
+	ASSERT_EQUAL(command_x(tool_add_city).work(player_x(1), coord3d(8, 8, 0), "0"), null)
 	ASSERT_EQUAL(command_x(tool_build_house).work(pl, coord3d(4, 2, 0), "11RES_01_23"), null)
 
 	{
@@ -202,7 +203,9 @@ function test_slope_restore_on_foundation()
 
 	// clean up
 	ASSERT_EQUAL(command_x(tool_remover).work(player_x(1), coord3d(4, 2, 0)), null)
-	RESET_ALL_PLAYER_FUNDS()
+	ASSERT_EQUAL(command_x(tool_remover).work(player_x(1), coord3d(8, 8, 0)), null); // remove city
+	ASSERT_EQUAL(command_x(tool_remove_way).work(player_x(1), coord3d(7, 9, 0), coord3d(9, 9, 0), "" + wt_road), null);
+	RESET_ALL_PLAYER_FUNDS();
 }
 
 
