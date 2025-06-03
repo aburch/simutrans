@@ -346,7 +346,9 @@ bool factory_builder_t::check_construction_site(koord pos, koord size, factory_d
 		for(int y=0;y<size.y;y++) {
 			for(int x=0;x<size.x;x++) {
 				const grund_t *gr=welt->lookup_kartenboden(pos+koord(x,y));
-				if(gr==NULL  ||  !gr->is_water()  ||  gr->get_grund_hang()!=slope_t::flat) {
+
+				// need to check for water buildings (e.g. fisheries)
+				if(gr==NULL  ||  !gr->is_water()  ||  gr->get_grund_hang()!=slope_t::flat || gr->find<gebaeude_t>()) {
 					return false;
 				}
 			}

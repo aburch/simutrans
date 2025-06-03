@@ -6102,6 +6102,33 @@ bool tool_build_factory_t::init( player_t * )
 	return true;
 }
 
+
+bool tool_build_factory_t::can_build_factory_here(const factory_desc_t* fab, koord pos, int rotation, climate_bits cl)
+{
+	const koord rotated_size = fab->get_building()->get_size(rotation);
+
+	if (fab->get_placement() == factory_desc_t::Water) {
+		if (!welt->is_water(pos, rotated_size)) { // this als checks if all coords are inside the map
+			return false;
+		}
+
+		for (sint16 y = 0; y < rotated_size.x; ++y) {
+			for (sint16 x = 0; x < rotated_size.y; ++x) {
+				if (welt->lookup_kartenboden_nocheck(pos + koord(x,y))->find<gebaeude_t>()) {
+					return false; // some other water-building (e.g. factory) in the way
+				}
+			}
+		}
+	}
+	// solid ground
+	else if (!welt->square_is_free(pos, rotated_size.x, rotated_size.y, NULL, cl )) {
+		return false;
+	}
+
+	return true;
+}
+
+
 /* builds an industry next to the cursor (default_param see above) */
 const char *tool_build_factory_t::work( player_t *player, koord3d pos )
 {
@@ -6123,32 +6150,18 @@ const char *tool_build_factory_t::work( player_t *player, koord3d pos )
 	if(fab==NULL) {
 		return "";
 	}
+
 	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % fab->get_building()->get_all_layouts() : simrand(fab->get_building()->get_all_layouts());
-	koord size = fab->get_building()->get_size(rotation);
 
 	// process ignore climates switch
 	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : fab->get_building()->get_allowed_climate_bits();
 
-	bool hat_platz = false;
-	if(fab->get_placement()==factory_desc_t::Water) {
-		// at sea
-		hat_platz = welt->is_water( pos.get_2d(), fab->get_building()->get_size(rotation) );
+	bool hat_platz = this->can_build_factory_here(fab, pos.get_2d(), rotation, cl);
 
-		if(!hat_platz  &&  size.y!=size.x  &&  fab->get_building()->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#')) {
-			// try other rotation too ...
-			rotation = (rotation+1) % fab->get_building()->get_all_layouts();
-			hat_platz = welt->is_water( pos.get_2d(), fab->get_building()->get_size(rotation) );
-		}
-	}
-	else {
-		// and on solid ground
-		hat_platz = welt->square_is_free( pos.get_2d(), fab->get_building()->get_x(rotation), fab->get_building()->get_y(rotation), NULL, cl );
-
-		if(!hat_platz  &&  size.y!=size.x  &&  fab->get_building()->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#')) {
-			// try other rotation too ...
-			rotation = (rotation+1) % fab->get_building()->get_all_layouts();
-			hat_platz = welt->square_is_free( pos.get_2d(), fab->get_building()->get_x(rotation), fab->get_building()->get_y(rotation), NULL, cl );
-		}
+	if (!hat_platz && fab->get_building()->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#')) {
+		// try other rotation
+		rotation = (rotation +1) % fab->get_building()->get_all_layouts();
+		hat_platz = this->can_build_factory_here(fab, pos.get_2d(), rotation, cl);
 	}
 
 	if(hat_platz) {

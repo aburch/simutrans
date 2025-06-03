@@ -32,6 +32,7 @@ class koord;
 class way_builder_t;
 class building_desc_t;
 class roadsign_desc_t;
+class factory_desc_t;
 class way_desc_t;
 class route_t;
 class way_obj_desc_t;
@@ -567,7 +568,11 @@ public:
 	bool init(player_t*) OVERRIDE;
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_keeps_game_state() const OVERRIDE { return true; }
+
+private:
+	bool can_build_factory_here(const factory_desc_t *desc, koord topleft, int rotation, climate_bits cl);
 };
+
 
 class tool_link_factory_t : public two_click_tool_t {
 public:

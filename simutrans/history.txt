@@ -5,8 +5,9 @@
 	ADD: New simple tool 43 to highlight single ribi ways
 	CHG: Pause tool unpauses server waiting for clients
 	FIX: new city buildings were built when exceeded 2x1 size (only renovated)
+	FIX: Missing collision check for water factories
 
-
+	
 Release of 124.3.1 (r11671 on 5-Apr-2025):
 	CHG: option for pakset dump versus all other debug by appending 'p' to the debug level, e.g. "-debug 0p" to show only pak details to declutter server logs
 	CHG: tram system type way can be laid over other tracks as well (like pak192 narrowgauge over normal rails)
