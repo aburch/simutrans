@@ -278,8 +278,8 @@ function test_building_buy_house_from_public_player()
 	{
 		ASSERT_EQUAL(command_x(tool_buy_house).work(pl, coord3d(0,0,0)), null)
 		ASSERT_EQUAL(building_x(0,0,0).get_owner().nr, pl.nr)
-		ASSERT_GREATER(pl.get_current_maintenance(), old_maint)
-		ASSERT_LESS(pl.get_cash()[0], old_cash)
+		ASSERT_TRUE(pl.get_current_maintenance() > old_maint)
+		ASSERT_TRUE(pl.get_cash()[0] < old_cash)
 	}
 
 	old_cash = pl.get_cash()[0]

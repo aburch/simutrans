@@ -28,25 +28,6 @@ function ASSERT_EQUAL(act, exp)
 	}
 }
 
-function ASSERT_LESS(lhs, rhs)
-{
-	if (!(lhs < rhs)) {
-		local err = ttext("Assertion failed, '{lhs} &lt; {rhs}' was not true")
-		err.lhs = make_assertion_str(lhs)
-		err.rhs = make_assertion_str(rhs)
-		throw err.tostring()
-	}
-}
-
-function ASSERT_GREATER(lhs, rhs)
-{
-	if (!(lhs > rhs)) {
-		local err = ttext("Assertion failed, '{lhs} &gt; {rhs}' was not true")
-		err.lhs = make_assertion_str(lhs)
-		err.rhs = make_assertion_str(rhs)
-		throw err.tostring()
-	}
-}
 
 function ASSERT_TRUE(a)
 {
