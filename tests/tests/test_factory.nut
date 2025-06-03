@@ -146,6 +146,32 @@ function test_factory_build_climate()
 }
 
 
+function test_factory_build_on_water_occupied()
+{
+	local dims = factory_desc_x("Oelbohrinsel").building_desc.get_size(0);
+	ASSERT_TRUE(dims.x > 1)
+	ASSERT_TRUE(dims.y > 1)
+
+	// make water
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(1), coord3d(0,0,0), coord3d(8,8,0), "" + cl_water), null);
+
+	// make factory
+	ASSERT_EQUAL(build_factory(player_x(1), coord3d(4,4,0), 1, 1, 1000, "Oelbohrinsel"), null)
+
+	{
+		// check all 4 corners
+		ASSERT_EQUAL(build_factory(player_x(1), coord3d(3,3,0), 1, 1, 1000, "Oelbohrinsel"), "No suitable ground!")
+		ASSERT_EQUAL(build_factory(player_x(1), coord3d(5,3,0), 1, 1, 1000, "Oelbohrinsel"), "No suitable ground!")
+		ASSERT_EQUAL(build_factory(player_x(1), coord3d(5,5,0), 1, 1, 1000, "Oelbohrinsel"), "No suitable ground!")
+		ASSERT_EQUAL(build_factory(player_x(1), coord3d(3,5,0), 1, 1, 1000, "Oelbohrinsel"), "No suitable ground!")
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_remover).work(player_x(1), coord3d(4,4,0)), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
 function test_factory_build_with_fields()
 {
 	local pl = player_x(0)
