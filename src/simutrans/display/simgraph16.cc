@@ -374,9 +374,9 @@ struct imd {
 
 #define TRANSPARENT_RUN (0x8000u)
 
-static scr_coord_val disp_width  = 640;
-static scr_coord_val disp_actual_width  = 640;
-static scr_coord_val disp_height = 480;
+static scr_coord_val disp_width         = 640; // pitch (in pixels) of the render target texture
+static scr_coord_val disp_actual_width  = 640; // window width
+static scr_coord_val disp_height        = 480; // window height
 
 
 /*
@@ -4666,11 +4666,11 @@ bool display_snapshot( const scr_rect &area )
 
 	raw_image_t img(clipped_area.w, clipped_area.h, raw_image_t::FMT_RGB888);
 
-	for (scr_coord_val y = clipped_area.y; y < clipped_area.y + clipped_area.h; ++y) {
+	for (scr_coord_val y = 0; y < clipped_area.h; ++y) {
 		uint8 *dst = img.access_pixel(0, y);
-		const PIXVAL *row = textur + clipped_area.x + y*disp_width;
+		const PIXVAL *row = textur + (clipped_area.x + 0) + (clipped_area.y + y) * disp_width;
 
-		for (scr_coord_val x = clipped_area.x; x < clipped_area.x + clipped_area.w; ++x) {
+		for (scr_coord_val x = 0; x < clipped_area.w; ++x) {
 			const rgb888_t pixel = pixval_to_rgb888(*row++);
 			*dst++ = pixel.r;
 			*dst++ = pixel.g;
