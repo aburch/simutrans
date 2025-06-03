@@ -7,6 +7,7 @@
 	FIX: new city buildings were built when exceeded 2x1 size (only renovated)
 	FIX: Missing collision check for water factories
 	FIX: Crash when screenshotting in-game window with non-0 position
+	FIX: Graphical glitch when dragging the forest tool across slopes if pakset does not have double grounds
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):
