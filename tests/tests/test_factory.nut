@@ -168,6 +168,7 @@ function test_factory_build_on_water_occupied()
 
 	// clean up
 	ASSERT_EQUAL(command_x(tool_remover).work(player_x(1), coord3d(4,4,0)), null)
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(1), coord3d(0,0,0), coord3d(8,8,0), "" + cl_mediterran), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
 
