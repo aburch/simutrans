@@ -93,10 +93,10 @@ void init_fab_map( karte_t *welt )
  * @param x,y world position, needs to be valid coordinates
  * @returns true, if factory coordinate
  */
-inline bool is_factory_at(sint16 x, sint16 y)
+inline bool is_factory_at(koord p)
 {
-	uint32 idx = (fab_map_w*y)+(x/8);
-	return idx < fab_map.get_count()  &&  (fab_map[idx]&(1<<(x%8)))!=0;
+	uint32 idx = (fab_map_w*p.y)+(p.x/8);
+	return idx < fab_map.get_count()  &&  (fab_map[idx]&(1<<(p.x%8)))!=0;
 }
 
 
@@ -118,9 +118,15 @@ public:
 
 	bool is_area_ok(koord pos, sint16 w, sint16 h, climate_bits cl) const OVERRIDE
 	{
+		// do not build too close to an existing factory
+		if (is_factory_at(pos) || is_factory_at(pos+koord(w,h))) {
+			return false;
+		}
+
 		if(  !building_placefinder_t::is_area_ok(pos, w, h, cl)  ) {
 			return false;
 		}
+
 		uint16 mincond = 0;
 		uint16 condmet = 0;
 		switch(site) {
@@ -136,19 +142,15 @@ public:
 		}
 
 		// needs to run one tile wider than the factory on all sides
-		for (sint16 y = -1;  y <= h; y++) {
-			for (sint16 x = -1; x <= w; x++) {
+		for (sint16 y = -1;  y < h; y++) {
+			for (sint16 x = -1; x < w; x++) {
 				koord k(pos + koord(x,y));
 				grund_t *gr = welt->lookup_kartenboden(k);
 				if (!gr) {
 					return false;
 				}
-				// do not build on an existing factory
-				if( is_factory_at(k.x, k.y)  ) {
-					return false;
-				}
 				if(  0 <= x  &&  x < w  &&  0 <= y  &&  y < h  ) {
-					// actual factorz tile: is there something top like elevated monorails?
+					// actual factory tile: is there something top like elevated monorails?
 					if(  gr->get_leitung()!=NULL  ||  welt->lookup(gr->get_pos()+koord3d(0,0,1)  )!=NULL) {
 						// something on top (monorail or power lines)
 						return false;
@@ -341,14 +343,19 @@ void factory_builder_t::find_producer(weighted_vector_tpl<const factory_desc_t *
 
 bool factory_builder_t::check_construction_site(koord pos, koord size, factory_desc_t::site_t site, bool is_factory, climate_bits cl)
 {
+	// do not build too close or on an existing factory
+	if (!welt->is_within_limits(pos) || is_factory_at(pos) || is_factory_at(pos+size)) {
+		return false;
+	}
+
 	// check for water (no shore in sight!)
 	if(site==factory_desc_t::Water) {
-		for(int y=0;y<size.y;y++) {
-			for(int x=0;x<size.x;x++) {
-				const grund_t *gr=welt->lookup_kartenboden(pos+koord(x,y));
-
+		// we want at least 3 tiles of empty water around a water factory
+		for (int y = -3; y < size.y + 3; y++) {
+			for (int x = -3; x < size.x + 3; x++) {
+				const grund_t* gr = welt->lookup_kartenboden(pos + koord(x, y));
 				// need to check for water buildings (e.g. fisheries)
-				if(gr==NULL  ||  !gr->is_water()  ||  gr->get_grund_hang()!=slope_t::flat || gr->find<gebaeude_t>()) {
+				if (gr == NULL  ||  !gr->is_water()  ||  gr->get_grund_hang() != slope_t::flat  ||  gr->find<gebaeude_t>()) {
 					return false;
 				}
 			}
@@ -359,11 +366,6 @@ bool factory_builder_t::check_construction_site(koord pos, koord size, factory_d
 			return factory_site_searcher_t(welt, site).is_area_ok(pos, size.x, size.y, cl);
 		}
 		else {
-			// check on land
-			// do not build too close or on an existing factory
-			if( !welt->is_within_limits(pos)  || is_factory_at(pos.x, pos.y)  ) {
-				return false;
-			}
 			return welt->square_is_free(pos, size.x, size.y, NULL, cl);
 		}
 	}
@@ -375,11 +377,6 @@ koord3d factory_builder_t::find_random_construction_site(koord pos, int radius, 
 {
 	bool is_factory = desc->get_type()==building_desc_t::factory;
 	bool wasser = site == factory_desc_t::Water;
-
-	if(wasser) {
-		// to ensure at least 3x3 water around (maybe this should be the station catchment area+1?)
-		size += koord(6,6);
-	}
 
 	climate_bits climates = !ignore_climates ? desc->get_allowed_climate_bits() : ALL_CLIMATES;
 	if (ignore_climates  &&  site != factory_desc_t::Water) {
@@ -418,10 +415,6 @@ koord3d factory_builder_t::find_random_construction_site(koord pos, int radius, 
 	return koord3d::invalid;
 
 finish:
-	if(wasser) {
-		// take care of offset
-		return welt->lookup_kartenboden(k+koord(3, 3))->get_pos();
-	}
 	return welt->lookup_kartenboden(k)->get_pos();
 }
 
