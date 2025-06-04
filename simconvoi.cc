@@ -1943,6 +1943,13 @@ void convoi_t::ziel_erreicht()
 	}
 
 	register_journey_time();
+	// set arrived time
+	c = self;
+	while(c.is_bound()) {
+		c->change_line_to_next_if_needed();
+		c->set_time_last_arrived(world()->get_ticks());
+		c = c->get_coupling_convoi();
+	}
 	halthandle_t halt = haltestelle_t::get_stoppable_halt(schedule->get_current_entry().pos,owner);
 
 	// check for coupling
@@ -5406,9 +5413,6 @@ void convoi_t::register_journey_time() {
 				window->update();
 			}
 		}
-		c->try_to_jump_to_other_line();
-		c->set_time_last_arrived(world()->get_ticks());
-		c = c->get_coupling_convoi();
 	}
 }
 
@@ -5447,7 +5451,7 @@ void convoi_t::calc_sum_friction_weight() {
 }
 
 // jump to other line's schedule
-void convoi_t::try_to_jump_to_other_line() 
+void convoi_t::change_line_to_next_if_needed() 
 {
 	// this convoy does not reach the handing-over point of schedule.
 	if( get_schedule()->get_current_stop()!=get_schedule()->get_count()-1 ) {
@@ -5462,7 +5466,7 @@ void convoi_t::try_to_jump_to_other_line()
 	if(  l->get_owner() != get_owner() ) {
 		return;
 	}
-	dbg->message("convoi_t::try_to_jump_to_other_line()","%s will change schedule to line %s",get_name(),l->get_name());
+	dbg->message("convoi_t::change_line_to_next_if_needed()","%s will change schedule to line %s",get_name(),l->get_name());
 	// ok now jump to the next_line's schedule
 	// unset_line();
 	if(!line.is_bound()) {

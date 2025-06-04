@@ -1094,7 +1094,7 @@ public:
 
 	// jump to other line's schedule
 	// the new line is stored in schedule->next_line_id
-	void try_to_jump_to_other_line();
+	void change_line_to_next_if_needed();
 
 };
 
