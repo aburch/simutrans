@@ -677,7 +677,7 @@ void schedule_gui_t::update_selection()
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
 		const uint8 current_stop = schedule->get_current_stop();
-		if(  haltestelle_t::get_stoppable_halt(schedule->at(current_stop).pos, player).is_bound()  && (  (current_stop != schedule->get_count()-1)  ||  !schedule->is_next_line()  )  ) {
+		if(  haltestelle_t::get_stoppable_halt(schedule->at(current_stop).pos, player).is_bound()  && (  (current_stop != schedule->get_count()-1)  ||  !schedule->next_line_exists()  )  ) {
 			
 			const uint8 c = schedule->at(current_stop).get_coupling_point();
 			bt_find_parent.enable();
@@ -1171,7 +1171,7 @@ void schedule_gui_t::init_next_line_selector()
 
 	// keep assignment with identical schedules
 	if(  schedule->get_next_line().is_bound()  ) {
-		if(  schedule->is_next_line()  ) {
+		if(  schedule->next_line_exists()  ) {
 			temp_next_line=schedule->get_next_line();
 		}
 		else {

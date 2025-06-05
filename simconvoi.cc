@@ -5458,7 +5458,7 @@ void convoi_t::change_line_to_next_if_needed()
 		return;
 	}
 	// the next_line is wrong
-	if( !get_schedule()->is_next_line() ) {
+	if( !get_schedule()->next_line_exists() ) {
 		return;
 	}
 	linehandle_t l = get_schedule()->get_next_line();
@@ -5583,7 +5583,7 @@ void convoi_t::next_stop_button_pressed() {
 		if( !c->can_continue_coupling() ) {
 			c->uncouple_convoi();
 		}
-		if( schedule->get_current_stop() < schedule->get_count()-1 || !schedule->is_next_line() ) {
+		if( schedule->get_current_stop() < schedule->get_count()-1 || !schedule->next_line_exists() ) {
 			schedule->advance();
 		} else {
 			if( !line.is_bound() ) {

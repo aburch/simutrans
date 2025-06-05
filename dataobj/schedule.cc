@@ -740,7 +740,7 @@ void schedule_t::advanced_entry(const uint8 advance_stop_number, uint8& result_e
 		result_entry_number = current_stop + advance_stop_number;
 		return;
 	}
-	else if( !is_next_line() ) {
+	else if( !next_line_exists() ) {
 		_schedule = this;
 		result_entry_number = (current_stop + advance_stop_number)%entries.get_count();
 		return;
@@ -753,7 +753,7 @@ void schedule_t::advanced_entry(const uint8 advance_stop_number, uint8& result_e
 
 // check if the next line is set.
 // if the next line is wrong, unset it.
-bool schedule_t::is_next_line() {
+bool schedule_t::next_line_exists() {
 	if(  !next_line.is_bound()  ||  next_line->get_schedule()->get_count()<2 ||  next_line->linetype_to_waytype(next_line->get_linetype()) != get_waytype()  ) {
 		set_next_line(linehandle_t());
 		return false;
@@ -773,7 +773,7 @@ void schedule_t::set_next_line( linehandle_t l ) {
 		return;
 	}
 	set_next_line(l);
-	if(  !is_next_line()  ) {
+	if(  !next_line_exists()  ) {
 		return;
 	}
 	// now set the last stop as next_line.entries[0]
