@@ -32,6 +32,8 @@ Release of 124.3.1 (r11671 on 5-Apr-2025):
 	FIX: make sure, the pak path and working path are really different
 	FIX: single way tile did not force bridge direction
 	FIX: multitile city building totally renovated, 3x faster city growth (at the start of the map in debug mode)
+	ADD: (mostly Yona-TYT) flowtext recognised img tag. For now only tags "#?XXX" are supported, where ? is one of these letter GSDTW and XXX a number. G is a general tool icon, S and simple tool, D is dialog tool, T a toolbar and W and window gadget.
+
 
 Release of 124.3 (r11590 on 10-Jan-2025):
 	FIX: open schedule get applied during rw (reload, quit, change language), line window crashes

@@ -14,6 +14,7 @@
 #include "../simtypes.h"
 #include "../tpl/quickstone_tpl.h"
 #include "../utils/cbuffer.h"
+#include "../gui/gui_theme.h"
 
 class baum_t;
 class bruecke_t;
@@ -380,6 +381,8 @@ namespace script_api {
 	declare_enum_param(systemtype_t, uint8, "way_system_types");
 	declare_enum_param(obj_t::typ, uint8, "map_objects");
 	declare_enum_param(climate, uint8, "climates");
+	declare_enum_param(gadget_t, uint8, "gadgets");
+
 	declare_specialized_param(my_ribi_t, "i", "dir");
 	declare_specialized_param(my_slope_t, "i", "slope");
 

@@ -299,4 +299,18 @@ void export_global_constants(HSQUIRRELVM vm)
 	enum_slot(vm, "cl_arctic", arctic_climate);
 	end_enum();
 
+	/**
+	 * Gadgets ides. They are used to obtain the image id of the gadgets.
+	 */
+	begin_enum("gadgets");
+	enum_slot(vm, "ga_close", SKIN_GADGET_CLOSE);
+	enum_slot(vm, "ga_help", SKIN_GADGET_HELP);
+	enum_slot(vm, "ga_minimize", SKIN_GADGET_MINIMIZE);
+	enum_slot(vm, "ga_previous", SKIN_BUTTON_PREVIOUS);
+	enum_slot(vm, "ga_next", SKIN_BUTTON_NEXT);
+	enum_slot(vm, "ga_notpinned", SKIN_GADGET_NOTPINNED);
+	enum_slot(vm, "ga_pinned", SKIN_GADGET_PINNED);
+	enum_slot(vm, "ga_resize", SKIN_WINDOW_RESIZE);
+	enum_slot(vm, "ga_gotopos", SKIN_GADGET_GOTOPOS);
+	end_enum();
 }
