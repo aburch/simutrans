@@ -18,10 +18,6 @@
 
 #include "gui_flowtext.h"
 
-#include <iostream>
-#include <regex>
-#include <iterator>
-
 
 /**
  * A component for floating text.

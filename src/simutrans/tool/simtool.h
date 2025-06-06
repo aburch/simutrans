@@ -448,7 +448,7 @@ class tool_build_roadsign_t : public two_click_tool_t
 {
 	struct signal_info_t
 	{
-		uint8 spacing = 2; // place signals every n tiles
+		uint8 spacing = 5; // place signals every n tiles (smaller than 4 will hut maximum speed if not all clear some tiles ahead)
 		bool  remove_intermediate = true;
 		bool  replace_other = true;
 	};
