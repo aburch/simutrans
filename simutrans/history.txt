@@ -9,6 +9,10 @@
 	FIX: Crash when screenshotting in-game window with non-0 position
 	FIX: Graphical glitch when dragging the forest tool across slopes if pakset does not have double grounds
 	FIX: Possible save file corruption when reverting to default settings using the settings window
+	FIX: single way tile did not force bridge direction
+	FIX: multitile city building totally renovated, 3x faster city growth (at the start of the map in debug mode)
+	ADD: (mostly Yona-TYT) flowtext recognised img tag. For now only tags "#?XXX" are supported, where ? is one of these letter GSDTW and XXX a number. G is a general tool icon, S and simple tool, D is dialog tool, T a toolbar and W and window gadget.
+	CHG: default signal spacing for dragiing to 5 (as 4 and smaller can slow down trains faster than 200 km/h)
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):
@@ -31,10 +35,6 @@ Release of 124.3.1 (r11671 on 5-Apr-2025):
 	CHG: with pause setting, server saves game after going to pause => immediately able to fulfill join requests and more current savegames on crashing servers
 	ADD: CURRENCY is now translateable to a local currency (no conversions though) and can be also modified by the user
 	FIX: make sure, the pak path and working path are really different
-	FIX: single way tile did not force bridge direction
-	FIX: multitile city building totally renovated, 3x faster city growth (at the start of the map in debug mode)
-	ADD: (mostly Yona-TYT) flowtext recognised img tag. For now only tags "#?XXX" are supported, where ? is one of these letter GSDTW and XXX a number. G is a general tool icon, S and simple tool, D is dialog tool, T a toolbar and W and window gadget.
-	CHG: default signal spacing for dragiing to 5 (as 4 and smaller can slow down trains faster than 200 km/h)
 
 
 Release of 124.3 (r11590 on 10-Jan-2025):
