@@ -85,11 +85,17 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 bool settings_frame_t::action_triggered( gui_action_creator_t *comp, value_t )
 {
 	// some things must stay the same when loading defaults
+	const sint32 old_size_x     = sets->size_x;
+	const sint32 old_size_y     = sets->size_y;
+	const sint32 old_number     = sets->map_number;
+	const uint8  old_rot        = sets->rotation;
+	const uint32 old_city_count = sets->city_count;
+
 	std::string old_save = sets->get_filename();
-	sint32 old_number = sets->get_map_number();
-	uint8 old_rot = sets->get_rotation();
+
 	uint8 old_player_type[MAX_PLAYER_COUNT];
 	memcpy(old_player_type, sets->player_type, sizeof(old_player_type));
+
 	// now we can change values
 	if(  comp==&revert_to_simuconf  ) {
 		// reread from simucon.tab(s) the settings and apply them
@@ -155,10 +161,15 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *comp, value_t )
 		climates.init(sets);
 		set_windowsize(get_windowsize());
 	}
+
 	// restore essential values
-	sets->set_filename(old_save.c_str());
+	sets->set_size(old_size_x, old_size_y);
 	sets->map_number = old_number;
-	sets->rotation = old_rot;
+	sets->rotation   = old_rot;
+	sets->city_count = old_city_count;
+
+	sets->set_filename(old_save.c_str());
+
 	memcpy(sets->player_type, old_player_type, sizeof(old_player_type));
 	return true;
 }
