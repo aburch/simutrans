@@ -151,11 +151,11 @@ bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint16 waiting
 		return false;
 	}
 	if(is_stop_allowed(gr)) {
-		if( !next_line.is_bound() ) {
-			entries.append(schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, stop_flags), 4);
+		if( next_line.is_bound() ) {
+			entries.insert_at(entries.get_count()-1, schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, stop_flags));
 			return true;
 		} else {
-			entries.insert_at(entries.get_count()-1, schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, stop_flags));
+			entries.append(schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, stop_flags), 4);
 			return true;
 		}
 	}
@@ -246,14 +246,7 @@ void schedule_t::rdwr(loadsave_t *file)
 	}
 
 	if(  file->get_OTRP_version()>=45  ) {
-		if( file->is_loading() ) {
-			uint16 next_line_id;
-			file->rdwr_short(next_line_id);
-			next_line.set_id(next_line_id);
-		} else {
-			uint16 next_line_id = next_line.get_id();
-			file->rdwr_short(next_line_id);
-		}
+		simline_t::rdwr_linehandle_t(file,next_line);
 	} else {
 		next_line = linehandle_t();
 	}
@@ -704,11 +697,12 @@ void schedule_t::gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* 
 	}
 }
 
-schedule_entry_t const& schedule_t::get_next_entry() {
+schedule_entry_t const& schedule_t::get_next_entry() const {
 	if(  entries.empty()  ) {
 		return dummy_entry;
 	} 
 	if(  check_next_line_valid()  &&  current_stop==entries.get_count()-1  ){
+		// Use the index 1, because the index 0 is same as the last entry of this schedule.
 		return next_line->get_schedule()->at(1);
 	}
 	return entries[(current_stop+1)%entries.get_count()];
@@ -718,9 +712,6 @@ void schedule_t::advance()
 {
 	if(  entries.empty()  ){
 		return;
-	}
-	if(  check_next_line_valid()  &&  current_stop==entries.get_count()-1  ){
-		dbg->error("schedule_t::advance()","advance() must not be called when schedule is jumped");
 	}
 	current_stop=(current_stop+1)%entries.get_count();
 	return;

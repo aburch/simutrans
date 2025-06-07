@@ -677,6 +677,8 @@ void schedule_gui_t::update_selection()
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
 		const uint8 current_stop = schedule->get_current_stop();
+		// if the next_line is set, the last entry is same as the next_line->get_schedule()->at(0)
+		// so, the flags of last entry can not be editted.
 		if(  haltestelle_t::get_stoppable_halt(schedule->at(current_stop).pos, player).is_bound()  && (  (current_stop != schedule->get_count()-1)  ||  !schedule->get_next_line().is_bound()  )  ) {
 			
 			const uint8 c = schedule->at(current_stop).get_coupling_point();
@@ -957,6 +959,7 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 		if(  line >= 0 && line < schedule->get_count()  ) {
 			schedule->set_current_stop( line );
 			if(  mode == removing  ) {
+				// if next_line.is_bound(), the last entry is dummy entry for calculating route.
 				if(  !schedule->get_next_line().is_bound() || line < schedule->get_count()-1  ) {
 					stats->highlight_schedule( false );
 					schedule->remove();
@@ -1165,16 +1168,12 @@ void schedule_gui_t::init_next_line_selector()
 	next_line_selector.clear_elements();
 	uint16 selection = 0;
 	vector_tpl<linehandle_t> lines;
-	linehandle_t temp_next_line; 
 
 	player->simlinemgmt.get_lines(schedule->get_type(), &lines);
 
 	// keep assignment with identical schedules
 	if(  schedule->get_next_line().is_bound()  ) {
-		if(  schedule->check_next_line_valid()  ) {
-			temp_next_line=schedule->get_next_line();
-		}
-		else {
+		if(  !schedule->check_next_line_valid()  ) {
 			schedule->set_next_line(linehandle_t());
 		}
 	}
@@ -1187,7 +1186,7 @@ void schedule_gui_t::init_next_line_selector()
 		if(  !*schedule_filter  ||  utf8caseutf8(line->get_name(), schedule_filter)  ) {
 			next_line_selector.new_component<non_color_line_scroll_item_t>(line);
 		}
-		if(  temp_next_line == line  ) {
+		if(  schedule->get_next_line() == line  ) {
 			selection = next_line_selector.count_elements()-1;
 		}
 	}

@@ -5336,8 +5336,10 @@ bool convoi_t::can_start_coupling(convoi_t* parent) const {
 		// all schedule entries are waypoint.
 		return false;
 	}
-	const schedule_entry_t t_c = (schedule->check_next_line_valid()&&t_idx==schedule->get_count()-1)?schedule->get_next_line()->get_schedule()->at(0):schedule->at(t_idx);
-	const schedule_entry_t t_n = (schedule->check_next_line_valid()&&t_idx==schedule->get_count()-1)?schedule->get_next_line()->get_schedule()->at(1):schedule->at((t_idx+1)%schedule->get_count());
+	// if the entry is dummy entry for jump to other line schedule, we check not this schedule's entries but the next_line schedule's entries.
+	const bool is_at_dummy_entry = schedule->check_next_line_valid()&&t_idx==schedule->get_count()-1;
+	const schedule_entry_t t_c = is_at_dummy_entry?schedule->get_next_line()->get_schedule()->at(0):schedule->at(t_idx);
+	const schedule_entry_t t_n = is_at_dummy_entry?schedule->get_next_line()->get_schedule()->at(1):schedule->at((t_idx+1)%schedule->get_count());
 	const schedule_entry_t p_c = parent->get_schedule()->get_current_entry();
 	const schedule_entry_t p_n = parent->get_schedule()->get_next_entry();
 
@@ -5413,7 +5415,7 @@ void convoi_t::register_journey_time() {
 				window->update();
 			}
 		}
-		c=c->get_coupling_convoi();
+		c = c->get_coupling_convoi();
 	}
 }
 

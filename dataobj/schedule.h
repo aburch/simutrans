@@ -120,7 +120,7 @@ public:
 	/// returns the current stop, always a valid entry
 	schedule_entry_t const& get_current_entry() const { return current_stop >= entries.get_count() ? dummy_entry : entries[current_stop]; }
 	
-	schedule_entry_t const& get_next_entry();
+	schedule_entry_t const& get_next_entry() const;
 
 	/**
 	 * Set the current stop of the schedule .
