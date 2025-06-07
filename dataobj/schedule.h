@@ -132,17 +132,16 @@ public:
 	}
 
 	/// advance current_stop by one
+	// DO NOT CALL THIS FUNCTION WHEN SCHEDULE IS JUMPED TO OTHER!
 	void advance();
-
-	// read next_line and return the entry of next_line
-	void advanced_entry(const uint8 advance_stop_number, uint8& result_entry_number, schedule_t* _schedule);
 	
 	// next_line setting
 	void set_next_line( linehandle_t l );
 	void unset_next_line();
 	linehandle_t get_next_line() const {return next_line;}
 	// next_line condition is ok?
-	bool next_line_exists();
+	bool check_next_line_valid() const {return is_valid_as_next_line(next_line);}
+	bool is_valid_as_next_line( linehandle_t ) const;
 
 	inline bool is_editing_finished() const { return editing_finished; }
 	void finish_editing() { editing_finished = true; }
