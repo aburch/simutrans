@@ -307,11 +307,14 @@ void haltestelle_t::recalc_basis_pos()
 	uint64 level_sum;
 	level_sum = 0;
 	bool has_above = false;
+
 	for (tile_t const& i : tiles) {
-		if (has_above = !i.grund->ist_im_tunnel()) {
+		has_above = !i.grund->ist_im_tunnel();
+		if (has_above) {
 			break;
 		}
 	}
+
 	for (tile_t const& i : tiles) {
 		if (has_above && i.grund->ist_im_tunnel()) {
 			// use overground tiles only for center calculation unless its all tunnel
@@ -326,6 +329,7 @@ void haltestelle_t::recalc_basis_pos()
 			level_sum += lv;
 		}
 	}
+
 	koord3d cent;
 	cent = koord3d((sint16)(cent_x / level_sum), (sint16)(cent_y / level_sum), (sint8)(cent_z / level_sum));
 	if (!welt->lookup(cent)) {

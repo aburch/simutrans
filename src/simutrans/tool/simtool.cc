@@ -8565,8 +8565,8 @@ bool tool_recolour_t::init(player_t *)
 					return false;
 				}
 			}
-			// fallthrough
 		}
+		// fallthrough
 
 		default:
 			dbg->error( "tool_recolour_t::init", "Illegal request for player colour change! (%s)", default_param );

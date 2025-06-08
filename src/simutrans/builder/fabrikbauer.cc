@@ -376,7 +376,6 @@ bool factory_builder_t::check_construction_site(koord pos, koord size, factory_d
 koord3d factory_builder_t::find_random_construction_site(koord pos, int radius, koord size, factory_desc_t::site_t site, const building_desc_t *desc, bool ignore_climates, uint32 max_iterations)
 {
 	bool is_factory = desc->get_type()==building_desc_t::factory;
-	bool wasser = site == factory_desc_t::Water;
 
 	climate_bits climates = !ignore_climates ? desc->get_allowed_climate_bits() : ALL_CLIMATES;
 	if (ignore_climates  &&  site != factory_desc_t::Water) {

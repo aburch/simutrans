@@ -157,6 +157,7 @@ void building_desc_t::calc_checksum(checksum_t *chk) const
 		case city_com:
 		case city_ind:
 			if(extra_data) PAKSET_INFO("clusters=","%d",extra_data);
+			// fallthrough
 		case attraction_land:
 		case factory:
 			if(preservation_year_month!=DEFAULT_RETIRE_YEAR*12) {
@@ -186,6 +187,7 @@ void building_desc_t::calc_checksum(checksum_t *chk) const
 			if(enables&2) PAKSET_INFO("enables_post=","1");
 			if(enables&4) PAKSET_INFO("enables_ware=","1");
 			if(allow_underground) PAKSET_INFO("allow_underground=","1");
+			// fallthrough
 		case depot:
 			PAKSET_INFO("waytype=","%s",weg_t::waytype_to_string((waytype_t)extra_data));
 			break;

@@ -331,7 +331,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		// first: check roadsigns
 		const roadsign_t* rs = NULL;
 		if(  str->has_sign()  ) {
-			if(rs = gr->find<roadsign_t>(1)) {
+			if((rs = gr->find<roadsign_t>(1)) != NULL) {
 				route_t const& r = *cnv->get_route();
 
 				if(  route_index + 1u < r.get_count()  ) {

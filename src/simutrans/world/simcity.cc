@@ -3067,8 +3067,6 @@ int stadt_t::orient_city_building(const koord k, const building_desc_t *h, koord
 	}
 
 	// if we arrive here, we have an asymmetric multitile building
-	int rotation = -1;
-
 	int max_layout = h->get_all_layouts()-1;
 	if (max_layout) {
 
@@ -3219,12 +3217,13 @@ bool stadt_t::check_ground_tile_for_house(grund_t *gr, sint8 zpos) const
 gebaeude_t* stadt_t::build_city_house(koord3d base_pos, const building_desc_t* h, uint8 rotation, uint32 cl, vector_tpl<const building_desc_t *> *exclude_desc)
 {
 	bool recalc_foundations = false;;
-	gebaeude_t* org = NULL;
 
 	koord min_size(0, 0);
 	sint16 level = 1;
 	grund_t* gr = welt->lookup_kartenboden_nocheck(base_pos.get_2d());
-	if (org = gr->find<gebaeude_t>()) {
+	gebaeude_t* org = gr->find<gebaeude_t>();
+
+	if (org) {
 		min_size = org->get_tile()->get_desc()->get_size(org->get_tile()->get_layout());
 		level = org->get_tile()->get_desc()->get_level();
 	}
@@ -3240,6 +3239,7 @@ gebaeude_t* stadt_t::build_city_house(koord3d base_pos, const building_desc_t* h
 					case building_desc_t::city_res: won -= oldgb->get_tile()->get_desc()->get_level() * 10; break;
 					case building_desc_t::city_com: arb -= oldgb->get_tile()->get_desc()->get_level() * 20; break;
 					case building_desc_t::city_ind: arb -= oldgb->get_tile()->get_desc()->get_level() * 20; break;
+					default: assert(false); break;
 				}
 				// exchange building; try to face it to street in front
 				oldgb->mark_images_dirty();
@@ -3268,6 +3268,7 @@ gebaeude_t* stadt_t::build_city_house(koord3d base_pos, const building_desc_t* h
 				case building_desc_t::city_res: won += h->get_level() * 10; break;
 				case building_desc_t::city_com: arb += h->get_level() * 20; break;
 				case building_desc_t::city_ind: arb += h->get_level() * 20; break;
+				default: assert(false); break;
 			}
 		}
 	}
@@ -3302,22 +3303,27 @@ gebaeude_t* stadt_t::build_city_house(koord3d base_pos, const building_desc_t* h
 			grund_t* gr = welt->lookup_kartenboden_nocheck(kpos);
 			gebaeude_t* oldgb = gr->find<gebaeude_t>();
 			const building_desc_t* hr = NULL;
+
 			switch (oldgb->get_tile()->get_desc()->get_type()) {
-			case building_desc_t::city_res:
-				won -= level * 10;
-				hr = hausbauer_t::get_residential(level, welt->get_timeline_year_month(), welt->get_climate(kpos), cl, 1, 1, exclude_desc);
-				won += hr->get_level();
-				break;
-			case building_desc_t::city_com:
-				arb -= level * 20;
-				hr = hausbauer_t::get_commercial(level, welt->get_timeline_year_month(), welt->get_climate(kpos), cl, 1, 1, exclude_desc);
-				arb += hr->get_level() * 20;
-				break;
-			case building_desc_t::city_ind:
-				arb -= level * 20;
-				hr = hausbauer_t::get_industrial(level, welt->get_timeline_year_month(), welt->get_climate(kpos), cl, 1, 1, exclude_desc);
-				arb += hr->get_level() * 20;
-				break;
+				case building_desc_t::city_res:
+					won -= level * 10;
+					hr = hausbauer_t::get_residential(level, welt->get_timeline_year_month(), welt->get_climate(kpos), cl, 1, 1, exclude_desc);
+					won += hr->get_level();
+					break;
+				case building_desc_t::city_com:
+					arb -= level * 20;
+					hr = hausbauer_t::get_commercial(level, welt->get_timeline_year_month(), welt->get_climate(kpos), cl, 1, 1, exclude_desc);
+					arb += hr->get_level() * 20;
+					break;
+				case building_desc_t::city_ind:
+					arb -= level * 20;
+					hr = hausbauer_t::get_industrial(level, welt->get_timeline_year_month(), welt->get_climate(kpos), cl, 1, 1, exclude_desc);
+					arb += hr->get_level() * 20;
+					break;
+
+				default:
+					assert(false);
+					break;
 			}
 			// for now we just remove it to avoid half buildings left
 			exclude_desc->append(hr);
@@ -3325,10 +3331,10 @@ gebaeude_t* stadt_t::build_city_house(koord3d base_pos, const building_desc_t* h
 			gr->calc_image();
 			update_gebaeude_from_stadt(oldgb);
 			switch (hr->get_type()) {
-			case building_desc_t::city_res: won += hr->get_level() * 10; break;
-			case building_desc_t::city_com: arb += hr->get_level() * 20; break;
-			case building_desc_t::city_ind: arb += hr->get_level() * 20; break;
-			default: break;
+				case building_desc_t::city_res: won += hr->get_level() * 10; break;
+				case building_desc_t::city_com: arb += hr->get_level() * 20; break;
+				case building_desc_t::city_ind: arb += hr->get_level() * 20; break;
+				default: break;
 			}
 		}
 	}
@@ -3447,7 +3453,6 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 	}
 
 	const koord3d base_pos = gb->get_pos();
-	const koord min_size = gb_desc->get_size(gb->get_tile()->get_layout());
 
 	// Divide unemployed by 4, because it counts towards commercial and industrial,
 	// and both of those count 'double' for population relative to residential.
