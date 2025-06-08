@@ -18,13 +18,14 @@ template<class T> class weighted_vector_tpl;
 template<class T> void swap(weighted_vector_tpl<T>&, weighted_vector_tpl<T>&);
 
 
-/** A template class for a simple vector type */
+/// A template class for a simple vector type.
 template<class T> class weighted_vector_tpl
 {
 private:
 	struct nodestruct
 	{
-		T data;
+		// expands to T if T is memcpy-able, else compile error
+		typename std::enable_if_t<std::is_trivially_copyable<T>::value, T> data;
 		uint32 weight;
 	};
 
@@ -82,40 +83,39 @@ public:
 		friend class weighted_vector_tpl;
 	};
 
-	weighted_vector_tpl() : nodes(NULL), size(0), count(0), total_weight(0) {}
+	weighted_vector_tpl() : nodes(NULL), cap(0), count(0), total_weight(0) {}
 
-	/** Construct a vector for size elements */
-	explicit weighted_vector_tpl(uint32 size)
+	/// Construct a vector with a capacity for @p capacity elements
+	explicit weighted_vector_tpl(uint32 capacity)
 	{
-		this->size  = size;
-		nodes = (size > 0 ? new nodestruct[size] : NULL);
+		this->cap  = capacity;
+		nodes = (capacity > 0 ? new nodestruct[capacity] : NULL);
 		count = 0;
 		total_weight = 0;
 	}
 
 	~weighted_vector_tpl() { delete [] nodes; }
 
-	/** sets the vector to empty */
+	/// Clears all elements from this vector
 	void clear()
 	{
 		count = 0;
 		total_weight = 0;
 	}
 
-	/**
-	 * Resizes the maximum data that can be hold by this vector.
-	 * Existing entries are preserved, new_size must be big enough
-	 * to hold them.
-	 */
-	void resize(uint32 new_size)
+	/// Ensures that the capacity of this vector is at least @p new_capacity elements.
+	/// Existing entries are preserved if the vector is re-allocated
+	/// (but their address may change).
+	void reserve(uint32 new_capacity)
 	{
-		if (new_size <= size) return; // do nothing
+		if (new_capacity <= cap) return; // do nothing
 
-		nodestruct* new_nodes = new nodestruct[new_size];
+		nodestruct *new_nodes = new nodestruct[new_capacity];
 		for (uint32 i = 0; i < count; i++) new_nodes[i] = nodes[i];
 		delete [] nodes;
-		size  = new_size;
+
 		nodes = new_nodes;
+		cap   = new_capacity;
 	}
 
 	/**
@@ -131,8 +131,9 @@ public:
 	}
 
 	/**
-	 * Checks if element elem is contained in vector.
+	 * Returns the index of @p elem. in this vector.
 	 * Uses the == operator for comparison.
+	 * @param elem must be contained in this vector.
 	 */
 	template<typename U> uint32 index_of(U elem) const
 	{
@@ -154,8 +155,8 @@ public:
 			return false;
 		}
 #endif
-		if(  count == size  ) {
-			resize(size == 0 ? 1 : size * 2);
+		if(  count == cap  ) {
+			reserve(cap == 0 ? 1 : cap * 2);
 		}
 		nodes[count].data   = elem;
 		nodes[count].weight = total_weight;
@@ -165,7 +166,7 @@ public:
 	}
 
 	/**
-	 * Checks if element is contained. Appends only new elements.
+	 * Append (@p elem, @p weight) to this vector, if not contained.
 	 */
 	bool append_unique(T elem, uint32 weight)
 	{
@@ -182,8 +183,8 @@ public:
 		}
 #endif
 		if (pos < count) {
-			if(  count==size  ) {
-				resize(size == 0 ? 1 : size * 2);
+			if(  count==cap  ) {
+				reserve(cap == 0 ? 1 : cap * 2);
 			}
 			for (uint32 i = count; i > pos; i--) {
 				nodes[i].data   = nodes[i - 1].data;
@@ -205,8 +206,8 @@ public:
 	template<class StrictWeakOrdering>
 	void insert_ordered(const T& elem, uint32 weight, StrictWeakOrdering comp)
 	{
-		if(  count==size  ) {
-			resize(size == 0 ? 1 : size * 2);
+		if(  count==cap  ) {
+			reserve(cap == 0 ? 1 : cap * 2);
 		}
 		sint32 high = count, low = -1;
 		while(  high-low>1  ) {
@@ -230,8 +231,8 @@ public:
 	template<class StrictWeakOrdering>
 	T* insert_unique_ordered(const T& elem, uint32 weight, StrictWeakOrdering comp)
 	{
-		if(  count==size  ) {
-			resize(size == 0 ? 1 : size * 2);
+		if(  count==cap  ) {
+			reserve(cap == 0 ? 1 : cap * 2);
 		}
 		sint32 high = count, low = -1;
 		while(  high-low>1  ) {
@@ -252,10 +253,11 @@ public:
 	}
 
 	/**
-		* Update the weights of all elements.  The new weight of each element is
-		* retrieved from get_weight().
-		*/
-	template<typename U> void update_weights(U& get_weight)
+	 * Update the weights of all elements.  The new weight of each element is
+	 * retrieved from get_weight().
+	 */
+	template<typename U>
+	void update_weights(U& get_weight)
 	{
 		uint32 sum = 0;
 		for (nodestruct* i = nodes, * const end = i + count; i != end; ++i) {
@@ -362,7 +364,7 @@ public:
 	uint32 get_count() const { return count; }
 
 	/** Gets the capacity */
-	uint32 get_size() const { return size; }
+	uint32 get_capacity() const { return cap; }
 
 	/** Gets the total weight */
 	uint32 get_sum_weight() const { return total_weight; }
@@ -377,8 +379,8 @@ public:
 
 private:
 	nodestruct* nodes;
-	uint32 size;                  ///< Capacity
-	uint32 count;                 ///< Number of elements in vector
+	uint32 cap;          ///< Capacity
+	uint32 count;        ///< Number of elements in vector
 	uint32 total_weight; ///< Sum of all weights
 
 	weighted_vector_tpl(const weighted_vector_tpl& other);
@@ -392,9 +394,9 @@ private:
 
 template<class T> void swap(weighted_vector_tpl<T>& a, weighted_vector_tpl<T>& b)
 {
-	sim::swap(a.nodes, b.nodes);
-	sim::swap(a.size, b.size);
-	sim::swap(a.count, b.count);
+	sim::swap(a.nodes,        b.nodes);
+	sim::swap(a.cap,          b.cap);
+	sim::swap(a.count,        b.count);
 	sim::swap(a.total_weight, b.total_weight);
 }
 

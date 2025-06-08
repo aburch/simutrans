@@ -69,7 +69,7 @@ public:
 	{
 		if(  field_classes>0  ) {
 			field_class_indices.clear();
-			field_class_indices.resize( field_classes );
+			field_class_indices.reserve( field_classes );
 			for(  uint16 i=0  ;  i<field_classes  ;  ++i  ) {
 				field_class_indices.append( i, get_field_class(i)->get_spawn_weight() );
 			}

@@ -4499,7 +4499,7 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 	if (file->is_loading()) {
 		DBG_DEBUG("karte_t::rdwr_gamestate()", "init %i cities", settings.get_city_count());
 		cities.clear();
-		cities.resize(settings.get_city_count());
+		cities.reserve(settings.get_city_count());
 		for (int i = 0; i < settings.get_city_count(); ++i) {
 			stadt_t *s = new stadt_t(file);
 			cities.append( s, s->get_einwohner());

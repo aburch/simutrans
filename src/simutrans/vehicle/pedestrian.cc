@@ -92,7 +92,7 @@ void pedestrian_t::build_timeline_list(karte_t *welt)
 			}
 		}
 	}
-	list_timeline.resize( temp_liste.get_count() );
+	list_timeline.reserve( temp_liste.get_count() );
 	for(pedestrian_desc_t const* const i : temp_liste) {
 		list_timeline.append(i, i->get_distribution_weight());
 	}
