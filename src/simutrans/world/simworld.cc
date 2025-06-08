@@ -4497,12 +4497,15 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 
 	// rdwr cities
 	if (file->is_loading()) {
-		DBG_DEBUG("karte_t::rdwr_gamestate()", "init %i cities", settings.get_city_count());
+		const sint32 num_cities = settings.get_city_count();
+		DBG_DEBUG("karte_t::rdwr_gamestate()", "init %i cities", num_cities);
+
 		cities.clear();
-		cities.reserve(settings.get_city_count());
-		for (int i = 0; i < settings.get_city_count(); ++i) {
+		cities.reserve(num_cities);
+
+		for (int i = 0; i < num_cities; ++i) {
 			stadt_t *s = new stadt_t(file);
-			cities.append( s, s->get_einwohner());
+			cities.append(s, s->get_einwohner());
 		}
 	}
 	else {
