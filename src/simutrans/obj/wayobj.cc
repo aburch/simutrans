@@ -361,15 +361,16 @@ void wayobj_t::calc_image()
 
 /* better use this constrcutor for new wayobj; it will extend a matching obj or make an new one
  */
-void wayobj_t::extend_wayobj(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_desc_t *desc, bool keep_existing_faster_way)
+void wayobj_t::extend_wayobj(koord3d pos, player_t *new_owner, ribi_t::ribi dir, const way_obj_desc_t *desc, bool keep_existing_faster_way)
 {
 	grund_t *gr=welt->lookup(pos);
 	if(gr) {
 		wayobj_t *existing_wayobj = gr->get_wayobj( desc->get_wtyp() );
 		if( existing_wayobj ) {
-			if(  ( existing_wayobj->get_desc()->get_topspeed() < desc->get_topspeed()  ||  !keep_existing_faster_way)  &&  player_t::check_owner(owner, existing_wayobj->get_owner())
-				&&  existing_wayobj->get_desc() != desc  )
-			{
+			const bool is_speed_ok = existing_wayobj->get_desc()->get_topspeed() < desc->get_topspeed() || !keep_existing_faster_way;
+			const bool is_owner_ok = player_t::check_owner(new_owner, existing_wayobj->get_owner()) || new_owner == welt->get_public_player();
+
+			if(  is_speed_ok  &&  is_owner_ok &&  existing_wayobj->get_desc() != desc) {
 				// replace slower by faster if desired
 				dir = dir | existing_wayobj->get_dir();
 				gr->set_flag(grund_t::dirty);
@@ -386,13 +387,13 @@ void wayobj_t::extend_wayobj(koord3d pos, player_t *owner, ribi_t::ribi dir, con
 		}
 
 		// nothing found => make a new one
-		wayobj_t *wo = new wayobj_t(pos,owner,dir,desc);
+		wayobj_t *wo = new wayobj_t(pos,new_owner,dir,desc);
 		gr->obj_add(wo);
 		wo->finish_rd();
 		wo->calc_image();
 		wo->mark_image_dirty( wo->get_front_image(), 0 );
 		wo->set_flag(obj_t::dirty);
-		player_t::book_construction_costs( owner,  -desc->get_price(), pos.get_2d(), desc->get_wtyp());
+		player_t::book_construction_costs( new_owner,  -desc->get_price(), pos.get_2d(), desc->get_wtyp());
 
 		for( uint8 i = 0; i < 4; i++ ) {
 		// Extend wayobjects around the new one, that aren't already connected.

@@ -234,6 +234,55 @@ function test_wayobj_upgrade_downgrade()
 }
 
 
+function test_wayobj_upgrade_change_owner()
+{
+	local pl = player_x(0)
+	local public_pl = player_x(1)
+
+	local wobj_remover = command_x(tool_remove_wayobj)
+	local rail = way_desc_x.get_available_ways(wt_rail, st_flat)[0]
+	local catenaries = wayobj_desc_x.get_available_wayobjs(wt_rail).filter(@(idx, wobj) wobj.is_overhead_line())
+	catenaries.sort(@(a, b) a.get_topspeed() <=> b.get_topspeed())
+
+	// FIXME need at least 2 catenaries
+	ASSERT_TRUE(catenaries.len() >= 1)
+	local slow_cat = catenaries[0]
+	local fast_cat = catenaries[1]
+
+	ASSERT_EQUAL(command_x.build_way(pl, coord3d(3, 4, 0), coord3d(5, 4, 0), rail, true), null)
+
+	// public player: replace catenary of normal player
+	{
+		local builder = command_x(tool_build_wayobj)
+
+		ASSERT_EQUAL(command_x.build_wayobj(pl,        coord3d(3, 4, 0), coord3d(5, 4, 0), slow_cat), null)
+		ASSERT_EQUAL(command_x.build_wayobj(public_pl, coord3d(3, 4, 0), coord3d(5, 4, 0), fast_cat), null)
+
+		ASSERT_TRUE(tile_x(3, 4, 0).find_object(mo_wayobj).get_desc().is_equal(fast_cat))
+		ASSERT_EQUAL(tile_x(3, 4, 0).find_object(mo_wayobj).get_owner().get_name(), public_pl.get_name())
+
+		ASSERT_EQUAL(wobj_remover.work(public_pl, coord3d(3, 4, 0), coord3d(5, 4, 0), "" + wt_rail), null)
+	}
+
+	// normal player: replace caterary of public player
+	{
+		local builder = command_x(tool_build_wayobj)
+
+		ASSERT_EQUAL(command_x.build_wayobj(public_pl,  coord3d(3, 4, 0), coord3d(5, 4, 0), slow_cat), null)
+		ASSERT_EQUAL(command_x.build_wayobj(pl,         coord3d(3, 4, 0), coord3d(5, 4, 0), fast_cat), null)
+
+		ASSERT_TRUE(tile_x(3, 4, 0).find_object(mo_wayobj).get_desc().is_equal(fast_cat))
+		ASSERT_EQUAL(tile_x(3, 4, 0).find_object(mo_wayobj).get_owner().get_name(), pl.get_name())
+
+		ASSERT_EQUAL(wobj_remover.work(pl, coord3d(3, 4, 0), coord3d(5, 4, 0), "" + wt_rail), null)
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(3, 4, 0), coord3d(5, 4, 0), "" + wt_rail), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
 function test_wayobj_electrify_depot()
 {
 	local pl = player_x(0)

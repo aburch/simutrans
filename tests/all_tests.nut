@@ -233,5 +233,6 @@ all_tests <- [
 	test_wayobj_build_straight,
 	test_wayobj_build_disconnected,
 	test_wayobj_upgrade_downgrade,
+	test_wayobj_upgrade_change_owner,
 	test_wayobj_electrify_depot
 ]
