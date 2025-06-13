@@ -5411,11 +5411,11 @@ bool convoi_t::is_waiting_for_coupling() const {
 }
 
 bool convoi_t::check_electrification() {
-	is_electric = false;
+	is_electric = true;
 	convoihandle_t c = find_most_parent_convoi();
-	while(  c.is_bound()  ) {
+	while(  c.is_bound()  &&  is_electric  ) {
 		for(uint8 i=0;  i<c->get_vehicle_count();  i++) {
-			is_electric |= c->get_vehikel(i)->get_desc()->get_engine_type()==vehicle_desc_t::electric;
+			is_electric &= !(c->get_vehikel(i)->get_desc()->get_engine_type()!=vehicle_desc_t::electric && c->get_vehikel(i)->get_desc()->get_power()>0);
 		}
 		c = c->get_coupling_convoi();
 	}
@@ -5521,13 +5521,6 @@ void convoi_t::reverse_vehicles_at_halt_if_needed()
 	is_reversing_needed = false;
 	welt->set_dirty();
 }
-
-// void convoi_t::reverse_vehicles_to_go_to_depot()
-// {
-// 	// this function is fix the direction of train when it go home (depot).
-// 	// if the vehicle reversed, this vehicle reversed again.
-// 	is_reversing_needed = reversed;
-// }
 
 // The raw logic to reverse the convoy. Do proper validations before calling this function.
 void convoi_t::reverse_vehicles()
