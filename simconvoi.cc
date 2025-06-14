@@ -5053,26 +5053,37 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 	route_t *route = new route_t();
 	koord3d home = koord3d::invalid;
 	vehicle_t *v = front();
-	FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
-		if (depot->get_waytype() != v->get_desc()->get_waytype()  ||  depot->get_owner() != get_owner()) {
-			continue;
-		}
-		koord3d pos = depot->get_pos();
+	koord3d next_pos = schedule->get_current_entry().pos;
+	bool find_depot_route = false;
+	if (  world()->lookup(next_pos)->get_depot() && world()->lookup(next_pos)->get_depot()->get_waytype() == v->get_desc()->get_waytype() && world()->lookup(next_pos)->get_depot()->get_owner()  == get_owner()  ) {
+		// if this convoy is already going to the depot, it will be teleported to that depot.
+		// but if the depot is changed or wrong, we search nearest depot.
+		find_depot_route = true;
+		home = next_pos;
+	} else {
+		// Find the nearest depot
+		FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
+			if (depot->get_waytype() != v->get_desc()->get_waytype()  ||  depot->get_owner() != get_owner()) {
+				continue;
+			}
+			koord3d pos = depot->get_pos();
 
-		if(!shortest_route->empty()  &&  koord_distance(pos, get_pos()) >= shortest_route->get_count()-1) {
-			// the current route is already shorter, no need to search further
-			continue;
-		}
-		if (v->calc_route(get_pos(), pos, 50, route)) { // do not care about speed
-			if(  route->get_count() < shortest_route->get_count()  ||  shortest_route->empty()  ) {
-				// just swap the pointers
-				sim::swap(shortest_route, route);
-				home = pos;
+			if(!shortest_route->empty()  &&  koord_distance(pos, get_pos()) >= shortest_route->get_count()-1) {
+				// the current route is already shorter, no need to search further
+				continue;
+			}
+			if (v->calc_route(get_pos(), pos, 50, route)) { // do not care about speed
+				if(  route->get_count() < shortest_route->get_count()  ||  shortest_route->empty()  ) {
+					// just swap the pointers
+					sim::swap(shortest_route, route);
+					home = pos;
+				}
 			}
 		}
+		delete route;
+		DBG_MESSAGE("shortest route has ", "%i hops", shortest_route->get_count()-1);
+		find_depot_route = !shortest_route->empty();
 	}
-	delete route;
-	DBG_MESSAGE("shortest route has ", "%i hops", shortest_route->get_count()-1);
 
 	if (local) {
 		if (convoi_info_t *info = dynamic_cast<convoi_info_t*>(win_get_magic( magic_convoi_info+self.get_id()))) {
@@ -5081,7 +5092,7 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 	}
 	// if route to a depot has been found, update the convoi's schedule
 	const char *txt;
-	if(  !shortest_route->empty()  ) {
+	if(  find_depot_route  ) {
 		betrete_depot(world()->lookup(home)->get_depot(),true);
 		txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
 		set_schedule(get_schedule());
