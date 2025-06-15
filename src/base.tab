@@ -4499,10 +4499,6 @@ name=connection
 note=sort label for sorting display by lines/convoi
 --
 obj=program_text
-name=connection
-note=sort label for sorting display by lines/convoi
---
-obj=program_text
 name=%d more convois
 note=message when additional convois serve that stop for sorting display
 --
