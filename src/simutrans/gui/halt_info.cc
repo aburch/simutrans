@@ -373,7 +373,7 @@ void halt_info_t::init(halthandle_t halt)
 	container_freight.add_table(2, 1);
 	{
 		container_freight.new_component<gui_label_t>("Sort waiting list by");
-		sort_mode_button.init(button_t::roundbox, freight_list_sorter_t::get_sort_mode_string(env_t::default_sortmode));
+		sort_mode_button.init(button_t::roundbox, freight_list_sorter_t::get_sort_mode_string(env_t::default_sortmode,halt));
 		sort_mode_button.set_tooltip("Sort waiting list by");
 		sort_mode_button.add_listener(this);
 		container_freight.add_component(&sort_mode_button);
@@ -488,7 +488,7 @@ void halt_info_t::update_components()
 	container_top->set_size( container_top->get_size());
 
 	if (switch_mode.get_aktives_tab() == &scrolly_freight) {
-		sort_mode_button.set_text(freight_list_sorter_t::get_sort_mode_string(env_t::default_sortmode));
+		sort_mode_button.set_text(freight_list_sorter_t::get_sort_mode_string(env_t::default_sortmode,halt));
 		// buffer update now only when needed by halt itself => dedicated buffer for this
 		int old_len = freight_info.len();
 		halt->get_freight_info(freight_info);

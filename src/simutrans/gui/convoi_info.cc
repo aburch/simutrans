@@ -137,7 +137,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 	{
 		container_freight.new_component<gui_label_t>("loaded passenger/freight");
 
-		sort_mode_button.init(button_t::roundbox, freight_list_sorter_t::get_sort_mode_string(env_t::default_sortmode));
+		sort_mode_button.init(button_t::roundbox, freight_list_sorter_t::get_sort_mode_string(env_t::default_sortmode,halthandle_t()));
 		sort_mode_button.set_tooltip("Sort by");
 		sort_mode_button.add_listener(this);
 		container_freight.add_component(&sort_mode_button);
@@ -403,7 +403,7 @@ void convoi_info_t::update_labels()
 	line_label.update();
 
 	if(  switch_mode.get_aktives_tab() == &scroll_freight  ) {
-		sort_mode_button.set_text(freight_list_sorter_t::get_sort_mode_string(env_t::default_sortmode));
+		sort_mode_button.set_text(freight_list_sorter_t::get_sort_mode_string(env_t::default_sortmode, halthandle_t()));
 		// buffer update now only when needed by convoi itself => dedicated buffer for this
 		const int old_len = freight_info.len();
 		cnv->get_freight_info(freight_info);
@@ -532,7 +532,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 	// sort by what
 	else if(  comp == &sort_mode_button  ) {
 		// sort by what
-		env_t::default_sortmode = ((int)(env_t::default_sortmode +1)%(int)freight_list_sorter_t::SORT_MODES);
+		env_t::default_sortmode = ((int)(env_t::default_sortmode +1)%(int)freight_list_sorter_t::SORT_MODES-1);
 		cnv->reset_freight_info();
 	}
 

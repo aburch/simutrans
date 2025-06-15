@@ -2417,7 +2417,7 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 		for(unsigned i=0; i<goods_manager_t::get_max_catg_index(); i++) {
 			const vector_tpl<ware_t> * warray = cargo[i];
 			if(warray) {
-				freight_list_sorter_t::sort_freight(*warray, buf, (freight_list_sorter_t::sort_mode_t)env_t::default_sortmode, NULL, "waiting");
+				freight_list_sorter_t::sort_freight(*warray, buf, (freight_list_sorter_t::sort_mode_t)env_t::default_sortmode, NULL, "waiting", this->self);
 			}
 		}
 	}

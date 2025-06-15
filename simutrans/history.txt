@@ -1,5 +1,6 @@
 	FIX: stations on bridge heads drawn too low
 	ADD: new freight sorting order "via owner": groups goods by owner of their next transfer stop and sort by amount (also change order a little and fixed several inconsitencies: Now all windows show same ordering)
+	ADD: (Nazalassa+prissi) new freight sorting order "connection": groups goods by lines of their next stop and sort by amount (not available for convois, of course)
 	CHG: Help texts will be first searched in pak directory
 	FIX: could built powerlines under bridges by just building a zero length power bridge starting under a bridge
 	ADD: New simple tool 43 to highlight single ribi ways
@@ -14,6 +15,7 @@
 	ADD: (mostly Yona-TYT) flowtext recognised img tag. For now only tags "#?XXX" are supported, where ? is one of these letter GSDTW and XXX a number. G is a general tool icon, S and simple tool, D is dialog tool, T a toolbar and W and window gadget.
 	CHG: default signal spacing for dragiing to 5 (as 4 and smaller can slow down trains faster than 200 km/h)
 	FIX: Public player cannot replace wayobjs of other players
+
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):
