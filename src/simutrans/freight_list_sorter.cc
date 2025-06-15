@@ -170,9 +170,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			// via sort mode merges packets with a common next stop
 			for(  int i=0;  i<pos;  i++  ) {
 				ware_t& wi = wlist[i];
-				if(  wi.get_index()==ware.get_index()  &&  wi.get_via_halt()==ware.get_via_halt()  &&
-					(  (wi.get_via_halt().is_bound() && (  wi.get_target_halt()==wi.get_via_halt() )==( ware.get_target_halt()==ware.get_via_halt() ) )
-					|| wi.get_target_halt() == ware.get_target_halt() ) ) {
+				if(  wi.get_index()==ware.get_index()  &&  wi.get_next_halt() == ware.get_next_halt()  ) {
 					ware_t::goods_amount_t const remaining_amount = wi.add_goods(ware.amount);
 					if(  remaining_amount > 0  ) {
 						// reached goods amount limit, have to discard amount and track category totals separatly
@@ -190,19 +188,22 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 		else if(  sort_mode == by_via_owner  ) {
 			// player sort mode merges packets which next stop is owned by the
 			// same player
-			for(  int i=0;  i<pos;  i++  ) {
-				ware_t& wi = wlist[i];
-				if(  wi.get_index()==ware.get_index()  &&  ware.get_via_halt().is_bound() && wi.get_via_halt().is_bound()  &&  ware.get_via_halt()->get_owner() == wi.get_via_halt()->get_owner()  ) {
-					ware_t::goods_amount_t const remaining_amount = wi.add_goods(ware.amount);
-					if(  remaining_amount > 0  ) {
-						// reached goods amount limit, have to discard amount and track category totals separatly
-						if(  categories_goods_amount_lost == NULL  ) {
-							categories_goods_amount_lost = new uint64[256](); // this should be tied to a category index limit constant
+			if(ware.get_next_halt().is_bound()) {
+				player_t* owner = ware.get_next_halt()->get_owner();
+				for(  int i=0;  i<pos;  i++  ) {
+					ware_t& wi = wlist[i];
+					if(  wi.get_index()==ware.get_index()  &&  wi.get_next_halt().is_bound()  &&  wi.get_next_halt()->get_owner() == owner  ) {
+						ware_t::goods_amount_t const remaining_amount = wi.add_goods(ware.amount);
+						if(  remaining_amount > 0  ) {
+							// reached goods amount limit, have to discard amount and track category totals separatly
+							if(  categories_goods_amount_lost == NULL  ) {
+								categories_goods_amount_lost = new uint64[256](); // this should be tied to a category index limit constant
+							}
+							categories_goods_amount_lost[wi.get_desc()->get_catg_index()]+= remaining_amount;
 						}
-						categories_goods_amount_lost[wi.get_desc()->get_catg_index()]+= remaining_amount;
+						--pos;
+						break;
 					}
-					--pos;
-					break;
 				}
 			}
 		}

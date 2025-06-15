@@ -67,6 +67,9 @@ public:
 	const halthandle_t &get_via_halt() const { return via_halt; }
 	void set_via_halt(const halthandle_t &halt) { via_halt = halt; }
 
+	/// @returns the next halt of a ware
+	const halthandle_t get_next_halt() const { return via_halt.is_bound() ? via_halt : target_halt; }
+
 	koord get_target_pos() const { return target_pos; }
 	void set_target_pos(const koord new_pos) { target_pos = new_pos; }
 
