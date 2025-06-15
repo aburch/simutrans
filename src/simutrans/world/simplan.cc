@@ -38,10 +38,11 @@ void swap(planquadrat_t& a, planquadrat_t& b)
 {
 	// since sim::swap down not work for bitfields, we brute force copy memory
 	char tmp[sizeof(planquadrat_t)];
-	memcpy(tmp, &a, sizeof(planquadrat_t));
-	memcpy(&a, &b, sizeof(planquadrat_t));
-	memcpy(&b, tmp, sizeof(planquadrat_t));
+	memcpy(tmp,        (void *)&a, sizeof(planquadrat_t));
+	memcpy((void *)&a, (void *)&b, sizeof(planquadrat_t));
+	memcpy((void *)&b, tmp,        sizeof(planquadrat_t));
 }
+
 
 // deletes also all grounds in this array!
 planquadrat_t::~planquadrat_t()
