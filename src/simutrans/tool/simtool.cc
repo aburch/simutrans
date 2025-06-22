@@ -1591,7 +1591,7 @@ const char *tool_marker_t::work( player_t *player, koord3d pos )
 	if (gr) {
 		if(!gr->get_text()) {
 			const obj_t* thing = gr->obj_bei(0);
-			if(thing == NULL  ||  thing->get_owner() == player  ||  (player_t::check_owner(thing->get_owner(), player)  &&  (thing->get_typ() != obj_t::gebaeude))) {
+			if(thing == NULL  ||  player == NULL  ||  thing->get_owner() == player  ||  (player_t::check_owner(thing->get_owner(), player)  &&  thing->get_typ() != obj_t::gebaeude)) {
 				gr->obj_add(new label_t(gr->get_pos(), player, default_param ? default_param : "\0"));
 				if (can_use_gui()) {
 					gr->find<label_t>()->show_info();
