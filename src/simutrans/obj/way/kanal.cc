@@ -62,8 +62,11 @@ void kanal_t::rdwr(loadsave_t *file)
 					dbg->fatal("kanal_t::rdwr", "Trying to load canal but pakset has no water ways!");
 				}
 				pakset_manager_t::add_missing_paks( bname, MISSING_WAY );
+				dbg->warning("kanal_t::rdwr()", "Unknown canal '%s' replaced by '%s' (old_max_speed %i)", bname, desc->get_name(), old_max_speed);
 			}
-			dbg->warning("kanal_t::rdwr()", "Unknown canal '%s' replaced by '%s' (old_max_speed %i)", bname, desc->get_name(), old_max_speed );
+			else {
+				DBG_DEBUG("kanal_t::rdwr()", "Old canal '%s' replaced by '%s'", bname, desc->get_name());
+			}
 		}
 		set_desc(desc);
 		if(old_max_speed>0) {

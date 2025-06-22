@@ -57,8 +57,11 @@ void strasse_t::rdwr(loadsave_t *file)
 			if(desc==NULL) {
 				desc = default_strasse;
 				pakset_manager_t::add_missing_paks( bname, MISSING_WAY );
+				dbg->warning("strasse_t::rdwr()", "Unknown street %s replaced by %s (old_max_speed %i)", bname, desc->get_name(), old_max_speed);
 			}
-			dbg->warning("strasse_t::rdwr()", "Unknown street %s replaced by %s (old_max_speed %i)", bname, desc->get_name(), old_max_speed );
+			else {
+				DBG_DEBUG("strasse_t::rdwr()", "Old street %s replaced by %s", bname, desc->get_name());
+			}
 		}
 		set_desc(desc);
 		if(old_max_speed>0) {

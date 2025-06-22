@@ -16,6 +16,7 @@
 	CHG: default signal spacing for dragiing to 5 (as 4 and smaller can slow down trains faster than 200 km/h)
 	FIX: Public player cannot replace wayobjs of other players
 	FIX: Zoom in immediately followed by zoom out if SDL raises mouse wheel event with 0 vertical scroll amount
+	FIX: Do not print a warning, when replacing items by compat.tab
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):

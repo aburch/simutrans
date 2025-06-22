@@ -57,13 +57,19 @@ void runway_t::rdwr(loadsave_t *file)
 		file->rdwr_str(bname, lengthof(bname));
 		const way_desc_t *desc = way_builder_t::get_desc(bname);
 		int old_max_speed=get_max_speed();
-		if(desc==NULL) {
-			desc = way_builder_t::weg_search(air_wt,old_max_speed>0 ? old_max_speed : 20, 0, (systemtype_t)(old_max_speed>250) );
-			if(desc==NULL) {
-				desc = default_runway;
-				pakset_manager_t::add_missing_paks( bname, MISSING_WAY );
+		if (desc == NULL) {
+			desc = way_builder_t::get_desc(translator::compatibility_name(bname));
+			if (desc == NULL) {
+				desc = way_builder_t::weg_search(air_wt, old_max_speed > 0 ? old_max_speed : 20, 0, (systemtype_t)(old_max_speed > 250));
+				if (desc == NULL) {
+					desc = default_runway;
+					pakset_manager_t::add_missing_paks(bname, MISSING_WAY);
+					if (desc == NULL) {
+						dbg->fatal("runway_t::rdwr()", "No runway available");
+					}
+				}
+				dbg->warning("runway_t::rdwr()", "Unknown runway %s replaced by %s (old_max_speed %i)", bname, desc->get_name(), old_max_speed);
 			}
-			dbg->warning("runway_t::rdwr()", "Unknown runway %s replaced by %s (old_max_speed %i)", bname, desc->get_name(), old_max_speed );
 		}
 		if(old_max_speed>0) {
 			set_max_speed(old_max_speed);
