@@ -1,3 +1,8 @@
+/**
+ * @brief rail_connector.nut create rail lines
+ *
+ */
+
 class rail_connector_t extends manager_t
 {
   // input data

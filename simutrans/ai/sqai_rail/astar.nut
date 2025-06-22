@@ -1,4 +1,5 @@
 /**
+ * @file astar.nut
  * Classes to help with route-searching.
  * Based on the A* algorithm.
  */
@@ -278,77 +279,6 @@ class astar_route_finder extends astar
 
     if (route.len() > 0) {
       return { start = route[route.len()-1], end = route[0], routes = route }
-    }
-    print("No route found")
-    return { err =  "No route" }
-  }
-}
-
-/**
- * Class to search a route along existing ways.
- */
-class astar_route_finder extends astar
-{
-  wt = wt_all
-
-  constructor(wt_)
-  {
-    base.constructor()
-    wt = wt_
-    if ( [wt_all, wt_invalid, wt_water, wt_air].find(wt) ) {
-      throw("Using this waytype is going to be inefficient. Use at own risk.")
-    }
-    cost_curve = cost_straight
-  }
-
-  function process_node(cnode)
-  {
-    local from = tile_x(cnode.x, cnode.y, cnode.z)
-    local back = dir.backward(cnode.dir)
-    // allowed directions
-    local dirs = from.get_way_dirs_masked(wt)
-
-    for(local d = 1; d<16; d*=2) {
-      // do not go backwards, only along existing ways
-      if ( d == back  ||  ( (dirs & d) == 0) ) {
-        continue
-      }
-
-      local to = from.get_neighbour(wt, d)
-      if (to) {
-        if (!is_closed(to)) {
-          // estimate moving cost
-          local move = cnode.is_straight_move(d)  ?  cost_straight  :  cost_curve
-          local dist   = estimate_distance(to)
-          local cost   = cnode.cost + move
-          local weight = cost //+ dist
-          local node = ab_node(to, cnode, cost, dist, d)
-
-          add_to_open(node, weight)
-        }
-      }
-    }
-  }
-
-  // start and end have to be arrays of objects with 3d-coordinates
-  function search_route(start, end)
-  {
-    prepare_search()
-    foreach (e in end) {
-      targets.append(e);
-    }
-    compute_bounding_box()
-
-    foreach (s in start)
-    {
-      local dist = estimate_distance(s)
-      add_to_open(ab_node(s, null, 1, dist+1, 0, 0), dist+1)
-    }
-
-    search()
-
-    if (route.len() > 0) {
-      return { start = route.top(), end = route[0], routes = route }
     }
     print("No route found")
     return { err =  "No route" }
@@ -1118,13 +1048,14 @@ function check_ground(pos_s, pos_e, way) {
 }
 
 /**
+ * @fn check_tile_end_of_station(direction, count, s_tile)
  *  check tile end of station
  *
- *  direction = 1, 2, 4, 8
- *  count
- *  s_tile    = station tile : tile_x
+ *  @param direction = 1, 2, 4, 8
+ *  @param count
+ *  @param s_tile    = station tile : tile_x
  *
- *  return tile_x or null
+ *  @return tile_x or null
  */
 function check_tile_end_of_station(direction, count, s_tile) {
 
@@ -1543,13 +1474,13 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
 /**
  * function for check station lenght
  *
- * pl             = player
- * starts_field   = tile station from plan_simple_connection
- * st_lenght      = stations fields count
- * wt             = waytype
- * select_station = station object
- * build          = 0 -> test ; 1 -> build
- * combined_halt  = true -> yes ; false -> no
+ * @param pl             = player
+ * @param starts_field   = tile station from plan_simple_connection
+ * @param st_lenght      = stations fields count
+ * @param wt             = waytype
+ * @param select_station = station object
+ * @param build          = 0 -> test ; 1 -> build
+ * @param combined_halt  = true -> yes ; false -> no
  *
  * returns false (something failed) or array of station tiles (success)
  * in case of success, the value of starts_field maybe changed
@@ -1808,12 +1739,12 @@ function test_tile_is_empty(t_tile) {
 /**
  * function expand station()
  *
- * pl             = player
- * fields         = array fields
- * wt             = waytype
- * select_station = station object
- * start_fld      = c_start or c_end
- * combined_halt  = true -> yes ; false -> no
+ * @param pl             = player_x
+ * @param fields         = array fields
+ * @param wt             = waytype
+ * @param select_station = station object
+ * @param start_fld      = c_start or c_end
+ * @param combined_halt  = true -> yes ; false -> no
  */
 function expand_station(pl, fields, wt, select_station, start_fld, combined_halt) {
 
@@ -2255,16 +2186,16 @@ function expand_station(pl, fields, wt, select_station, start_fld, combined_halt
   }
 }
 
-/*
+/**
  *  function build_extensions_connect_factory()
  *
- *  pl          = player
- *  st_field    = start field
- *  hlt_field   = halt field
- *  tiles[]     = test tiles for extensions to connect factory
- *  extension   = extensions object
+ * @param pl          = player
+ * @param st_field    = start field
+ * @param hlt_field   = halt field
+ * @param tiles[]     = test tiles for extensions to connect factory
+ * @param extension   = extensions object
  *
- *  return
+ * @return
  *    1 = connect factory
  *    0 = not connect factory
  */
@@ -2368,8 +2299,8 @@ function build_station(tiles, station_obj) {
 /**
   * find signal tool
   *
-  * sig_type  = signal type (is_signal, is_presignal ... )
-  * wt        = waytype
+  * @param sig_type  = signal type (is_signal, is_presignal ... )
+  * @param wt        = waytype
   */
 function find_signal(sig_type, wt) {
 
@@ -2621,9 +2552,9 @@ function find_extension(wt, tile_size = 1) {
 /**
  * search existing depot on range to station
  *
- *  field_pos = start field
- *  wt        = waytype
- *  range     = search range
+ * @param field_pos = start field
+ * @param wt        = waytype
+ * @param range     = search range
  *
  */
 function search_depot(field_pos, wt, range = 10) {
@@ -2649,9 +2580,9 @@ function search_depot(field_pos, wt, range = 10) {
 /**
  * search existing station on range to field
  *
- *  field_pos = start field
- *  wt        = waytype
- *  range     = search range
+ * @param field_pos = start field
+ * @param wt        = waytype
+ * @param range     = search range
  *
  */
 function search_station(field_pos, wt, range) {
@@ -3550,13 +3481,19 @@ function build_double_track(start_field, wt, station_len) {
   }
 }
 
-/*
- *  start = start field line
- *  end   = end field line
- *  wt    = waytype
- *  l     = stations distance
- *  c     = count of double ways
- *  c=0 -> no build double ways - return route array
+/// @publicsection
+/**
+ *
+ * check the route for build double ways
+ *
+ * @param start = start field line
+ * @param end   = end field line
+ * @param wt    = waytype
+ * @param l     = stations distance
+ * @param c     = count of double ways
+ * @param c=0 -> no build double ways - return route array
+ *
+ * @retur tile_x array start tiles for double ways
  */
 function check_way_line(start, end, wt, l, c, r_line) {
   /*
@@ -4314,6 +4251,15 @@ function check_way_line(start, end, wt, l, c, r_line) {
 
 }
 
+/**
+ *  check the route and optimized this
+ *
+ * @param route   tiles array from route
+ * @param wt      waytype from route
+ * @param int_run count the run this function for selcted line
+ * @param o_line  line_x object
+ *
+ */
 function optimize_way_line(route, wt, int_run, o_line) {
 
   // 0 = off
@@ -4983,10 +4929,10 @@ function optimize_way_line(route, wt, int_run, o_line) {
 
 }
 
-/*
+/**
  * check tiles free for terraform
  *
- * tiles = array tiles for check tiles left and right is free
+ * @param tiles array tiles for check tiles left and right is free
  */
 function check_tiles_for_terraform(tiles) {
   local tiles_free = true
@@ -5008,11 +4954,12 @@ function check_tiles_for_terraform(tiles) {
   return tiles_free
 }
 
-/*
+/**
  * check double ways in new line
  * waytype: wt_rail
  *
- *
+ * @param route tiles array from route
+ * @param wt waytype from route
  */
 function check_doubleway_in_line(route, wt) {
   //gui.add_message_at(our_player, " check_doubleway_in_line(route, wt) ", world.get_time())
@@ -5721,6 +5668,7 @@ function destroy_line(line_obj, good, link_obj) {
   return true
 }
 
+/// @publicsection
 /*
  * check waytypes from halt
  * tile = one tile from halt
@@ -5762,6 +5710,7 @@ function test_halt_waytypes(tile) {
   return test_way
 }
 
+/// @publicsection
 /*
  * check depot as home for other vehicles
  * tile = depot coord

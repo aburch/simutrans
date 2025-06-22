@@ -1,3 +1,8 @@
+/**
+ * @brief road_connector.nut create road lines
+ *
+ */
+
 class road_connector_t extends manager_t
 {
   // input data

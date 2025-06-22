@@ -1,3 +1,8 @@
+/**
+ * @brief ship_connector.nut create ship lines
+ *
+ */
+
 class ship_connector_t extends manager_t
 {
   // input data

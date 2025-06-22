@@ -567,6 +567,8 @@ class industry_manager_t extends manager_t
     local print_message_box = 0
 
     local wt = line.get_waytype()
+    local passed_cnv_max = 0
+
     // find route
     local nexttile = []
     if (wt != wt_water && wt != wt_air) {
@@ -595,6 +597,13 @@ class industry_manager_t extends manager_t
         foreach(node in result.routes) {
           local tile = tile_x(node.x, node.y, node.z)
           nexttile.append(tile)
+          if ( wt == wt_road ) {
+            local way = tile.get_way(wt)
+            local passed_cnv = way.get_convoys_passed()
+            if ( passed_cnv_max < passed_cnv[1] ) {
+              passed_cnv_max = passed_cnv[1]
+            }
+          }
         }
         sleep()
       }
@@ -731,6 +740,7 @@ class industry_manager_t extends manager_t
       local entries = line.get_schedule().entries
       local start_h = entries[0].get_halt(our_player)
       local end_l = tile_x(entries[entries.len()-1].x, entries[entries.len()-1].y, entries[entries.len()-1].z)
+      local start_l = tile_x(entries[0].x, entries[0].y, entries[0].z)
 
       // remove stucked convoy
       // cnv_count > 10 then remove cnv_count/2
@@ -769,6 +779,7 @@ class industry_manager_t extends manager_t
         if ( d[0] == 0 && d[1] == 0 && list[i].get_loading_level() > 0 && loading_cnv_stucked == 0 && line.get_waytype() == wt_road ) {
           loading_cnv_stucked = 1
           //gui.add_message_at(our_player, "(768) ####  loading convoy stucked ", world.get_time())
+
           local traffic_obj = find_signal("traffic_light", line.get_waytype())
 
           if ( traffic_obj != null ) {
@@ -808,9 +819,32 @@ class industry_manager_t extends manager_t
 
           }
 
+        } else if ( wt == wt_road ) {
+          local cnv_tile = list[i].get_pos() // + [1]
+          local way = tile_x(cnv_tile.x, cnv_tile.y, cnv_tile.z).get_way(wt)
+          local passed_cnv = way.get_convoys_passed()
+          /*if ( passed_cnv_max < passed_cnv[1] ) {
+            passed_cnv_max = passed_cnv[1]
+          }*/
+            // end_l
+            local asf = astar_route_finder(wt)
+            local result = asf.search_route([list[i].get_pos()], [start_l])
+            if ("err" in result) {
+
+            } else {
+              if ( result.routes.len() < 5 && passed_cnv[1] > 50 && list[i].get_loading_level() == 0 ) {
+
+                //gui.add_message_at(our_player, "(768) ####  cnv tille " + coord3d_to_string(cnv_tile) + " - ", cnv_tile)
+                //gui.add_message_at(our_player, "(768) ####  cnv tille cnv passed  " + passed_cnv[1], cnv_tile)
+
+                stucked_cnv.append(list[i])
+              }
+
+            }
+
         }
       }
-
+      //gui.add_message_at(our_player, "(835) ####  stucked_cnv.len()  " + stucked_cnv.len(), world.get_time())
       // stucked vehicle remove, not last vehicle
       if ( stucked_cnv.len() > 0 ) {
         local j = stucked_cnv.len()
@@ -832,10 +866,23 @@ class industry_manager_t extends manager_t
           if ( cnv_remove_count < cnv_count ) {
             line.next_vehicle_check = world.get_time().ticks + (next_time * 4)
           }
+          local a = 2
           if ( line.stuck_check == 1 ) {
             // small check intervall
-            line.next_vehicle_check = world.get_time().ticks + (next_time / 2)
+            local time_c = abs(next_time / 4)
+            if ( passed_cnv_max > 100 ) {
+              time_c = abs(next_time / 8)
+              a = 4
+            } else if ( passed_cnv_max > 50 ) {
+              time_c = abs(next_time / 6)
+              a = 3
+            }
+            //gui.add_message_at(our_player, "**** line 870 - stuck_check = 1 : " + time_c, world.get_time())
+            line.next_vehicle_check = world.get_time().ticks + (time_c)
           }
+          // set longer time for add convoy
+          line.add_convoy_time = line.next_vehicle_check + (world.get_time().ticks_per_month * a)
+          //gui.add_message_at(our_player, "#656# line.add_convoy_time : " + line.add_convoy_time + " -- a : " + a, world.get_time())
 
         } else {
           line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month * 2)
@@ -1005,7 +1052,7 @@ class industry_manager_t extends manager_t
         local d = t.get_way_dirs(wt)
         if ( dir.is_threeway(d) ) {
           line.stuck_check = 1
-          gui.add_message_at(our_player, "**** line 1007 - set line.stuck_check = 1 ", t)
+          gui.add_message_at(our_player, "**** line 1009 - set line.stuck_check = 1 ", t)
           break
         }
       }
@@ -1603,6 +1650,7 @@ class industry_manager_t extends manager_t
         if (wt == wt_road ) {
           if ( dist <= 50) { cnv_valuator.max_cnvs = dist/3 }
           else if ( dist > 50 && dist <= 250 ) { cnv_valuator.max_cnvs = dist/2 }
+          if ( passed_cnv_max > 100 ) { cnv_valuator.max_cnvs = dist/4 }
           //else if ( dist > 250 ) { cnv_valuator.max_cnvs = dist - 50 }
           if ( print_message_box == 1 ) {
             gui.add_message_at(our_player, "### line : " + line.get_name() + " dist: " + dist + " cnv max: " + cnv_valuator.max_cnvs, world.get_time())
@@ -2374,10 +2422,15 @@ class industry_manager_t extends manager_t
     } else {
       catenary_obj = find_object("catenary", wt, cnv_max_speed)
 
-      // build cost
-      catenary_cost = (catenary_obj.get_cost() * (dist + (8 * line.double_ways_count))) + catenary_obj.get_cost()
-      // + maintenance for 5 months
-      catenary_cost += ((catenary_obj.get_maintenance() * (dist + (8 * line.double_ways_count))) + catenary_obj.get_maintenance()) * 5
+      if ( catenary_obj != null ) {
+        // build cost
+        catenary_cost = (catenary_obj.get_cost() * (dist + (8 * line.double_ways_count))) + catenary_obj.get_cost()
+        // + maintenance for 5 months
+        catenary_cost += ((catenary_obj.get_maintenance() * (dist + (8 * line.double_ways_count))) + catenary_obj.get_maintenance()) * 5
+
+      } else {
+        catenary_cost = 0
+      }
 
       // set electrified for vehicle by way len > xx tiles
       if ( dist > 80 && world.get_time().year >= 1935 && our_player.get_current_cash() > catenary_cost ) {
