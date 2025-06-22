@@ -747,9 +747,13 @@ static void internal_GetEvents()
 			break;
 
 		case SDL_MOUSEWHEEL:
-			sys_event.type    = SIM_MOUSE_BUTTONS;
-			sys_event.code    = event.wheel.y > 0 ? SIM_MOUSE_WHEELUP : SIM_MOUSE_WHEELDOWN;
-			sys_event.key_mod = ModifierKeys();
+			if (event.wheel.y != 0) {
+				const bool is_up = (event.wheel.y > 0) ^ (event.wheel.direction == SDL_MOUSEWHEEL_FLIPPED);
+
+				sys_event.type    = SIM_MOUSE_BUTTONS;
+				sys_event.code    = is_up ? SIM_MOUSE_WHEELUP : SIM_MOUSE_WHEELDOWN;
+				sys_event.key_mod = ModifierKeys();
+			}
 			break;
 
 		case SDL_MOUSEMOTION:

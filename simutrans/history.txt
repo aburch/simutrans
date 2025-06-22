@@ -15,7 +15,7 @@
 	ADD: (mostly Yona-TYT) flowtext recognised img tag. For now only tags "#?XXX" are supported, where ? is one of these letter GSDTW and XXX a number. G is a general tool icon, S and simple tool, D is dialog tool, T a toolbar and W and window gadget.
 	CHG: default signal spacing for dragiing to 5 (as 4 and smaller can slow down trains faster than 200 km/h)
 	FIX: Public player cannot replace wayobjs of other players
-
+	FIX: Zoom in immediately followed by zoom out if SDL raises mouse wheel event with 0 vertical scroll amount
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):
