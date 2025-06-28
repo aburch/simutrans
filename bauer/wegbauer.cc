@@ -2431,7 +2431,7 @@ sint64 way_builder_t::calc_costs()
 			}
 		}
 		if(  !keep_existing_faster_ways  ||  old_speedlimit < new_speedlimit  ) {
-			costs += max(single_cost, replace_cost);
+			costs += std::max(single_cost, replace_cost);
 		}
 
 		// last tile cannot be start of tunnel/bridge
