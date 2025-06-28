@@ -16,6 +16,7 @@
 #include "../../simdebug.h"
 #include "../../network/pakset_info.h"
 #include "../../tpl/array_tpl.h"
+#include <cinttypes>
 
 
 void roadsign_reader_t::register_obj(obj_desc_t *&data)
@@ -119,10 +120,11 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	DBG_DEBUG("roadsign_reader_t::read_node()",
-		"version=%i, min_speed=%i, price=%" PRId64 ", flags=%x, wtyp=%i, offset_left=%i, intro=%i/%i, retire=%i/%i",
+		"version=%i, min_speed=%i, price=%" PRId64 ", maintenance=%" PRId64 ",flags=%x, wtyp=%i, offset_left=%i, intro=%i/%i, retire=%i/%i",
 		version,
 		desc->min_speed,
 		desc->price/100,
+		desc->maintenance,
 		desc->flags,
 		desc->wtyp,
 		desc->offset_left,
