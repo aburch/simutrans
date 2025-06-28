@@ -357,8 +357,8 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 std::string factory_writer_t::get_node_name(FILE* fp) const
 {
 	obj_node_info_t node; // Name is inside building (BUIL) node, which is a child of factory (FACT) node
+	if (!obj_node_t::read_node(fp, node)) return "";
 
-	fread(&node, sizeof(node), 1, fp);
 	if (node.type != obj_building) return ""; // If BUIL node not found, return blank to at least not crash
 
 	fseek(fp, node.size, SEEK_CUR);

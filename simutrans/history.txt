@@ -17,6 +17,7 @@
 	FIX: Public player cannot replace wayobjs of other players
 	FIX: Zoom in immediately followed by zoom out if SDL raises mouse wheel event with 0 vertical scroll amount
 	FIX: Do not print a warning, when replacing items by compat.tab
+	FIX: 'makeobj list' cannot print properties of factory nodes
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):
