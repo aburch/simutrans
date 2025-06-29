@@ -74,7 +74,7 @@ bool enlarge_map_frame_t::update_from_heightfield(const char *filename)
 		const int my = sets->get_size_y()/pre_y;
 		for(  int y=0;  y<pre_y;  y++  ) {
 			for(  int x=0;  x<pre_x;  x++  ) {
-				if(  pos.x<=old_x  &&  pos.y<=old_y  ){
+				if(  pos.x<=old_x/mx  &&  pos.y<=old_y/my  ){
 					if(  x==(old_x/mx)  ||  y==(old_y/my)  ){
 						// border
 						map.at(x,y) = color_idx_to_rgb(COL_WHITE);
