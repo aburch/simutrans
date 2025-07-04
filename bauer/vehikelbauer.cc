@@ -280,17 +280,17 @@ bool vehicle_builder_t::compare_vehicles(const vehicle_desc_t* a, const vehicle_
 			if (cmp != 0) return cmp < 0;
 			break;
 		case sb_price:
-			cmp = compare_price(a, b);
+			cmp = sgn(compare_price(a, b));
 			if (cmp != 0) return cmp < 0;
 			// fall-through
 		case sb_cost:
-			cmp = compare_cost(a, b);
+			cmp = sgn(compare_cost(a, b));
 			if (cmp != 0) return cmp < 0;
-			cmp = compare_price(a, b);
+			cmp = sgn(compare_price(a, b));
 			if (cmp != 0) return cmp < 0;
 			break;
 		case sb_cost_per_unit:
-			cmp = compare_cost_per_unit(a,b);
+			cmp = sgn(compare_cost_per_unit(a,b));
 			if (cmp != 0) return cmp < 0;
 			break;
 		case sb_speed:
@@ -474,7 +474,7 @@ const vehicle_desc_t *vehicle_builder_t::vehikel_search( waytype_t wt, const uin
 			uint32 max_weight = power/( (speed*speed)/2500 + 1 );
 
 			// we found a useful engine
-			sint64 current_index = ((sint64)power * INT64_C(100)) / (INT64_C(1) + test_desc->get_running_cost()) + test_desc->get_topspeed() - (sint64)test_desc->get_weight() / INT64_C(1000) - (test_desc->get_price() / INT64_C(25000) );
+			sint32 current_index = (power * 100) / (1 + (test_desc->get_running_cost()==-1?0:test_desc->get_running_cost())) + test_desc->get_topspeed() - test_desc->get_weight() / 1000 + (test_desc->get_price()>0?(-1):1) * (sint32)( (test_desc->get_price()&0x3fffffffffff) / 25000);
 			// too slow?
 			if(speed < target_speed) {
 				current_index -= 250;
