@@ -5373,6 +5373,7 @@ void air_vehicle_t::hop(grund_t* gr)
 		air_vehicle_t *const front_air =  dynamic_cast<air_vehicle_t*>(cnv->front());
 		front_air->get_event_index(front_state,dummy_takeoff,dummy_stopsearch,dummy_landing);
 		flying_height = front_air->get_flyingheight();
+		target_height = front_air->get_targetheight();
 		state = front_state;
 		
 		// hop to next tile
