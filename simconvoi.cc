@@ -1803,6 +1803,10 @@ void convoi_t::betrete_depot(depot_t *dep, bool is_loading)
 	convoihandle_t child = c->get_coupling_convoi();
 	while(c.is_bound()) {
 		c->uncouple_convoi();
+		if( c->reversed && c->state!=INITIAL) {
+			c->reverse_vehicles();
+			c->reversed = true;
+		}
 		dbg->message("convoi_t::betrete_depot()","%s reach_depot",c->get_name());
 		for(unsigned i=0; i<c->anz_vehikel; i++) {
 			vehicle_t* v = c->fahr[i];
@@ -1874,7 +1878,10 @@ void convoi_t::start()
 		fahr[anz_vehikel-1]->set_last( true );
 		// do not show the vehicle - it will be wrong positioned -vorfahren() will correct this
 		fahr[0]->set_image(IMG_EMPTY);
-
+		if(reversed) {
+			reversed = false;
+			is_reversing_needed = true;
+		}
 		// update finances for used vehicle reduction when first driven
 		owner->update_assets( restwert_delta, get_schedule()->get_waytype());
 
@@ -3575,7 +3582,7 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 		// const sint32 spacing = world()->ticks_per_world_month / current_entry.spacing;
 		const uint32 delay_tolerance = (uint64)current_entry.delay_tolerance * world()->ticks_per_world_month / world()->get_settings().get_spacing_shift_divisor();
 		// slot = (arrived_time - delay_tolerance - spacing_shift) / spacing + 1
-		uint64 slot = ((arrived_time - delay_tolerance - spacing_shift + time_to_load) * (uint64)current_entry.spacing / world()->ticks_per_world_month + 1);
+		uint64 slot = (std::max((sint64)arrived_time - (sint64)delay_tolerance - (sint64)spacing_shift + (sint64)time_to_load, (sint64)0) * (uint64)current_entry.spacing / world()->ticks_per_world_month + 1);
 		// go_on_ticks = slot * spacing + spacing_shift
 		go_on_ticks = slot * world()->ticks_per_world_month / current_entry.spacing + spacing_shift;
 		// book the departure slot.
@@ -5026,7 +5033,6 @@ const char* convoi_t::send_to_depot(bool local)
 			schedule_t *schedule = c->get_schedule();
 			schedule->insert(welt->lookup(home));
 			schedule->set_current_stop( (schedule->get_current_stop()+schedule->get_count()-1)%schedule->get_count() );
-			c->reverse_vehicles_to_go_to_depot();
 			c = c->get_coupling_convoi();
 		}
 		txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
@@ -5047,26 +5053,37 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 	route_t *route = new route_t();
 	koord3d home = koord3d::invalid;
 	vehicle_t *v = front();
-	FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
-		if (depot->get_waytype() != v->get_desc()->get_waytype()  ||  depot->get_owner() != get_owner()) {
-			continue;
-		}
-		koord3d pos = depot->get_pos();
+	koord3d next_pos = schedule->get_current_entry().pos;
+	bool find_depot_route = false;
+	if (  world()->lookup(next_pos)->get_depot() && world()->lookup(next_pos)->get_depot()->get_waytype() == v->get_desc()->get_waytype() && world()->lookup(next_pos)->get_depot()->get_owner()  == get_owner()  ) {
+		// if this convoy is already going to the depot, it will be teleported to that depot.
+		// but if the depot is changed or wrong, we search nearest depot.
+		find_depot_route = true;
+		home = next_pos;
+	} else {
+		// Find the nearest depot
+		FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
+			if (depot->get_waytype() != v->get_desc()->get_waytype()  ||  depot->get_owner() != get_owner()) {
+				continue;
+			}
+			koord3d pos = depot->get_pos();
 
-		if(!shortest_route->empty()  &&  koord_distance(pos, get_pos()) >= shortest_route->get_count()-1) {
-			// the current route is already shorter, no need to search further
-			continue;
-		}
-		if (v->calc_route(get_pos(), pos, 50, route)) { // do not care about speed
-			if(  route->get_count() < shortest_route->get_count()  ||  shortest_route->empty()  ) {
-				// just swap the pointers
-				sim::swap(shortest_route, route);
-				home = pos;
+			if(!shortest_route->empty()  &&  koord_distance(pos, get_pos()) >= shortest_route->get_count()-1) {
+				// the current route is already shorter, no need to search further
+				continue;
+			}
+			if (v->calc_route(get_pos(), pos, 50, route)) { // do not care about speed
+				if(  route->get_count() < shortest_route->get_count()  ||  shortest_route->empty()  ) {
+					// just swap the pointers
+					sim::swap(shortest_route, route);
+					home = pos;
+				}
 			}
 		}
+		delete route;
+		DBG_MESSAGE("shortest route has ", "%i hops", shortest_route->get_count()-1);
+		find_depot_route = !shortest_route->empty();
 	}
-	delete route;
-	DBG_MESSAGE("shortest route has ", "%i hops", shortest_route->get_count()-1);
 
 	if (local) {
 		if (convoi_info_t *info = dynamic_cast<convoi_info_t*>(win_get_magic( magic_convoi_info+self.get_id()))) {
@@ -5075,7 +5092,7 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 	}
 	// if route to a depot has been found, update the convoi's schedule
 	const char *txt;
-	if(  !shortest_route->empty()  ) {
+	if(  find_depot_route  ) {
 		betrete_depot(world()->lookup(home)->get_depot(),true);
 		txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
 		set_schedule(get_schedule());
@@ -5372,11 +5389,11 @@ bool convoi_t::is_waiting_for_coupling() const {
 }
 
 bool convoi_t::check_electrification() {
-	is_electric = false;
+	is_electric = true;
 	convoihandle_t c = find_most_parent_convoi();
-	while(  c.is_bound()  ) {
+	while(  c.is_bound()  &&  is_electric  ) {
 		for(uint8 i=0;  i<c->get_vehicle_count();  i++) {
-			is_electric |= c->get_vehikel(i)->get_desc()->get_engine_type()==vehicle_desc_t::electric;
+			is_electric &= !(c->get_vehikel(i)->get_desc()->get_engine_type()!=vehicle_desc_t::electric && c->get_vehikel(i)->get_desc()->get_power()>0);
 		}
 		c = c->get_coupling_convoi();
 	}
@@ -5481,13 +5498,6 @@ void convoi_t::reverse_vehicles_at_halt_if_needed()
 	reverse_vehicles();
 	is_reversing_needed = false;
 	welt->set_dirty();
-}
-
-void convoi_t::reverse_vehicles_to_go_to_depot()
-{
-	// this function is fix the direction of train when it go home (depot).
-	// if the vehicle reversed, this vehicle reversed again.
-	is_reversing_needed = reversed;
 }
 
 // The raw logic to reverse the convoy. Do proper validations before calling this function.
