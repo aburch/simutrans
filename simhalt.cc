@@ -2817,7 +2817,7 @@ void haltestelle_t::change_owner( player_t *player, bool halt_only )
 				if(  prev_owner==wplayer  ) {
 					w->set_owner( player );
 					w->set_flag(obj_t::dirty);
-					sint32 cost = w->get_desc()->get_maintenance();
+					sint64 cost = w->get_desc()->get_maintenance();
 					// of tunnel...
 					if(  tunnel_t *t=gr->find<tunnel_t>()  ) {
 						t->set_owner( player );
@@ -2845,7 +2845,7 @@ void haltestelle_t::change_owner( player_t *player, bool halt_only )
 			if(  wayobj_t *const wo = obj_cast<wayobj_t>(gr->obj_bei(i))  ) {
 				player_t *woplayer = wo->get_owner();
 				if(  prev_owner==woplayer  ) {
-					sint32 const cost = wo->get_desc()->get_maintenance();
+					sint64 const cost = wo->get_desc()->get_maintenance();
 					// change ownership
 					wo->set_owner( player );
 					wo->set_flag(obj_t::dirty);
