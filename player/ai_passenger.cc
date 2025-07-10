@@ -1318,7 +1318,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 										// too many convois => cannot do anything about this ...
 										break;
 									}
-									vehicle_t* v = vehicle_builder_t::build( line->get_schedule()->entries[0].pos, this, NULL, v_desc  );
+									vehicle_t* v = vehicle_builder_t::build( line->get_schedule()->at(0).pos, this, NULL, v_desc  );
 									convoi_t* new_cnv = new convoi_t(this);
 									new_cnv->set_name( v->get_desc()->get_name() );
 									new_cnv->add_vehikel( v );
@@ -1348,15 +1348,15 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 				// next: check for overflowing lines, i.e. running with 3/4 of the capacity
 				if(  ratio<10  &&  !convoihandle_t::is_exhausted()  ) {
 					// else add the first convoi again
-					vehicle_t* const v = vehicle_builder_t::build(line->get_schedule()->entries[0].pos, this, NULL, line->get_convoy(0)->front()->get_desc());
+					vehicle_t* const v = vehicle_builder_t::build(line->get_schedule()->at(0).pos, this, NULL, line->get_convoy(0)->front()->get_desc());
 					convoi_t* new_cnv = new convoi_t(this);
 					new_cnv->set_name( v->get_desc()->get_name() );
 					new_cnv->add_vehikel( v );
 					new_cnv->set_line( line );
 					// on waiting line, wait at alternating stations for load balancing
-					if(  line->get_schedule()->entries[1].minimum_loading==90  &&  line->get_linetype()!=simline_t::truckline  &&  (line->count_convoys()&1)==0  ) {
-						new_cnv->get_schedule()->entries[0].minimum_loading = 90;
-						new_cnv->get_schedule()->entries[1].minimum_loading = 0;
+					if(  line->get_schedule()->at(1).minimum_loading==90  &&  line->get_linetype()!=simline_t::truckline  &&  (line->count_convoys()&1)==0  ) {
+						new_cnv->get_schedule()->at(0).minimum_loading = 90;
+						new_cnv->get_schedule()->at(1).minimum_loading = 0;
 					}
 					new_cnv->start();
 					return;

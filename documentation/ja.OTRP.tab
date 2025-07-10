@@ -205,6 +205,12 @@ Reverse
 向きを反転
 reverse the convoy's direction.
 編成の向きを反転します
+move to the owner
+編成の所有プレイヤーに移動
+This player is locked
+このプレイヤーはロックされています
+Stops
+停車駅一覧
 #------乗降時間制御------
 Full Get on/off Time
 乗降時間制御(G)

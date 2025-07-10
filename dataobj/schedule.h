@@ -43,6 +43,8 @@ class schedule_t
 
 	static schedule_entry_t dummy_entry;
 
+	minivec_tpl<schedule_entry_t> entries;
+
 	/**
 	 * Fix up current_stop value, which we may have made out of range
 	 */
@@ -80,8 +82,6 @@ public:
 		FULL_LOAD_TIME         = 1U << 3,
 	};
 
-	minivec_tpl<schedule_entry_t> entries;
-
 	/**
 	 * Returns error message if stops are not allowed
 	 */
@@ -96,6 +96,13 @@ public:
 	bool empty() const { return entries.empty(); }
 
 	uint8 get_count() const { return entries.get_count(); }
+
+	const minivec_tpl<schedule_entry_t> &get_entries() const { return entries; }
+	schedule_entry_t& at(uint8 index) { return entries[index]; }
+	const schedule_entry_t& at(uint8 index) const { return entries[index]; }
+
+	schedule_entry_t* begin() { return entries.begin(); }
+	schedule_entry_t* end() { return entries.end(); }
 
 	virtual schedule_type get_type() const = 0;
 
@@ -185,6 +192,11 @@ public:
 	 * Remove current_stop entry from the schedule.
 	 */
 	bool remove();
+
+	/**
+	 * Remove all entries from the schedule.
+	 */
+	void remove_all() { entries.clear(); }
 
 	void rdwr(loadsave_t *file);
 

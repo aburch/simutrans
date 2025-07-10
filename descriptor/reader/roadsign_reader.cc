@@ -16,6 +16,7 @@
 #include "../../simdebug.h"
 #include "../../network/pakset_info.h"
 #include "../../tpl/array_tpl.h"
+#include <cinttypes>
 
 
 void roadsign_reader_t::register_obj(obj_desc_t *&data)
@@ -48,7 +49,18 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	const int version = v & 0x8000 ? v & 0x7FFF : 0;
 	roadsign_desc_t *desc = new roadsign_desc_t();
 
-	if(version==5) {
+	if (version == 6) {
+		// cost as sint64, maintenance added
+		desc->min_speed   = kmh_to_speed(decode_uint16(p));
+		desc->price       = decode_sint64(p);
+		desc->maintenance = decode_sint64(p);
+		desc->flags       = decode_uint16(p);
+		desc->offset_left = decode_sint8(p);
+		desc->wtyp        = decode_uint8(p);
+		desc->intro_date  = decode_uint16(p);
+		desc->retire_date = decode_uint16(p);
+	}
+	else if(version==5) {
 		// Versioned node, version 5
 		desc->min_speed = kmh_to_speed(decode_uint16(p));
 		desc->price = decode_uint32(p);
@@ -108,10 +120,11 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	DBG_DEBUG("roadsign_reader_t::read_node()",
-		"version=%i, min_speed=%i, price=%i, flags=%x, wtyp=%i, offset_left=%i, intro=%i/%i, retire=%i/%i",
+		"version=%i, min_speed=%i, price=%" PRId64 ", maintenance=%" PRId64 ",flags=%x, wtyp=%i, offset_left=%i, intro=%i/%i, retire=%i/%i",
 		version,
 		desc->min_speed,
 		desc->price/100,
+		desc->maintenance,
 		desc->flags,
 		desc->wtyp,
 		desc->offset_left,
