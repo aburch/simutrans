@@ -167,7 +167,9 @@ public:
 
 	ribi_t::ribi get_90direction() const {return ribi_type(get_pos(), get_pos_next());}
 
-	koord3d get_pos_next() const {return pos_next;}
+	koord3d get_pos_next() const {return pos_next;}	
+	
+	void set_pos_next(koord3d pn) { pos_next = pn; }
 
 	waytype_t get_waytype() const OVERRIDE = 0;
 
