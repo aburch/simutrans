@@ -5375,7 +5375,6 @@ void air_vehicle_t::hop(grund_t* gr)
 		flying_height = front_air->get_flyingheight();
 		target_height = front_air->get_targetheight();
 		state = front_state;
-		dbg->message("air_vehicle_t::hop()","this vehicle's state is %i, height:%i, target:%i",state,flying_height,target_height);
 		
 		// hop to next tile
 		vehicle_t::hop(gr);
