@@ -107,6 +107,12 @@ public:
 	 */
 	bool can_start_convoi(convoihandle_t cnv, bool local_execution); 
 
+	/**
+	 *  Search the parent convoy in this depot
+	 */
+	convoihandle_t find_parent_convoy_in_depot(convoihandle_t cnv);
+	convoihandle_t find_most_parent_convoy_in_depot(convoihandle_t cnv);
+
 	bool start_all_convoys();
 
 	/**

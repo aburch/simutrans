@@ -770,7 +770,7 @@ static inline sint32 res_power(sint64 speed, sint32 total_power, sint64 friction
  */
 void convoi_t::calc_acceleration(uint32 delta_t)
 {
-	convoihandle_t c = self;
+	convoihandle_t c = find_most_parent_convoi();
 	bool rsl = recalc_speed_limit; // Must speed limit be recalculated?
 	bool rmt = recalc_min_top_speed; // Must min_top_speed be recalculated?
 	bool rfw = recalc_friction_weight; // Must friction_weight be recalculated?
@@ -815,7 +815,7 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 		// calculate total friction and lowest speed limit
 		speed_limit = min_top_speed;
 
-		c = self;
+		c = find_most_parent_convoi();
 		while(  c.is_bound()  ) {
 			for(  uint8 i=0;  i<c->get_vehicle_count();  i++  ) {
 				const vehicle_t* v = c->get_vehikel(i);
@@ -892,8 +892,8 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 		//sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll?0l:sum_gear_and_power) - deccel)*(double)delta_t)/(double)sum_gesamtweight);
 
 		// calculate sum_gear_and_power of all coupled convoys
-		sint32 gear_and_power = sum_gear_and_power;
-		c = get_coupling_convoi();
+		sint32 gear_and_power = 0;
+		c = find_most_parent_convoi();
 		while(c.is_bound()) {
 			gear_and_power += c->get_sum_gear_and_power();
 			c = c->get_coupling_convoi();
@@ -966,7 +966,7 @@ sint32 convoi_t::calc_max_speed(uint64 total_power, uint64 total_weight, sint32 
 	sl = 1;
 	pl = res_power(sl, (sint32)total_power, total_weight, total_weight);
 	if (pl <= 0) {
-		return 0; // no power to move at all
+		return 1; // no power to move at all
 	}
 
 	// bisection algorithm to find speed for which residual power is zero
@@ -3453,6 +3453,20 @@ bool convoi_t::pruefe_alle()
 	return ok;
 }
 
+/**
+ * Check sum power of all coupling convoys
+ * Only call this function by the front convoy!
+ */
+uint32 convoi_t::get_total_sum_power() const{
+	uint32 temp_sum_power = 0;
+	convoihandle_t c = self;
+	while(c.is_bound()) {
+		temp_sum_power += c->sum_power;
+		c = c->get_coupling_convoi();
+	}
+	return temp_sum_power;
+}
+
 
 /**
  * Kontrolliert Be- und Entladen
@@ -3974,7 +3988,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 		if(  need_coupling_at_this_stop  &&  next_initial_direction==ribi_t::none  ) {
 			// calc the initial direction to the next stop.
 			route_t r;
-			route_t::route_result_t res = r.calc_route(welt, front()->get_pos(), schedule->get_next_entry().pos, front(), speed_to_kmh(min_top_speed), 8888);
+			route_t::route_result_t res = r.calc_route(welt, front()->get_pos(), schedule->get_next_entry().pos, find_most_parent_convoi()->front(), speed_to_kmh(min_top_speed), 8888);
 			if(  res==route_t::no_route  ||  r.get_count()<2  ) {
 				// assume we do not turn here
 				next_initial_direction = front()->get_direction();
@@ -5382,8 +5396,14 @@ bool convoi_t::is_waiting_for_coupling() const {
 }
 
 bool convoi_t::check_electrification() {
-	is_electric = true;
+	is_electric = false;
 	convoihandle_t c = find_most_parent_convoi();
+	while(  c.is_bound()  &&  is_electric  ) {
+		for(uint8 i=0; i<c->get_vehicle_count(); i++) {
+			is_electric |= c->get_vehikel(i)->get_desc()->get_engine_type()==vehicle_desc_t::electric;
+		}
+	}
+	c = find_most_parent_convoi();
 	while(  c.is_bound()  &&  is_electric  ) {
 		for(uint8 i=0;  i<c->get_vehicle_count();  i++) {
 			is_electric &= !(c->get_vehikel(i)->get_desc()->get_engine_type()!=vehicle_desc_t::electric && c->get_vehikel(i)->get_desc()->get_power()>0);

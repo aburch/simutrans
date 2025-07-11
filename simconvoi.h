@@ -696,6 +696,9 @@ public:
 	void set_speed_limit(sint32 s) { speed_limit = s;}
 	void set_min_top_speed(sint32 t) {min_top_speed = t;}
 
+	
+	uint32 get_total_sum_power() const;
+
 	// calculate min_top_speed taking coupling convoys into account. This does not broadcast min_top_speed for the coupling convoys.
 	sint32 calc_min_top_speed();
 
