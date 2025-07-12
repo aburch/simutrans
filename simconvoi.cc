@@ -4069,7 +4069,7 @@ void convoi_t::push_goods_waiting_time_if_needed() {
 	uint32 average_waiting_time = weighed_sum_waiting_time / total_goods_amount;
 	const linehandle_t line = get_line();
 	schedule_t* schedule_to_push = line.is_bound() ? line->get_schedule() : schedule;
-	uint8 push_stop=schedule_to_push->get_corresponding_entry_index(schedule,schedule->get_current_stop());
+	uint8 push_stop=max((sint16)schedule_to_push->get_corresponding_entry_index(schedule,schedule->get_current_stop()),0);
 	schedule_to_push->at(push_stop).push_waiting_time(average_waiting_time);
 
 	// update journey time window
