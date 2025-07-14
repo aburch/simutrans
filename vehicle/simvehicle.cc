@@ -1875,7 +1875,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 	states_text[0] = 0;
 	uint8 state = env_t::show_vehicle_states;
 
-	if(  (  state==3  ||  state==4 )  &&  this == cnv->front()  ) {
+	if(  (  state==env_t::LINE_NAME_TOOLTIPS  ||  state==env_t::LINE_NAME_AND_STATES_TOOLTIPS )  &&  this == cnv->front()  ) {
 		// show the line name, including when the convoy is coupled.
 		linehandle_t lh = cnv->get_line();
 		if(  lh.is_bound()  ) {
@@ -1887,8 +1887,8 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 		}
 	}
 
-	if(  (  leading  &&  state!=3  )  ||  (  state==4  &&  this == cnv->front()  )  ) {
-		if(  state==1  ) {
+	if(  (  leading  &&  state!=env_t::LINE_NAME_TOOLTIPS  )  ||  (  state==env_t::LINE_NAME_AND_STATES_TOOLTIPS  &&  this == cnv->front()  )  ) {
+		if(  state==env_t::CONVOI_MOUSEOVER_TOOLTIPS  ) {
 			// mouse over check
 			bool mo_this_convoy = false;
 			const koord3d mouse_pos = world()->get_zeiger()->get_pos();
@@ -1902,13 +1902,13 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 			}
 			// only show when mouse over vehicle
 			if(  mo_this_convoy  ) {
-				state = 2;
+				state = env_t::ALL_CONVOI_TOOLTIPS;
 			}
 			else {
-				state = 0;
+				state = env_t::CONVOI_ERROR_TOOLTIPS;
 			}
 		}
-		if( state < 2 ) {
+		if( state == env_t::CONVOI_ERROR_TOOLTIPS || state == env_t::CONVOI_MOUSEOVER_TOOLTIPS ) {
 			// nothing to show
 			return;
 		}
@@ -1970,7 +1970,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 				else if(  cnv->is_in_delay_recovery()  ) {
 					tstrncpy( states_text, translator::translate("recovery"), lengthof(states_text) );
 					color = color_idx_to_rgb(COL_GREEN);
-				} else if(  state==4  ) {
+				} else if(  state==env_t::LINE_NAME_AND_STATES_TOOLTIPS  ) {
 					tstrncpy( states_text, translator::translate("driving"), lengthof(states_text));
 				}
 				break;
@@ -1991,15 +1991,15 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 				break;
 		}
 	}
-	if( state==3 && this==cnv->front() ){
+	if( state==env_t::LINE_NAME_TOOLTIPS && this==cnv->front() ){
 		tstrncpy( tooltip_text, line_name, lengthof(tooltip_text) );
-	} else if (state==4 && this==cnv->front()) {
+	} else if (state==env_t::LINE_NAME_AND_STATES_TOOLTIPS && this==cnv->front()) {
 		snprintf( tooltip_text, lengthof(tooltip_text), "%s: %s", line_name, states_text);
-	} else if (state==2 && leading) {
+	} else if (state==env_t::ALL_CONVOI_TOOLTIPS && leading) {
 		tstrncpy( tooltip_text, states_text, lengthof(tooltip_text) );
 	}
-	if( state==3 || color == 0 ) {
-		if(state==3 || state==4) {
+	if( state==env_t::LINE_NAME_TOOLTIPS || color == 0 ) {
+		if(state==env_t::LINE_NAME_TOOLTIPS || state==env_t::LINE_NAME_AND_STATES_TOOLTIPS) {
 			color = color_idx_to_rgb( cnv->get_owner()->get_player_color1()+7 );
 		} else {
 			color = color_idx_to_rgb(COL_YELLOW);
