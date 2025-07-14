@@ -521,7 +521,8 @@ bool depot_t::can_start_convoi(convoihandle_t cnv, bool local_execution)
 			destroy_win((ptrdiff_t)cnv->get_schedule());
 		}
 	}
-	find_most_parent_convoy_in_depot(cnv)->check_electrification();
+	convoihandle_t front_cnv = find_most_parent_convoy_in_depot(cnv);
+	front_cnv->check_electrification();
 
 	// convoi not in depot anymore, maybe user double-clicked on start-button
 	if(!convois.is_contained(cnv)) {
@@ -536,12 +537,12 @@ bool depot_t::can_start_convoi(convoihandle_t cnv, bool local_execution)
 		}
 
 		// check if convoi is complete
-		if( find_most_parent_convoy_in_depot(cnv)->get_total_sum_power() == 0 || !cnv->pruefe_alle()) {
+		if( front_cnv->get_total_sum_power() == 0 || !cnv->pruefe_alle()) {
 			if (local_execution) {
 				create_win( new news_img("Diese Zusammenstellung kann nicht fahren!\n"), w_time_delete, magic_none);
 			}
 		}
-		else if(  !find_most_parent_convoy_in_depot(cnv)->front()->calc_route(this->get_pos(), cur_pos, speed_to_kmh(find_most_parent_convoy_in_depot(cnv)->calc_min_top_speed()), cnv->access_route())  ) {
+		else if(  !front_cnv->front()->calc_route(this->get_pos(), cur_pos, speed_to_kmh(front_cnv->calc_min_top_speed()), cnv->access_route())  ) {
 			// no route to go ...
 			if(local_execution) {
 				static cbuffer_t buf;
