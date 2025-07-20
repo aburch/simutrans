@@ -4069,11 +4069,12 @@ void convoi_t::push_goods_waiting_time_if_needed() {
 	uint32 average_waiting_time = weighed_sum_waiting_time / total_goods_amount;
 	const linehandle_t line = get_line();
 	schedule_t* schedule_to_push = line.is_bound() ? line->get_schedule() : schedule;
-	if(  schedule_to_push->get_corresponding_entry_index(schedule,schedule->get_current_stop())<0  ) {
-		dbg->error("convoi_t::push_goods_waiting_time_if_needed() ", "Could not find a stop index %i for push waitinig time.",schedule->get_current_stop());
+	const sint16 current_index_on_line_schedule = schedule_to_push->get_corresponding_entry_index(schedule, schedule->get_current_stop());
+	if(  current_index_on_line_schedule<0  ) {
+		dbg->error("convoi_t::push_goods_waiting_time_if_needed() ", "Could not find a stop index %i for push waitinig time.", schedule->get_current_stop());
 		return;
 	}
-	schedule_to_push->at((uint8)schedule_to_push->get_corresponding_entry_index(schedule,schedule->get_current_stop())).push_waiting_time(average_waiting_time);
+	schedule_to_push->at((uint8)current_index_on_line_schedule).push_waiting_time(average_waiting_time);
 
 
 	// update journey time window
