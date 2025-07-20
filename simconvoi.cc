@@ -5048,10 +5048,12 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 	vehicle_t *v = front();
 	koord3d next_pos = schedule->get_current_entry().pos;
 	bool find_depot_route = false;
-	if (  world()->lookup(next_pos)->get_depot() && world()->lookup(next_pos)->get_depot()->get_waytype() == v->get_desc()->get_waytype() && world()->lookup(next_pos)->get_depot()->get_owner()  == get_owner()  ) {
+	bool need_schedule_entry_remove = false;
+	if ( world()->lookup(next_pos)->get_depot() && world()->lookup(next_pos)->get_depot()->get_waytype() == v->get_desc()->get_waytype() && world()->lookup(next_pos)->get_depot()->get_owner()  == get_owner()  ) {
 		// if this convoy is already going to the depot, it will be teleported to that depot.
 		// but if the depot is changed or wrong, we search nearest depot.
 		find_depot_route = true;
+		need_schedule_entry_remove = true;
 		home = next_pos;
 	} else {
 		// Find the nearest depot
@@ -5086,7 +5088,7 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 	// if route to a depot has been found, update the convoi's schedule
 	const char *txt;
 	if(  find_depot_route  ) {
-		betrete_depot(world()->lookup(home)->get_depot(),true);
+		betrete_depot(world()->lookup(home)->get_depot(),!need_schedule_entry_remove);
 		txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
 		set_schedule(get_schedule());
 	}
