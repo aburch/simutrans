@@ -1407,6 +1407,9 @@ sint32 haltestelle_t::rebuild_connections()
 				aggregate_weight_jt = estimated_waiting_ticks(schedule, current_entry_index) - current_entry.get_median_convoy_stopping_time();
 				aggregate_weight_rc = WEIGHT_WAIT;
 			 	force_transfer_search |= (current_entry.is_unload_all()  ||  current_entry.is_no_load()  ||  current_entry.is_no_unload());
+				// If loading is allowed at somewhere by here, we still need to connect the further halts.
+				// Reset no_load_section to false in case that we can load here.
+				no_load_section &= current_entry.is_no_load();
 				interval = 0;
 				continue;
 			}
