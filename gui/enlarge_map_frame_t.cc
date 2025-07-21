@@ -168,7 +168,7 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 
 	new_component<gui_divider_t>();
 
-	// read hightfield data
+	// read heightfield data
 	load_map.init(button_t::roundbox | button_t::flexible, "load map");
 	load_map.add_listener( this );
 	add_component( &load_map );
@@ -258,7 +258,7 @@ void enlarge_map_frame_t::draw(scr_coord pos, scr_size size)
 			sets->heightfield = "";
 		}
 	}
-		update_preview();
+	update_preview();
 	load_map.pressed = loaded_heightfield;
 
 	gui_frame_t::draw(pos, size);

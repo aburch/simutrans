@@ -6717,8 +6717,6 @@ void karte_t::load_heightfield(settings_t* const sets, bool is_new_map)
 }
 
 
-
-
 void karte_t::mark_area( const koord3d pos, const koord size, const bool mark ) const
 {
 	for( sint16 y=pos.y;  y<pos.y+size.y;  y++  ) {
