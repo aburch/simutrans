@@ -521,7 +521,7 @@ bool depot_t::can_start_convoi(convoihandle_t cnv, bool local_execution)
 			destroy_win((ptrdiff_t)cnv->get_schedule());
 		}
 	}
-	convoihandle_t front_cnv = find_most_parent_convoy_in_depot(cnv);
+	const convoihandle_t front_cnv = find_most_parent_convoy_in_depot(cnv);
 	front_cnv->check_electrification();
 
 	// convoi not in depot anymore, maybe user double-clicked on start-button

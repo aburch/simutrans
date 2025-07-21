@@ -697,8 +697,7 @@ public:
 	void set_min_top_speed(sint32 t) {min_top_speed = t;}
 
 	/**
-	 * Check sum power of all coupling convoys
-	 * Only call this function by the front convoy!
+	 * Check sum power of this and the child convoys
 	 */
 	uint32 get_total_sum_power() const;
 

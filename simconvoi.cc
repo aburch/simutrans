@@ -5396,13 +5396,17 @@ bool convoi_t::is_waiting_for_coupling() const {
 
 bool convoi_t::check_electrification() {
 	is_electric = false;
-	convoihandle_t c = find_most_parent_convoi();
+	const convoihandle_t most_parent_convoi = find_most_parent_convoi();
+	convoihandle_t c = most_parent_convoi;
+	// Are there electric cars?
 	while(  c.is_bound()  &&  !is_electric  ) {
 		for(uint8 i=0; i<c->get_vehicle_count(); i++) {
 			is_electric |= c->get_vehikel(i)->get_desc()->get_engine_type()==vehicle_desc_t::electric;
 		}
+		c = c->get_coupling_convoi();
 	}
-	c = find_most_parent_convoi();
+	c = most_parent_convoi;
+	// If electric cars are, do they have other engine?
 	while(  c.is_bound()  &&  is_electric  ) {
 		for(uint8 i=0;  i<c->get_vehicle_count();  i++) {
 			is_electric &= !(c->get_vehikel(i)->get_desc()->get_engine_type()!=vehicle_desc_t::electric && c->get_vehikel(i)->get_desc()->get_power()>0);
