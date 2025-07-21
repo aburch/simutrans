@@ -1509,11 +1509,13 @@ void vehicle_t::discard_cargo()
 void vehicle_t::calc_image()
 {
 	image_id old_image=get_image();
+	// When loading savedata, vehicles do not have cnv information.
+	const bool is_reversed = !cnv||(get_waytype()==air_wt)?false:cnv->is_reversed();
 	if (fracht.empty()) {
-		set_image(desc->get_image_id(ribi_t::get_dir(get_image_direction()),NULL));
+		set_image(desc->get_image_id(ribi_t::get_dir(get_image_direction()),NULL,is_reversed));
 	}
 	else {
-		set_image(desc->get_image_id(ribi_t::get_dir(get_image_direction()), fracht.front().get_desc()));
+		set_image(desc->get_image_id(ribi_t::get_dir(get_image_direction()), fracht.front().get_desc(),is_reversed));
 	}
 	if(old_image!=get_image()) {
 		set_flag(obj_t::dirty);
