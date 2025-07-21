@@ -1828,10 +1828,8 @@ void convoi_t::betrete_depot(depot_t *dep, bool is_loading)
 		if(child.is_bound()) {
 			c->coupling_convoi = child;
 			child = child->get_coupling_convoi();
-			c = c->get_coupling_convoi();
-		} else {
-			c = convoihandle_t();
 		}
+		c = c->get_coupling_convoi();
 	}
 }
 
