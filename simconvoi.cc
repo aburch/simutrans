@@ -966,7 +966,7 @@ sint32 convoi_t::calc_max_speed(uint64 total_power, uint64 total_weight, sint32 
 	sl = 1;
 	pl = res_power(sl, (sint32)total_power, total_weight, total_weight);
 	if (pl <= 0) {
-		return 0; // no power to move at all
+		return 1; // no power to move at all
 	}
 
 	// bisection algorithm to find speed for which residual power is zero
@@ -3453,6 +3453,19 @@ bool convoi_t::pruefe_alle()
 	return ok;
 }
 
+/**
+ * Returns sum power of this and the child convoys.
+ */
+uint32 convoi_t::get_total_sum_power() const{
+	uint32 temp_sum_power = 0;
+	convoihandle_t c = self;
+	while(c.is_bound()) {
+		temp_sum_power += c->sum_power;
+		c = c->get_coupling_convoi();
+	}
+	return temp_sum_power;
+}
+
 
 /**
  * Kontrolliert Be- und Entladen
@@ -5390,8 +5403,18 @@ bool convoi_t::is_waiting_for_coupling() const {
 }
 
 bool convoi_t::check_electrification() {
-	is_electric = true;
-	convoihandle_t c = find_most_parent_convoi();
+	is_electric = false;
+	const convoihandle_t most_parent_convoi = find_most_parent_convoi();
+	convoihandle_t c = most_parent_convoi;
+	// Are there electric cars?
+	while(  c.is_bound()  &&  !is_electric  ) {
+		for(uint8 i=0; i<c->get_vehicle_count(); i++) {
+			is_electric |= c->get_vehikel(i)->get_desc()->get_engine_type()==vehicle_desc_t::electric;
+		}
+		c = c->get_coupling_convoi();
+	}
+	c = most_parent_convoi;
+	// If electric cars are, do they have other engine?
 	while(  c.is_bound()  &&  is_electric  ) {
 		for(uint8 i=0;  i<c->get_vehicle_count();  i++) {
 			is_electric &= !(c->get_vehikel(i)->get_desc()->get_engine_type()!=vehicle_desc_t::electric && c->get_vehikel(i)->get_desc()->get_power()>0);
