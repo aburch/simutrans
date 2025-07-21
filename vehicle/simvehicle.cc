@@ -1510,7 +1510,7 @@ void vehicle_t::calc_image()
 {
 	image_id old_image=get_image();
 	// When loading savedata, vehicles do not have cnv information.
-	const bool is_reversed = !cnv||(get_waytype()==air_wt)?false:cnv->is_reversed();
+	const bool is_reversed = !cnv  ||  cnv==NULL  ||  cnv==(convoi_t *)1  ?false:cnv->is_reversed();
 	if (fracht.empty()) {
 		set_image(desc->get_image_id(ribi_t::get_dir(get_image_direction()),NULL,is_reversed));
 	}

@@ -787,7 +787,7 @@ ifeq ($(OSTYPE),mingw)
 endif
 
 CCFLAGS  += $(CFLAGS)
-CXXFLAGS += $(CFLAGS)
+CXXFLAGS += $(CFLAGS) -g -O0
 
 BUILDDIR ?= build/$(CFG)
 PROGDIR  ?= $(BUILDDIR)
