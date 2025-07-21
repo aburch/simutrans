@@ -204,7 +204,7 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool schedule_adjust)
 		depot_frame->action_triggered(NULL,(long int)0);
 	}
 	acnv->set_home_depot( get_pos() );
-	dbg->message("depot_t::convoi_arrived()", "convoi %d, %p entered depot", acnv.get_id(), acnv.get_rep());
+	DBG_MESSAGE("depot_t::convoi_arrived()", "convoi %d, %p entered depot", acnv.get_id(), acnv.get_rep());
 
 	if (acnv->front()->get_owner() != acnv->get_owner()){
 		for(int i = 0; i < acnv->get_vehicle_count(); i++){
