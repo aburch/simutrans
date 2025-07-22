@@ -284,21 +284,6 @@ void convoi_t::unreserve_route()
 			// free all reserved blocks
 			uint16 dummy;
 			lok->block_reserver(get_route(), back()->get_route_index(), dummy, dummy,  100000, false, true);
-			// free all tiles held by reserved_tiles
-			if(  reserved_tiles.get_count()>0  ) {
-				vector_tpl<koord3d> tiles_convoy_on;
-				for(  uint16 i=0;  i<anz_vehikel;  i++  ) {
-					tiles_convoy_on.append_unique(fahr[i]->get_pos());
-				}
-				for(  uint32 i=0;  i<reserved_tiles.get_count();  i++  ) {
-					grund_t* gr = welt->lookup(reserved_tiles[i]);
-					schiene_t *sch = gr ? (schiene_t *)gr->get_weg( front()->get_waytype() ) : NULL;
-					if(  sch  &&  !tiles_convoy_on.is_contained(reserved_tiles[i])  ) {
-						sch->unreserve(this->self);
-					}
-				}
-				reserved_tiles.clear();
-			}
 		}
 	}
 }
@@ -1456,6 +1441,7 @@ void convoi_t::step()
 
 				// unreserve all tiles
 				unreserve_route();
+				clear_reserved_tiles();
 
 				if(  schedule->empty()  ) {
 					// no entry => no route ...
@@ -1797,6 +1783,7 @@ void convoi_t::betrete_depot(depot_t *dep, bool is_loading)
 {
 	// first remove reservation, if train is still on track
 	unreserve_route();
+	clear_reserved_tiles();
 
 	// remove vehicles from world data structure
 	convoihandle_t c = self;
@@ -2545,6 +2532,10 @@ void convoi_t::vorfahren()
 	ribi_t::ribi neue_richtung_rwr = ribi_t::backward(fahr[0]->calc_direction(route.front(), route.at(min(2, route.get_count() - 1))));
 	bool const reverse_preserving_direction = ((neue_richtung_rwr&alte_richtung)==0) && reversing_convoy_exists;
 
+	// if this convoy already reserve tiles by longblock signal,
+	// keep this reservation
+	check_reserved_tiles_match_as_route();
+
 	// if this convoy is reversing only image direction (not driving direction),
 	// the start position should be the last car of this convoy.
 	// reset the position, and recalculate the route.
@@ -2731,6 +2722,24 @@ void convoi_t::vorfahren()
 
 	wait_lock = 0;
 	INT_CHECK("simconvoi 711");
+}
+
+// a helper function for convoi_t::vorfahren()
+// check reserved_tiles and clear it when the route and reserved_tiles are different.
+void convoi_t::check_reserved_tiles_match_as_route()
+{
+	if(  get_reserved_tiles().get_count()==0 || route.get_count()==0  ) {
+		// this convoy does not have reserved_tile
+		return;
+	}
+	// check the new route to the next stop is match as reserved_tiles
+	for( uint16 i=1; i<min(get_route()->get_count(),get_reserved_tiles().get_count()); i++ ) {
+		if( route.at(i) != reserved_tiles[i]  ) {
+			clear_reserved_tiles();
+			return;
+		}
+	}
+	return;
 }
 
 
