@@ -276,6 +276,14 @@ public:
 
 	/// show error/info tooltips over the vehicles
 	static uint8 show_vehicle_states;
+	enum show_vehicle_states {
+		CONVOI_ERROR_TOOLTIPS,
+		CONVOI_MOUSEOVER_TOOLTIPS,
+		ALL_CONVOI_TOOLTIPS,
+		LINE_NAME_TOOLTIPS,
+		LINE_NAME_AND_STATES_TOOLTIPS,
+		MAX_SHOW_VEHICLE_STATES
+	};
 
 	/// show station coverage indicators
 	static uint8 station_coverage_show;

@@ -215,11 +215,24 @@ void vehicle_base_t::leave_tile()
 {
 	// first: release crossing
 	grund_t *gr = welt->lookup(get_pos());
-	if(  gr  &&  gr->ist_uebergang()  ) {
-		crossing_t *cr = gr->find<crossing_t>(2);
-		grund_t *gr2 = welt->lookup(pos_next);
-		if(  gr2==NULL  ||  gr2==gr  ||  !gr2->ist_uebergang()  ||  cr->get_logic()!=gr2->find<crossing_t>(2)->get_logic()  ) {
-			cr->release_crossing(this);
+	if (gr) {
+		if (crossing_t* cr = gr->get_crossing()) {
+			grund_t* gr2 = welt->lookup(pos_next);
+			bool release = gr2==NULL ||  gr2 == gr;
+			if (!release) {
+				// check if we stay on crossing
+				if (crossing_t* cr2 = gr2->get_crossing()) {
+					// only release if new crossing ahead
+					release = (cr->get_logic() != cr2->get_logic());
+				}
+			}
+			if (release) {
+				cr->release_crossing(this);
+			}
+			else {
+				// release when no longer a crossing
+				cr->release_crossing(this);
+			}
 		}
 	}
 
@@ -1128,6 +1141,7 @@ grund_t* vehicle_t::hop_check()
 	else {
 		// this is needed since in convoi_t::vorfahren the flag 'leading' is set to null
 		if(check_for_finish) {
+			dbg->message("vehicle_t::hop_check()","%s check_for_finish==true",cnv->get_name());
 			return NULL;
 		}
 	}
@@ -1266,8 +1280,8 @@ void vehicle_t::hop(grund_t* gr)
 		else{
 			speed_limit = kmh_to_speed( weg->get_max_speed() );
 		}
-		if(  weg->is_crossing()  ) {
-			gr->find<crossing_t>(2)->add_to_crossing(this);
+		if(  crossing_t* cr = gr->get_crossing()  ) {
+			cr->add_to_crossing(this);
 		}
 	}
 	else {
@@ -1496,11 +1510,13 @@ void vehicle_t::discard_cargo()
 void vehicle_t::calc_image()
 {
 	image_id old_image=get_image();
+	// When loading savedata, vehicles do not have cnv information.
+	const bool is_reversed = (cnv==NULL  ||  cnv==(convoi_t *)1) ? false : cnv->is_reversed();
 	if (fracht.empty()) {
-		set_image(desc->get_image_id(ribi_t::get_dir(get_image_direction()),NULL));
+		set_image(desc->get_image_id(ribi_t::get_dir(get_image_direction()),NULL,is_reversed));
 	}
 	else {
-		set_image(desc->get_image_id(ribi_t::get_dir(get_image_direction()), fracht.front().get_desc()));
+		set_image(desc->get_image_id(ribi_t::get_dir(get_image_direction()), fracht.front().get_desc(),is_reversed));
 	}
 	if(old_image!=get_image()) {
 		set_flag(obj_t::dirty);
@@ -1862,7 +1878,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 	states_text[0] = 0;
 	uint8 state = env_t::show_vehicle_states;
 
-	if(  (  state==3  ||  state==4 )  &&  this == cnv->front()  ) {
+	if(  (  state==env_t::LINE_NAME_TOOLTIPS  ||  state==env_t::LINE_NAME_AND_STATES_TOOLTIPS )  &&  this == cnv->front()  ) {
 		// show the line name, including when the convoy is coupled.
 		linehandle_t lh = cnv->get_line();
 		if(  lh.is_bound()  ) {
@@ -1874,8 +1890,8 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 		}
 	}
 
-	if(  (  leading  &&  state!=3  )  ||  (  state==4  &&  this == cnv->front()  )  ) {
-		if(  state==1  ) {
+	if(  (  leading  &&  state!=env_t::LINE_NAME_TOOLTIPS  )  ||  (  state==env_t::LINE_NAME_AND_STATES_TOOLTIPS  &&  this == cnv->front()  )  ) {
+		if(  state==env_t::CONVOI_MOUSEOVER_TOOLTIPS  ) {
 			// mouse over check
 			bool mo_this_convoy = false;
 			const koord3d mouse_pos = world()->get_zeiger()->get_pos();
@@ -1889,13 +1905,13 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 			}
 			// only show when mouse over vehicle
 			if(  mo_this_convoy  ) {
-				state = 2;
+				state = env_t::ALL_CONVOI_TOOLTIPS;
 			}
 			else {
-				state = 0;
+				state = env_t::CONVOI_ERROR_TOOLTIPS;
 			}
 		}
-		if( state < 2 ) {
+		if( state == env_t::CONVOI_ERROR_TOOLTIPS || state == env_t::CONVOI_MOUSEOVER_TOOLTIPS ) {
 			// nothing to show
 			return;
 		}
@@ -1957,7 +1973,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 				else if(  cnv->is_in_delay_recovery()  ) {
 					tstrncpy( states_text, translator::translate("recovery"), lengthof(states_text) );
 					color = color_idx_to_rgb(COL_GREEN);
-				} else if(  state==4  ) {
+				} else if(  state==env_t::LINE_NAME_AND_STATES_TOOLTIPS  ) {
 					tstrncpy( states_text, translator::translate("driving"), lengthof(states_text));
 				}
 				break;
@@ -1978,15 +1994,15 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 				break;
 		}
 	}
-	if( state==3 && this==cnv->front() ){
+	if( state==env_t::LINE_NAME_TOOLTIPS && this==cnv->front() ){
 		tstrncpy( tooltip_text, line_name, lengthof(tooltip_text) );
-	} else if (state==4 && this==cnv->front()) {
+	} else if (state==env_t::LINE_NAME_AND_STATES_TOOLTIPS && this==cnv->front()) {
 		snprintf( tooltip_text, lengthof(tooltip_text), "%s: %s", line_name, states_text);
-	} else if (state==2 && leading) {
+	} else if (state==env_t::ALL_CONVOI_TOOLTIPS && leading) {
 		tstrncpy( tooltip_text, states_text, lengthof(tooltip_text) );
 	}
-	if( state==3 || color == 0 ) {
-		if(state==3 || state==4) {
+	if( state==env_t::LINE_NAME_TOOLTIPS || color == 0 ) {
+		if(state==env_t::LINE_NAME_TOOLTIPS || state==env_t::LINE_NAME_AND_STATES_TOOLTIPS) {
 			color = color_idx_to_rgb( cnv->get_owner()->get_player_color1()+7 );
 		} else {
 			color = color_idx_to_rgb(COL_YELLOW);
@@ -2335,7 +2351,8 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		// no further check, when already entered a crossing (to allow leaving it)
 		if(  !second_check_count  ) {
 			const grund_t *gr_current = welt->lookup(get_pos());
-			if(  gr_current  &&  gr_current->ist_uebergang()  ) {
+			if(  gr_current  &&  gr_current->get_crossing()  ) {
+				// always allow to leave a crossing
 				return true;
 			}
 			// always allow to leave traffic lights (avoid vehicles stuck on crossings directly after though)
@@ -2512,9 +2529,8 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		overtaking_mode_t mode_of_start_point = str->get_overtaking_mode();
 		bool enter_passing_lane_from_side_road = false;
 		// check exit from crossings and intersections, allow to proceed after 4 consecutive
-		while(  !obj   &&  (str->is_crossing()  ||  int_block)  &&  test_index < r.get_count()  &&  test_index < route_index + 4u  ) {
-			if(  str->is_crossing()  ) {
-				crossing_t* cr = gr->find<crossing_t>(2);
+		while(  !obj   &&  (int_block  ||  gr->get_crossing())  &&  test_index < r.get_count()  &&  test_index < route_index + 4u  ) {
+			if (crossing_t* cr = gr->get_crossing()) {
 				if(  !cr->request_crossing(this)  ) {
 					restart_speed = 0;
 					return false;
@@ -2634,7 +2650,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			test_index++;
 		}
 
-		if(  obj  &&  test_index > route_index + 1u  &&  !str->is_crossing()  &&  !int_block  ) {
+		if(  obj  &&  test_index > route_index + 1u  &&  !gr->get_crossing()  &&  !int_block  ) {
 			// found a car blocking us after checking at least 1 intersection or crossing
 			// and the car is in a place we could stop. So if it can move, assume it will, so we will too.
 			// but check only upto 8 cars ahead to prevent infinite recursion on roundabouts.
@@ -3910,14 +3926,17 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	uint8 next_c_steps;
 	if(  cnv->get_state()==convoi_t::CAN_START  ||  cnv->get_state()==convoi_t::CAN_START_ONE_MONTH  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS  ) {
 		// reserve first block at the start until the next signal
-		grund_t *gr_current = welt->lookup( get_pos() );
-		weg_t *w = gr_current ? gr_current->get_weg(get_waytype()) : NULL;
-		if(  w==NULL  ||  !(w->has_signal()  ||  w->is_crossing())  ) {
-			// free track => reserve up to next signal
-			bool block_reservation = block_reserver(cnv->get_route(), max(route_index,1)-1, next_signal, next_crossing, 0, true, false );
-			if(  block_reservation  ) {
-				cnv->set_next_stop_index( next_crossing<next_signal ? next_crossing : next_signal );
-				return true;
+		if (grund_t* gr_current = welt->lookup(get_pos())) {
+			if (weg_t* w = gr_current->get_weg(get_waytype())) {
+				if (!(w->has_signal()  ||  gr_current->get_crossing())) {
+					// free track => reserve up to next signal
+					if (!block_reserver(cnv->get_route(), max(route_index, 1) - 1, next_signal, next_crossing, 0, true, false)) {
+						restart_speed = 0;
+						return false;
+					}
+					cnv->set_next_stop_index(next_crossing < next_signal ? next_crossing : next_signal);
+					return true;
+				}
 			} else if(  can_couple(cnv->get_route(), route_index, next_coupling, next_c_steps)  &&  next_coupling!=route_t::INVALID_INDEX  ) {
 				cnv->set_next_coupling(next_coupling, next_c_steps);
 				cnv->set_next_stop_index(min(next_crossing,min(next_signal,next_coupling)));
@@ -3993,7 +4012,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 		else if(  crossing_reservation_index[i].first <= route_index  &&  crossing_reservation_index[i].second > route_index  ) {
 			grund_t* cr_gr = welt->lookup(cnv->get_route()->at(crossing_reservation_index[i].second));
-			crossing_t* cr = cr_gr ? cr_gr->find<crossing_t>(2) : NULL;
+			crossing_t* cr = cr_gr ? cr_gr->get_crossing() : NULL;
 			if(  cr  ) {
 				cr->request_crossing(this);
 			}
@@ -4014,28 +4033,26 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		// Is a crossing?
 		// note: crossing and signal might exist on same tile
 		// so first check crossing
-		if(  sch1->is_crossing()  ) {
-			if(  crossing_t* cr = gr_next_block->find<crossing_t>(2)  ) {
-				// ok, here is a draw/turnbridge ...
-				bool ok = cr->request_crossing(this);
-				if(!ok) {
-					// cannot cross => wait here
-					restart_speed = 0;
-					return cnv->get_next_stop_index()>route_index+1;
+		if(crossing_t* cr = gr_next_block->get_crossing()) {
+			// ok, here is a draw/turnbridge ...
+			bool ok = cr->request_crossing(this);
+			if(!ok) {
+				// cannot cross => wait here
+				restart_speed = 0;
+				return cnv->get_next_stop_index()>route_index+1;
+			}
+			else if(  !sch1->has_signal()  ) {
+				// can reserve: find next place to do something and drive on
+				if(  block_pos == cnv->get_route()->back()  ) {
+					// is also last tile => go on ...
+					cnv->set_next_stop_index( route_t::INVALID_INDEX );
+					return true;
 				}
-				else if(  !sch1->has_signal()  ) {
-					// can reserve: find next place to do something and drive on
-					if(  block_pos == cnv->get_route()->back()  ) {
-						// is also last tile => go on ...
-						cnv->set_next_stop_index( route_t::INVALID_INDEX );
-						return true;
-					}
-					else if(  !block_reserver( cnv->get_route(), cnv->get_next_stop_index(), next_signal, next_crossing, 0, true, false )  ) {
-						dbg->error( "rail_vehicle_t::can_enter_tile()", "block not free but was reserved!" );
-						return false;
-					}
-					cnv->set_next_stop_index( next_crossing<next_signal ? next_crossing : next_signal );
+				else if(  !block_reserver( cnv->get_route(), cnv->get_next_stop_index(), next_signal, next_crossing, 0, true, false )  ) {
+					dbg->error( "rail_vehicle_t::can_enter_tile()", "block not free but was reserved!" );
+					return false;
 				}
+				cnv->set_next_stop_index( next_crossing<next_signal ? next_crossing : next_signal );
 			}
 		}
 
@@ -4126,7 +4143,16 @@ bool rail_vehicle_t::block_reserver(const route_t *route, uint16 start_index, ui
 				// use reserved_tiles instead of next_reservation_index to hold reservations.
 				cnv->reserve_pos(pos);
 			}
-			if(next_crossing_index==route_t::INVALID_INDEX  &&  sch1->is_crossing()) {
+			if (gr->has_two_ways()) {
+				// we may need to reserve the other way as well
+				if (schiene_t* sch0 = dynamic_cast<schiene_t*>(gr->get_weg_nr(gr->get_weg_nr(0) == sch1))) {
+					// the other way is reservable too => try to reserve it
+					if (!sch0->reserve(cnv->self, ribi_type(route->at(max(1u, i) - 1u), route->at(min(route->get_count() - 1u, i + 1u))))) {
+						success = false;
+					}
+				}
+			}
+			if(next_crossing_index==route_t::INVALID_INDEX  &&  gr->get_crossing()) {
 				next_crossing_index = i;
 			}
 		}
@@ -4149,8 +4175,8 @@ bool rail_vehicle_t::block_reserver(const route_t *route, uint16 start_index, ui
 					signal->set_state(roadsign_t::STATE_RED);
 				}
 			}
-			if(sch1->is_crossing()) {
-				gr->find<crossing_t>()->release_crossing(this);
+			if(crossing_t* cr = gr->get_crossing()) {
+				cr->release_crossing(this);
 			}
 		}
 	}
@@ -4165,10 +4191,18 @@ bool rail_vehicle_t::block_reserver(const route_t *route, uint16 start_index, ui
 	// free, in case of un-reserve or no success in reservation
 	if(!success) {
 		// free reservation
-		for ( int j=start_index; j<i; j++) {
-			schiene_t * sch1 = (schiene_t *)welt->lookup( route->at(j))->get_weg(get_waytype());
-			sch1->unreserve(cnv->self);
-			cnv->unreserve_pos(route->at(j));
+		for ( int j=start_index; j<i; j++) {if (grund_t * gr=welt->lookup(route->at(j))) {
+				schiene_t* sch1 = (schiene_t*)gr->get_weg(get_waytype());
+				if(sch1) {
+					sch1->unreserve(cnv->self);
+					if (gr->has_two_ways()) {
+						// we may need to reserve the other way as well
+						if (schiene_t* sch0 = dynamic_cast<schiene_t*>(gr->get_weg_nr(gr->get_weg_nr(0) == sch1))) {
+							sch0->unreserve(cnv->self);
+						}
+					}
+				}
+			}
 		}
 		cnv->set_next_reservation_index( start_index );
 		return false;
@@ -4300,6 +4334,13 @@ void rail_vehicle_t::leave_tile()
 					signal_t* sig = gr->find<signal_t>();
 					if(sig) {
 						sig->set_state(  roadsign_t::STATE_RED );
+					}
+				}
+				if (gr->has_two_ways()) {
+					// we may need to reserve the other way as well
+					if (schiene_t* sch1 = dynamic_cast<schiene_t*>(gr->get_weg_nr(gr->get_weg_nr(0) == sch0))) {
+						// the other way is reservable too => unreserve it
+						sch1->unreserve(this);
 					}
 				}
 			}
@@ -5140,6 +5181,9 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 	if(  route_index == touchdown - landing_distance) {
 		if(  !block_reserver( touchdown, search_for_stop+1, true )  ) {
 			route_index -= 16;
+			for(uint8 i=1; i<cnv->get_vehicle_count(); i++) {
+				dynamic_cast<air_vehicle_t*>(cnv->get_vehikel(i))->increment_route_index(-16);
+			}
 			return true;
 		}
 		state = landing;
@@ -5150,6 +5194,9 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		// just check, if the end of runway is free; we will wait there
 		if(  block_reserver( touchdown, search_for_stop+1, true )  ) {
 			route_index += 16;
+			for(uint8 i=1; i<cnv->get_vehicle_count(); i++) {
+				dynamic_cast<air_vehicle_t*>(cnv->get_vehikel(i))->increment_route_index(16);
+			}
 			// can land => set landing height
 			state = landing;
 		}
@@ -5369,7 +5416,27 @@ void air_vehicle_t::hop(grund_t* gr)
 	// take care of in-flight height ...
 	const sint16 h_cur = (sint16)get_pos().z*TILE_HEIGHT_STEP;
 	const sint16 h_next = (sint16)pos_next.z*TILE_HEIGHT_STEP;
-
+	// if this vehicle is not leading, state and flying_height are set as these of front.
+	if(  !leading  ) {
+		flight_state front_state;
+		uint32 dummy_takeoff,dummy_stopsearch,dummy_landing;
+		air_vehicle_t *const front_air =  dynamic_cast<air_vehicle_t*>(cnv->front());
+		front_air->get_event_index(front_state,dummy_takeoff,dummy_stopsearch,dummy_landing);
+		flying_height = front_air->get_flyingheight();
+		target_height = front_air->get_targetheight();
+		state = front_state;
+		
+		// hop to next tile
+		vehicle_t::hop(gr);
+	
+		speed_limit = new_speed_limit;
+		current_friction = new_friction;
+	
+		// friction factors and speed limit may have changed
+		// TODO use the same logic as in vehicle_t::hop
+		cnv->must_recalc_data();
+		return;
+	}
 	switch(state) {
 		case departing: {
 			flying_height = 0;
@@ -5380,9 +5447,9 @@ void air_vehicle_t::hop(grund_t* gr)
 			// take off, when a) end of runway or b) last tile of runway or c) fast enough
 			weg_t *weg=welt->lookup(get_pos())->get_weg(air_wt);
 			if(  (weg==NULL  ||  // end of runway (broken runway)
-				 weg->get_desc()->get_styp()!=type_runway  ||  // end of runway (grass now ... )
-				 (route_index>takeoff+1  &&  ribi_t::is_single(weg->get_ribi_unmasked())) )  ||  // single ribi at end of runway
-				 cnv->get_akt_speed()>kmh_to_speed(desc->get_topspeed())/3 // fast enough
+				weg->get_desc()->get_styp()!=type_runway  ||  // end of runway (grass now ... )
+				(route_index>takeoff+1  &&  ribi_t::is_single(weg->get_ribi_unmasked())) )  ||  // single ribi at end of runway
+				cnv->get_akt_speed()>kmh_to_speed(desc->get_topspeed())/3 // fast enough
 			) {
 				state = flying;
 				new_friction = 1;

@@ -899,11 +899,15 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 	}
 	else if(comp == &bt_wait_load) {
 		if (!schedule->empty()) {
-			schedule->at(schedule->get_current_stop()).waiting_time_shift = !bt_wait_load.pressed;
+			if( schedule->at(schedule->get_current_stop()).waiting_time_shift == 0 ) {
+				schedule->at(schedule->get_current_stop()).waiting_time_shift = (uint16)numimp_wait_load.get_value();
+			} else {
+				schedule->at(schedule->get_current_stop()).waiting_time_shift = 0;
+			}
 			update_selection();
 		}
 	}
-	else if(comp == &numimp_wait_load) {
+	else if(comp == &numimp_wait_load && bt_wait_load.pressed) {
 		if(!schedule->empty()) {
 			schedule->at(schedule->get_current_stop()).waiting_time_shift = (uint16)p.i;
 			update_selection();

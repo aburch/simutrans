@@ -37,6 +37,8 @@ public:
 	void input(sint16 data);
 	void input(uint32 data);
 	void input(sint32 data);
+	void input(uint64 data);
+	void input(sint64 data);
 	void input(const char *data);
 	const char* get_str(const int maxlen=20) const;
 

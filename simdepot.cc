@@ -442,25 +442,43 @@ bool depot_t::start_all_convoys()
 // implementation in simtool.cc
 bool scenario_check_convoy(karte_t *welt, player_t *player, convoihandle_t cnv, depot_t* depot, bool local);
 
+convoihandle_t depot_t::find_parent_convoy_in_depot(convoihandle_t cnv) {
+	for(uint32 i=0; i < convois.get_count() ; i++) {
+		if( cnv==convois.at(i)->get_coupling_convoi() ) {
+			return convois.at(i);
+		}
+	}
+	return convoihandle_t();
+}
+
+convoihandle_t depot_t::find_most_parent_convoy_in_depot(convoihandle_t cnv) {
+	convoihandle_t p_c=cnv;
+	while(p_c.is_bound()) {
+		cnv = p_c;
+		p_c = find_parent_convoy_in_depot(cnv);
+	}
+	dbg->message("depot_t::find_most_parent_convoy_in_depot()","most parent convoy is %s",cnv->get_name());
+	return cnv;	
+}
 
 bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 {
+	// Check if the convoy is coupled or not.
+	// When coupled, the convoy is not allowed to depart alone!
+	convoihandle_t p_c = find_parent_convoy_in_depot(cnv);
+	if( p_c.is_bound() ) {
+		static cbuffer_t buf;
+		buf.clear();
+		buf.printf( translator::translate("Vehicle %s is coupled convoy, so it cannot depart alone!"), cnv->get_name() );
+		create_win( new news_img(buf), w_time_delete, magic_none);
+	}
+	// Check the start condition
 	if(  !can_start_convoi(cnv, local_execution)  ) {
 		return false;
 	}
-	// Check if the convoy is coupled or not.
-	// When coupled, the convoy is not allowed to depart alone!
-	for(uint32 i=0; i < convois.get_count() ; i++) {
-		if( cnv==convois.at(i)->get_coupling_convoi() ) {
-			static cbuffer_t buf;
-			buf.clear();
-			buf.printf( translator::translate("Vehicle %s is coupled convoy, so it cannot depart alone!"), cnv->get_name() );
-			create_win( new news_img(buf), w_time_delete, magic_none);
-			return false;
-		}
-	}
 	// coupling convoys depart
 	if(  cnv->get_coupling_convoi().is_bound()  ) {
+		dbg->message("depot_t::start_convoi()","start convoys lead by %s",cnv->get_name());
 		// these convoys can depart!
 		// parent starts
 		cnv->start();
@@ -503,6 +521,8 @@ bool depot_t::can_start_convoi(convoihandle_t cnv, bool local_execution)
 			destroy_win((ptrdiff_t)cnv->get_schedule());
 		}
 	}
+	const convoihandle_t front_cnv = find_most_parent_convoy_in_depot(cnv);
+	front_cnv->check_electrification();
 
 	// convoi not in depot anymore, maybe user double-clicked on start-button
 	if(!convois.is_contained(cnv)) {
@@ -517,12 +537,12 @@ bool depot_t::can_start_convoi(convoihandle_t cnv, bool local_execution)
 		}
 
 		// check if convoi is complete
-		if(cnv->get_sum_power() == 0 || !cnv->pruefe_alle()) {
+		if( front_cnv->get_total_sum_power() == 0 || !cnv->pruefe_alle()) {
 			if (local_execution) {
 				create_win( new news_img("Diese Zusammenstellung kann nicht fahren!\n"), w_time_delete, magic_none);
 			}
 		}
-		else if(  !cnv->front()->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed(), cnv->access_route())  ) {
+		else if(  !front_cnv->front()->calc_route(this->get_pos(), cur_pos, speed_to_kmh(front_cnv->calc_min_top_speed()), cnv->access_route())  ) {
 			// no route to go ...
 			if(local_execution) {
 				static cbuffer_t buf;

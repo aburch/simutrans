@@ -272,8 +272,8 @@ private:
 	/*
 	 * caches the running costs
 	 */
-	sint32 sum_running_costs;
-	sint32 sum_fixed_costs;
+	sint64 sum_running_costs;
+	sint64 sum_fixed_costs;
 
 	/**
 	* Overall performance.
@@ -516,7 +516,6 @@ private:
 	void push_convoy_stopping_time();
 
 	void reverse_vehicles_at_halt_if_needed();
-	void reverse_vehicles_to_go_to_depot();
 	void reverse_vehicles();
 
 	// Reverse the order of the coupling/coupled convois
@@ -527,6 +526,7 @@ private:
 
 public:
 	bool is_reversed() const { return reversed; }
+	void set_reversed(bool yesno) { reversed = yesno; }
 	// Reorder the vehicle array
 	// Can be executed even with a vehicle array that does not belong to convoy for UI
 	
@@ -695,6 +695,11 @@ public:
 
 	void set_speed_limit(sint32 s) { speed_limit = s;}
 	void set_min_top_speed(sint32 t) {min_top_speed = t;}
+
+	/**
+	 * Check sum power of this and the child convoys
+	 */
+	uint32 get_total_sum_power() const;
 
 	// calculate min_top_speed taking coupling convoys into account. This does not broadcast min_top_speed for the coupling convoys.
 	sint32 calc_min_top_speed();

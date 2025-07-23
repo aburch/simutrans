@@ -58,7 +58,7 @@ settings_t::settings_t() :
 	max_rail_convoi_length = 24;
 	max_road_convoi_length = 4;
 	max_ship_convoi_length = 4;
-	max_air_convoi_length = 1;
+	max_air_convoi_length = 4;
 
 	world_maximum_height = 32;
 	world_minimum_height = -12;
@@ -1070,7 +1070,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	// display stuff
 	env_t::show_names                  = contents.get_int_clamped( "show_names",                     env_t::show_names,                0, 7 );
 	env_t::show_month                  = contents.get_int_clamped( "show_month",                     env_t::show_month,                0, 8 );
-	env_t::show_vehicle_states         = contents.get_int_clamped( "show_vehicle_states",            env_t::show_vehicle_states,       0, 4 );
+	env_t::show_vehicle_states         = contents.get_int_clamped( "show_vehicle_states",            env_t::show_vehicle_states,       0, env_t::MAX_SHOW_VEHICLE_STATES );
 	env_t::follow_convoi_underground   = contents.get_int_clamped( "follow_convoi_underground",      env_t::follow_convoi_underground, 0, 2 );
 	env_t::max_acceleration            = contents.get_int_clamped( "fast_forward",                   env_t::max_acceleration,          0, INT_MAX );
 	env_t::fps                         = contents.get_int_clamped( "frames_per_second",              env_t::fps,                       env_t::min_fps, env_t::max_fps );

@@ -48,7 +48,17 @@ obj_desc_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	way_obj_desc_t *desc = new way_obj_desc_t();
 
-	if(version==1) {
+	if (version == 2) {
+		// Cost/maintenance as sint64
+		desc->price       = decode_sint64(p);
+		desc->maintenance = decode_sint64(p);
+		desc->topspeed    = decode_uint32(p);
+		desc->intro_date  = decode_uint16(p);
+		desc->retire_date = decode_uint16(p);
+		desc->wtyp        = decode_uint8(p);
+		desc->own_wtyp    = decode_uint8(p);
+	}
+	else if(version==1) {
 		// Versioned node, version 3
 		desc->price = decode_uint32(p);
 		desc->maintenance = decode_uint32(p);
