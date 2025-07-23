@@ -5509,7 +5509,7 @@ void convoi_t::change_line_to_next_if_needed()
 {
 	linehandle_t l = get_schedule()->get_next_line();
 	// check and update next_line
-	if(  l.is_bound() && l->get_schedule()->at(0).pos!=get_schedule()->at(get_schedule()->get_count()-1).pos ) {
+	if(  l.is_bound() && l->get_schedule()->get_count()>1 && l->get_schedule()->at(0).pos!=get_schedule()->at(get_schedule()->get_count()-1).pos ) {
 		if(  get_line().is_bound()  ) {
 			get_line()->get_schedule()->set_next_line(l);
 		}
@@ -5533,6 +5533,7 @@ void convoi_t::change_line_to_next_if_needed()
 		unset_line();
 	}
 	schedule->copy_from(l->get_schedule());
+	dbg->message("convoi_t::change_line_to_next_if_needed()","%s's new schedule has %i stops",get_name(),schedule->get_count());
 	schedule->set_current_stop(0);
 	set_line(l);
 }

@@ -3586,7 +3586,6 @@ bool rail_vehicle_t::check_longblock_signal(signal_t *sig, uint16 next_block, si
 				sig->set_state( roadsign_t::STATE_GREEN );
 				// we stop at the end of the route.
 				cnv->set_next_stop_index( min( min( next_crossing, next_signal ), cnv->get_route()->get_count()-1 ) );
-				free(schedule);
 				return true;
 			}
 		}
@@ -3612,7 +3611,6 @@ bool rail_vehicle_t::check_longblock_signal(signal_t *sig, uint16 next_block, si
 			}
 			sig->set_state( roadsign_t::STATE_RED );
 			restart_speed = 0;
-			free(schedule);
 			return false;
 		}
 		// prepare for next leg of schedule
@@ -3630,7 +3628,6 @@ bool rail_vehicle_t::check_longblock_signal(signal_t *sig, uint16 next_block, si
 	if(  cnv->get_next_stop_index()-1 <= route_index  ) {
 		cnv->set_next_stop_index( cnv->get_route()->get_count()-1 );
 	}
-	free(schedule);
 	return true;
 }
 
