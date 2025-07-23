@@ -529,6 +529,12 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		new_component<gui_fill_t>();
 	}
 	end_table();
+
+	bt_wait_load_level_satisfy.init(button_t::square_state, "Not Depart Until Load Level");
+	bt_wait_load_level_satisfy.set_tooltip("not leave stop until loading level satisfied even if departure time comes.");
+	bt_wait_load_level_satisfy.add_listener(this);
+	bt_wait_load_level_satisfy.disable();
+	add_component(&bt_wait_load_level_satisfy);
 	
 	bt_load_before_departure.init(button_t::square_automatic, "Load before departure");
 	bt_load_before_departure.set_tooltip("Do not load cargos until the departure time comes.");
@@ -652,6 +658,7 @@ void schedule_gui_t::update_selection()
 	bt_no_unload.disable();
 	bt_unload_all.disable();
 	bt_wait_for_time.disable();
+	bt_wait_load_level_satisfy.disable();
 	numimp_spacing.disable();
 	numimp_spacing_shift.disable();
 	numimp_delay_tolerance.disable();
@@ -709,8 +716,10 @@ void schedule_gui_t::update_selection()
 				numimp_spacing_shift.enable();
 				numimp_delay_tolerance.enable();
 				bt_load_before_departure.enable();
+				bt_wait_load_level_satisfy.enable();
+				bt_wait_load_level_satisfy.pressed = schedule->at(current_stop).is_wait_load_level();
 			}
-			else {
+			if( !wft || bt_wait_load_level_satisfy.pressed ) {
 				// disable departure time settings and enable minimum loading
 				lb_load.set_color( SYSCOL_TEXT );
 				numimp_load.enable();
@@ -970,6 +979,13 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 	else if(comp == &bt_wait_for_time) {
 		if (!schedule->empty()) {
 			schedule->at(schedule->get_current_stop()).set_wait_for_time(!bt_wait_for_time.pressed);
+			update_selection();
+		}
+	}
+	else if(comp == &bt_wait_load_level_satisfy) {
+		if( !schedule->empty() ) {
+			schedule->at(schedule->get_current_stop()).set_wait_load_level(!bt_wait_load_level_satisfy.pressed);
+			bt_wait_load_level_satisfy.pressed = schedule->at(schedule->get_current_stop()).is_wait_load_level();
 			update_selection();
 		}
 	}

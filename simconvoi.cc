@@ -3560,25 +3560,35 @@ sint32 subtract_ticks(uint32 v1, uint32 v2) {
  */
 bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint32 time_to_load, bool &coupling_cond, uint32 &go_on_ticks) {
 	convoihandle_t c = cnv;
-	// First, check whether we have to wait for coupling at this stop.
 	coupling_cond = false;
+	go_on_ticks = 0;
+	bool cond = true;
 	while(  c.is_bound()  ) {
 		const schedule_entry_t e = c->get_schedule()->get_current_entry();
+		// First, check whether we have to wait for coupling at this stop.
 		coupling_cond |= (e.get_coupling_point()==1  &&  !c->is_coupling_done()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled()));
 		if (  c->is_coupling_done()  ||  !c->get_convoi_coupling_in_progress().is_bound()  ||  c->get_convoi_coupling_in_progress()->get_convoi_coupling_in_progress()!=c  ) {
 			// The convoi_coupling_in_progress flag blocks the departure.
 			// Reset the flag if it is outdated to avoid blocking the departure forever.
 			c->unset_convoi_coupling_in_progress();
 		}
+		// And check the loading condition: load enough? maximum waiting time? coupling done?
+		const bool loading_cond = c->get_loading_level() >= e.minimum_loading; // minimum loading
+		const bool waiting_time_cond = (e.waiting_time_shift > 0  &&  world()->get_ticks() - arrived_time > (world()->ticks_per_world_month / e.waiting_time_shift) ); // waiting time
+		bool c_cond = loading_cond; // condition of this convoy
+		c_cond &= !(e.get_coupling_point()==1  &&  !c->is_coupling_done()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled())); // coupling condition
+		c_cond |= c->get_no_load(); // no load
+		c_cond |= waiting_time_cond;
+		cond &= c_cond;
 		c = c->get_coupling_convoi();
 	}
 
 	const schedule_entry_t current_entry = cnv->get_schedule()->get_current_entry();
 
-	// designated departure time has the absolute priority.
+	// designated departure time has the absolute priority (but if is_wait_load_level, cnv can not reserve departure slot).
 	// If departure time is set to the parent, all conditions of children are ignored.
 	// Departure time settings of children have no effect.
-	if(  current_entry.get_wait_for_time()  ) {
+	if(  current_entry.get_wait_for_time() &&  (cond||!current_entry.is_wait_load_level())  ) {
 		if(  arrived_time==0  ) {
 			// arrived_time is not registered for some reasons. replace it to the current ticks.
 			arrived_time = world()->get_ticks();
@@ -3604,20 +3614,7 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 		return is_first_ticks_bigger(world()->get_ticks(), go_on_ticks - time_to_load);
 	}
 
-	c = cnv;
-	go_on_ticks = 0;
-	bool cond = true;
-	while(  c.is_bound()  &&  cond  ) {
-		const schedule_entry_t e = c->get_schedule()->get_current_entry();
-		const bool loading_cond = c->get_loading_level() >= e.minimum_loading; // minimum loading
-		const bool waiting_time_cond = (e.waiting_time_shift > 0  &&  world()->get_ticks() - arrived_time > (world()->ticks_per_world_month / e.waiting_time_shift) ); // waiting time
-		bool c_cond = loading_cond; // condition of this convoy
-		c_cond &= !(e.get_coupling_point()==1  &&  !c->is_coupling_done()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled())); // coupling condition
-		c_cond |= c->get_no_load(); // no load
-		c_cond |= waiting_time_cond;
-		cond &= c_cond;
-		c = c->get_coupling_convoi();
-	}
+	// if not calculate waiting time, return cond.
 	return cond;
 }
 
