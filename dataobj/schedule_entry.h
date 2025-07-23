@@ -49,7 +49,7 @@ public:
 		TRANSFER_INTERVAL = 1U << 7,
 		REVERSE_CONVOY	  = 1U << 8, // convoy reverses the order of its vehicles.
 		REVERSE_COUPLING  = 1U << 9, // The convoy reverses the parent-child relationship of the convoy coupling.
-		WAIT_COUPLING_DONE= 1U << 10,// Do not leave stop until load level condition satisfied even if wait_for_time comming.
+		WAIT_COUPLING_DONE= 1U << 10,// Do not reserve departure slot until coupling done.
 	};
 
 	/**
