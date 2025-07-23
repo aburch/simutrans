@@ -750,7 +750,7 @@ void schedule_t::set_next_line( linehandle_t l ) {
 	}
 	schedule_entry_t dummy_entry=l->get_schedule()->at(0);
 	dummy_entry.set_no_load(true);
-	dummy_entry.set_no_unload(true);
+	dummy_entry.set_unload_all(true);
 	entries.append(dummy_entry);
 	dbg->message("schedule_t::set_next_line()","the next line is set. the number of entries is %i",entries.get_count());
 }
