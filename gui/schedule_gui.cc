@@ -530,11 +530,11 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	}
 	end_table();
 
-	bt_wait_load_condition_satisfy.init(button_t::square_state, "Not Depart Until Coupling");
-	bt_wait_load_condition_satisfy.set_tooltip("not leave stop until coupling done even if departure time comes.");
-	bt_wait_load_condition_satisfy.add_listener(this);
-	bt_wait_load_condition_satisfy.disable();
-	add_component(&bt_wait_load_condition_satisfy);
+	bt_wait_coupling_done.init(button_t::square_state, "Not Depart Until Coupling");
+	bt_wait_coupling_done.set_tooltip("not leave stop until coupling done even if departure time comes.");
+	bt_wait_coupling_done.add_listener(this);
+	bt_wait_coupling_done.disable();
+	add_component(&bt_wait_coupling_done);
 	
 	bt_load_before_departure.init(button_t::square_automatic, "Load before departure");
 	bt_load_before_departure.set_tooltip("Do not load cargos until the departure time comes.");
@@ -658,7 +658,7 @@ void schedule_gui_t::update_selection()
 	bt_no_unload.disable();
 	bt_unload_all.disable();
 	bt_wait_for_time.disable();
-	bt_wait_load_condition_satisfy.disable();
+	bt_wait_coupling_done.disable();
 	numimp_spacing.disable();
 	numimp_spacing_shift.disable();
 	numimp_delay_tolerance.disable();
@@ -717,9 +717,9 @@ void schedule_gui_t::update_selection()
 				numimp_delay_tolerance.enable();
 				bt_load_before_departure.enable();
 				if( bt_wait_for_child.pressed ) {
-					bt_wait_load_condition_satisfy.enable();
+					bt_wait_coupling_done.enable();
 				}
-				bt_wait_load_condition_satisfy.pressed = schedule->at(current_stop).is_wait_load_cond();
+				bt_wait_coupling_done.pressed = schedule->at(current_stop).is_wait_coupling_done();
 			}
 			lb_load.set_color( SYSCOL_TEXT );
 			numimp_load.enable();
@@ -981,10 +981,10 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 			update_selection();
 		}
 	}
-	else if(comp == &bt_wait_load_condition_satisfy) {
+	else if(comp == &bt_wait_coupling_done) {
 		if( !schedule->empty() ) {
-			schedule->at(schedule->get_current_stop()).set_wait_load_cond(!bt_wait_load_condition_satisfy.pressed);
-			bt_wait_load_condition_satisfy.pressed = schedule->at(schedule->get_current_stop()).is_wait_load_cond();
+			schedule->at(schedule->get_current_stop()).set_wait_coupling_done(!bt_wait_coupling_done.pressed);
+			bt_wait_coupling_done.pressed = schedule->at(schedule->get_current_stop()).is_wait_coupling_done();
 			update_selection();
 		}
 	}
@@ -1302,5 +1302,5 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	bt_find_parent.set_visible(coupling_waytype  &&  yesno);
 	bt_reverse_convoy.set_visible(coupling_waytype  &&  yesno);
 	bt_reverse_coupling.set_visible(coupling_waytype  &&  yesno);
-	bt_wait_load_condition_satisfy.set_visible(coupling_waytype && yesno);
+	bt_wait_coupling_done.set_visible(coupling_waytype && yesno);
 }

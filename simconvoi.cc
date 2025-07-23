@@ -3586,10 +3586,10 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 
 	const schedule_entry_t current_entry = cnv->get_schedule()->get_current_entry();
 
-	// designated departure time has the absolute priority (but if is_wait_load_cond(), cnv can not reserve departure slot until departure condition satisfied).
+	// designated departure time has the absolute priority (but if is_wait_coupling_done(), cnv can not reserve departure slot until coupling done).
 	// If departure time is set to the parent, all conditions of children are ignored.
 	// Departure time settings of children have no effect.
-	if(  current_entry.get_wait_for_time() &&  cond  &&  (coupling_cond||!current_entry.is_wait_load_cond())  ) {
+	if(  current_entry.get_wait_for_time() &&  cond  &&  (coupling_cond||!current_entry.is_wait_coupling_done())  ) {
 		if(  arrived_time==0  ) {
 			// arrived_time is not registered for some reasons. replace it to the current ticks.
 			arrived_time = world()->get_ticks();
