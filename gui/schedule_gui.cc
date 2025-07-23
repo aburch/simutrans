@@ -530,8 +530,8 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	}
 	end_table();
 
-	bt_wait_load_condition_satisfy.init(button_t::square_state, "Not Depart Until Load Condition");
-	bt_wait_load_condition_satisfy.set_tooltip("not leave stop until loading condition satisfied even if departure time comes.");
+	bt_wait_load_condition_satisfy.init(button_t::square_state, "Not Depart Until Coupling");
+	bt_wait_load_condition_satisfy.set_tooltip("not leave stop until coupling done even if departure time comes.");
 	bt_wait_load_condition_satisfy.add_listener(this);
 	bt_wait_load_condition_satisfy.disable();
 	add_component(&bt_wait_load_condition_satisfy);
@@ -716,28 +716,27 @@ void schedule_gui_t::update_selection()
 				numimp_spacing_shift.enable();
 				numimp_delay_tolerance.enable();
 				bt_load_before_departure.enable();
-				bt_wait_load_condition_satisfy.enable();
+				if( bt_wait_for_child.pressed ) {
+					bt_wait_load_condition_satisfy.enable();
+				}
 				bt_wait_load_condition_satisfy.pressed = schedule->at(current_stop).is_wait_load_cond();
 			}
-			if( !wft || bt_wait_load_condition_satisfy.pressed ) {
-				// disable departure time settings and enable minimum loading
-				lb_load.set_color( SYSCOL_TEXT );
-				numimp_load.enable();
-				if(  schedule->at(current_stop).minimum_loading>0  ||  schedule->at(current_stop).get_coupling_point()!=0  ) {
-					bt_wait_load.enable();
-					uint16 wait = schedule->at(current_stop).waiting_time_shift;
-					bt_wait_load.pressed = wait>0;
-					if(  wait>0  ) {
-						lb_wait.set_color( SYSCOL_TEXT );
-						numimp_wait_load.enable();
-						if(  schedule->at(current_stop).minimum_loading  ==  200  ){
-							bt_load_before_departure.enable();
-						}
+			lb_load.set_color( SYSCOL_TEXT );
+			numimp_load.enable();
+			if(  schedule->at(current_stop).minimum_loading>0  ||  schedule->at(current_stop).get_coupling_point()!=0  ) {
+				bt_wait_load.enable();
+				uint16 wait = schedule->at(current_stop).waiting_time_shift;
+				bt_wait_load.pressed = wait>0;
+				if(  wait>0  ) {
+					lb_wait.set_color( SYSCOL_TEXT );
+					numimp_wait_load.enable();
+					if(  schedule->at(current_stop).minimum_loading  ==  200  ){
+						bt_load_before_departure.enable();
 					}
 				}
-				sprintf(lb_spacing_str, "off");
-				sprintf(lb_spacing_shift_str,"");
 			}
+			sprintf(lb_spacing_str, "off");
+			sprintf(lb_spacing_shift_str,"");
 			
 			numimp_load.set_value( schedule->at(current_stop).minimum_loading );
 			numimp_wait_load.set_value( max(1, schedule->at(current_stop).waiting_time_shift) );
@@ -1303,4 +1302,5 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	bt_find_parent.set_visible(coupling_waytype  &&  yesno);
 	bt_reverse_convoy.set_visible(coupling_waytype  &&  yesno);
 	bt_reverse_coupling.set_visible(coupling_waytype  &&  yesno);
+	bt_wait_load_condition_satisfy.set_visible(coupling_waytype && yesno);
 }

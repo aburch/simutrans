@@ -3563,6 +3563,7 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 	coupling_cond = false;
 	go_on_ticks = 0;
 	bool cond = true;
+	bool coupling_done_cond = true;
 	while(  c.is_bound()  ) {
 		const schedule_entry_t e = c->get_schedule()->get_current_entry();
 		// First, check whether we have to wait for coupling at this stop.
@@ -3577,9 +3578,9 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 		const bool waiting_time_cond = (e.waiting_time_shift > 0  &&  world()->get_ticks() - arrived_time > (world()->ticks_per_world_month / e.waiting_time_shift) ); // waiting time
 		bool c_cond = loading_cond; // condition of this convoy
 		c_cond |= c->get_no_load(); // no load
-		c_cond &= !(e.get_coupling_point()==1  &&  !c->is_coupling_done()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled())); // coupling condition
 		c_cond |= waiting_time_cond;
 		cond &= c_cond;
+		coupling_done_cond &= !(e.get_coupling_point()==1  &&  !c->is_coupling_done()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled())); // coupling condition
 		c = c->get_coupling_convoi();
 	}
 
@@ -3588,7 +3589,7 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 	// designated departure time has the absolute priority (but if is_wait_load_cond(), cnv can not reserve departure slot until departure condition satisfied).
 	// If departure time is set to the parent, all conditions of children are ignored.
 	// Departure time settings of children have no effect.
-	if(  current_entry.get_wait_for_time() &&  (cond||!current_entry.is_wait_load_cond())  ) {
+	if(  current_entry.get_wait_for_time() &&  cond  &&  (coupling_cond||!current_entry.is_wait_load_cond())  ) {
 		if(  arrived_time==0  ) {
 			// arrived_time is not registered for some reasons. replace it to the current ticks.
 			arrived_time = world()->get_ticks();
@@ -3615,7 +3616,7 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 	}
 
 	// if not calculate waiting time, return cond.
-	return cond;
+	return cond&coupling_done_cond;
 }
 
 
