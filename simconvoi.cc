@@ -2534,7 +2534,7 @@ void convoi_t::vorfahren()
 
 	// if this convoy already reserve tiles by longblock signal,
 	// keep this reservation
-	check_reserved_tiles_match_as_route();
+	clear_reserved_tile_if_not_matching_route();
 
 	// if this convoy is reversing only image direction (not driving direction),
 	// the start position should be the last car of this convoy.
