@@ -525,7 +525,7 @@ private:
 	koord3d calc_first_pos_of_route() const;
 	
 	// a helper function for convoi_t::vorfahren(), check reserved_tiles
-	void check_reserved_tiles_match_as_route();
+	void clear_reserved_tile_if_not_matching_route();
 
 public:
 	bool is_reversed() const { return reversed; }
