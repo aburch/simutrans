@@ -2726,7 +2726,7 @@ void convoi_t::vorfahren()
 
 // a helper function for convoi_t::vorfahren()
 // check reserved_tiles and clear it when the route and reserved_tiles are different.
-void convoi_t::check_reserved_tiles_match_as_route()
+void convoi_t::clear_reserved_tile_if_not_matching_route()
 {
 	if(  get_reserved_tiles().get_count()==0 || route.get_count()==0  ) {
 		// this convoy does not have reserved_tile
