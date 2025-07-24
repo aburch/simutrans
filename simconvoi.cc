@@ -42,6 +42,7 @@
 
 #include "dataobj/schedule.h"
 #include "dataobj/route.h"
+#include "dataobj/ribi.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/translator.h"
 #include "dataobj/environment.h"
@@ -2479,34 +2480,55 @@ bool convoi_t::insert_route_convoy_on()
 	if( route.get_count() < 2 ) {
 		return false;
 	}
-	koord3d pos = fahr[0]->get_pos();
-	assert(pos == route.front());
+	koord3d pos = front()->get_pos();
+	// assert(pos == route.front());
 	convoihandle_t inspecting = self; // reset inspecting to the first convoy
 	if(welt->lookup(pos)->get_depot()) {
 		return false;
 	}
 	else {
 		while(  inspecting.is_bound()  ) {
-			for(uint8 i=0; i<inspecting->get_vehicle_count(); i++) {
-				vehicle_t* v = inspecting->get_vehikel(i);
-				// eventually add current position to the route
-				// fill the tiles between route.front() and v->get_pos()
-				while (route.front() != v->get_pos() && route.at(1) != v->get_pos()) {
+			// if there are no connecting tiles with vehicles of this convoy, end search
+			bool searching_end = false;
+			while( !searching_end ) {
+				// if vehicle of this convoy, we get the position
+				koord3d pos_to_insert = koord3d::invalid;
+				for( uint8 i=0;i<4;i++ ) {
+					//search for all 4 direction
 					const grund_t* g = welt->lookup(route.front());
 					const weg_t* w = g ? g->get_weg(front()->get_waytype()) : NULL;
-					ribi_t::ribi dir = w ? w->get_ribi_unmasked() : ribi_t::none;
-					// find the direction to add to the route.
-					dir &= ~ribi_type(route.at(1) - route.front());
-					// If something went wrong in finding the adjacent tile, just insert the vehicle's pos.
-					koord3d pos_to_insert = v->get_pos();
-					if(  ribi_t::is_single(dir)  ) {
-						grund_t* gn;
-						g->get_neighbour(gn, front()->get_waytype(), dir);
-						if(  gn  ) {
+					ribi_t::ribi next_dir = ribi_t::nesw[i];// searching direction
+					ribi_t::ribi weg_dir = w ? w->get_ribi_unmasked() : ribi_t::none;
+					ribi_t::ribi back_dir = ribi_type(route.at(1) - route.front());
+					if (  !g || (next_dir&weg_dir) == 0 || next_dir == back_dir  ) {
+						// wrong direction or already added to route, skip
+						continue;
+					}
+					grund_t* gn;
+					g->get_neighbour(gn, front()->get_waytype(), next_dir);
+					if(  !gn  ) {
+						continue;
+					}
+					for(  uint8 pos_obj=1; pos_obj<(volatile uint8)gn->get_top(); pos_obj++  ) {
+						vehicle_t* const v = dynamic_cast<vehicle_t*>(gn->obj_bei(pos_obj));
+						if(  !v  ) {
+							continue;
+						}
+						if(  v->get_convoi()->self == inspecting  ) {
 							pos_to_insert = gn->get_pos();
 						}
 					}
+					if ( pos_to_insert != koord3d::invalid ) {
+						// the vehicle found, break for searching neighbour tile.
+						break;
+					}
+				}
+				if(  pos_to_insert != koord3d::invalid  ) {
+					// add this tile for route and search next tile
 					route.insert(pos_to_insert);
+				} else {
+					// there are no another position which is convoy on, searching end.
+					searching_end = true;
 				}
 			}
 			inspecting = inspecting->get_coupling_convoi();
@@ -2543,7 +2565,7 @@ void convoi_t::vorfahren()
 	}
 	// is driving direction not change?
 	ribi_t::ribi neue_richtung_rwr = ribi_t::backward(fahr[0]->calc_direction(route.front(), route.at(min(2, route.get_count() - 1))));
-	bool const reverse_preserving_direction = ((neue_richtung_rwr&alte_richtung)==0) && reversing_convoy_exists;
+	bool const reverse_preserving_direction = ((neue_richtung_rwr&alte_richtung)==0) || reversing_convoy_exists;
 
 	// if this convoy is reversing only image direction (not driving direction),
 	// the start position should be the last car of this convoy.
