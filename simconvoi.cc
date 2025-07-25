@@ -2493,29 +2493,41 @@ bool convoi_t::insert_route_convoy_on()
 			while( !searching_end ) {
 				// if vehicle of this convoy, we get the position
 				koord3d pos_to_insert = koord3d::invalid;
+				const grund_t* g = welt->lookup(route.front());
+				const weg_t* w = g ? g->get_weg(front()->get_waytype()) : NULL;
+				ribi_t::ribi weg_dir = w ? w->get_ribi_unmasked() : ribi_t::none;// way direction
+				ribi_t::ribi back_dir = ribi_type(route.at(1) - route.front());// direction which already added route 
 				for( uint8 i=0;i<4;i++ ) {
 					//search for all 4 direction
-					const grund_t* g = welt->lookup(route.front());
-					const weg_t* w = g ? g->get_weg(front()->get_waytype()) : NULL;
 					ribi_t::ribi next_dir = ribi_t::nesw[i];// searching direction
-					ribi_t::ribi weg_dir = w ? w->get_ribi_unmasked() : ribi_t::none;
-					ribi_t::ribi back_dir = ribi_type(route.at(1) - route.front());
 					if (  !g || (next_dir&weg_dir) == 0 || next_dir == back_dir  ) {
 						// wrong direction or already added to route, skip
 						continue;
 					}
-					grund_t* gn;
-					g->get_neighbour(gn, front()->get_waytype(), next_dir);
-					if(  !gn  ) {
-						continue;
+					pos_to_insert = find_tiles_convoy_on(inspecting,g,next_dir);
+					if ( pos_to_insert != koord3d::invalid ) {
+						// the vehicle found, break for searching neighbour tile.
+						break;
 					}
-					for(  uint8 pos_obj=1; pos_obj<(volatile uint8)gn->get_top(); pos_obj++  ) {
-						vehicle_t* const v = dynamic_cast<vehicle_t*>(gn->obj_bei(pos_obj));
-						if(  !v  ) {
+					// if not find, try to search one more tiles
+					// this process is needed when diagonal tiles or vehicle length is longer than 16.
+					grund_t* gn;
+					g->get_neighbour(gn, inspecting->front()->get_waytype(), next_dir);
+					const weg_t* neighbour_w = gn->get_weg(front()->get_waytype());
+					ribi_t::ribi neighbour_weg_dir = neighbour_w? neighbour_w->get_ribi_unmasked() : ribi_t::none;// way direction
+					ribi_t::ribi neighbour_back_dir = ribi_t::backward(next_dir);// direction which already added route 
+					for( uint8 j=0;j<4;j++ ) {
+						//search for all 4 direction
+						ribi_t::ribi neighbour_next_dir = ribi_t::nesw[j];// searching direction
+						if (  !gn || (neighbour_next_dir&neighbour_weg_dir) == 0 || neighbour_next_dir == neighbour_back_dir  ) {
+							// wrong direction or already added to route, skip
 							continue;
 						}
-						if(  v->get_convoi()->self == inspecting  ) {
-							pos_to_insert = gn->get_pos();
+						pos_to_insert = find_tiles_convoy_on(inspecting,gn,neighbour_next_dir);
+						if ( pos_to_insert != koord3d::invalid ) {
+							// the vehicle found, break for searching neighbour tile.
+							route.insert(gn->get_pos());
+							break;
 						}
 					}
 					if ( pos_to_insert != koord3d::invalid ) {
@@ -2542,6 +2554,26 @@ bool convoi_t::insert_route_convoy_on()
 		}
 		return true;
 	}
+}
+
+// helper function for insert_route_convoy_on()
+koord3d const convoi_t::find_tiles_convoy_on(convoihandle_t const inspecting, const grund_t* g, ribi_t::ribi next_dir) {
+	grund_t* gn;
+	g->get_neighbour(gn, inspecting->front()->get_waytype(), next_dir);
+	if(  !gn  ) {
+		return koord3d::invalid;
+	}
+	for(  uint8 pos_obj=1; pos_obj<(volatile uint8)gn->get_top(); pos_obj++  ) {
+		vehicle_t* const v = dynamic_cast<vehicle_t*>(gn->obj_bei(pos_obj));
+		if(  !v  ) {
+			continue;
+		}
+		if(  v->get_convoi()->self == inspecting  ) {
+			return gn->get_pos();
+		}
+	}
+	// anything not found
+	return koord3d::invalid;
 }
 
 
