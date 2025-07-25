@@ -2563,16 +2563,10 @@ void convoi_t::vorfahren()
 		reversing_convoy_exists |= c->is_reversing_needed;
 		c = c->get_coupling_convoi();
 	}
-	// is driving direction not change?
-	ribi_t::ribi neue_richtung_rwr = ribi_t::backward(fahr[0]->calc_direction(route.front(), route.at(min(2, route.get_count() - 1))));
-	bool const reverse_preserving_direction = ((neue_richtung_rwr&alte_richtung)==0) || reversing_convoy_exists;
 
-	// if this convoy is reversing only image direction (not driving direction),
 	// the start position should be the last car of this convoy.
-	// reset the position, and recalculate the route.
-	if( reverse_preserving_direction ) {
-		insert_route_convoy_on();
-	}
+	// add the position which vehicles on to reset the position.
+	insert_route_convoy_on();
 
 	// this is the position for recalculating route when reversing only image direction (not driving direction).
 	c = self;
