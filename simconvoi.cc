@@ -132,7 +132,7 @@ void convoi_t::init(player_t *player)
 	maxspeed_average_count = 0;
 	next_reservation_index = 0;
 	reserved_tiles.clear();
-	is_reversing_needed = false;
+	reversing_needed = false;
 
 	alte_richtung = ribi_t::none;
 	next_wolke = 0;
@@ -1397,7 +1397,7 @@ bool convoi_t::drive_to()
 			schedule->set_current_stop(current_stop);
 			if(  route_ok  ) {
 				vorfahren();
-				is_reversing_needed = false;
+				reversing_needed = false;
 				return true;
 			}
 		}
@@ -1803,9 +1803,9 @@ void convoi_t::betrete_depot(depot_t *dep, bool is_loading)
 	convoihandle_t child = c->get_coupling_convoi();
 	while(c.is_bound()) {
 		c->uncouple_convoi();
-		if( c->reversed && c->state!=INITIAL) {
+		if( c->reversed ) {
 			c->reverse_vehicles();
-			c->reversed = true;
+			c->reversing_needed = true;
 		}
 		dbg->message("convoi_t::betrete_depot()","%s reach_depot",c->get_name());
 		for(unsigned i=0; i<c->anz_vehikel; i++) {
@@ -1878,10 +1878,6 @@ void convoi_t::start()
 		fahr[anz_vehikel-1]->set_last( true );
 		// do not show the vehicle - it will be wrong positioned -vorfahren() will correct this
 		fahr[0]->set_image(IMG_EMPTY);
-		if(reversed) {
-			reversed = false;
-			is_reversing_needed = true;
-		}
 		// update finances for used vehicle reduction when first driven
 		owner->update_assets( restwert_delta, get_schedule()->get_waytype());
 
@@ -2538,7 +2534,7 @@ void convoi_t::vorfahren()
 	convoihandle_t c = self;
 	bool reversing_convoy_exists = false;
 	while ( c.is_bound() ) {
-		reversing_convoy_exists |= c->is_reversing_needed;
+		reversing_convoy_exists |= c->reversing_needed;
 		c = c->get_coupling_convoi();
 	}
 	// is driving direction not change?
@@ -2556,7 +2552,7 @@ void convoi_t::vorfahren()
 	c = self;
 	while(  c.is_bound()  ) {
 		// the back vehicles position is set.
-		if (c->is_reversing_needed){
+		if (c->reversing_needed){
 			c->reverse_vehicles_at_halt_if_needed();
 		}
 		c = c->get_coupling_convoi();
@@ -3258,11 +3254,16 @@ void convoi_t::rdwr(loadsave_t *file)
 
 	if(  file->get_OTRP_version()>=41  ) {
 		file->rdwr_bool(reversed);
-		file->rdwr_bool(is_reversing_needed);
+		file->rdwr_bool(reversing_needed);
 	}
 
 	if(  file->get_OTRP_version()>=44  ) {
 		rdwr_convoihandle_t( file, convoi_coupling_in_progress );
+	}
+
+	if(  file->is_loading() && file->get_OTRP_version()<45 && state == INITIAL && reversed  ) {
+		reversed = false;
+		reversing_needed = true;
 	}
 
 	if(  file->is_loading()  ) {
@@ -3955,7 +3956,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 
 	// reverse convoi
 	if (  get_schedule()->get_current_entry().is_reverse_convoy()  ){
-		is_reversing_needed = true;
+		reversing_needed = true;
 		// reverse image direction after departire, in drive_to()
 	}
 	// reverse order of coupling/coupled convois
@@ -5500,14 +5501,14 @@ void convoi_t::calc_sum_friction_weight() {
 void convoi_t::reverse_vehicles_on_user_request()
 {
 	if(  is_loading()  ) {
-		is_reversing_needed = true;
+		reversing_needed = true;
 		return;
 	}
 	if (get_schedule()->get_current_entry().get_coupling_point()==schedule_entry_t::WAIT_FOR_COUPLING){
 		// reversing is not allowed.
 		return;
 	}
-	is_reversing_needed = true;
+	reversing_needed = true;
 	// trigger repositioning on the most parent convoy
 	find_most_parent_convoi()->set_state(EDIT_SCHEDULE);
 }
@@ -5520,7 +5521,7 @@ void convoi_t::reverse_vehicles_at_halt_if_needed()
 	// so, if the convoy will wait for coupling at the station,
 	// the reversing is not done until the coupling is done.
 	reverse_vehicles();
-	is_reversing_needed = false;
+	reversing_needed = false;
 	welt->set_dirty();
 }
 

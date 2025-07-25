@@ -382,7 +382,7 @@ private:
 	char name_and_id[128];
 
 	bool reversed; // true when the vehicles are in the reversed order.
-	bool is_reversing_needed;// Whether this convoy's vehicles will be arranged in reverse order.
+	bool reversing_needed;// Whether this convoy's vehicles will be arranged in reverse order.
 	/**
 	* Initialize all variables with default values.
 	* Each constructor must call this method first!
@@ -527,6 +527,8 @@ private:
 public:
 	bool is_reversed() const { return reversed; }
 	void set_reversed(bool yesno) { reversed = yesno; }
+	bool is_reversing_needed() const { return reversing_needed; }
+	void set_reversing_needed(bool yesno) { reversing_needed = yesno; }
 	// Reorder the vehicle array
 	// Can be executed even with a vehicle array that does not belong to convoy for UI
 	

@@ -965,7 +965,7 @@ void depot_frame_t::update_data()
 		}
 
 		veh = (veh_action == va_insert ? cnv->front() : cnv->back())->get_desc();
-		bt_reverse.pressed=cnv->is_reversed();
+		bt_reverse.pressed=cnv->is_reversing_needed();
 	}
 
 	repositioning_t& rep = repositioning_t::get_instance();
@@ -1448,7 +1448,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			depot->call_depot_tool('e', cnv, NULL);
 		}
 		else if(  comp == &bt_reverse  ) {
-			cnv->set_reversed(!cnv->is_reversed());
+			cnv->set_reversing_needed(!cnv->is_reversing_needed());
 		}
 		// image list selection here ...
 		else if(  comp == &convoi  ) {
