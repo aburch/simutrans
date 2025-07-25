@@ -5108,6 +5108,7 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 	const char *txt;
 	if(  find_depot_route  ) {
 		if( !depot_already_know ) {
+			// to discard cargo, we put depot's position into schedule.
 			convoihandle_t c = self;
 			while( c.is_bound() ) {
 				schedule_t *schedule = c->get_schedule();
