@@ -1172,7 +1172,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 }
 
 
-// a helper function of calc_first_pos_of_route.
+// a helper function of find_tiles_convoy_on()
 // Returns the vehicle of the given convoy on the given tile.
 // Returns NULL if there is no such vehicle.
 rail_vehicle_t* find_convoy_on_tile(grund_t* const gr, convoihandle_t cnv) {
@@ -1188,62 +1188,7 @@ rail_vehicle_t* find_convoy_on_tile(grund_t* const gr, convoihandle_t cnv) {
 // a helper function for convoi_t::drive_to()
 // calculates the first pos of the new route considering convoy coupling and reversing.
 koord3d convoi_t::calc_first_pos_of_route() const {
-	const vehicle_t* front_vehicle = front();
-	const grund_t* gr = world()->lookup(front_vehicle->get_pos());
-	if(
-		!get_coupling_convoi().is_bound()
-		||  !gr
-	) {
-		// There is not the coupling convoy in front.
-		return front_vehicle->get_pos();
-	}
-	// Since this function is called before the route is calculated, vehicle_base_t::get_90direction() cannot be used.
-	// So we use get_direction(). This judgement only affects visual jupming of the convoy.
-	const ribi_t::ribi front_vehicle_dir = front_vehicle->get_direction();
-	// grund_t::get_neighbour() only accept ribi_t::is_single(dir), so we first make single_type ribi of next tile.
-	ribi_t::ribi ngr_dir;
-	if(  (front_vehicle_dir&gr->get_weg_ribi_unmasked(front_vehicle->get_waytype()))==0  ) {
-		// There is not the coupling convoy in front
-		return front_vehicle->get_pos();
-	}
-	if(  ribi_t::is_single(front_vehicle_dir&gr->get_weg_ribi_unmasked(front_vehicle->get_waytype())) ) {
-		// single or simple diagonal
-		ngr_dir = front_vehicle_dir&gr->get_weg_ribi_unmasked(front_vehicle->get_waytype());
-	} else if (  ribi_t::is_single(ribi_t::backward(front_vehicle_dir)&ribi_t::backward(gr->get_weg_ribi_unmasked(front_vehicle->get_waytype())))  ) {
-		// three-way, so we define the next position by backward of the three-way's ribi.
-		ngr_dir = ribi_t::backward(gr->get_weg_ribi_unmasked(front_vehicle->get_waytype()));
-	} else {
-		// give up the calculation of ribi, return.
-		return front_vehicle->get_pos();
-	}
-	grund_t* ngr;
-	if(
-		( !ribi_t::is_single(front_vehicle_dir) && !ribi_t::is_bend(front_vehicle_dir) )
-		||  !gr->get_neighbour(ngr, front_vehicle->get_waytype(), ngr_dir)
-	) {
-		// There is not the coupling convoy in front.
-		return front_vehicle->get_pos();
-	}
-	const rail_vehicle_t* heading_child_convoy_vehicle = find_convoy_on_tile(ngr, get_coupling_convoi());
-	if(  !heading_child_convoy_vehicle  ) {
-		// There is not the coupling convoy in front.
-		return front_vehicle->get_pos();
-	}
-	// There is the child coupling convoy in front and we need to reverse the direction.
-	if(  ( heading_child_convoy_vehicle->get_direction() & ribi_t::backward(front_vehicle_dir) ) > 0  ) {
-		// The child coupling convoy is already in reversed direction.
-		// Use the last vehicle pos of the child as the first pos of the new route.
-		convoihandle_t c = heading_child_convoy_vehicle->get_convoi()->self;
-		// Find the last convoy
-		while(  c->get_coupling_convoi().is_bound()  ) {
-			c = c->get_coupling_convoi();
-		}
-		return c->back()->get_pos();
-	} else {
-		// The child coupling convoy is probably in same direction as this convoy.
-		// Use the first vehicle pos of the child as the first pos of the new route.
-		return heading_child_convoy_vehicle->get_convoi()->front()->get_pos();
-	}
+	return front()->get_pos();
 }
 
 /**
@@ -2563,14 +2508,8 @@ koord3d const convoi_t::find_tiles_convoy_on(convoihandle_t const inspecting, co
 	if(  !gn  ) {
 		return koord3d::invalid;
 	}
-	for(  uint8 pos_obj=1; pos_obj<(volatile uint8)gn->get_top(); pos_obj++  ) {
-		vehicle_t* const v = dynamic_cast<vehicle_t*>(gn->obj_bei(pos_obj));
-		if(  !v  ) {
-			continue;
-		}
-		if(  v->get_convoi()->self == inspecting  ) {
-			return gn->get_pos();
-		}
+	if( find_convoy_on_tile(gn, inspecting) ) {
+		return gn->get_pos();
 	}
 	// anything not found
 	return koord3d::invalid;
