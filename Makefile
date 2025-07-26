@@ -26,7 +26,7 @@ SDL2_CONFIG      ?= pkg-config sdl2
 FREETYPE_CONFIG  ?= pkg-config freetype2
 #FREETYPE_CONFIG ?= freetype-config
 
-BACKENDS  := gdi sdl sdl2 mixer_sdl mixer_sdl2 posix -O0
+BACKENDS  := gdi sdl sdl2 mixer_sdl mixer_sdl2 posix
 OSTYPES   := amiga beos freebsd haiku linux mac mingw openbsd
 
 
