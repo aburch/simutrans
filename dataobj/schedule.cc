@@ -738,6 +738,7 @@ bool schedule_t::is_valid_as_next_line(  linehandle_t l  ) const {
 }
 
 void schedule_t::set_next_line( linehandle_t l ) {
+	uint8 const temp_stop = get_current_stop();
 	unset_next_line();
 	if(  !is_valid_as_next_line(l)  ) {
 		return;
@@ -752,7 +753,10 @@ void schedule_t::set_next_line( linehandle_t l ) {
 	dummy_entry.set_no_load(true);
 	dummy_entry.set_unload_all(true);
 	entries.append(dummy_entry);
-	dbg->message("schedule_t::set_next_line()","the next line is set. the number of entries is %i",entries.get_count());
+	if(  temp_stop == get_count()-1  ) {
+		set_current_stop(temp_stop);
+	}
+	dbg->message("schedule_t::set_next_line()","the next line is set as %s. the number of entries is %i",l->get_name(),entries.get_count());
 }
 
 void schedule_t::unset_next_line() {
