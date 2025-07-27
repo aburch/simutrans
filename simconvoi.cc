@@ -1816,6 +1816,9 @@ void convoi_t::betrete_depot(depot_t *dep, bool is_loading)
 				// remove from blockstrecke
 				v->set_last(true);
 				v->leave_tile();
+				if(  crossing_t* cr = gr->get_crossing()  ) {
+					cr->release_crossing(v);
+				}
 				v->set_flag( obj_t::not_on_map );
 			}
 		}
