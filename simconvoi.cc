@@ -3562,7 +3562,7 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 	convoihandle_t c = cnv;
 	coupling_cond = false;
 	go_on_ticks = 0;
-	bool cond = true;
+	bool loading_cond = true;
 	bool coupling_done_cond = true;
 	while(  c.is_bound()  ) {
 		const schedule_entry_t e = c->get_schedule()->get_current_entry();
@@ -3573,23 +3573,28 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 			// Reset the flag if it is outdated to avoid blocking the departure forever.
 			c->unset_convoi_coupling_in_progress();
 		}
+		c = c->get_coupling_convoi();
+	}
+	c = cnv;
+	while(  c.is_bound()  ) {
+		const schedule_entry_t e = c->get_schedule()->get_current_entry();
 		// And check the loading condition: load enough? maximum waiting time? coupling done?
-		const bool loading_cond = c->get_loading_level() >= e.minimum_loading; // minimum loading
+		const bool loading_level_cond = c->get_loading_level() >= e.minimum_loading; // minimum loading
 		const bool waiting_time_cond = (e.waiting_time_shift > 0  &&  world()->get_ticks() - arrived_time > (world()->ticks_per_world_month / e.waiting_time_shift) ); // waiting time
-		bool c_cond = loading_cond; // condition of this convoy
+		bool c_cond = loading_level_cond; // condition of this convoy
 		c_cond |= c->get_no_load(); // no load
 		c_cond |= waiting_time_cond;
-		cond &= c_cond;
+		loading_cond &= c_cond;
 		coupling_done_cond &= !(e.get_coupling_point()==1  &&  !c->is_coupling_done()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled())); // coupling condition
 		c = c->get_coupling_convoi();
 	}
 
 	const schedule_entry_t current_entry = cnv->get_schedule()->get_current_entry();
 
-	// designated departure time has the absolute priority (but if is_wait_coupling_done(), cnv can not reserve departure slot until coupling done).
+	// Use the scheduled departure time as long as the other departure conditions are satisfied.
 	// If departure time is set to the parent, all conditions of children are ignored.
 	// Departure time settings of children have no effect.
-	if(  current_entry.get_wait_for_time() &&  cond  &&  (coupling_cond||!current_entry.is_wait_coupling_done())  ) {
+	if(  current_entry.get_wait_for_time() &&  loading_cond  &&  (coupling_done_cond||!current_entry.is_wait_coupling_done())  ) {
 		if(  arrived_time==0  ) {
 			// arrived_time is not registered for some reasons. replace it to the current ticks.
 			arrived_time = world()->get_ticks();
