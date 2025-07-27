@@ -3621,7 +3621,7 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 	}
 
 	// if not calculate waiting time, return cond.
-	return cond&coupling_done_cond;
+	return loading_cond&coupling_done_cond;
 }
 
 
