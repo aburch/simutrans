@@ -325,6 +325,13 @@ void schedule_t::rdwr(loadsave_t *file)
 					file->rdwr_long(entries[i].convoy_stopping_time[j]);
 				}
 			}
+			if(file->get_OTRP_version()<45) {
+				// before OTRP v45, do not use minimum_load when wait_for_time
+				if(entries[i].get_wait_for_time()) {
+					entries[i].minimum_loading = 0;
+					entries[i].waiting_time_shift = 0;
+				}
+			}
 		}
 	}
 	if(file->is_loading()) {
