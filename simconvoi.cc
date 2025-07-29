@@ -133,7 +133,7 @@ void convoi_t::init(player_t *player)
 	maxspeed_average_count = 0;
 	next_reservation_index = 0;
 	reserved_tiles.clear();
-	is_reversing_needed = false;
+	reversing_needed = false;
 
 	alte_richtung = ribi_t::none;
 	next_wolke = 0;
@@ -285,21 +285,6 @@ void convoi_t::unreserve_route()
 			// free all reserved blocks
 			uint16 dummy;
 			lok->block_reserver(get_route(), back()->get_route_index(), dummy, dummy,  100000, false, true);
-			// free all tiles held by reserved_tiles
-			if(  reserved_tiles.get_count()>0  ) {
-				vector_tpl<koord3d> tiles_convoy_on;
-				for(  uint16 i=0;  i<anz_vehikel;  i++  ) {
-					tiles_convoy_on.append_unique(fahr[i]->get_pos());
-				}
-				for(  uint32 i=0;  i<reserved_tiles.get_count();  i++  ) {
-					grund_t* gr = welt->lookup(reserved_tiles[i]);
-					schiene_t *sch = gr ? (schiene_t *)gr->get_weg( front()->get_waytype() ) : NULL;
-					if(  sch  &&  !tiles_convoy_on.is_contained(reserved_tiles[i])  ) {
-						sch->unreserve(this->self);
-					}
-				}
-				reserved_tiles.clear();
-			}
 		}
 	}
 }
@@ -1343,7 +1328,7 @@ bool convoi_t::drive_to()
 			schedule->set_current_stop(current_stop);
 			if(  route_ok  ) {
 				vorfahren();
-				is_reversing_needed = false;
+				reversing_needed = false;
 				return true;
 			}
 		}
@@ -1402,6 +1387,7 @@ void convoi_t::step()
 
 				// unreserve all tiles
 				unreserve_route();
+				clear_reserved_tiles();
 
 				if(  schedule->empty()  ) {
 					// no entry => no route ...
@@ -1743,15 +1729,17 @@ void convoi_t::betrete_depot(depot_t *dep, bool is_loading)
 {
 	// first remove reservation, if train is still on track
 	unreserve_route();
+	clear_reserved_tiles();
 
 	// remove vehicles from world data structure
 	convoihandle_t c = self;
 	convoihandle_t child = c->get_coupling_convoi();
 	while(c.is_bound()) {
 		c->uncouple_convoi();
-		if( c->reversed && c->state!=INITIAL) {
+		if( c->reversed ) {
+			// reversing in depot flag is recorded in c->reversing_needed
 			c->reverse_vehicles();
-			c->reversed = true;
+			c->reversing_needed = true;
 		}
 		dbg->message("convoi_t::betrete_depot()","%s reach_depot",c->get_name());
 		for(unsigned i=0; i<c->anz_vehikel; i++) {
@@ -1762,6 +1750,9 @@ void convoi_t::betrete_depot(depot_t *dep, bool is_loading)
 				// remove from blockstrecke
 				v->set_last(true);
 				v->leave_tile();
+				if(  crossing_t* cr = gr->get_crossing()  ) {
+					cr->release_crossing(v);
+				}
 				v->set_flag( obj_t::not_on_map );
 			}
 		}
@@ -1824,10 +1815,6 @@ void convoi_t::start()
 		fahr[anz_vehikel-1]->set_last( true );
 		// do not show the vehicle - it will be wrong positioned -vorfahren() will correct this
 		fahr[0]->set_image(IMG_EMPTY);
-		if(reversed) {
-			reversed = false;
-			is_reversing_needed = true;
-		}
 		// update finances for used vehicle reduction when first driven
 		owner->update_assets( restwert_delta, get_schedule()->get_waytype());
 
@@ -2531,9 +2518,13 @@ void convoi_t::vorfahren()
 	convoihandle_t c = self;
 	bool reversing_convoy_exists = false;
 	while ( c.is_bound() ) {
-		reversing_convoy_exists |= c->is_reversing_needed;
+		reversing_convoy_exists |= c->reversing_needed;
 		c = c->get_coupling_convoi();
 	}
+
+	// if this convoy already reserve tiles by longblock signal,
+	// keep this reservation
+	clear_reserved_tile_if_not_matching_route();
 
 	// the start position should be the last car of this convoy.
 	// add the position which vehicles on to reset the position.
@@ -2543,7 +2534,7 @@ void convoi_t::vorfahren()
 	c = self;
 	while(  c.is_bound()  ) {
 		// the back vehicles position is set.
-		if (c->is_reversing_needed){
+		if (c->reversing_needed){
 			c->reverse_vehicles_at_halt_if_needed();
 		}
 		c = c->get_coupling_convoi();
@@ -2718,6 +2709,24 @@ void convoi_t::vorfahren()
 
 	wait_lock = 0;
 	INT_CHECK("simconvoi 711");
+}
+
+// a helper function for convoi_t::vorfahren()
+// check reserved_tiles and clear it when the route and reserved_tiles are different.
+void convoi_t::clear_reserved_tile_if_not_matching_route()
+{
+	if(  get_reserved_tiles().get_count()==0 || route.get_count()==0  ) {
+		// this convoy does not have reserved_tile
+		return;
+	}
+	// check the new route to the next stop is match as reserved_tiles
+	for( uint16 i=1; i<min(get_route()->get_count(),get_reserved_tiles().get_count()); i++ ) {
+		if( route.at(i) != reserved_tiles[i]  ) {
+			clear_reserved_tiles();
+			return;
+		}
+	}
+	return;
 }
 
 
@@ -3245,11 +3254,17 @@ void convoi_t::rdwr(loadsave_t *file)
 
 	if(  file->get_OTRP_version()>=41  ) {
 		file->rdwr_bool(reversed);
-		file->rdwr_bool(is_reversing_needed);
+		file->rdwr_bool(reversing_needed);
 	}
 
 	if(  file->get_OTRP_version()>=44  ) {
 		rdwr_convoihandle_t( file, convoi_coupling_in_progress );
+	}
+
+	if(  file->is_loading() && file->get_OTRP_version()<45 && state == INITIAL && reversed  ) {
+		// before v45, reversing in depot flag is recorded in reversed
+		reversed = false;
+		reversing_needed = true;
 	}
 
 	if(  file->is_loading()  ) {
@@ -3541,31 +3556,49 @@ sint32 subtract_ticks(uint32 v1, uint32 v2) {
  * 2) maximum waiting time
  * 3) designated departure time
  * 4) convoy coupling
- * -> can_depart = [3]+[3]*([4]*[1]+[2])
+ * 
+ * if departure time is not set, can_depart = [4] * ([1] + [2])
+ * if departure time is set and wait_coupling_done is false, can_depart = ([1] + [2]) * [3]
  *
  * @author THLeaderH
  */
 bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint32 time_to_load, bool &coupling_cond, uint32 &go_on_ticks) {
 	convoihandle_t c = cnv;
-	// First, check whether we have to wait for coupling at this stop.
 	coupling_cond = false;
+	go_on_ticks = 0;
+	bool loading_cond = true;
+	bool coupling_done_cond = true;
 	while(  c.is_bound()  ) {
 		const schedule_entry_t e = c->get_schedule()->get_current_entry();
+		// First, check whether we have to wait for coupling at this stop.
 		coupling_cond |= (e.get_coupling_point()==1  &&  !c->is_coupling_done()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled()));
 		if (  c->is_coupling_done()  ||  !c->get_convoi_coupling_in_progress().is_bound()  ||  c->get_convoi_coupling_in_progress()->get_convoi_coupling_in_progress()!=c  ) {
 			// The convoi_coupling_in_progress flag blocks the departure.
 			// Reset the flag if it is outdated to avoid blocking the departure forever.
 			c->unset_convoi_coupling_in_progress();
 		}
+		coupling_done_cond &= !(e.get_coupling_point()==1  &&  !c->is_coupling_done()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled())); // coupling condition
+		c = c->get_coupling_convoi();
+	}
+	c = cnv;
+	while(  c.is_bound()  ) {
+		const schedule_entry_t e = c->get_schedule()->get_current_entry();
+		// And check the loading condition: load enough? maximum waiting time? coupling done?
+		const bool loading_level_cond = c->get_loading_level() >= e.minimum_loading; // minimum loading
+		const bool waiting_time_cond = (e.waiting_time_shift > 0  &&  world()->get_ticks() - arrived_time > (world()->ticks_per_world_month / e.waiting_time_shift) ); // waiting time
+		bool c_cond = loading_level_cond; // condition of this convoy
+		c_cond |= c->get_no_load(); // no load
+		c_cond |= waiting_time_cond;
+		loading_cond &= c_cond;
 		c = c->get_coupling_convoi();
 	}
 
 	const schedule_entry_t current_entry = cnv->get_schedule()->get_current_entry();
 
-	// designated departure time has the absolute priority.
+	// Use the scheduled departure time as long as the other departure conditions are satisfied.
 	// If departure time is set to the parent, all conditions of children are ignored.
 	// Departure time settings of children have no effect.
-	if(  current_entry.get_wait_for_time()  ) {
+	if(  current_entry.get_wait_for_time() &&  loading_cond  &&  (coupling_done_cond  ||  !current_entry.is_wait_coupling_done())  ) {
 		if(  arrived_time==0  ) {
 			// arrived_time is not registered for some reasons. replace it to the current ticks.
 			arrived_time = world()->get_ticks();
@@ -3591,21 +3624,8 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 		return is_first_ticks_bigger(world()->get_ticks(), go_on_ticks - time_to_load);
 	}
 
-	c = cnv;
-	go_on_ticks = 0;
-	bool cond = true;
-	while(  c.is_bound()  &&  cond  ) {
-		const schedule_entry_t e = c->get_schedule()->get_current_entry();
-		const bool loading_cond = c->get_loading_level() >= e.minimum_loading; // minimum loading
-		const bool waiting_time_cond = (e.waiting_time_shift > 0  &&  world()->get_ticks() - arrived_time > (world()->ticks_per_world_month / e.waiting_time_shift) ); // waiting time
-		bool c_cond = loading_cond; // condition of this convoy
-		c_cond &= !(e.get_coupling_point()==1  &&  !c->is_coupling_done()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled())); // coupling condition
-		c_cond |= c->get_no_load(); // no load
-		c_cond |= waiting_time_cond;
-		cond &= c_cond;
-		c = c->get_coupling_convoi();
-	}
-	return cond;
+	// if not calculate waiting time, return cond.
+	return loading_cond  &&  coupling_done_cond;
 }
 
 
@@ -3942,7 +3962,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 
 	// reverse convoi
 	if (  get_schedule()->get_current_entry().is_reverse_convoy()  ){
-		is_reversing_needed = true;
+		reversing_needed = true;
 		// reverse image direction after departire, in drive_to()
 	}
 	// reverse order of coupling/coupled convois
@@ -5054,12 +5074,12 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 	vehicle_t *v = front();
 	koord3d next_pos = schedule->get_current_entry().pos;
 	bool find_depot_route = false;
-	bool need_schedule_entry_remove = false;
+	bool depot_already_know = false;
 	if ( world()->lookup(next_pos)->get_depot() && world()->lookup(next_pos)->get_depot()->get_waytype() == v->get_desc()->get_waytype() && world()->lookup(next_pos)->get_depot()->get_owner()  == get_owner()  ) {
 		// if this convoy is already going to the depot, it will be teleported to that depot.
 		// but if the depot is changed or wrong, we search nearest depot.
 		find_depot_route = true;
-		need_schedule_entry_remove = true;
+		depot_already_know = true;
 		home = next_pos;
 	} else {
 		// Find the nearest depot
@@ -5094,7 +5114,17 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 	// if route to a depot has been found, update the convoi's schedule
 	const char *txt;
 	if(  find_depot_route  ) {
-		betrete_depot(world()->lookup(home)->get_depot(),!need_schedule_entry_remove);
+		if( !depot_already_know ) {
+			// to discard cargo, we put depot's position into schedule.
+			convoihandle_t c = self;
+			while( c.is_bound() ) {
+				schedule_t *schedule = c->get_schedule();
+				schedule->insert(welt->lookup(home));
+				schedule->set_current_stop( (schedule->get_current_stop()+schedule->get_count()-1)%schedule->get_count() );
+				c = c->get_coupling_convoi();
+			}
+		}
+		betrete_depot(world()->lookup(home)->get_depot(), false);
 		txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
 		set_schedule(get_schedule());
 	}
@@ -5487,14 +5517,14 @@ void convoi_t::calc_sum_friction_weight() {
 void convoi_t::reverse_vehicles_on_user_request()
 {
 	if(  is_loading()  ) {
-		is_reversing_needed = true;
+		reversing_needed = true;
 		return;
 	}
 	if (get_schedule()->get_current_entry().get_coupling_point()==schedule_entry_t::WAIT_FOR_COUPLING){
 		// reversing is not allowed.
 		return;
 	}
-	is_reversing_needed = true;
+	reversing_needed = true;
 	// trigger repositioning on the most parent convoy
 	find_most_parent_convoi()->set_state(EDIT_SCHEDULE);
 }
@@ -5507,7 +5537,7 @@ void convoi_t::reverse_vehicles_at_halt_if_needed()
 	// so, if the convoy will wait for coupling at the station,
 	// the reversing is not done until the coupling is done.
 	reverse_vehicles();
-	is_reversing_needed = false;
+	reversing_needed = false;
 	welt->set_dirty();
 }
 

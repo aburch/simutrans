@@ -49,6 +49,7 @@ public:
 		TRANSFER_INTERVAL = 1U << 7,
 		REVERSE_CONVOY	  = 1U << 8, // convoy reverses the order of its vehicles.
 		REVERSE_COUPLING  = 1U << 9, // The convoy reverses the parent-child relationship of the convoy coupling.
+		WAIT_COUPLING_DONE= 1U << 10,// Do not reserve departure slot until coupling done.
 	};
 
 	/**
@@ -140,7 +141,9 @@ public:
 	void set_reverse_convoi_coupling(bool y) { y ? stop_flags |= REVERSE_COUPLING : stop_flags &= ~REVERSE_COUPLING; }
 	uint16 get_stop_flags() const { return stop_flags; }
 	void set_stop_flags(uint16 f) { stop_flags = f; }
-	
+	void set_wait_coupling_done(bool y) {y? stop_flags|= WAIT_COUPLING_DONE : stop_flags &= ~WAIT_COUPLING_DONE; }
+	bool is_wait_coupling_done() const {return (stop_flags&WAIT_COUPLING_DONE) ; }
+
 	void set_spacing(uint16 a, uint16 b, uint16 c) {
 		spacing = a;
 		spacing_shift = b;

@@ -529,6 +529,12 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		new_component<gui_fill_t>();
 	}
 	end_table();
+
+	bt_wait_coupling_done.init(button_t::square_state, "Not Depart Until Coupling");
+	bt_wait_coupling_done.set_tooltip("not leave stop until coupling done even if departure time comes.");
+	bt_wait_coupling_done.add_listener(this);
+	bt_wait_coupling_done.disable();
+	add_component(&bt_wait_coupling_done);
 	
 	bt_load_before_departure.init(button_t::square_automatic, "Load before departure");
 	bt_load_before_departure.set_tooltip("Do not load cargos until the departure time comes.");
@@ -652,6 +658,7 @@ void schedule_gui_t::update_selection()
 	bt_no_unload.disable();
 	bt_unload_all.disable();
 	bt_wait_for_time.disable();
+	bt_wait_coupling_done.disable();
 	numimp_spacing.disable();
 	numimp_spacing_shift.disable();
 	numimp_delay_tolerance.disable();
@@ -709,26 +716,27 @@ void schedule_gui_t::update_selection()
 				numimp_spacing_shift.enable();
 				numimp_delay_tolerance.enable();
 				bt_load_before_departure.enable();
+				if( bt_wait_for_child.pressed ) {
+					bt_wait_coupling_done.enable();
+				}
+				bt_wait_coupling_done.pressed = schedule->at(current_stop).is_wait_coupling_done();
 			}
-			else {
-				// disable departure time settings and enable minimum loading
-				lb_load.set_color( SYSCOL_TEXT );
-				numimp_load.enable();
-				if(  schedule->at(current_stop).minimum_loading>0  ||  schedule->at(current_stop).get_coupling_point()!=0  ) {
-					bt_wait_load.enable();
-					uint16 wait = schedule->at(current_stop).waiting_time_shift;
-					bt_wait_load.pressed = wait>0;
-					if(  wait>0  ) {
-						lb_wait.set_color( SYSCOL_TEXT );
-						numimp_wait_load.enable();
-						if(  schedule->at(current_stop).minimum_loading  ==  200  ){
-							bt_load_before_departure.enable();
-						}
+			lb_load.set_color( SYSCOL_TEXT );
+			numimp_load.enable();
+			if(  schedule->at(current_stop).minimum_loading>0  ||  schedule->at(current_stop).get_coupling_point()!=0  ) {
+				bt_wait_load.enable();
+				uint16 wait = schedule->at(current_stop).waiting_time_shift;
+				bt_wait_load.pressed = wait>0;
+				if(  wait>0  ) {
+					lb_wait.set_color( SYSCOL_TEXT );
+					numimp_wait_load.enable();
+					if(  schedule->at(current_stop).minimum_loading  ==  200  ){
+						bt_load_before_departure.enable();
 					}
 				}
-				sprintf(lb_spacing_str, "off");
-				sprintf(lb_spacing_shift_str,"");
 			}
+			sprintf(lb_spacing_str, "off");
+			sprintf(lb_spacing_shift_str,"");
 			
 			numimp_load.set_value( schedule->at(current_stop).minimum_loading );
 			numimp_wait_load.set_value( max(1, schedule->at(current_stop).waiting_time_shift) );
@@ -970,6 +978,13 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 	else if(comp == &bt_wait_for_time) {
 		if (!schedule->empty()) {
 			schedule->at(schedule->get_current_stop()).set_wait_for_time(!bt_wait_for_time.pressed);
+			update_selection();
+		}
+	}
+	else if(comp == &bt_wait_coupling_done) {
+		if( !schedule->empty() ) {
+			schedule->at(schedule->get_current_stop()).set_wait_coupling_done(!bt_wait_coupling_done.pressed);
+			bt_wait_coupling_done.pressed = schedule->at(schedule->get_current_stop()).is_wait_coupling_done();
 			update_selection();
 		}
 	}
@@ -1287,4 +1302,5 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	bt_find_parent.set_visible(coupling_waytype  &&  yesno);
 	bt_reverse_convoy.set_visible(coupling_waytype  &&  yesno);
 	bt_reverse_coupling.set_visible(coupling_waytype  &&  yesno);
+	bt_wait_coupling_done.set_visible(coupling_waytype && yesno);
 }
