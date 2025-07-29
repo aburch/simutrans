@@ -3566,7 +3566,9 @@ sint32 subtract_ticks(uint32 v1, uint32 v2) {
  * 2) maximum waiting time
  * 3) designated departure time
  * 4) convoy coupling
- * -> can_depart = [3]+[3]*([4]*[1]+[2])
+ * 
+ * if departure time is not set, can_depart = [4] * ([1] + [2])
+ * if departure time is set and wait_coupling_done is false, can_depart = ([1] + [2]) * [3]
  *
  * @author THLeaderH
  */
@@ -3585,6 +3587,7 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 			// Reset the flag if it is outdated to avoid blocking the departure forever.
 			c->unset_convoi_coupling_in_progress();
 		}
+		coupling_done_cond &= !(e.get_coupling_point()==1  &&  !c->is_coupling_done()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled())); // coupling condition
 		c = c->get_coupling_convoi();
 	}
 	c = cnv;
@@ -3597,7 +3600,6 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 		c_cond |= c->get_no_load(); // no load
 		c_cond |= waiting_time_cond;
 		loading_cond &= c_cond;
-		coupling_done_cond &= !(e.get_coupling_point()==1  &&  !c->is_coupling_done()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled())); // coupling condition
 		c = c->get_coupling_convoi();
 	}
 
@@ -3606,7 +3608,7 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 	// Use the scheduled departure time as long as the other departure conditions are satisfied.
 	// If departure time is set to the parent, all conditions of children are ignored.
 	// Departure time settings of children have no effect.
-	if(  current_entry.get_wait_for_time() &&  loading_cond  &&  (coupling_done_cond||!current_entry.is_wait_coupling_done())  ) {
+	if(  current_entry.get_wait_for_time() &&  loading_cond  &&  (coupling_done_cond  ||  !current_entry.is_wait_coupling_done())  ) {
 		if(  arrived_time==0  ) {
 			// arrived_time is not registered for some reasons. replace it to the current ticks.
 			arrived_time = world()->get_ticks();
@@ -3633,7 +3635,7 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 	}
 
 	// if not calculate waiting time, return cond.
-	return loading_cond&coupling_done_cond;
+	return loading_cond  &&  coupling_done_cond;
 }
 
 
