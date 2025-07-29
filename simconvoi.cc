@@ -1804,6 +1804,7 @@ void convoi_t::betrete_depot(depot_t *dep, bool is_loading)
 	while(c.is_bound()) {
 		c->uncouple_convoi();
 		if( c->reversed ) {
+			// reversing in depot flag is recorded in c->reversing_needed
 			c->reverse_vehicles();
 			c->reversing_needed = true;
 		}
@@ -3262,6 +3263,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	}
 
 	if(  file->is_loading() && file->get_OTRP_version()<45 && state == INITIAL && reversed  ) {
+		// before v45, reversing in depot flag is recorded in reversed
 		reversed = false;
 		reversing_needed = true;
 	}
