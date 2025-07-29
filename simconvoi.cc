@@ -2012,6 +2012,7 @@ void convoi_t::ziel_erreicht()
 				wait_lock = 0;
 				set_next_coupling(route_t::INVALID_INDEX, 0);
 				v->get_convoi()->set_coupling_done(true);
+				unset_convoi_coupling_in_progress();
 				coupling_done = true;
 				return;
 			}
@@ -5307,7 +5308,6 @@ bool convoi_t::couple_convoi(convoihandle_t coupled) {
 	coupling_convoi->front()->set_leading(false);
 	back()->set_last(false);
 	must_recalc_min_top_speed();
-	unset_convoi_coupling_in_progress();
 	return true;
 }
 
