@@ -5389,6 +5389,10 @@ bool convoi_t::can_start_coupling(convoi_t* parent) const {
 	if(  parent->self->get_coupling_convoi().is_bound()  &&  parent->is_coupled()  ) {
 		return false;
 	}
+	// If the waiting convoy is already coupled at this station, return false
+	if(  parent->self->is_coupling_done()  ) {
+		return false;
+	}
 	return true;
 }
 
