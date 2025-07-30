@@ -405,6 +405,7 @@ private:
 	* Inserts the positions where the convoys are to the route.
 	*/
 	bool insert_route_convoy_on();
+	koord3d const find_tiles_convoy_on(convoihandle_t const inspecting, const grund_t* g, ribi_t::ribi next_dir);
 
 	// alte_richtung of coupled convoy is set by the head convoy.
 	void set_alte_richtung(ribi_t::ribi r) { alte_richtung = r; }
