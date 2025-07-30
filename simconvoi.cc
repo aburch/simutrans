@@ -1170,12 +1170,6 @@ rail_vehicle_t* find_convoy_on_tile(grund_t* const gr, convoihandle_t cnv) {
 	return NULL;
 }
 
-// a helper function for convoi_t::drive_to()
-// calculates the first pos of the new route considering convoy coupling and reversing.
-koord3d convoi_t::calc_first_pos_of_route() const {
-	return front()->get_pos();
-}
-
 /**
  * Berechne route von Start- zu Zielkoordinate
  */
@@ -1206,7 +1200,7 @@ bool convoi_t::drive_to()
 			r->unreserve_all_tiles();
 		}
 
-		koord3d start = calc_first_pos_of_route();
+		koord3d start = front()->get_pos();
 		koord3d ziel = schedule->get_current_entry().pos;
 
 		// avoid stopping mid-halt
