@@ -479,10 +479,10 @@ public:
 	uint8 get_max_ship_convoi_length() const {return max_ship_convoi_length;}
 	uint8 get_max_air_convoi_length() const {return max_air_convoi_length;}
 
-	void set_allow_player_change(char n) {allow_player_change=n;}
+	void set_allow_player_change(char n) {allow_player_change=(uint8)(n);}
 	uint8 get_allow_player_change() const {return allow_player_change;}
 
-	void set_use_timeline(char n) {use_timeline=n;}
+	void set_use_timeline(char n) {use_timeline=(uint8)(n);}
 	uint8 get_use_timeline() const {return use_timeline;}
 
 	void set_starting_year( sint16 n ) { starting_year = n; }
@@ -598,15 +598,15 @@ public:
 	sint16 get_tourist_percentage() const { return tourist_percentage; }
 
 	// radius from factories to get workers from towns (usually set to 77 but 1/8 of map size may be meaningful too)
-	uint16 get_factory_worker_radius() const { return factory_worker_radius; }
+	uint16 get_factory_worker_radius() const { return (uint16)(factory_worker_radius); }
 
 	// any factory will be connected to at least this number of next cities
-	uint32 get_factory_worker_minimum_towns() const { return factory_worker_minimum_towns; }
-	void set_factory_worker_minimum_towns(uint32 n) { factory_worker_minimum_towns = n; }
+	uint32 get_factory_worker_minimum_towns() const { return (uint32)(factory_worker_minimum_towns); }
+	void set_factory_worker_minimum_towns(uint32 n) { factory_worker_minimum_towns = (sint32)(n); }
 
 	// any factory will be connected to not more than this number of next cities
-	uint32 get_factory_worker_maximum_towns() const { return factory_worker_maximum_towns; }
-	void set_factory_worker_maximum_towns(uint32 n) { factory_worker_maximum_towns = n; }
+	uint32 get_factory_worker_maximum_towns() const { return (uint32)(factory_worker_maximum_towns); }
+	void set_factory_worker_maximum_towns(uint32 n) { factory_worker_maximum_towns = (sint32)(n); }
 
 	// number of periods for averaging the amount of arrived pax/mail at factories
 	uint16 get_factory_arrival_periods() const { return factory_arrival_periods; }

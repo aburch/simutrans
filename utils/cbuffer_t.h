@@ -39,7 +39,7 @@ public:
 	/**
 	 * Number of characters without(!) trailing '\0'
 	 */
-	int len() const { return size; }
+	unsigned int len() const { return size; }
 
 	/**
 	 * Creates a new cbuffer with capacity cap

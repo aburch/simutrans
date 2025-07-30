@@ -77,7 +77,7 @@ public:
 	void * operator new(size_t s);
 	void operator delete(void *p);
 
-	static int get_count() { return groundobj_typen.get_count()-1; }
+	static int get_count() { return (int)groundobj_typen.get_count()-1; }
 	static int get_count(climate cl);
 };
 

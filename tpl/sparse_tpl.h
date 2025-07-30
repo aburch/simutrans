@@ -129,7 +129,7 @@ private:
 		if(  index < row_ptr[pos.y+1]  &&  col_ind[index] == pos.x  ) {
 			if( value == 0 ) {
 				move_data(index+1, data_count, -1);
-				for( uint16 i = pos.y+1; i < size.y+1; i++ ){
+				for( uint16 i = (uint16)(pos.y+1); i < size.y+1; i++ ){
 					row_ptr[i]--;
 				}
 				data_count--;
@@ -149,7 +149,7 @@ private:
 			move_data(index, data_count, 1);
 			data[index] = value;
 			col_ind[index] = pos.x;
-			for( uint16 i = pos.y+1; i < size.y+1; i++ ){
+			for( uint16 i = (uint16)(pos.y+1); i < size.y+1; i++ ){
 				row_ptr[i]++;
 			}
 			data_count++;
