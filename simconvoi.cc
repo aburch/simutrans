@@ -1939,6 +1939,7 @@ void convoi_t::ziel_erreicht()
 				wait_lock = 0;
 				set_next_coupling(route_t::INVALID_INDEX, 0);
 				v->get_convoi()->set_coupling_done(true);
+				unset_convoi_coupling_in_progress();
 				coupling_done = true;
 				return;
 			}
@@ -5318,7 +5319,6 @@ bool convoi_t::couple_convoi(convoihandle_t coupled) {
 	coupling_convoi->front()->set_leading(false);
 	back()->set_last(false);
 	must_recalc_min_top_speed();
-	unset_convoi_coupling_in_progress();
 	return true;
 }
 
@@ -5398,6 +5398,10 @@ bool convoi_t::can_start_coupling(convoi_t* parent) const {
 	// If the coupled convoy cannot be coupled, return false.
 	// If the coupled convoy is already coupling with two convoy, this convoy cannot be coupled!
 	if(  parent->self->get_coupling_convoi().is_bound()  &&  parent->is_coupled()  ) {
+		return false;
+	}
+	// If the waiting convoy is already coupled at this station, return false
+	if(  parent->self->is_coupling_done()  ) {
 		return false;
 	}
 	return true;
