@@ -140,7 +140,7 @@ public:
 	void unset_next_line();
 	linehandle_t get_next_line() const {return next_line;}
 	// next_line condition is ok?
-	bool check_next_line_valid() const {return is_valid_as_next_line(next_line);}
+	bool is_next_line_valid() const {return is_valid_as_next_line(next_line);}
 	bool is_valid_as_next_line( linehandle_t ) const;
 
 	inline bool is_editing_finished() const { return editing_finished; }

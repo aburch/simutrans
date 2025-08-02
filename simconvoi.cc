@@ -5390,7 +5390,7 @@ bool convoi_t::can_start_coupling(convoi_t* parent) const {
 		return false;
 	}
 	// if the entry is dummy entry for jump to other line schedule, we check not this schedule's entries but the next_line schedule's entries.
-	const bool is_at_dummy_entry = schedule->check_next_line_valid()&&t_idx==schedule->get_count()-1;
+	const bool is_at_dummy_entry = schedule->is_next_line_valid()&&t_idx==schedule->get_count()-1;
 	const schedule_entry_t t_c = is_at_dummy_entry?schedule->get_next_line()->get_schedule()->at(0):schedule->at(t_idx);
 	const schedule_entry_t t_n = is_at_dummy_entry?schedule->get_next_line()->get_schedule()->at(1):schedule->at((t_idx+1)%schedule->get_count());
 	const schedule_entry_t p_c = parent->get_schedule()->get_current_entry();
@@ -5536,7 +5536,7 @@ void convoi_t::change_line_to_next_if_needed()
 		return;
 	}
 	// the next_line is wrong or the owner is different.
-	if(  !get_schedule()->check_next_line_valid()||l->get_owner() != get_owner() ) {
+	if(  !get_schedule()->is_next_line_valid()||l->get_owner() != get_owner() ) {
 		get_schedule()->unset_next_line();
 		return;
 	}

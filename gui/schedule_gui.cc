@@ -1192,7 +1192,7 @@ void schedule_gui_t::init_next_line_selector()
 
 	// keep assignment with identical schedules
 	if(  schedule->get_next_line().is_bound()  ) {
-		if(  !schedule->check_next_line_valid()  ) {
+		if(  !schedule->is_next_line_valid()  ) {
 			schedule->set_next_line(linehandle_t());
 		}
 	}

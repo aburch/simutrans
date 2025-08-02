@@ -3617,7 +3617,7 @@ bool rail_vehicle_t::check_longblock_signal(signal_t *sig, uint16 next_block, si
 		cur_pos = target_rt.back();
 		schedule_index ++;
 		if(schedule_index >= schedule->get_count()) {
-			if( schedule->check_next_line_valid() ) {
+			if( schedule->is_next_line_valid() ) {
 				schedule = schedule->get_next_line()->get_schedule();
 				schedule_index = 1;// next_line's 0 entry is same as the last entry of previous schedule.
 			} else {

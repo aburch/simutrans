@@ -708,7 +708,7 @@ schedule_entry_t const& schedule_t::get_next_entry() const {
 	if(  entries.empty()  ) {
 		return dummy_entry;
 	} 
-	if(  check_next_line_valid()  &&  current_stop==entries.get_count()-1  ){
+	if(  is_next_line_valid()  &&  current_stop==entries.get_count()-1  ){
 		// Use the index 1, because the index 0 is same as the last entry of this schedule.
 		return next_line->get_schedule()->at(1);
 	}
