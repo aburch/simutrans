@@ -34,7 +34,7 @@ class schedule_t
 	// operational maximum speed of this schedule. 0 => no limit.
 	uint16 max_speed;
 
-	// end the schedule, jump to other line schedule
+	// The line to which the convoy belongs when the schedule reaches its end.
 	linehandle_t next_line;
 
 	// the id of the departure slot group.
@@ -115,7 +115,7 @@ public:
 	/**
 	 * Get current stop of the schedule.
 	 */
-	uint8 const& get_current_stop() const { return current_stop; }
+	uint8 get_current_stop() const { return current_stop; }
 
 	/// returns the current stop, always a valid entry
 	schedule_entry_t const& get_current_entry() const { return current_stop >= entries.get_count() ? dummy_entry : entries[current_stop]; }
@@ -141,6 +141,7 @@ public:
 	linehandle_t get_next_line() const {return next_line;}
 	// next_line condition is ok?
 	bool is_next_line_valid() const {return is_valid_as_next_line(next_line);}
+	// Returns true if the given line can be the next line of this schedule.
 	bool is_valid_as_next_line( linehandle_t ) const;
 
 	inline bool is_editing_finished() const { return editing_finished; }

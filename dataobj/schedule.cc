@@ -721,7 +721,6 @@ void schedule_t::advance()
 		return;
 	}
 	current_stop=(current_stop+1)%entries.get_count();
-	return;
 }
 
 void schedule_t::set_spacing_for_all(uint16 v) {
@@ -730,9 +729,6 @@ void schedule_t::set_spacing_for_all(uint16 v) {
 	}
 }
 
-
-// check if the next line is set.
-// if the next line is wrong, unset it.
 bool schedule_t::is_valid_as_next_line(  linehandle_t l  ) const {
 	if( !l.is_bound() || l->get_schedule()->get_count()<2 || l->linetype_to_waytype(l->get_linetype()) != get_waytype() ) {
 		return false;

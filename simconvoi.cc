@@ -5542,7 +5542,6 @@ void convoi_t::change_line_to_next_if_needed()
 	}
 	dbg->message("convoi_t::change_line_to_next_if_needed()","%s will change schedule to line %s",get_name(),l->get_name());
 	// ok now jump to the next_line's schedule
-	// unset_line();
 	if(!line.is_bound()) {
 		unregister_stops();
 	} else {
