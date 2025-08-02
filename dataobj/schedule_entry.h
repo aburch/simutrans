@@ -24,7 +24,7 @@ public:
 		init_convoy_stopping_time();
 	}
 
-	schedule_entry_t(koord3d const& pos, uint const minimum_loading, uint16 const waiting_time_shift, uint16 const stop_flags) :
+	schedule_entry_t(koord3d const& pos, uint8 const minimum_loading, uint16 const waiting_time_shift, uint16 const stop_flags) :
 		pos(pos),
 		minimum_loading(minimum_loading),
 		waiting_time_shift(waiting_time_shift),

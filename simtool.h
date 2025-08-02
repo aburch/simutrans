@@ -1223,7 +1223,7 @@ public:
 	bool init( player_t * ) OVERRIDE {
 		assert(  default_param  );
 		if( const char *c = strchr( default_param, '|' ) ) {
-			koord delta( atoi( default_param ), atoi( c+1 ) );
+			koord delta( (sint16)atoi( default_param ), (sint16)atoi( c+1 ) );
 			welt->get_viewport()->change_world_position(welt->get_viewport()->get_world_position() + delta);
 			welt->set_dirty();
 		}
@@ -1274,7 +1274,7 @@ public:
 	bool is_selected() const OVERRIDE { return false; }
 	bool init( player_t * ) OVERRIDE {
 		assert(  default_param  );
-		sint16 level = clamp(atoi(default_param), 0, 16);
+		sint16 level = (sint16)clamp(atoi(default_param), 0, 16);
 		welt->get_settings().set_traffic_level(level);
 		return false;
 	}

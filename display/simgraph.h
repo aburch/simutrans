@@ -236,14 +236,14 @@ inline void display_set_image_proc( bool is_global )
 		display_color = display_color_img;
 		display_blend = display_rezoomed_img_blend;
 		display_alpha = display_rezoomed_img_alpha;
-		current_tile_raster_width = get_tile_raster_width();
+		current_tile_raster_width = (signed short)(get_tile_raster_width());
 	}
 	else {
 		display_normal = display_base_img;
 		display_color = display_base_img;
 		display_blend = display_base_img_blend;
 		display_alpha = display_base_img_alpha;
-		current_tile_raster_width = get_base_tile_raster_width();
+		current_tile_raster_width = (signed short)(get_base_tile_raster_width());
 	}
 }
 

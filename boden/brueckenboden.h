@@ -34,7 +34,7 @@ public:
 	sint8 get_weg_yoff() const OVERRIDE;
 
 	/// @copydoc grund_t::get_weg_hang
-	slope_t::type get_weg_hang() const OVERRIDE { return weg_hang; }
+	slope_t::type get_weg_hang() const OVERRIDE { return (slope_t::type)weg_hang; }
 
 	/// @copydoc grund_t::get_name
 	const char *get_name() const OVERRIDE { return "Brueckenboden"; }

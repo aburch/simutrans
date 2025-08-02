@@ -238,7 +238,7 @@ public:
 	const char* get_name() const;
 	void set_name(const char *);
 
-	sint8 get_player_nr() const {return player_nr; }
+	uint8 get_player_nr() const {return player_nr; }
 
 	/**
 	 * Test if this player is a public service player.
@@ -383,7 +383,7 @@ public:
 		headquarter_pos = hq_pos;
 	}
 	koord get_headquarter_pos() const { return headquarter_pos; }
-	short get_headquarter_level() const { return headquarter_level; }
+	sint32 get_headquarter_level() const { return headquarter_level; }
 
 	void ai_bankrupt();
 };
