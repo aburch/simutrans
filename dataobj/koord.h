@@ -104,14 +104,14 @@ private:
 
 static inline uint32 koord_distance(const koord &a, const koord &b)
 {
-	return abs(a.x - b.x) + abs(a.y - b.y);
+	return (uint32)(abs(a.x - b.x)) + (uint32)(abs(a.y - b.y));
 }
 
 // shortest distance in cardinal (N, E, S, W) and ordinal (NE, SE, SW, NW) directions
 static inline uint32 shortest_distance(const koord &a, const koord &b)
 {
-	const uint32 x_offset = abs(a.x - b.x);
-	const uint32 y_offset = abs(a.y - b.y);
+	const uint32 x_offset = (uint32)(abs(a.x - b.x));
+	const uint32 y_offset = (uint32)(abs(a.y - b.y));
 	// square root of 2 is estimated by 181/128; 64 is for rounding
 	if(  x_offset>=y_offset  ) {
 		return (x_offset - y_offset) + ( ((y_offset * 181u) + 64u) >> 7 );

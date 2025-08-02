@@ -272,8 +272,8 @@ private:
 	/*
 	 * caches the running costs
 	 */
-	sint32 sum_running_costs;
-	sint32 sum_fixed_costs;
+	sint64 sum_running_costs;
+	sint64 sum_fixed_costs;
 
 	/**
 	* Overall performance.
@@ -382,7 +382,7 @@ private:
 	char name_and_id[128];
 
 	bool reversed; // true when the vehicles are in the reversed order.
-	bool is_reversing_needed;// Whether this convoy's vehicles will be arranged in reverse order.
+	bool reversing_needed;// Whether this convoy's vehicles will be arranged in reverse order.
 	/**
 	* Initialize all variables with default values.
 	* Each constructor must call this method first!
@@ -405,6 +405,7 @@ private:
 	* Inserts the positions where the convoys are to the route.
 	*/
 	bool insert_route_convoy_on();
+	koord3d const find_tiles_convoy_on(convoihandle_t const inspecting, const grund_t* g, ribi_t::ribi next_dir);
 
 	// alte_richtung of coupled convoy is set by the head convoy.
 	void set_alte_richtung(ribi_t::ribi r) { alte_richtung = r; }
@@ -518,13 +519,17 @@ private:
 	void reverse_vehicles_at_halt_if_needed();
 	void reverse_vehicles();
 
-
-	// a helper function for convoi_t::drive_to()
-	koord3d calc_first_pos_of_route() const;
+	// Reverse the order of the coupling/coupled convois
+	void reverse_convoy_coupling();
+	
+	// a helper function for convoi_t::vorfahren(), check reserved_tiles
+	void clear_reserved_tile_if_not_matching_route();
 
 public:
 	bool is_reversed() const { return reversed; }
 	void set_reversed(bool yesno) { reversed = yesno; }
+	bool is_reversing_needed() const { return reversing_needed; }
+	void set_reversing_needed(bool yesno) { reversing_needed = yesno; }
 	// Reorder the vehicle array
 	// Can be executed even with a vehicle array that does not belong to convoy for UI
 	
@@ -693,6 +698,11 @@ public:
 
 	void set_speed_limit(sint32 s) { speed_limit = s;}
 	void set_min_top_speed(sint32 t) {min_top_speed = t;}
+
+	/**
+	 * Check sum power of this and the child convoys
+	 */
+	uint32 get_total_sum_power() const;
 
 	// calculate min_top_speed taking coupling convoys into account. This does not broadcast min_top_speed for the coupling convoys.
 	sint32 calc_min_top_speed();
@@ -1092,6 +1102,10 @@ public:
 	// coupling during running.
 	// Only for during leaving a depot
 	bool couple_convoi_during_running(convoihandle_t coupled);
+
+	// jump to other line's schedule
+	// the new line is stored in schedule->next_line_id
+	void change_line_to_next_if_needed();
 
 };
 

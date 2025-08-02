@@ -173,6 +173,10 @@ reverse convoy coupling
 連結を反転する(T)
 Reverses the parents-children order of the coupled convoys.
 連結の親子関係を反転します．
+Not Depart Until Coupling
+連結するまで発車しない
+not leave stop until coupling done even if departure time comes.
+連結が完了するまで発車枠を取得しません。
 #------円表記------
 $
  円

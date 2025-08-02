@@ -1407,6 +1407,9 @@ sint32 haltestelle_t::rebuild_connections()
 				aggregate_weight_jt = estimated_waiting_ticks(schedule, current_entry_index) - current_entry.get_median_convoy_stopping_time();
 				aggregate_weight_rc = WEIGHT_WAIT;
 			 	force_transfer_search |= (current_entry.is_unload_all()  ||  current_entry.is_no_load()  ||  current_entry.is_no_unload());
+				// If loading is allowed at somewhere by here, we still need to connect the further halts.
+				// Reset no_load_section to false in case that we can load here.
+				no_load_section &= current_entry.is_no_load();
 				interval = 0;
 				continue;
 			}
@@ -2817,7 +2820,7 @@ void haltestelle_t::change_owner( player_t *player, bool halt_only )
 				if(  prev_owner==wplayer  ) {
 					w->set_owner( player );
 					w->set_flag(obj_t::dirty);
-					sint32 cost = w->get_desc()->get_maintenance();
+					sint64 cost = w->get_desc()->get_maintenance();
 					// of tunnel...
 					if(  tunnel_t *t=gr->find<tunnel_t>()  ) {
 						t->set_owner( player );
@@ -2845,7 +2848,7 @@ void haltestelle_t::change_owner( player_t *player, bool halt_only )
 			if(  wayobj_t *const wo = obj_cast<wayobj_t>(gr->obj_bei(i))  ) {
 				player_t *woplayer = wo->get_owner();
 				if(  prev_owner==woplayer  ) {
-					sint32 const cost = wo->get_desc()->get_maintenance();
+					sint64 const cost = wo->get_desc()->get_maintenance();
 					// change ownership
 					wo->set_owner( player );
 					wo->set_flag(obj_t::dirty);

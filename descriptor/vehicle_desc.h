@@ -16,6 +16,7 @@
 #include "../dataobj/ribi.h"
 #include "../simtypes.h"
 #include "../simunits.h"
+#include "../bauer/goods_manager.h"
 
 
 class checksum_t;
@@ -66,7 +67,7 @@ private:
 	uint16  loading_time; // time per full loading/unloading
 	uint32  weight;
 	uint32  power;
-	uint16  running_cost;
+	sint64  running_cost;
 
 	uint16  gear;       // engine gear (power multiplier), 64=100
 
@@ -105,7 +106,7 @@ public:
 
 	skin_desc_t const* get_smoke() const { return get_child<skin_desc_t>(3); }
 
-	image_id get_base_image() const { return get_image_id(ribi_t::dir_south, get_freight_type() ); }
+	image_id get_base_image() const { return get_image_id(ribi_t::dir_south, get_freight_type(),false ); }
 
 	// returns the number of different directions
 	uint8 get_dirs() const { return get_child<image_list_t>(4)->get_image(4) ? 8 : 4; }
@@ -114,25 +115,35 @@ public:
 	// beware, there are three classes of vehicles
 	// vehicles with and without freight images, and vehicles with different freight images
 	// they can have 4 or 8 directions ...
-	image_id get_image_id(ribi_t::dir dir, const goods_desc_t *ware) const
+	// "is_reverse" is the flag of using freightimagetype[n]="Reverse".
+	image_id get_image_id(ribi_t::dir dir, const goods_desc_t *ware, const bool is_reversed=false) const
 	{
 		const image_t *image=0;
 		const image_list_t *list=0;
 
-		if(freight_image_type>0  &&  ware!=NULL) {
+		if(freight_image_type>0  &&  (ware!=NULL||is_reversed)) {
 			// more freight images and a freight: find the right one
 
 			sint8 goods_index=0; // freight images: if not found use first freight
+			sint8 reverse_index=-1; // reversed images. if reverse_index<0, this vehicle do not have freightimagetype="Reverse".
 
 			for( sint8 i=0;  i<freight_image_type;  i++  ) {
 				if (ware == get_child<goods_desc_t>(6 + trailer_count + leader_count + i)) {
+					// searching freight image
 					goods_index = i;
-					break;
+				}
+				if (is_reversed && get_child<goods_desc_t>(6 + trailer_count + leader_count + i)==goods_manager_t::get_info("Reverse")) {
+					// searching reversed image (e.g. front car with taillight)
+					reverse_index = i;
 				}
 			}
 
 			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
 			image_array_t const* const list2d = get_child<image_array_t>(5);
+			// no freight and non reversed->use EmptyImage
+			if(reverse_index>-1) {
+				goods_index = reverse_index;//find the reverse images, we use reversed one.
+			}
 			image=list2d->get_image(dir, goods_index);
 			if(!image) {
 				if(dir>3) {
@@ -246,8 +257,8 @@ public:
 	uint16 get_loading_time() const { return loading_time; } // ms per full loading/unloading
 	uint32 get_weight() const { return weight; }
 	uint32 get_power() const { return power; }
-	uint32 get_running_cost() const { return running_cost; }
-	sint32 get_fixed_cost() const { return get_maintenance(); }
+	sint64 get_running_cost() const { return running_cost; }
+	sint64 get_fixed_cost() const { return get_maintenance(); }
 	sint8 get_sound() const { return sound; }
 
 	/**

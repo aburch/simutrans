@@ -82,7 +82,7 @@ public:
 	/// Returns maximal height difference between the corners of this slope.
 	static uint8 max_diff(type x) { return (x!=0)+(flags[x]&doubles); }
 	/// Computes minimum height differnce between corners of  @p high and @p low.
-	static sint8 min_diff(type high, type low) { return min( min( corner_sw(high) - corner_sw(low), corner_se(high)-corner_se(low) ), min( corner_ne(high) - corner_ne(low), corner_nw(high) - corner_nw(low) ) ); }
+	static sint8 min_diff(type high, type low) { return (sint8)(min( min( corner_sw(high) - corner_sw(low), corner_se(high)-corner_se(low) ), min( corner_ne(high) - corner_ne(low), corner_nw(high) - corner_nw(low) ) )); }
 
 	/// Returns if slope prefers certain way directions (either n/s or e/w).
 	static bool is_single(type x) { return (flags[x] & single) != 0; }
@@ -198,7 +198,7 @@ public:
 
 	/// Table containing the four compass directions (now as function)
 	struct _nesw {
-		ribi operator [] ( const uint8 i ) const { return 1<<i; }
+		ribi operator [] ( const uint8 i ) const { return (ribi)(1<<i); }
 	};
 	static const _nesw nesw;
 

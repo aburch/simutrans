@@ -51,6 +51,7 @@ void schedule_t::copy_from(const schedule_t *src)
 	max_speed = src->get_max_speed();
 	departure_slot_group_id = src->get_departure_slot_group_id();
 	additional_base_waiting_time = src->get_additional_base_waiting_time();
+	next_line = src->next_line;
 }
 
 
@@ -90,6 +91,7 @@ bool schedule_t::is_stop_allowed(const grund_t *gr) const
  */
 halthandle_t schedule_t::get_next_halt( player_t *player, halthandle_t halt ) const
 {
+	dbg->message("schedule_t::get_next_halt","lets search the next stop");
 	if(  entries.get_count()>1  ) {
 		for(  uint i=1;  i < entries.get_count();  i++  ) {
 			halthandle_t h = haltestelle_t::get_stoppable_halt( entries[ (current_stop+i) % entries.get_count() ].pos, player );
@@ -149,8 +151,13 @@ bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint16 waiting
 		return false;
 	}
 	if(is_stop_allowed(gr)) {
-		entries.append(schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, stop_flags), 4);
-		return true;
+		if( next_line.is_bound() ) {
+			entries.insert_at(entries.get_count()-1, schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, stop_flags));
+			return true;
+		} else {
+			entries.append(schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, stop_flags), 4);
+			return true;
+		}
 	}
 	else {
 		DBG_MESSAGE("schedule_t::append()","forbidden stop at %i,%i,%i",gr->get_pos().x, gr->get_pos().x, gr->get_pos().z );
@@ -236,6 +243,12 @@ void schedule_t::rdwr(loadsave_t *file)
 
 	if(  file->get_OTRP_version()>=40  ) {
 		file->rdwr_long(additional_base_waiting_time);
+	}
+
+	if(  file->get_OTRP_version()>=45  ) {
+		simline_t::rdwr_linehandle_t(file,next_line);
+	} else {
+		next_line = linehandle_t();
 	}
 
 	if(file->is_version_less(99, 12)) {
@@ -325,6 +338,13 @@ void schedule_t::rdwr(loadsave_t *file)
 					file->rdwr_long(entries[i].convoy_stopping_time[j]);
 				}
 			}
+			if(file->get_OTRP_version()<45) {
+				// before OTRP v45, do not use minimum_load when wait_for_time
+				if(entries[i].get_wait_for_time()) {
+					entries[i].minimum_loading = 0;
+					entries[i].waiting_time_shift = 0;
+				}
+			}
 		}
 	}
 	if(file->is_loading()) {
@@ -366,6 +386,10 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *schedule)
 	}
 	// no match for empty schedules
 	if(  schedule->entries.empty()  ||  entries.empty()  ) {
+		return false;
+	}
+	// is the next line same?
+	if(  schedule->get_next_line() != next_line  ) {
 		return false;
 	}
 	// now we have to check all entries ...
@@ -486,7 +510,7 @@ void schedule_t::add_return_way()
 void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 {
 	uint32 s = current_stop + (flags<<8) + (max_speed<<16);
-	buf.printf("%u|%ld|%u|%d|", s, departure_slot_group_id, additional_base_waiting_time, (int)get_type());
+	buf.printf("%u|%ld|%u|%d|%u|", s, departure_slot_group_id, additional_base_waiting_time, (int)get_type(), next_line.get_id());
 	FOR(minivec_tpl<schedule_entry_t>, const& i, entries) {
 		buf.printf("%s,%i,%i,%i,%i,%i,%i|", i.pos.get_str(), (int)i.minimum_loading, (int)i.waiting_time_shift, i.get_stop_flags(), i.spacing, i.spacing_shift, i.delay_tolerance);
 	}
@@ -544,6 +568,17 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 		dbg->error( "schedule_t::sscanf_schedule()","schedule has wrong type (%d)! should have been %d.", type, get_type() );
 		return false;
 	}
+	while(  *p  &&  *p!='|'  ) {
+		p++;
+	}
+	if(  *p!='|'  ) {
+		dbg->error( "schedule_t::sscanf_schedule()","incomplete entry termination!" );
+		return false;
+	}
+	p++;
+	//  then next line
+	uint16 next_line_id = atoi( p );
+	next_line.set_id(next_line_id);
 	while(  *p  &&  *p!='|'  ) {
 		p++;
 	}
@@ -673,15 +708,68 @@ void schedule_t::gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* 
 schedule_entry_t const& schedule_t::get_next_entry() const {
 	if(  entries.empty()  ) {
 		return dummy_entry;
-	} else {
-		return entries[(current_stop+1)%entries.get_count()];
+	} 
+	if(  is_next_line_valid()  &&  current_stop==entries.get_count()-1  ){
+		// Use the index 1, because the index 0 is same as the last entry of this schedule.
+		return next_line->get_schedule()->at(1);
 	}
+	return entries[(current_stop+1)%entries.get_count()];
+}
+
+void schedule_t::advance()
+{
+	if(  entries.empty()  ){
+		return;
+	}
+	current_stop=(current_stop+1)%entries.get_count();
 }
 
 void schedule_t::set_spacing_for_all(uint16 v) {
 	for(uint8 i=0; i<entries.get_count(); i++) {
 		entries[i].spacing = v;
 	}
+}
+
+bool schedule_t::is_valid_as_next_line(  linehandle_t l  ) const {
+	if( !l.is_bound() || l->get_schedule()->get_count()<2 || l->linetype_to_waytype(l->get_linetype()) != get_waytype() ) {
+		return false;
+	}
+	halthandle_t h = haltestelle_t::get_stoppable_halt( l->get_schedule()->at(0).pos, l->get_owner() );
+	if( !h.is_bound() ) {
+		return false;
+	}
+	return true;
+}
+
+void schedule_t::set_next_line( linehandle_t l ) {
+	uint8 const temp_stop = get_current_stop();
+	unset_next_line();
+	if(  !is_valid_as_next_line(l)  ) {
+		return;
+	}
+	next_line = l;
+	// now set the last stop as next_line.entries[0]
+	if(  entries.get_count() >= 254  ) {
+		// we cannot add the handing-over point, so we remove the last stop and append it.
+		entries.remove_at(253);
+	}
+	schedule_entry_t dummy_entry=l->get_schedule()->at(0);
+	dummy_entry.set_no_load(true);
+	dummy_entry.set_unload_all(true);
+	entries.append(dummy_entry);
+	if(  temp_stop == get_count()-1  ) {
+		set_current_stop(temp_stop);
+	}
+	dbg->message("schedule_t::set_next_line()","the next line is set as %s. the number of entries is %i",l->get_name(),entries.get_count());
+}
+
+void schedule_t::unset_next_line() {
+	if( !next_line.is_bound() ) {
+		return;
+	}
+	next_line = linehandle_t();
+	entries.remove_at(entries.get_count()-1);
+	make_current_stop_valid();
 }
 
 void schedule_t::set_spacing_shift_for_all(uint16 v) {

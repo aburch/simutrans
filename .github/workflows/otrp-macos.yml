@@ -11,7 +11,7 @@ jobs:
     runs-on: macOS-latest
     
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: install_dependencies
       run: | 
@@ -31,7 +31,7 @@ jobs:
       run: sh ./.github/build-mac.sh
       
     - name: Upload the executable
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: sim-mac-OTRP
         path: ./sim-mac-OTRP

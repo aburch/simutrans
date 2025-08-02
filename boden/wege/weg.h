@@ -122,6 +122,12 @@ public:
 	weg_t() : obj_no_info_t() { init(); }
 
 	virtual ~weg_t();
+	
+	/**
+	 * @returns true if a crossing is needed
+	 */
+	bool needs_crossing(const way_desc_t* other) const;
+
 
 #ifdef MULTI_THREAD
 	void lock_mutex();
@@ -154,8 +160,8 @@ public:
 	 */
 	bool check_season(const bool calc_only_season_change) OVERRIDE;
 
-	void set_max_speed(sint32 s) { max_speed = s; }
-	sint32 get_max_speed() const { return max_speed; }
+	void set_max_speed(uint16 s) { max_speed = s; }
+	uint16 get_max_speed() const { return max_speed; }
 
 	/// @note Replaces max speed of the way by the max speed property of the descriptor.
 	void set_desc(const way_desc_t *b);
@@ -295,8 +301,8 @@ public:
 	void select_switch_road_image(bool snow);
 
 
-	void set_max_wayobj_speed(sint32 s) { max_wayobj_speed = s; }
-	sint32 get_max_wayobj_speed() const { return max_wayobj_speed; }
+	void set_max_wayobj_speed(uint16 s) { max_wayobj_speed = s; }
+	uint16 get_max_wayobj_speed() const { return max_wayobj_speed; }
 
 
 	// correct maintenance

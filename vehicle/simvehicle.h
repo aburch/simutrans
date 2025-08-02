@@ -167,7 +167,9 @@ public:
 
 	ribi_t::ribi get_90direction() const {return ribi_type(get_pos(), get_pos_next());}
 
-	koord3d get_pos_next() const {return pos_next;}
+	koord3d get_pos_next() const {return pos_next;}	
+	
+	void set_pos_next(koord3d pn) { pos_next = pn; }
 
 	waytype_t get_waytype() const OVERRIDE = 0;
 
@@ -332,7 +334,7 @@ public:
 	/**
 	* @return die running_cost in Cr/100Km
 	*/
-	int get_operating_cost() const { return desc->get_running_cost(); }
+	sint64 get_operating_cost() const { return desc->get_running_cost(); }
 
 	/**
 	* Play sound, when the vehicle is visible on screen
@@ -802,6 +804,7 @@ public:
 	void rdwr_from_convoi(loadsave_t *file) OVERRIDE;
 
 	int get_flyingheight() const {return flying_height-get_hoff()-2;}
+	int get_targetheight() const {return target_height-get_hoff()-2;}
 
 	// image: when flying empty, on ground the plane
 	image_id get_image() const OVERRIDE {return !is_on_ground() ? IMG_EMPTY : image;}
