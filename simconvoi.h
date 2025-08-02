@@ -1100,6 +1100,10 @@ public:
 	// Only for during leaving a depot
 	bool couple_convoi_during_running(convoihandle_t coupled);
 
+	// jump to other line's schedule
+	// the new line is stored in schedule->next_line_id
+	void change_line_to_next_if_needed();
+
 };
 
 #endif

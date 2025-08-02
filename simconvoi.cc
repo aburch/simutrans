@@ -1877,6 +1877,13 @@ void convoi_t::ziel_erreicht()
 	}
 
 	register_journey_time();
+	// set arrived time
+	c = self;
+	while(c.is_bound()) {
+		c->change_line_to_next_if_needed();
+		c->set_time_last_arrived(world()->get_ticks());
+		c = c->get_coupling_convoi();
+	}
 	halthandle_t halt = haltestelle_t::get_stoppable_halt(schedule->get_current_entry().pos,owner);
 
 	// check for coupling
@@ -1959,7 +1966,6 @@ void convoi_t::ziel_erreicht()
 			c->set_arrived_time(world()->get_ticks());
 			c = c->get_coupling_convoi();
 		}
-
 	}
 	else {
 		// Neither depot nor station: waypoint
@@ -5383,8 +5389,10 @@ bool convoi_t::can_start_coupling(convoi_t* parent) const {
 		// all schedule entries are waypoint.
 		return false;
 	}
-	const schedule_entry_t t_c = schedule->at(t_idx);
-	const schedule_entry_t t_n = schedule->at((t_idx+1)%schedule->get_count());
+	// if the entry is dummy entry for jump to other line schedule, we check not this schedule's entries but the next_line schedule's entries.
+	const bool is_at_dummy_entry = schedule->check_next_line_valid()&&t_idx==schedule->get_count()-1;
+	const schedule_entry_t t_c = is_at_dummy_entry?schedule->get_next_line()->get_schedule()->at(0):schedule->at(t_idx);
+	const schedule_entry_t t_n = is_at_dummy_entry?schedule->get_next_line()->get_schedule()->at(1):schedule->at((t_idx+1)%schedule->get_count());
 	const schedule_entry_t p_c = parent->get_schedule()->get_current_entry();
 	const schedule_entry_t p_n = parent->get_schedule()->get_next_entry();
 
@@ -5474,7 +5482,6 @@ void convoi_t::register_journey_time() {
 				window->update();
 			}
 		}
-		c->set_time_last_arrived(world()->get_ticks());
 		c = c->get_coupling_convoi();
 	}
 }
@@ -5511,6 +5518,40 @@ void convoi_t::calc_sum_friction_weight() {
 		c->reset_recalc_friction_weight();
 		c = c->get_coupling_convoi();
 	}
+}
+
+// jump to other line's schedule
+void convoi_t::change_line_to_next_if_needed() 
+{
+	linehandle_t l = get_schedule()->get_next_line();
+	// check and update next_line
+	if(  l.is_bound() && l->get_schedule()->get_count()>1 && l->get_schedule()->at(0).pos!=get_schedule()->at(get_schedule()->get_count()-1).pos ) {
+		if(  get_line().is_bound()  ) {
+			get_line()->get_schedule()->set_next_line(l);
+		}
+		get_schedule()->set_next_line(l);
+	}
+	// this convoy does not reach the handing-over point of schedule.
+	if( get_schedule()->get_current_stop()!=get_schedule()->get_count()-1 ) {
+		return;
+	}
+	// the next_line is wrong or the owner is different.
+	if(  !get_schedule()->check_next_line_valid()||l->get_owner() != get_owner() ) {
+		get_schedule()->unset_next_line();
+		return;
+	}
+	dbg->message("convoi_t::change_line_to_next_if_needed()","%s will change schedule to line %s",get_name(),l->get_name());
+	// ok now jump to the next_line's schedule
+	// unset_line();
+	if(!line.is_bound()) {
+		unregister_stops();
+	} else {
+		unset_line();
+	}
+	schedule->copy_from(l->get_schedule());
+	dbg->message("convoi_t::change_line_to_next_if_needed()","%s's new schedule has %i stops",get_name(),schedule->get_count());
+	schedule->set_current_stop(0);
+	set_line(l);
 }
 
 void convoi_t::reverse_vehicles_on_user_request()
@@ -5609,7 +5650,9 @@ void convoi_t::next_stop_button_pressed() {
 		if( !c->can_continue_coupling() ) {
 			c->uncouple_convoi();
 		}
-		schedule->advance();
+		c->change_line_to_next_if_needed();
+		c->schedule->advance();
+		dbg->message("convoi_t::next_stop_button_pressed()","the next stop is %i",schedule->get_current_entry());
 		// c->set_schedule() is change convoy status to "EDIT_SCHEDULE".
 		// So, if the convoy is leading, it can recalculate the schedule by calling this function.
 		// However, if the convoy is coupled convoy, calling c->set_schedule() destroy coupling information.

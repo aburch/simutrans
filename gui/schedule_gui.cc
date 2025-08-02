@@ -236,6 +236,7 @@ cbuffer_t schedule_gui_stats_t::buf;
 schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoihandle_t cnv_) :
 	gui_frame_t( translator::translate("Fahrplan"), NULL),
 	line_selector(line_scrollitem_t::compare),
+	next_line_selector(non_color_line_scroll_item_t::compare),
 	departure_slot_group_selector(company_color_line_scroll_item_t::compare),
 	lb_waitlevel(SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
 	lb_wait("1/"),
@@ -359,8 +360,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	}
 	end_table();
 	
-	// Components for advanced settings
-	
+	// Components for advanced settings	
 	add_table(3,1);
 	{
 		bt_tmp_schedule.init(button_t::square_state, "Temporary schedule");
@@ -555,6 +555,20 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		departure_slot_group_selector.add_listener(this);
 		add_component(&departure_slot_group_selector);
 	}
+
+	// next_line setting
+	add_table(2,1);
+	{
+		lb_next_line.set_text("Next line:");
+		add_component(&lb_next_line);
+
+		next_line_selector.clear_elements();
+
+		init_next_line_selector();
+		next_line_selector.add_listener(this);
+		add_component(&next_line_selector);
+	}
+	end_table();
 	
 	extract_advanced_settings(false);
 
@@ -670,7 +684,9 @@ void schedule_gui_t::update_selection()
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
 		const uint8 current_stop = schedule->get_current_stop();
-		if(  haltestelle_t::get_stoppable_halt(schedule->at(current_stop).pos, player).is_bound()  ) {
+		// if the next_line is set, the last entry is same as the next_line->get_schedule()->at(0)
+		// so, the flags of last entry can not be editted.
+		if(  haltestelle_t::get_stoppable_halt(schedule->at(current_stop).pos, player).is_bound()  && (  (current_stop != schedule->get_count()-1)  ||  !schedule->get_next_line().is_bound()  )  ) {
 			
 			const uint8 c = schedule->at(current_stop).get_coupling_point();
 			bt_find_parent.enable();
@@ -819,7 +835,7 @@ bool schedule_gui_t::infowin_event(const event_t *ev)
 
 bool schedule_gui_t::action_triggered( gui_action_creator_t *comp, value_t p)
 {
-DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_selector);
+dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_selector);
 	// Always call update_tool for any actions to prevent an unexpected state
 	bool should_set_schedule_tool = true;
 	if(comp == &bt_add) {
@@ -910,6 +926,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 	}
 	else if(comp == &line_selector) {
 		uint32 selection = p.i;
+		dbg->message("schedule_gui_t::action_triggered()","set_line_selection %p, %i",comp,selection);
 		if(  line_scrollitem_t *li = dynamic_cast<line_scrollitem_t*>(line_selector.get_element(selection))  ) {
 			new_line = li->get_line();
 			stats->highlight_schedule( false );
@@ -920,6 +937,18 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 			// remove line
 			new_line = linehandle_t();
 			line_selector.set_selection( 0 );
+		}
+	}
+	else if(comp == &next_line_selector) {
+		uint32 selection = p.i;
+		dbg->message("schedule_gui_t::action_triggered()","set_next_line_selection %p, %i",comp,selection);
+		if(  line_scrollitem_t *li = dynamic_cast<line_scrollitem_t*>(next_line_selector.get_element(selection))  ) {
+			schedule->set_next_line(li->get_line());
+		}
+		else {
+			// remove next_line
+			schedule->set_next_line(linehandle_t());
+			next_line_selector.set_selection(0);
 		}
 	}
 	else if(comp == &bt_promote_to_line) {
@@ -942,8 +971,11 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 		if(  line >= 0 && line < schedule->get_count()  ) {
 			schedule->set_current_stop( line );
 			if(  mode == removing  ) {
-				stats->highlight_schedule( false );
-				schedule->remove();
+				// if next_line.is_bound(), the last entry is dummy entry for calculating route.
+				if(  !schedule->get_next_line().is_bound() || line < schedule->get_count()-1  ) {
+					stats->highlight_schedule( false );
+					schedule->remove();
+				}
 			}
 			update_selection();
 		}
@@ -1097,6 +1129,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 			init_line_selector();
 		}
 	}
+	init_next_line_selector();
 	update_tool( should_set_schedule_tool );
 	return true;
 }
@@ -1144,6 +1177,42 @@ void schedule_gui_t::init_line_selector()
 	line_selector.set_selection( selection );
 	line_scrollitem_t::sort_mode = line_scrollitem_t::SORT_BY_NAME;
 	line_selector.sort( offset );
+	old_line_count = player->simlinemgmt.get_line_count();
+	last_schedule_count = schedule->get_count();
+}
+
+
+void schedule_gui_t::init_next_line_selector()
+{
+	next_line_selector.clear_elements();
+	uint16 selection = 0;
+	vector_tpl<linehandle_t> lines;
+
+	player->simlinemgmt.get_lines(schedule->get_type(), &lines);
+
+	// keep assignment with identical schedules
+	if(  schedule->get_next_line().is_bound()  ) {
+		if(  !schedule->check_next_line_valid()  ) {
+			schedule->set_next_line(linehandle_t());
+		}
+	}
+	int offset = 0;
+	selection = 0;
+	offset = 1;
+	next_line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("<no line>"), SYSCOL_TEXT ) ;
+
+	FOR(  vector_tpl<linehandle_t>, const line,  lines  ) {
+		if(  !*schedule_filter  ||  utf8caseutf8(line->get_name(), schedule_filter)  ) {
+			next_line_selector.new_component<non_color_line_scroll_item_t>(line);
+		}
+		if(  schedule->get_next_line() == line  ) {
+			selection = next_line_selector.count_elements()-1;
+		}
+	}
+
+	next_line_selector.set_selection( selection );
+	line_scrollitem_t::sort_mode = line_scrollitem_t::SORT_BY_NAME;
+	next_line_selector.sort( offset );
 	old_line_count = player->simlinemgmt.get_line_count();
 	last_schedule_count = schedule->get_count();
 }
@@ -1296,6 +1365,8 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	departure_slot_group_selector.set_visible(yesno);
 	lb_tbgr_waiting_time.set_visible(yesno);
 	numimp_tbgr_waiting_time.set_visible(yesno);
+	lb_next_line.set_visible(yesno);
+	next_line_selector.set_visible(yesno);
 	
 	const bool coupling_waytype = schedule->get_waytype()!=road_wt  &&  schedule->get_waytype()!=air_wt  &&  schedule->get_waytype()!=water_wt;
 	bt_wait_for_child.set_visible(coupling_waytype  &&  yesno);

@@ -1230,6 +1230,7 @@ void vehicle_t::hop(grund_t* gr)
 			// advance schedule for all coupling convoys.
 			convoihandle_t c = cnv->self;
 			while(  c.is_bound()  ) {
+				c->set_time_last_arrived(world()->get_ticks());
 				c->get_schedule()->advance();
 				c = c->get_coupling_convoi();
 			}
@@ -3555,20 +3556,21 @@ bool rail_vehicle_t::check_longblock_signal(signal_t *sig, uint16 next_block, si
 
 	// now we can use the route search array
 	// (route until end is already reserved at this point!)
+	schedule_t* schedule = cnv->get_schedule();
 	uint8 schedule_index = cnv->get_schedule()->get_current_stop()+1;
 	route_t target_rt;
 	koord3d cur_pos = cnv->get_route()->back();
 	uint16 dummy;
 	uint16 next_next_signal = route_t::INVALID_INDEX;
 	
-	if(schedule_index >= cnv->get_schedule()->get_count()) {
+	if(schedule_index >= schedule->get_count()) {
 		schedule_index = 0;
 	}
-	while(  schedule_index != cnv->get_schedule()->get_current_stop()  ) {
+	while(  schedule->at(schedule_index).pos != cnv->get_schedule()->get_current_entry().pos  ) {
 		// now search
 		// search for route
 		uint16 len = welt->get_settings().get_advance_to_end() ? 8888 : cnv->get_tile_length();
-		bool success = target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->at(schedule_index).pos, this, speed_to_kmh(cnv->get_min_top_speed()), len );
+		bool success = target_rt.calc_route( welt, cur_pos, schedule->at(schedule_index).pos, this, speed_to_kmh(cnv->get_min_top_speed()), len );
 		if(  target_rt.is_contained(get_pos())  ) {
 			// do not reserve route going through my current stop&
 			break;
@@ -3614,8 +3616,13 @@ bool rail_vehicle_t::check_longblock_signal(signal_t *sig, uint16 next_block, si
 		// prepare for next leg of schedule
 		cur_pos = target_rt.back();
 		schedule_index ++;
-		if(schedule_index >= cnv->get_schedule()->get_count()) {
-			schedule_index = 0;
+		if(schedule_index >= schedule->get_count()) {
+			if( schedule->check_next_line_valid() ) {
+				schedule = schedule->get_next_line()->get_schedule();
+				schedule_index = 1;// next_line's 0 entry is same as the last entry of previous schedule.
+			} else {
+				schedule_index = 0;
+			}
 		}
 	}
 	if(  cnv->get_next_stop_index()-1 <= route_index  ) {

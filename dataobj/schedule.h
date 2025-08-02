@@ -10,6 +10,7 @@
 #include "schedule_entry.h"
 
 #include "../halthandle_t.h"
+#include "../linehandle_t.h"
 
 #include "../tpl/minivec_tpl.h"
 
@@ -32,6 +33,9 @@ class schedule_t
 	
 	// operational maximum speed of this schedule. 0 => no limit.
 	uint16 max_speed;
+
+	// end the schedule, jump to other line schedule
+	linehandle_t next_line;
 
 	// the id of the departure slot group.
 	// defined in sint64 since uint64 value cannot be handled with rdwr_longlong
@@ -111,7 +115,7 @@ public:
 	/**
 	 * Get current stop of the schedule.
 	 */
-	uint8 get_current_stop() const { return current_stop; }
+	uint8 const& get_current_stop() const { return current_stop; }
 
 	/// returns the current stop, always a valid entry
 	schedule_entry_t const& get_current_entry() const { return current_stop >= entries.get_count() ? dummy_entry : entries[current_stop]; }
@@ -122,17 +126,22 @@ public:
 	 * Set the current stop of the schedule .
 	 * If new value is bigger than stops available, the max stop will be used.
 	 */
-	void set_current_stop(uint8 new_current_stop) {
+	void set_current_stop(const uint8 new_current_stop) {
 		current_stop = new_current_stop;
 		make_current_stop_valid();
 	}
 
 	/// advance current_stop by one
-	void advance() {
-		if(  !entries.empty()  ) {
-			current_stop = (current_stop+1)%entries.get_count();
-		}
-	}
+	// DO NOT CALL THIS FUNCTION WHEN SCHEDULE IS JUMPED TO OTHER!
+	void advance();
+	
+	// next_line setting
+	void set_next_line( linehandle_t l );
+	void unset_next_line();
+	linehandle_t get_next_line() const {return next_line;}
+	// next_line condition is ok?
+	bool check_next_line_valid() const {return is_valid_as_next_line(next_line);}
+	bool is_valid_as_next_line( linehandle_t ) const;
 
 	inline bool is_editing_finished() const { return editing_finished; }
 	void finish_editing() { editing_finished = true; }
