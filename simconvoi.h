@@ -741,6 +741,18 @@ public:
 	void step();
 
 	/**
+	 * Check if this convoy needs threaded processing
+	 * @return true if threaded_step() should be called
+	 */
+	bool needs_threaded_step() const;
+
+	/**
+	 * Multithreaded version of some operations from step()
+	 * This is called after all convoys have completed their regular step()
+	 */
+	void threaded_step();
+
+	/**
 	* sets a new convoi in route
 	*/
 	void start();
