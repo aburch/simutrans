@@ -637,7 +637,7 @@ public:
 	/**
 	* The only way to get the type (typ) of a way on a tile
 	*/
-	weg_t *get_weg_nr(int i) const { return (flags&(has_way1<<i)) ? static_cast<weg_t *>(obj_bei((uint8)i)) : NULL; }
+	weg_t *get_weg_nr(uint8 i) const { return (flags&(has_way1<<i)) ? static_cast<weg_t *>(obj_bei(i)) : NULL; }
 
 	/**
 	* Inline da sehr oft aufgerufen.

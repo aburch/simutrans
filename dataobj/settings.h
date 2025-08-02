@@ -601,8 +601,8 @@ public:
 	uint16 get_factory_worker_radius() const { return (uint16)(factory_worker_radius); }
 
 	// any factory will be connected to at least this number of next cities
-	uint32 get_factory_worker_minimum_towns() const { return (uint32)(factory_worker_minimum_towns); }
-	void set_factory_worker_minimum_towns(uint32 n) { factory_worker_minimum_towns = (sint32)(n); }
+	sint32 get_factory_worker_minimum_towns() const { return factory_worker_minimum_towns; }
+	void set_factory_worker_minimum_towns(sint32 n) { factory_worker_minimum_towns = n; }
 
 	// any factory will be connected to not more than this number of next cities
 	uint32 get_factory_worker_maximum_towns() const { return (uint32)(factory_worker_maximum_towns); }
