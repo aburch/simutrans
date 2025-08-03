@@ -177,6 +177,10 @@ Not Depart Until Coupling
 連結するまで発車しない
 not leave stop until coupling done even if departure time comes.
 連結が完了するまで発車枠を取得しません。
+Next line:
+この路線へ飛ぶ:
+Jump to this Next-line's schedule at the end of this schedule.
+このスケジュールの最後の駅で、指定された路線のスケジュールに切り替わります。
 #------円表記------
 $
  円
