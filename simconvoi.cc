@@ -2678,10 +2678,6 @@ void convoi_t::vorfahren()
 
 					v->get_smoke(false);
 					uint32 const driven = v->do_drive( dist );
-					if (i==0  &&  driven < dist) {
-						// we are already at our destination
-						at_dest = true;
-					}
 					// this gives the length in carunits, 1/CARUNITS_PER_TILE of a full tile => all cars closely coupled!
 					v->get_smoke(true);
 
