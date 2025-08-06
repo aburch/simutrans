@@ -394,11 +394,6 @@ private:
 	*/
 	bool drive_to();
 
-	/**
-	* Setup vehicles for moving in same direction than before
-	* if the direction is the same as before
-	*/
-	bool can_go_alte_richtung();
 
 	/**
 	* a helper function for can_go_alte_richtung() and vorfahren()
