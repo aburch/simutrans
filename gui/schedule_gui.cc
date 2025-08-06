@@ -563,6 +563,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		add_component(&lb_next_line);
 
 		next_line_selector.clear_elements();
+		lb_next_line.set_tooltip("Jump to this Next-line's schedule at the end of this schedule.");
 
 		init_next_line_selector();
 		next_line_selector.add_listener(this);
