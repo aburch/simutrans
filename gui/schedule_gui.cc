@@ -737,6 +737,9 @@ void schedule_gui_t::update_selection()
 					bt_wait_coupling_done.enable();
 				}
 				bt_wait_coupling_done.pressed = schedule->at(current_stop).is_wait_coupling_done();
+			} else {
+				sprintf(lb_spacing_str, "off");
+				sprintf(lb_spacing_shift_str,"");
 			}
 			lb_load.set_color( SYSCOL_TEXT );
 			numimp_load.enable();
@@ -752,8 +755,6 @@ void schedule_gui_t::update_selection()
 					}
 				}
 			}
-			sprintf(lb_spacing_str, "off");
-			sprintf(lb_spacing_shift_str,"");
 			
 			numimp_load.set_value( schedule->at(current_stop).minimum_loading );
 			numimp_wait_load.set_value( max(1, schedule->at(current_stop).waiting_time_shift) );
