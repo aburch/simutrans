@@ -1087,6 +1087,9 @@ public:
 	// Warning: The calculation cost is O(n) where n is the number of convoys in the world.
 	convoihandle_t find_most_parent_convoi() const;
 
+	// Returns the most child convoi of this convoy.
+	convoihandle_t find_most_child_convoi() const;
+
 	// go to next stop (skip one stops)
 	// only called by tool_change_convoi_t
 	void next_stop_button_pressed();

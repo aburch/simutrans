@@ -1160,9 +1160,9 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 // a helper function of find_tiles_convoy_on()
 // Returns the vehicle of the given convoy on the given tile.
 // Returns NULL if there is no such vehicle.
-rail_vehicle_t* find_convoy_on_tile(grund_t* const gr, convoihandle_t cnv) {
+vehicle_t* find_convoy_on_tile(grund_t* const gr, convoihandle_t cnv) {
 	for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
-		rail_vehicle_t* const nv = dynamic_cast<rail_vehicle_t*>(gr->obj_bei(pos));
+		vehicle_t* const nv = dynamic_cast<vehicle_t*>(gr->obj_bei(pos));
 		if(  nv  &&  nv->get_convoi()->self==cnv  ) {
 			return nv;
 		}
@@ -2291,7 +2291,7 @@ bool convoi_t::insert_route_convoy_on()
 					// this process is needed when diagonal tiles or vehicle length is longer than 16.
 					grund_t* gn;
 					g->get_neighbour(gn, inspecting->front()->get_waytype(), next_dir);
-					const weg_t* neighbour_w = gn->get_weg(front()->get_waytype());
+					const weg_t* neighbour_w = gn->get_weg(inspecting->front()->get_waytype());
 					ribi_t::ribi neighbour_weg_dir = neighbour_w? neighbour_w->get_ribi_unmasked() : ribi_t::none;// way direction
 					ribi_t::ribi neighbour_back_dir = ribi_t::backward(next_dir);// direction which already added route 
 					for( uint8 j=0;j<4;j++ ) {
@@ -2322,6 +2322,23 @@ bool convoi_t::insert_route_convoy_on()
 				}
 			}
 			inspecting = inspecting->get_coupling_convoi();
+		}
+		// add the last vehicle's tile if the last vehicle is sticking out of the tile.
+		vehicle_t* most_back_vehicle = find_most_child_convoi()->back();
+		dbg->message("convoi_t::insert_route_convoi_on()","%s's most back convoy direction:%i, position(%i,%i), (%i,%i), route ribi:%i",self->get_name(),most_back_vehicle->get_direction(),most_back_vehicle->get_pos().x,most_back_vehicle->get_pos().y,route.front().x,route.front().y,ribi_type(route.at(1)-route.at(0)));
+		if(  route.get_count()>1 &&  most_back_vehicle->get_pos() == route.front()  &&  (most_back_vehicle->get_direction() & ribi_type(route.at(1)-route.at(0)) > 0)  &&  most_back_vehicle->get_steps() < most_back_vehicle->get_desc()->get_length()  ) {
+			const grund_t* g_back = welt->lookup(route.front());
+			ribi_t::ribi weg_dir = g_back?g_back->get_weg(most_back_vehicle->get_waytype())->get_ribi_unmasked():ribi_t::none;
+			// if last vehicle is on the last tile or threeway, we give up to search the next tile. 
+			if (ribi_t::is_twoway(weg_dir)) {
+				grund_t* gn_back;
+				g_back->get_neighbour(gn_back, most_back_vehicle->get_waytype(), weg_dir-ribi_type(route.at(1)-route.at(0)));
+				if(  gn_back->get_weg(most_back_vehicle->get_waytype())  ) {
+					// add route
+					dbg->message("convoi_t::insert_route_convoi_on()","%s added (%i,%i) tile",self->get_name(),gn_back->get_pos().x,gn_back->get_pos().y);
+					route.insert(gn_back->get_pos());
+				}
+			}
 		}
 		// now route was constructed. we broadcast the route to the coupled convoys.
 		inspecting = self->get_coupling_convoi();
@@ -2540,19 +2557,21 @@ void convoi_t::vorfahren()
 				inspecting = inspecting->get_coupling_convoi();
 			}
 			// if this convoy go to the same direction, we need to advance them to the initial step.
-			if(  go_same_direction && (front()->get_waytype()==track_wt || front()->get_waytype()==tram_wt || front()->get_waytype()==maglev_wt || front()->get_waytype()==monorail_wt )    ) {
+			if(  go_same_direction ){// && (front()->get_waytype()==track_wt || front()->get_waytype()==tram_wt || front()->get_waytype()==maglev_wt || front()->get_waytype()==monorail_wt )    ) {
 				inspecting = self;
 				dist = (uint32)(abs(start_step-front()->get_steps())<<YARDS_PER_VEHICLE_STEP_SHIFT);
-				while(  inspecting.is_bound()  ) {
-					for(unsigned i=0; i<inspecting->get_vehicle_count(); i++) {
-						vehicle_t* v = inspecting->get_vehikel(i);
+				if(dist>0) {
+					while(  inspecting.is_bound()  ) {
+						for(unsigned i=0; i<inspecting->get_vehicle_count(); i++) {
+							vehicle_t* v = inspecting->get_vehikel(i);
 
-						v->get_smoke(false);
-						uint32 const driven = v->do_drive( dist );
-						// this gives the length in carunits, 1/CARUNITS_PER_TILE of a full tile => all cars closely coupled!
-						v->get_smoke(true);
+							v->get_smoke(false);
+							uint32 const driven = v->do_drive( dist );
+							// this gives the length in carunits, 1/CARUNITS_PER_TILE of a full tile => all cars closely coupled!
+							v->get_smoke(true);
+						}
+						inspecting = inspecting->get_coupling_convoi();
 					}
-					inspecting = inspecting->get_coupling_convoi();
 				}
 			}
 			fahr[0]->set_leading(true);
@@ -5521,6 +5540,15 @@ convoihandle_t convoi_t::find_most_parent_convoi() const {
 		}
 	}
 	return tc;
+}
+
+convoihandle_t convoi_t::find_most_child_convoi() const
+{
+	convoihandle_t c = self;
+	while( c->get_coupling_convoi().is_bound() ) {
+		c = c->get_coupling_convoi();
+	}
+	return c;
 }
 
 
