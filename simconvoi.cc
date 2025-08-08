@@ -2325,7 +2325,6 @@ bool convoi_t::insert_route_convoy_on()
 		}
 		// add the last vehicle's tile if the last vehicle is sticking out of the tile.
 		vehicle_t* most_back_vehicle = find_most_child_convoi()->back();
-		dbg->message("convoi_t::insert_route_convoi_on()","%s's most back convoy direction:%i, position(%i,%i), (%i,%i), route ribi:%i",self->get_name(),most_back_vehicle->get_direction(),most_back_vehicle->get_pos().x,most_back_vehicle->get_pos().y,route.front().x,route.front().y,ribi_type(route.at(1)-route.at(0)));
 		if(  route.get_count()>1 &&  most_back_vehicle->get_pos() == route.front()  &&  (most_back_vehicle->get_direction() & ribi_type(route.at(1)-route.at(0)) > 0)  &&  most_back_vehicle->get_steps() < most_back_vehicle->get_desc()->get_length()  ) {
 			const grund_t* g_back = welt->lookup(route.front());
 			ribi_t::ribi weg_dir = g_back?g_back->get_weg(most_back_vehicle->get_waytype())->get_ribi_unmasked():ribi_t::none;
@@ -2335,7 +2334,6 @@ bool convoi_t::insert_route_convoy_on()
 				g_back->get_neighbour(gn_back, most_back_vehicle->get_waytype(), weg_dir-ribi_type(route.at(1)-route.at(0)));
 				if(  gn_back->get_weg(most_back_vehicle->get_waytype())  ) {
 					// add route
-					dbg->message("convoi_t::insert_route_convoi_on()","%s added (%i,%i) tile",self->get_name(),gn_back->get_pos().x,gn_back->get_pos().y);
 					route.insert(gn_back->get_pos());
 				}
 			}
