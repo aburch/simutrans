@@ -1224,8 +1224,8 @@ void depot_frame_t::update_data()
 			}
 			txt_convoi_count.append( translator::translate("Station tiles:") );
 			txt_convoi_count.append( (double)cnv->get_tile_length(), 0 );
-			char* txt_count_real_value[11];
-			snprintf(*txt_count_real_value, 10, "(%.4f)", ( (double)cnv->get_length() / CARUNITS_PER_TILE ) );
+			char* txt_count_real_value[12];
+			snprintf(*txt_count_real_value, 11, "(%.4f)", ( (double)cnv->get_length() / CARUNITS_PER_TILE ) );
 			txt_convoi_count.append(  *txt_count_real_value  );
 
 			txt_convoi_speed.clear();
