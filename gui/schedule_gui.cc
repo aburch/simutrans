@@ -733,9 +733,7 @@ void schedule_gui_t::update_selection()
 				numimp_spacing_shift.enable();
 				numimp_delay_tolerance.enable();
 				bt_load_before_departure.enable();
-				if( bt_wait_for_child.pressed ) {
-					bt_wait_coupling_done.enable();
-				}
+				bt_wait_coupling_done.enable(); // this button is always enable because waiting convoy is not always itself(child convoy also can be wait for coupling).
 				bt_wait_coupling_done.pressed = schedule->at(current_stop).is_wait_coupling_done();
 			} else {
 				sprintf(lb_spacing_str, "off");
