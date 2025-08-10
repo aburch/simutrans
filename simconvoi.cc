@@ -1160,9 +1160,9 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 // a helper function of find_tiles_convoy_on()
 // Returns the vehicle of the given convoy on the given tile.
 // Returns NULL if there is no such vehicle.
-rail_vehicle_t* find_convoy_on_tile(grund_t* const gr, convoihandle_t cnv) {
+vehicle_t* find_convoy_on_tile(grund_t* const gr, convoihandle_t cnv) {
 	for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
-		rail_vehicle_t* const nv = dynamic_cast<rail_vehicle_t*>(gr->obj_bei(pos));
+		vehicle_t* const nv = dynamic_cast<vehicle_t*>(gr->obj_bei(pos));
 		if(  nv  &&  nv->get_convoi()->self==cnv  ) {
 			return nv;
 		}
@@ -2252,169 +2252,14 @@ schedule_t *convoi_t::create_schedule()
 }
 
 
-/* checks, if we go in the same direction;
- * true: convoy prepared
- * false: must recalculate position
- * on all error we better use the normal starting procedure ...
- */
-bool convoi_t::can_go_alte_richtung()
-{
-	// invalid route? nothing to test, must start new
-	if(route.empty()) {
-		return false;
-	}
 
-	// going backwards? then recalculate all
-	ribi_t::ribi neue_richtung_rwr = ribi_t::backward(fahr[0]->calc_direction(route.front(), route.at(min(2, route.get_count() - 1))));
-//	DBG_MESSAGE("convoi_t::go_alte_richtung()","neu=%i,rwr_neu=%i,alt=%i",neue_richtung_rwr,ribi_t::backward(neue_richtung_rwr),alte_richtung);
-	if( neue_richtung_rwr&alte_richtung ) {
-		akt_speed = 8;
-		return false;
-	}
-
-	// now get the actual length and the tile length
-	uint16 convoi_length = 15;
-	uint16 tile_length = 24;
-	unsigned i; // for visual C++
-	const vehicle_t* pred = NULL;
-	convoihandle_t inspecting = self;
-	// calculate length including the coupling convoy.
-	while(  inspecting.is_bound()  ) {
-		for(i=0; i<inspecting->get_vehicle_count(); i++) {
-			const vehicle_t* v = inspecting->get_vehikel(i);
-			grund_t *gr = welt->lookup(v->get_pos());
-
-			// not last vehicle?
-			// the length of last vehicle does not matter when it comes to positioning of vehicles
-			if (  i+1 < inspecting->get_vehicle_count()  ||  inspecting->get_coupling_convoi().is_bound()  ) {
-				convoi_length += v->get_desc()->get_length();
-			}
-
-			if(gr==NULL  ||  (pred!=NULL  &&  (abs(v->get_pos().x-pred->get_pos().x)>=2  ||  abs(v->get_pos().y-pred->get_pos().y)>=2))  ) {
-				// ending here is an error!
-				// this is an already broken train => restart
-				dbg->warning("convoi_t::go_alte_richtung()","broken convoy (id %i) found => fixing!",self.get_id());
-				akt_speed = 8;
-				return false;
-			}
-
-			// now check, if ribi is straight and train is not
-			ribi_t::ribi weg_ribi = gr->get_weg_ribi_unmasked(v->get_waytype());
-			if(ribi_t::is_straight(weg_ribi)  &&  (weg_ribi|v->get_direction())!=weg_ribi) {
-				dbg->warning("convoi_t::go_alte_richtung()","convoy with wrong vehicle directions (id %i) found => fixing!",self.get_id());
-				akt_speed = 8;
-				return false;
-			}
-
-			if(  pred  &&  pred->get_pos()!=v->get_pos()  ) {
-				tile_length += (ribi_t::is_straight(welt->lookup(pred->get_pos())->get_weg_ribi_unmasked(pred->get_waytype())) ? 16 : 8192/vehicle_t::get_diagonal_multiplier())*koord_distance(pred->get_pos(),v->get_pos());
-			}
-
-			pred = v;
-		}
-
-		// see the coupling convoy
-		if(  !inspecting->get_coupling_convoi().is_bound()  ) {
-			// we preserve the last convoi
-			break;
-		} else {
-			inspecting = inspecting->get_coupling_convoi();
-		}
-	}
-
-	// check if convoi is way too short (even for diagonal tracks)
-	// inspecting represents the last convoy of all coupled convoys.
-	tile_length += (ribi_t::is_straight(welt->lookup(inspecting->back()->get_pos())->get_weg_ribi_unmasked(inspecting->back()->get_waytype())) ? 16 : 8192/vehicle_t::get_diagonal_multiplier());
-	if(  convoi_length>tile_length  ) {
-		dbg->warning("convoi_t::go_alte_richtung()","convoy too short (id %i) => fixing!",self.get_id());
-		akt_speed = 8;
-		return false;
-	}
-
-	uint16 length = min((convoi_length/16u)+4u,route.get_count()); // maximum length in tiles to check
-
-	// we just check, whether we go back (i.e. route tiles other than zero have convoi vehicles on them)
-	// TODO: support convoy coupling
-	for( int index=1;  index<length;  index++ ) {
-		grund_t *gr=welt->lookup(route.at(index));
-		// now check, if we are already here ...
-		for(unsigned i=0; i<anz_vehikel; i++) {
-			if (gr->obj_ist_da(fahr[i])) {
-				// we are turning around => start slowly and rebuilt train
-				akt_speed = 8;
-				return false;
-			}
-		}
-	}
-
-//DBG_MESSAGE("convoi_t::go_alte_richtung()","alte=%d, neu_rwr=%d",alte_richtung,neue_richtung_rwr);
-
-	// we continue our journey; however later cars need also a correct route entry
-	// eventually we need to add their positions to the convois route
-	if ( !insert_route_convoy_on() ) {
-		return false;
-	}
-
-	// since we need the route for every vehicle of this convoi,
-	// we must set the current route index (instead assuming 1)
-	length = min((convoi_length/8u),route.get_count()-1);	// maximum length in tiles to check
-	inspecting = self; // reset inspecting to the first convoy
-	bool ok=false;
-	while(  inspecting.is_bound()  ) {
-		for(i=0; i<inspecting->get_vehicle_count(); i++) {
-			vehicle_t* v = inspecting->get_vehikel(i);
-
-			// this is such awkward, since it takes into account different vehicle length
-			const koord3d vehicle_start_pos = v->get_pos();
-			for( int idx=0;  idx<=length;  idx++  ) {
-				if(route.at(idx)==vehicle_start_pos) {
-					// set route index, no recalculations necessary
-					v->initialise_journey(idx, false );
-					ok = true;
-
-					// check direction
-					uint8 richtung = v->get_direction();
-					koord3d vehicle_prev_pos;
-					if(  idx==0  ) {
-						const koord3d estimated_prev_pos = route.opposite_pos_of_route_starting(v->get_waytype());
-						vehicle_prev_pos = estimated_prev_pos==koord3d::invalid ? route.at(0) : estimated_prev_pos;
-					} else {
-						vehicle_prev_pos = route.at(idx-1);
-					}
-					uint8 neu_richtung = v->calc_direction( vehicle_prev_pos, v->get_pos_next());
-					// we need to move to this place ...
-					if(neu_richtung!=richtung  &&  (i!=0  ||  anz_vehikel==1  ||  ribi_t::is_bend(neu_richtung)) ) {
-						// 90 deg bend!
-						return false;
-					}
-
-					break;
-				}
-			}
-			// too short?!? (rather broken then!)
-			if(!ok) {
-				return false;
-			}
-		}
-		inspecting = inspecting->get_coupling_convoi();
-	}
-
-	// reverse convoi 
-	if(  (coupling_convoi.is_bound() && self->get_schedule()->get_current_entry().is_reverse_convoi_coupling())){
-		return false;
-	}
-
-	return true;
-}
-
-// a helper function for convoi_t::vorfahren() and convoi_t::can_go_alte_richtung()
+// a helper function for convoi_t::vorfahren()
 bool convoi_t::insert_route_convoy_on()
 {
 	if( route.get_count() < 2 ) {
 		return false;
 	}
 	koord3d pos = front()->get_pos();
-	// assert(pos == route.front());
 	convoihandle_t inspecting = self; // reset inspecting to the first convoy
 	if(welt->lookup(pos)->get_depot()) {
 		return false;
@@ -2446,7 +2291,7 @@ bool convoi_t::insert_route_convoy_on()
 					// this process is needed when diagonal tiles or vehicle length is longer than 16.
 					grund_t* gn;
 					g->get_neighbour(gn, inspecting->front()->get_waytype(), next_dir);
-					const weg_t* neighbour_w = gn->get_weg(front()->get_waytype());
+					const weg_t* neighbour_w = gn->get_weg(inspecting->front()->get_waytype());
 					ribi_t::ribi neighbour_weg_dir = neighbour_w? neighbour_w->get_ribi_unmasked() : ribi_t::none;// way direction
 					ribi_t::ribi neighbour_back_dir = ribi_t::backward(next_dir);// direction which already added route 
 					for( uint8 j=0;j<4;j++ ) {
@@ -2477,6 +2322,21 @@ bool convoi_t::insert_route_convoy_on()
 				}
 			}
 			inspecting = inspecting->get_coupling_convoi();
+		}
+		// add the last vehicle's tile if the last vehicle is sticking out of the tile.
+		vehicle_t* most_back_vehicle = find_most_child_convoi()->back();
+		if(  route.get_count()>1 &&  most_back_vehicle->get_pos() == route.front()  &&  (most_back_vehicle->get_direction() & ribi_type(route.at(1)-route.at(0)) > 0)  &&  most_back_vehicle->get_steps() < most_back_vehicle->get_desc()->get_length()  ) {
+			const grund_t* g_back = welt->lookup(route.front());
+			ribi_t::ribi weg_dir = g_back?g_back->get_weg(most_back_vehicle->get_waytype())->get_ribi_unmasked():ribi_t::none;
+			// if last vehicle is on the last tile or threeway, we give up to search the next tile. 
+			if (ribi_t::is_twoway(weg_dir)) {
+				grund_t* gn_back;
+				g_back->get_neighbour(gn_back, most_back_vehicle->get_waytype(), weg_dir-ribi_type(route.at(1)-route.at(0)));
+				if(  gn_back->get_weg(most_back_vehicle->get_waytype())  ) {
+					// add route
+					route.insert(gn_back->get_pos());
+				}
+			}
 		}
 		// now route was constructed. we broadcast the route to the coupled convoys.
 		inspecting = self->get_coupling_convoi();
@@ -2522,6 +2382,12 @@ void convoi_t::vorfahren()
 		reversing_convoy_exists |= c->reversing_needed;
 		c = c->get_coupling_convoi();
 	}
+
+	// is driving direction not change?
+	ribi_t::ribi neue_richtung_rwr = ribi_t::backward(fahr[0]->calc_direction(route.front(), route.at(min(2, route.get_count() - 1))));
+	bool const go_same_direction = (neue_richtung_rwr&alte_richtung)==0;
+	uint8 start_step = front()->get_steps();
+
 
 	// if this convoy already reserve tiles by longblock signal,
 	// keep this reservation
@@ -2607,8 +2473,8 @@ void convoi_t::vorfahren()
 			inspecting = inspecting->get_coupling_convoi();
 		}
 
-		// still leaving depot (steps_driven!=0) or going in other direction or misalignment?
-		if(  steps_driven>0  ||  reversing_convoy_exists  ||  !can_go_alte_richtung()  ) {
+		// we put all vehicles on the tiles if not still leaving depot (steps_driven!=0)
+		if(  steps_driven!=0  ) {
 
 			// start route from the beginning at index 0, place everything on start
 			uint32 train_length = 0;
@@ -2626,21 +2492,40 @@ void convoi_t::vorfahren()
 			// now inspecting represents the last convoy of all coupled convoys.
 
 			// move one train length to the start position ...
-			// in north/west direction, we leave the vehicle away to start as much back as possible
-			ribi_t::ribi neue_richtung = fahr[0]->get_direction();
-			if(neue_richtung==ribi_t::south  ||  neue_richtung==ribi_t::east) {
-				// drive the convoi to the same position, but do not hop into next tile!
-				if(  train_length%16==0  ) {
-					// any space we need => just add
-					train_length += inspecting->back()->get_desc()->get_length();
+			if(  go_same_direction  ) {
+				// in north/west direction, we leave the vehicle away to start as much back as possible
+				ribi_t::ribi neue_richtung = fahr[0]->get_direction();
+				if(neue_richtung==ribi_t::north  ||  neue_richtung==ribi_t::west) {
+					// drive the convoi to the same position, but do not hop into next tile!
+					if(  train_length%16==0  ) {
+						// any space we need => just add
+						train_length += inspecting->back()->get_desc()->get_length();
+					}
+					else {
+						// limit train to front of tile
+						train_length += min( (train_length%CARUNITS_PER_TILE)-1, inspecting->back()->get_desc()->get_length() );
+					}
 				}
 				else {
-					// limit train to front of tile
-					train_length += min( (train_length%CARUNITS_PER_TILE)-1, inspecting->back()->get_desc()->get_length() );
+					train_length += 1;
 				}
-			}
-			else {
-				train_length += 1;
+			} else {
+				// in north/west direction, we leave the vehicle away to start as much back as possible
+				ribi_t::ribi neue_richtung = fahr[0]->get_direction();
+				if(neue_richtung==ribi_t::south  ||  neue_richtung==ribi_t::east) {
+					// drive the convoi to the same position, but do not hop into next tile!
+					if(  train_length%16==0  ) {
+						// any space we need => just add
+						train_length += inspecting->back()->get_desc()->get_length();
+					}
+					else {
+						// limit train to front of tile
+						train_length += min( (train_length%CARUNITS_PER_TILE)-1, inspecting->back()->get_desc()->get_length() );
+					}
+				}
+				else {
+					train_length += 1;
+				}
 			}
 			train_length = max(1,train_length);
 
@@ -2668,6 +2553,24 @@ void convoi_t::vorfahren()
 					dist = driven - vlen;
 				}
 				inspecting = inspecting->get_coupling_convoi();
+			}
+			// if this convoy go to the same direction, we need to advance them to the initial step.
+			if(  go_same_direction ){// && (front()->get_waytype()==track_wt || front()->get_waytype()==tram_wt || front()->get_waytype()==maglev_wt || front()->get_waytype()==monorail_wt )    ) {
+				inspecting = self;
+				dist = (uint32)(abs(start_step-front()->get_steps())<<YARDS_PER_VEHICLE_STEP_SHIFT);
+				if(dist>0) {
+					while(  inspecting.is_bound()  ) {
+						for(unsigned i=0; i<inspecting->get_vehicle_count(); i++) {
+							vehicle_t* v = inspecting->get_vehikel(i);
+
+							v->get_smoke(false);
+							uint32 const driven = v->do_drive( dist );
+							// this gives the length in carunits, 1/CARUNITS_PER_TILE of a full tile => all cars closely coupled!
+							v->get_smoke(true);
+						}
+						inspecting = inspecting->get_coupling_convoi();
+					}
+				}
 			}
 			fahr[0]->set_leading(true);
 		}
@@ -5635,6 +5538,15 @@ convoihandle_t convoi_t::find_most_parent_convoi() const {
 		}
 	}
 	return tc;
+}
+
+convoihandle_t convoi_t::find_most_child_convoi() const
+{
+	convoihandle_t c = self;
+	while( c->get_coupling_convoi().is_bound() ) {
+		c = c->get_coupling_convoi();
+	}
+	return c;
 }
 
 

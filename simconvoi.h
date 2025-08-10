@@ -394,11 +394,6 @@ private:
 	*/
 	bool drive_to();
 
-	/**
-	* Setup vehicles for moving in same direction than before
-	* if the direction is the same as before
-	*/
-	bool can_go_alte_richtung();
 
 	/**
 	* a helper function for can_go_alte_richtung() and vorfahren()
@@ -1103,6 +1098,9 @@ public:
 	// Returns the root parent convoi of this convoy. Returns this convoy if not coupled.
 	// Warning: The calculation cost is O(n) where n is the number of convoys in the world.
 	convoihandle_t find_most_parent_convoi() const;
+
+	// Returns the most child convoi of this convoy.
+	convoihandle_t find_most_child_convoi() const;
 
 	// go to next stop (skip one stops)
 	// only called by tool_change_convoi_t
