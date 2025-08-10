@@ -2555,7 +2555,7 @@ void convoi_t::vorfahren()
 				inspecting = inspecting->get_coupling_convoi();
 			}
 			// if this convoy go to the same direction, we need to advance them to the initial step.
-			if(  go_same_direction ){// && (front()->get_waytype()==track_wt || front()->get_waytype()==tram_wt || front()->get_waytype()==maglev_wt || front()->get_waytype()==monorail_wt )    ) {
+			if(  go_same_direction ) {
 				inspecting = self;
 				dist = (uint32)(abs(start_step-front()->get_steps())<<YARDS_PER_VEHICLE_STEP_SHIFT);
 				if(dist>0) {
