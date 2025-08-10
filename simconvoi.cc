@@ -1240,12 +1240,12 @@ bool convoi_t::drive_to()
 				}
 
 				// set next schedule target position if next is a waypoint
-				if(  is_waypoint(ziel)  ) {
+				if(  is_waypoint(ziel) && !schedule->at(current_stop).is_reverse_convoi_coupling()  ) {
 					schedule_target = ziel;
 				}
 
 				// continue route search until the destination is a station
-				while(  is_waypoint(ziel)  ) {
+				while(  is_waypoint(ziel) && !schedule->get_current_entry().is_reverse_convoi_coupling()  ) {
 					start = ziel;
 					schedule->advance();
 					ziel = schedule->get_current_entry().pos;
@@ -1969,11 +1969,18 @@ void convoi_t::ziel_erreicht()
 	}
 	else {
 		// Neither depot nor station: waypoint
+		// check the reverse coupling order at this waypoint
+		if(  reverse_convoy_coupling_at_waypoint()  ) {
+			return;
+		}
 		c = self;
 		// advance schedule for all coupling convoys.
 		// If uncoupled first, the leading convoy may get in the way and the coupled convoy may not be able to arrive at the waypoint.
 		// So, we advance all convoys' schedules first, and check can continue coupling after advancing schedules.
 		while(  c.is_bound()  ) {
+			if(c->get_schedule()->get_current_entry().is_reverse_convoy()) {
+				c->reverse_vehicles_on_user_request();
+			}
 			c->get_schedule()->advance();
 			c = c->get_coupling_convoi();
 		}
@@ -1990,6 +1997,46 @@ void convoi_t::ziel_erreicht()
 		state = ROUTING_1;
 	}
 	wait_lock = 0;
+}
+
+
+bool convoi_t::reverse_convoy_coupling_at_waypoint() 
+{
+	convoihandle_t c = self;
+	if( !get_schedule()->get_current_entry().is_reverse_convoi_coupling() || !get_coupling_convoi().is_bound() ) {
+		// do not reverse at this waypoint
+		return false;	
+	}
+	while( c->get_coupling_convoi().is_bound() ) {
+		c = c->get_coupling_convoi();
+	}
+	if ( c->get_schedule()->get_current_entry().is_reverse_convoi_coupling() ) {
+		// the last convoy is also trying to reverse-> do not reverse at this waypoint.
+		return false;
+	}
+	dbg->message("convoi_t::ziel_erreicht()","reversing coupling in waypoint");
+	self->reverse_convoy_coupling();
+	c = find_most_parent_convoi();
+	while(  c.is_bound()  ) {
+		if(c->get_schedule()->get_current_entry().is_reverse_convoy()) {
+			c->reverse_vehicles_on_user_request();
+		}
+		c->get_schedule()->advance();
+		c = c->get_coupling_convoi();
+	}
+	// if the next stop position is different, uncouple
+	c = find_most_parent_convoi();
+	convoihandle_t child = get_coupling_convoi(); 
+	while(  child.is_bound()  ) {
+		if( c->get_schedule()->get_current_entry().pos != child->get_schedule()->get_current_entry().pos ) {
+			c->uncouple_convoi();
+		}
+		c = child;
+		child = child->get_coupling_convoi();
+	}
+	find_most_parent_convoi()->state=EDIT_SCHEDULE;
+	//reversing done
+	return true;
 }
 
 
@@ -5517,7 +5564,11 @@ void convoi_t::reverse_convoy_coupling()
 	if (new_parent_convoy->get_coupling_convoi().is_bound()) {
 		new_parent_convoy->reverse_convoy_coupling();
 	}
-	new_parent_convoy->couple_convoi(self);
+	if(is_loading()) {
+		new_parent_convoy->couple_convoi(self);
+	} else {
+		new_parent_convoy->couple_convoi_during_running(self);
+	}
 }
 
 

@@ -1228,8 +1228,16 @@ void vehicle_t::hop(grund_t* gr)
 		else {
 			cnv->register_journey_time();
 			// advance schedule for all coupling convoys.
+			// check reverse convoy coupling at this stop
+			if(  cnv->self->reverse_convoy_coupling_at_waypoint()  ) {
+				// this vehicle is no longer the most parent convoy's leading car.
+				return;
+			}
 			convoihandle_t c = cnv->self;
 			while(  c.is_bound()  ) {
+				if(c->get_schedule()->get_current_entry().is_reverse_convoy()) {
+					c->reverse_vehicles_on_user_request();
+				}
 				c->set_time_last_arrived(world()->get_ticks());
 				c->get_schedule()->advance();
 				c = c->get_coupling_convoi();
