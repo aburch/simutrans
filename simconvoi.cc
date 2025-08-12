@@ -1924,6 +1924,8 @@ void convoi_t::ziel_erreicht()
 				}
 				v->get_convoi()->couple_convoi(self);
 				// then, chage the order if next direction is backward of "self"
+				// Attention! reverse_convoy_coupling() must be called when loading!
+				// if we call it before stop, the convoys will be reversed immediately, and it makes position calculation bug. 
 				if(  should_this_convoy_be_parent  ) {
 					temp_parent_convoi->reverse_convoy_coupling();
 				}
