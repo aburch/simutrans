@@ -1300,7 +1300,6 @@ void vehicle_t::hop(grund_t* gr)
 		if(  cnv->get_next_coupling_index()==route_index-1  ) {
 			// since route_index is already incremented, this is coupling point.
 			steps_next = cnv->get_next_coupling_steps();
-			dbg->message("vehicle_t::hop()","%s will couple at %i steps (%i,%i),%i/%i",cnv->get_name(),steps_next,get_pos().x,get_pos().y,route_index,cnv->get_route()->get_count());
 		}
 		else if(  check_for_finish  ) {
 			if(  direction==ribi_t::north  ||  direction==ribi_t::west  ||  direction==ribi_t::southeast  ) {
@@ -4308,7 +4307,6 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 							schn->reserve( cnv->self, ribi_type(route->at(max(1u,h)-1u), route->at(min(route->get_count()-1u,h+1u))) );
 						}
 					}
-					dbg->message("rail_vehicle_t::can_couple()","%s will couple at (%i,%i),%i step, coupled vehicle's step:%i",cnv->get_name(),route->at(coupling_index).x,route->at(coupling_index).y,coupling_steps,v->get_steps());
 					return true;
 				} else {
 					// other convoy exists.
