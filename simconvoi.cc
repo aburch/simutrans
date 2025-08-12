@@ -1917,31 +1917,15 @@ void convoi_t::ziel_erreicht()
 				// reference direction to detect leading or following
 				ribi_t::ribi const v_next_initial_direction = (  ( v->get_convoi()->get_next_initial_direction()  &  v->get_convoi()->front()->get_direction() ) > 0  ) ? v->get_direction(): ribi_t::backward(v->get_direction());
 				bool const should_this_convoy_be_parent = ( self->front()->get_direction() & v_next_initial_direction ) == 0 ;
-				// when the waiting couvoi is child of other convoi or the coupling convoi already has child convoi,
-				// to avoid duplication, the coupling convoi is set as a child of waiting convoi firstly.
-				if(  v->get_convoi()->is_coupled()  ){
-					v->get_convoi()->couple_convoi(self);
-					// if the direction is different, reverse the parents_children order.
-					if(  should_this_convoy_be_parent  ){
-						find_most_parent_convoi()->reverse_convoy_coupling();
-					}
+				// First, the waiting convoy is set as parent
+				convoihandle_t temp_parent_convoi = v->get_convoi()->find_most_child_convoi();
+				if(  v->is_leading() && v->get_convoi()->get_coupling_convoi().is_bound()  ) {
+					v->get_convoi()->reverse_convoy_coupling();
 				}
-				// when both convoi has child, the waiting convois are set as children, firstly.
-				else if(  self->get_coupling_convoi().is_bound() || v->get_convoi()->get_coupling_convoi().is_bound()  ){
-					reverse_convoy_coupling();
-					couple_convoi(v->get_convoi()->self);
-					// if the direction is different, change order
-					if(  !should_this_convoy_be_parent  ){
-						find_most_parent_convoi()->reverse_convoy_coupling();
-					}
-				}
-				// the waiting convoi and coupling convoi are single convoi
-				else if(  should_this_convoy_be_parent  ){
-					// this convoy leads the other.
-					couple_convoi(v->get_convoi()->self);
-				} else {
-					// this convoy follows the other.
-					v->get_convoi()->couple_convoi(self);
+				v->get_convoi()->couple_convoi(self);
+				// then, chage the order if next direction is backward of "self"
+				if(  should_this_convoy_be_parent  ) {
+					temp_parent_convoi->reverse_convoy_coupling();
 				}
 				wait_lock = 0;
 				set_next_coupling(route_t::INVALID_INDEX, 0);

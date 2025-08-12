@@ -1106,8 +1106,6 @@ public:
 	// only called by tool_change_convoi_t
 	void next_stop_button_pressed();
 
-	// Reverse the order of the coupling/coupled convois
-	void reverse_convoy_coupling();
 	// Reverse convoy coupling at waypoint
 	// if this bool value is true, reversing done, this convoy is no longer the leading (most parent) convoy.
 	bool reverse_convoy_coupling_at_waypoint();
