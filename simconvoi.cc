@@ -2628,15 +2628,19 @@ void convoi_t::vorfahren()
 	// finally reserve route (if needed)
 	if(  fahr[0]->get_waytype()!=air_wt  &&  !at_dest  ) {
 		// do not pre-reserve for airplanes
-		for(unsigned i=0; i<anz_vehikel; i++) {
-			// eventually reserve this
-			vehicle_t const& v = *fahr[i];
-			if (schiene_t* const sch0 = obj_cast<schiene_t>(welt->lookup(v.get_pos())->get_weg(v.get_waytype()))) {
-				sch0->reserve(self,ribi_t::none);
+		convoihandle_t inspecting = self;
+		while(  inspecting.is_bound()  ) {
+			for(unsigned i=0; i<inspecting->anz_vehikel; i++) {
+				// eventually reserve this
+				vehicle_t const& v = *inspecting->fahr[i];
+				if (schiene_t* const sch0 = obj_cast<schiene_t>(welt->lookup(v.get_pos())->get_weg(v.get_waytype()))) {
+					sch0->reserve(self,ribi_t::none);
+				}
+				else {
+					break;
+				}
 			}
-			else {
-				break;
-			}
+			inspecting=inspecting->get_coupling_convoi();
 		}
 	}
 	// and calculate crossing reservation.
