@@ -1918,22 +1918,25 @@ void convoi_t::ziel_erreicht()
 				ribi_t::ribi const v_next_initial_direction = (  ( v->get_convoi()->get_next_initial_direction()  &  v->get_convoi()->front()->get_direction() ) > 0  ) ? v->get_direction(): ribi_t::backward(v->get_direction());
 				bool const should_this_convoy_be_parent = ( self->front()->get_direction() & v_next_initial_direction ) == 0 ;
 				// First, the waiting convoy is set as parent
-				convoihandle_t temp_parent_convoi = v->get_convoi()->find_most_child_convoi();
+				convoihandle_t temp_parent_convoi;
 				if(  v->is_leading() && v->get_convoi()->get_coupling_convoi().is_bound()  ) {
+					temp_parent_convoi = v->get_convoi()->find_most_child_convoi();
 					v->get_convoi()->reverse_convoy_coupling();
+				} else {
+					temp_parent_convoi = v->get_convoi()->find_most_parent_convoi();
 				}
 				v->get_convoi()->couple_convoi(self);
+				unset_convoi_coupling_in_progress();
+				wait_lock = 0;
+				set_next_coupling(route_t::INVALID_INDEX, 0);
+				v->get_convoi()->set_coupling_done(true);
+				coupling_done = true;
 				// then, chage the order if next direction is backward of "self"
 				// Attention! reverse_convoy_coupling() must be called when loading!
 				// if we call it before stop, the convoys will be reversed immediately, and it makes position calculation bug. 
 				if(  should_this_convoy_be_parent  ) {
 					temp_parent_convoi->reverse_convoy_coupling();
 				}
-				wait_lock = 0;
-				set_next_coupling(route_t::INVALID_INDEX, 0);
-				v->get_convoi()->set_coupling_done(true);
-				unset_convoi_coupling_in_progress();
-				coupling_done = true;
 				return;
 			}
 		}
