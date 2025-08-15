@@ -3768,6 +3768,18 @@ skip_choose:
 			return false;
 		}
 		else {
+			// if do not advance to end in this signal, we remove some advance tiles from target_rt
+			if(  !try_coupling  &&  !welt->get_settings().get_advance_to_end()  &&  target_rt.get_count()>2  )// &&  sig->??? )
+			{
+				uint32 stop_length = convoi_t::calc_available_halt_length_in_vehicle_steps(target_rt.at(target_rt.get_count()-1),ribi_type(target_rt.at(target_rt.get_count()-1)-target_rt.at(target_rt.get_count()-2)),get_waytype());
+					dbg->message("rail_vehicle_t::is_choose_signal_clear()","find the target position (%i,%i) for %s: total stop length is %i/%i",target_rt.at(target_rt.get_count()-1).x,target_rt.at(target_rt.get_count()-1).y,get_convoi()->get_name(),stop_length,cnv->get_entire_convoy_length()*VEHICLE_STEPS_PER_CARUNIT);
+				stop_length -= ribi_t::is_bend(welt->lookup(target_rt.at(target_rt.get_count()-1))->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile/2: VEHICLE_STEPS_PER_TILE;
+				while(  stop_length>=cnv->get_entire_convoy_length()*VEHICLE_STEPS_PER_CARUNIT  ) {
+					dbg->message("rail_vehicle_t::is_choose_signal_clear()","remove (%i,%i) tiles from %s: total stop length is %i",target_rt.back().x,target_rt.back().y,get_convoi()->get_name(),stop_length);
+					target_rt.remove_koord_from(max(0,target_rt.get_count()-2));
+					stop_length -= ribi_t::is_bend(welt->lookup(target_rt.at(target_rt.get_count()-1))->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile: VEHICLE_STEPS_PER_TILE;
+				}
+			} 
 			// broadcast new route
 			convoihandle_t c = cnv->self;
 			while(  c.is_bound()  ) {
