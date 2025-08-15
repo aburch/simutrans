@@ -3769,8 +3769,7 @@ skip_choose:
 		}
 		else {
 			// if do not advance to end in this signal, we remove some advance tiles from target_rt
-			if(  !try_coupling  &&  !welt->get_settings().get_advance_to_end()  &&  target_rt.get_count()>2  )// &&  sig->??? )
-			{
+			if(  !try_coupling  &&  !welt->get_settings().get_advance_to_end()  &&  target_rt.get_count()>2  &&  !sig->is_advance_to_end()  ) {
 				uint32 stop_length = convoi_t::calc_available_halt_length_in_vehicle_steps(target_rt.at(target_rt.get_count()-1),ribi_type(target_rt.at(target_rt.get_count()-1)-target_rt.at(target_rt.get_count()-2)),get_waytype());
 					dbg->message("rail_vehicle_t::is_choose_signal_clear()","find the target position (%i,%i) for %s: total stop length is %i/%i",target_rt.at(target_rt.get_count()-1).x,target_rt.at(target_rt.get_count()-1).y,get_convoi()->get_name(),stop_length,cnv->get_entire_convoy_length()*VEHICLE_STEPS_PER_CARUNIT);
 				stop_length -= ribi_t::is_bend(welt->lookup(target_rt.at(target_rt.get_count()-1))->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile/2: VEHICLE_STEPS_PER_TILE;

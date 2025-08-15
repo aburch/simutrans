@@ -41,6 +41,7 @@ protected:
         uint8 ticks_yellow_ns, ticks_yellow_ow;
 	uint8 ticks_offset;
 	bool guide_signal;
+	bool advance_to_end;
 
 	sint8 after_yoffset, after_xoffset;
 
@@ -160,7 +161,9 @@ public:
 	image_id get_front_image() const OVERRIDE { return foreground_image; }
 	
 	bool is_guide_signal() const { return guide_signal; }
-	void set_guide_signal(bool tf) { guide_signal = tf; }
+	void set_guide_signal(bool tf) { guide_signal = tf; }	
+	bool is_advance_to_end() const { return advance_to_end; }
+	void set_advance_to_end(bool tf) { advance_to_end = tf; }
 
 	/**
 	* draw the part overlapping the vehicles

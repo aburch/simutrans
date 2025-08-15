@@ -83,6 +83,7 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 	ticks_yellow_ns = ticks_yellow_ow = 2;
 	lane_affinity = 4;
 	guide_signal = false;
+	advance_to_end = true;
 	ticks_yellow_ns = ticks_yellow_ow = 2;
 	set_owner( player );
 	if(  desc->is_private_way()  ) {
@@ -662,6 +663,11 @@ void roadsign_t::rdwr(loadsave_t *file)
 		file->rdwr_bool(guide_signal);
 	} else {
 		guide_signal = false;
+	}	
+	if(file->get_OTRP_version()>=46) {
+		file->rdwr_bool(advance_to_end);
+	} else {
+		advance_to_end = true;
 	}
 
 	if(file->is_saving()) {
