@@ -2528,7 +2528,7 @@ void convoi_t::vorfahren()
 			if(  go_same_direction  ) {
 				// in north/west direction, we leave the vehicle away to start as much back as possible
 				ribi_t::ribi neue_richtung = fahr[0]->get_direction();
-				if(neue_richtung==ribi_t::north  ||  neue_richtung==ribi_t::west) {
+				if(  (fahr[0]->get_waytype()==tram_wt || fahr[0]->get_waytype()==track_wt || fahr[0]->get_waytype()==monorail_wt || fahr[0]->get_waytype()==maglev_wt || fahr[0]->get_waytype()==narrowgauge_wt) && (neue_richtung==ribi_t::north  ||  neue_richtung==ribi_t::west)  ) {
 					// drive the convoi to the same position, but do not hop into next tile!
 					if(  train_length%16==0  ) {
 						// any space we need => just add
