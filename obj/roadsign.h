@@ -163,7 +163,7 @@ public:
 	bool is_guide_signal() const { return guide_signal; }
 	void set_guide_signal(bool tf) { guide_signal = tf; }	
 	bool is_advance_to_end() const { return advance_to_end; }
-	void set_advance_to_end(bool tf) { advance_to_end = welt->get_settings().get_advance_to_end() || tf; }
+	void set_advance_to_end(bool tf) { advance_to_end = tf; }
 
 	/**
 	* draw the part overlapping the vehicles
