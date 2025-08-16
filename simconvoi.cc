@@ -2297,6 +2297,10 @@ bool convoi_t::insert_route_convoy_on()
 	if(welt->lookup(pos)->get_depot()) {
 		return false;
 	}
+	if(  front()->get_waytype()==water_wt  ) {
+		// do not calculate position of water convoy
+		return false;
+	}
 	else {
 		while(  inspecting.is_bound()  ) {
 			// if there are no connecting tiles with vehicles of this convoy, end search
