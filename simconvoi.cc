@@ -3878,7 +3878,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 	if(  coupling_convoi.is_bound()  ) {
 		// load/unload cargo of coupling convoy.
 		// pass the remaining halt length subtracting the length of this convoy.
-		coupling_convoi->hat_gehalten(halt, max(0, halt_length_in_vehicle_steps - convoy_length_step));
+		coupling_convoi->hat_gehalten(halt, max(0, coupling_convoi->calc_available_halt_length_in_vehicle_steps(coupling_convoi->front()->get_pos(), coupling_convoi->front()->get_direction())));
 	}
 
 	bool coupling_cond = (self->get_schedule()->get_current_entry().get_coupling_point()==1  &&  !self->is_coupling_done()  &&  !(self->get_coupling_convoi().is_bound()  &&  self->is_coupled()));
