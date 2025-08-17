@@ -61,6 +61,8 @@ line name and states tooltips
 系統名と車両の状態を表示
 coupled
 連結運転中
+coupled (loading)
+連結運転中(停車中)
 driving
 運転中
 #------Convoy coupling related stuff------
@@ -69,8 +71,8 @@ Wait for coupling
 連結相手を待つ(W)
 Try coupling
 連結を試みる(C)
-Waiting for coupling!
-連結相手を待機中
+Waiting for coupling! (%i->%i%%)
+連結相手を待機中 (%i->%i%%)
 Require parent convoy to enter.
 連結相手がいる時のみ進入を許可
 release back
