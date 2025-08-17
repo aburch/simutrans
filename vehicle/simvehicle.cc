@@ -1929,8 +1929,10 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 		// now find out what has happened
 		switch(cnv->get_state()) {
 			case convoi_t::COUPLED:
-			case convoi_t::COUPLED_LOADING:
 				tstrncpy( states_text, translator::translate("coupled"), lengthof(states_text) );
+				break;
+			case convoi_t::COUPLED_LOADING:
+				tstrncpy( states_text, translator::translate("coupled (loading)"), lengthof(states_text) );
 				break;
 
 			case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
@@ -1957,10 +1959,32 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 				}
 				else if(  cnv->is_waiting_for_coupling()  ) {
 					// the convoy is waiting for coupling.
-					tstrncpy( states_text, translator::translate("Waiting for coupling!"), lengthof(states_text) );
+					convoihandle_t c = cnv->self;
+					sint32 max_loading_limit = cnv->get_loading_limit();
+					sint32 max_loading_level = cnv->get_loading_level();
+					// search the waiting convoy
+					while(c.is_bound()) {
+						if( c->get_loading_limit() > max_loading_limit && c->get_loading_level() < c->get_loading_limit() ) {
+							max_loading_limit = c->get_loading_limit();
+							max_loading_level = c->get_loading_level();
+						}
+						c = c->get_coupling_convoi();
+					} 
+					snprintf( states_text, states_text_size, translator::translate("Waiting for coupling! (%i->%i%%)"), max_loading_level, max_loading_limit );
 				} else {
 					// the convoy is waiting for minimum loading.
-					snprintf( states_text, states_text_size, translator::translate("Loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit() );
+					convoihandle_t c = cnv->self;
+					sint32 max_loading_limit = cnv->get_loading_limit();
+					sint32 max_loading_level = cnv->get_loading_level();
+					// search the waiting convoy
+					while(c.is_bound()) {
+						if( c->get_loading_limit() > max_loading_limit && c->get_loading_level() < c->get_loading_limit() ) {
+							max_loading_limit = c->get_loading_limit();
+							max_loading_level = c->get_loading_level();
+						}
+						c = c->get_coupling_convoi();
+					} 
+					snprintf( states_text, states_text_size, translator::translate("Loading (%i->%i%%)!"), max_loading_level, max_loading_limit );
 				}
 				break;
 
