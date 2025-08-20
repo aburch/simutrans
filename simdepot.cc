@@ -170,7 +170,7 @@ void replace_cars(convoihandle_t cnv, depot_t* depot) {
 void depot_t::convoi_arrived(convoihandle_t acnv, bool schedule_adjust)
 {
 	for( uint32 i=0; i<convois.get_count(); i++ ) {
-		if (acnv==convois[i]) {
+		if (acnv==convois.at(i)) {
 			// there are two same convoys!
 			return;
 		}
