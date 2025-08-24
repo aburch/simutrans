@@ -559,6 +559,14 @@ bool depot_t::can_start_convoi(convoihandle_t cnv, bool local_execution)
 			if(  cnv->get_coupling_convoi().is_bound()  ) {
 				convoihandle_t child_cnv = cnv->get_coupling_convoi();
 				// check the coupling condition
+				if( !child_cnv->get_schedule() ) {
+					// child convoy does not have schedule
+					if (local_execution) {
+						create_win( new news_img("Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n"), w_time_delete, magic_none);
+					}
+					dbg->warning("depot_t::start_convoi()","No schedule for convoi.");
+					return false;
+				}
 				const schedule_entry_t t = cnv->get_schedule()->get_current_entry();
 				const schedule_entry_t c = child_cnv->get_schedule()->get_current_entry();
 				if(  t.pos!=c.pos  ) {
