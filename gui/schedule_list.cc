@@ -289,7 +289,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	add_component(&filled_bar);
 
 	// convoi list
-	scrolly_convois.set_pos(scr_coord(RIGHT_COLUMN_OFFSET-D_H_SPACE, bt_y + 2 * D_BUTTON_HEIGHT+ D_V_SPACE + 2*LINESPACE));
+	scrolly_convois.set_pos(scr_coord(RIGHT_COLUMN_OFFSET-D_H_SPACE, bt_y + 2 * D_BUTTON_HEIGHT+ 2 * D_V_SPACE + 2*LINESPACE));
 	scrolly_convois.set_show_scroll_x(true);
 	scrolly_convois.set_scroll_amount_y(40);
 	scrolly_convois.set_visible(false);
@@ -302,8 +302,8 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	bt_withdraw_line.add_listener(this);
 	add_component(&bt_withdraw_line);
 
-	bt_teleport_line_to_depot.init(button_t::roundbox_state, "Teleport to Depot",
-		scr_coord(RIGHT_COLUMN_OFFSET, bt_y+D_BUTTON_HEIGHT), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_teleport_line_to_depot.init(button_t::roundbox_state, "Teleport All to Depot",
+		scr_coord(RIGHT_COLUMN_OFFSET, bt_y+D_BUTTON_HEIGHT+D_V_SPACE), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	bt_teleport_line_to_depot.set_tooltip("Convoys are teleported to depot immediately");
 	bt_teleport_line_to_depot.set_visible(false);
 	bt_teleport_line_to_depot.add_listener(this);
