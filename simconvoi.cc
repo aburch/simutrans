@@ -5015,21 +5015,38 @@ const char* convoi_t::send_to_depot(bool local)
 
 const char* convoi_t::send_to_depot_immediately(bool local)
 {
+	const char *txt;
+	// First check : the all convoys are same waytype, same owner, etc...
+	convoihandle_t c = get_coupling_convoi();
+	player_t* const owner = get_owner();
+	waytype_t const waytype = front()->get_waytype();
+	while(  c.is_bound()  ) {
+		if(  c->get_owner() != owner || c->front()->get_waytype() != waytype   ) {
+			dbg->warning("convoi_t::send_to_depot_immediately()","%s leads different owner's or different waytype convoy",get_name());
+			txt = "%s leads\ndifferent owner's or\ndifferent waytype convoy.\n",get_name();
+			return txt;
+		}
+	} 
 	// iterate over all depots and try to find shortest route
 	route_t *shortest_route = new route_t();
 	route_t *route = new route_t();
 	koord3d home = koord3d::invalid;
 	vehicle_t *v = front();
-	koord3d next_pos = schedule->get_current_entry().pos;
+	uint8 current_stop = schedule->get_current_stop();
 	bool find_depot_route = false;
 	bool depot_already_know = false;
-	if ( world()->lookup(next_pos)->get_depot() && world()->lookup(next_pos)->get_depot()->get_waytype() == v->get_desc()->get_waytype() && world()->lookup(next_pos)->get_depot()->get_owner()  == get_owner()  ) {
-		// if this convoy is already going to the depot, it will be teleported to that depot.
-		// but if the depot is changed or wrong, we search nearest depot.
-		find_depot_route = true;
-		depot_already_know = true;
-		home = next_pos;
-	} else {
+	// find the depot in the schedule. It doesn't have to be next.
+	for ( uint8 i = 0 ; i<schedule->get_count() ; i++  ) {
+		koord3d next_pos = schedule->at((current_stop+i)%schedule->get_count()).pos;
+		if(world()->lookup(next_pos)->get_depot() && world()->lookup(next_pos)->get_depot()->get_waytype() == v->get_desc()->get_waytype() && world()->lookup(next_pos)->get_depot()->get_owner()  == get_owner()){
+			// if this convoy is already know the depot position, it will be teleported to that depot.
+			// but if the depot is changed or wrong, we search nearest depot.
+			find_depot_route = true;
+			depot_already_know = true;
+			home = next_pos;
+		}
+	}
+	if (!find_depot_route) {
 		// Find the nearest depot
 		FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
 			if (depot->get_waytype() != v->get_desc()->get_waytype()  ||  depot->get_owner() != get_owner()) {
@@ -5060,11 +5077,10 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 		}
 	}
 	// if route to a depot has been found, update the convoi's schedule
-	const char *txt;
 	if(  find_depot_route  ) {
 		if( !depot_already_know ) {
 			// to discard cargo, we put depot's position into schedule.
-			convoihandle_t c = self;
+			c = self;
 			while( c.is_bound() ) {
 				schedule_t *schedule = c->get_schedule();
 				schedule->insert(welt->lookup(home));
