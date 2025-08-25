@@ -5269,10 +5269,14 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		state = taxiing;
 	}
 
-	if(state == taxiing  &&  gr->is_halt()  &&  gr->find<air_vehicle_t>()) {
+	if(state == taxiing  &&  gr->is_halt()  ) {
 		// the next step is a parking position. We do not enter, if occupied!
-		restart_speed = 0;
-		return false;
+		air_vehicle_t* v = gr->find<air_vehicle_t>();
+		if(  v->get_convoi() != get_convoi()  ) {
+			// occupied by others -> false
+			restart_speed = 0;
+			return false;
+		}
 	}
 
 	return true;
