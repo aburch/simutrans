@@ -456,8 +456,8 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		bt_find_parent.disable();
 		add_component(&bt_find_parent);
 
-		bt_uncouple_child.init(button_t::square_state, "Uncouple a child convoy");
-		bt_uncouple_child.set_tooltip("Its child convoy must be uncoupled here.");
+		bt_uncouple_child.init(button_t::square_state, "End couple");
+		bt_uncouple_child.set_tooltip("It will uncouple the child convoy here.");
 		bt_uncouple_child.add_listener(this);
 		bt_uncouple_child.disable();
 		add_component(&bt_uncouple_child);
