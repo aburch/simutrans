@@ -696,6 +696,8 @@ void schedule_gui_t::update_selection()
 		bt_reverse_convoy.pressed = schedule->at(current_stop).is_reverse_convoy();
 		bt_reverse_coupling.enable();
 		bt_reverse_coupling.pressed = schedule->at(current_stop).is_reverse_convoi_coupling();
+		bt_uncouple_child.enable();
+		bt_uncouple_child.pressed = schedule->at(current_stop).is_uncouple_child();
     
 		// if the next_line is set, the last entry is same as the next_line->get_schedule()->at(0)
 		// so, the flags of last entry can not be editted.
@@ -707,8 +709,6 @@ void schedule_gui_t::update_selection()
 			bt_find_parent.pressed = c==2;
 			bt_wait_for_child.enable();
 			bt_wait_for_child.pressed = c==1;
-			bt_uncouple_child.enable();
-			bt_uncouple_child.pressed = schedule->at(current_stop).is_uncouple_child();
 			bt_no_load.enable();
 			bt_no_load.pressed = schedule->at(current_stop).is_no_load();
 			bt_no_unload.enable();
