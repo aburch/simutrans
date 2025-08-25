@@ -442,7 +442,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	end_table();
 	
 	// coupling related buttons
-	add_table(2,1);
+	add_table(3,1);
 	{
 		bt_wait_for_child.init(button_t::square_state, "Wait for coupling");
 		bt_wait_for_child.set_tooltip("A convoy waits for other convoy to couple.");
@@ -455,6 +455,12 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		bt_find_parent.add_listener(this);
 		bt_find_parent.disable();
 		add_component(&bt_find_parent);
+
+		bt_uncouple_child.init(button_t::square_state, "Uncouple a child convoy");
+		bt_uncouple_child.set_tooltip("Its child convoy must be uncoupled here.");
+		bt_uncouple_child.add_listener(this);
+		bt_uncouple_child.disable();
+		add_component(&bt_uncouple_child);
 	}	
 	end_table();
 
@@ -669,6 +675,7 @@ void schedule_gui_t::update_selection()
 	numimp_load.set_value( 0 );
 	bt_find_parent.disable();
 	bt_wait_for_child.disable();
+	bt_uncouple_child.disable();
 	bt_no_load.disable();
 	bt_no_unload.disable();
 	bt_unload_all.disable();
@@ -700,6 +707,8 @@ void schedule_gui_t::update_selection()
 			bt_find_parent.pressed = c==2;
 			bt_wait_for_child.enable();
 			bt_wait_for_child.pressed = c==1;
+			bt_uncouple_child.enable();
+			bt_uncouple_child.pressed = schedule->at(current_stop).is_uncouple_child();
 			bt_no_load.enable();
 			bt_no_load.pressed = schedule->at(current_stop).is_no_load();
 			bt_no_unload.enable();
@@ -920,6 +929,12 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 	else if(comp == &numimp_wait_load && bt_wait_load.pressed) {
 		if(!schedule->empty()) {
 			schedule->at(schedule->get_current_stop()).waiting_time_shift = (uint16)p.i;
+			update_selection();
+		}
+	}
+	else if(comp == &bt_uncouple_child) {
+		if(!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).set_uncouple_child(!bt_uncouple_child.pressed);
 			update_selection();
 		}
 	}
@@ -1376,4 +1391,5 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	bt_reverse_convoy.set_visible(coupling_waytype  &&  yesno);
 	bt_reverse_coupling.set_visible(coupling_waytype  &&  yesno);
 	bt_wait_coupling_done.set_visible(coupling_waytype && yesno);
+	bt_uncouple_child.set_visible(coupling_waytype && yesno);
 }

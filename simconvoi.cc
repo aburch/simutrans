@@ -1931,6 +1931,8 @@ void convoi_t::ziel_erreicht()
 				set_next_coupling(route_t::INVALID_INDEX, 0);
 				v->get_convoi()->set_coupling_done(true);
 				coupling_done = true;
+				// before reverse convoy coupling, we ask it to uncouple its child or not (set in schedule_entry)
+				uncouple_convoy_by_schedule_setting();
 				// then, chage the order if next direction is backward of "self"
 				// Attention! reverse_convoy_coupling() must be called when loading!
 				// if we call it before stop, the convoys will be reversed immediately, and it makes position calculation bug. 
@@ -1955,6 +1957,8 @@ void convoi_t::ziel_erreicht()
 			c->set_arrived_time(world()->get_ticks());
 			c = c->get_coupling_convoi();
 		}
+		// check uncouple its child (set in schedule_entry)
+		uncouple_convoy_by_schedule_setting();
 	}
 	else {
 		// Neither depot nor station: waypoint
@@ -5026,7 +5030,6 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 			txt = "%s leads\ndifferent owner's or\ndifferent waytype convoy.\n",get_name();
 			return txt;
 		}
-		c = c->get_coupling_convoi();
 	} 
 	// iterate over all depots and try to find shortest route
 	route_t *shortest_route = new route_t();
@@ -5622,7 +5625,7 @@ void convoi_t::next_stop_button_pressed() {
 	while( c.is_bound() ) {
 		schedule_t *schedule = c->get_schedule();
 		convoihandle_t const temp_c = c->get_coupling_convoi();
-		if( !c->can_continue_coupling() ) {
+		if( !c->can_continue_coupling() || schedule->get_current_entry().is_uncouple_child() ) {
 			c->uncouple_convoi();
 		}
 		c->change_line_to_next_if_needed();
@@ -5672,6 +5675,19 @@ void convoi_t::unset_convoi_coupling_in_progress() {
 	c->delete_convoi_coupling_in_progress();
 	self->delete_convoi_coupling_in_progress();
 	dbg->message( "convoi_t::unset_convoi_coupling_in_progress()","%i and %i convoys are now coupling or canceling couple", self.get_id(), c->self.get_id() );
+}
+
+void convoi_t::uncouple_convoy_by_schedule_setting()
+{
+	convoihandle_t c = self;
+	while( c.is_bound() ) {
+		// to keep child convoy because it may be uncouple now!
+		convoihandle_t child_convoy = c->get_coupling_convoi();
+		if(c->get_schedule()->get_current_entry().is_uncouple_child()) {
+			c->uncouple_convoi();
+		}
+		c = child_convoy;
+	}
 }
 
 

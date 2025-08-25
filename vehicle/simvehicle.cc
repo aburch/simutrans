@@ -1227,6 +1227,8 @@ void vehicle_t::hop(grund_t* gr)
 		}
 		else {
 			cnv->register_journey_time();
+			// before reverse convoy coupling, uncouple child
+			cnv->uncouple_convoy_by_schedule_setting();
 			// advance schedule for all coupling convoys.
 			// check reverse convoy coupling at this stop
 			if(  cnv->self->reverse_convoy_coupling_at_waypoint()  ) {
