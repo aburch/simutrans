@@ -695,11 +695,10 @@ void schedule_gui_t::update_selection()
 		if(  haltestelle_t::get_stoppable_halt(schedule->at(current_stop).pos, player).is_bound()  && (  (current_stop != schedule->get_count()-1)  ||  !schedule->get_next_line().is_bound()  )  ) {
 
 			
-			const uint8 c = schedule->at(current_stop).get_coupling_point();
 			bt_find_parent.enable();
-			bt_find_parent.pressed = c==2;
+			bt_find_parent.pressed = schedule->at(current_stop).is_try_coupling();
 			bt_wait_for_child.enable();
-			bt_wait_for_child.pressed = c==1;
+			bt_wait_for_child.pressed = schedule->at(current_stop).is_wait_for_coupling();
 			bt_no_load.enable();
 			bt_no_load.pressed = schedule->at(current_stop).is_no_load();
 			bt_no_unload.enable();
@@ -861,24 +860,14 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 	}
 	else if(comp == &bt_find_parent) {
 		if(!schedule->empty()) {
-			if(  bt_find_parent.pressed  ) {
-				schedule->at(schedule->get_current_stop()).reset_coupling();
-			} else {
-				schedule->at(schedule->get_current_stop()).set_try_coupling();
-			}
-			bt_wait_for_child.pressed = false;
+			schedule->at(schedule->get_current_stop()).set_try_coupling(!bt_find_parent.pressed);
 			schedule->at(schedule->get_current_stop()).set_reverse_convoi_coupling(false);
 			update_selection();
 		}
 	}
 	else if(comp == &bt_wait_for_child) {
 		if(!schedule->empty()) {
-			if(  bt_wait_for_child.pressed  ) {
-				schedule->at(schedule->get_current_stop()).reset_coupling();
-			} else {
-				schedule->at(schedule->get_current_stop()).set_wait_for_coupling();
-			}
-			bt_find_parent.pressed = false;
+			schedule->at(schedule->get_current_stop()).set_wait_for_coupling(!bt_wait_for_child.pressed);
 			schedule->at(schedule->get_current_stop()).set_reverse_convoi_coupling(false);
 			update_selection();
 		}
