@@ -548,7 +548,6 @@ public:
 		w!=waytype_t::invalid_wt      ||
 		w!=waytype_t::ignore_wt       ||
 		w!=waytype_t::road_wt         ||
-		w!=waytype_t::overheadlines_wt||
 		w!=waytype_t::air_wt          ||
 		w!=waytype_t::powerline_wt    ||
 		w!=waytype_t::any_wt;
