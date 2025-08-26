@@ -1118,6 +1118,11 @@ public:
 	// the new line is stored in schedule->next_line_id
 	void change_line_to_next_if_needed();
 
+	// get length if total length reach this value.
+	// 0 means no setting specific value.
+	uint16 get_length_coupling_done() const;
+	void check_and_set_coupling_done_over_length();
+
 };
 
 #endif

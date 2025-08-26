@@ -462,7 +462,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	// set total length which convoy end coupling at this stop
 	add_table(2,1);
 	{
-		lb_length_coupling_done.set_tooltip("If total length of convoys is over this value, coupling done and depart.");
+		lb_length_coupling_done.set_tooltip("If total length of convoys is over this value, coupling done and depart(if 0, no limit).");
 		add_component(&lb_length_coupling_done);
 
 		numimp_length_coupling_done.set_width( 60 );

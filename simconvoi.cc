@@ -1931,6 +1931,7 @@ void convoi_t::ziel_erreicht()
 				set_next_coupling(route_t::INVALID_INDEX, 0);
 				v->get_convoi()->set_coupling_done(true);
 				coupling_done = true;
+				temp_parent_convoi->check_and_set_coupling_done_over_length();
 				// then, chage the order if next direction is backward of "self"
 				// Attention! reverse_convoy_coupling() must be called when loading!
 				// if we call it before stop, the convoys will be reversed immediately, and it makes position calculation bug. 
@@ -1955,6 +1956,7 @@ void convoi_t::ziel_erreicht()
 			c->set_arrived_time(world()->get_ticks());
 			c = c->get_coupling_convoi();
 		}
+		check_and_set_coupling_done_over_length();
 	}
 	else {
 		// Neither depot nor station: waypoint
@@ -5653,6 +5655,52 @@ bool convoi_t::couple_convoi_during_running(convoihandle_t coupled) {
 	back()->set_last(false);
 	must_recalc_min_top_speed();
 	return true;
+}
+
+uint16 convoi_t::get_length_coupling_done() const {
+	convoihandle_t c = self;
+	if( c->is_coupled() ) {
+		c = find_most_parent_convoi();
+	}
+	uint16 length_coupling_done = 0;
+	while( c.is_bound() ) {
+		if( length_coupling_done == 0 ) {
+			length_coupling_done = c->get_schedule()->get_current_entry().get_length_coupling_done();
+		}
+		else {
+			if( c->get_schedule()->get_current_entry().get_length_coupling_done()>length_coupling_done ) {
+				length_coupling_done = c->get_schedule()->get_current_entry().get_length_coupling_done();
+			}
+		}
+		c = c->can_continue_coupling()? c->get_coupling_convoi(): convoihandle_t();
+	}
+	return length_coupling_done;
+}
+
+void convoi_t::check_and_set_coupling_done_over_length() {
+	uint16 length_coupling_done = get_length_coupling_done();
+	uint32 total_vehicle_length = 0;
+	convoihandle_t c = self;
+	while(c.is_bound()) {
+		total_vehicle_length+=c->get_length()/CARUNITS_PER_TILE;
+		if(!c->can_continue_coupling()) { 
+			c = c->get_coupling_convoi();
+			break;
+		}
+		c = c->get_coupling_convoi();
+	}
+	if( c.is_bound() ) {
+		// this child will be uncouple here, so we must recalculate them.
+		c->check_and_set_coupling_done_over_length();
+	}
+	if( length_coupling_done==0 ) {
+		// no set length coupling done, return
+		return;
+	}
+	if( length_coupling_done < total_vehicle_length ) {
+		set_coupling_done(true);
+		find_most_child_convoi()->set_coupling_done(true);
+	}
 }
 
 void convoi_t::set_convoi_coupling_in_progress(convoihandle_t convoi_coupling_undergo) {
