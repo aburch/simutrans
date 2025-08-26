@@ -419,7 +419,13 @@ void chat_message_t::add_chat_message(const char* text, sint8 channel, sint8 sen
 					buf.printf("%s: %s", sender_nick.c_str(), text);
 					int type = message_t::chat_common + company_msg + private_msg*2;
 					ticker::add_msg(buf, koord3d::invalid, PLAYER_FLAG|sender_nr, type );
-					env_t::chat_unread_public++;
+					if (company_msg) {
+						env_t::chat_unread_company++;
+					} else if (private_msg) {
+						env_t::chat_unread_whisper++;
+					} else {
+						env_t::chat_unread_public++;
+					}
 					sound_play(sound_desc_t::message_sound, 255, TOOL_SOUND);
 				}
 			}
