@@ -5684,14 +5684,13 @@ void convoi_t::check_and_set_coupling_done_over_length() {
 	while(c.is_bound()) {
 		total_vehicle_length+=c->get_length()/CARUNITS_PER_TILE;
 		if(!c->can_continue_coupling()) { 
-			c = c->get_coupling_convoi();
 			break;
 		}
 		c = c->get_coupling_convoi();
 	}
-	if( c.is_bound() ) {
+	if( c->get_coupling_convoi().is_bound() ) {
 		// this child will be uncouple here, so we must recalculate them.
-		c->check_and_set_coupling_done_over_length();
+		c->get_coupling_convoi()->check_and_set_coupling_done_over_length();
 	}
 	if( length_coupling_done==0 ) {
 		// no set length coupling done, return
@@ -5699,7 +5698,7 @@ void convoi_t::check_and_set_coupling_done_over_length() {
 	}
 	if( length_coupling_done < total_vehicle_length ) {
 		set_coupling_done(true);
-		find_most_child_convoi()->set_coupling_done(true);
+		c.is_bound()? c->set_coupling_done(true): find_most_child_convoi()->set_coupling_done(true);
 	}
 }
 
