@@ -70,6 +70,8 @@ public:
 	uint16 waiting_time_shift;
 	
 	uint16 spacing, spacing_shift, delay_tolerance;
+
+	uint16 length_coupling_done;
 	
 	/*
 	 * store last 5 journey time of this stop.
@@ -149,7 +151,11 @@ public:
 		spacing_shift = b;
 		delay_tolerance = c;
 	}
-
+	void set_length_coupling_done(uint16 l) {
+		length_coupling_done = l;
+	}
+	uint16 get_length_coupling_done() const {return length_coupling_done;}
+ 
 	void push_journey_time(uint32 time);
 	void push_waiting_time(uint32 time);
 	void push_convoy_stopping_time(uint32 time);

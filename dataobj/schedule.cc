@@ -345,6 +345,10 @@ void schedule_t::rdwr(loadsave_t *file)
 					entries[i].waiting_time_shift = 0;
 				}
 			}
+			if(file->get_OTRP_version()>=46) {
+				// read and write length end coupling
+				file->rdwr_short(entries[i].length_coupling_done);
+			}
 		}
 	}
 	if(file->is_loading()) {
