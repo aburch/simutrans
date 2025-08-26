@@ -25,6 +25,20 @@ signal(s)
 	if(  signal->get_desc()->is_choose_sign()  &&  !welt->get_settings().get_advance_to_end() ) {
 		add_component(&bt_advance_to_end);
 	}
+
+	bt_end_of_choose.init( button_t::square_state, translator::translate("end of choose signal") );
+	bt_end_of_choose.add_listener(this);
+	bt_end_of_choose.pressed = signal->is_end_of_choose();
+	if(  signal->get_desc()->is_end_choose_signal()  ) {
+		add_component(&bt_end_of_choose);
+	}
+
+	bt_end_of_guide.init( button_t::square_state, translator::translate("try coupling convoy not enter here") );
+	bt_end_of_guide.add_listener(this);
+	bt_end_of_guide.pressed = signal->is_end_of_guide();
+	if(  signal->get_desc()->is_end_choose_signal()  ) {
+		add_component(&bt_end_of_choose);
+	}
 	
 	bt_remove_signal.init( button_t::roundbox, translator::translate("remove signal"));
 	bt_remove_signal.enable( !signal->is_deletable( welt->get_active_player() ) );
@@ -64,6 +78,22 @@ bool signal_info_t::action_triggered( gui_action_creator_t* comp, value_t /* */)
 		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_ROADSIGN], welt->get_active_player() );
 		return true;
 	}
+	if(  comp==&bt_end_of_choose  ) {
+		char param[256];
+		bool v = signal->is_end_of_choose();
+		sprintf( param, "%s,%i,c", signal->get_pos().get_str(), !v );
+		tool_t::simple_tool[TOOL_CHANGE_ROADSIGN]->set_default_param( param );
+		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_ROADSIGN], welt->get_active_player() );
+		return true;
+	}
+	if(  comp==&bt_end_of_guide  ) {
+		char param[256];
+		bool v = signal->is_end_of_guide();
+		sprintf( param, "%s,%i,g", signal->get_pos().get_str(), !v );
+		tool_t::simple_tool[TOOL_CHANGE_ROADSIGN]->set_default_param( param );
+		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_ROADSIGN], welt->get_active_player() );
+		return true;
+	}
 	return false;
 }
 
@@ -73,5 +103,7 @@ void signal_info_t::update_data()
 {
 	bt_require_parent.pressed = signal->is_guide_signal();
 	bt_advance_to_end.pressed = signal->is_advance_to_end();
+	bt_end_of_choose.pressed = signal->is_end_of_choose();
+	bt_end_of_guide.pressed = signal->is_end_of_guide();
 	bt_remove_signal.enable( !signal->is_deletable( welt->get_active_player() ) );
 }

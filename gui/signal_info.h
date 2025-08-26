@@ -15,7 +15,7 @@ class signal_info_t : public obj_infowin_t, public action_listener_t
 {
 	private:
 		signal_t* signal;
-		button_t bt_require_parent, bt_remove_signal, bt_advance_to_end;
+		button_t bt_require_parent, bt_remove_signal, bt_advance_to_end, bt_end_of_choose, bt_end_of_guide;
 
 	public:
 		signal_info_t(signal_t*);

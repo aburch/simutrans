@@ -3394,7 +3394,7 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd, bool coupling) const
 		if(sch->has_sign()) {
 			const roadsign_t* rs = bd->find<roadsign_t>();
 			if(  rs->get_desc()->get_wtyp()==get_waytype()  ) {
-				if(  rs->get_desc()->get_flags() & roadsign_desc_t::END_OF_CHOOSE_AREA  ) {
+				if(  (rs->get_desc()->get_flags() & roadsign_desc_t::END_OF_CHOOSE_AREA) && (coupling?rs->is_end_of_guide():rs->is_end_of_choose())  ) {
 					return false;
 				}
 			}
@@ -3663,6 +3663,7 @@ bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_bl
 
 	uint16 next_signal, next_crossing;
 	grund_t const* const target = welt->lookup(cnv->get_route()->back());
+	bool try_coupling = cnv->get_schedule()->get_current_entry().get_coupling_point()==2;
 
 	if(  cnv->get_schedule_target()!=koord3d::invalid  ) {
 		// destination is a waypoint!
@@ -3701,7 +3702,7 @@ bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_bl
 		if(  way->has_sign()  ) {
 			roadsign_t *rs = gr->find<roadsign_t>(1);
 			if(  rs  &&  rs->get_desc()->get_wtyp()==get_waytype()  ) {
-				if(  rs->get_desc()->get_flags() & roadsign_desc_t::END_OF_CHOOSE_AREA  ) {
+				if(  (rs->get_desc()->get_flags() & roadsign_desc_t::END_OF_CHOOSE_AREA ) && (try_coupling?rs->is_end_of_guide():rs->is_end_of_choose())  ) {
 					// end of choose on route => not choosing here
 					choose_ok = false;
 				}
@@ -3732,7 +3733,6 @@ skip_choose:
 
 	target_halt = target->get_halt();
 	bool route_found = false;
-	bool try_coupling = cnv->get_schedule()->get_current_entry().get_coupling_point()==2;
 	if(  !try_coupling  ) {
 		// call block_reserver only when the next halt is not a coupling point.
 		route_found = block_reserver( cnv->get_route(), start_block+1, next_signal, next_crossing, 100000, true, false );
