@@ -3434,7 +3434,7 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd, bool coupling) const
 				if(  rail_vehicle_t* const v = dynamic_cast<rail_vehicle_t*>(bd->obj_bei(pos))  ) {
 					// there is a suitable waiting convoy for coupling -> this is coupling point.
 					if(  cnv->can_start_coupling(v->get_convoi())  &&  v->get_convoi()->is_loading()  ) {
-						if(  !v->is_last()  &&  !v->is_leading()  ) {
+						if(  v!=v->get_convoi()->front() && v!=v->get_convoi()->back()  ) {
 							// we have to couple with either end of the convoy.
 							continue;
 						}
@@ -3535,7 +3535,7 @@ bool rail_vehicle_t::is_coupling_target(const grund_t *gr, const grund_t *prev_g
 		if(  !v  ||
 			!cnv->can_start_coupling(v->get_convoi())  ||
 			!v->get_convoi()->is_loading()  ||
-			(!v->is_last()  &&  !v->is_leading())  ) {
+			(v!=v->get_convoi()->front()&&v!=v->get_convoi()->back())  ) {
 			continue;
 		}
 		// Is the platform long enough?

@@ -1919,7 +1919,7 @@ void convoi_t::ziel_erreicht()
 				bool const should_this_convoy_be_parent = ( self->front()->get_direction() & v_next_initial_direction ) == 0 ;
 				// First, the waiting convoy is set as parent
 				convoihandle_t temp_parent_convoi;
-				if(  v->is_leading() && v->get_convoi()->get_coupling_convoi().is_bound()  ) {
+				if(  !v->get_convoi()->is_coupled() && v->get_convoi()->get_coupling_convoi().is_bound()  ) {
 					temp_parent_convoi = v->get_convoi()->find_most_child_convoi();
 					v->get_convoi()->reverse_convoy_coupling();
 				} else {
