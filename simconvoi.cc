@@ -2365,7 +2365,7 @@ bool convoi_t::insert_route_convoy_on()
 		}
 		// add the last vehicle's tile if the last vehicle is sticking out of the tile.
 		vehicle_t* most_back_vehicle = find_most_child_convoi()->back();
-		if(  route.get_count()>1 &&  most_back_vehicle->get_pos() == route.front()  &&  (most_back_vehicle->get_direction() & ribi_type(route.at(1)-route.at(0)) > 0)  &&  most_back_vehicle->get_steps() < most_back_vehicle->get_desc()->get_length()  ) {
+		if(  route.get_count()>1 &&  most_back_vehicle->get_pos() == route.front()  &&  (most_back_vehicle->get_direction() & ribi_type(route.at(1)-route.at(0)) > 0)  &&  most_back_vehicle->get_steps() < most_back_vehicle->get_desc()->get_length()*VEHICLE_STEPS_PER_CARUNIT  ) {
 			const grund_t* g_back = welt->lookup(route.front());
 			ribi_t::ribi weg_dir = g_back?g_back->get_weg(most_back_vehicle->get_waytype())->get_ribi_unmasked():ribi_t::none;
 			// if last vehicle is on the last tile or threeway, we give up to search the next tile. 
