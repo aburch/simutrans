@@ -4287,8 +4287,12 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 			if(  rail_vehicle_t* const v = dynamic_cast<rail_vehicle_t*>(gr->obj_bei(pos))  ) {
 				// there is a suitable waiting convoy for coupling -> this is coupling point.
 				if(  cnv->can_start_coupling(v->get_convoi())  &&  v->get_convoi()->is_loading()  ) {
-					if(  !v->is_last()  &&  !v->is_leading()  ) {
+					if(  v!=v->get_convoi()->front()&&v!=v->get_convoi()->back()  ) {
 						// we have to couple with either end of the convoy.
+						continue;
+					}
+					if(  (dir & v->get_direction() > 0)?v!=v->get_convoi()->back():v!=v->get_convoi()->front()  ) {
+						// we find vehicle either end of the convoy, but direction is invalid
 						continue;
 					}
 					if(  i!=start_index  &&  v->get_convoi()->get_vehicle_count()>1  &&  ((v->is_last()&&(v->get_direction()&dir)==0)  ||  (v->is_leading()&&(v->get_direction()&dir)!=0))  ) {
