@@ -5156,6 +5156,11 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		return false;
 	}
 
+	if(  cnv->is_reversed() && route_index > min(2, takeoff)  ) {
+		cnv->reverse_vehicles_on_user_request();
+		return false;
+	}
+
 	if(  route_index < takeoff  &&  route_index > 1  &&  takeoff<cnv->get_route()->get_count()-1  ) {
 		// check, if tile occupied by a plane on ground
 		if(  route_index > 1  ) {

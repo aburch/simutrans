@@ -3909,7 +3909,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 	}
 
 	// reverse convoi
-	if (  get_schedule()->get_current_entry().is_reverse_convoy()  ){
+	if (  get_schedule()->get_current_entry().is_reverse_convoy() || front()->get_waytype()==waytype_t::air_wt  ){
 		reversing_needed = true;
 		// reverse image direction after departire, in drive_to()
 	}
