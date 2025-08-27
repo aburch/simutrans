@@ -1927,7 +1927,6 @@ void convoi_t::ziel_erreicht()
 				}
 				v->get_convoi()->couple_convoi(self);
 				unset_convoi_coupling_in_progress();
-				wait_lock = 0;
 				set_next_coupling(route_t::INVALID_INDEX, 0);
 				v->get_convoi()->set_coupling_done(true);
 				// then, chage the order if next direction is backward of "self"
@@ -1936,6 +1935,7 @@ void convoi_t::ziel_erreicht()
 				if(  should_this_convoy_be_parent  ) {
 					temp_parent_convoi->reverse_convoy_coupling();
 				}
+				wait_lock = 0;
 				return;
 			}
 		}
