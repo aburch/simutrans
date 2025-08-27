@@ -19,6 +19,7 @@
 	FIX: Do not print a warning, when replacing items by compat.tab
 	FIX: 'makeobj list' cannot print properties of factory nodes
 	FIX: (Nazalassa) Public unread message counter is increased for private messages
+	FIX: (Nazalassa) Ticker messages do not respect player colours when the ticker is opened
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):

@@ -204,7 +204,7 @@ void ticker::redraw()
 	display_fillbox_wh_rgb(0, start_y, width, TICKER_HEIGHT, SYSCOL_TICKER_BACKGROUND, true);
 	for(node & n : list) {
 		if (n.xpos < width) {
-			display_proportional_clip_rgb(n.xpos, start_y + TICKER_V_SPACE, n.msg, ALIGN_LEFT, n.color, true);
+			display_proportional_clip_rgb(n.xpos, start_y + TICKER_V_SPACE, n.msg, ALIGN_LEFT, n.get_player_color(welt), true);
 		}
 	}
 }
