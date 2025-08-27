@@ -2546,9 +2546,6 @@ void convoi_t::vorfahren()
 						train_length += min( (train_length%CARUNITS_PER_TILE)-1, inspecting->back()->get_desc()->get_length() );
 					}
 				}
-				else {
-					train_length += 1;
-				}
 			} else {
 				// in north/west direction, we leave the vehicle away to start as much back as possible
 				ribi_t::ribi neue_richtung = fahr[0]->get_direction();
