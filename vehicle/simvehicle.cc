@@ -4261,7 +4261,7 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 		}
 		idx = (idx+1)%cnv->get_schedule()->get_count();
 	} while(  idx!=cnv->get_schedule()->get_current_stop()  );
-	if(  !stop_found  ||  !cnv->get_schedule()->at(idx).is_wait_for_coupling() ) {
+	if(  !stop_found  ||  !cnv->get_schedule()->at(idx).is_try_coupling() ) {
 		// all schedule entries are waypoint or the next stop point is not a coupling point.
 		cnv->unset_convoi_coupling_in_progress();
 		return false;
