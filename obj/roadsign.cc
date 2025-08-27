@@ -84,7 +84,13 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 	lane_affinity = 4;
 	choose_sign_flag = 0;
 	set_guide_signal(false);
-	set_advance_to_end(true);
+	if( desc->is_choose_sign() ) {
+		set_advance_to_end(true);
+	}
+	if( desc->is_end_choose_signal() ) {
+		set_end_of_choose(true);
+		set_end_of_guide(true);
+	}
 	ticks_yellow_ns = ticks_yellow_ow = 2;
 	set_owner( player );
 	if(  desc->is_private_way()  ) {
