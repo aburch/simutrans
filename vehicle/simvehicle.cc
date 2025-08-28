@@ -5277,10 +5277,14 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		state = taxiing;
 	}
 
-	if(state == taxiing  &&  gr->is_halt()  &&  gr->find<air_vehicle_t>()) {
+	if(state == taxiing  &&  gr->is_halt()  ) {
 		// the next step is a parking position. We do not enter, if occupied!
-		restart_speed = 0;
-		return false;
+		air_vehicle_t* v = gr->find<air_vehicle_t>();
+		if(  v && v->get_convoi() != get_convoi()  ) {
+			// occupied by others -> false
+			restart_speed = 0;
+			return false;
+		}
 	}
 
 	return true;
@@ -5363,11 +5367,12 @@ void air_vehicle_t::set_convoi(convoi_t *c)
 		if(target_halt.is_bound()) {
 			target_halt->unreserve_position(welt->lookup(r.back()), cnv->self);
 			target_halt = halthandle_t();
+			block_reserver( touchdown, route_index, false );
 		}
 		if (!r.empty()) {
 			// free runway reservation
-			if(route_index>=takeoff  &&  route_index<touchdown-4  &&  state!=flying) {
-				block_reserver( takeoff, takeoff+100, false );
+			if(route_index>=takeoff  &&  route_index<touchdown-4  ) {
+				block_reserver( takeoff, touchdown-4, false );
 			}
 			else if(route_index>=touchdown-1  &&  state!=taxiing) {
 				block_reserver( touchdown, search_for_stop+1, false );

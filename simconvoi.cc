@@ -1919,7 +1919,7 @@ void convoi_t::ziel_erreicht()
 				bool const should_this_convoy_be_parent = ( self->front()->get_direction() & v_next_initial_direction ) == 0 ;
 				// First, the waiting convoy is set as parent
 				convoihandle_t temp_parent_convoi;
-				if(  v->is_leading() && v->get_convoi()->get_coupling_convoi().is_bound()  ) {
+				if(  !v->get_convoi()->is_coupled() && v->get_convoi()->get_coupling_convoi().is_bound()  ) {
 					temp_parent_convoi = v->get_convoi()->find_most_child_convoi();
 					v->get_convoi()->reverse_convoy_coupling();
 				} else {
@@ -2365,7 +2365,7 @@ bool convoi_t::insert_route_convoy_on()
 		}
 		// add the last vehicle's tile if the last vehicle is sticking out of the tile.
 		vehicle_t* most_back_vehicle = find_most_child_convoi()->back();
-		if(  route.get_count()>1 &&  most_back_vehicle->get_pos() == route.front()  &&  (most_back_vehicle->get_direction() & ribi_type(route.at(1)-route.at(0)) > 0)  &&  most_back_vehicle->get_steps() < most_back_vehicle->get_desc()->get_length()  ) {
+		if(  route.get_count()>1 &&  most_back_vehicle->get_pos() == route.front()  &&  (most_back_vehicle->get_direction() & ribi_type(route.at(1)-route.at(0)) > 0)  &&  most_back_vehicle->get_steps() < most_back_vehicle->get_desc()->get_length()*VEHICLE_STEPS_PER_CARUNIT  ) {
 			const grund_t* g_back = welt->lookup(route.front());
 			ribi_t::ribi weg_dir = g_back?g_back->get_weg(most_back_vehicle->get_waytype())->get_ribi_unmasked():ribi_t::none;
 			// if last vehicle is on the last tile or threeway, we give up to search the next tile. 
@@ -2387,6 +2387,31 @@ bool convoi_t::insert_route_convoy_on()
 		}
 		return true;
 	}
+}
+
+// a helper function for convoi_t::vorfahren()
+// insert additional tiles and advance vehicles to draw in diagonal tiles
+bool convoi_t::insert_route_to_draw_diagonal()
+{
+	if( route.get_count()<2 ) {
+		// we cannot route because route is too short
+		return false;
+	}
+	const grund_t* g = welt->lookup(route.front());
+	const weg_t* w = g ? g->get_weg(front()->get_waytype()) : NULL;
+	ribi_t::ribi weg_dir = w ? w->get_ribi_unmasked() : ribi_t::none;// way direction
+	ribi_t::ribi back_dir = ribi_type(route.at(1) - route.front());// direction which already added route 
+	if( !ribi_t::is_bend(weg_dir) || (weg_dir & back_dir)==0 ) {
+		//we do not insert because this tile is not bend tile or invalid tile 
+		return false;
+	}
+	grund_t* gn_back;
+	g->get_neighbour(gn_back, front()->get_waytype(), weg_dir-back_dir);
+	if( gn_back && gn_back->get_weg(front()->get_waytype()) ) {
+		route.insert(gn_back->get_pos());
+		return true;
+	}
+	return false;
 }
 
 // helper function for insert_route_convoy_on()
@@ -2529,6 +2554,10 @@ void convoi_t::vorfahren()
 					break;
 				}
 			}
+			// insert tile to draw last vehicle in diagonal way
+			if( insert_route_to_draw_diagonal() ) {
+				train_length += CARUNITS_PER_TILE;
+			}
 			// now inspecting represents the last convoy of all coupled convoys.
 
 			// move one train length to the start position ...
@@ -2545,9 +2574,6 @@ void convoi_t::vorfahren()
 						// limit train to front of tile
 						train_length += min( (train_length%CARUNITS_PER_TILE)-1, inspecting->back()->get_desc()->get_length() );
 					}
-				}
-				else {
-					train_length += 1;
 				}
 			} else {
 				// in north/west direction, we leave the vehicle away to start as much back as possible
@@ -3570,6 +3596,7 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 			slot++;
 			go_on_ticks = slot * world()->ticks_per_world_month / current_entry.spacing + spacing_shift;
 		}
+		dbg->message("convoi_t::can_depart()","%s will be depart at %i, now %i", cnv->get_name(), go_on_ticks, world()->get_ticks());
 		return is_first_ticks_bigger(world()->get_ticks(), go_on_ticks - time_to_load);
 	}
 
