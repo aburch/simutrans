@@ -2389,6 +2389,31 @@ bool convoi_t::insert_route_convoy_on()
 	}
 }
 
+// a helper function for convoi_t::vorfahren()
+// insert additional tiles and advance vehicles to draw in diagonal tiles
+bool convoi_t::insert_route_to_draw_diagonal()
+{
+	if( route.get_count()<2 ) {
+		// we cannot route because route is too short
+		return false;
+	}
+	const grund_t* g = welt->lookup(route.front());
+	const weg_t* w = g ? g->get_weg(front()->get_waytype()) : NULL;
+	ribi_t::ribi weg_dir = w ? w->get_ribi_unmasked() : ribi_t::none;// way direction
+	ribi_t::ribi back_dir = ribi_type(route.at(1) - route.front());// direction which already added route 
+	if( !ribi_t::is_bend(weg_dir) || (weg_dir & back_dir)==0 ) {
+		//we do not insert because this tile is not bend tile or invalid tile 
+		return false;
+	}
+	grund_t* gn_back;
+	g->get_neighbour(gn_back, front()->get_waytype(), weg_dir-back_dir);
+	if( gn_back && gn_back->get_weg(front()->get_waytype()) ) {
+		route.insert(gn_back->get_pos());
+		return true;
+	}
+	return false;
+}
+
 // helper function for insert_route_convoy_on()
 koord3d const convoi_t::find_tiles_convoy_on(convoihandle_t const inspecting, const grund_t* g, ribi_t::ribi next_dir) {
 	grund_t* gn;
@@ -2528,6 +2553,10 @@ void convoi_t::vorfahren()
 				} else {
 					break;
 				}
+			}
+			// insert tile to draw last vehicle in diagonal way
+			if( insert_route_to_draw_diagonal() ) {
+				train_length += CARUNITS_PER_TILE;
 			}
 			// now inspecting represents the last convoy of all coupled convoys.
 
