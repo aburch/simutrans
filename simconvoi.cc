@@ -1919,7 +1919,7 @@ void convoi_t::ziel_erreicht()
 				bool const should_this_convoy_be_parent = ( self->front()->get_direction() & v_next_initial_direction ) == 0 ;
 				// First, the waiting convoy is set as parent
 				convoihandle_t temp_parent_convoi;
-				if(  v->is_leading() && v->get_convoi()->get_coupling_convoi().is_bound()  ) {
+				if(  !v->get_convoi()->is_coupled() && v->get_convoi()->get_coupling_convoi().is_bound()  ) {
 					temp_parent_convoi = v->get_convoi()->find_most_child_convoi();
 					v->get_convoi()->reverse_convoy_coupling();
 				} else {
@@ -2365,7 +2365,7 @@ bool convoi_t::insert_route_convoy_on()
 		}
 		// add the last vehicle's tile if the last vehicle is sticking out of the tile.
 		vehicle_t* most_back_vehicle = find_most_child_convoi()->back();
-		if(  route.get_count()>1 &&  most_back_vehicle->get_pos() == route.front()  &&  (most_back_vehicle->get_direction() & ribi_type(route.at(1)-route.at(0)) > 0)  &&  most_back_vehicle->get_steps() < most_back_vehicle->get_desc()->get_length()  ) {
+		if(  route.get_count()>1 &&  most_back_vehicle->get_pos() == route.front()  &&  (most_back_vehicle->get_direction() & ribi_type(route.at(1)-route.at(0)) > 0)  &&  most_back_vehicle->get_steps() < most_back_vehicle->get_desc()->get_length()*VEHICLE_STEPS_PER_CARUNIT  ) {
 			const grund_t* g_back = welt->lookup(route.front());
 			ribi_t::ribi weg_dir = g_back?g_back->get_weg(most_back_vehicle->get_waytype())->get_ribi_unmasked():ribi_t::none;
 			// if last vehicle is on the last tile or threeway, we give up to search the next tile. 
@@ -2545,9 +2545,6 @@ void convoi_t::vorfahren()
 						// limit train to front of tile
 						train_length += min( (train_length%CARUNITS_PER_TILE)-1, inspecting->back()->get_desc()->get_length() );
 					}
-				}
-				else {
-					train_length += 1;
 				}
 			} else {
 				// in north/west direction, we leave the vehicle away to start as much back as possible
