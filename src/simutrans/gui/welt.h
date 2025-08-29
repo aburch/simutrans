@@ -69,6 +69,9 @@ class welt_gui_t  :
 		start_game,
 		return_menu;
 
+	gui_numberinput_t
+		beginner_price_factor;
+
 	/**
 	 * Calculates preview from height map
 	 * @param filename name of heightfield file
