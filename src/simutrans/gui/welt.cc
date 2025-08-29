@@ -121,7 +121,7 @@ welt_gui_t::welt_gui_t() :
 	add_table(3,1);
 	{
 		// input fields
-		add_table(2,3);
+		add_table(2,0);
 		{
 			new_component<gui_label_t>("2WORLD_CHOOSE");
 			inp_map_number.init( abs(sets->get_map_number()), 0, 0x7FFFFFFF, 1, true );
@@ -135,17 +135,21 @@ welt_gui_t::welt_gui_t() :
 			size_label.set_min_width(size_label.get_min_size().w); // Make sure to not make the component size too small when the window is opened with a small map size that is increased afterwards
 			add_component( &size_label );
 
-			// Map X size edit
-			inp_x_size.init( sets->get_size_x(), 8, 32766, sets->get_size_x()>=512 ? 128 : 64, false );
-			inp_x_size.add_listener(this);
-			add_component( &inp_x_size );
+			add_table(3, 0);
+			{
+				// Map X size edit
+				inp_x_size.init( sets->get_size_x(), 8, 32766, sets->get_size_x()>=512 ? 128 : 64, false );
+				inp_x_size.add_listener(this);
+				add_component( &inp_x_size );
 
-			new_component<gui_empty_t>(&size_label);
+				new_component<gui_label_t>("x");
 
-			// Map size Y edit
-			inp_y_size.init( sets->get_size_y(), 8, 32766, sets->get_size_y()>=512 ? 128 : 64, false );
-			inp_y_size.add_listener(this);
-			add_component( &inp_y_size );
+				// Map size Y edit
+				inp_y_size.init( sets->get_size_y(), 8, 32766, sets->get_size_y()>=512 ? 128 : 64, false );
+				inp_y_size.add_listener(this);
+				add_component( &inp_y_size );
+			}
+			end_table();
 		}
 		end_table();
 
