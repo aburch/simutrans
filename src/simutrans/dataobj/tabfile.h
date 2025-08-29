@@ -53,6 +53,7 @@ public:
 
 public:
 	bool open(const char *filename);
+	bool open(const std::string &filename);
 
 	void close();
 

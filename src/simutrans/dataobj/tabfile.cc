@@ -30,6 +30,12 @@ bool tabfile_t::open(const char *filename)
 }
 
 
+bool tabfile_t::open(const std::string &filename)
+{
+	return open(filename.c_str());
+}
+
+
 void tabfile_t::close()
 {
 	if(file) {
