@@ -1746,11 +1746,14 @@ void way_builder_t::intern_calc_straight_route(const koord3d start, const koord3
 			if(  !bd_nach  ) {
 				// check for slope down ...
 				bd_nach = welt->lookup(pos + diff + koord3d(0,0,-1));
+				bool is_two_levels_deep = false;
 				if(  !bd_nach  ) {
 					bd_nach = welt->lookup(pos + diff + koord3d(0,0,-2));
+					is_two_levels_deep = true;
 				}
-				if(  bd_nach  &&  bd_nach->get_weg_hang() == slope_t::flat  ) {
+				if(  bd_nach  &&  (bd_nach->get_weg_hang() == slope_t::flat || (is_two_levels_deep && slope_t::max_diff(bd_nach->get_weg_hang()) <= 1))  ) {
 					// Don't care about _flat_ tunnels below.
+					// Also don't care about sloped tunnels, if they do not reach our height.
 					bd_nach = NULL;
 				}
 			}

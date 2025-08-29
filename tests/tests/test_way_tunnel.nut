@@ -396,6 +396,59 @@ function test_way_tunnel_build_up_down()
 }
 
 
+function test_way_tunnel_build_above_tunnel_slope()
+{
+	// Tests building on the tile above the top of a tunnel slope in pak64
+	// Should be allowed but, as of r11373, isn't.
+	// If way_height_clearance is >= 2, this test DOES NOT APPLY.
+	// FIXME: ignore this test if way_height_clearance >= 2 ?
+	local pl = player_x(0)
+	local default_tunnel = tunnel_desc_x.get_available_tunnels(wt_road)[0]
+	local digger = command_x(tool_build_tunnel)
+	local remover = command_x(tool_remover)
+	local setslope = command_x.set_slope
+
+	// Prepare area
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(1, 1, 1)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(2, 1, 1)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(1, 2, 1)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(2, 2, 1)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(1, 3, 1)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(2, 3, 1)), null)
+
+	{
+		digger.set_flags(2)
+		ASSERT_EQUAL(digger.work(pl, tile_x(1, 0, 0), default_tunnel.get_name()), null)
+		ASSERT_EQUAL(digger.work(pl, tile_x(1, 3, 0), default_tunnel.get_name()), null)
+		digger.set_flags(0)
+
+		ASSERT_EQUAL(digger.work(pl, tile_x(1, 0, 0), tile_x(1, 1, 0), default_tunnel.get_name()), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(1, 1, 0), slope.all_down_slope), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(1, 1, -1), slope.all_down_slope), null)
+		ASSERT_EQUAL(digger.work(pl, tile_x(1, 1, -2), tile_x(1, 2, -2), default_tunnel.get_name()), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(1, 2, -2), slope.all_up_slope), null)
+
+		// Now for the real test: build at z=0 above simple slope from z=-2 to z=-1, should be allowed
+		ASSERT_EQUAL(digger.work(pl, tile_x(1, 3, 0), tile_x(1, 2, 0), default_tunnel.get_name()), null)
+		ASSERT_EQUAL(remover.work(pl, coord3d(1, 2, 0)), null)
+	}
+
+	// Clean up
+	ASSERT_EQUAL(remover.work(pl, coord3d(1, 1, -2)), null)
+	ASSERT_EQUAL(remover.work(pl, coord3d(1, 2, -2)), null)
+	ASSERT_EQUAL(remover.work(pl, coord3d(1, 0,  0)), null)
+	ASSERT_EQUAL(remover.work(pl, coord3d(1, 3,  0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(1, 1, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(2, 1, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(1, 2, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(2, 2, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(1, 3, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(2, 3, 1)), null)
+
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
 function test_way_tunnel_make_public()
 {
 	local pl = player_x(0)
