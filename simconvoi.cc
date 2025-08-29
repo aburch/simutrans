@@ -2408,6 +2408,7 @@ bool convoi_t::insert_route_to_draw_diagonal()
 	grund_t* gn_back;
 	g->get_neighbour(gn_back, front()->get_waytype(), weg_dir-back_dir);
 	if( gn_back && gn_back->get_weg(front()->get_waytype()) ) {
+		dbg->message("convoi_t::insert_route_to_draw_diagonal()","%s add (%i,%i) before (%i,%i)",get_name(),gn_back->get_pos().x,gn_back->get_pos().y,route.front().x,route.front().y);
 		route.insert(gn_back->get_pos());
 		return true;
 	}
@@ -2523,6 +2524,7 @@ void convoi_t::vorfahren()
 		state = CAN_START;
 	}
 	else {
+		bool insert_diagonal_step = steps_driven!=0 && insert_route_to_draw_diagonal();
 		// copy route to all coupling convoys in advance.
 		convoihandle_t inspecting = coupling_convoi;
 		while(  inspecting.is_bound()  ) {
@@ -2555,7 +2557,7 @@ void convoi_t::vorfahren()
 				}
 			}
 			// insert tile to draw last vehicle in diagonal way
-			if( insert_route_to_draw_diagonal() ) {
+			if( insert_diagonal_step ) {
 				train_length += CARUNITS_PER_TILE;
 			}
 			// now inspecting represents the last convoy of all coupled convoys.
