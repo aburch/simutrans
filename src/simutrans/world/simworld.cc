@@ -5610,7 +5610,8 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 			break;
 		}
 	}
-	koord3d old_zeiger_pos = zeiger->get_pos();
+
+	const koord3d old_zeiger_pos = zeiger->get_pos();
 
 	// no cheating allowed?
 	if (!settings.get_allow_player_change() && get_public_player()->is_locked()) {
@@ -5628,6 +5629,9 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 		}
 		active_player_nr = new_player;
 		active_player = players[new_player];
+
+		zeiger->set_owner(active_player);
+
 		if(  !silent  ) {
 			// tell the player
 			cbuffer_t buf;
@@ -5639,6 +5643,7 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 		tool_t::update_toolbars();
 		set_dirty();
 	}
+
 	// init tool again
 	selected_tool[active_player_nr]->flags = 0;
 	selected_tool[active_player_nr]->init(active_player);
