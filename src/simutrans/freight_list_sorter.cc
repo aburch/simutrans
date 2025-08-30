@@ -46,9 +46,9 @@ static const char* sort_text[freight_list_sorter_t::SORT_MODES] = {
 		"connection"
 };
 
-const char *freight_list_sorter_t::get_sort_mode_string(uint8 mode, halthandle_t h)
+const char *freight_list_sorter_t::get_sort_mode_string(uint8 sort_mode, halthandle_t h)
 {
-	return sort_text[h.is_bound()?mode:mode%(SORT_MODES-1)];
+	return sort_text[h.is_bound() ? sort_mode : (sort_mode%(SORT_MODES-1))];
 }
 
 
