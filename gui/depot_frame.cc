@@ -966,6 +966,7 @@ void depot_frame_t::update_data()
 		}
 
 		veh = (veh_action == va_insert ? cnv->front() : cnv->back())->get_desc();
+		bt_reverse.enable();
 		bt_reverse.pressed=cnv->is_reversing_needed();
 	}
 
@@ -1322,6 +1323,7 @@ void depot_frame_t::update_data()
 		txt_convoi_weight.clear();
 		sb_convoi_length.set_visible(false);
 		cont_convoi_capacity.set_visible(false);
+		bt_reverse.disable();
 	}
 }
 
