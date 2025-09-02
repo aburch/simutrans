@@ -772,6 +772,9 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 	last_loading_step = welt->get_steps();
 
 	cargo = new cargo_queue_t*[goods_manager_t::get_max_catg_index()];
+	for (size_t i = 0; i < goods_manager_t::get_max_catg_index(); i++) {
+		cargo[i] = NULL;
+	}
 	fresh_cargo.resize( goods_manager_t::get_max_catg_index() );
 	all_links = new link_t[ goods_manager_t::get_max_catg_index() ];
 	staged_all_links = NULL;
@@ -816,6 +819,9 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 	last_catg_index = 255;
 
 	cargo = new cargo_queue_t*[goods_manager_t::get_max_catg_index()];
+	for (size_t i = 0; i < goods_manager_t::get_max_catg_index(); i++) {
+		cargo[i] = NULL;
+	}
 	fresh_cargo.resize( goods_manager_t::get_max_catg_index() );
 	all_links = new link_t[ goods_manager_t::get_max_catg_index() ];
 	staged_all_links = NULL;
