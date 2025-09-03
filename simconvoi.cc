@@ -2598,7 +2598,6 @@ void convoi_t::vorfahren()
 				inspecting = self;
 				// in some case, start_step != VEHICLE_STEPS_PER_TILE =256! (e.g. direction = north or west (in this case, start_step=128)).
 				dist = (uint32)(start_step>=front()->get_steps()?start_step-front()->get_steps():ribi_t::is_bend(front()->get_direction())?start_step+(vehicle_base_t::diagonal_vehicle_steps_per_tile-front()->get_steps()):start_step+(VEHICLE_STEPS_PER_TILE-front()->get_steps()))<<YARDS_PER_VEHICLE_STEP_SHIFT;
-				dbg->message("convoi_t::vorfahren()","%s start for same direction: now %i, start from %i, dist %i, length %i, direction %i",get_name(),front()->get_steps(),start_step,dist>>YARDS_PER_VEHICLE_STEP_SHIFT,train_length,front()->get_direction());
 				if(dist>0) {
 					while(  inspecting.is_bound()  ) {
 						for(unsigned i=0; i<inspecting->get_vehicle_count(); i++) {
