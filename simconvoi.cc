@@ -2452,7 +2452,7 @@ void convoi_t::vorfahren()
 	// is driving direction not change?
 	ribi_t::ribi neue_richtung_rwr = ribi_t::backward(fahr[0]->calc_direction(route.front(), route.at(min(2, route.get_count() - 1))));
 	bool const go_same_direction = (neue_richtung_rwr&alte_richtung)==0;
-	uint8 start_step = front()->get_steps();
+	uint8 const start_step = front()->get_steps();
 
 
 	// if this convoy already reserve tiles by longblock signal,
@@ -2568,7 +2568,7 @@ void convoi_t::vorfahren()
 				// ribi_t::ribi neue_richtung = fahr[0]->get_direction();
 				// if(  (neue_richtung==ribi_t::north  ||  neue_richtung==ribi_t::west)  ) {
 				// 	// drive the convoi to the same position, but do not hop into next tile!
-				// 	if(  train_length%16==0  ) {
+				// 	if(  train_length%CARUNITS_PER_TILE==0  ) {
 				// 		// any space we need => just add
 				// 		train_length += inspecting->back()->get_desc()->get_length();
 				// 	}
@@ -2578,14 +2578,14 @@ void convoi_t::vorfahren()
 				// 	}
 				// }
 				// else {
-				// 	train_length += 1;
+					train_length += 1;
 				// }
 			} else {
 				// in north/west direction, we leave the vehicle away to start as much back as possible
 				ribi_t::ribi neue_richtung = fahr[0]->get_direction();
 				if(neue_richtung==ribi_t::south  ||  neue_richtung==ribi_t::east) {
 					// drive the convoi to the same position, but do not hop into next tile!
-					if(  train_length%16==0  ) {
+					if(  train_length%CARUNITS_PER_TILE==0  ) {
 						// any space we need => just add
 						train_length += inspecting->back()->get_desc()->get_length();
 					}
@@ -2628,7 +2628,8 @@ void convoi_t::vorfahren()
 			// if this convoy go to the same direction, we need to advance them to the initial step.
 			if(  go_same_direction ) {
 				inspecting = self;
-				dist = (uint32)(abs(start_step-front()->get_steps())<<YARDS_PER_VEHICLE_STEP_SHIFT);
+				dist = (uint32)(start_step>=front()->get_steps()?start_step-front()->get_steps():ribi_t::is_bend(front()->get_direction())?start_step+(vehicle_base_t::diagonal_vehicle_steps_per_tile-front()->get_steps()):start_step+(VEHICLE_STEPS_PER_TILE-front()->get_steps()))<<YARDS_PER_VEHICLE_STEP_SHIFT;
+				dbg->message("convoi_t::vorfahren()","%s start for same direction: now %i, start from %i, dist %i, length %i, direction %i",get_name(),front()->get_steps(),start_step,dist>>YARDS_PER_VEHICLE_STEP_SHIFT,train_length,front()->get_direction());
 				if(dist>0) {
 					while(  inspecting.is_bound()  ) {
 						for(unsigned i=0; i<inspecting->get_vehicle_count(); i++) {
