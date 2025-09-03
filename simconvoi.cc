@@ -3938,7 +3938,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 	}
 
 	// reverse convoi
-	if (  get_schedule()->get_current_entry().is_reverse_convoy() || front()->get_waytype()==waytype_t::air_wt  ){
+	if (  get_schedule()->get_current_entry().is_reverse_convoy()  ){
 		reversing_needed = true;
 		// reverse image direction after departire, in drive_to()
 	}
@@ -4010,6 +4010,9 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 				c_cnv->set_coupling_done(false);
 				c_cnv->reset_departure_time();
 				c_cnv = c_cnv->get_coupling_convoi();
+			}
+			if (  front()->get_waytype()==air_wt  ) {
+				reversed = true;
 			}
 		}
 	}
