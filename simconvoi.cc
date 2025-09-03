@@ -2363,21 +2363,6 @@ bool convoi_t::insert_route_convoy_on()
 			}
 			inspecting = inspecting->get_coupling_convoi();
 		}
-		// // add the last vehicle's tile if the last vehicle is sticking out of the tile.
-		// vehicle_t* most_back_vehicle = find_most_child_convoi()->back();
-		// if(  route.get_count()>1 &&  most_back_vehicle->get_pos() == route.front()  &&  (most_back_vehicle->get_direction() & ribi_type(route.at(1)-route.at(0))) > 0  &&  most_back_vehicle->get_steps() < most_back_vehicle->get_desc()->get_length()*VEHICLE_STEPS_PER_CARUNIT  ) {
-		// 	const grund_t* g_back = welt->lookup(route.front());
-		// 	ribi_t::ribi weg_dir = g_back?g_back->get_weg(most_back_vehicle->get_waytype())->get_ribi_unmasked():ribi_t::none;
-		// 	// if last vehicle is on the last tile or threeway, we give up to search the next tile. 
-		// 	if (ribi_t::is_twoway(weg_dir)) {
-		// 		grund_t* gn_back;
-		// 		g_back->get_neighbour(gn_back, most_back_vehicle->get_waytype(), weg_dir-ribi_type(route.at(1)-route.at(0)));
-		// 		if(  gn_back->get_weg(most_back_vehicle->get_waytype())  ) {
-		// 			// add route
-		// 			route.insert(gn_back->get_pos());
-		// 		}
-		// 	}
-		// }
 		// now route was constructed. we broadcast the route to the coupled convoys.
 		inspecting = self->get_coupling_convoi();
 		while(  inspecting.is_bound()  ) {
@@ -2563,24 +2548,7 @@ void convoi_t::vorfahren()
 			// now inspecting represents the last convoy of all coupled convoys.
 
 			// move one train length to the start position ...
-			if(  go_same_direction  ) {
-				// // in north/west direction, we leave the vehicle away to start as much back as possible
-				// ribi_t::ribi neue_richtung = fahr[0]->get_direction();
-				// if(  (neue_richtung==ribi_t::north  ||  neue_richtung==ribi_t::west)  ) {
-				// 	// drive the convoi to the same position, but do not hop into next tile!
-				// 	if(  train_length%CARUNITS_PER_TILE==0  ) {
-				// 		// any space we need => just add
-				// 		train_length += inspecting->back()->get_desc()->get_length();
-				// 	}
-				// 	else {
-				// 		// limit train to front of tile
-				// 		train_length += min( (train_length%CARUNITS_PER_TILE)-1, inspecting->back()->get_desc()->get_length() );
-				// 	}
-				// }
-				// else {
-					train_length += 1;
-				// }
-			} else {
+			if(  !go_same_direction  ) {
 				// in north/west direction, we leave the vehicle away to start as much back as possible
 				ribi_t::ribi neue_richtung = fahr[0]->get_direction();
 				if(neue_richtung==ribi_t::south  ||  neue_richtung==ribi_t::east) {
