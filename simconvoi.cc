@@ -2295,13 +2295,13 @@ bool convoi_t::insert_route_convoy_on()
 	if( route.get_count() < 2 ) {
 		return false;
 	}
+	if(  front()->get_waytype()==water_wt  ) {
+		// do not calculate position of water convoy
+		return false;
+	}
 	koord3d pos = front()->get_pos();
 	convoihandle_t inspecting = self; // reset inspecting to the first convoy
 	if(welt->lookup(pos)->get_depot()) {
-		return false;
-	}
-	if(  front()->get_waytype()==water_wt  ) {
-		// do not calculate position of water convoy
 		return false;
 	}
 	else {
