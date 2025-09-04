@@ -365,6 +365,10 @@ obj=program_text
 name=Beginner mode
 -
 obj=program_text
+name=Transport fees: +
+note=new world window
+-
+obj=program_text
 name=Besonderes Gebaeude
 -
 obj=program_text
