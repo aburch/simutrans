@@ -5156,6 +5156,13 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		return false;
 	}
 
+	if(  cnv->is_reversed()  ) {
+		ribi_t::ribi next_dir = ribi_type(cnv->get_route()->at(min(route_index+1,cnv->get_route()->get_count()-1)) - cnv->get_route()->at(route_index));
+		if( (next_dir & get_direction())==0 || route_index>=takeoff ) {
+			cnv->set_reversed(false);
+		}
+	}
+
 	if(  route_index < takeoff  &&  route_index > 1  &&  takeoff<cnv->get_route()->get_count()-1  ) {
 		// check, if tile occupied by a plane on ground
 		if(  route_index > 1  ) {

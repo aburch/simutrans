@@ -3992,6 +3992,9 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 				c_cnv->reset_departure_time();
 				c_cnv = c_cnv->get_coupling_convoi();
 			}
+			if (  front()->get_waytype()==air_wt  ) {
+				reversed = true;
+			}
 		}
 	}
 
