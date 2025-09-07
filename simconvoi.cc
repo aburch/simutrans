@@ -2295,13 +2295,13 @@ bool convoi_t::insert_route_convoy_on()
 	if( route.get_count() < 2 ) {
 		return false;
 	}
+	if(  front()->get_waytype()==water_wt  ) {
+		// do not calculate position of water convoy
+		return false;
+	}
 	koord3d pos = front()->get_pos();
 	convoihandle_t inspecting = self; // reset inspecting to the first convoy
 	if(welt->lookup(pos)->get_depot()) {
-		return false;
-	}
-	if(  front()->get_waytype()==water_wt  ) {
-		// do not calculate position of water convoy
 		return false;
 	}
 	else {
@@ -2362,21 +2362,6 @@ bool convoi_t::insert_route_convoy_on()
 				}
 			}
 			inspecting = inspecting->get_coupling_convoi();
-		}
-		// add the last vehicle's tile if the last vehicle is sticking out of the tile.
-		vehicle_t* most_back_vehicle = find_most_child_convoi()->back();
-		if(  route.get_count()>1 &&  most_back_vehicle->get_pos() == route.front()  &&  (most_back_vehicle->get_direction() & ribi_type(route.at(1)-route.at(0)) > 0)  &&  most_back_vehicle->get_steps() < most_back_vehicle->get_desc()->get_length()*VEHICLE_STEPS_PER_CARUNIT  ) {
-			const grund_t* g_back = welt->lookup(route.front());
-			ribi_t::ribi weg_dir = g_back?g_back->get_weg(most_back_vehicle->get_waytype())->get_ribi_unmasked():ribi_t::none;
-			// if last vehicle is on the last tile or threeway, we give up to search the next tile. 
-			if (ribi_t::is_twoway(weg_dir)) {
-				grund_t* gn_back;
-				g_back->get_neighbour(gn_back, most_back_vehicle->get_waytype(), weg_dir-ribi_type(route.at(1)-route.at(0)));
-				if(  gn_back->get_weg(most_back_vehicle->get_waytype())  ) {
-					// add route
-					route.insert(gn_back->get_pos());
-				}
-			}
 		}
 		// now route was constructed. we broadcast the route to the coupled convoys.
 		inspecting = self->get_coupling_convoi();
@@ -2452,7 +2437,8 @@ void convoi_t::vorfahren()
 	// is driving direction not change?
 	ribi_t::ribi neue_richtung_rwr = ribi_t::backward(fahr[0]->calc_direction(route.front(), route.at(min(2, route.get_count() - 1))));
 	bool const go_same_direction = (neue_richtung_rwr&alte_richtung)==0;
-	uint8 start_step = front()->get_steps();
+	uint8 const start_step = front()->get_steps();
+	koord3d const start_pos = front()->get_pos();
 
 
 	// if this convoy already reserve tiles by longblock signal,
@@ -2563,26 +2549,12 @@ void convoi_t::vorfahren()
 			// now inspecting represents the last convoy of all coupled convoys.
 
 			// move one train length to the start position ...
-			if(  go_same_direction  ) {
-				// in north/west direction, we leave the vehicle away to start as much back as possible
-				ribi_t::ribi neue_richtung = fahr[0]->get_direction();
-				if(  (fahr[0]->get_waytype()==tram_wt || fahr[0]->get_waytype()==track_wt || fahr[0]->get_waytype()==monorail_wt || fahr[0]->get_waytype()==maglev_wt || fahr[0]->get_waytype()==narrowgauge_wt) && (neue_richtung==ribi_t::north  ||  neue_richtung==ribi_t::west)  ) {
-					// drive the convoi to the same position, but do not hop into next tile!
-					if(  train_length%16==0  ) {
-						// any space we need => just add
-						train_length += inspecting->back()->get_desc()->get_length();
-					}
-					else {
-						// limit train to front of tile
-						train_length += min( (train_length%CARUNITS_PER_TILE)-1, inspecting->back()->get_desc()->get_length() );
-					}
-				}
-			} else {
+			if(  !go_same_direction  ) {
 				// in north/west direction, we leave the vehicle away to start as much back as possible
 				ribi_t::ribi neue_richtung = fahr[0]->get_direction();
 				if(neue_richtung==ribi_t::south  ||  neue_richtung==ribi_t::east) {
 					// drive the convoi to the same position, but do not hop into next tile!
-					if(  train_length%16==0  ) {
+					if(  train_length%CARUNITS_PER_TILE==0  ) {
 						// any space we need => just add
 						train_length += inspecting->back()->get_desc()->get_length();
 					}
@@ -2625,7 +2597,16 @@ void convoi_t::vorfahren()
 			// if this convoy go to the same direction, we need to advance them to the initial step.
 			if(  go_same_direction ) {
 				inspecting = self;
-				dist = (uint32)(abs(start_step-front()->get_steps())<<YARDS_PER_VEHICLE_STEP_SHIFT);
+				// if front vehicle is not on the same position, we need to advance more.
+				uint16 const current_route_index = front()->get_route_index();
+				dist = 0;
+				if(  current_route_index<route.get_count()-1 && route.at(current_route_index) == start_pos  ) {
+					// the next tile is the forst pos, advance.
+					dist += (uint32)(ribi_t::is_bend(front()->get_direction())?start_step+(vehicle_base_t::diagonal_vehicle_steps_per_tile-front()->get_steps()):start_step+(VEHICLE_STEPS_PER_TILE-front()->get_steps()))<<YARDS_PER_VEHICLE_STEP_SHIFT;
+				} else {
+					// it already on the first tile, or invalid tile. advance a bit.
+					dist += (uint32)(start_step>=front()->get_steps()?start_step-front()->get_steps():0)<<YARDS_PER_VEHICLE_STEP_SHIFT;
+				}
 				if(dist>0) {
 					while(  inspecting.is_bound()  ) {
 						for(unsigned i=0; i<inspecting->get_vehicle_count(); i++) {
