@@ -3794,11 +3794,11 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 	// first we check the waiting_time_shift, then check the departure slot time
 	// only parents convoy has usable scheduled_departure_time
 	convoihandle_t leading_convoy = find_most_parent_convoi();
-	if(schedule->get_current_entry().waiting_time_shift > 0  &&  schedule->get_current_entry().is_load_before_departure() ){
-		loading_needed &= (schedule->get_current_entry().waiting_time_shift > 0  &&  welt->get_ticks() - arrived_time >= welt->ticks_per_world_month / schedule->get_current_entry().waiting_time_shift);
-	}
-	else if(  leading_convoy->schedule->get_current_entry().get_wait_for_time()  &&  schedule->get_current_entry().is_load_before_departure()  ) {
+	if(  leading_convoy->schedule->get_current_entry().get_wait_for_time()  &&  schedule->get_current_entry().is_load_before_departure()  ) {
 		loading_needed &= (leading_convoy->scheduled_departure_time!=0  &&  is_first_ticks_bigger(welt->get_ticks(), leading_convoy->scheduled_departure_time - time));
+	}
+	else if(schedule->get_current_entry().waiting_time_shift > 0  &&  schedule->get_current_entry().is_load_before_departure() ){
+		loading_needed &= (schedule->get_current_entry().waiting_time_shift > 0  &&  welt->get_ticks() - arrived_time >= welt->ticks_per_world_month / schedule->get_current_entry().waiting_time_shift);
 	}
 
 	vector_tpl<haltestelle_t::reachable_halt_t> reachable_halts;
