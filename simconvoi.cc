@@ -3791,8 +3791,6 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 	const goods_desc_t* cargo_type_prev = NULL;
 	bool loading_needed = !no_load  &&  !next_depot;
 	// When load_before_departure is enabled, load cargos only when the departure time condition is satisfied.
-	// first we check the waiting_time_shift, then check the departure slot time
-	// only parents convoy has usable scheduled_departure_time
 	convoihandle_t leading_convoy = find_most_parent_convoi();
 	if(  leading_convoy->schedule->get_current_entry().get_wait_for_time()  &&  schedule->get_current_entry().is_load_before_departure()  ) {
 		loading_needed &= (leading_convoy->scheduled_departure_time!=0  &&  is_first_ticks_bigger(welt->get_ticks(), leading_convoy->scheduled_departure_time - time));
