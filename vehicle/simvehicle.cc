@@ -5365,7 +5365,7 @@ void air_vehicle_t::set_convoi(convoi_t *c)
 		if (!r.empty()) {
 			// free runway reservation
 			if(route_index>=takeoff  &&  route_index<touchdown-4  ) {
-				block_reserver( takeoff, touchdown-4, false );
+				block_reserver( 0, touchdown-4, false );
 			}
 			else if(route_index>=touchdown-1  &&  state!=taxiing) {
 				block_reserver( touchdown, search_for_stop+1, false );
