@@ -29,6 +29,7 @@
 #include "../gui/onewaysign_info.h"
 #include "../gui/tool_selector.h"
 #include "../gui/signal_info.h"
+#include "../gui/end_of_choose_info.h"
 
 #include "../tpl/stringhashtable_tpl.h"
 
@@ -216,6 +217,9 @@ void roadsign_t::show_info()
 		else {
 			create_win(new signal_info_t(s), w_info, (ptrdiff_t)this);
 		}
+	}
+	else if(  desc->is_end_choose_signal()  ) {
+		create_win(new end_of_choose_info_t(this), w_info, (ptrdiff_t)this);
 	}
 	else {
 		obj_t::show_info();

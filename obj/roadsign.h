@@ -166,13 +166,13 @@ public:
 	*/
 	image_id get_front_image() const OVERRIDE { return foreground_image; }
 	
-	bool is_guide_signal() const { return choose_sign_flag&guide_signal; }
+	bool is_guide_signal() const { return (choose_sign_flag&guide_signal)>0; }
 	void set_guide_signal(bool tf) { tf? choose_sign_flag|=guide_signal:choose_sign_flag&=~guide_signal; }	
-	bool is_advance_to_end() const { return choose_sign_flag&advance_to_end; }
+	bool is_advance_to_end() const { return (choose_sign_flag&advance_to_end)>0; }
 	void set_advance_to_end(bool tf) { tf? choose_sign_flag|=advance_to_end:choose_sign_flag&=~advance_to_end; }
-	bool is_end_of_choose() const { return choose_sign_flag&end_of_choose; }
+	bool is_end_of_choose() const { return (choose_sign_flag&end_of_choose)>0; }
 	void set_end_of_choose(bool tf) { tf? choose_sign_flag|=end_of_choose:choose_sign_flag&=~end_of_choose; }
-	bool is_end_of_guide() const { return choose_sign_flag&end_of_guide; }
+	bool is_end_of_guide() const { return (choose_sign_flag&end_of_guide)>0; }
 	void set_end_of_guide(bool tf) { tf? choose_sign_flag|=end_of_guide:choose_sign_flag&=~end_of_guide; }
 
 	/**

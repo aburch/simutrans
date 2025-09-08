@@ -57,6 +57,7 @@
 #include "gui/messagebox.h"
 #include "gui/simple_number_input.h"
 #include "gui/signal_info.h"
+#include "gui/end_of_choose_info.h"
 
 #include "obj/zeiger.h"
 #include "obj/bruecke.h"
@@ -9080,9 +9081,9 @@ bool tool_change_roadsign_t::init( player_t* )
 		}
 		case 'c':
 		if(  grund_t *gr = welt->lookup(pos)  ) {
-			if( roadsign_t *rs = gr->find<signal_t>()  ) {
+			if( roadsign_t *rs = gr->find<roadsign_t>()  ) {
 				rs->set_end_of_choose(inst);
-				signal_info_t* signal_info_win = (signal_info_t*)win_get_magic((ptrdiff_t)rs);
+				end_of_choose_info_t* signal_info_win = (end_of_choose_info_t*)win_get_magic((ptrdiff_t)rs);
 				if(  signal_info_win  ) {
 					signal_info_win->update_data();
 				}
@@ -9090,9 +9091,9 @@ bool tool_change_roadsign_t::init( player_t* )
 		}
 		case 'g':
 		if(  grund_t *gr = welt->lookup(pos)  ) {
-			if( roadsign_t *rs = gr->find<signal_t>()  ) {
+			if( roadsign_t *rs = gr->find<roadsign_t>()  ) {
 				rs->set_end_of_guide(inst);
-				signal_info_t* signal_info_win = (signal_info_t*)win_get_magic((ptrdiff_t)rs);
+				end_of_choose_info_t* signal_info_win = (end_of_choose_info_t*)win_get_magic((ptrdiff_t)rs);
 				if(  signal_info_win  ) {
 					signal_info_win->update_data();
 				}
