@@ -57,7 +57,7 @@ bool end_of_choose_info_t::action_triggered( gui_action_creator_t* comp, value_t
 		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_ROADSIGN], welt->get_active_player() );
 		return true;
 	}
-	if(  comp==&bt_end_of_guide  ) {
+	else if(  comp==&bt_end_of_guide  ) {
 		char param[256];
 		bool v = signal->is_end_of_guide();
 		sprintf( param, "%s,%i,g", signal->get_pos().get_str(), !v );
@@ -74,5 +74,6 @@ void end_of_choose_info_t::update_data()
 {
 	bt_end_of_choose.pressed = signal->is_end_of_choose();
 	bt_end_of_guide.pressed = signal->is_end_of_guide();
+	dbg->message("end_of_choose_info_t::update_data()","now flag is updated as %i",signal->get_choose_sign_flag());
 	bt_remove_signal.enable( !signal->is_deletable( welt->get_active_player() ) );
 }

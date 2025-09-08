@@ -9079,26 +9079,33 @@ bool tool_change_roadsign_t::init( player_t* )
 				}
 			}
 		}
+		break;
 		case 'c':
 		if(  grund_t *gr = welt->lookup(pos)  ) {
 			if( roadsign_t *rs = gr->find<roadsign_t>()  ) {
-				rs->set_end_of_choose(inst);
-				end_of_choose_info_t* signal_info_win = (end_of_choose_info_t*)win_get_magic((ptrdiff_t)rs);
-				if(  signal_info_win  ) {
-					signal_info_win->update_data();
+				if(  rs->get_waytype()!=road_wt && rs->get_waytype()!=water_wt && rs->get_waytype()!=air_wt  ) {
+					rs->set_end_of_choose(inst);
+					end_of_choose_info_t* signal_info_win = (end_of_choose_info_t*)win_get_magic((ptrdiff_t)rs);
+					if(  signal_info_win  ) {
+						signal_info_win->update_data();
+					}
 				}
 			}
 		}
+		break;
 		case 'g':
 		if(  grund_t *gr = welt->lookup(pos)  ) {
 			if( roadsign_t *rs = gr->find<roadsign_t>()  ) {
-				rs->set_end_of_guide(inst);
-				end_of_choose_info_t* signal_info_win = (end_of_choose_info_t*)win_get_magic((ptrdiff_t)rs);
-				if(  signal_info_win  ) {
-					signal_info_win->update_data();
+				if(  rs->get_waytype()!=road_wt && rs->get_waytype()!=water_wt && rs->get_waytype()!=air_wt  ) {
+					rs->set_end_of_guide(inst);
+					end_of_choose_info_t* signal_info_win = (end_of_choose_info_t*)win_get_magic((ptrdiff_t)rs);
+					if(  signal_info_win  ) {
+						signal_info_win->update_data();
+					}
 				}
 			}
 		}
+		break;
 
 
 		default:

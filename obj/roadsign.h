@@ -174,7 +174,7 @@ public:
 	void set_end_of_choose(bool tf) { tf? choose_sign_flag|=end_of_choose:choose_sign_flag&=~end_of_choose; }
 	bool is_end_of_guide() const { return (choose_sign_flag&end_of_guide)>0; }
 	void set_end_of_guide(bool tf) { tf? choose_sign_flag|=end_of_guide:choose_sign_flag&=~end_of_guide; }
-
+	uint8 const get_choose_sign_flag() {return choose_sign_flag;}
 	/**
 	* draw the part overlapping the vehicles
 	* (needed to get the right offset even on hills)
