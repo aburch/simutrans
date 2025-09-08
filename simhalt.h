@@ -194,7 +194,7 @@ public:
 	/*
 	 * Returns the halt at the given position, if stopping is allowed for the given player.
 	*/
-	static halthandle_t get_stoppable_halt(const koord3d pos, const player_t *player );
+	static halthandle_t get_stoppable_halt(const koord3d pos, const player_t *player, const waytype_t wt );
 
 	static const vector_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
 
