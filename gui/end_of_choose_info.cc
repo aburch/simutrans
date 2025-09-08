@@ -37,7 +37,6 @@ signal(s)
 
 bool end_of_choose_info_t::action_triggered( gui_action_creator_t* comp, value_t /* */)
 {
-	dbg->message("end_of_choose_info_t::action_triggered()","action triggered presse: %i",comp);
 	// if(  comp==&bt_remove_signal  ) {
 	// 	bool suspended_execution=false;
 	// 	koord3d pos = signal->get_pos();
@@ -74,6 +73,5 @@ void end_of_choose_info_t::update_data()
 {
 	bt_end_of_choose.pressed = signal->is_end_of_choose();
 	bt_end_of_guide.pressed = signal->is_end_of_guide();
-	dbg->message("end_of_choose_info_t::update_data()","now flag is updated as %i",signal->get_choose_sign_flag());
 	bt_remove_signal.enable( !signal->is_deletable( welt->get_active_player() ) );
 }
