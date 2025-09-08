@@ -1929,8 +1929,10 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 		// now find out what has happened
 		switch(cnv->get_state()) {
 			case convoi_t::COUPLED:
-			case convoi_t::COUPLED_LOADING:
 				tstrncpy( states_text, translator::translate("coupled"), lengthof(states_text) );
+				break;
+			case convoi_t::COUPLED_LOADING:
+				tstrncpy( states_text, translator::translate("coupled (loading)"), lengthof(states_text) );
 				break;
 
 			case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
@@ -1957,10 +1959,32 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 				}
 				else if(  cnv->is_waiting_for_coupling()  ) {
 					// the convoy is waiting for coupling.
-					tstrncpy( states_text, translator::translate("Waiting for coupling!"), lengthof(states_text) );
+					convoihandle_t c = cnv->self;
+					sint32 max_loading_limit = cnv->get_loading_limit();
+					sint32 max_loading_level = cnv->get_loading_level();
+					// search the waiting convoy
+					while(c.is_bound()) {
+						if( c->get_loading_limit() > max_loading_limit && c->get_loading_level() < c->get_loading_limit() ) {
+							max_loading_limit = c->get_loading_limit();
+							max_loading_level = c->get_loading_level();
+						}
+						c = c->get_coupling_convoi();
+					} 
+					snprintf( states_text, states_text_size, translator::translate("Waiting for coupling! (%i->%i%%)"), max_loading_level, max_loading_limit );
 				} else {
 					// the convoy is waiting for minimum loading.
-					snprintf( states_text, states_text_size, translator::translate("Loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit() );
+					convoihandle_t c = cnv->self;
+					sint32 max_loading_limit = cnv->get_loading_limit();
+					sint32 max_loading_level = cnv->get_loading_level();
+					// search the waiting convoy
+					while(c.is_bound()) {
+						if( c->get_loading_limit() > max_loading_limit && c->get_loading_level() < c->get_loading_limit() ) {
+							max_loading_limit = c->get_loading_limit();
+							max_loading_level = c->get_loading_level();
+						}
+						c = c->get_coupling_convoi();
+					} 
+					snprintf( states_text, states_text_size, translator::translate("Loading (%i->%i%%)!"), max_loading_level, max_loading_limit );
 				}
 				break;
 
@@ -4292,22 +4316,30 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 					// set convoi as coupling now!
 					v->get_convoi()->self->set_convoi_coupling_in_progress(cnv->self);
 					cnv->set_convoi_coupling_in_progress(v->get_convoi()->self);
+					// set coupling index and step
+					// c_step can be negative, so it must be handled as sint16.
+					const bool is_diagonal_way = ribi_t::is_bend(gr->get_weg(get_waytype())->get_ribi_unmasked());
+					const sint16 tile_length = is_diagonal_way ? diagonal_vehicle_steps_per_tile : VEHICLE_STEPS_PER_TILE;
+					// if target vehicle's direction is same as my route's it, the coupling step is (v's steps)-(v's length)
+					// otherwise, (tile length)-(v's steps) 
+					sint16 c_step = ((v->get_direction()&dir)==0) ? tile_length - (sint16)v->get_steps() - 1 -  VEHICLE_STEPS_PER_TILE/2 - env_t::reverse_base_offsets[v->get_direction()][2] : (sint16)v->get_steps()-(sint16)v->get_desc()->get_length()*VEHICLE_STEPS_PER_CARUNIT;
+					coupling_index = i;
+					// if the target vehicle overlaps another tile, fix index and steps
+					while(c_step<0&&coupling_index>0) {
+						coupling_index--;
+						grund_t* gr_coupling = welt->lookup(route->at(coupling_index));
+						c_step += (sint16)(ribi_t::is_bend(gr_coupling->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile : VEHICLE_STEPS_PER_TILE);
+					}
+					// set coupling steps as positive value
+					coupling_steps = c_step;
 					//reserve tiles
-					for(  uint16 h=start_index;  h<i;  h++  ) {
+					for(  uint16 h=start_index;  h<coupling_index;  h++  ) {
 						grund_t* grn = welt->lookup(route->at(h));
 						schiene_t * schn = gr ? (schiene_t *)grn->get_weg(get_waytype()) : NULL;
 						if(  schn  ) {
 							schn->reserve( cnv->self, ribi_type(route->at(max(1u,h)-1u), route->at(min(route->get_count()-1u,h+1u))) );
 						}
 					}
-					// set coupling index and step
-					// c_step can be negative, so it must be handled as sint16.
-					// TODO: in case that the vehicle length is over 16.
-					const sint16 c_step = ((v->get_direction()&dir)==0) ? v->get_steps() - VEHICLE_STEPS_PER_TILE /2 + env_t::reverse_base_offsets[dir][2] : v->get_steps() - VEHICLE_STEPS_PER_CARUNIT*v->get_desc()->get_length();
-					const bool is_diagonal_way = ribi_t::is_bend(gr->get_weg(get_waytype())->get_ribi_unmasked());
-					const sint16 tile_length = is_diagonal_way ? diagonal_vehicle_steps_per_tile : VEHICLE_STEPS_PER_TILE;
-					coupling_index = c_step<0 ? max(i-1,0) : i;
-					coupling_steps = c_step<0 ? c_step + tile_length : c_step;
 					return true;
 				} else {
 					// other convoy exists.
@@ -5133,6 +5165,13 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		return false;
 	}
 
+	if(  cnv->is_reversed()  ) {
+		ribi_t::ribi next_dir = ribi_type(cnv->get_route()->at(min(route_index+1,cnv->get_route()->get_count()-1)) - cnv->get_route()->at(route_index));
+		if( (next_dir & get_direction())==0 || route_index>=takeoff ) {
+			cnv->set_reversed(false);
+		}
+	}
+
 	if(  route_index < takeoff  &&  route_index > 1  &&  takeoff<cnv->get_route()->get_count()-1  ) {
 		// check, if tile occupied by a plane on ground
 		if(  route_index > 1  ) {
@@ -5246,10 +5285,15 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		state = taxiing;
 	}
 
-	if(state == taxiing  &&  gr->is_halt()  &&  gr->find<air_vehicle_t>()) {
+	if(state == taxiing  &&  gr->is_halt()  ) {
 		// the next step is a parking position. We do not enter, if occupied!
-		restart_speed = 0;
-		return false;
+		air_vehicle_t* v = gr->find<air_vehicle_t>();
+		// if no vehicle found, return true: 
+		if(  v && v->get_convoi() != get_convoi()  ) {
+			// occupied by others -> false
+			restart_speed = 0;
+			return false;
+		}
 	}
 
 	return true;
@@ -5332,11 +5376,12 @@ void air_vehicle_t::set_convoi(convoi_t *c)
 		if(target_halt.is_bound()) {
 			target_halt->unreserve_position(welt->lookup(r.back()), cnv->self);
 			target_halt = halthandle_t();
+			block_reserver( touchdown, route_index, false );
 		}
 		if (!r.empty()) {
 			// free runway reservation
-			if(route_index>=takeoff  &&  route_index<touchdown-4  &&  state!=flying) {
-				block_reserver( takeoff, takeoff+100, false );
+			if(route_index>=takeoff  &&  route_index<touchdown-4  ) {
+				block_reserver( 0, touchdown-4, false );
 			}
 			else if(route_index>=touchdown-1  &&  state!=taxiing) {
 				block_reserver( touchdown, search_for_stop+1, false );
