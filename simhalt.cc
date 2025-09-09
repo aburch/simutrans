@@ -543,7 +543,7 @@ halthandle_t haltestelle_t::get_stoppable_halt(const koord3d pos, const player_t
 	const grund_t *gr = welt->lookup(pos);
 	if(  !gr  ) { return halthandle_t(); }
 	const halthandle_t halt = gr->get_halt();
-	if(  halt.is_bound() && gr->get_weg(wt)  ) {
+	if(  halt.is_bound() && (gr->get_weg(wt) || wt == any_wt)   ) {
 		const bool accepts_other_player = halt->is_other_player_connection_allowed();
 		if(  player_t::check_owner(player, halt->get_owner())  ||  accepts_other_player  ) {
 			return halt;
@@ -552,7 +552,7 @@ halthandle_t haltestelle_t::get_stoppable_halt(const koord3d pos, const player_t
 	if(  !gr->is_water()  ) { return halthandle_t(); }
 	// no halt? => we do the water check
 	// if waytype is not water_wt, return false. 
-	if(  wt!=water_wt  ) {return halthandle_t(); }
+	if(  wt!=water_wt && wt!=any_wt  ) {return halthandle_t(); }
 	// may catch bus stops close to water ...
 	const planquadrat_t *plan = welt->access(pos.get_2d());
 	const uint8 cnt = plan->get_haltlist_count();
