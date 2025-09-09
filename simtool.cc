@@ -7030,7 +7030,7 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 
 	// second click
 	grund_t *bd = welt->lookup(pos);
-	halthandle_t h = haltestelle_t::get_stoppable_halt(pos,player,waytype_t::water_wt);
+	halthandle_t h = haltestelle_t::get_stoppable_halt(pos,player,waytype_t::any_wt);
 
 	if (bd) {
 		const halthandle_t new_halt = h;
