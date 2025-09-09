@@ -538,12 +538,12 @@ halthandle_t haltestelle_t::get_halt(const koord3d pos, const player_t *player )
 }
 
 
-halthandle_t haltestelle_t::get_stoppable_halt(const koord3d pos, const player_t *player )
+halthandle_t haltestelle_t::get_stoppable_halt(const koord3d pos, const player_t *player, const waytype_t wt )
 {
 	const grund_t *gr = welt->lookup(pos);
 	if(  !gr  ) { return halthandle_t(); }
 	const halthandle_t halt = gr->get_halt();
-	if(  halt.is_bound()  ) {
+	if(  halt.is_bound() && (gr->get_weg(wt) || wt == any_wt)   ) {
 		const bool accepts_other_player = halt->is_other_player_connection_allowed();
 		if(  player_t::check_owner(player, halt->get_owner())  ||  accepts_other_player  ) {
 			return halt;
@@ -551,6 +551,8 @@ halthandle_t haltestelle_t::get_stoppable_halt(const koord3d pos, const player_t
 	}
 	if(  !gr->is_water()  ) { return halthandle_t(); }
 	// no halt? => we do the water check
+	// if waytype is not water_wt, return false. 
+	if(  wt!=water_wt && wt!=any_wt  ) {return halthandle_t(); }
 	// may catch bus stops close to water ...
 	const planquadrat_t *plan = welt->access(pos.get_2d());
 	const uint8 cnt = plan->get_haltlist_count();
@@ -1643,7 +1645,7 @@ sint32 haltestelle_t::rebuild_connections()
 
 		// find the index from which to start processing
 		uint8 start_index = 0;
-		while(  start_index < schedule->get_count()  &&  get_stoppable_halt( schedule->at(start_index).pos, owner ) != self  ) {
+		while(  start_index < schedule->get_count()  &&  get_stoppable_halt( schedule->at(start_index).pos, owner, schedule->get_waytype() ) != self  ) {
 			++start_index;
 		}
 		if(  start_index==schedule->get_count()  ) {
@@ -1688,7 +1690,7 @@ sint32 haltestelle_t::rebuild_connections()
 		for(  uint8 j=0;  j<schedule->get_count();  ++j  ) {
 			const uint8 current_entry_index = (start_index+j)%schedule->get_count();
 			const schedule_entry_t current_entry = schedule->at(current_entry_index);
-			halthandle_t current_halt = get_stoppable_halt(current_entry.pos, owner );
+			halthandle_t current_halt = get_stoppable_halt(current_entry.pos, owner, schedule->get_waytype() );
 			if(  !current_halt.is_bound()  ) {
 				// ignore way points.
 				// just count the journey time
@@ -4105,7 +4107,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 				// only add unknown lines
 				if(  !registered_lines.is_contained(j)  &&  j->count_convoys() > 0  ) {
 					FOR(  minivec_tpl<schedule_entry_t>, const& k, j->get_schedule()->get_entries()  ) {
-						if(  get_stoppable_halt(k.pos, player) == self  ) {
+						if(  get_stoppable_halt(k.pos, player, j->get_schedule()->get_waytype()) == self  ) {
 							registered_lines.append(j);
 							break;
 						}
@@ -4120,7 +4122,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 		if(  !cnv->get_line().is_bound()  &&  (public_halt  ||  cnv->get_owner()==get_owner())  &&  !registered_convoys.is_contained(cnv)  ) {
 			if(  const schedule_t *const schedule = cnv->get_schedule()  ) {
 				FOR(  minivec_tpl<schedule_entry_t>, const& k, schedule->get_entries()  ) {
-					if (get_stoppable_halt(k.pos, cnv->get_owner()) == self) {
+					if (get_stoppable_halt(k.pos, cnv->get_owner(), schedule->get_waytype()) == self) {
 						registered_convoys.append(cnv);
 						break;
 					}
@@ -4229,7 +4231,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	for(  size_t j = registered_lines.get_count();  j-- != 0;  ) {
 		bool ok = false;
 		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_lines[j]->get_schedule()->get_entries()  ) {
-			if(  get_stoppable_halt(k.pos, registered_lines[j]->get_owner()) == self  ) {
+			if(  get_stoppable_halt(k.pos, registered_lines[j]->get_owner(),registered_lines[j]->get_schedule()->get_waytype()) == self  ) {
 				ok = true;
 				break;
 			}
@@ -4245,7 +4247,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	for(  size_t j = registered_convoys.get_count();  j-- != 0;  ) {
 		bool ok = false;
 		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_convoys[j]->get_schedule()->get_entries()  ) {
-			if(  get_stoppable_halt(k.pos, registered_convoys[j]->get_owner()) == self  ) {
+			if(  get_stoppable_halt(k.pos, registered_convoys[j]->get_owner(),registered_convoys[j]->get_schedule()->get_waytype()) == self  ) {
 				ok = true;
 				break;
 			}
@@ -4512,7 +4514,7 @@ bool haltestelle_t::book_departure (uint32 arr_tick, uint32 dep_tick, uint32 exp
 			i = departure_slot_table[idx].erase(i);
 			continue;
 		}
-		if(  is_first_ticks_bigger(i->dep_tick, current_ticks) && (get_stoppable_halt(i->cnv->get_pos(), i->cnv->get_owner()) != self)  ) {
+		if(  is_first_ticks_bigger(i->dep_tick, current_ticks) && (get_stoppable_halt(i->cnv->get_pos(), i->cnv->get_owner(), i->cnv->front()->get_waytype()) != self)  ) {
 			// The convoy is not on this halt while the convoy is yet to depart. Handle it as an invalid.
 			i = departure_slot_table[idx].erase(i);
 			continue;
@@ -4578,7 +4580,7 @@ bool unregistered_journey_time_exists(const schedule_t* schedule, player_t* play
 		if(  
 			this_entry.get_median_journey_time()>0  || // valid record exists
 			this_entry.pos==prev_entry.pos  ||
-			haltestelle_t::get_stoppable_halt(this_entry.pos, player)==haltestelle_t::get_stoppable_halt(prev_entry.pos, player)
+			haltestelle_t::get_stoppable_halt(this_entry.pos, player, schedule->get_waytype())==haltestelle_t::get_stoppable_halt(prev_entry.pos, player, schedule->get_waytype())
 		) {
 			// valid record exists.
 			continue;

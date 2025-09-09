@@ -2533,7 +2533,7 @@ static const char *tool_schedule_insert_aux(karte_t *welt, player_t *player, koo
 		}
 		// and check for ownership
 		if(  bd->is_halt()  ) {
-			if(  !haltestelle_t::get_stoppable_halt(pos, player).is_bound()  ) {
+			if(  !haltestelle_t::get_stoppable_halt(pos, player, schedule->get_waytype()).is_bound()  ) {
 				// A halt exists, but the player check failed.
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
@@ -6970,7 +6970,7 @@ void tool_stop_mover_t::read_start_position(player_t *player, const koord3d &pos
 		}
 	}
 	// .. and halt
-	last_halt = haltestelle_t::get_stoppable_halt(pos,player);
+	last_halt = haltestelle_t::get_stoppable_halt(pos,player,waytype[0]);
 }
 
 
@@ -6982,7 +6982,7 @@ uint8 tool_stop_mover_t::is_valid_pos(  player_t *player, const koord3d &pos, co
 		return 0;
 	}
 	// check halt ownership
-	halthandle_t h = haltestelle_t::get_stoppable_halt(pos,player);
+	halthandle_t h = haltestelle_t::get_stoppable_halt(pos,player,waytype_t::any_wt);
 	if(  h.is_bound()  &&  !player_t::check_owner( player, h->get_owner() )  ) {
 		error = "Das Feld gehoert\neinem anderen Spieler\n";
 		return 0;
@@ -7030,7 +7030,7 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 
 	// second click
 	grund_t *bd = welt->lookup(pos);
-	halthandle_t h = haltestelle_t::get_stoppable_halt(pos,player);
+	halthandle_t h = haltestelle_t::get_stoppable_halt(pos,player,waytype_t::any_wt);
 
 	if (bd) {
 		const halthandle_t new_halt = h;
@@ -7093,7 +7093,7 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 					if(schedule  &&  schedule->is_stop_allowed(bd)) {
 						bool updated = false;
 						for (schedule_entry_t *k = schedule->begin(); k != schedule->end(); k++) {
-							if ((catch_all_halt && haltestelle_t::get_stoppable_halt(k->pos, cnv->get_owner()) == last_halt) ||
+							if ((catch_all_halt && haltestelle_t::get_stoppable_halt(k->pos, cnv->get_owner(),schedule->get_waytype()) == last_halt) ||
 								old_platform.is_contained(k->pos))
 							{
 								k->pos = pos;
@@ -7130,7 +7130,7 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 					bool updated = false;
 					for(schedule_entry_t* k = schedule->begin(); k != schedule->end(); k++) {
 						// ok!
-						if ((catch_all_halt && haltestelle_t::get_stoppable_halt( k->pos, line->get_owner()) == last_halt) ||
+						if ((catch_all_halt && haltestelle_t::get_stoppable_halt( k->pos, line->get_owner(), schedule->get_waytype()) == last_halt) ||
 								old_platform.is_contained(k->pos)) {
 							k->pos   = pos;
 							updated = true;

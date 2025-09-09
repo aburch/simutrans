@@ -48,15 +48,17 @@ class gui_schedule_entry_t : public gui_aligned_container_t, public gui_action_c
 	bool is_current;
 	uint number;
 	player_t* player;
+	waytype_t waytype;
 	gui_image_t arrow;
 	gui_label_buf_t stop;
 
 public:
-	gui_schedule_entry_t(player_t* pl, schedule_entry_t e, uint n)
+	gui_schedule_entry_t(player_t* pl, schedule_entry_t e, uint n, waytype_t const wt)
 	{
 		player = pl;
 		entry  = e;
 		number = n;
+		waytype = wt;
 		is_current = false;
 		set_table_layout(2,1);
 
@@ -70,7 +72,7 @@ public:
 	void update_label()
 	{
 		stop.buf().printf("%i) ", number+1);
-		schedule_t::gimme_stop_name(stop.buf(), welt, player, entry, -1);
+		schedule_t::gimme_stop_name(stop.buf(), welt, player, entry, -1, waytype);
 		stop.set_color(is_current ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT);
 		stop.update();
 	}
@@ -200,7 +202,7 @@ void schedule_gui_stats_t::update_schedule()
 		}
 		else {
 			for(uint i=0; i<schedule->get_count(); i++) {
-				entries.append( new_component<gui_schedule_entry_t>(player, schedule->at(i), i));
+				entries.append( new_component<gui_schedule_entry_t>(player, schedule->at(i), i, schedule->get_waytype()));
 				entries.back()->add_listener( this );
 			}
 			entries[ schedule->get_current_stop() ]->set_active(true);
@@ -692,7 +694,7 @@ void schedule_gui_t::update_selection()
     
 		// if the next_line is set, the last entry is same as the next_line->get_schedule()->at(0)
 		// so, the flags of last entry can not be editted.
-		if(  haltestelle_t::get_stoppable_halt(schedule->at(current_stop).pos, player).is_bound()  && (  (current_stop != schedule->get_count()-1)  ||  !schedule->get_next_line().is_bound()  )  ) {
+		if(  haltestelle_t::get_stoppable_halt(schedule->at(current_stop).pos, player, schedule->get_waytype()).is_bound()  && (  (current_stop != schedule->get_count()-1)  ||  !schedule->get_next_line().is_bound()  )  ) {
 
 			
 			const uint8 c = schedule->at(current_stop).get_coupling_point();
