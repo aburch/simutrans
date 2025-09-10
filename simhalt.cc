@@ -540,6 +540,8 @@ halthandle_t haltestelle_t::get_halt(const koord3d pos, const player_t *player )
 
 halthandle_t haltestelle_t::get_stoppable_halt(const koord3d pos, const player_t *player, const waytype_t wt )
 {
+	// if wt == any_wt, always return halts
+	// if wt == tram_wt, searching track_wt(because tram way return track_wt).
 	const grund_t *gr = welt->lookup(pos);
 	if(  !gr  ) { return halthandle_t(); }
 	const halthandle_t halt = gr->get_halt();
