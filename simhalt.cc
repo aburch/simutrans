@@ -543,7 +543,7 @@ halthandle_t haltestelle_t::get_stoppable_halt(const koord3d pos, const player_t
 	const grund_t *gr = welt->lookup(pos);
 	if(  !gr  ) { return halthandle_t(); }
 	const halthandle_t halt = gr->get_halt();
-	if(  halt.is_bound() && (gr->get_weg(wt) || wt == any_wt)   ) {
+	if(  halt.is_bound() && (gr->get_weg(wt) || wt == any_wt || (wt==tram_wt && gr->get_weg(track_wt)))   ) {
 		const bool accepts_other_player = halt->is_other_player_connection_allowed();
 		if(  player_t::check_owner(player, halt->get_owner())  ||  accepts_other_player  ) {
 			return halt;
