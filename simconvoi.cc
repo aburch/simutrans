@@ -1916,7 +1916,7 @@ void convoi_t::ziel_erreicht()
 				// the direction of the waiting vehicle is same? opposite?
 				// reference direction to detect leading or following
 				ribi_t::ribi const v_next_initial_direction = (  ( v->get_convoi()->get_next_initial_direction()  &  v->get_convoi()->front()->get_direction() ) > 0  ) ? v->get_direction(): ribi_t::backward(v->get_direction());
-				bool const should_this_convoy_be_parent = ( self->front()->get_direction() & v_next_initial_direction ) == 0 ;
+				//bool const should_this_convoy_be_parent = ( self->front()->get_direction() & v_next_initial_direction ) == 0 ;
 				// First, the waiting convoy is set as parent
 				convoihandle_t temp_parent_convoi;
 				if(  !v->get_convoi()->is_coupled() && v->get_convoi()->get_coupling_convoi().is_bound()  ) {
@@ -1934,6 +1934,11 @@ void convoi_t::ziel_erreicht()
 				// then, chage the order if next direction is backward of "self"
 				// Attention! reverse_convoy_coupling() must be called when loading!
 				// if we call it before stop, the convoys will be reversed immediately, and it makes position calculation bug. 
+				// the direction of the waiting vehicle is same? opposite?
+				route_t r;
+				check_electrification();
+				route_t::route_result_t res = r.calc_route(welt, front()->get_pos(), schedule->get_next_entry().pos, front(), speed_to_kmh(min_top_speed), 8888);
+				bool const should_this_convoy_be_parent = (res==route_t::no_route || r.get_count()<2) ? false : (ribi_type(r.at(0), r.at(1)) & front()->get_direction()) == 0 ? true : false;
 				if(  should_this_convoy_be_parent  ) {
 					temp_parent_convoi->reverse_convoy_coupling();
 				}
@@ -3956,7 +3961,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 			route_t::route_result_t res = r.calc_route(welt, front()->get_pos(), schedule->get_next_entry().pos, front(), speed_to_kmh(min_top_speed), 8888);
 			if(  res==route_t::no_route  ||  r.get_count()<2  ) {
 				// assume we do not turn here
-				next_initial_direction = front()->get_direction();
+				next_initial_direction = ribi_t::none;
 			} else {
 				next_initial_direction = ribi_type(r.at(0), r.at(1));
 			}
