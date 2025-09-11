@@ -5427,6 +5427,11 @@ bool convoi_t::check_electrification() {
 		}
 		c = c->get_coupling_convoi();
 	}
+	c = most_parent_convoi;
+	while(  c.is_bound()  ) {
+		c->is_electric = is_electric;
+		c = c->get_coupling_convoi();
+	}
 	return is_electric;
 }
 
