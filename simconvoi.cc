@@ -5016,7 +5016,12 @@ const char* convoi_t::send_to_depot(bool local)
 const char* convoi_t::send_to_depot_immediately(bool local)
 {
 	const char *txt;
-	// First check : the all convoys are same waytype, same owner, etc...
+	// First check : already in depot, do not send any more
+	if(  state==INITIAL  ) {
+		txt = "%s is already in depot", get_name();
+		return txt;
+	}
+	// Second check : the all convoys are same waytype, same owner, etc...
 	convoihandle_t c = get_coupling_convoi();
 	player_t* const owner = get_owner();
 	waytype_t const waytype = front()->get_waytype();
