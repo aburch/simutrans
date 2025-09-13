@@ -268,7 +268,7 @@ bool convoi_t::is_waypoint( koord3d ziel ) const
 		}
 		// so we are on a taxiway/runway here ...
 	}
-	return !haltestelle_t::get_stoppable_halt(ziel,get_owner()).is_bound();
+	return !haltestelle_t::get_stoppable_halt(ziel,get_owner(),fahr[0]->get_waytype()).is_bound();
 }
 
 
@@ -1205,7 +1205,7 @@ bool convoi_t::drive_to()
 
 		// avoid stopping mid-halt
 		if(  start==ziel  ) {
-			halthandle_t halt = haltestelle_t::get_stoppable_halt(ziel,get_owner());
+			halthandle_t halt = haltestelle_t::get_stoppable_halt(ziel,get_owner(),front()->get_waytype());
 			if(  halt.is_bound()  &&  route.is_contained(start)  ) {
 				for(  uint32 i=route.index_of(start);  i<route.get_count();  i++  ) {
 					grund_t *gr = welt->lookup(route.at(i));
@@ -1391,11 +1391,11 @@ void convoi_t::step()
 				else {
 					// Schedule changed at station
 					// this station? then complete loading task else drive on
-					halthandle_t h = haltestelle_t::get_stoppable_halt( get_pos(), get_owner() );
-					if(  h.is_bound()  &&  h==haltestelle_t::get_stoppable_halt( schedule->get_current_entry().pos, get_owner() )  ) {
+					halthandle_t h = haltestelle_t::get_stoppable_halt( get_pos(), get_owner(), front()->get_waytype()  );
+					if(  h.is_bound()  &&  h==haltestelle_t::get_stoppable_halt( schedule->get_current_entry().pos, get_owner(), front()->get_waytype() )  ) {
 						if (route.get_count() > 0) {
 							koord3d const& pos = route.back();
-							if (h == haltestelle_t::get_stoppable_halt(pos, get_owner())) {
+							if (h == haltestelle_t::get_stoppable_halt(pos, get_owner(),front()->get_waytype())) {
 								state = get_pos() == pos ? LOADING : DRIVING;
 								break;
 							}
@@ -1479,7 +1479,7 @@ void convoi_t::step()
 				if(  v->can_enter_tile( restart_speed, 0 )  ) {
 					// can reserve new block => drive on
 					state = (steps_driven>=0) ? LEAVING_DEPOT : DRIVING;
-					if(haltestelle_t::get_stoppable_halt(v->get_pos(),owner).is_bound()) {
+					if(haltestelle_t::get_stoppable_halt(v->get_pos(),owner,v->get_waytype()).is_bound()) {
 						v->play_sound();
 					}
 				}
@@ -1884,7 +1884,7 @@ void convoi_t::ziel_erreicht()
 		c->set_time_last_arrived(world()->get_ticks());
 		c = c->get_coupling_convoi();
 	}
-	halthandle_t halt = haltestelle_t::get_stoppable_halt(schedule->get_current_entry().pos,owner);
+	halthandle_t halt = haltestelle_t::get_stoppable_halt(schedule->get_current_entry().pos,owner,front()->get_waytype());
 
 	// check for coupling
 	if(  next_coupling_index!=route_t::INVALID_INDEX  &&  next_coupling_index<=v->get_route_index()  ) {
@@ -1919,7 +1919,7 @@ void convoi_t::ziel_erreicht()
 				bool const should_this_convoy_be_parent = ( self->front()->get_direction() & v_next_initial_direction ) == 0 ;
 				// First, the waiting convoy is set as parent
 				convoihandle_t temp_parent_convoi;
-				if(  v->is_leading() && v->get_convoi()->get_coupling_convoi().is_bound()  ) {
+				if(  !v->get_convoi()->is_coupled() && v->get_convoi()->get_coupling_convoi().is_bound()  ) {
 					temp_parent_convoi = v->get_convoi()->find_most_child_convoi();
 					v->get_convoi()->reverse_convoy_coupling();
 				} else {
@@ -2295,13 +2295,13 @@ bool convoi_t::insert_route_convoy_on()
 	if( route.get_count() < 2 ) {
 		return false;
 	}
+	if(  front()->get_waytype()==water_wt  ) {
+		// do not calculate position of water convoy
+		return false;
+	}
 	koord3d pos = front()->get_pos();
 	convoihandle_t inspecting = self; // reset inspecting to the first convoy
 	if(welt->lookup(pos)->get_depot()) {
-		return false;
-	}
-	if(  front()->get_waytype()==water_wt  ) {
-		// do not calculate position of water convoy
 		return false;
 	}
 	else {
@@ -2363,21 +2363,6 @@ bool convoi_t::insert_route_convoy_on()
 			}
 			inspecting = inspecting->get_coupling_convoi();
 		}
-		// add the last vehicle's tile if the last vehicle is sticking out of the tile.
-		vehicle_t* most_back_vehicle = find_most_child_convoi()->back();
-		if(  route.get_count()>1 &&  most_back_vehicle->get_pos() == route.front()  &&  (most_back_vehicle->get_direction() & ribi_type(route.at(1)-route.at(0)) > 0)  &&  most_back_vehicle->get_steps() < most_back_vehicle->get_desc()->get_length()  ) {
-			const grund_t* g_back = welt->lookup(route.front());
-			ribi_t::ribi weg_dir = g_back?g_back->get_weg(most_back_vehicle->get_waytype())->get_ribi_unmasked():ribi_t::none;
-			// if last vehicle is on the last tile or threeway, we give up to search the next tile. 
-			if (ribi_t::is_twoway(weg_dir)) {
-				grund_t* gn_back;
-				g_back->get_neighbour(gn_back, most_back_vehicle->get_waytype(), weg_dir-ribi_type(route.at(1)-route.at(0)));
-				if(  gn_back->get_weg(most_back_vehicle->get_waytype())  ) {
-					// add route
-					route.insert(gn_back->get_pos());
-				}
-			}
-		}
 		// now route was constructed. we broadcast the route to the coupled convoys.
 		inspecting = self->get_coupling_convoi();
 		while(  inspecting.is_bound()  ) {
@@ -2387,6 +2372,32 @@ bool convoi_t::insert_route_convoy_on()
 		}
 		return true;
 	}
+}
+
+// a helper function for convoi_t::vorfahren()
+// insert additional tiles and advance vehicles to draw in diagonal tiles
+bool convoi_t::insert_route_to_draw_diagonal()
+{
+	if( route.get_count()<2 ) {
+		// we cannot route because route is too short
+		return false;
+	}
+	const grund_t* g = welt->lookup(route.front());
+	const weg_t* w = g ? g->get_weg(front()->get_waytype()) : NULL;
+	ribi_t::ribi weg_dir = w ? w->get_ribi_unmasked() : ribi_t::none;// way direction
+	ribi_t::ribi back_dir = ribi_type(route.at(1) - route.front());// direction which already added route 
+	if( !ribi_t::is_bend(weg_dir) || (weg_dir & back_dir)==0 ) {
+		//we do not insert because this tile is not bend tile or invalid tile 
+		return false;
+	}
+	grund_t* gn_back;
+	g->get_neighbour(gn_back, front()->get_waytype(), weg_dir-back_dir);
+	if( gn_back && gn_back->get_weg(front()->get_waytype()) ) {
+		dbg->message("convoi_t::insert_route_to_draw_diagonal()","%s add (%i,%i) before (%i,%i)",get_name(),gn_back->get_pos().x,gn_back->get_pos().y,route.front().x,route.front().y);
+		route.insert(gn_back->get_pos());
+		return true;
+	}
+	return false;
 }
 
 // helper function for insert_route_convoy_on()
@@ -2426,7 +2437,8 @@ void convoi_t::vorfahren()
 	// is driving direction not change?
 	ribi_t::ribi neue_richtung_rwr = ribi_t::backward(fahr[0]->calc_direction(route.front(), route.at(min(2, route.get_count() - 1))));
 	bool const go_same_direction = (neue_richtung_rwr&alte_richtung)==0;
-	uint8 start_step = front()->get_steps();
+	uint8 const start_step = front()->get_steps();
+	koord3d const start_pos = front()->get_pos();
 
 
 	// if this convoy already reserve tiles by longblock signal,
@@ -2498,6 +2510,7 @@ void convoi_t::vorfahren()
 		state = CAN_START;
 	}
 	else {
+		bool insert_diagonal_step = steps_driven!=0 && insert_route_to_draw_diagonal();
 		// copy route to all coupling convoys in advance.
 		convoihandle_t inspecting = coupling_convoi;
 		while(  inspecting.is_bound()  ) {
@@ -2529,32 +2542,19 @@ void convoi_t::vorfahren()
 					break;
 				}
 			}
+			// insert tile to draw last vehicle in diagonal way
+			if( insert_diagonal_step ) {
+				train_length += CARUNITS_PER_TILE;
+			}
 			// now inspecting represents the last convoy of all coupled convoys.
 
 			// move one train length to the start position ...
-			if(  go_same_direction  ) {
-				// in north/west direction, we leave the vehicle away to start as much back as possible
-				ribi_t::ribi neue_richtung = fahr[0]->get_direction();
-				if(  (fahr[0]->get_waytype()==tram_wt || fahr[0]->get_waytype()==track_wt || fahr[0]->get_waytype()==monorail_wt || fahr[0]->get_waytype()==maglev_wt || fahr[0]->get_waytype()==narrowgauge_wt) && (neue_richtung==ribi_t::north  ||  neue_richtung==ribi_t::west)  ) {
-					// drive the convoi to the same position, but do not hop into next tile!
-					if(  train_length%16==0  ) {
-						// any space we need => just add
-						train_length += inspecting->back()->get_desc()->get_length();
-					}
-					else {
-						// limit train to front of tile
-						train_length += min( (train_length%CARUNITS_PER_TILE)-1, inspecting->back()->get_desc()->get_length() );
-					}
-				}
-				else {
-					train_length += 1;
-				}
-			} else {
+			if(  !go_same_direction  ) {
 				// in north/west direction, we leave the vehicle away to start as much back as possible
 				ribi_t::ribi neue_richtung = fahr[0]->get_direction();
 				if(neue_richtung==ribi_t::south  ||  neue_richtung==ribi_t::east) {
 					// drive the convoi to the same position, but do not hop into next tile!
-					if(  train_length%16==0  ) {
+					if(  train_length%CARUNITS_PER_TILE==0  ) {
 						// any space we need => just add
 						train_length += inspecting->back()->get_desc()->get_length();
 					}
@@ -2597,7 +2597,16 @@ void convoi_t::vorfahren()
 			// if this convoy go to the same direction, we need to advance them to the initial step.
 			if(  go_same_direction ) {
 				inspecting = self;
-				dist = (uint32)(abs(start_step-front()->get_steps())<<YARDS_PER_VEHICLE_STEP_SHIFT);
+				// if front vehicle is not on the same position, we need to advance more.
+				uint16 const current_route_index = front()->get_route_index();
+				dist = 0;
+				if(  current_route_index<route.get_count()-1 && route.at(current_route_index) == start_pos  ) {
+					// the next tile is the forst pos, advance.
+					dist += (uint32)(ribi_t::is_bend(front()->get_direction())?start_step+(vehicle_base_t::diagonal_vehicle_steps_per_tile-front()->get_steps()):start_step+(VEHICLE_STEPS_PER_TILE-front()->get_steps()))<<YARDS_PER_VEHICLE_STEP_SHIFT;
+				} else {
+					// it already on the first tile, or invalid tile. advance a bit.
+					dist += (uint32)(start_step>=front()->get_steps()?start_step-front()->get_steps():0)<<YARDS_PER_VEHICLE_STEP_SHIFT;
+				}
 				if(dist>0) {
 					while(  inspecting.is_bound()  ) {
 						for(unsigned i=0; i<inspecting->get_vehicle_count(); i++) {
@@ -2621,7 +2630,7 @@ void convoi_t::vorfahren()
 			sint32 restart_speed = -1;
 			if(  fahr[0]->can_enter_tile( restart_speed, 0 )  ) {
 				// can reserve new block => drive on
-				if(haltestelle_t::get_stoppable_halt(k0,owner).is_bound()) {
+				if(haltestelle_t::get_stoppable_halt(k0,owner,front()->get_waytype()).is_bound()) {
 					fahr[0]->play_sound();
 				}
 				state = DRIVING;
@@ -3432,7 +3441,7 @@ void convoi_t::laden()
 	wait_lock = (WTT_LOADING*2)+(self.get_id())%1024;
 
 	// find station (ours or public)
-	halthandle_t halt = haltestelle_t::get_stoppable_halt(schedule->get_current_entry().pos,owner);
+	halthandle_t halt = haltestelle_t::get_stoppable_halt(schedule->get_current_entry().pos,owner,front()->get_waytype());
 	if(  halt.is_bound()  ) {
 		// queue for (un)loading, does (un)loading once per step
 		halt->request_loading( self );
@@ -3570,6 +3579,7 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 			slot++;
 			go_on_ticks = slot * world()->ticks_per_world_month / current_entry.spacing + spacing_shift;
 		}
+		dbg->message("convoi_t::can_depart()","%s will be depart at %i, now %i", cnv->get_name(), go_on_ticks, world()->get_ticks());
 		return is_first_ticks_bigger(world()->get_ticks(), go_on_ticks - time_to_load);
 	}
 
@@ -3611,7 +3621,7 @@ uint32 convoi_t::calc_available_halt_length_in_vehicle_steps(koord3d front_vehic
 	}
 
 	bool is_last_diagonal = false;
-	while(  gr  &&  haltestelle_t::get_stoppable_halt(gr->get_pos(), NULL)==halt  ) {
+	while(  gr  &&  haltestelle_t::get_stoppable_halt(gr->get_pos(), NULL, waytype)==halt  ) {
 		const weg_t* way = gr->get_weg(waytype);
 		if(  !way  ) { break; }
 		const ribi_t::ribi way_dir = way->get_ribi_unmasked();
@@ -3649,7 +3659,7 @@ void calc_reachable_halts(vector_tpl<haltestelle_t::reachable_halt_t>& reachable
 		return;
 	}
 
-	const halthandle_t current_halt = haltestelle_t::get_stoppable_halt(schedule->get_current_entry().pos, owner);
+	const halthandle_t current_halt = haltestelle_t::get_stoppable_halt(schedule->get_current_entry().pos, owner, cnv->front()->get_waytype());
 	const uint8 schedule_count = schedule->get_count();
 
 	// We use the line schedule instead of convoy's schedule to fetch the journey time.
@@ -3687,7 +3697,7 @@ void calc_reachable_halts(vector_tpl<haltestelle_t::reachable_halt_t>& reachable
 	for(  uint8 i=1;  i<line_schedule_count;  i++  ) {
 		const uint8 wrap_i = (i + line_schedule_current_index) % line_schedule_count;
 
-		const halthandle_t plan_halt = haltestelle_t::get_stoppable_halt(line_schedule->at(wrap_i).pos, owner);
+		const halthandle_t plan_halt = haltestelle_t::get_stoppable_halt(line_schedule->at(wrap_i).pos, owner, cnv->front()->get_waytype());
 		if(  plan_halt == current_halt  ) {
 			if(  !line_schedule->at(wrap_i).is_no_load()  ) {
 				// we will come later here again ...
@@ -3762,8 +3772,9 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 	const goods_desc_t* cargo_type_prev = NULL;
 	bool loading_needed = !no_load  &&  !next_depot;
 	// When load_before_departure is enabled, load cargos only when the departure time condition is satisfied.
-	if(  schedule->get_current_entry().get_wait_for_time()  &&  schedule->get_current_entry().is_load_before_departure()  ) {
-		loading_needed &= (scheduled_departure_time!=0  &&  is_first_ticks_bigger(welt->get_ticks(), scheduled_departure_time - time));
+	convoihandle_t leading_convoy = find_most_parent_convoi();
+	if(  leading_convoy->schedule->get_current_entry().get_wait_for_time()  &&  schedule->get_current_entry().is_load_before_departure()  ) {
+		loading_needed &= (leading_convoy->scheduled_departure_time!=0  &&  is_first_ticks_bigger(welt->get_ticks(), leading_convoy->scheduled_departure_time - time));
 	}
 	else if(schedule->get_current_entry().waiting_time_shift > 0  &&  schedule->get_current_entry().is_load_before_departure() ){
 		loading_needed &= (schedule->get_current_entry().waiting_time_shift > 0  &&  welt->get_ticks() - arrived_time >= welt->ticks_per_world_month / schedule->get_current_entry().waiting_time_shift);
@@ -3981,6 +3992,9 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 				c_cnv->set_coupling_done(false);
 				c_cnv->reset_departure_time();
 				c_cnv = c_cnv->get_coupling_convoi();
+			}
+			if (  front()->get_waytype()==air_wt  ) {
+				reversed = true;
 			}
 		}
 	}
@@ -4349,8 +4363,8 @@ DBG_DEBUG("convoi_t::unset_line()", "removing old destinations from line=%d, sch
 // matches two halts; if the pos is not identical, maybe the halt still is the same
 bool convoi_t::matches_halt( const koord3d pos1, const koord3d pos2 )
 {
-	halthandle_t halt1 = haltestelle_t::get_stoppable_halt(pos1, owner );
-	return pos1==pos2  ||  (halt1.is_bound()  &&  halt1==haltestelle_t::get_stoppable_halt( pos2, owner ));
+	halthandle_t halt1 = haltestelle_t::get_stoppable_halt(pos1, owner, front()->get_waytype() );
+	return pos1==pos2  ||  (halt1.is_bound()  &&  halt1==haltestelle_t::get_stoppable_halt( pos2, owner, front()->get_waytype() ));
 }
 
 
@@ -4490,7 +4504,7 @@ void convoi_t::register_stops()
 {
 	if(  schedule  ) {
 		FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->get_entries()) {
-			halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, get_owner());
+			halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, get_owner(), front()->get_waytype());
 			if(  halt.is_bound()  ) {
 				halt->add_convoy(self);
 			}
@@ -4506,7 +4520,7 @@ void convoi_t::unregister_stops()
 {
 	if(  schedule  ) {
 		FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->get_entries()) {
-			halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, get_owner());
+			halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, get_owner(), schedule->get_waytype());
 			if(  halt.is_bound()  ) {
 				halt->remove_convoy(self);
 			}

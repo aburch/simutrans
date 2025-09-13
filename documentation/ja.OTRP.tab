@@ -183,6 +183,14 @@ Next line:
 この路線へ飛ぶ:
 Jump to this Next-line's schedule at the end of this schedule.
 このスケジュールの最後の駅で、指定された路線のスケジュールに切り替わります。
+Teleport to Depot
+車庫に転送
+Teleport All to Depot
+全編成を車庫に転送
+Convoys are teleported to depot immediately
+路線のすべての編成を車庫に即座に転送します
+Remove vehicle from here and send to the nearest depot.
+全ての車両を車庫に転送します。
 #------円表記------
 $
  円

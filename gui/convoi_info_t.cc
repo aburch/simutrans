@@ -317,7 +317,7 @@ void convoi_info_t::update_labels()
 
 	// next stop
 	target_label.buf().append(translator::translate("Fahrtziel"));
-	schedule_t::gimme_stop_name(target_label.buf(), welt, cnv->get_owner(), cnv->get_schedule()->get_current_entry(), 34);
+	schedule_t::gimme_stop_name(target_label.buf(), welt, cnv->get_owner(), cnv->get_schedule()->get_current_entry(), 34, cnv->front()->get_waytype());
 	target_label.update();
 
 	// only show assigned line, if there is one!
