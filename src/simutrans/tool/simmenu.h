@@ -337,16 +337,21 @@ public:
 	// returning true on exit will have tool_selector resets to query-tool on right-click
 	virtual bool exit( player_t * ) { return true; }
 
-	/* the return string can have different meanings:
-	 * NULL: ok
-	 * "": unspecified error
-	 * "blabla": errors message, will be handled and translated as appropriate
-	 * check: called before work (and move too?) koord3d already valid coordinate, checks visibility
-	 * work / move should depend on undergroundmode for not network safe tools
-	 */
-	virtual const char *check_pos( player_t *, koord3d );
-	virtual const char *work( player_t *, koord3d ) { return NULL; }
-	virtual const char *move( player_t *, uint16 /* buttonstate */, koord3d ) { return ""; }
+	/// Checks if @p pos is suitable for applying this tool.
+	/// @returns NULL if OK, else untranslated error message
+	virtual const char *check_pos( player_t *pl, koord3d pos);
+
+	/// Apply the tool to the world at @p pos.
+	/// @note This function should depend on undergroundmode for not network safe tools
+	/// @returns NULL if OK, else untranslated error message
+	virtual const char *work( player_t *pl, koord3d pos);
+
+	/// Called when the tool is dragged across the map.
+	/// If we are in network mode, the effects of the tool must be queued,
+	/// else the effects of the tool can just be applied directly.
+	/// @note This function should depend on undergroundmode for not network safe tools
+	/// @returns NULL if OK, else untranslated error message
+	virtual const char *move( player_t *pl, uint16 buttonstate, koord3d new_pos);
 
 	/**
 	 * Should be overloaded if derived class implements move,

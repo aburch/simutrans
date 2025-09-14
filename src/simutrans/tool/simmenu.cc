@@ -1034,6 +1034,19 @@ const char* tool_t::check_pos(player_t*, koord3d pos)
 	return (gr && !gr->is_visible()) ? "" : NULL;
 }
 
+
+const char *tool_t::work(player_t *, koord3d)
+{
+	return NULL;
+}
+
+
+const char *tool_t::move(player_t *, uint16_t, koord3d)
+{
+	return "";
+}
+
+
 bool tool_t::check_valid_pos(koord k) const
 {
 	if (is_grid_tool()) {
