@@ -7079,7 +7079,7 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 					grund_t *gr = welt->lookup(start_pos);
 					while(true) {
 						gr->get_neighbour(gr, wt, dir);
-						if(!gr  ||  !gr->is_halt()  ||  !gr->get_weg(wt)  || (ribi=gr->get_weg_ribi_unmasked(wt))==0) {
+						if(  !gr  ||  !gr->is_halt()  ||  !gr->get_weg(wt)  || (ribi=gr->get_weg_ribi_unmasked(wt))==0  ||  gr->get_pos()==last_pos  ) {
 							// maybe reach last tile
 							break;
 						}
