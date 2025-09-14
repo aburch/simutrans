@@ -3602,6 +3602,7 @@ uint32 convoi_t::calc_available_halt_length_in_vehicle_steps(koord3d front_vehic
 	// find out how many steps I am already in the station
 	uint32 halt_length = 0;
 	grund_t* gr = world()->lookup(front_vehicle_pos);
+	const koord3d start_pos_ref = front_vehicle_pos;// to avoid loop
 	const halthandle_t halt = gr ? gr->get_halt() : halthandle_t();
 	if(  !halt.is_bound()  ) {
 		// We are not on the valid halt tiles?
@@ -3628,7 +3629,7 @@ uint32 convoi_t::calc_available_halt_length_in_vehicle_steps(koord3d front_vehic
 		is_last_diagonal = ribi_t::is_bend(way_dir);
 		halt_length += is_last_diagonal ? diagonal_tile_length : straight_tile_length;
 		open_dir = way_dir & ~(ribi_t::backward(open_dir));
-		if(  !ribi_t::is_single(open_dir)  ||  !gr->get_neighbour(gr, waytype, open_dir)  ) {
+		if(  !ribi_t::is_single(open_dir)  ||  !gr->get_neighbour(gr, waytype, open_dir)  ||  gr->get_pos() == start_pos_ref  ) {
 			break;
 		}
 	}
