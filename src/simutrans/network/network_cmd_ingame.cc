@@ -167,7 +167,13 @@ bool nwc_nick_t::execute(karte_t *welt)
 		uint32 client_id = socket_list_t::get_client_id(packet->get_sender());
 
 		if(nickname==NULL  ||  nickname=="Admin"  || nick_already_taken(nickname, client_id)) {
-			goto generate_default_nick;
+			if (nickname  &&  id == NWC_NICK) {
+				// Player tried to change nickname, but it is already taken
+				nwc_nick_t::server_tools(welt, client_id, NICK_TAKEN, nickname);
+				return true;
+			} else {
+				goto generate_default_nick;
+			}
 		}
 
 		if (id == NWC_NICK) {
@@ -259,6 +265,20 @@ void nwc_nick_t::server_tools(karte_t *welt, uint32 client_id, uint8 what, const
 			}
 			break;
 		}
+
+		case NICK_TAKEN: {
+			if (client_id > 0) {
+				// send old nickname back to client
+				nwc_nick_t nwc(info.nickname);
+				nwc.send(info.socket);
+			}
+			else {
+				// human at server
+				env_t::nickname = info.nickname;
+			}
+			return;
+		}
+
 		case FAREWELL: {
 			buf.printf(translator::translate("%s has left.", welt->get_settings().get_name_language_id()),
 				   info.nickname.c_str());

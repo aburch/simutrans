@@ -56,6 +56,7 @@ public:
 	enum {
 		WELCOME,
 		CHANGE_NICK,
+		NICK_TAKEN,
 		FAREWELL
 	};
 
@@ -63,6 +64,7 @@ public:
 	 * Server-side nickname related stuff:
 	 * what = WELCOME     .. new player joined: send welcome message
 	 * what = CHANGE_NICK .. change nickname: in socket_list per client, send new nick back to client, tell others as well
+	 * what = NICK_TAKEN  .. player tried to use a nickname already taken, send old nick instead
 	 * what = FAREWELL    .. player has left: send message
 	 */
 	static void server_tools(karte_t *welt, uint32 client_id, uint8 what, const char* nick);

@@ -3,29 +3,31 @@
  * (see LICENSE.txt)
  */
 
-#include "../world/simworld.h"
-#include "../simcolor.h"
-#include "../display/simgraph.h"
-#include "simwin.h"
-#include "../utils/simstring.h"
-#include "../utils/cbuffer.h"
-#include "../utils/csv.h"
-#include "../simversion.h"
-
-
-#include "../dataobj/translator.h"
-#include "../network/network.h"
-#include "../network/network_file_transfer.h"
-#include "../network/network_cmd_ingame.h"
-#include "../network/network_cmp_pakset.h"
-#include "../dataobj/environment.h"
-#include "../network/pakset_info.h"
-#include "../player/simplay.h"
 #include "server_frame.h"
+
+#include "simwin.h"
 #include "messagebox.h"
 #include "chat_frame.h"
 #include "help_frame.h"
 #include "components/gui_divider.h"
+
+#include "../dataobj/environment.h"
+#include "../dataobj/translator.h"
+#include "../display/simgraph.h"
+#include "../network/network.h"
+#include "../network/network_cmd_ingame.h"
+#include "../network/network_cmp_pakset.h"
+#include "../network/network_file_transfer.h"
+#include "../network/pakset_info.h"
+#include "../player/simplay.h"
+#include "../simcolor.h"
+#include "../simversion.h"
+#include "../tool/simtool.h"
+#include "../utils/cbuffer.h"
+#include "../utils/csv.h"
+#include "../utils/simstring.h"
+#include "../world/simworld.h"
+
 
 static char nick_buf[256];
 char server_frame_t::newserver_name[2048] = "";
@@ -547,6 +549,7 @@ void server_frame_t::draw (scr_coord pos, scr_size size)
 {
 	// update nickname if necessary
 	if (  get_focus() != &nick  &&  env_t::nickname != nick_buf  ) {
+		open_error_msg_win(translator::translate("Cannot change name: Name already in use"));
 		tstrncpy( nick_buf, env_t::nickname.c_str(), min( lengthof( nick_buf ), env_t::nickname.length() + 1 ) );
 	}
 

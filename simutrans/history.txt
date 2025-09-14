@@ -24,6 +24,7 @@
 	FIX: (Nazalassa) Cursors ignore player changes
 	FIX: Crash when changing the sort mode of a halt while a convoi window is open
 	ADD: (Nazalassa) Sound can now also be loaded from pakset addon directory
+	FIX: (Nazalassa) Players can change nickname to one that is already in use
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):
