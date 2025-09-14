@@ -1978,6 +1978,9 @@ obj=program_text
 name=Transformer only on flat bare land!
 -
 obj=program_text
+name=Transformers cannot connect to factories on water.
+-
+obj=program_text
 name=Translation
 -
 obj=program_text

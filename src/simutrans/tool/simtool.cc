@@ -1760,7 +1760,7 @@ const char *tool_transformer_t::work( player_t *player, koord3d pos )
 	// underground: first build tunnel tile at coordinate pos
 	if(underground) {
 		if(gr->is_water()) {
-			return "Transformer only next to factory!";
+			return "Transformers cannot connect to factories on water.";
 		}
 
 		if(welt->lookup(pos)) {
