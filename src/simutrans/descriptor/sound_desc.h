@@ -60,7 +60,7 @@ public:
 
 	static bool register_desc(sound_desc_t *desc);
 
-	static void init(const std::string &pak_dir);
+	static void init(const std::string &pak_dir, const std::string &addon_dir);
 
 	/* return old sound id from index */
 	static sint16 get_compatible_sound_id(const sint8 nr) { return compatible_sound_id[nr&(15)]; }
