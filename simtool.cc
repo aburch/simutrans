@@ -7094,10 +7094,11 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 					// now add all of them
 					dir = ribi_t::backward(dir);
 					gr = welt->lookup(start_pos);
+					const koord3d end_pos = start_pos;
 					while(true) {
 						old_platform.append(start_pos);
 						gr->get_neighbour(gr, wt, dir);
-						if(!gr  ||  !gr->is_halt()  ||  !gr->get_weg(wt)  || (ribi=gr->get_weg_ribi_unmasked(wt))==0  ||  gr->get_pos()==last_pos  ) {
+						if(!gr  ||  !gr->is_halt()  ||  !gr->get_weg(wt)  || (ribi=gr->get_weg_ribi_unmasked(wt))==0  ||  gr->get_pos()==end_pos  ) {
 							// maybe reach last tile
 							break;
 						}
