@@ -268,7 +268,7 @@ bool convoi_t::is_waypoint( koord3d ziel ) const
 		}
 		// so we are on a taxiway/runway here ...
 	}
-	return !haltestelle_t::get_stoppable_halt(ziel,get_owner()).is_bound();
+	return !haltestelle_t::get_stoppable_halt(ziel,get_owner(),fahr[0]->get_waytype()).is_bound();
 }
 
 
@@ -1205,7 +1205,7 @@ bool convoi_t::drive_to()
 
 		// avoid stopping mid-halt
 		if(  start==ziel  ) {
-			halthandle_t halt = haltestelle_t::get_stoppable_halt(ziel,get_owner());
+			halthandle_t halt = haltestelle_t::get_stoppable_halt(ziel,get_owner(),front()->get_waytype());
 			if(  halt.is_bound()  &&  route.is_contained(start)  ) {
 				for(  uint32 i=route.index_of(start);  i<route.get_count();  i++  ) {
 					grund_t *gr = welt->lookup(route.at(i));
@@ -1391,11 +1391,11 @@ void convoi_t::step()
 				else {
 					// Schedule changed at station
 					// this station? then complete loading task else drive on
-					halthandle_t h = haltestelle_t::get_stoppable_halt( get_pos(), get_owner() );
-					if(  h.is_bound()  &&  h==haltestelle_t::get_stoppable_halt( schedule->get_current_entry().pos, get_owner() )  ) {
+					halthandle_t h = haltestelle_t::get_stoppable_halt( get_pos(), get_owner(), front()->get_waytype()  );
+					if(  h.is_bound()  &&  h==haltestelle_t::get_stoppable_halt( schedule->get_current_entry().pos, get_owner(), front()->get_waytype() )  ) {
 						if (route.get_count() > 0) {
 							koord3d const& pos = route.back();
-							if (h == haltestelle_t::get_stoppable_halt(pos, get_owner())) {
+							if (h == haltestelle_t::get_stoppable_halt(pos, get_owner(),front()->get_waytype())) {
 								state = get_pos() == pos ? LOADING : DRIVING;
 								break;
 							}
@@ -1479,7 +1479,7 @@ void convoi_t::step()
 				if(  v->can_enter_tile( restart_speed, 0 )  ) {
 					// can reserve new block => drive on
 					state = (steps_driven>=0) ? LEAVING_DEPOT : DRIVING;
-					if(haltestelle_t::get_stoppable_halt(v->get_pos(),owner).is_bound()) {
+					if(haltestelle_t::get_stoppable_halt(v->get_pos(),owner,v->get_waytype()).is_bound()) {
 						v->play_sound();
 					}
 				}
@@ -1884,7 +1884,7 @@ void convoi_t::ziel_erreicht()
 		c->set_time_last_arrived(world()->get_ticks());
 		c = c->get_coupling_convoi();
 	}
-	halthandle_t halt = haltestelle_t::get_stoppable_halt(schedule->get_current_entry().pos,owner);
+	halthandle_t halt = haltestelle_t::get_stoppable_halt(schedule->get_current_entry().pos,owner,front()->get_waytype());
 
 	// check for coupling
 	if(  next_coupling_index!=route_t::INVALID_INDEX  &&  next_coupling_index<=v->get_route_index()  ) {
@@ -2630,7 +2630,7 @@ void convoi_t::vorfahren()
 			sint32 restart_speed = -1;
 			if(  fahr[0]->can_enter_tile( restart_speed, 0 )  ) {
 				// can reserve new block => drive on
-				if(haltestelle_t::get_stoppable_halt(k0,owner).is_bound()) {
+				if(haltestelle_t::get_stoppable_halt(k0,owner,front()->get_waytype()).is_bound()) {
 					fahr[0]->play_sound();
 				}
 				state = DRIVING;
@@ -3441,7 +3441,7 @@ void convoi_t::laden()
 	wait_lock = (WTT_LOADING*2)+(self.get_id())%1024;
 
 	// find station (ours or public)
-	halthandle_t halt = haltestelle_t::get_stoppable_halt(schedule->get_current_entry().pos,owner);
+	halthandle_t halt = haltestelle_t::get_stoppable_halt(schedule->get_current_entry().pos,owner,front()->get_waytype());
 	if(  halt.is_bound()  ) {
 		// queue for (un)loading, does (un)loading once per step
 		halt->request_loading( self );
@@ -3621,7 +3621,7 @@ uint32 convoi_t::calc_available_halt_length_in_vehicle_steps(koord3d front_vehic
 	}
 
 	bool is_last_diagonal = false;
-	while(  gr  &&  haltestelle_t::get_stoppable_halt(gr->get_pos(), NULL)==halt  ) {
+	while(  gr  &&  haltestelle_t::get_stoppable_halt(gr->get_pos(), NULL, waytype)==halt  ) {
 		const weg_t* way = gr->get_weg(waytype);
 		if(  !way  ) { break; }
 		const ribi_t::ribi way_dir = way->get_ribi_unmasked();
@@ -3659,7 +3659,7 @@ void calc_reachable_halts(vector_tpl<haltestelle_t::reachable_halt_t>& reachable
 		return;
 	}
 
-	const halthandle_t current_halt = haltestelle_t::get_stoppable_halt(schedule->get_current_entry().pos, owner);
+	const halthandle_t current_halt = haltestelle_t::get_stoppable_halt(schedule->get_current_entry().pos, owner, cnv->front()->get_waytype());
 	const uint8 schedule_count = schedule->get_count();
 
 	// We use the line schedule instead of convoy's schedule to fetch the journey time.
@@ -3697,7 +3697,7 @@ void calc_reachable_halts(vector_tpl<haltestelle_t::reachable_halt_t>& reachable
 	for(  uint8 i=1;  i<line_schedule_count;  i++  ) {
 		const uint8 wrap_i = (i + line_schedule_current_index) % line_schedule_count;
 
-		const halthandle_t plan_halt = haltestelle_t::get_stoppable_halt(line_schedule->at(wrap_i).pos, owner);
+		const halthandle_t plan_halt = haltestelle_t::get_stoppable_halt(line_schedule->at(wrap_i).pos, owner, cnv->front()->get_waytype());
 		if(  plan_halt == current_halt  ) {
 			if(  !line_schedule->at(wrap_i).is_no_load()  ) {
 				// we will come later here again ...
@@ -3772,8 +3772,9 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 	const goods_desc_t* cargo_type_prev = NULL;
 	bool loading_needed = !no_load  &&  !next_depot;
 	// When load_before_departure is enabled, load cargos only when the departure time condition is satisfied.
-	if(  schedule->get_current_entry().get_wait_for_time()  &&  schedule->get_current_entry().is_load_before_departure()  ) {
-		loading_needed &= (scheduled_departure_time!=0  &&  is_first_ticks_bigger(welt->get_ticks(), scheduled_departure_time - time));
+	convoihandle_t leading_convoy = find_most_parent_convoi();
+	if(  leading_convoy->schedule->get_current_entry().get_wait_for_time()  &&  schedule->get_current_entry().is_load_before_departure()  ) {
+		loading_needed &= (leading_convoy->scheduled_departure_time!=0  &&  is_first_ticks_bigger(welt->get_ticks(), leading_convoy->scheduled_departure_time - time));
 	}
 	else if(schedule->get_current_entry().waiting_time_shift > 0  &&  schedule->get_current_entry().is_load_before_departure() ){
 		loading_needed &= (schedule->get_current_entry().waiting_time_shift > 0  &&  welt->get_ticks() - arrived_time >= welt->ticks_per_world_month / schedule->get_current_entry().waiting_time_shift);
@@ -4362,8 +4363,8 @@ DBG_DEBUG("convoi_t::unset_line()", "removing old destinations from line=%d, sch
 // matches two halts; if the pos is not identical, maybe the halt still is the same
 bool convoi_t::matches_halt( const koord3d pos1, const koord3d pos2 )
 {
-	halthandle_t halt1 = haltestelle_t::get_stoppable_halt(pos1, owner );
-	return pos1==pos2  ||  (halt1.is_bound()  &&  halt1==haltestelle_t::get_stoppable_halt( pos2, owner ));
+	halthandle_t halt1 = haltestelle_t::get_stoppable_halt(pos1, owner, front()->get_waytype() );
+	return pos1==pos2  ||  (halt1.is_bound()  &&  halt1==haltestelle_t::get_stoppable_halt( pos2, owner, front()->get_waytype() ));
 }
 
 
@@ -4503,7 +4504,7 @@ void convoi_t::register_stops()
 {
 	if(  schedule  ) {
 		FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->get_entries()) {
-			halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, get_owner());
+			halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, get_owner(), front()->get_waytype());
 			if(  halt.is_bound()  ) {
 				halt->add_convoy(self);
 			}
@@ -4519,7 +4520,7 @@ void convoi_t::unregister_stops()
 {
 	if(  schedule  ) {
 		FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->get_entries()) {
-			halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, get_owner());
+			halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, get_owner(), schedule->get_waytype());
 			if(  halt.is_bound()  ) {
 				halt->remove_convoy(self);
 			}
@@ -5029,7 +5030,13 @@ const char* convoi_t::send_to_depot(bool local)
 const char* convoi_t::send_to_depot_immediately(bool local)
 {
 	const char *txt;
-	// First check : the all convoys are same waytype, same owner, etc...
+	// First check : already in depot, do not send any more
+	if(  state==INITIAL  ) {
+		dbg->message("convoi_t::send_to_depot_immediately()","%s is already in depot.", get_name());
+		txt = "%s is already in depot.\n", get_name();
+		return txt;
+	}
+	// Second check : the all convoys are same waytype, same owner, etc...
 	convoihandle_t c = get_coupling_convoi();
 	player_t* const owner = get_owner();
 	waytype_t const waytype = front()->get_waytype();

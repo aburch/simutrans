@@ -670,26 +670,14 @@ void roadsign_t::rdwr(loadsave_t *file)
 		dir = ribi_t::backward(dir);
 	}
 	
-	if(file->get_OTRP_version()>=22) {	
-		if(file->get_OTRP_version()>=46) {
-			file->rdwr_byte(choose_sign_flag);
-		} else {
-			bool guide_signal = is_guide_signal();
-			file->rdwr_bool(guide_signal);
-			set_guide_signal(guide_signal);
-			if(desc->get_flags()&roadsign_desc_t::CHOOSE_SIGN){
-				set_advance_to_end(true);
-			}else{
-				set_advance_to_end(false);
-			}
-			if(desc->get_flags()&roadsign_desc_t::END_OF_CHOOSE_AREA) {
-				set_end_of_choose(true);
-				set_end_of_guide(true);
-			}else{
-				set_end_of_choose(false);
-				set_end_of_guide(false);
-			}
-		}
+	if(file->get_OTRP_version()>=46) {	
+		file->rdwr_byte(choose_sign_flag);
+	} 
+	else if(file->get_OTRP_version()>=22) {
+		bool guide_signal = is_guide_signal();
+		file->rdwr_bool(guide_signal);
+		set_guide_signal(guide_signal);
+		set_advance_to_end(true);
 	} else {
 		set_guide_signal(false);
 		set_advance_to_end(true);

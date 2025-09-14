@@ -50,7 +50,7 @@ bool signal_info_t::action_triggered( gui_action_creator_t* comp, value_t /* */)
 	}
 	if(  comp==&bt_require_parent  ) {
 		char param[256];
-		bool v = signal->is_guide_signal();
+		const bool v = signal->is_guide_signal();
 		sprintf( param, "%s,%i,s", signal->get_pos().get_str(), !v );
 		tool_t::simple_tool[TOOL_CHANGE_ROADSIGN]->set_default_param( param );
 		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_ROADSIGN], welt->get_active_player() );
