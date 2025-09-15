@@ -3224,6 +3224,10 @@ void convoi_t::rdwr(loadsave_t *file)
 		reversing_needed = true;
 	}
 
+	if(  file->get_OTRP_version()>=46  ) {
+		file->rdwr_short( max_speed_of_convoi );
+	}
+
 	if(  file->is_loading()  ) {
 		reserve_route();
 		recalc_catg_index();

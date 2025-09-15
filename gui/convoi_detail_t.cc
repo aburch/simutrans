@@ -241,6 +241,20 @@ void convoi_detail_t::init(convoihandle_t cnv)
 		end_table();
 	}
 	end_table();
+
+	// max speed setting
+	add_table(2,1);
+	{
+		new_component<gui_label_t>(translator::translate("MaxspeedOfConvoi:"));
+		max_speed_of_convoi_numberinput.set_width(60);
+		max_speed_of_convoi_numberinput.set_value( cnv->get_max_speed_of_convoi() );
+		max_speed_of_convoi_numberinput.set_limits(0, 65535);
+		max_speed_of_convoi_numberinput.set_increment_mode(1);
+		max_speed_of_convoi_numberinput.add_listener(this);
+		add_component(&max_speed_of_convoi_numberinput);
+	}
+	end_table();
+
 	add_component(&scrolly);
 
 	const sint32 cnv_kmh = (cnv->front()->get_waytype() == air_wt) ? speed_to_kmh(cnv->get_min_top_speed()) : cnv->get_speedbonus_kmh();
@@ -347,6 +361,9 @@ bool convoi_detail_t::action_triggered(gui_action_creator_t *comp,value_t /* */)
 				cnv->call_convoi_tool( 'o', NULL );
 				return true;
 			}
+		}
+		else if(comp == &max_speed_of_convoi_numberinput) {
+			cnv->set_max_speed_of_convoi((uint16)max_speed_of_convoi_numberinput.get_value());
 		}
 	}
 	return false;

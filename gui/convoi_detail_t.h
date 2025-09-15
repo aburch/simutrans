@@ -13,6 +13,7 @@
 #include "components/gui_label.h"
 #include "components/action_listener.h"
 #include "components/gui_combobox.h"
+#include "components/gui_numberinput.h"
 #include "../convoihandle_t.h"
 
 class scr_coord;
@@ -47,6 +48,7 @@ private:
 	button_t trade_convoi_button;
 	uint8 viewable_players[MAX_PLAYER_COUNT];
 	gui_combobox_t trade_player_num;
+	gui_numberinput_t max_speed_of_convoi_numberinput;
 
 	static karte_ptr_t welt;
 public:
