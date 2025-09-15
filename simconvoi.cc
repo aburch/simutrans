@@ -1860,8 +1860,8 @@ void convoi_t::ziel_erreicht()
 
 	c = self;
 	while(c.is_bound()) {
-		if (  schedule->get_current_entry().is_overwrite_max_speed_of_convoi()  ) {
-			c->set_max_speed_of_convoi(schedule->get_current_entry().max_speed_of_convoi);
+		if (  c->get_schedule()->get_current_entry().is_overwrite_max_speed_of_convoi()  ) {
+			c->set_max_speed_of_convoi(c->get_schedule()->get_current_entry().max_speed_of_convoi);
 			c->must_recalc_speed_limit();
 		}
 		c = c->get_coupling_convoi();
