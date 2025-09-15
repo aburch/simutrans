@@ -316,6 +316,12 @@ void convoi_detail_t::draw(scr_coord offset)
 	trade_convoi_button.set_text(is_owner ? cnv->get_permit_trade() ? "Permitted" : "Permit Trade" : "Accept Trade");
 	trade_convoi_button.set_tooltip(is_owner ? "Permit trade this convoi" : "Accept trade this convoi");
 
+	if (is_owner) {
+		max_speed_of_convoi_numberinput.enable();
+	} else {
+		max_speed_of_convoi_numberinput.disable();
+	}
+
 
 	update_labels();
 
@@ -332,6 +338,7 @@ void convoi_detail_t::draw(scr_coord offset)
 bool convoi_detail_t::action_triggered(gui_action_creator_t *comp,value_t /* */)
 {
 	if(cnv.is_bound()) {
+		bool is_owner = cnv->get_owner()==welt->get_active_player();
 		if(comp==&sale_button) {
 			cnv->call_convoi_tool( 'x', NULL );
 			return true;
@@ -362,7 +369,8 @@ bool convoi_detail_t::action_triggered(gui_action_creator_t *comp,value_t /* */)
 				return true;
 			}
 		}
-		else if(comp == &max_speed_of_convoi_numberinput) {
+		else if(comp == &max_speed_of_convoi_numberinput && is_owner) {
+			// If don't use is_owner, other users can edit it by scrolling with the mouse.
 			cnv->set_max_speed_of_convoi((uint16)max_speed_of_convoi_numberinput.get_value());
 		}
 	}
