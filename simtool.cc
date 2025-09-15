@@ -7055,7 +7055,7 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 			}
 			else if(!catch_all_halt) {
 				// builds a coordinate list
-				if(wt==road_wt) {
+				if(is_ctrl_pressed()) {
 					old_platform.append(last_pos);
 				}
 				else {
