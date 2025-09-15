@@ -372,6 +372,8 @@ bool convoi_detail_t::action_triggered(gui_action_creator_t *comp,value_t /* */)
 		else if(comp == &max_speed_of_convoi_numberinput && is_owner) {
 			// If don't use is_owner, other users can edit it by scrolling with the mouse.
 			cnv->set_max_speed_of_convoi((uint16)max_speed_of_convoi_numberinput.get_value());
+			cnv->must_recalc_speed_limit();
+			return true;
 		}
 	}
 	return false;
