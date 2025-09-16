@@ -188,6 +188,8 @@ void convoi_t::init(player_t *player)
 
 	in_delay_recovery = false;
 	reversed = false;
+
+	max_speed_of_convoi = 0;
 }
 
 
