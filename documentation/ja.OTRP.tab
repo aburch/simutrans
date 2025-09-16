@@ -191,6 +191,10 @@ Convoys are teleported to depot immediately
 路線のすべての編成を車庫に即座に転送します
 Remove vehicle from here and send to the nearest depot.
 全ての車両を車庫に転送します。
+max speed of convoy
+編成最高速度を設定する
+Overwrite max speed of convoy at this stop.
+編成の最高速度を設定した値で上書きします．
 #------円表記------
 $
  円
@@ -299,6 +303,15 @@ Vehicle %s is coupled convoy, so it cannot depart alone!
 %sは先頭の編成ではないので、発車しませんでした。
 Vehicle %s will couple with vehicle %s, but the next stop positions are different!
 %sと%sは連結して発車する予定ですが、次の駅の座標が異なるため連結できません!
+#------編成最高速度機能------
+Set Max Speed
+編成最高速度を設定
+Set max speed of this convoi
+編成の最高速度を設定します．
+MaxspeedOfConvoi: UNLIMIT
+編成最高速度：UNLIMIT(制限無し)
+MaxspeedOfConvoi: %i km/h
+編成最高速度： %i km/h
 #------その他の翻訳------
 next stop
 次の駅へ

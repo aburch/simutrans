@@ -52,7 +52,7 @@ public:
 		REVERSE_CONVOY	   = 1U << 8, // convoy reverses the order of its vehicles.
 		REVERSE_COUPLING   = 1U << 9, // The convoy reverses the parent-child relationship of the convoy coupling.
 		WAIT_COUPLING_DONE = 1U << 10,// Do not reserve departure slot until coupling done.
-		MAX_SPEED_OF_CONVOI= 1U << 11,// Overwrite max speed of convoy.
+		MAX_SPEED_OF_CONVOI= 1U << 11,// Overwrite max speed of convoy at this stops.
 	};
 
 	/**
@@ -75,7 +75,7 @@ public:
 	uint16 spacing, spacing_shift, delay_tolerance;
 
 	/**
-	 * TODO: Write Description
+	 * Overwrite max speed of convoy at this stops.
 	 */
 	uint16 max_speed_of_convoi;
 	
