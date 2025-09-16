@@ -1240,7 +1240,6 @@ void vehicle_t::hop(grund_t* gr)
 				}
 				if (  c->get_schedule()->get_current_entry().is_overwrite_max_speed_of_convoi()  ) {
 					c->set_max_speed_of_convoi(c->get_schedule()->get_current_entry().max_speed_of_convoi);
-					c->must_recalc_speed_limit();
 				}
 				c->set_time_last_arrived(world()->get_ticks());
 				c->get_schedule()->advance();

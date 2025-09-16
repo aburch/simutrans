@@ -38,7 +38,7 @@ private:
 	gui_aligned_container_t container;
 	gui_scrollpane_t scrolly;
 
-	gui_label_buf_t label_power, label_odometer, label_resale, label_length, label_speed;
+	gui_label_buf_t label_power, label_odometer, label_resale, label_length, label_speed, label_max_speed_of_convoi;
 
 	convoihandle_t cnv;
 	button_t sale_button;
@@ -46,6 +46,7 @@ private:
 	button_t withdraw_button;
 	button_t copy_convoi_button;
 	button_t trade_convoi_button;
+	button_t max_speed_of_convoi_button;
 	uint8 viewable_players[MAX_PLAYER_COUNT];
 	gui_combobox_t trade_player_num;
 	gui_numberinput_t max_speed_of_convoi_numberinput;

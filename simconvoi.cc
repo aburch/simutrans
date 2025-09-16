@@ -5705,6 +5705,11 @@ void convoi_t::unset_convoi_coupling_in_progress() {
 	dbg->message( "convoi_t::unset_convoi_coupling_in_progress()","%i and %i convoys are now coupling or canceling couple", self.get_id(), c->self.get_id() );
 }
 
+void convoi_t::set_max_speed_of_convoi(uint16 n) {
+	max_speed_of_convoi = n;
+	must_recalc_speed_limit();
+}
+
 
 bool convoi_t::needs_threaded_step() const
 {

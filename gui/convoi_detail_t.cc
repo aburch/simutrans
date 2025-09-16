@@ -243,15 +243,27 @@ void convoi_detail_t::init(convoihandle_t cnv)
 	end_table();
 
 	// max speed setting
-	add_table(2,1);
+	add_table(3,1);
 	{
-		new_component<gui_label_t>(translator::translate("MaxspeedOfConvoi:"));
-		max_speed_of_convoi_numberinput.set_width(60);
-		max_speed_of_convoi_numberinput.set_value( cnv->get_max_speed_of_convoi() );
-		max_speed_of_convoi_numberinput.set_limits(0, 65535);
-		max_speed_of_convoi_numberinput.set_increment_mode(1);
-		max_speed_of_convoi_numberinput.add_listener(this);
-		add_component(&max_speed_of_convoi_numberinput);
+		add_component(&label_max_speed_of_convoi);
+
+		new_component<gui_fill_t>();
+
+		add_table(2,1)->set_force_equal_columns(true);
+		{
+			max_speed_of_convoi_numberinput.set_width(60);
+			max_speed_of_convoi_numberinput.set_value( cnv->get_max_speed_of_convoi() );
+			max_speed_of_convoi_numberinput.set_limits(0, 65535);
+			max_speed_of_convoi_numberinput.set_increment_mode(1);
+			max_speed_of_convoi_numberinput.add_listener(this);
+			add_component(&max_speed_of_convoi_numberinput);
+
+			max_speed_of_convoi_button.init(button_t::roundbox| button_t::flexible, "Set Max Speed");
+			max_speed_of_convoi_button.set_tooltip("Set max speed of this convoi");
+			max_speed_of_convoi_button.add_listener(this);
+			add_component(&max_speed_of_convoi_button);
+		}
+		end_table();
 	}
 	end_table();
 
@@ -289,6 +301,12 @@ void convoi_detail_t::update_labels()
 	label_resale.update();
 	label_speed.buf().printf(translator::translate("Bonusspeed: %i km/h"), cnv->get_speedbonus_kmh() );
 	label_speed.update();
+	if(  cnv->get_max_speed_of_convoi()==0  ) {
+		label_max_speed_of_convoi.buf().printf(translator::translate("MaxspeedOfConvoi: UNLIMIT"));
+	} else {
+		label_max_speed_of_convoi.buf().printf(translator::translate("MaxspeedOfConvoi: %i km/h"), cnv->get_max_speed_of_convoi() );
+	}
+	label_max_speed_of_convoi.update();
 }
 
 
@@ -369,10 +387,8 @@ bool convoi_detail_t::action_triggered(gui_action_creator_t *comp,value_t /* */)
 				return true;
 			}
 		}
-		else if(comp == &max_speed_of_convoi_numberinput && is_owner) {
-			// If don't use is_owner, other users can edit it by scrolling with the mouse.
+		else if(comp==&max_speed_of_convoi_button) {
 			cnv->set_max_speed_of_convoi((uint16)max_speed_of_convoi_numberinput.get_value());
-			cnv->must_recalc_speed_limit();
 			return true;
 		}
 	}

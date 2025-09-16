@@ -1128,7 +1128,7 @@ public:
 	 * TODO: Write Description
 	 */
 	uint16 get_max_speed_of_convoi() const {return max_speed_of_convoi;}
-	void set_max_speed_of_convoi(uint16 n) {max_speed_of_convoi = n;}
+	void set_max_speed_of_convoi(uint16 n);
 };
 
 #endif
