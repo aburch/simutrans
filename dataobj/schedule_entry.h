@@ -24,11 +24,12 @@ public:
 		init_convoy_stopping_time();
 	}
 
-	schedule_entry_t(koord3d const& pos, uint8 const minimum_loading, uint16 const waiting_time_shift, uint16 const stop_flags) :
+	schedule_entry_t(koord3d const& pos, uint8 const minimum_loading, uint16 const waiting_time_shift, uint16 const stop_flags, uint16 const length_coupling_done) :
 		pos(pos),
 		minimum_loading(minimum_loading),
 		waiting_time_shift(waiting_time_shift),
-		stop_flags(stop_flags)
+		stop_flags(stop_flags),
+		length_coupling_done(length_coupling_done)
 	{
 		spacing = 1;
 		spacing_shift = delay_tolerance = 0;
@@ -171,7 +172,8 @@ public:
 			&&  a.get_stop_flags()   == this->stop_flags
 			&&  a.spacing            == this->spacing
 			&&  a.spacing_shift      == this->spacing_shift
-			&&  a.delay_tolerance    == this->delay_tolerance;
+			&&  a.delay_tolerance    == this->delay_tolerance
+			&&  a.length_coupling_done == this->length_coupling_done;
 	}
 };
 
