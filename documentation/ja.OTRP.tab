@@ -75,6 +75,8 @@ Waiting for coupling! (%i->%i%%)
 連結相手を待機中 (%i->%i%%)
 Require parent convoy to enter.
 連結相手がいる時のみ進入を許可
+Advance to end
+ホーム終端まで進む
 release back
 後ろを解放
 A convoy waits for other convoy to couple.

@@ -9032,6 +9032,10 @@ bool tool_change_traffic_light_t::init( player_t *player )
 
 /*
  * change state of roadsign
+ * r:set lane affinity for oneway road sign
+ * s:set guide signal state for signal
+ * a:set advance to end state for signal
+ * 
  */
 bool tool_change_roadsign_t::init( player_t* )
 {
@@ -9069,6 +9073,18 @@ bool tool_change_roadsign_t::init( player_t* )
 			}
 		}
 		break;
+
+		case 'a':
+		// set advance to end state for signal
+		if(  grund_t *gr = welt->lookup(pos)  ) {
+			if( roadsign_t *rs = gr->find<signal_t>()  ) {
+				rs->set_advance_to_end(inst);
+				signal_info_t* signal_info_win = (signal_info_t*)win_get_magic((ptrdiff_t)rs);
+				if(  signal_info_win  ) {
+					signal_info_win->update_data();
+				}
+			}
+		}
 
 		default:
 		// do nothing
