@@ -339,6 +339,7 @@ void convoi_detail_t::draw(scr_coord offset)
 	} else {
 		max_speed_of_convoi_numberinput.disable();
 	}
+	max_speed_of_convoi_button.enable(is_owner);
 
 
 	update_labels();
