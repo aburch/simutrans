@@ -54,7 +54,7 @@ void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& jou
 
     // Stopping time at the halt
     lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::left);
-    halthandle_t const halt = haltestelle_t::get_stoppable_halt(e.pos, player);
+    halthandle_t const halt = haltestelle_t::get_stoppable_halt(e.pos, player, schedule->get_waytype());
     if(  halt.is_bound()  ) {
       // show halt name
       lb->buf().printf("%s", halt->get_name());
@@ -102,7 +102,7 @@ void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& jou
 void copy_stations_to_clipboard(schedule_t* schedule, player_t* player, bool name_only) {
   cbuffer_t clipboard;
   FOR(minivec_tpl<schedule_entry_t>, const& e, schedule->get_entries()) {
-    halthandle_t const halt = haltestelle_t::get_stoppable_halt(e.pos, player);
+    halthandle_t const halt = haltestelle_t::get_stoppable_halt(e.pos, player, schedule->get_waytype());
     if(  !halt.is_bound()  ) {
       // do not export waypoint
       continue;
@@ -128,7 +128,7 @@ void copy_csv_format(schedule_t* schedule, player_t* player, vector_tpl<uint32*>
   cbuffer_t clipboard;
   clipboard.append("Station Name\tAverage\t1st\t2nd\t3rd\t4th\t5th\n");
   for(uint8 i=0; i<schedule->get_count(); i++) {
-    halthandle_t const halt = haltestelle_t::get_stoppable_halt(schedule->at(i).pos, player);
+    halthandle_t const halt = haltestelle_t::get_stoppable_halt(schedule->at(i).pos, player, schedule->get_waytype());
     if(  halt.is_bound()  ) {
       clipboard.append(halt->get_name());
     } else {
