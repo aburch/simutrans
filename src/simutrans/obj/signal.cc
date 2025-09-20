@@ -38,7 +38,9 @@ void signal_t::info(cbuffer_t & buf) const
 
 	obj_t::info(buf);
 
-	buf.printf("%s%u", translator::translate("\ndirection:")+1, get_dir());
+	ribi_t::ribi dir = get_dir();
+
+	buf.printf("%s%s", translator::translate("\ndirection:")+1, ribi_t::names[get_dir()]);
 	// copyright obmitted, signal dialog will show it
 }
 

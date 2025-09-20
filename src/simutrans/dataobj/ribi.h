@@ -212,6 +212,8 @@ private:
 	static const dir  dirs[16];
 
 public:
+	/// Lookup table to convert ribi mask to string
+	static const char names[16][5];
 
 	/// Table containing the four compass directions (now as function)
 	struct _nesw {

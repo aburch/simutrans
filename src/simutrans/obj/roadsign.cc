@@ -193,7 +193,7 @@ void roadsign_t::info(cbuffer_t & buf) const
 		if(desc->get_min_speed()!=0) {
 			buf.printf("%s%d", translator::translate("\nminimum speed:"), speed_to_kmh(desc->get_min_speed()));
 		}
-		buf.printf("%s%u\n", translator::translate("\ndirection:"), dir);
+		buf.printf("%s%s\n", translator::translate("\ndirection:"), ribi_t::names[dir]);
 
 		if(  automatic  ) {
 			buf.append(translator::translate("\nSet phases:"));

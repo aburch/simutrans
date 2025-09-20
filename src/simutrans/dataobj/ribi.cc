@@ -288,6 +288,25 @@ const ribi_t::dir ribi_t::dirs[16] = {
 	dir_invalid    // all
 };
 
+const char ribi_t::names[16][5] = {
+	"    ",
+	"N   ",
+	" E  ",
+	"NE  ",
+	"  S ",
+	"N S ",
+	" ES ",
+	"NES ",
+	"   W",
+	"N  W",
+	" E W",
+	"NE W",
+	"  SW",
+	"N SW",
+	" ESW",
+	"NESW",
+};
+
 
 ribi_t::ribi ribi_type(slope_t::type hang)   // north slope -> south, ... !
 {

@@ -268,8 +268,8 @@ void weg_t::info(cbuffer_t & buf) const
 	obj_t::info(buf);
 
 	buf.printf("%s %u%s", translator::translate("Max. speed:"), max_speed, translator::translate("km/h\n"));
-	buf.printf("%s%u",    translator::translate("\nRibi (unmasked)"), get_ribi_unmasked());
-	buf.printf("%s%u\n",  translator::translate("\nRibi (masked)"),   get_ribi());
+	buf.printf("%s%s",    translator::translate("\nRibi (unmasked)"), ribi_t::names[get_ribi_unmasked()]);
+	buf.printf("%s%s\n",  translator::translate("\nRibi (masked)"),   ribi_t::names[get_ribi()]);
 
 	if(has_sign()) {
 		buf.append(translator::translate("\nwith sign/signal\n"));
