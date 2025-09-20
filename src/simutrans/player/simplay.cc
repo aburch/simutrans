@@ -42,6 +42,7 @@
 #include "../obj/gebaeude.h"
 #include "../obj/leitung2.h"
 #include "../obj/tunnel.h"
+#include "../obj/roadsign.h"
 
 #include "../gui/messagebox.h"
 #include "../gui/player_frame.h"
@@ -547,11 +548,11 @@ void player_t::ai_bankrupt()
 				}
 				for (uint8 i = gr->obj_count(); i-- != 0;) {
 					obj_t *obj = gr->obj_bei(i);
+
 					if(obj->get_owner()==this) {
 						sint32 costs = 0;
 						waytype_t wt = ignore_wt;
 						switch(obj->get_typ()) {
-							case obj_t::roadsign:
 							case obj_t::signal:
 							case obj_t::airdepot:
 							case obj_t::bahndepot:
@@ -566,6 +567,7 @@ void player_t::ai_bankrupt()
 								obj->cleanup(this);
 								delete obj;
 								break;
+
 							case obj_t::leitung:
 								// do not remove powerline from bridges
 								if(gr->ist_bruecke()) {
@@ -579,10 +581,12 @@ void player_t::ai_bankrupt()
 									delete obj;
 								}
 								break;
+
 							case obj_t::gebaeude:
 								hausbauer_t::remove( this, (gebaeude_t *)obj );
 								gr = plan->get_boden_bei(b); // fundament has now been replaced by normal ground
 								break;
+
 							case obj_t::way:
 							{
 								weg_t *w=(weg_t *)obj;
@@ -603,6 +607,7 @@ void player_t::ai_bankrupt()
 								}
 								break;
 							}
+
 							case obj_t::bruecke:
 								costs = ((bruecke_t*)obj)->get_desc()->get_maintenance();
 								wt = obj->get_waytype();
@@ -610,6 +615,7 @@ void player_t::ai_bankrupt()
 								psplayer->add_maintenance(costs, wt);
 								obj->set_owner(psplayer);
 								break;
+
 							case obj_t::tunnel:
 								costs = ((tunnel_t*)obj)->get_desc()->get_maintenance();
 								wt = ((tunnel_t*)obj)->get_desc()->get_finance_waytype();
@@ -617,6 +623,22 @@ void player_t::ai_bankrupt()
 								psplayer->add_maintenance(costs, wt);
 								obj->set_owner(psplayer);
 								break;
+
+							case obj_t::roadsign: {
+								costs = ((roadsign_t *)obj)->get_desc()->get_maintenance();
+								wt = ((roadsign_t *)obj)->get_desc()->get_waytype();
+
+								// take care of normal rail signals on tram track
+								if (wt == track_wt && gr->get_weg(tram_wt)) {
+									wt = tram_wt;
+								}
+
+								this->add_maintenance(-costs, wt);
+								psplayer->add_maintenance(costs, wt);
+
+								obj->set_owner(psplayer);
+								break;
+							}
 
 							default:
 								obj->set_owner(psplayer);

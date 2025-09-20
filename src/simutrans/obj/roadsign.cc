@@ -104,9 +104,13 @@ roadsign_t::~roadsign_t()
 {
 	if(  desc  ) {
 		const grund_t *gr = welt->lookup(get_pos());
+		waytype_t finance_waytype = desc->get_waytype();
+
 		if(gr) {
 			weg_t *weg = gr->get_weg(desc->get_wtyp()!=tram_wt ? desc->get_wtyp() : track_wt);
-			if(weg) {
+			if (weg) {
+				finance_waytype = weg->get_waytype();
+
 				if (!preview) {
 					if (desc->is_single_way()  ||  desc->is_signal_type()) {
 						// signal removed, remove direction mask
@@ -119,8 +123,11 @@ roadsign_t::~roadsign_t()
 				dbg->error("roadsign_t::~roadsign_t()","roadsign_t %p was deleted but ground has no way of type %d!", this, desc->get_wtyp() );
 			}
 		}
+
+		player_t::add_maintenance( this->get_owner(), -desc->get_maintenance(), finance_waytype);
 	}
-	if(automatic) {
+
+	if (automatic) {
 		welt->sync_roadsigns.remove(this);
 	}
 }
@@ -651,12 +658,16 @@ void roadsign_t::finish_rd()
 {
 	grund_t *gr=welt->lookup(get_pos());
 	if(  gr==NULL  ||  !gr->hat_weg(desc->get_wtyp()!=tram_wt ? desc->get_wtyp() : track_wt)  ) {
-		dbg->error("roadsign_t::finish_rd","roadsing: way/ground missing at %i,%i => ignore", get_pos().x, get_pos().y );
+		dbg->error("roadsign_t::finish_rd", "way/ground missing at (%i,%i); roadsign ignored", get_pos().x, get_pos().y);
 	}
 	else {
 		// after loading restore directions
 		set_dir(dir);
-		gr->get_weg(desc->get_wtyp()!=tram_wt ? desc->get_wtyp() : track_wt)->count_sign();
+
+		weg_t *way = gr->get_weg(desc->get_wtyp()!=tram_wt ? desc->get_wtyp() : track_wt);
+		way->count_sign();
+
+		player_t::add_maintenance(this->get_owner(), desc->get_maintenance(), way->get_waytype());
 	}
 }
 

@@ -187,9 +187,13 @@ char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 pric
 	memcpy( tool_t::toolstr+n, ", ", 2 );
 	money_to_string(tool_t::toolstr+n+2, (double)price/-100.0);
 	n += strlen(tool_t::toolstr+n);
-	strcpy( tool_t::toolstr+n, "+" );
-	money_to_string(tool_t::toolstr+n+1, (double)(welt->scale_with_month_length(maintenance) ) / 100.0);
-	strcat(tool_t::toolstr, translator::translate("/month"));
+
+	if (maintenance != 0) {
+		strcpy( tool_t::toolstr+n, "+" );
+		money_to_string(tool_t::toolstr+n+1, (double)(welt->scale_with_month_length(maintenance) ) / 100.0);
+		strcat(tool_t::toolstr, translator::translate("/month"));
+	}
+
 	return tool_t::toolstr;
 }
 
@@ -929,11 +933,17 @@ const char *tool_change_owner_t::work( player_t *pl, koord3d pos )
 					maintenance = w->get_desc()->get_maintenance();
 					wt = w->get_desc()->get_finance_waytype();
 				}
+				else if (roadsign_t *rs = dynamic_cast<roadsign_t *>(obj)) {
+					maintenance = rs->get_desc()->get_maintenance();
+					wt = w->get_desc()->get_finance_waytype();
+				}
+
 				if(maintenance) {
 					// transfer maintenance
 					player_t::add_maintenance(obj->get_owner(), -maintenance, wt);
 					player_t::add_maintenance(new_pl, maintenance, wt);
 				}
+
 				obj->set_owner(new_pl);
 				return NULL;
 			}
@@ -5161,12 +5171,7 @@ tool_build_roadsign_t::tool_build_roadsign_t() :
 const char *tool_build_roadsign_t::get_tooltip(const player_t *) const
 {
 	const roadsign_desc_t *desc = roadsign_t::find_desc(default_param);
-
-	if(desc) {
-		return tooltip_with_price( desc->get_name(), -desc->get_price() );
-	}
-
-	return NULL;
+	return desc ? tooltip_with_price_maintenance(welt, desc->get_name(), -desc->get_price(), desc->get_maintenance()) : NULL;
 }
 
 
@@ -5573,7 +5578,7 @@ const char *tool_build_roadsign_t::place_sign_intern(player_t *player, grund_t *
 			rs = new roadsign_t(player, gr->get_pos(), dir, desc);
 built_sign:
 			gr->obj_add(rs);
-			rs->finish_rd(); // to make them visible
+			rs->finish_rd(); // to make them visible, and add maintenance
 			weg->count_sign();
 			player_t::book_construction_costs(player, -desc->get_price(), gr->get_pos().get_2d(), weg->get_waytype());
 		}
