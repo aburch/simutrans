@@ -160,7 +160,6 @@ void convoi_t::init(player_t *player)
 	next_coupling_steps = 0;
 
 	coupling_done = false;
-	next_initial_direction = ribi_t::none;
 
 	coupling_convoi = convoihandle_t();
 
@@ -1913,10 +1912,6 @@ void convoi_t::ziel_erreicht()
 				if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  ) {
 					halt->book(1, HALT_CONVOIS_ARRIVED);
 				}
-				// the direction of the waiting vehicle is same? opposite?
-				// reference direction to detect leading or following
-				ribi_t::ribi const v_next_initial_direction = (  ( v->get_convoi()->get_next_initial_direction()  &  v->get_convoi()->front()->get_direction() ) > 0  ) ? v->get_direction(): ribi_t::backward(v->get_direction());
-				bool const should_this_convoy_be_parent = ( self->front()->get_direction() & v_next_initial_direction ) == 0 ;
 				// First, the waiting convoy is set as parent
 				convoihandle_t temp_parent_convoi;
 				if(  !v->get_convoi()->is_coupled() && v->get_convoi()->get_coupling_convoi().is_bound()  ) {
@@ -1935,6 +1930,11 @@ void convoi_t::ziel_erreicht()
 				// then, chage the order if next direction is backward of "self"
 				// Attention! reverse_convoy_coupling() must be called when loading!
 				// if we call it before stop, the convoys will be reversed immediately, and it makes position calculation bug. 
+				// the direction of the waiting vehicle is same? opposite?
+				route_t r;
+				check_electrification();
+				route_t::route_result_t res = r.calc_route(welt, front()->get_pos(), schedule->get_next_entry().pos, front(), speed_to_kmh(min_top_speed), 8888);
+				bool const should_this_convoy_be_parent = (res==route_t::no_route || r.get_count()<2) ? false : (ribi_type(r.at(0), r.at(1)) & front()->get_direction()) == 0 ? true : false;
 				if(  should_this_convoy_be_parent  ) {
 					temp_parent_convoi->reverse_convoy_coupling();
 				}
@@ -2518,13 +2518,6 @@ void convoi_t::vorfahren()
 		while(  inspecting.is_bound()  ) {
 			inspecting->access_route()->clear();
 			inspecting->access_route()->append(get_route());
-			inspecting = inspecting->get_coupling_convoi();
-		}
-
-		// clear next_initial_direction since the new route was set to all convoys.
-		inspecting = self;
-		while(  inspecting.is_bound()  ) {
-			inspecting->clear_next_initial_direction();
 			inspecting = inspecting->get_coupling_convoi();
 		}
 
@@ -3192,7 +3185,10 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_short( next_coupling_index );
 		file->rdwr_byte( next_coupling_steps );
 		file->rdwr_bool(coupling_done);
-		file->rdwr_byte(next_initial_direction);
+		if(  file->get_OTRP_version()<46  ) {
+			ribi_t::ribi dummy_next_initial_direction = ribi_t::none;
+			file->rdwr_byte(dummy_next_initial_direction);
+		}
 	}
 
 	if(  file->get_OTRP_version()>=24  ) {
@@ -3604,6 +3600,7 @@ uint32 convoi_t::calc_available_halt_length_in_vehicle_steps(koord3d front_vehic
 	// find out how many steps I am already in the station
 	uint32 halt_length = 0;
 	grund_t* gr = world()->lookup(front_vehicle_pos);
+	const koord3d start_pos_ref = front_vehicle_pos;// to avoid loop
 	const halthandle_t halt = gr ? gr->get_halt() : halthandle_t();
 	if(  !halt.is_bound()  ) {
 		// We are not on the valid halt tiles?
@@ -3630,7 +3627,7 @@ uint32 convoi_t::calc_available_halt_length_in_vehicle_steps(koord3d front_vehic
 		is_last_diagonal = ribi_t::is_bend(way_dir);
 		halt_length += is_last_diagonal ? diagonal_tile_length : straight_tile_length;
 		open_dir = way_dir & ~(ribi_t::backward(open_dir));
-		if(  !ribi_t::is_single(open_dir)  ||  !gr->get_neighbour(gr, waytype, open_dir)  ) {
+		if(  !ribi_t::is_single(open_dir)  ||  !gr->get_neighbour(gr, waytype, open_dir)  ||  gr->get_pos() == start_pos_ref  ) {
 			break;
 		}
 	}
@@ -3950,18 +3947,6 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 			// The convoy should depart in the next or later step
 			// to load cargo and do coupling.
 			departure_cond = false;
-		}
-
-		if(  need_coupling_at_this_stop  &&  next_initial_direction==ribi_t::none  ) {
-			// calc the initial direction to the next stop.
-			route_t r;
-			route_t::route_result_t res = r.calc_route(welt, front()->get_pos(), schedule->get_next_entry().pos, front(), speed_to_kmh(min_top_speed), 8888);
-			if(  res==route_t::no_route  ||  r.get_count()<2  ) {
-				// assume we do not turn here
-				next_initial_direction = front()->get_direction();
-			} else {
-				next_initial_direction = ribi_type(r.at(0), r.at(1));
-			}
 		}
 	}
 
@@ -5038,6 +5023,12 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 		txt = "%s is already in depot.\n", get_name();
 		return txt;
 	}
+	// If this convoy is not leading, false.
+	if(  is_coupled()  ) {
+		dbg->message("convoi_t::send_to_depot_immediately()","%s is not front convoy.", get_name());
+		txt = "%s is not front convoy.\n", get_name();
+		return txt;
+	}
 	// Second check : the all convoys are same waytype, same owner, etc...
 	convoihandle_t c = get_coupling_convoi();
 	player_t* const owner = get_owner();
@@ -5311,6 +5302,7 @@ bool convoi_t::couple_convoi(convoihandle_t coupled) {
 	coupling_convoi->front()->set_leading(false);
 	back()->set_last(false);
 	must_recalc_min_top_speed();
+	must_recalc_friction_weight();
 	return true;
 }
 
@@ -5430,6 +5422,11 @@ bool convoi_t::check_electrification() {
 		}
 		c = c->get_coupling_convoi();
 	}
+	c = most_parent_convoi;
+	while(  c.is_bound()  ) {
+		c->is_electric = is_electric;
+		c = c->get_coupling_convoi();
+	}
 	return is_electric;
 }
 
@@ -5509,8 +5506,12 @@ void convoi_t::calc_sum_friction_weight() {
 void convoi_t::change_line_to_next_if_needed() 
 {
 	linehandle_t l = get_schedule()->get_next_line();
+	if( !l.is_bound() ) {
+		// return safely
+		return;
+	}
 	// check and update next_line
-	if(  l.is_bound() && l->get_schedule()->get_count()>1 && l->get_schedule()->at(0).pos!=get_schedule()->at(get_schedule()->get_count()-1).pos ) {
+	if(  l->get_schedule()->get_count()>1 && l->get_schedule()->at(0).pos!=get_schedule()->at(get_schedule()->get_count()-1).pos ) {
 		if(  get_line().is_bound()  ) {
 			get_line()->get_schedule()->set_next_line(l);
 		}
@@ -5674,6 +5675,7 @@ bool convoi_t::couple_convoi_during_running(convoihandle_t coupled) {
 	coupling_convoi->front()->set_leading(false);
 	back()->set_last(false);
 	must_recalc_min_top_speed();
+	must_recalc_friction_weight();
 	return true;
 }
 

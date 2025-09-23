@@ -243,6 +243,7 @@ void weg_t::rdwr(loadsave_t *file)
 
 // calculate the platform length, and append the string of the platform length to buf.
 void append_platform_length_string_if_needed(cbuffer_t & buf, const weg_t* weg) {
+	const koord3d start_pos = weg->get_pos(); // ref. koord which to avoid loop
 	grund_t* gr = world()->lookup(weg->get_pos());
 	const halthandle_t halt = gr ? gr->get_halt() : halthandle_t();
 	if(  !halt.is_bound()  ) {
@@ -269,7 +270,7 @@ void append_platform_length_string_if_needed(cbuffer_t & buf, const weg_t* weg) 
 		if(  !gr  ) { break; }
 		const weg_t* w = gr->get_weg(weg->get_waytype());
 		const halthandle_t h = gr->get_halt();
-		if(  !w  ||  !h.is_bound()  ||  h.get_id()!=halt.get_id()  ) { break; }
+		if(  !w  ||  !h.is_bound()  ||  h.get_id()!=halt.get_id()   ||  gr->get_pos()==start_pos ) { break; }
 		// now, the halt and the way exist on the new tile.
 		pos = gr->get_pos();
 		const ribi_t::ribi new_dir = w->get_ribi_unmasked() & ~(ribi_t::backward(dir));
