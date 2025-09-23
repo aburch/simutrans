@@ -75,6 +75,8 @@ Waiting for coupling! (%i->%i%%)
 連結相手を待機中 (%i->%i%%)
 Require parent convoy to enter.
 連結相手がいる時のみ進入を許可
+Advance to end
+ホーム終端まで進む
 release back
 後ろを解放
 A convoy waits for other convoy to couple.
@@ -299,6 +301,8 @@ Vehicle %s is coupled convoy, so it cannot depart alone!
 %sは先頭の編成ではないので、発車しませんでした。
 Vehicle %s will couple with vehicle %s, but the next stop positions are different!
 %sと%sは連結して発車する予定ですが、次の駅の座標が異なるため連結できません!
+%s is not front convoy.
+%sは先頭の編成ではありません。
 #------その他の翻訳------
 next stop
 次の駅へ

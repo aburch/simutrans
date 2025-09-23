@@ -8672,7 +8672,7 @@ bool tool_change_line_t::init( player_t *player )
  * 'B' : starts all convoys
  * 'c' : copies this convoi
  * 'd' : disassembles convoi
- * 's' : sells convoi
+ * 's' : sells a vehicle
  * 'a' : appends a vehicle (+vehikel_name) uses the oldest
  * 'i' : inserts a vehicle in front (+vehikel_name) uses the oldest
  * 's' : sells a vehikel (+vehikel_name) uses the newest
@@ -8681,6 +8681,8 @@ bool tool_change_line_t::init( player_t *player )
  * 'e' : set replacement seed convoy
  * 'p' : paste convoy
  * 'u' : set coupling convoy
+ * 'v' : sell convoi
+ * 't' : reverse convoy direction
  */
 bool tool_change_depot_t::init( player_t *player )
 {
@@ -8928,6 +8930,9 @@ bool tool_change_depot_t::init( player_t *player )
 			cnv->set_coupling_convoi(child);
 			break;
 		}
+		case 't': { // reverse convoy direction
+			cnv->set_reversing_needed(!cnv->is_reversing_needed());
+		}
 	}
 	return false;
 }
@@ -9052,6 +9057,10 @@ bool tool_change_traffic_light_t::init( player_t *player )
 
 /*
  * change state of roadsign
+ * r:set lane affinity for oneway road sign
+ * s:set guide signal state for signal
+ * a:set advance to end state for signal
+ * 
  */
 bool tool_change_roadsign_t::init( player_t* )
 {
@@ -9089,6 +9098,18 @@ bool tool_change_roadsign_t::init( player_t* )
 			}
 		}
 		break;
+
+		case 'a':
+		// set advance to end state for signal
+		if(  grund_t *gr = welt->lookup(pos)  ) {
+			if( roadsign_t *rs = gr->find<signal_t>()  ) {
+				rs->set_advance_to_end(inst);
+				signal_info_t* signal_info_win = (signal_info_t*)win_get_magic((ptrdiff_t)rs);
+				if(  signal_info_win  ) {
+					signal_info_win->update_data();
+				}
+			}
+		}
 
 		default:
 		// do nothing

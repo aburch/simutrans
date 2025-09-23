@@ -5037,6 +5037,12 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 		txt = "%s is already in depot.\n", get_name();
 		return txt;
 	}
+	// If this convoy is not leading, false.
+	if(  is_coupled()  ) {
+		dbg->message("convoi_t::send_to_depot_immediately()","%s is not front convoy.", get_name());
+		txt = "%s is not front convoy.\n", get_name();
+		return txt;
+	}
 	// Second check : the all convoys are same waytype, same owner, etc...
 	convoihandle_t c = get_coupling_convoi();
 	player_t* const owner = get_owner();
@@ -5310,6 +5316,7 @@ bool convoi_t::couple_convoi(convoihandle_t coupled) {
 	coupling_convoi->front()->set_leading(false);
 	back()->set_last(false);
 	must_recalc_min_top_speed();
+	must_recalc_friction_weight();
 	return true;
 }
 
@@ -5508,8 +5515,12 @@ void convoi_t::calc_sum_friction_weight() {
 void convoi_t::change_line_to_next_if_needed() 
 {
 	linehandle_t l = get_schedule()->get_next_line();
+	if( !l.is_bound() ) {
+		// return safely
+		return;
+	}
 	// check and update next_line
-	if(  l.is_bound() && l->get_schedule()->get_count()>1 && l->get_schedule()->at(0).pos!=get_schedule()->at(get_schedule()->get_count()-1).pos ) {
+	if(  l->get_schedule()->get_count()>1 && l->get_schedule()->at(0).pos!=get_schedule()->at(get_schedule()->get_count()-1).pos ) {
 		if(  get_line().is_bound()  ) {
 			get_line()->get_schedule()->set_next_line(l);
 		}
@@ -5673,6 +5684,7 @@ bool convoi_t::couple_convoi_during_running(convoihandle_t coupled) {
 	coupling_convoi->front()->set_leading(false);
 	back()->set_last(false);
 	must_recalc_min_top_speed();
+	must_recalc_friction_weight();
 	return true;
 }
 
