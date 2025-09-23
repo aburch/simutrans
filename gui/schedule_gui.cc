@@ -475,6 +475,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		numimp_length_coupling_done.add_listener(this);
 		add_component(&numimp_length_coupling_done);
 	}
+	end_table();
 
 	// reverse setting
 	add_table(2,1);
