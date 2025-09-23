@@ -1923,7 +1923,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 			// nothing to show
 			return;
 		}
-		grund_t const* const gr = welt->lookup(cnv->get_route()->back());
+		grund_t const* const gr = cnv->get_route()?welt->lookup(cnv->get_route()->back()):NULL;
 
 		
 		// now find out what has happened
