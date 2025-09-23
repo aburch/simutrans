@@ -14,14 +14,14 @@ signal(s)
 
 	bt_end_of_choose.init( button_t::square_state, translator::translate("end of choose signal") );
 	bt_end_of_choose.add_listener(this);
-	bt_end_of_choose.pressed = signal->is_end_of_choose();
+	bt_end_of_choose.pressed = signal->is_flag_end_of_choose();
 	if(  signal->get_waytype()!=road_wt && signal->get_waytype()!=water_wt && signal->get_waytype()!=air_wt  ) {
 		add_component(&bt_end_of_choose);
 	}
 
 	bt_end_of_guide.init( button_t::square_state, translator::translate("try coupling convoy not enter here") );
 	bt_end_of_guide.add_listener(this);
-	bt_end_of_guide.pressed = signal->is_end_of_guide();
+	bt_end_of_guide.pressed = signal->is_flag_end_of_guide();
 	if(  signal->get_waytype()!=road_wt && signal->get_waytype()!=water_wt && signal->get_waytype()!=air_wt  ) {
 		add_component(&bt_end_of_guide);
 	}
@@ -50,7 +50,7 @@ bool end_of_choose_info_t::action_triggered( gui_action_creator_t* comp, value_t
 	// }
 	if(  comp==&bt_end_of_choose  ) {
 		char param[256];
-		bool v = signal->is_end_of_choose();
+		bool v = signal->is_flag_end_of_choose();
 		sprintf( param, "%s,%i,c", signal->get_pos().get_str(), !v );
 		tool_t::simple_tool[TOOL_CHANGE_ROADSIGN]->set_default_param( param );
 		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_ROADSIGN], welt->get_active_player() );
@@ -58,7 +58,7 @@ bool end_of_choose_info_t::action_triggered( gui_action_creator_t* comp, value_t
 	}
 	else if(  comp==&bt_end_of_guide  ) {
 		char param[256];
-		bool v = signal->is_end_of_guide();
+		bool v = signal->is_flag_end_of_guide();
 		sprintf( param, "%s,%i,g", signal->get_pos().get_str(), !v );
 		tool_t::simple_tool[TOOL_CHANGE_ROADSIGN]->set_default_param( param );
 		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_ROADSIGN], welt->get_active_player() );
@@ -71,7 +71,7 @@ bool end_of_choose_info_t::action_triggered( gui_action_creator_t* comp, value_t
 // notify for an external update
 void end_of_choose_info_t::update_data()
 {
-	bt_end_of_choose.pressed = signal->is_end_of_choose();
-	bt_end_of_guide.pressed = signal->is_end_of_guide();
+	bt_end_of_choose.pressed = signal->is_flag_end_of_choose();
+	bt_end_of_guide.pressed = signal->is_flag_end_of_guide();
 	bt_remove_signal.enable( !signal->is_deletable( welt->get_active_player() ) );
 }

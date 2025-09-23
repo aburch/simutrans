@@ -3418,7 +3418,7 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd, bool coupling) const
 		if(sch->has_sign()) {
 			const roadsign_t* rs = bd->find<roadsign_t>();
 			if(  rs->get_desc()->get_wtyp()==get_waytype()  ) {
-				if(  (rs->get_desc()->get_flags() & roadsign_desc_t::END_OF_CHOOSE_AREA) && (coupling?rs->is_end_of_guide():rs->is_end_of_choose())  ) {
+				if(  (rs->get_desc()->get_flags() & roadsign_desc_t::END_OF_CHOOSE_AREA) && (coupling?rs->is_flag_end_of_guide():rs->is_flag_end_of_choose())  ) {
 					return false;
 				}
 			}
@@ -3726,7 +3726,7 @@ bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_bl
 		if(  way->has_sign()  ) {
 			roadsign_t *rs = gr->find<roadsign_t>(1);
 			if(  rs  &&  rs->get_desc()->get_wtyp()==get_waytype()  ) {
-				if(  (rs->get_desc()->get_flags() & roadsign_desc_t::END_OF_CHOOSE_AREA ) && (try_coupling?rs->is_end_of_guide():rs->is_end_of_choose())  ) {
+				if(  (rs->get_desc()->get_flags() & roadsign_desc_t::END_OF_CHOOSE_AREA ) && (try_coupling?rs->is_flag_end_of_guide():rs->is_flag_end_of_choose())  ) {
 					// end of choose on route => not choosing here
 					choose_ok = false;
 				}
