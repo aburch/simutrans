@@ -160,7 +160,6 @@ void convoi_t::init(player_t *player)
 	next_coupling_steps = 0;
 
 	coupling_done = false;
-	next_initial_direction = ribi_t::none;
 
 	coupling_convoi = convoihandle_t();
 
@@ -1913,10 +1912,6 @@ void convoi_t::ziel_erreicht()
 				if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  ) {
 					halt->book(1, HALT_CONVOIS_ARRIVED);
 				}
-				// the direction of the waiting vehicle is same? opposite?
-				// reference direction to detect leading or following
-				ribi_t::ribi const v_next_initial_direction = (  ( v->get_convoi()->get_next_initial_direction()  &  v->get_convoi()->front()->get_direction() ) > 0  ) ? v->get_direction(): ribi_t::backward(v->get_direction());
-				//bool const should_this_convoy_be_parent = ( self->front()->get_direction() & v_next_initial_direction ) == 0 ;
 				// First, the waiting convoy is set as parent
 				convoihandle_t temp_parent_convoi;
 				if(  !v->get_convoi()->is_coupled() && v->get_convoi()->get_coupling_convoi().is_bound()  ) {
@@ -2521,13 +2516,6 @@ void convoi_t::vorfahren()
 		while(  inspecting.is_bound()  ) {
 			inspecting->access_route()->clear();
 			inspecting->access_route()->append(get_route());
-			inspecting = inspecting->get_coupling_convoi();
-		}
-
-		// clear next_initial_direction since the new route was set to all convoys.
-		inspecting = self;
-		while(  inspecting.is_bound()  ) {
-			inspecting->clear_next_initial_direction();
 			inspecting = inspecting->get_coupling_convoi();
 		}
 
@@ -3195,7 +3183,10 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_short( next_coupling_index );
 		file->rdwr_byte( next_coupling_steps );
 		file->rdwr_bool(coupling_done);
-		file->rdwr_byte(next_initial_direction);
+		if(  file->get_OTRP_version()<46  ) {
+			ribi_t::ribi dummy_next_initial_direction = ribi_t::none;
+			file->rdwr_byte(dummy_next_initial_direction);
+		}
 	}
 
 	if(  file->get_OTRP_version()>=24  ) {
@@ -3953,18 +3944,6 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 			// The convoy should depart in the next or later step
 			// to load cargo and do coupling.
 			departure_cond = false;
-		}
-
-		if(  need_coupling_at_this_stop  &&  next_initial_direction==ribi_t::none  ) {
-			// calc the initial direction to the next stop.
-			route_t r;
-			route_t::route_result_t res = r.calc_route(welt, front()->get_pos(), schedule->get_next_entry().pos, front(), speed_to_kmh(min_top_speed), 8888);
-			if(  res==route_t::no_route  ||  r.get_count()<2  ) {
-				// assume we do not turn here
-				next_initial_direction = ribi_t::none;
-			} else {
-				next_initial_direction = ribi_type(r.at(0), r.at(1));
-			}
 		}
 	}
 
