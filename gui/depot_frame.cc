@@ -1454,7 +1454,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			depot->call_depot_tool('e', cnv, NULL);
 		}
 		else if(  comp == &bt_reverse  ) {
-			cnv->set_reversing_needed(!cnv->is_reversing_needed());
+			depot->call_depot_tool('t', cnv, NULL);
 		}
 		// image list selection here ...
 		else if(  comp == &convoi  ) {

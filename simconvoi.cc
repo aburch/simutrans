@@ -3598,6 +3598,7 @@ uint32 convoi_t::calc_available_halt_length_in_vehicle_steps(koord3d front_vehic
 	// find out how many steps I am already in the station
 	uint32 halt_length = 0;
 	grund_t* gr = world()->lookup(front_vehicle_pos);
+	const koord3d start_pos_ref = front_vehicle_pos;// to avoid loop
 	const halthandle_t halt = gr ? gr->get_halt() : halthandle_t();
 	if(  !halt.is_bound()  ) {
 		// We are not on the valid halt tiles?
@@ -3624,7 +3625,7 @@ uint32 convoi_t::calc_available_halt_length_in_vehicle_steps(koord3d front_vehic
 		is_last_diagonal = ribi_t::is_bend(way_dir);
 		halt_length += is_last_diagonal ? diagonal_tile_length : straight_tile_length;
 		open_dir = way_dir & ~(ribi_t::backward(open_dir));
-		if(  !ribi_t::is_single(open_dir)  ||  !gr->get_neighbour(gr, waytype, open_dir)  ) {
+		if(  !ribi_t::is_single(open_dir)  ||  !gr->get_neighbour(gr, waytype, open_dir)  ||  gr->get_pos() == start_pos_ref  ) {
 			break;
 		}
 	}
@@ -5014,7 +5015,19 @@ const char* convoi_t::send_to_depot(bool local)
 const char* convoi_t::send_to_depot_immediately(bool local)
 {
 	const char *txt;
-	// First check : the all convoys are same waytype, same owner, etc...
+	// First check : already in depot, do not send any more
+	if(  state==INITIAL  ) {
+		dbg->message("convoi_t::send_to_depot_immediately()","%s is already in depot.", get_name());
+		txt = "%s is already in depot.\n", get_name();
+		return txt;
+	}
+	// If this convoy is not leading, false.
+	if(  is_coupled()  ) {
+		dbg->message("convoi_t::send_to_depot_immediately()","%s is not front convoy.", get_name());
+		txt = "%s is not front convoy.\n", get_name();
+		return txt;
+	}
+	// Second check : the all convoys are same waytype, same owner, etc...
 	convoihandle_t c = get_coupling_convoi();
 	player_t* const owner = get_owner();
 	waytype_t const waytype = front()->get_waytype();
@@ -5287,6 +5300,7 @@ bool convoi_t::couple_convoi(convoihandle_t coupled) {
 	coupling_convoi->front()->set_leading(false);
 	back()->set_last(false);
 	must_recalc_min_top_speed();
+	must_recalc_friction_weight();
 	return true;
 }
 
@@ -5490,8 +5504,12 @@ void convoi_t::calc_sum_friction_weight() {
 void convoi_t::change_line_to_next_if_needed() 
 {
 	linehandle_t l = get_schedule()->get_next_line();
+	if( !l.is_bound() ) {
+		// return safely
+		return;
+	}
 	// check and update next_line
-	if(  l.is_bound() && l->get_schedule()->get_count()>1 && l->get_schedule()->at(0).pos!=get_schedule()->at(get_schedule()->get_count()-1).pos ) {
+	if(  l->get_schedule()->get_count()>1 && l->get_schedule()->at(0).pos!=get_schedule()->at(get_schedule()->get_count()-1).pos ) {
 		if(  get_line().is_bound()  ) {
 			get_line()->get_schedule()->set_next_line(l);
 		}
@@ -5655,6 +5673,7 @@ bool convoi_t::couple_convoi_during_running(convoihandle_t coupled) {
 	coupling_convoi->front()->set_leading(false);
 	back()->set_last(false);
 	must_recalc_min_top_speed();
+	must_recalc_friction_weight();
 	return true;
 }
 

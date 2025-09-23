@@ -18,6 +18,13 @@ signal(s)
 	if(  signal->get_desc()->is_choose_sign()  ) {
 		add_component(&bt_require_parent);
 	}
+
+	bt_advance_to_end.init( button_t::square_state, translator::translate("Advance to end") );
+	bt_advance_to_end.add_listener(this);
+	bt_advance_to_end.pressed = signal->is_advance_to_end();
+	if(  signal->get_desc()->is_choose_sign()  &&  !welt->get_settings().get_advance_to_end() ) {
+		add_component(&bt_advance_to_end);
+	}
 	
 	bt_remove_signal.init( button_t::roundbox, translator::translate("remove signal"));
 	bt_remove_signal.enable( !signal->is_deletable( welt->get_active_player() ) );
@@ -43,8 +50,16 @@ bool signal_info_t::action_triggered( gui_action_creator_t* comp, value_t /* */)
 	}
 	if(  comp==&bt_require_parent  ) {
 		char param[256];
-		bool v = signal->is_guide_signal();
+		const bool v = signal->is_guide_signal();
 		sprintf( param, "%s,%i,s", signal->get_pos().get_str(), !v );
+		tool_t::simple_tool[TOOL_CHANGE_ROADSIGN]->set_default_param( param );
+		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_ROADSIGN], welt->get_active_player() );
+		return true;
+	}
+	if(  comp==&bt_advance_to_end  ) {
+		char param[256];
+		bool v = signal->is_advance_to_end();
+		sprintf( param, "%s,%i,a", signal->get_pos().get_str(), !v );
 		tool_t::simple_tool[TOOL_CHANGE_ROADSIGN]->set_default_param( param );
 		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_ROADSIGN], welt->get_active_player() );
 		return true;
@@ -57,5 +72,6 @@ bool signal_info_t::action_triggered( gui_action_creator_t* comp, value_t /* */)
 void signal_info_t::update_data()
 {
 	bt_require_parent.pressed = signal->is_guide_signal();
+	bt_advance_to_end.pressed = signal->is_advance_to_end();
 	bt_remove_signal.enable( !signal->is_deletable( welt->get_active_player() ) );
 }
