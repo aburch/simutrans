@@ -348,6 +348,8 @@ void schedule_t::rdwr(loadsave_t *file)
 			if(file->get_OTRP_version()>=46) {
 				// read and write length end coupling
 				file->rdwr_short(entries[i].length_coupling_done);
+			} else {
+				entries[i].length_coupling_done = 0;
 			}
 		}
 	}
