@@ -26,10 +26,6 @@ signal(s)
 		add_component(&bt_end_of_guide);
 	}
 	
-	// bt_remove_signal.init( button_t::roundbox, translator::translate("remove signal"));
-	// bt_remove_signal.enable( !signal->is_deletable( welt->get_active_player() ) );
-	// bt_remove_signal.add_listener(this);
-	// add_component(&bt_remove_signal);
 	
 	reset_min_windowsize();
 	set_windowsize(get_min_windowsize() );
@@ -37,17 +33,6 @@ signal(s)
 
 bool end_of_choose_info_t::action_triggered( gui_action_creator_t* comp, value_t /* */)
 {
-	// if(  comp==&bt_remove_signal  ) {
-	// 	bool suspended_execution=false;
-	// 	koord3d pos = signal->get_pos();
-	// 	tool_t::general_tool[TOOL_REMOVE_SIGNAL]->set_default_param(NULL);
-	// 	const char *err = world()->call_work( tool_t::general_tool[TOOL_REMOVE_SIGNAL], welt->get_active_player(), pos, suspended_execution );
-	// 	if(!suspended_execution) {
-	// 		// play sound / error message
-	// 		welt->get_active_player()->tell_tool_result(tool_t::general_tool[TOOL_REMOVE_SIGNAL], pos, err);
-	// 	}
-	// 	return true;
-	// }
 	if(  comp==&bt_end_of_choose  ) {
 		char param[256];
 		bool v = signal->is_flag_end_of_choose();
@@ -73,5 +58,4 @@ void end_of_choose_info_t::update_data()
 {
 	bt_end_of_choose.pressed = signal->is_flag_end_of_choose();
 	bt_end_of_guide.pressed = signal->is_flag_end_of_guide();
-	bt_remove_signal.enable( !signal->is_deletable( welt->get_active_player() ) );
 }

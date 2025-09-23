@@ -15,7 +15,7 @@ class end_of_choose_info_t : public obj_infowin_t, public action_listener_t
 {
 	private:
 		roadsign_t* signal;
-		button_t bt_remove_signal, bt_end_of_choose, bt_end_of_guide;
+		button_t bt_end_of_choose, bt_end_of_guide;
 
 	public:
 		end_of_choose_info_t(roadsign_t*);
