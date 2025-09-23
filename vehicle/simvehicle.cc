@@ -1282,7 +1282,7 @@ void vehicle_t::hop(grund_t* gr)
 	waytype_t waytype = get_waytype();
 	const weg_t *weg = gr->get_weg(waytype);
 	if(  weg  ) {
-		if( waytype == track_wt && cnv->needs_electrification() && weg->get_max_speed() > weg->get_max_wayobj_speed()){
+		if( (waytype != water_wt && waytype != air_wt) && cnv->needs_electrification() && weg->get_max_speed() > weg->get_max_wayobj_speed()){
 			speed_limit = kmh_to_speed( weg->get_max_wayobj_speed() );
 		}
 		else{
