@@ -5037,6 +5037,12 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 		txt = "%s is already in depot.\n", get_name();
 		return txt;
 	}
+	// If this convoy is not leading, false.
+	if(  is_coupled()  ) {
+		dbg->message("convoi_t::send_to_depot_immediately()","%s is not front convoy.", get_name());
+		txt = "%s is not front convoy.\n", get_name();
+		return txt;
+	}
 	// Second check : the all convoys are same waytype, same owner, etc...
 	convoihandle_t c = get_coupling_convoi();
 	player_t* const owner = get_owner();
@@ -5310,6 +5316,7 @@ bool convoi_t::couple_convoi(convoihandle_t coupled) {
 	coupling_convoi->front()->set_leading(false);
 	back()->set_last(false);
 	must_recalc_min_top_speed();
+	must_recalc_friction_weight();
 	return true;
 }
 
@@ -5677,6 +5684,7 @@ bool convoi_t::couple_convoi_during_running(convoihandle_t coupled) {
 	coupling_convoi->front()->set_leading(false);
 	back()->set_last(false);
 	must_recalc_min_top_speed();
+	must_recalc_friction_weight();
 	return true;
 }
 
