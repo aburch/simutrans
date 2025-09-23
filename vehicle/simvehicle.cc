@@ -3688,6 +3688,10 @@ bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_bl
 	uint16 next_signal, next_crossing;
 	grund_t const* const target = welt->lookup(cnv->get_route()->back());
 	bool try_coupling = cnv->get_schedule()->get_current_entry().get_coupling_point()==2;
+	if(  !try_coupling&&!sig->is_choose_signal()  ) {
+		// this is not choose signal
+		goto skip_choose;
+	}
 
 	if(  cnv->get_schedule_target()!=koord3d::invalid  ) {
 		// destination is a waypoint!
@@ -3734,7 +3738,7 @@ bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_bl
 		}
 		if(  way->has_signal()  ) {
 			signal_t *sig = gr->find<signal_t>(1);
-			if(  sig  &&  sig->get_desc()->is_choose_sign()  ) {
+			if(  sig  &&  sig->get_desc()->is_choose_sign()  &&  (try_coupling?sig->is_guide_signal():sig->is_choose_signal())  ) {
 				// second choose signal on route => not choosing here
 				choose_ok = false;
 			}
@@ -4096,7 +4100,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 		signal_t* c_sig = sch1->has_signal() ? gr_next_block->find<signal_t>() : NULL;
 		// next check for coupling. no check in front of a choose signal
-		if(  !(c_sig  &&  c_sig->get_desc()->is_choose_sign()  &&  cnv->get_schedule_target()==koord3d::invalid)
+		if(  !(c_sig  &&  c_sig->get_desc()->is_choose_sign()  &&  c_sig->is_guide_signal()  &&  cnv->get_schedule_target()==koord3d::invalid)
 		  &&  can_couple(cnv->get_route(), next_block+1, next_coupling, next_c_steps)
 			&&  next_coupling!=route_t::INVALID_INDEX  ) {
 			cnv->set_next_coupling(next_coupling, next_c_steps);

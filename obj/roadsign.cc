@@ -87,6 +87,7 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 	set_guide_signal(false);
 	if( desc->is_choose_sign() ) {
 		set_advance_to_end(true);
+		set_choose_signal(true);
 	}
 	if( desc->is_end_choose_signal() ) {
 		set_end_of_choose(true);
@@ -677,6 +678,7 @@ void roadsign_t::rdwr(loadsave_t *file)
 		bool guide_signal = is_guide_signal();
 		file->rdwr_bool(guide_signal);
 		set_guide_signal(guide_signal);
+		set_choose_signal(true);
 		set_advance_to_end(true);
 		set_end_of_choose(true);
 		set_end_of_guide(true);
