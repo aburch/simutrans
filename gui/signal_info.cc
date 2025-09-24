@@ -89,5 +89,10 @@ void signal_info_t::update_data()
 	bt_require_parent.pressed = signal->is_guide_signal();
 	bt_advance_to_end.pressed = signal->is_advance_to_end();
 	bt_choose_signal.pressed = signal->is_choose_signal();
+	if(  signal->is_choose_signal()  ) {
+		bt_advance_to_end.enable();
+	} else {
+		bt_advance_to_end.disable();
+	}
 	bt_remove_signal.enable( !signal->is_deletable( welt->get_active_player() ) );
 }

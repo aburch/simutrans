@@ -3688,13 +3688,13 @@ bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_bl
 	uint16 next_signal, next_crossing;
 	grund_t const* const target = welt->lookup(cnv->get_route()->back());
 	bool try_coupling = cnv->get_schedule()->get_current_entry().get_coupling_point()==2;
-	if(  !try_coupling&&!sig->is_choose_signal()  ) {
-		// this is not choose signal
-		goto skip_choose;
-	}
-
 	if(  cnv->get_schedule_target()!=koord3d::invalid  ) {
 		// destination is a waypoint!
+		goto skip_choose;
+	}
+	
+	if(  !try_coupling&&!sig->is_choose_signal()  ) {
+		// this is not choose signal
 		goto skip_choose;
 	}
 
