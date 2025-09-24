@@ -538,6 +538,7 @@ void depot_frame_t::layout(scr_size *size)
 	child_convoi_selector.set_max_size(scr_size(win_size.w - D_MARGIN_RIGHT - ( D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE)*2 + D_H_SPACE ), LINESPACE * 13 + 2 + 16));
 	bt_reverse.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE)*3 ,ACTIONS_VSTART - D_BUTTON_HEIGHT));
 	bt_reverse.set_width(BUTTON_WIDTH_DEPOT);
+	bt_reverse.set_visible(should_show_child_convoi_selector);
 
 	bt_start.set_pos(scr_coord(D_MARGIN_LEFT, ACTIONS_VSTART));
 	bt_start.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
@@ -965,7 +966,8 @@ void depot_frame_t::update_data()
 		}
 
 		veh = (veh_action == va_insert ? cnv->front() : cnv->back())->get_desc();
-		bt_reverse.pressed=cnv->is_reversed();
+		bt_reverse.enable();
+		bt_reverse.pressed=cnv->is_reversing_needed();
 	}
 
 	repositioning_t& rep = repositioning_t::get_instance();
@@ -1224,6 +1226,9 @@ void depot_frame_t::update_data()
 			}
 			txt_convoi_count.append( translator::translate("Station tiles:") );
 			txt_convoi_count.append( (double)cnv->get_tile_length(), 0 );
+			char txt_count_real_value[12];
+			snprintf(txt_count_real_value, 11, "(%.4f)", ( (double)cnv->get_length() / CARUNITS_PER_TILE ) );
+			txt_convoi_count.append(  txt_count_real_value  );
 
 			txt_convoi_speed.clear();
 			if(  empty_kmh < 4  ||  empty_kmh != (use_sel_weight ? sel_kmh : min_kmh)  ) {
@@ -1318,6 +1323,7 @@ void depot_frame_t::update_data()
 		txt_convoi_weight.clear();
 		sb_convoi_length.set_visible(false);
 		cont_convoi_capacity.set_visible(false);
+		bt_reverse.disable();
 	}
 }
 
@@ -1448,7 +1454,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			depot->call_depot_tool('e', cnv, NULL);
 		}
 		else if(  comp == &bt_reverse  ) {
-			cnv->set_reversed(!cnv->is_reversed());
+			depot->call_depot_tool('t', cnv, NULL);
 		}
 		// image list selection here ...
 		else if(  comp == &convoi  ) {

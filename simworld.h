@@ -744,7 +744,7 @@ public:
 	/**
 	 * Absolute month.
 	 */
-	inline uint32 get_last_month() const { return last_month; }
+	inline uint32 get_last_month() const { return (uint32)last_month; }
 
 	/**
 	 * Returns last year.
@@ -956,7 +956,7 @@ public:
 	/**
 	 * @return Either 0 or the current year*16 + month
 	 */
-	uint16 get_timeline_year_month() const { return settings.get_use_timeline() ? current_month : 0; }
+	uint16 get_timeline_year_month() const { return settings.get_use_timeline() ? (uint16)current_month : 0; }
 
 	/**
 	 * Number of ticks per day in bits.
@@ -982,7 +982,7 @@ public:
 	 */
 	uint32 speed_to_tiles_per_month(uint32 speed) const
 	{
-		const int left_shift = ticks_per_world_month_shift - YARDS_PER_TILE_SHIFT;
+		const int left_shift = (int)ticks_per_world_month_shift - YARDS_PER_TILE_SHIFT;
 		if (left_shift >= 0) {
 			return speed << left_shift;
 		} else {
@@ -999,7 +999,7 @@ public:
 	 */
 	sint64 scale_with_month_length(sint64 value)
 	{
-		const int left_shift = ticks_per_world_month_shift - 18;
+		const int left_shift = (int)ticks_per_world_month_shift - 18;
 		if(left_shift >= 0) {
 			return value << left_shift;
 		}
@@ -1049,7 +1049,7 @@ public:
 	/**
 	 * Absolute month (count start year zero).
 	 */
-	uint32 get_current_month() const { return current_month; }
+	uint32 get_current_month() const { return (uint32)current_month; }
 
 	/**
 	 * current city road.
@@ -1587,7 +1587,7 @@ private:
 	inline planquadrat_t *access_nocheck(koord k) const { return access_nocheck(k.x, k.y); }
 
 public:
-	inline planquadrat_t *access(int i, int j) const {
+	inline planquadrat_t *access(sint16 i, sint16 j) const {
 		return is_within_limits(i, j) ? &plan[i + j*cached_grid_size.x] : NULL;
 	}
 
@@ -1617,7 +1617,7 @@ public:
 	 * Sets grid height.
 	 * Never set grid_hgts manually, always use this method!
 	 */
-	void set_grid_hgt(sint16 x, sint16 y, sint8 hgt) { grid_hgts[x + y*(uint32)(cached_grid_size.x+1)] = hgt; }
+	void set_grid_hgt(sint16 x, sint16 y, sint8 hgt) { grid_hgts[(uint16)x + (uint16)y*(uint32)(cached_grid_size.x+1)] = hgt; }
 
 	inline void set_grid_hgt(koord k, sint8 hgt) { set_grid_hgt(k.x, k.y, hgt); }
 

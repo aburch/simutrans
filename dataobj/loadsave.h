@@ -135,7 +135,7 @@ public:
 	bool is_eof();
 
 	void set_buffered(bool enable);
-	unsigned get_buf_pos(int buf_num) const { return buff[buf_num].pos; }
+	unsigned get_buf_pos(int buf_num) const { return (unsigned)(buff[buf_num].pos); }
 	bool is_loading() const { return stream && !stream->is_writing(); }
 	bool is_saving() const { return stream && stream->is_writing(); }
 	const char *get_pak_extension() const { return finfo.pak_extension; }

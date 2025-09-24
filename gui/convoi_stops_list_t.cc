@@ -41,16 +41,18 @@ class convoi_stops_list_item_t : public gui_aligned_container_t, public gui_acti
 	schedule_entry_t entry;
 	bool is_current;
 	uint8 number;
+	waytype_t waytype;
 	player_t* player;
 	gui_image_t arrow;
 	gui_label_buf_t stop;
 
 public:
-	convoi_stops_list_item_t(player_t* pl, schedule_entry_t e, uint n)
+	convoi_stops_list_item_t(player_t* pl, schedule_entry_t e, uint n, waytype_t const wt)
 	{
 		player = pl;
 		entry  = e;
 		number = n;
+		waytype = wt;
 		is_current = false;
 		set_table_layout(2,1);
 		add_component(&arrow);
@@ -61,7 +63,7 @@ public:
 	void update_label()
 	{
 		stop.buf().printf("%i) ", number+1);
-		schedule_t::gimme_stop_name(stop.buf(), welt, player, entry, -1);
+		schedule_t::gimme_stop_name(stop.buf(), welt, player, entry, -1, waytype);
 		stop.set_color(is_current ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT);
 		stop.update();
 	}
@@ -97,7 +99,7 @@ public:
 			return false;
 		} 
 		else {
-			halthandle_t h = haltestelle_t::get_stoppable_halt( entry.pos,player );
+			halthandle_t h = haltestelle_t::get_stoppable_halt( entry.pos,player, waytype );
 			if (  h.is_bound()  ) {
 				// show halt info window.
 				create_win(new halt_info_t(h), w_info, magic_halt_info);		
@@ -141,7 +143,7 @@ void convoi_stops_list_t::update_schedule()
 	}
 	else {
 		for(uint i=0; i<gui_schedule->get_count(); i++) {
-			entries.append( new_component<convoi_stops_list_item_t>(player, gui_schedule->at(i), i));
+			entries.append( new_component<convoi_stops_list_item_t>(player, gui_schedule->at(i), i, gui_schedule->get_waytype()));
 			entries.back()->add_listener( this );
 		}
 		entries[ gui_schedule->get_current_stop() ]->set_active(true);

@@ -46,14 +46,14 @@ public:
 
 	static const tree_desc_t *get_desc_by_name(const char * tree_name) { return desc_table.get(tree_name); }
 	static const tree_desc_t *get_desc_by_id(uint8 tree_id) { return tree_id < get_num_trees() ? tree_list[tree_id] : NULL; }
-	static uint8 get_id_by_desc(const tree_desc_t *desc) { return tree_list.index_of(desc); }
+	static uint8 get_id_by_desc(const tree_desc_t *desc) { return (uint8)tree_list.index_of(desc); }
 
 	static image_id get_tree_image(uint8 idx, uint32 age, uint8 season);
 
 	static bool has_trees() { return get_num_trees() > 0; }
 	static bool has_trees_for_climate(climate cl) { return !tree_list_per_climate[cl].empty(); }
 
-	static sint32 get_num_trees() { return tree_list.get_count()-1; }
+	static uint32 get_num_trees() { return max(tree_list.get_count(), 1u)-1; }
 
 	/// Fill rectangular region with trees.
 	static void fill_trees(int dichte, sint16 xtop, sint16 ytop, sint16 xbottom, sint16 ybottom);

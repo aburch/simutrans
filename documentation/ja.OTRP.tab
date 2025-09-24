@@ -61,6 +61,8 @@ line name and states tooltips
 系統名と車両の状態を表示
 coupled
 連結運転中
+coupled (loading)
+連結運転中(停車中)
 driving
 運転中
 #------Convoy coupling related stuff------
@@ -69,10 +71,12 @@ Wait for coupling
 連結相手を待つ(W)
 Try coupling
 連結を試みる(C)
-Waiting for coupling!
-連結相手を待機中
+Waiting for coupling! (%i->%i%%)
+連結相手を待機中 (%i->%i%%)
 Require parent convoy to enter.
 連結相手がいる時のみ進入を許可
+Advance to end
+ホーム終端まで進む
 release back
 後ろを解放
 A convoy waits for other convoy to couple.
@@ -173,6 +177,22 @@ reverse convoy coupling
 連結を反転する(T)
 Reverses the parents-children order of the coupled convoys.
 連結の親子関係を反転します．
+Not Depart Until Coupling
+連結するまで発車しない
+not leave stop until coupling done even if departure time comes.
+連結が完了するまで発車枠を取得しません。
+Next line:
+この路線へ飛ぶ:
+Jump to this Next-line's schedule at the end of this schedule.
+このスケジュールの最後の駅で、指定された路線のスケジュールに切り替わります。
+Teleport to Depot
+車庫に転送
+Teleport All to Depot
+全編成を車庫に転送
+Convoys are teleported to depot immediately
+路線のすべての編成を車庫に即座に転送します
+Remove vehicle from here and send to the nearest depot.
+全ての車両を車庫に転送します。
 #------円表記------
 $
  円
@@ -281,6 +301,8 @@ Vehicle %s is coupled convoy, so it cannot depart alone!
 %sは先頭の編成ではないので、発車しませんでした。
 Vehicle %s will couple with vehicle %s, but the next stop positions are different!
 %sと%sは連結して発車する予定ですが、次の駅の座標が異なるため連結できません!
+%s is not front convoy.
+%sは先頭の編成ではありません。
 #------その他の翻訳------
 next stop
 次の駅へ

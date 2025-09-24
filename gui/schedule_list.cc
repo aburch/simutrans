@@ -289,7 +289,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	add_component(&filled_bar);
 
 	// convoi list
-	scrolly_convois.set_pos(scr_coord(RIGHT_COLUMN_OFFSET-D_H_SPACE, bt_y + D_BUTTON_HEIGHT+ D_V_SPACE + 2*LINESPACE));
+	scrolly_convois.set_pos(scr_coord(RIGHT_COLUMN_OFFSET-D_H_SPACE, bt_y + 2 * D_BUTTON_HEIGHT+ 2 * D_V_SPACE + 2*LINESPACE));
 	scrolly_convois.set_show_scroll_x(true);
 	scrolly_convois.set_scroll_amount_y(40);
 	scrolly_convois.set_visible(false);
@@ -301,6 +301,14 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	bt_withdraw_line.set_visible(false);
 	bt_withdraw_line.add_listener(this);
 	add_component(&bt_withdraw_line);
+
+	bt_teleport_line_to_depot.init(button_t::roundbox_state, "Teleport All to Depot",
+		scr_coord(RIGHT_COLUMN_OFFSET, bt_y+D_BUTTON_HEIGHT+D_V_SPACE), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_teleport_line_to_depot.set_tooltip("Convoys are teleported to depot immediately");
+	bt_teleport_line_to_depot.set_visible(false);
+	bt_teleport_line_to_depot.add_listener(this);
+	add_component(&bt_teleport_line_to_depot);
+	
 	
 	bt_show_journey_time.init(button_t::roundbox, "Journey Time",
 		scr_coord(RIGHT_COLUMN_OFFSET+D_BUTTON_WIDTH+D_H_SPACE, bt_y),
@@ -406,6 +414,11 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 	if(  comp == &bt_edit_line  ) {
 		if(  line.is_bound()  ) {
 			create_win( new line_management_gui_t(line, player), w_info, (ptrdiff_t)line.get_rep() );
+		}
+	}
+	else if(  comp == &bt_teleport_line_to_depot  &&  line->get_convoys().get_count()>0  ) {
+		for (size_t i = line->get_convoys().get_count(); i-- != 0;) {
+			line->get_convoy(i)->call_convoi_tool( 'y', NULL );
 		}
 	}
 	else if(  comp == &bt_new_line  ) {
@@ -568,6 +581,7 @@ void schedule_list_gui_t::draw(scr_coord pos, scr_size size)
 		bt_edit_line.enable( activate );
 		bt_new_line.enable( activate   &&  tabs.get_active_tab_index() > 0);
 		bt_withdraw_line.enable( activate );
+		bt_teleport_line_to_depot.enable( activate );
 	}
 
 	// if search string changed, update line selection
@@ -632,7 +646,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 			break;
 		}
 	}
-	sint16 text_y = D_TITLEBAR_HEIGHT+bt_withdraw_line.get_pos().y + bt_withdraw_line.get_size().h + D_V_SPACE;
+	sint16 text_y = D_TITLEBAR_HEIGHT+bt_teleport_line_to_depot.get_pos().y + bt_teleport_line_to_depot.get_size().h + D_V_SPACE;
 	int len=display_proportional_clip_rgb(pos.x+RIGHT_COLUMN_OFFSET,
 		pos.y+text_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 
@@ -732,9 +746,12 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 
 		bt_delete_line.disable();
 		add_component(&bt_withdraw_line);
+		add_component(&bt_teleport_line_to_depot);
 		bt_withdraw_line.disable();
+		bt_teleport_line_to_depot.disable();
 		if(  icnv>0  ) {
 			bt_withdraw_line.enable();
+			bt_teleport_line_to_depot.enable();
 		}
 		else {
 			bt_delete_line.enable();
@@ -749,7 +766,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		// fill haltestellen container with info of stops of the line
 		scrolly_haltestellen.clear_elements();
 		FOR(minivec_tpl<schedule_entry_t>, const& i, new_line->get_schedule()->get_entries()) {
-			halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, player);
+			halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, player, new_line->get_schedule()->get_waytype());
 			if(  halt.is_bound()  ) {
 				scrolly_haltestellen.new_component<halt_list_stats_t>(halt);
 			}
@@ -808,6 +825,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 	}
 	line = new_line;
 	bt_withdraw_line.set_visible( line.is_bound() );
+	bt_teleport_line_to_depot.set_visible( line.is_bound() );
 	bt_show_journey_time.set_visible( line.is_bound() );
 	bt_goods_waiting_time.set_visible(  line.is_bound() );
 

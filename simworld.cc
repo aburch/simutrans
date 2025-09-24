@@ -15,6 +15,7 @@
 #include "simcity.h"
 #include "simcolor.h"
 #include "simconvoi.h"
+#include "utils/thread_pool.h"
 #include "simdebug.h"
 #include "simdepot.h"
 #include "simfab.h"
@@ -4240,6 +4241,23 @@ void karte_t::step()
 		}
 	}
 
+	// multithreaded step for convois
+	DBG_DEBUG4("karte_t::step", "threaded step convois");
+	static thread_pool_t thread_pool(4); // TODO: make thread count configurable
+	
+	// collect convoys that need threaded processing
+	for (size_t i = 0; i < convoi_array.get_count(); i++) {
+		convoihandle_t cnv = convoi_array[i];
+		if(  cnv.is_bound()  &&  cnv->needs_threaded_step()  ) {
+			thread_pool.enqueue([cnv]() {
+				cnv->threaded_step();
+			});
+		}
+	}
+	
+	// wait for all threaded operations to complete
+	thread_pool.wait_for_all();
+
 	// now step all towns (to generate passengers)
 	DBG_DEBUG4("karte_t::step", "step cities");
 	sint64 bev=0;
@@ -5962,6 +5980,7 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 		}
 
 		char buf[80];
+		vector_tpl<convoi_t*> loading_convoi_array;
 		while(  convoi_nr-->0  ) {
 			if(  file->is_version_less(101, 0)  ) {
 				file->rd_obj_id(buf, 79);
@@ -5970,8 +5989,13 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 				}
 			}
 			convoi_t *cnv = new convoi_t(file);
+			loading_convoi_array.append(cnv);
 			convoi_array.append(cnv->self);
-
+			if(  (convoi_array.get_count()&7) == 0  ) {
+				ls->set_progress( get_size().y+(get_size().y*convoi_array.get_count())/(2*max_convoi)+128 );
+			}
+		}
+		FOR( vector_tpl<convoi_t*>, cnv, loading_convoi_array ) {
 			if(cnv->in_depot()) {
 				grund_t * gr = lookup(cnv->get_pos());
 				depot_t *dep = gr ? gr->get_depot() : 0;
@@ -5985,9 +6009,6 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 			}
 			else {
 				sync.add( cnv );
-			}
-			if(  (convoi_array.get_count()&7) == 0  ) {
-				ls->set_progress( get_size().y+(get_size().y*convoi_array.get_count())/(2*max_convoi)+128 );
 			}
 		}
 	DBG_MESSAGE("karte_t::rdwr_gamestate()", "%d convois/trains loaded", convoi_array.get_count());

@@ -118,7 +118,7 @@ public:
 	/**
 	 * get convoy
 	 */
-	convoihandle_t get_convoy(int i) const { return line_managed_convoys[i]; }
+	convoihandle_t get_convoy(uint i) const { return line_managed_convoys[i]; }
 
 	/**
 	 * return number of manages convoys in this line

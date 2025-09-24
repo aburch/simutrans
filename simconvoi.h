@@ -272,8 +272,8 @@ private:
 	/*
 	 * caches the running costs
 	 */
-	sint32 sum_running_costs;
-	sint32 sum_fixed_costs;
+	sint64 sum_running_costs;
+	sint64 sum_fixed_costs;
 
 	/**
 	* Overall performance.
@@ -307,11 +307,6 @@ private:
 
 	bool coupling_done;
 
-	/*
-	 * The initial convoy direction to get to the next stop.
-	 * This is valid only when the convoy is in loading state.
-	*/
-	ribi_t::ribi next_initial_direction;
 
 	/**
 	 * Time when convoi arrived at the current stop
@@ -382,7 +377,7 @@ private:
 	char name_and_id[128];
 
 	bool reversed; // true when the vehicles are in the reversed order.
-	bool is_reversing_needed;// Whether this convoy's vehicles will be arranged in reverse order.
+	bool reversing_needed;// Whether this convoy's vehicles will be arranged in reverse order.
 	/**
 	* Initialize all variables with default values.
 	* Each constructor must call this method first!
@@ -394,18 +389,14 @@ private:
 	*/
 	bool drive_to();
 
-	/**
-	* Setup vehicles for moving in same direction than before
-	* if the direction is the same as before
-	*/
-	bool can_go_alte_richtung();
 
 	/**
 	* a helper function for can_go_alte_richtung() and vorfahren()
 	* Inserts the positions where the convoys are to the route.
 	*/
 	bool insert_route_convoy_on();
-
+	koord3d const find_tiles_convoy_on(convoihandle_t const inspecting, const grund_t* g, ribi_t::ribi next_dir);
+	bool insert_route_to_draw_diagonal();
 	// alte_richtung of coupled convoy is set by the head convoy.
 	void set_alte_richtung(ribi_t::ribi r) { alte_richtung = r; }
 
@@ -520,13 +511,15 @@ private:
 
 	// Reverse the order of the coupling/coupled convois
 	void reverse_convoy_coupling();
-
-	// a helper function for convoi_t::drive_to()
-	koord3d calc_first_pos_of_route() const;
+	
+	// a helper function for convoi_t::vorfahren(), check reserved_tiles
+	void clear_reserved_tile_if_not_matching_route();
 
 public:
 	bool is_reversed() const { return reversed; }
 	void set_reversed(bool yesno) { reversed = yesno; }
+	bool is_reversing_needed() const { return reversing_needed; }
+	void set_reversing_needed(bool yesno) { reversing_needed = yesno; }
 	// Reorder the vehicle array
 	// Can be executed even with a vehicle array that does not belong to convoy for UI
 	
@@ -696,6 +689,11 @@ public:
 	void set_speed_limit(sint32 s) { speed_limit = s;}
 	void set_min_top_speed(sint32 t) {min_top_speed = t;}
 
+	/**
+	 * Check sum power of this and the child convoys
+	 */
+	uint32 get_total_sum_power() const;
+
 	// calculate min_top_speed taking coupling convoys into account. This does not broadcast min_top_speed for the coupling convoys.
 	sint32 calc_min_top_speed();
 
@@ -731,6 +729,18 @@ public:
 	 * All things like route search or loading, that may take a little
 	 */
 	void step();
+
+	/**
+	 * Check if this convoy needs threaded processing
+	 * @return true if threaded_step() should be called
+	 */
+	bool needs_threaded_step() const;
+
+	/**
+	 * Multithreaded version of some operations from step()
+	 * This is called after all convoys have completed their regular step()
+	 */
+	void threaded_step();
 
 	/**
 	* sets a new convoi in route
@@ -1049,8 +1059,6 @@ public:
 	bool can_continue_coupling() const;
 	bool can_start_coupling(convoi_t* parent) const;
 
-	ribi_t::ribi get_next_initial_direction() const { return next_initial_direction; }
-	void clear_next_initial_direction() { next_initial_direction = ribi_t::none; }
 	bool is_coupling_done() const { return coupling_done; }
 	void set_coupling_done(bool tf) { coupling_done = tf; }
 
@@ -1084,13 +1092,24 @@ public:
 	// Warning: The calculation cost is O(n) where n is the number of convoys in the world.
 	convoihandle_t find_most_parent_convoi() const;
 
+	// Returns the most child convoi of this convoy.
+	convoihandle_t find_most_child_convoi() const;
+
 	// go to next stop (skip one stops)
 	// only called by tool_change_convoi_t
 	void next_stop_button_pressed();
 
+	// Reverse convoy coupling at waypoint
+	// if this bool value is true, reversing done, this convoy is no longer the leading (most parent) convoy.
+	bool reverse_convoy_coupling_at_waypoint();
+
 	// coupling during running.
 	// Only for during leaving a depot
 	bool couple_convoi_during_running(convoihandle_t coupled);
+
+	// jump to other line's schedule
+	// the new line is stored in schedule->next_line_id
+	void change_line_to_next_if_needed();
 
 };
 

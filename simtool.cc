@@ -747,7 +747,7 @@ DBG_MESSAGE("tool_remover()", "removing way");
 			}
 		}
 		wt = w->get_desc()->get_finance_waytype();
-		sint32 cost_sum = gr->weg_entfernen(w->get_waytype(), true);
+		sint64 cost_sum = gr->weg_entfernen(w->get_waytype(), true);
 		player_t::book_construction_costs(player, -cost_sum, k, wt);
 	}
 	else {
@@ -2533,7 +2533,7 @@ static const char *tool_schedule_insert_aux(karte_t *welt, player_t *player, koo
 		}
 		// and check for ownership
 		if(  bd->is_halt()  ) {
-			if(  !haltestelle_t::get_stoppable_halt(pos, player).is_bound()  ) {
+			if(  !haltestelle_t::get_stoppable_halt(pos, player, schedule->get_waytype()).is_bound()  ) {
 				// A halt exists, but the player check failed.
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
@@ -2749,7 +2749,7 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 	grund_t *gr=welt->lookup(pos);
 	if(  gr  &&  slope_t::is_way(gr->get_weg_hang())  ) {
 		// ignore tunnel tiles (except road tunnel for tram track building ..)
-		if(  gr->get_typ() == grund_t::tunnelboden  &&  !gr->ist_karten_boden()  && !(desc->is_tram()  && gr->hat_weg(road_wt)) ) {
+		if(  gr->get_typ() == grund_t::tunnelboden  &&  !gr->ist_karten_boden()  && !( desc->is_tram()  && ( gr->hat_weg(road_wt) || gr->hat_weg(monorail_wt) || gr->hat_weg(maglev_wt) || gr->hat_weg(narrowgauge_wt) ) )  ) {
 			return 0;
 		}
 		bool const elevated = desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt;
@@ -4079,7 +4079,7 @@ void tool_build_wayobj_t::mark_tiles( player_t* player, const koord3d &start, co
 	route_t verbindung;
 	bool can_built = calc_route( verbindung, player, start, end );
 	if( can_built ) {
-		sint32 cost_estimate = 0;
+		sint64 cost_estimate = 0;
 
 		bool keep_existing_faster_ways = !is_ctrl_pressed();
 
@@ -5716,7 +5716,7 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 	signal_info const& s              = current;
 	uint8       const  signal_density = 2 * s.spacing;      // measured in half tiles (straight track count as 2, diagonal as 1, since sqrt(1/2) = 1/2 ;)
 	uint8              next_signal    = signal_density + 1; // to place a sign asap
-	sint32             cost           = 0;
+	sint64             cost           = 0;
 	directions.clear();
 	// dummy roadsign to get images for preview
 	roadsign_t *dummy_rs;
@@ -6970,7 +6970,7 @@ void tool_stop_mover_t::read_start_position(player_t *player, const koord3d &pos
 		}
 	}
 	// .. and halt
-	last_halt = haltestelle_t::get_stoppable_halt(pos,player);
+	last_halt = haltestelle_t::get_stoppable_halt(pos,player,waytype[0]);
 }
 
 
@@ -6982,7 +6982,7 @@ uint8 tool_stop_mover_t::is_valid_pos(  player_t *player, const koord3d &pos, co
 		return 0;
 	}
 	// check halt ownership
-	halthandle_t h = haltestelle_t::get_stoppable_halt(pos,player);
+	halthandle_t h = haltestelle_t::get_stoppable_halt(pos,player,waytype_t::any_wt);
 	if(  h.is_bound()  &&  !player_t::check_owner( player, h->get_owner() )  ) {
 		error = "Das Feld gehoert\neinem anderen Spieler\n";
 		return 0;
@@ -7030,7 +7030,7 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 
 	// second click
 	grund_t *bd = welt->lookup(pos);
-	halthandle_t h = haltestelle_t::get_stoppable_halt(pos,player);
+	halthandle_t h = haltestelle_t::get_stoppable_halt(pos,player,waytype_t::any_wt);
 
 	if (bd) {
 		const halthandle_t new_halt = h;
@@ -7060,26 +7060,55 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 				}
 				else {
 					// all connected tiles for start pos
-					uint8 ribi = welt->lookup(last_pos)->get_weg_ribi_unmasked(wt);
-					koord delta = ribi_t::is_straight_ns(ribi) ? koord(0,1) : koord(1,0);
+					ribi_t::ribi ribi = welt->lookup(last_pos)->get_weg_ribi_unmasked(wt);
+					ribi_t::ribi dir = 0;
 					koord3d start_pos=last_pos;
-					while(ribi&12) {
-						koord3d test_pos = start_pos+delta;
-						grund_t *gr = welt->lookup(test_pos);
-						if(!gr  ||  !gr->is_halt()  ||  (ribi=gr->get_weg_ribi_unmasked(wt))==0) {
+					// move to start position of platform
+					// find the initial direction to search.
+					for(uint8 i=0; i<4; i++) {
+						if(  ribi&ribi_t::nesw[i]  ) {
+							dir = ribi_t::nesw[i];
 							break;
 						}
-						start_pos = test_pos;
+					}
+					if(  dir==0  ) {
+						// no connected way!?
+						old_platform.append(last_pos);
+						break;
+					}
+					grund_t *gr = welt->lookup(start_pos);
+					while(true) {
+						gr->get_neighbour(gr, wt, dir);
+						if(  !gr  ||  !gr->is_halt()  ||  !gr->get_weg(wt)  || (ribi=gr->get_weg_ribi_unmasked(wt))==0  ||  gr->get_pos()==last_pos  ) {
+							// maybe reach last tile
+							break;
+						}
+						const ribi_t::ribi new_dir = ribi & ~(ribi_t::backward(dir));
+						if( new_dir==0 ) {
+							// maybe reach last tile
+							break;
+						}
+						dir = new_dir;
+						start_pos = gr->get_pos();
 					}
 					// now add all of them
-					while(ribi&3) {
-						koord3d test_pos = start_pos-delta;
-						grund_t *gr = welt->lookup(test_pos);
+					dir = ribi_t::backward(dir);
+					gr = welt->lookup(start_pos);
+					const koord3d end_pos = start_pos;
+					while(true) {
 						old_platform.append(start_pos);
-						if(!gr  ||  !gr->is_halt()  ||  (ribi=gr->get_weg_ribi_unmasked(wt))==0) {
+						gr->get_neighbour(gr, wt, dir);
+						if(!gr  ||  !gr->is_halt()  ||  !gr->get_weg(wt)  || (ribi=gr->get_weg_ribi_unmasked(wt))==0  ||  gr->get_pos()==end_pos  ) {
+							// maybe reach last tile
 							break;
 						}
-						start_pos = test_pos;
+						const ribi_t::ribi new_dir = ribi & ~(ribi_t::backward(dir));
+						if( new_dir==0 ) {
+							// maybe reach last tile
+							break;
+						}
+						dir = new_dir;
+						start_pos = gr->get_pos();
 					}
 				}
 			}
@@ -7093,7 +7122,7 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 					if(schedule  &&  schedule->is_stop_allowed(bd)) {
 						bool updated = false;
 						for (schedule_entry_t *k = schedule->begin(); k != schedule->end(); k++) {
-							if ((catch_all_halt && haltestelle_t::get_stoppable_halt(k->pos, cnv->get_owner()) == last_halt) ||
+							if ((catch_all_halt && haltestelle_t::get_stoppable_halt(k->pos, cnv->get_owner(),schedule->get_waytype()) == last_halt) ||
 								old_platform.is_contained(k->pos))
 							{
 								k->pos = pos;
@@ -7130,7 +7159,7 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 					bool updated = false;
 					for(schedule_entry_t* k = schedule->begin(); k != schedule->end(); k++) {
 						// ok!
-						if ((catch_all_halt && haltestelle_t::get_stoppable_halt( k->pos, line->get_owner()) == last_halt) ||
+						if ((catch_all_halt && haltestelle_t::get_stoppable_halt( k->pos, line->get_owner(), schedule->get_waytype()) == last_halt) ||
 								old_platform.is_contained(k->pos)) {
 							k->pos   = pos;
 							updated = true;
@@ -7390,7 +7419,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 					if (player == wplayer) {
 						w->set_owner(welt->get_public_player());
 						w->set_flag(obj_t::dirty);
-						sint32 cost = w->get_desc()->get_maintenance();
+						sint64 cost = w->get_desc()->get_maintenance();
 						// of tunnel...
 						if (tunnel_t* t = gr->find<tunnel_t>()) {
 							t->set_owner(welt->get_public_player());
@@ -7413,7 +7442,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 					else if (  is_shift_pressed()  &&  wplayer == welt->get_public_player()  ){
 						w->set_owner(player);
 						w->set_flag(obj_t::dirty);
-						sint32 cost = w->get_desc()->get_maintenance();
+						sint64 cost = w->get_desc()->get_maintenance();
 						// of tunnel...
 						if (tunnel_t* t = gr->find<tunnel_t>()) {
 							t->set_owner(player);
@@ -7440,7 +7469,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 				if (wayobj_t* const wo = obj_cast<wayobj_t>(gr->obj_bei(i))) {
 					player_t* woplayer = wo->get_owner();
 					if (player == woplayer) {
-						sint32 const cost = wo->get_desc()->get_maintenance();
+						sint64 const cost = wo->get_desc()->get_maintenance();
 						// change ownership
 						wo->set_owner(welt->get_public_player());
 						wo->set_flag(obj_t::dirty);
@@ -7450,7 +7479,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 						player_t::book_construction_costs(woplayer, cost, koord::invalid, financetype);
 					}
 					else if (  is_shift_pressed()  &&  woplayer == welt->get_public_player()  ){
-						sint32 const cost = wo->get_desc()->get_maintenance();
+						sint64 const cost = wo->get_desc()->get_maintenance();
 						// change ownership
 						wo->set_owner(player);
 						wo->set_flag(obj_t::dirty);
@@ -7502,7 +7531,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 						return NOTICE_UNSUITABLE_GROUND;
 					}
 					// compute maintainance cost
-					sint32 cost = w->get_desc()->get_maintenance();
+					sint64 cost = w->get_desc()->get_maintenance();
 					// tunnel cost overwrites way cost
 					if(  tunnel_t *t = i.grund->find<tunnel_t>()  ) {
 						cost = t->get_desc()->get_maintenance();
@@ -8643,7 +8672,7 @@ bool tool_change_line_t::init( player_t *player )
  * 'B' : starts all convoys
  * 'c' : copies this convoi
  * 'd' : disassembles convoi
- * 's' : sells convoi
+ * 's' : sells a vehicle
  * 'a' : appends a vehicle (+vehikel_name) uses the oldest
  * 'i' : inserts a vehicle in front (+vehikel_name) uses the oldest
  * 's' : sells a vehikel (+vehikel_name) uses the newest
@@ -8652,6 +8681,8 @@ bool tool_change_line_t::init( player_t *player )
  * 'e' : set replacement seed convoy
  * 'p' : paste convoy
  * 'u' : set coupling convoy
+ * 'v' : sell convoi
+ * 't' : reverse convoy direction
  */
 bool tool_change_depot_t::init( player_t *player )
 {
@@ -8899,6 +8930,9 @@ bool tool_change_depot_t::init( player_t *player )
 			cnv->set_coupling_convoi(child);
 			break;
 		}
+		case 't': { // reverse convoy direction
+			cnv->set_reversing_needed(!cnv->is_reversing_needed());
+		}
 	}
 	return false;
 }
@@ -9023,6 +9057,10 @@ bool tool_change_traffic_light_t::init( player_t *player )
 
 /*
  * change state of roadsign
+ * r:set lane affinity for oneway road sign
+ * s:set guide signal state for signal
+ * a:set advance to end state for signal
+ * 
  */
 bool tool_change_roadsign_t::init( player_t* )
 {
@@ -9060,6 +9098,18 @@ bool tool_change_roadsign_t::init( player_t* )
 			}
 		}
 		break;
+
+		case 'a':
+		// set advance to end state for signal
+		if(  grund_t *gr = welt->lookup(pos)  ) {
+			if( roadsign_t *rs = gr->find<signal_t>()  ) {
+				rs->set_advance_to_end(inst);
+				signal_info_t* signal_info_win = (signal_info_t*)win_get_magic((ptrdiff_t)rs);
+				if(  signal_info_win  ) {
+					signal_info_win->update_data();
+				}
+			}
+		}
 
 		default:
 		// do nothing

@@ -40,7 +40,12 @@ protected:
 	uint8 ticks_ow;
         uint8 ticks_yellow_ns, ticks_yellow_ow;
 	uint8 ticks_offset;
-	bool guide_signal;
+	uint8 choose_sign_flag;
+	enum choose_sign_state {
+		NONE = 0,
+		guide_signal   = 1U<<0,// guide signal for coupling
+		advance_to_end = 1U<<1 // advance to end
+	};
 
 	sint8 after_yoffset, after_xoffset;
 
@@ -117,7 +122,7 @@ public:
 		ticks_ns = ns;
 		// To prevent overflow in ticks_offset when rotating
 		if (ticks_ow > 256-ticks_ns - ticks_yellow_ns - ticks_yellow_ow ) {
-			ticks_ow = 256-ticks_ns-ticks_yellow_ns-ticks_yellow_ow;
+			ticks_ow = (uint8)(256-ticks_ns-ticks_yellow_ns-ticks_yellow_ow);
 		}
 	}
 	uint8 get_ticks_ow() const { return ticks_ow; }
@@ -125,7 +130,7 @@ public:
 		ticks_ow = ow;
 		// To prevent overflow in ticks_offset when rotating
 		if (ticks_ns > 256-ticks_ow - ticks_yellow_ns-ticks_yellow_ow ) {
-			ticks_ns = 256-ticks_ow-ticks_yellow_ns-ticks_yellow_ow;
+			ticks_ns = (uint8)(256-ticks_ow-ticks_yellow_ns-ticks_yellow_ow);
 		}
 	}
 	uint8 get_ticks_yellow_ns() const { return ticks_yellow_ns; }
@@ -133,7 +138,7 @@ public:
 		ticks_yellow_ns = yellow;
 		// To prevent overflow in ticks_offset when rotating
 		if (ticks_yellow_ns > 256-ticks_ns - ticks_ow - ticks_yellow_ow) {
-		  ticks_yellow_ns = 256-ticks_ns-ticks_ow-ticks_yellow_ow;
+		  ticks_yellow_ns = (uint8)(256-ticks_ns-ticks_ow-ticks_yellow_ow);
 		}
 	}
 	uint8 get_ticks_yellow_ow() const { return ticks_yellow_ow; }
@@ -141,7 +146,7 @@ public:
 		ticks_yellow_ow = yellow;
 		// To prevent overflow in ticks_offset when rotating
 		if (ticks_yellow_ow > 256-ticks_ns - ticks_ow - ticks_yellow_ns) {
-		  ticks_yellow_ow = 256-ticks_ns-ticks_ow-ticks_yellow_ns;
+		  ticks_yellow_ow = (uint8)(256-ticks_ns-ticks_ow-ticks_yellow_ns);
 		}
 	}
 	uint8 get_ticks_offset() const { return ticks_offset; }
@@ -159,8 +164,10 @@ public:
 	*/
 	image_id get_front_image() const OVERRIDE { return foreground_image; }
 	
-	bool is_guide_signal() const { return guide_signal; }
-	void set_guide_signal(bool tf) { guide_signal = tf; }
+	bool is_guide_signal() const { return choose_sign_flag&guide_signal; }
+	void set_guide_signal(bool tf) { tf? choose_sign_flag|=guide_signal:choose_sign_flag&=~guide_signal; }	
+	bool is_advance_to_end() const { return choose_sign_flag&advance_to_end; }
+	void set_advance_to_end(bool tf) { tf? choose_sign_flag|=advance_to_end:choose_sign_flag&=~advance_to_end; }
 
 	/**
 	* draw the part overlapping the vehicles
