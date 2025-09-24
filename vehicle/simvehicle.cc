@@ -3552,7 +3552,7 @@ bool rail_vehicle_t::is_coupling_target(const grund_t *gr, const grund_t *prev_g
 }
 
 
-bool rail_vehicle_t::check_longblock_signal(signal_t *sig, uint16 next_block, sint32 &restart_speed)
+bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block, sint32 &restart_speed)
 {
 	// longblock signal: first check, whether there is a signal coming up on the route => just like normal signal
 	uint16 next_signal, next_crossing;
@@ -3591,7 +3591,7 @@ bool rail_vehicle_t::check_longblock_signal(signal_t *sig, uint16 next_block, si
 	schedule_t* schedule = cnv->get_schedule();
 	uint8 schedule_index = cnv->get_schedule()->get_current_stop()+1;
 	route_t target_rt;
-	koord3d cur_pos = cnv->get_route()->back();
+	koord3d cur_pos = cnv->get_route()->at(next_block);
 	uint16 dummy;
 	uint16 next_next_signal = route_t::INVALID_INDEX;
 	
@@ -3661,22 +3661,6 @@ bool rail_vehicle_t::check_longblock_signal(signal_t *sig, uint16 next_block, si
 		cnv->set_next_stop_index( cnv->get_route()->get_count()-1 );
 	}
 	return true;
-}
-
-bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block, sint32 &restart_speed)
-{
-	if(  cnv->is_waiting()  ) {
-		// we are in a step. do that.
-		const bool res = check_longblock_signal(sig, next_block, restart_speed);
-		cnv->set_longblock_signal_judge_request_invalid();
-		return res;
-	}
-	else {
-		// we are in a sync_step. request to do this in a step.
-		cnv->request_longblock_signal_judge(sig, next_block);
-		restart_speed = 0;
-		return false;
-	}
 }
 
 
