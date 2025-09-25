@@ -5,7 +5,7 @@
 	FIX: could built powerlines under bridges by just building a zero length power bridge starting under a bridge
 	ADD: New simple tool 43 to highlight single ribi ways
 	CHG: Pause tool unpauses server waiting for clients
-	FIX: new city buildings were built when exceeded 2x1 size (only renovated)
+	FIX: no new city buildings were built when exceeded 2x1 size (only renovated)
 	FIX: Missing collision check for water factories
 	FIX: Crash when screenshotting in-game window with non-0 position
 	FIX: Graphical glitch when dragging the forest tool across slopes if pakset does not have double grounds
