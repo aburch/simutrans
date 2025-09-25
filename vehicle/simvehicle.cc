@@ -3573,7 +3573,7 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block,
 	if(  !cnv->is_waiting()  ) {
 		// we are in a sync_step. request to do this in a step.
 		block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, false, false);
-		restart_speed = 0;
+		restart_speed = -1;
 		return false;
 	}
 
