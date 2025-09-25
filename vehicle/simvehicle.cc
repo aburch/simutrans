@@ -3570,6 +3570,13 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block,
 		return true;
 	}
 
+	if(  !cnv->is_waiting()  ) {
+		// we are in a sync_step. request to do this in a step.
+		block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, false, false);
+		restart_speed = 0;
+		return false;
+	}
+
 	// now we have to maintain reservation with reserved_tiles, that is slower than using next_reservation_index
 	// copy all tiles that are already reserved
 	bool add_pos = false;
@@ -3591,7 +3598,7 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block,
 	schedule_t* schedule = cnv->get_schedule();
 	uint8 schedule_index = cnv->get_schedule()->get_current_stop()+1;
 	route_t target_rt;
-	koord3d cur_pos = cnv->get_route()->at(next_block);
+	koord3d cur_pos = cnv->get_route()->at(next_block);//cnv->get_route()->back();
 	uint16 dummy;
 	uint16 next_next_signal = route_t::INVALID_INDEX;
 	
@@ -3831,11 +3838,14 @@ bool rail_vehicle_t::is_pre_signal_clear(signal_t *sig, uint16 next_block, sint3
 	uint16 next_signal, next_crossing;
 	if(  block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false )  ) {
 		if(next_signal == route_t::INVALID_INDEX ||
-           cnv->get_route()->at(next_signal) == cnv->get_route()->back() ||
-           is_signal_clear( next_signal, restart_speed )) {
+           cnv->get_route()->at(next_signal) == cnv->get_route()->back()) {
 			// ok, end of route => we can go
 			sig->set_state( roadsign_t::STATE_GREEN );
 			cnv->set_next_stop_index( min( next_signal, next_crossing ) );
+			return true;
+		} else if ( is_signal_clear( next_signal, restart_speed ) ) {
+			// ok, next signal clear
+			sig->set_state( roadsign_t::STATE_GREEN );
 			return true;
 		}
 		// when we reached here, the way is apparently not free => release reservation and set state to next free
