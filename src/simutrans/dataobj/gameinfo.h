@@ -28,7 +28,7 @@ private:
 	 * Two pixel arrays: one with indexed colors (sent by servers),
 	 * one with rgb colors (will be displayed)
 	 */
-	array2d_tpl<PIXVAL> map_idx, map_rgb;
+	array2d_tpl<PIXVAL> map_pixval;
 
 	sint32 industries;
 	sint32 tourist_attractions;
@@ -71,7 +71,7 @@ public:
 
 	sint32 get_size_x() const {return size_x;}
 	sint32 get_size_y() const {return size_y;}
-	const array2d_tpl<PIXVAL> *get_map() const { return &map_rgb; }
+	const array2d_tpl<PIXVAL> *get_map() const { return &map_pixval; }
 
 	sint32 get_industries() const {return industries;}
 	sint32 get_tourist_attractions() const {return tourist_attractions;}

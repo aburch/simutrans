@@ -6510,6 +6510,44 @@ void karte_t::announce_server(server_announce_type_t status)
 		buf.printf( "&convoys=%u",   convoys().get_count());
 		buf.printf( "&stops=%u",     haltestelle_t::get_alle_haltestellen().get_count() );
 
+#if 0
+		// could transmit a very basic mini minimap (36x36) pxiel, only land or sea in 218 bytes
+		char mapstr[6*36+1];
+		char* p = mapstr;
+		uint16 bitcount = 1;
+		for (scr_coord_val j = 0; j < 36; j++) {
+			sint64 row = 0;
+			for (scr_coord_val i = 0; i < 36; i++) {
+				row <<= 1;
+				const koord pos((i * get_size().x) / 36, (j * get_size().y) / 36);
+				if (!lookup_kartenboden(pos)->is_water()) {
+					row |= 1;
+				}
+				// uncode in URI letters
+				if ((bitcount++ % 6) == 0) {
+					if (row < 26) {
+						*p++ = 'A' + row;
+					}
+					else if (row < 52) {
+						*p++ = 'a' + row;
+					}
+					else if (row < 62) {
+						*p++ = '0' + row;
+					}
+					else if (row == 63) {
+						*p++ = '-';
+					}
+					else {
+						*p++ = '~';
+					}
+				}
+			}
+		}
+		*p = 0;
+		buf.append("&map=");
+		buf.append(p);
+#endif
+
 		if (network_http_post(ANNOUNCE_SERVER1, ANNOUNCE_URL, buf, NULL)) {
 #ifdef ANNOUNCE_SERVER2
 			if (network_http_post(ANNOUNCE_SERVER2, ANNOUNCE_URL, buf, NULL))

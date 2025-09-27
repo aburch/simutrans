@@ -27,8 +27,7 @@
 
 
 gameinfo_t::gameinfo_t(karte_t *welt) :
-	map_idx(MINIMAP_SIZE,MINIMAP_SIZE),
-	map_rgb(MINIMAP_SIZE,MINIMAP_SIZE),
+	map_pixval(MINIMAP_SIZE,MINIMAP_SIZE),
 	game_comment(""),
 	file_name(""),
 	pak_name("")
@@ -53,8 +52,7 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 		for( uint16 j = 0; j < MINIMAP_SIZE; j++ ) {
 			const koord pos(i * gr_x / MINIMAP_SIZE, j * gr_y / MINIMAP_SIZE);
 			const grund_t* gr = welt->lookup_kartenboden(pos);
-			map_rgb.at(i,j) = minimap_t::calc_ground_color(gr);
-			map_idx.at(i,j) = color_rgb_to_idx( map_rgb.at(i,j) );
+			map_pixval.at(i,j) = minimap_t::calc_ground_color(gr);
 		}
 	}
 
@@ -112,8 +110,7 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 
 
 gameinfo_t::gameinfo_t(loadsave_t *file) :
-	map_idx(MINIMAP_SIZE,MINIMAP_SIZE),
-	map_rgb(MINIMAP_SIZE,MINIMAP_SIZE),
+	map_pixval(MINIMAP_SIZE,MINIMAP_SIZE),
 	game_comment(""),
 	file_name(""),
 	pak_name("")
@@ -130,10 +127,7 @@ void gameinfo_t::rdwr(loadsave_t *file)
 	file->rdwr_long( size_y );
 	for( int y=0;  y<MINIMAP_SIZE;  y++  ) {
 		for( int x=0;  x<MINIMAP_SIZE;  x++  ) {
-			file->rdwr_short( map_idx.at(x,y) );
-			if (file->is_loading()) {
-				map_rgb.at(x,y) = color_idx_to_rgb(map_idx.at(x,y));
-			}
+			file->rdwr_short( map_pixval.at(x,y) );
 		}
 	}
 
