@@ -7055,31 +7055,60 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 			}
 			else if(!catch_all_halt) {
 				// builds a coordinate list
-				if(wt==road_wt) {
+				if(is_ctrl_pressed()) {
 					old_platform.append(last_pos);
 				}
 				else {
 					// all connected tiles for start pos
-					uint8 ribi = welt->lookup(last_pos)->get_weg_ribi_unmasked(wt);
-					koord delta = ribi_t::is_straight_ns(ribi) ? koord(0,1) : koord(1,0);
+					ribi_t::ribi ribi = welt->lookup(last_pos)->get_weg_ribi_unmasked(wt);
+					ribi_t::ribi dir = 0;
 					koord3d start_pos=last_pos;
-					while(ribi&12) {
-						koord3d test_pos = start_pos+delta;
-						grund_t *gr = welt->lookup(test_pos);
-						if(!gr  ||  !gr->is_halt()  ||  (ribi=gr->get_weg_ribi_unmasked(wt))==0) {
+					// move to start position of platform
+					// find the initial direction to search.
+					for(uint8 i=0; i<4; i++) {
+						if(  ribi&ribi_t::nesw[i]  ) {
+							dir = ribi_t::nesw[i];
 							break;
 						}
-						start_pos = test_pos;
+					}
+					if(  dir==0  ) {
+						// no connected way!?
+						old_platform.append(last_pos);
+						break;
+					}
+					grund_t *gr = welt->lookup(start_pos);
+					while(true) {
+						gr->get_neighbour(gr, wt, dir);
+						if(  !gr  ||  !gr->is_halt()  ||  !gr->get_weg(wt)  || (ribi=gr->get_weg_ribi_unmasked(wt))==0  ||  gr->get_pos()==last_pos  ) {
+							// maybe reach last tile
+							break;
+						}
+						const ribi_t::ribi new_dir = ribi & ~(ribi_t::backward(dir));
+						if( new_dir==0 ) {
+							// maybe reach last tile
+							break;
+						}
+						dir = new_dir;
+						start_pos = gr->get_pos();
 					}
 					// now add all of them
-					while(ribi&3) {
-						koord3d test_pos = start_pos-delta;
-						grund_t *gr = welt->lookup(test_pos);
+					dir = ribi_t::backward(dir);
+					gr = welt->lookup(start_pos);
+					const koord3d end_pos = start_pos;
+					while(true) {
 						old_platform.append(start_pos);
-						if(!gr  ||  !gr->is_halt()  ||  (ribi=gr->get_weg_ribi_unmasked(wt))==0) {
+						gr->get_neighbour(gr, wt, dir);
+						if(!gr  ||  !gr->is_halt()  ||  !gr->get_weg(wt)  || (ribi=gr->get_weg_ribi_unmasked(wt))==0  ||  gr->get_pos()==end_pos  ) {
+							// maybe reach last tile
 							break;
 						}
-						start_pos = test_pos;
+						const ribi_t::ribi new_dir = ribi & ~(ribi_t::backward(dir));
+						if( new_dir==0 ) {
+							// maybe reach last tile
+							break;
+						}
+						dir = new_dir;
+						start_pos = gr->get_pos();
 					}
 				}
 			}
@@ -8652,7 +8681,7 @@ bool tool_change_line_t::init( player_t *player )
  * 'B' : starts all convoys
  * 'c' : copies this convoi
  * 'd' : disassembles convoi
- * 's' : sells convoi
+ * 's' : sells a vehicle
  * 'a' : appends a vehicle (+vehikel_name) uses the oldest
  * 'i' : inserts a vehicle in front (+vehikel_name) uses the oldest
  * 's' : sells a vehikel (+vehikel_name) uses the newest
@@ -8661,6 +8690,8 @@ bool tool_change_line_t::init( player_t *player )
  * 'e' : set replacement seed convoy
  * 'p' : paste convoy
  * 'u' : set coupling convoy
+ * 'v' : sell convoi
+ * 't' : reverse convoy direction
  */
 bool tool_change_depot_t::init( player_t *player )
 {
@@ -8907,6 +8938,9 @@ bool tool_change_depot_t::init( player_t *player )
 			}
 			cnv->set_coupling_convoi(child);
 			break;
+		}
+		case 't': { // reverse convoy direction
+			cnv->set_reversing_needed(!cnv->is_reversing_needed());
 		}
 	}
 	return false;
