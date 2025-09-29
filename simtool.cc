@@ -6338,7 +6338,7 @@ void tool_build_house_t::set_buildings(vector_tpl<const building_desc_t*> bldg) 
 	buildings.clear();
 	srand((unsigned int)time(NULL));
 	for(  uint32 i=0;  i<bldg.get_count();  i++  ) {
-		buildings.append(bldg[rand() % bldg.get_count() + 1]);
+		buildings.append(bldg[rand() % bldg.get_count()]);
 	}
 }
 
