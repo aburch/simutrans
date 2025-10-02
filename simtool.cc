@@ -6337,7 +6337,7 @@ const char *tool_build_house_t::do_work( player_t *player, const koord3d &start,
 void tool_build_house_t::set_buildings(vector_tpl<const building_desc_t*> bldg) {
 	buildings.clear();
 	for(  uint32 i=0;  i<bldg.get_count();  i++  ) {
-		buildings.append([i]);
+		buildings.append(bldg[i]);
 	}
 }
 
