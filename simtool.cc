@@ -6369,9 +6369,7 @@ void tool_build_house_t::rdwr_custom_data(memory_rw_t *packet)
        			ps = plainstring(buildings[rand_index]->get_name());
         		packet->rdwr_str(ps);
 			}
-    }
-}
-
+   		}
 	}
 }
 
