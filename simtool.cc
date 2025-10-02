@@ -6362,11 +6362,16 @@ void tool_build_house_t::rdwr_custom_data(memory_rw_t *packet)
 		}
 	} else {
 		// writing
-		for(  uint32 i=0;  i<count;  i++  ) {
-			ps = plainstring(buildings[i]->get_name());
-			dbg->message("tool_build_house_t:","OK");
-			packet->rdwr_str(ps);
-		}
+		srand((unsigned int)time(NULL)); 
+		if (count > 0) {
+   			for (uint32 i = 0; i < count; i++) {
+        		uint32 rand_index = rand() % count;
+       			ps = plainstring(buildings[rand_index]->get_name());
+        		packet->rdwr_str(ps);
+			}
+    }
+}
+
 	}
 }
 
