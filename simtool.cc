@@ -6364,7 +6364,7 @@ void tool_build_house_t::rdwr_custom_data(memory_rw_t *packet)
 		// writing
 		for(  uint32 i=0;  i<count;  i++  ) {
 			ps = plainstring(buildings[i]->get_name());
-			DBG_MESSAGE("tool_build_house_t:",ps);
+			dbg->message("tool_build_house_t:","OK");
 			packet->rdwr_str(ps);
 		}
 	}
