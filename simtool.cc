@@ -7,9 +7,9 @@
 #include <string.h>
 #include <math.h>
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <unistd.h>
 
 #include "simdebug.h"
 #include "simevent.h"
@@ -6336,9 +6336,8 @@ const char *tool_build_house_t::do_work( player_t *player, const koord3d &start,
 
 void tool_build_house_t::set_buildings(vector_tpl<const building_desc_t*> bldg) {
 	buildings.clear();
-	srand((unsigned int)time(NULL));
 	for(  uint32 i=0;  i<bldg.get_count();  i++  ) {
-		buildings.append(bldg[rand() % bldg.get_count()]);
+		buildings.append(i]);
 	}
 }
 
@@ -6365,6 +6364,7 @@ void tool_build_house_t::rdwr_custom_data(memory_rw_t *packet)
 		// writing
 		for(  uint32 i=0;  i<count;  i++  ) {
 			ps = plainstring(buildings[i]->get_name());
+			printf(ps)
 			packet->rdwr_str(ps);
 		}
 	}
