@@ -468,6 +468,7 @@ public:
 				++changes;
 				if(  head == tail  ) {
 					tail = tail->next;
+					needed_work = true;
 					break;
 				}
 			}
