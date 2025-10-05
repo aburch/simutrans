@@ -86,6 +86,11 @@ class inthashtable_tpl<ptrdiff_t, scr_size> saved_windowsizes;
 // true if there is little space for the status messages
 static bool status_show_compact = false;
 
+// true if toolbar magic
+bool inline is_toolbar(ptrdiff_t magic) {
+	return magic >= magic_toolbar && magic < magic_script_error;
+}
+
 
 // I added a button to the map window to fix it's size to the best one.
 // This struct is the flow back to the object of the refactoring.
@@ -799,7 +804,18 @@ int create_win(scr_coord pos, gui_frame_t *const gui, wintype const wt, ptrdiff_
 	if(  pos.x==-1  &&  pos.y==-1  &&  env_t::remember_window_positions  ) {
 		// look for window in hash table
 		if(  scr_coord *k = old_win_pos.access(magic)  ) {
-			pos = *k;
+			bool overlap = false;
+			if (env_t::stack_toolbars && is_toolbar(magic)) {
+				// make sure we do not overlap with other toolsbars
+				for (uint32 i = 0; i < wins.get_count()  && !overlap; i++) {
+					if (wins[i].wt && is_toolbar(wins[i].magic_number)) {
+						overlap = k->y >= wins[i].pos.y && k->y < wins[i].pos.y + wins[i].gui->get_windowsize().h;
+					}
+				}
+			}
+			if(!overlap) {
+				pos = *k;
+			}
 		}
 	}
 
@@ -892,10 +908,40 @@ int create_win(scr_coord pos, gui_frame_t *const gui, wintype const wt, ptrdiff_
 			inside_event_handling = old;
 		}
 
-		// try to go next to mouse bar
 		if (pos.x == -1) {
-			pos.x = get_mouse_pos().x - gui->get_windowsize().w / 2;
-			pos.y = get_mouse_pos().y - gui->get_windowsize().h - get_tile_raster_width()/4;
+
+			if (env_t::stack_toolbars  &&  is_toolbar(magic)) {
+				// try to keep the toolbar next to other toolbars
+				scr_coord_val direction = 1;
+				pos.x = 0;
+				pos.y = 0;
+				if (env_t::menupos == MENU_BOTTOM) {
+					direction = -1;
+					pos.y = display_get_height() - gui->get_windowsize().h - env_t::iconsize.h;
+				}
+				// now we just open below (above), not caring for holes
+				for (uint32 i=0;  i<wins.get_count()-1;  i++) {
+					if (wins[i].wt  &&  is_toolbar(wins[i].magic_number)) {
+						// toolbar
+						if (direction > 0) {
+							pos.y = max(pos.y, wins[i].pos.y + wins[i].gui->get_windowsize().h);
+						}
+						else {
+							pos.y = min(pos.y, wins[i].pos.y - gui->get_windowsize().h - D_TITLEBAR_HEIGHT);
+						}
+					}
+				}
+				if (env_t::menupos == MENU_RIGHT) {
+					// right aligned
+					pos.x = display_get_width()-gui->get_windowsize().w - env_t::iconsize.w;
+				}
+				win_clamp_xywh_position(gui, pos, gui->get_windowsize(), true);
+			}
+			else {
+				// try to go next to mouse bar
+				pos.x = get_mouse_pos().x - gui->get_windowsize().w / 2;
+				pos.y = get_mouse_pos().y - gui->get_windowsize().h - get_tile_raster_width()/4;
+			}
 		}
 
 		// make sure window is on screen

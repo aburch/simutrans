@@ -153,6 +153,10 @@ gui_settings_t::gui_settings_t()
 	single_toolbar.pressed = ( env_t::single_toolbar_mode );
 	add_component( &single_toolbar, 3 );
 
+	stack_toolbars.init( button_t::square_state, "Stack toolbars" );
+	stack_toolbars.pressed = ( env_t::stack_toolbars );
+	add_component( &stack_toolbars, 3 );
+
 	reselect_closes_tool.init( button_t::square_state, "Reselect closes tools" );
 	reselect_closes_tool.pressed = env_t::reselect_closes_tool;
 	add_component( &reselect_closes_tool, 3 );
@@ -614,6 +618,7 @@ color_gui_t::color_gui_t() :
 	}
 	gui_settings.toolbar_pos.add_listener( this );
 	gui_settings.single_toolbar.add_listener(this);
+	gui_settings.stack_toolbars.add_listener(this);
 	gui_settings.reselect_closes_tool.add_listener(this);
 	gui_settings.fullscreen.add_listener( this );
 	gui_settings.borderless.add_listener( this );
@@ -669,6 +674,12 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t)
 	if(  comp == &gui_settings.single_toolbar  ) {
 		env_t::single_toolbar_mode = !env_t::single_toolbar_mode;
 		gui_settings.single_toolbar.pressed = env_t::single_toolbar_mode;
+		return true;
+	}
+
+	if(  comp == &gui_settings.stack_toolbars  ) {
+		env_t::stack_toolbars = !env_t::stack_toolbars;
+		gui_settings.stack_toolbars.pressed = env_t::stack_toolbars;
 		return true;
 	}
 

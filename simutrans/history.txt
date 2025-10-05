@@ -26,6 +26,7 @@
 	ADD: (Nazalassa) Sound can now also be loaded from pakset addon directory
 	FIX: (Nazalassa) Players can change nickname to one that is already in use
 	FIX: Maintenance of roadsigns and signals
+	FIX: (Nazalassa+prissi) toolbars can be automatically stacked again (option in simuconf.tab)
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):

@@ -52,6 +52,7 @@ public:
 
 	static sint16 menupos;
 	static bool single_toolbar_mode;
+	static bool stack_toolbars;
 
 	static sint16 fullscreen;
 	static sint16 dpi_scale;
