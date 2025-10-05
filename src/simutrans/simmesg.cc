@@ -407,7 +407,7 @@ void chat_message_t::add_chat_message(const char* text, sint8 channel, sint8 sen
 
 	// send this message to a ticker if public channel message
 	if (channel >= -1) { // and not mine
-		if (sender_nr >= 0 && sender_nr != PLAYER_UNOWNED) {
+		if (sender_nr >= 0) {
 			// not mine?
 			if(strcmp(sender_nick, env_t::nickname.c_str()) != 0){
 				bool company_msg = channel == world()->get_active_player_nr();

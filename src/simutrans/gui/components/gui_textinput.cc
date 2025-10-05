@@ -27,6 +27,7 @@ gui_textinput_t::gui_textinput_t() :
 	textcol(SYSCOL_EDIT_TEXT),
 	text_dirty(false),
 	focus_received(false),
+	enabled(true),
 	notify_all_changes_delay(0xFFFF),
 	cursor_reference_time(0)
 { }
@@ -114,6 +115,10 @@ void gui_textinput_t::set_composition_status( char *c, int start, int length )
  */
 bool gui_textinput_t::infowin_event(const event_t *ev)
 {
+	if (!enabled) {
+		return false;
+	}
+
 	if(  ev->ev_class==EVENT_KEYBOARD  ) {
 		if(  text  ) {
 			size_t len = strlen(text);
@@ -578,7 +583,12 @@ void gui_textinput_t::display_with_focus(scr_coord offset, bool has_focus)
 
 void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, bool cursor_visible)
 {
-	display_img_stretch( gui_theme_t::editfield, scr_rect( pos+offset, size ) );
+	if (!enabled) {
+		display_img_stretch_blend(gui_theme_t::editfield, scr_rect(pos + offset, size), TRANSPARENT50_FLAG|SYSCOL_EDIT_TEXT_DISABLED);
+	}
+	else {
+		display_img_stretch(gui_theme_t::editfield, scr_rect(pos + offset, size));
+	}
 
 	if(  text  ) {
 
@@ -632,14 +642,14 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 		const int y_offset = pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h);
 
 		// display text (before composition)
-		display_text_proportional_len_clip_rgb(x_base_offset, y_offset, text, ALIGN_LEFT | DT_CLIP, textcol, true, head_cursor_pos);
+		display_text_proportional_len_clip_rgb(x_base_offset, y_offset, text, ALIGN_LEFT | DT_CLIP, enabled ? textcol : SYSCOL_EDIT_TEXT_DISABLED, true, head_cursor_pos);
 		int x_offset = proportional_string_len_width(text, head_cursor_pos);
 
 		// IME text to display?
 		if(  composition.len()  ) {
 //			assert(head_cursor_pos==tail_cursor_pos);
 
-			display_proportional_clip_rgb(x_base_offset+x_offset, y_offset, composition.get_str(), ALIGN_LEFT | DT_CLIP, textcol, true);
+			display_proportional_clip_rgb(x_base_offset+x_offset, y_offset, composition.get_str(), ALIGN_LEFT | DT_CLIP, enabled ? textcol : SYSCOL_EDIT_TEXT_DISABLED, true);
 
 			// draw underline
 			int composition_width = proportional_string_width(composition.get_str());
@@ -655,9 +665,9 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 		}
 
 		// display text (after composition)
-		display_proportional_clip_rgb(x_base_offset+x_offset, y_offset, text+head_cursor_pos, ALIGN_LEFT | DT_CLIP, textcol, true);
+		display_proportional_clip_rgb(x_base_offset+x_offset, y_offset, text+head_cursor_pos, ALIGN_LEFT | DT_CLIP, enabled ? textcol : SYSCOL_EDIT_TEXT_DISABLED, true);
 
-		if(  cursor_active  ) {
+		if(  cursor_active  &&  enabled  ) {
 			// display selected text block with light grey text on charcoal bounding box
 			if(  head_cursor_pos!= tail_cursor_pos  ) {
 				const size_t start_pos = min(head_cursor_pos, tail_cursor_pos);

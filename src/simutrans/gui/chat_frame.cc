@@ -555,6 +555,9 @@ void chat_frame_t::draw(scr_coord pos, scr_size size)
 		}
 	}
 
+	// only allow sending if general or private message and not a company
+	input.set_enabled(tabs.get_active_tab_index()!=1  ||  !welt->get_active_player()->is_locked());
+
 	gui_frame_t::draw(pos, size);
 }
 

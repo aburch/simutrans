@@ -71,6 +71,9 @@ protected:
 	 */
 	bool focus_received : 1;
 
+	// otherwise just draw empty frame
+	bool enabled : 1;
+
 	/**
 	 * whether focus has been received
 	 */
@@ -144,6 +147,8 @@ public:
 	scr_size get_max_size() const OVERRIDE;
 
 	scr_size get_min_size() const OVERRIDE;
+
+	void set_enabled(bool e) { enabled = e; }
 };
 
 
