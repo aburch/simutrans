@@ -13,7 +13,7 @@
 	FIX: single way tile did not force bridge direction
 	FIX: multitile city building totally renovated, 3x faster city growth (at the start of the map in debug mode)
 	ADD: (mostly Yona-TYT) flowtext recognised img tag. For now only tags "#?XXX" are supported, where ? is one of these letter GSDTW and XXX a number. G is a general tool icon, S and simple tool, D is dialog tool, T a toolbar and W and window gadget.
-	CHG: default signal spacing for dragiing to 5 (as 4 and smaller can slow down trains faster than 200 km/h)
+	CHG: default signal spacing for dragging to 5 (as 4 and smaller can slow down trains faster than 200 km/h)
 	FIX: Public player cannot replace wayobjs of other players
 	FIX: Zoom in immediately followed by zoom out if SDL raises mouse wheel event with 0 vertical scroll amount
 	FIX: Do not print a warning, when replacing items by compat.tab
@@ -25,8 +25,9 @@
 	FIX: Crash when changing the sort mode of a halt while a convoi window is open
 	ADD: (Nazalassa) Sound can now also be loaded from pakset addon directory
 	FIX: (Nazalassa) Players can change nickname to one that is already in use
-	FIX: Maintenance of roadsigns and signals
+	FIX: Maintenance of roadsigns and signals was not booked
 	FIX: (Nazalassa+prissi) toolbars can be automatically stacked again (option in simuconf.tab)
+	FIX: Finance windows did not show powerline revenue as all revenue
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):

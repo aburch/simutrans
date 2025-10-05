@@ -71,7 +71,7 @@ static const uint8 cost_type_color[MAX_PLAYER_COST_BUTTON] =
 static const uint8 cost_type[3*MAX_PLAYER_COST_BUTTON] =
 {
 	ATV_TRANSPORTED,                TT_ALL, gui_chart_t::STANDARD, // all transported goods
-	ATV_REVENUE_TRANSPORT,          TT_ALL, gui_chart_t::MONEY,    // Income
+	ATV_REVENUE,                    TT_ALL, gui_chart_t::MONEY,    // Income
 	ATV_RUNNING_COST,               TT_ALL, gui_chart_t::MONEY,    // Vehicle running costs
 	ATV_INFRASTRUCTURE_MAINTENANCE, TT_ALL, gui_chart_t::MONEY,    // Upkeep
 	ATV_WAY_TOLL,                   TT_ALL, gui_chart_t::MONEY,
@@ -104,8 +104,8 @@ static const uint16 label_type[] =
 {
 	TT_ALL, ATV_TRANSPORTED,                0, gui_chart_t::STANDARD,
 	TT_ALL, ATV_TRANSPORTED,                1, gui_chart_t::STANDARD,
-	TT_ALL, ATV_REVENUE_TRANSPORT,          0, gui_chart_t::MONEY,
-	TT_ALL, ATV_REVENUE_TRANSPORT,          1, gui_chart_t::MONEY,
+	TT_ALL, ATV_REVENUE,                    0, gui_chart_t::MONEY,
+	TT_ALL, ATV_REVENUE,                    1, gui_chart_t::MONEY,
 	TT_ALL, ATV_RUNNING_COST,               0, gui_chart_t::MONEY,
 	TT_ALL, ATV_RUNNING_COST,               1, gui_chart_t::MONEY,
 	TT_ALL, ATV_INFRASTRUCTURE_MAINTENANCE, 0, gui_chart_t::MONEY,
