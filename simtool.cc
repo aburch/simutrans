@@ -6359,6 +6359,11 @@ void tool_build_house_t::rdwr_custom_data(memory_rw_t *packet)
 				buildings.append(tile->get_desc());
 			}
 		}
+	} else if(env_t::server){
+		for(  uint32 i=0;  i<count;  i++  ) {
+			ps = plainstring(buildings[i]->get_name());
+			packet->rdwr_str(ps);
+		}
 	} else {
 		// writing
         if (count > 0) {
