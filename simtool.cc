@@ -6361,14 +6361,25 @@ void tool_build_house_t::rdwr_custom_data(memory_rw_t *packet)
 		}
 	} else {
 		// writing
-		srand((unsigned int)time(NULL)); 
-		if (count > 0) {
-   			for (uint32 i = 0; i < count; i++) {
-        		uint32 rand_index = rand() % count;
-       			ps = plainstring(buildings[rand_index]->get_name());
-        		packet->rdwr_str(ps);
-			}
-   		}
+        if (count > 0) {
+            srand((unsigned int)time(NULL)); 
+            uint32 i = 0;
+            bool* used_flags = new bool[count];
+            for( uint32 j = 0; j < count; j++) {
+                used_flags[j] = false;
+            }
+            while (i < count) {
+                uint32 rand_index = rand() % count;
+                if(used_flags[rand_index]){
+					continue;
+				}
+                ps = plainstring(buildings[rand_index]->get_name());
+                packet->rdwr_str(ps);
+				used_flags[rand_index] = true;
+                i++;
+            }
+			delete[] used_flags;
+        }
 	}
 }
 
