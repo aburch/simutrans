@@ -1111,10 +1111,7 @@ public:
 	// the new line is stored in schedule->next_line_id
 	void change_line_to_next_if_needed();
 
-	// uncouple child concoy by schedule_entry
-	// this function should be called in ziel_erreicht() or at waypoint
-	// this function must be called after stop or reach waypoint & before reverse convoy coupling!
-	void uncouple_convoy_by_schedule_setting();
+
 
 };
 
