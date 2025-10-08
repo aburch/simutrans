@@ -208,6 +208,7 @@ bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *comp,value_t v
 	}
 	else if(comp==&inp_number_of_towns) {
 		sets->set_city_count( v.i );
+		changed_number_of_towns = true;
 	}
 	else if(comp==&inp_town_size) {
 		sets->set_mean_citizen_count( v.i );
