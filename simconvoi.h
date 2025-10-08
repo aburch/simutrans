@@ -307,11 +307,6 @@ private:
 
 	bool coupling_done;
 
-	/*
-	 * The initial convoy direction to get to the next stop.
-	 * This is valid only when the convoy is in loading state.
-	*/
-	ribi_t::ribi next_initial_direction;
 
 	/**
 	 * Time when convoi arrived at the current stop
@@ -401,7 +396,7 @@ private:
 	*/
 	bool insert_route_convoy_on();
 	koord3d const find_tiles_convoy_on(convoihandle_t const inspecting, const grund_t* g, ribi_t::ribi next_dir);
-
+	bool insert_route_to_draw_diagonal();
 	// alte_richtung of coupled convoy is set by the head convoy.
 	void set_alte_richtung(ribi_t::ribi r) { alte_richtung = r; }
 
@@ -1064,8 +1059,6 @@ public:
 	bool can_continue_coupling() const;
 	bool can_start_coupling(convoi_t* parent) const;
 
-	ribi_t::ribi get_next_initial_direction() const { return next_initial_direction; }
-	void clear_next_initial_direction() { next_initial_direction = ribi_t::none; }
 	bool is_coupling_done() const { return coupling_done; }
 	void set_coupling_done(bool tf) { coupling_done = tf; }
 

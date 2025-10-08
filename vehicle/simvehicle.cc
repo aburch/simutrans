@@ -881,7 +881,7 @@ void vehicle_t::remove_stale_cargo()
 			if(  tmp.get_zwischenziel().is_bound()  ) {
 				// the original halt exists, but does we still go there?
 				FOR(minivec_tpl<schedule_entry_t>, const& i, cnv->get_schedule()->get_entries()) {
-					if(  haltestelle_t::get_stoppable_halt( i.pos, cnv->get_owner()) == tmp.get_zwischenziel()  ) {
+					if(  haltestelle_t::get_stoppable_halt( i.pos, cnv->get_owner(), get_waytype()) == tmp.get_zwischenziel()  ) {
 						found = true;
 						break;
 					}
@@ -893,7 +893,7 @@ void vehicle_t::remove_stale_cargo()
 				const int max_count = cnv->get_schedule()->get_count();
 				for(  int i=0;  i<max_count;  i++  ) {
 					// try to unload on next stop
-					halthandle_t halt = haltestelle_t::get_stoppable_halt( cnv->get_schedule()->at( (i+offset)%max_count ).pos, cnv->get_owner() );
+					halthandle_t halt = haltestelle_t::get_stoppable_halt( cnv->get_schedule()->at( (i+offset)%max_count ).pos, cnv->get_owner(), get_waytype() );
 					if(  halt.is_bound()  ) {
 						if(  halt->is_enabled(tmp.get_index())  ) {
 							// ok, lets change here, since goods are accepted here
@@ -1282,7 +1282,7 @@ void vehicle_t::hop(grund_t* gr)
 	waytype_t waytype = get_waytype();
 	const weg_t *weg = gr->get_weg(waytype);
 	if(  weg  ) {
-		if( waytype == track_wt && cnv->needs_electrification() && weg->get_max_speed() > weg->get_max_wayobj_speed()){
+		if( (waytype != water_wt && waytype != air_wt) && cnv->needs_electrification() && weg->get_max_speed() > weg->get_max_wayobj_speed()){
 			speed_limit = kmh_to_speed( weg->get_max_wayobj_speed() );
 		}
 		else{
@@ -1923,7 +1923,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 			// nothing to show
 			return;
 		}
-		grund_t const* const gr = welt->lookup(cnv->get_route()->back());
+		grund_t const* const gr = cnv->get_route()?welt->lookup(cnv->get_route()->back()):NULL;
 
 		
 		// now find out what has happened
@@ -2313,7 +2313,7 @@ bool road_vehicle_t::choose_route(sint32 &restart_speed, ribi_t::ribi start_dire
 
 	// are we heading to a target?
 	route_t *rt = cnv->access_route();
-	target_halt = haltestelle_t::get_stoppable_halt( rt->back(), get_owner() );
+	target_halt = haltestelle_t::get_stoppable_halt( rt->back(), get_owner(), get_waytype() );
 	if(  target_halt.is_bound()  ) {
 
 		// since convois can long than one tile, check is more difficult
@@ -2884,7 +2884,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 		// If the next tile is our destination and we are on passing lane of oneway mode road, we have to wait until traffic lane become safe.
 		if(  cnv->is_overtaking()  &&  str->get_overtaking_mode()==oneway_mode  &&  route_index == r.get_count() - 1u  ) {
-			halthandle_t halt = haltestelle_t::get_stoppable_halt(welt->lookup(r.at(route_index))->get_pos(),cnv->get_owner());
+			halthandle_t halt = haltestelle_t::get_stoppable_halt(welt->lookup(r.at(route_index))->get_pos(),cnv->get_owner(), get_waytype());
 			vehicle_base_t* v = other_lane_blocked(false, offset);
 			if(  halt.is_bound()  &&  gr->get_weg_ribi(get_waytype())!=0  &&  v  &&  v->get_waytype() == road_wt  ) {
 				restart_speed = 0;
@@ -3198,7 +3198,7 @@ void road_vehicle_t::set_convoi(convoi_t *c)
 		if(target  &&  leading  &&  c->get_route()->empty()) {
 			// reinitialize the target halt
 			const route_t *rt = cnv->get_route();
-			target_halt = haltestelle_t::get_stoppable_halt( rt->back(), get_owner() );
+			target_halt = haltestelle_t::get_stoppable_halt( rt->back(), get_owner(), get_waytype() );
 			if(  target_halt.is_bound()  ) {
 				for(  uint32 i=0;  i<c->get_tile_length()  &&  i+1<rt->get_count();  i++  ) {
 					target_halt->reserve_position( welt->lookup( rt->at(rt->get_count()-i-1) ), cnv->self );
@@ -3792,6 +3792,15 @@ skip_choose:
 			return false;
 		}
 		else {
+			// if do not advance to end in this signal, we remove some advance tiles from target_rt
+			if(  !try_coupling  &&  !welt->get_settings().get_advance_to_end()  &&  target_rt.get_count()>2  &&  !sig->is_advance_to_end()  ) {
+				uint32 stop_length = convoi_t::calc_available_halt_length_in_vehicle_steps(target_rt.at(target_rt.get_count()-1),ribi_type(target_rt.at(target_rt.get_count()-1)-target_rt.at(target_rt.get_count()-2)),get_waytype());
+				stop_length -= ribi_t::is_bend(welt->lookup(target_rt.at(target_rt.get_count()-1))->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile/2: VEHICLE_STEPS_PER_TILE;
+				while(  stop_length>=cnv->get_entire_convoy_length()*VEHICLE_STEPS_PER_CARUNIT  ) {
+					target_rt.remove_koord_from(max(0,target_rt.get_count()-2));
+					stop_length -= ribi_t::is_bend(welt->lookup(target_rt.at(target_rt.get_count()-1))->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile: VEHICLE_STEPS_PER_TILE;
+				}
+			} 
 			// broadcast new route
 			convoihandle_t c = cnv->self;
 			while(  c.is_bound()  ) {
@@ -5156,6 +5165,13 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		return false;
 	}
 
+	if(  cnv->is_reversed()  ) {
+		ribi_t::ribi next_dir = ribi_type(cnv->get_route()->at(min(route_index+1,cnv->get_route()->get_count()-1)) - cnv->get_route()->at(route_index));
+		if( (next_dir & get_direction())==0 || route_index>=takeoff ) {
+			cnv->set_reversed(false);
+		}
+	}
+
 	if(  route_index < takeoff  &&  route_index > 1  &&  takeoff<cnv->get_route()->get_count()-1  ) {
 		// check, if tile occupied by a plane on ground
 		if(  route_index > 1  ) {
@@ -5269,10 +5285,15 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		state = taxiing;
 	}
 
-	if(state == taxiing  &&  gr->is_halt()  &&  gr->find<air_vehicle_t>()) {
+	if(state == taxiing  &&  gr->is_halt()  ) {
 		// the next step is a parking position. We do not enter, if occupied!
-		restart_speed = 0;
-		return false;
+		air_vehicle_t* v = gr->find<air_vehicle_t>();
+		// if no vehicle found, return true: 
+		if(  v && v->get_convoi() != get_convoi()  ) {
+			// occupied by others -> false
+			restart_speed = 0;
+			return false;
+		}
 	}
 
 	return true;
@@ -5355,11 +5376,12 @@ void air_vehicle_t::set_convoi(convoi_t *c)
 		if(target_halt.is_bound()) {
 			target_halt->unreserve_position(welt->lookup(r.back()), cnv->self);
 			target_halt = halthandle_t();
+			block_reserver( touchdown, route_index, false );
 		}
 		if (!r.empty()) {
 			// free runway reservation
-			if(route_index>=takeoff  &&  route_index<touchdown-4  &&  state!=flying) {
-				block_reserver( takeoff, takeoff+100, false );
+			if(route_index>=takeoff  &&  route_index<touchdown-4  ) {
+				block_reserver( 0, touchdown-4, false );
 			}
 			else if(route_index>=touchdown-1  &&  state!=taxiing) {
 				block_reserver( touchdown, search_for_stop+1, false );

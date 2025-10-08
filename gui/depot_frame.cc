@@ -966,6 +966,7 @@ void depot_frame_t::update_data()
 		}
 
 		veh = (veh_action == va_insert ? cnv->front() : cnv->back())->get_desc();
+		bt_reverse.enable();
 		bt_reverse.pressed=cnv->is_reversing_needed();
 	}
 
@@ -1322,6 +1323,7 @@ void depot_frame_t::update_data()
 		txt_convoi_weight.clear();
 		sb_convoi_length.set_visible(false);
 		cont_convoi_capacity.set_visible(false);
+		bt_reverse.disable();
 	}
 }
 
@@ -1452,7 +1454,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			depot->call_depot_tool('e', cnv, NULL);
 		}
 		else if(  comp == &bt_reverse  ) {
-			cnv->set_reversing_needed(!cnv->is_reversing_needed());
+			depot->call_depot_tool('t', cnv, NULL);
 		}
 		// image list selection here ...
 		else if(  comp == &convoi  ) {

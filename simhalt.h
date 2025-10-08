@@ -194,7 +194,7 @@ public:
 	/*
 	 * Returns the halt at the given position, if stopping is allowed for the given player.
 	*/
-	static halthandle_t get_stoppable_halt(const koord3d pos, const player_t *player );
+	static halthandle_t get_stoppable_halt(const koord3d pos, const player_t *player, const waytype_t wt=any_wt );
 
 	static const vector_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
 
@@ -332,8 +332,11 @@ private:
 
 	using cargo_item_t = std::shared_ptr<halt_waiting_goods_t>;
 
+	// The queue of waiting goods.
+	struct cargo_queue_t;
+
 	// Array with different categories that contains all waiting goods at this stop
-	slist_tpl<cargo_item_t> **cargo;
+	cargo_queue_t** cargo;
 
 	// Array with different categories that contains the reference of
 	// waiting goods which haven't had a chance to be loaded yet.
@@ -580,7 +583,9 @@ private:
 	 * The key is the goods category index.
 	 */
 	inthashtable_tpl<uint8, bool> waiting_amount_exceeds_FIFO_limit;
-	
+
+	void search_route_for_invalid_zwischenziel_goods(cargo_queue_t *wares);
+
 public:
 	enum routing_result_flags {
 		NO_ROUTE          = 0,
