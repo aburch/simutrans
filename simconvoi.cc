@@ -5704,7 +5704,7 @@ void convoi_t::check_and_set_coupling_done_over_length() {
 	uint32 total_vehicle_length = 0;
 	convoihandle_t c = self;
 	while(c.is_bound()) {
-		total_vehicle_length+=c->get_length()/CARUNITS_PER_TILE;
+		total_vehicle_length+=c->get_length();
 		if(!c->can_continue_coupling()) { 
 			break;
 		}
@@ -5718,10 +5718,11 @@ void convoi_t::check_and_set_coupling_done_over_length() {
 		// no set length coupling done, return
 		return;
 	}
-	if( length_coupling_done < total_vehicle_length ) {
+	if( (uint32)length_coupling_done*CARUNITS_PER_TILE < total_vehicle_length ) {
 		set_coupling_done(true);
 		c.is_bound()? c->set_coupling_done(true): find_most_child_convoi()->set_coupling_done(true);
 	}
+	dbg->message("convoi_t::check_and_set_coupling_done_over_length","coupling done: %i > %i",get_length_coupling_done(),total_vehicle_length/CARUNITS_PER_TILE);
 }
 
 void convoi_t::set_convoi_coupling_in_progress(convoihandle_t convoi_coupling_undergo) {
