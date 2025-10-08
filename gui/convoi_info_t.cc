@@ -414,8 +414,8 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		}else{
 			next_stop_button.enable();
 		}
-		const bool reversable_waytype = env_t::reversable_waytype(cnv->front()->get_waytype());
-		if (reversable_waytype) {
+		const bool reversible_waytype = env_t::reversible_waytype(cnv->front()->get_waytype());
+		if (reversible_waytype) {
 			reversed_button.pressed = cnv->is_reversed();
 			reversed_button.enable();
 		}
