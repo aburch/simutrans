@@ -1227,6 +1227,8 @@ void vehicle_t::hop(grund_t* gr)
 		}
 		else {
 			cnv->register_journey_time();
+			// before reverse convoy coupling, uncouple child
+			cnv->uncouple_convoy_by_schedule_setting();
 			// advance schedule for all coupling convoys.
 			// check reverse convoy coupling at this stop
 			if(  cnv->self->reverse_convoy_coupling_at_waypoint()  ) {
@@ -1234,20 +1236,22 @@ void vehicle_t::hop(grund_t* gr)
 				return;
 			}
 			convoihandle_t c = cnv->self;
-			convoihandle_t child = c->get_coupling_convoi(); 
 			while(  c.is_bound()  ) {
 				if(c->get_schedule()->get_current_entry().is_reverse_convoy()) {
 					c->reverse_vehicles_on_user_request();
 				}
 				c->set_time_last_arrived(world()->get_ticks());
-				if(  !c->can_continue_coupling()  ) {
+				c->get_schedule()->advance();
+				c = c->get_coupling_convoi();
+			}
+			c = cnv->self;
+			convoihandle_t child = c->get_coupling_convoi(); 
+			while(  child.is_bound()  ) {
+				if( c->get_schedule()->get_current_entry().pos != child->get_schedule()->get_current_entry().pos ) {
 					c->uncouple_convoi();
 				}
-				c->get_schedule()->advance();
 				c = child;
-				if(  child.is_bound()  ) {
-					child = child->get_coupling_convoi();
-				}
+				child = child->get_coupling_convoi();
 			}
 			const koord3d ziel = cnv->get_schedule()->get_current_entry().pos;
 			cnv->set_schedule_target( cnv->is_waypoint(ziel) ? ziel : koord3d::invalid );
