@@ -368,10 +368,15 @@ image_id gebaeude_t::get_image() const
 {
 	if(env_t::hide_buildings!=0  &&  tile->has_image()) {
 		// opaque houses
-		if(is_city_building()) {
-			return env_t::hide_with_transparency ? skinverwaltung_t::fussweg->get_image_id(0) : skinverwaltung_t::construction_site->get_image_id(0);
+	if (is_city_building()) {
+		if (skinverwaltung_t::construction_site->get_count() == 1) {
+			// only one kind of construction site?
+			return skinverwaltung_t::construction_site->get_image_id(0);
 		}
-		else if(  (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING  &&  tile->get_desc()->get_type() < building_desc_t::others)) {
+		// 6 is special building, 7-9 is res com ind (our type)
+		return skinverwaltung_t::construction_site->get_count() > 7 ? skinverwaltung_t::construction_site->get_image_id(tile->get_desc()->get_type() - building_desc_t::city_res + 7) : skinverwaltung_t::construction_site->get_image_id(0);
+	}
+	else if(  env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING  &&  tile->get_desc()->get_type() < building_desc_t::others  ) {
 			// hide with transparency or tile without information
 			if(env_t::hide_with_transparency) {
 				if(tile->get_desc()->get_type() == building_desc_t::factory  &&  ptr.fab->get_desc()->get_placement() == factory_desc_t::Water) {
@@ -380,10 +385,13 @@ image_id gebaeude_t::get_image() const
 				}
 				return skinverwaltung_t::fussweg->get_image_id(0);
 			}
-			else {
-				uint16 kind=skinverwaltung_t::construction_site->get_count()<=tile->get_desc()->get_type() ? skinverwaltung_t::construction_site->get_count()-1 : tile->get_desc()->get_type();
-				return skinverwaltung_t::construction_site->get_image_id( kind );
+			// only one kind of construction site
+			if (skinverwaltung_t::construction_site->get_count() == 1) {
+				return skinverwaltung_t::construction_site->get_image_id(0);
 			}
+			// 6 is special building, 7-9 is res com ind (handled above) => we only go up to 6
+			uint16 kind = tile->get_desc()->get_type() > 6 ? 6 : tile->get_desc()->get_type();
+			return skinverwaltung_t::construction_site->get_image_id( kind );
 		}
 	}
 

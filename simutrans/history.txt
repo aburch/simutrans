@@ -28,6 +28,7 @@
 	FIX: Maintenance of roadsigns and signals was not booked
 	FIX: (Nazalassa+prissi) toolbars can be automatically stacked again (option in simuconf.tab)
 	FIX: Finance windows did not show powerline revenue as all revenue
+	ADD: (FrankP) new construction sites for res, com, ind as index 7, 8 and 9
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):

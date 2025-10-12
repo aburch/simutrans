@@ -325,7 +325,7 @@ public:
 	/// Three states to control hiding of building
 	enum hide_buildings_states {
 		NOT_HIDE = 0,         ///< show all buildings
-		SOME_HIDDEN_BUILDING, ///< hide buildings near cursor
+		SOME_HIDDEN_BUILDING, ///< hide city buildings
 		ALL_HIDDEN_BUILDING   ///< hide all buildings
 	};
 
