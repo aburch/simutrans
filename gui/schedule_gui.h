@@ -47,7 +47,7 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 	mode_t mode;
 
 	gui_label_t lb_cnv_line_name;
-	char lb_cnv_line_name_str[40];
+	char lb_cnv_line_name_str[256];
 
 	// only active with lines
 	button_t bt_promote_to_line;

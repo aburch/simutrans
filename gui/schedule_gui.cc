@@ -300,9 +300,9 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 
 	add_table(1,1);
 	if(  cnv.is_bound()  ) {
-		snprintf(lb_cnv_line_name_str,39,cnv->get_name());
+		snprintf(lb_cnv_line_name_str,255,cnv->get_name());
 	} else {
-		snprintf(lb_cnv_line_name_str,39,cnv_line_name);
+		snprintf(lb_cnv_line_name_str,255,cnv_line_name);
 	}
 	lb_cnv_line_name.set_text(lb_cnv_line_name_str);
 	add_component(&lb_cnv_line_name);
