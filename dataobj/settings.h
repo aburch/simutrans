@@ -202,6 +202,7 @@ private:
 	sint16 origin_x, origin_y;
 
 	sint32 passenger_factor;
+	uint16 passenger_factor_float;
 
 	sint16 min_factory_spacing;
 	sint16 max_factory_spacing;
@@ -581,6 +582,7 @@ public:
 	bool get_with_private_paks() const { return with_private_paks; }
 
 	sint32 get_passenger_factor() const { return passenger_factor; }
+	uint16 get_passenger_factor_float() const { return passenger_factor_float; }
 
 	// town growth stuff
 	sint32 get_passenger_multiplier() const { return passenger_multiplier; }
