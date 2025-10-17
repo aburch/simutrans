@@ -684,7 +684,10 @@ void roadsign_t::rdwr(loadsave_t *file)
 		set_end_of_guide(true);
 	} else {
 		set_guide_signal(false);
+		set_choose_signal(true);
 		set_advance_to_end(true);
+		set_end_of_choose(true);
+		set_end_of_guide(true);
 	}
 
 	if(file->is_saving()) {
