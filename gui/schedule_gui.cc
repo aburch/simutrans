@@ -1373,9 +1373,10 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	next_line_selector.set_visible(yesno);
 	
 	const bool coupling_waytype = schedule->get_waytype()!=road_wt  &&  schedule->get_waytype()!=air_wt  &&  schedule->get_waytype()!=water_wt;
+	const bool reversible_waytype = env_t::reversible_waytype(schedule->get_waytype());
 	bt_wait_for_child.set_visible(coupling_waytype  &&  yesno);
 	bt_find_parent.set_visible(coupling_waytype  &&  yesno);
-	bt_reverse_convoy.set_visible(coupling_waytype  &&  yesno);
-	bt_reverse_coupling.set_visible(coupling_waytype  &&  yesno);
+	bt_reverse_convoy.set_visible(reversible_waytype  &&  yesno);
+	bt_reverse_coupling.set_visible(reversible_waytype  &&  yesno);
 	bt_wait_coupling_done.set_visible(coupling_waytype && yesno);
 }

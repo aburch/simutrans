@@ -70,6 +70,7 @@ public:
 
 	void draw(scr_coord offset) OVERRIDE
 	{
+		update_label();
 		if (is_current) {
 			display_fillbox_wh_clip_rgb(pos.x + offset.x, pos.y + offset.y, size.w, size.h, SYSCOL_LIST_BACKGROUND_SELECTED_F, false);
 		}

@@ -543,6 +543,15 @@ public:
 	// Write the 8 directions in characters and the amount of offset in numbers with 3 components.
 	// the reading method is in setting_t, and these parameters are used in vehicle_t.
 	static sint8 reverse_base_offsets[8][3];
+	// define reversible waytype
+	static bool reversible_waytype(waytype_t w) {
+		return	w!=waytype_t::invalid_wt||
+		w!=waytype_t::ignore_wt         ||
+		w!=waytype_t::road_wt           ||
+		w!=waytype_t::air_wt            ||
+		w!=waytype_t::powerline_wt      ||
+		w!=waytype_t::any_wt;
+	}
 };
 
 #endif
