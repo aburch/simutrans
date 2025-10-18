@@ -61,11 +61,12 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 55;	// version 12 size
+	uint32 total_len = 57; // version 13 size
 
-	// must be done here, since it may affect the len of the header!
+	// must be done here since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
-	sint8 sound_id=NO_SOUND;
+	sint8 sound_id = NO_SOUND;
+
 	if (!sound_str.empty()) {
 		// ok, there is some sound
 		sound_id = atoi(sound_str.c_str());
