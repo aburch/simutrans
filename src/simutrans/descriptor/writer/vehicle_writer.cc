@@ -87,7 +87,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	write_name_and_copyright(fp, node, obj);
 
-	node.write_version(fp, 12);
+	node.write_version(fp, 13);
 
 	// Price of this vehicle in cent
 	const sint64 price = obj.get_int64("cost", 0);
@@ -98,8 +98,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint16(fp, capacity);
 
 	// ms per loading/unloading everything
-	const uint16 loading_time = obj.get_int("loading_time", 1000 );
-	node.write_uint16(fp, loading_time);
+	const uint32 loading_time = obj.get_int_clamped("loading_time", 1000, 0, 0x7FFFFFFF);
+	node.write_uint32(fp, loading_time);
 
 	// Top speed of this vehicle. Must be greater than 0
 	const uint16 topspeed = obj.get_int("speed", 0);

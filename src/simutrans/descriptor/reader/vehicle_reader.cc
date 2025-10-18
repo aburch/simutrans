@@ -50,226 +50,244 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	vehicle_desc_t *desc = new vehicle_desc_t();
 
-	if(version == 1) {
-		// Versioned node, version 1
+	if (version == 13) {
+		// loading time as uint32
+		desc->price              = decode_sint64(p);
+		desc->capacity           = decode_uint16(p);
+		desc->loading_time       = decode_uint32(p);
+		desc->topspeed           = decode_uint16(p);
+		desc->weight             = decode_uint32(p);
+		desc->axle_load          = decode_uint16(p);
+		desc->power              = decode_uint32(p);
+		desc->running_cost       = decode_sint64(p);
+		desc->maintenance        = decode_sint64(p);
 
-		desc->price = decode_uint32(p);
-		desc->capacity = decode_uint16(p);
-		desc->topspeed = decode_uint16(p);
-		desc->weight = decode_uint16(p);
-		desc->power = decode_uint16(p);
-		desc->running_cost = decode_uint16(p);
+		desc->intro_date         = decode_uint16(p);
+		desc->retire_date        = decode_uint16(p);
+		desc->gear               = decode_uint16(p);
 
-		desc->intro_date = decode_uint16(p);
-		desc->gear = decode_uint8(p);
-
-		desc->wtyp = decode_uint8(p);
-		desc->sound = decode_sint8(p);
-		desc->leader_count = decode_uint8(p);
-		desc->trailer_count = decode_uint8(p);
-
-		desc->retire_date = (DEFAULT_RETIRE_YEAR*16);
-	}
-	else if(version == 2) {
-		// Versioned node, version 2
-
-		desc->price = decode_uint32(p);
-		desc->capacity = decode_uint16(p);
-		desc->topspeed = decode_uint16(p);
-		desc->weight = decode_uint16(p);
-		desc->power = decode_uint16(p);
-		desc->running_cost = decode_uint16(p);
-
-		desc->intro_date = decode_uint16(p);
-		desc->gear = decode_uint8(p);
-
-		desc->wtyp = decode_uint8(p);
-		desc->sound = decode_sint8(p);
-		desc->leader_count = decode_uint8(p);
-		desc->trailer_count = decode_uint8(p);
-		desc->engine_type = decode_uint8(p);
-
-		desc->retire_date = (DEFAULT_RETIRE_YEAR*16);
-	}
-	else if (version==3   ||  version==4  ||  version==5) {
-		// Versioned node, version 3 with retire date
-		// version 4 identical, just other values for the waytype
-		// version 5 just uses the new scheme for data calculation
-
-		desc->price = decode_uint32(p);
-		desc->capacity = decode_uint16(p);
-		desc->topspeed = decode_uint16(p);
-		desc->weight = decode_uint16(p);
-		desc->power = decode_uint16(p);
-		desc->running_cost = decode_uint16(p);
-
-		desc->intro_date = decode_uint16(p);
-		desc->retire_date = decode_uint16(p);
-		desc->gear = decode_uint8(p);
-
-		desc->wtyp = decode_uint8(p);
-		desc->sound = decode_sint8(p);
-		desc->leader_count = decode_uint8(p);
-		desc->trailer_count = decode_uint8(p);
-		desc->engine_type = decode_uint8(p);
-	}
-	else if (version==6) {
-		// version 5 just 32 bit for power and 16 Bit for gear
-
-		desc->price = decode_uint32(p);
-		desc->capacity = decode_uint16(p);
-		desc->topspeed = decode_uint16(p);
-		desc->weight = decode_uint16(p);
-		desc->power = decode_uint32(p);
-		desc->running_cost = decode_uint16(p);
-
-		desc->intro_date = decode_uint16(p);
-		desc->retire_date = decode_uint16(p);
-		desc->gear = decode_uint16(p);
-
-		desc->wtyp = decode_uint8(p);
-		desc->sound = decode_sint8(p);
-		desc->engine_type = decode_uint8(p);
-		desc->leader_count = decode_uint8(p);
-		desc->trailer_count = decode_uint8(p);
-	}
-	else if (version==7) {
-		// different length of cars ...
-
-		desc->price = decode_uint32(p);
-		desc->capacity = decode_uint16(p);
-		desc->topspeed = decode_uint16(p);
-		desc->weight = decode_uint16(p);
-		desc->power = decode_uint32(p);
-		desc->running_cost = decode_uint16(p);
-
-		desc->intro_date = decode_uint16(p);
-		desc->retire_date = decode_uint16(p);
-		desc->gear = decode_uint16(p);
-
-		desc->wtyp = decode_uint8(p);
-		desc->sound = decode_sint8(p);
-		desc->engine_type = decode_uint8(p);
-		desc->len = decode_uint8(p);
-		desc->leader_count = decode_uint8(p);
-		desc->trailer_count = decode_uint8(p);
-	}
-	else if (version==8) {
-		// multiple freight images...
-		desc->price = decode_uint32(p);
-		desc->capacity = decode_uint16(p);
-		desc->topspeed = decode_uint16(p);
-		desc->weight = decode_uint16(p);
-		desc->power = decode_uint32(p);
-		desc->running_cost = decode_uint16(p);
-
-		desc->intro_date = decode_uint16(p);
-		desc->retire_date = decode_uint16(p);
-		desc->gear = decode_uint16(p);
-
-		desc->wtyp = decode_uint8(p);
-		desc->sound = decode_sint8(p);
-		desc->engine_type = decode_uint8(p);
-		desc->len = decode_uint8(p);
-		desc->leader_count = decode_uint8(p);
-		desc->trailer_count = decode_uint8(p);
-		desc->freight_image_type = decode_uint8(p);
-	}
-	else if (version==9) {
-		// new: fixed_cost, loading_time, axle_load
-		desc->price = decode_uint32(p);
-		desc->capacity = decode_uint16(p);
-		desc->loading_time = decode_uint16(p);
-		desc->topspeed = decode_uint16(p);
-		desc->weight = decode_uint16(p);
-		desc->axle_load = decode_uint16(p);
-		desc->power = decode_uint32(p);
-		desc->running_cost = decode_uint16(p);
-		desc->maintenance = decode_uint16(p);
-
-		desc->intro_date = decode_uint16(p);
-		desc->retire_date = decode_uint16(p);
-		desc->gear = decode_uint16(p);
-
-		desc->wtyp = decode_uint8(p);
-		desc->sound = decode_sint8(p);
-		desc->engine_type = decode_uint8(p);
-		desc->len = decode_uint8(p);
-		desc->leader_count = decode_uint8(p);
-		desc->trailer_count = decode_uint8(p);
-		desc->freight_image_type = decode_uint8(p);
-	}
-	else if (version==10) {
-		// new: weight in kgs
-		desc->price = decode_uint32(p);
-		desc->capacity = decode_uint16(p);
-		desc->loading_time = decode_uint16(p);
-		desc->topspeed = decode_uint16(p);
-		desc->weight = decode_uint32(p);
-		desc->axle_load = decode_uint16(p);
-		desc->power = decode_uint32(p);
-		desc->running_cost = decode_uint16(p);
-		desc->maintenance = decode_uint16(p);
-
-		desc->intro_date = decode_uint16(p);
-		desc->retire_date = decode_uint16(p);
-		desc->gear = decode_uint16(p);
-
-		desc->wtyp = decode_uint8(p);
-		desc->sound = decode_sint8(p);
-		desc->engine_type = decode_uint8(p);
-		desc->len = decode_uint8(p);
-		desc->leader_count = decode_uint8(p);
-		desc->trailer_count = decode_uint8(p);
-		desc->freight_image_type = decode_uint8(p);
-	}
-	else if (version==11) {
-		// new: fix cost as uint32
-		desc->price = decode_uint32(p);
-		desc->capacity = decode_uint16(p);
-		desc->loading_time = decode_uint16(p);
-		desc->topspeed = decode_uint16(p);
-		desc->weight = decode_uint32(p);
-		desc->axle_load = decode_uint16(p);
-		desc->power = decode_uint32(p);
-		desc->running_cost = decode_uint16(p);
-		desc->maintenance = decode_uint32(p);
-
-		desc->intro_date = decode_uint16(p);
-		desc->retire_date = decode_uint16(p);
-		desc->gear = decode_uint16(p);
-
-		desc->wtyp = decode_uint8(p);
-		desc->sound = decode_sint8(p);
-		desc->engine_type = decode_uint8(p);
-		desc->len = decode_uint8(p);
-		desc->leader_count = decode_uint8(p);
-		desc->trailer_count = decode_uint8(p);
+		desc->wtyp               = decode_uint8(p);
+		desc->sound              = decode_sint8(p);
+		desc->engine_type        = decode_uint8(p);
+		desc->len                = decode_uint8(p);
+		desc->leader_count       = decode_uint8(p);
+		desc->trailer_count      = decode_uint8(p);
 		desc->freight_image_type = decode_uint8(p);
 	}
 	else if (version == 12) {
 		// Cost values as sint64
-		desc->price = decode_sint64(p);
-		desc->capacity = decode_uint16(p);
-		desc->loading_time = decode_uint16(p);
-		desc->topspeed = decode_uint16(p);
-		desc->weight = decode_uint32(p);
-		desc->axle_load = decode_uint16(p);
-		desc->power = decode_uint32(p);
-		desc->running_cost = decode_sint64(p);
-		desc->maintenance = decode_sint64(p);
+		desc->price              = decode_sint64(p);
+		desc->capacity           = decode_uint16(p);
+		desc->loading_time       = decode_uint16(p);
+		desc->topspeed           = decode_uint16(p);
+		desc->weight             = decode_uint32(p);
+		desc->axle_load          = decode_uint16(p);
+		desc->power              = decode_uint32(p);
+		desc->running_cost       = decode_sint64(p);
+		desc->maintenance        = decode_sint64(p);
 
-		desc->intro_date = decode_uint16(p);
-		desc->retire_date = decode_uint16(p);
-		desc->gear = decode_uint16(p);
+		desc->intro_date         = decode_uint16(p);
+		desc->retire_date        = decode_uint16(p);
+		desc->gear               = decode_uint16(p);
 
-		desc->wtyp = decode_uint8(p);
-		desc->sound = decode_sint8(p);
-		desc->engine_type = decode_uint8(p);
-		desc->len = decode_uint8(p);
-		desc->leader_count = decode_uint8(p);
-		desc->trailer_count = decode_uint8(p);
+		desc->wtyp               = decode_uint8(p);
+		desc->sound              = decode_sint8(p);
+		desc->engine_type        = decode_uint8(p);
+		desc->len                = decode_uint8(p);
+		desc->leader_count       = decode_uint8(p);
+		desc->trailer_count      = decode_uint8(p);
 		desc->freight_image_type = decode_uint8(p);
+	}
+	else if (version==11) {
+		// new: fixed cost as uint32
+		desc->price              = decode_uint32(p);
+		desc->capacity           = decode_uint16(p);
+		desc->loading_time       = decode_uint16(p);
+		desc->topspeed           = decode_uint16(p);
+		desc->weight             = decode_uint32(p);
+		desc->axle_load          = decode_uint16(p);
+		desc->power              = decode_uint32(p);
+		desc->running_cost       = decode_uint16(p);
+		desc->maintenance        = decode_uint32(p);
+
+		desc->intro_date         = decode_uint16(p);
+		desc->retire_date        = decode_uint16(p);
+		desc->gear               = decode_uint16(p);
+
+		desc->wtyp               = decode_uint8(p);
+		desc->sound              = decode_sint8(p);
+		desc->engine_type        = decode_uint8(p);
+		desc->len                = decode_uint8(p);
+		desc->leader_count       = decode_uint8(p);
+		desc->trailer_count      = decode_uint8(p);
+		desc->freight_image_type = decode_uint8(p);
+	}
+	else if (version==10) {
+		// new: weight in kgs
+		desc->price              = decode_uint32(p);
+		desc->capacity           = decode_uint16(p);
+		desc->loading_time       = decode_uint16(p);
+		desc->topspeed           = decode_uint16(p);
+		desc->weight             = decode_uint32(p);
+		desc->axle_load          = decode_uint16(p);
+		desc->power              = decode_uint32(p);
+		desc->running_cost       = decode_uint16(p);
+		desc->maintenance        = decode_uint16(p);
+
+		desc->intro_date         = decode_uint16(p);
+		desc->retire_date        = decode_uint16(p);
+		desc->gear               = decode_uint16(p);
+
+		desc->wtyp               = decode_uint8(p);
+		desc->sound              = decode_sint8(p);
+		desc->engine_type        = decode_uint8(p);
+		desc->len                = decode_uint8(p);
+		desc->leader_count       = decode_uint8(p);
+		desc->trailer_count      = decode_uint8(p);
+		desc->freight_image_type = decode_uint8(p);
+	}
+	else if (version==9) {
+		// new: fixed_cost, loading_time, axle_load
+		desc->price              = decode_uint32(p);
+		desc->capacity           = decode_uint16(p);
+		desc->loading_time       = decode_uint16(p);
+		desc->topspeed           = decode_uint16(p);
+		desc->weight             = decode_uint16(p);
+		desc->axle_load          = decode_uint16(p);
+		desc->power              = decode_uint32(p);
+		desc->running_cost       = decode_uint16(p);
+		desc->maintenance        = decode_uint16(p);
+
+		desc->intro_date         = decode_uint16(p);
+		desc->retire_date        = decode_uint16(p);
+		desc->gear               = decode_uint16(p);
+
+		desc->wtyp               = decode_uint8(p);
+		desc->sound              = decode_sint8(p);
+		desc->engine_type        = decode_uint8(p);
+		desc->len                = decode_uint8(p);
+		desc->leader_count       = decode_uint8(p);
+		desc->trailer_count      = decode_uint8(p);
+		desc->freight_image_type = decode_uint8(p);
+	}
+	else if (version==8) {
+		// multiple freight images
+		desc->price              = decode_uint32(p);
+		desc->capacity           = decode_uint16(p);
+		desc->topspeed           = decode_uint16(p);
+		desc->weight             = decode_uint16(p);
+		desc->power              = decode_uint32(p);
+		desc->running_cost       = decode_uint16(p);
+
+		desc->intro_date         = decode_uint16(p);
+		desc->retire_date        = decode_uint16(p);
+		desc->gear               = decode_uint16(p);
+
+		desc->wtyp               = decode_uint8(p);
+		desc->sound              = decode_sint8(p);
+		desc->engine_type        = decode_uint8(p);
+		desc->len                = decode_uint8(p);
+		desc->leader_count       = decode_uint8(p);
+		desc->trailer_count      = decode_uint8(p);
+		desc->freight_image_type = decode_uint8(p);
+	}
+	else if (version==7) {
+		// different length of cars
+
+		desc->price         = decode_uint32(p);
+		desc->capacity      = decode_uint16(p);
+		desc->topspeed      = decode_uint16(p);
+		desc->weight        = decode_uint16(p);
+		desc->power         = decode_uint32(p);
+		desc->running_cost  = decode_uint16(p);
+
+		desc->intro_date    = decode_uint16(p);
+		desc->retire_date   = decode_uint16(p);
+		desc->gear          = decode_uint16(p);
+
+		desc->wtyp          = decode_uint8(p);
+		desc->sound         = decode_sint8(p);
+		desc->engine_type   = decode_uint8(p);
+		desc->len           = decode_uint8(p);
+		desc->leader_count  = decode_uint8(p);
+		desc->trailer_count = decode_uint8(p);
+	}
+	else if (version==6) {
+		// like version 5, just 32 bit for power and 16 Bit for gear
+		desc->price         = decode_uint32(p);
+		desc->capacity      = decode_uint16(p);
+		desc->topspeed      = decode_uint16(p);
+		desc->weight        = decode_uint16(p);
+		desc->power         = decode_uint32(p);
+		desc->running_cost  = decode_uint16(p);
+
+		desc->intro_date    = decode_uint16(p);
+		desc->retire_date   = decode_uint16(p);
+		desc->gear          = decode_uint16(p);
+
+		desc->wtyp          = decode_uint8(p);
+		desc->sound         = decode_sint8(p);
+		desc->engine_type   = decode_uint8(p);
+		desc->leader_count  = decode_uint8(p);
+		desc->trailer_count = decode_uint8(p);
+	}
+	else if (version==3   ||  version==4  ||  version==5) {
+		// version 3: with retire date
+		// version 4 is identical, just other values for the waytype
+		// version 5 just uses the new scheme for data calculation
+		desc->price         = decode_uint32(p);
+		desc->capacity      = decode_uint16(p);
+		desc->topspeed      = decode_uint16(p);
+		desc->weight        = decode_uint16(p);
+		desc->power         = decode_uint16(p);
+		desc->running_cost  = decode_uint16(p);
+
+		desc->intro_date    = decode_uint16(p);
+		desc->retire_date   = decode_uint16(p);
+		desc->gear          = decode_uint8(p);
+
+		desc->wtyp          = decode_uint8(p);
+		desc->sound         = decode_sint8(p);
+		desc->leader_count  = decode_uint8(p);
+		desc->trailer_count = decode_uint8(p);
+		desc->engine_type   = decode_uint8(p);
+	}
+	else if (version == 2) {
+		desc->price         = decode_uint32(p);
+		desc->capacity      = decode_uint16(p);
+		desc->topspeed      = decode_uint16(p);
+		desc->weight        = decode_uint16(p);
+		desc->power         = decode_uint16(p);
+		desc->running_cost  = decode_uint16(p);
+
+		desc->intro_date    = decode_uint16(p);
+		desc->gear          = decode_uint8(p);
+
+		desc->wtyp          = decode_uint8(p);
+		desc->sound         = decode_sint8(p);
+		desc->leader_count  = decode_uint8(p);
+		desc->trailer_count = decode_uint8(p);
+		desc->engine_type   = decode_uint8(p);
+
+		desc->retire_date   = (DEFAULT_RETIRE_YEAR*16);
+	}
+	else if (version == 1) {
+		desc->price         = decode_uint32(p);
+		desc->capacity      = decode_uint16(p);
+		desc->topspeed      = decode_uint16(p);
+		desc->weight        = decode_uint16(p);
+		desc->power         = decode_uint16(p);
+		desc->running_cost  = decode_uint16(p);
+
+		desc->intro_date    = decode_uint16(p);
+		desc->gear          = decode_uint8(p);
+
+		desc->wtyp          = decode_uint8(p);
+		desc->sound         = decode_sint8(p);
+		desc->leader_count  = decode_uint8(p);
+		desc->trailer_count = decode_uint8(p);
+
+		desc->retire_date   = (DEFAULT_RETIRE_YEAR*16);
 	}
 	else {
 		if( version ) {
@@ -277,26 +295,26 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 
 		// old node, version 0
-		desc->wtyp = (sint8)v;
-		desc->capacity = decode_uint16(p);
-		desc->price = decode_uint32(p);
-		desc->topspeed = decode_uint16(p);
-		desc->weight = decode_uint16(p);
-		desc->power = decode_uint16(p);
-		desc->running_cost = decode_uint16(p);
-		desc->sound = (sint8)decode_sint16(p);
-		desc->leader_count = (sint8)decode_uint16(p);
+		desc->wtyp          = (sint8)v;
+		desc->capacity      = decode_uint16(p);
+		desc->price         = decode_uint32(p);
+		desc->topspeed      = decode_uint16(p);
+		desc->weight        = decode_uint16(p);
+		desc->power         = decode_uint16(p);
+		desc->running_cost  = decode_uint16(p);
+		desc->sound         = (sint8)decode_sint16(p);
+		desc->leader_count  = (sint8)decode_uint16(p);
 		desc->trailer_count = (sint8)decode_uint16(p);
 
-		desc->intro_date = DEFAULT_INTRO_YEAR*16;
-		desc->retire_date = (DEFAULT_RETIRE_YEAR*16);
-		desc->gear = 64;
+		desc->intro_date  = DEFAULT_INTRO_YEAR  * 16;
+		desc->retire_date = DEFAULT_RETIRE_YEAR * 16;
+		desc->gear        = 64;
 	}
 
 	// correct the engine type for old vehicles
 	if(version<2) {
 		// steam eangines usually have a sound of 3
-		// electric engines will be overridden further down ...
+		// electric engines will be overridden further down
 		desc->engine_type = (desc->sound==3) ? vehicle_desc_t::steam : vehicle_desc_t::diesel;
 	}
 
@@ -311,12 +329,10 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->wtyp = convert_from_old[desc->wtyp];
 	}
 
-	// before version 5 dates were based on base 12 ...
+	// before version 5 dates were based on base 16
 	if(version<5) {
-		uint16 date=desc->intro_date;
-		desc->intro_date = (date/16)*12 + (date%16);
-		date=desc->retire_date;
-		desc->retire_date = (date/16)*12 + (date%16);
+		desc->intro_date  = (desc->intro_date /16)*12 + (desc->intro_date %16);
+		desc->retire_date = (desc->retire_date/16)*12 + (desc->retire_date%16);
 	}
 
 	// before the length was always 1/8 (=half a tile)
@@ -344,9 +360,10 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	if(desc->sound==LOAD_SOUND) {
-		uint8 len=decode_sint8(p);
+		uint8 len = decode_sint8(p);
 		char wavname[256];
 		wavname[len] = 0;
+
 		for(uint8 i=0; i<len; i++) {
 			wavname[i] = decode_sint8(p);
 		}

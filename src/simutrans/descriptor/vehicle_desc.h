@@ -62,40 +62,35 @@ public:
 
 
 private:
-	uint32  weight;
-	uint32  power;
-	sint64  running_cost;
-	uint16  capacity;
-	uint16  loading_time; // time per full loading/unloading
+	uint32 weight       = 1;
+	uint32 power        = 1;
+	sint64 running_cost = 0;
+	uint16 capacity     = 0;
+	uint32 loading_time = 1000; // time per full loading/unloading
 
-	uint16  gear;       // engine gear (power multiplier), 64=100
+	uint16 gear = 64;       // engine gear (power multiplier), 64=100
 
-	uint8 len;          // length (=8 is half a tile, the old default)
-	sint8 sound;
+	uint8  len = CARUNITS_PER_TILE/2;  // length (=8 is half a tile, the old default)
+	sint8  sound = -1;
 
-	uint8  leader_count;  // all defined leading vehicles
-	uint8  trailer_count; // all defined trailer
+	uint8  leader_count  = 0; // all defined leading vehicles
+	uint8  trailer_count = 0; // all defined trailer
 
-	uint8  engine_type; // diesel, steam, electric (requires electrified ways), fuel_cell, etc.
+	uint8  engine_type = engine_t::unknown; // diesel, steam, electric (requires electrified ways), fuel_cell, etc.
 
-	sint8 freight_image_type; // number of freight images (displayed for different goods)
+	sint8  freight_image_type = 0; // number of freight images (displayed for different goods)
 
 public:
 	// dummy vehicle for the XREF reader
 	static vehicle_desc_t *any_vehicle;
 
 	// since we have a second constructor
-	vehicle_desc_t() { }
+	vehicle_desc_t() = default;
 
 	// default vehicle (used for way search and similar tasks)
 	// since it has no images and not even a name node any calls to this will case a crash
 	vehicle_desc_t(uint8 wtype, uint16 speed, engine_t engine) {
-		maintenance = freight_image_type = price = capacity = axle_load = running_cost = intro_date = leader_count = trailer_count = 0;
-		power = weight = 1;
-		loading_time = 1000;
-		gear = 64;
-		len = 8;
-		sound = -1;
+		maintenance = price = axle_load = intro_date = 0;
 		wtyp = wtype;
 		engine_type = (uint8)engine;
 		topspeed = speed;

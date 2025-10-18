@@ -3014,9 +3014,12 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			continue;
 		}
 
-		uint32 min_loading_step_time = v->get_desc()->get_loading_time() / v->get_cargo_max() + 1;
+		const uint32_t ms_for_full_load = v->get_desc()->get_loading_time();
+
+		uint32 min_loading_step_time = ms_for_full_load / v->get_cargo_max() + 1;
 		time = max(time, min_loading_step_time);
-		uint16 max_amount = next_depot ? 32767 : (v->get_cargo_max() * loading_ms) / ((uint32)v->get_desc()->get_loading_time() + 1) + 1;
+
+		uint16 max_amount = next_depot ? 32767 : (v->get_cargo_max() * loading_ms) / (ms_for_full_load + 1) + 1;
 		uint16 amount = v->unload_cargo(halt, next_depot, max_amount);
 
 		if (amount > 0) {
