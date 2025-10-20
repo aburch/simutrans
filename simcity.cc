@@ -3453,7 +3453,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 	// this road prohibits becoming a cityroad.
 	if(  bd->hat_weg(road_wt)  ) {
 		strasse_t* str = (strasse_t*)(bd->get_weg(road_wt));
-		if(  str  &&  str->get_avoid_cityroad()  ) {
+		if(  str  &&  str->get_avoid_cityroad()  &&  !str->get_allow_branch_cityroad()  ) {
 			return false;
 		}
 	}
@@ -3542,7 +3542,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 				else if(bd2->hat_weg(road_wt)) {
 					const gebaeude_t* gb = bd2->find<gebaeude_t>();
 					const strasse_t* str = (strasse_t*)(bd2->get_weg(road_wt));
-					if(  str  &&  str->get_avoid_cityroad()  ) {
+					if(  str  &&  str->get_avoid_cityroad() && !str->get_allow_branch_cityroad()  ) {
 						// do not connect to road that is not alllowed to become cityroad
 					}
 					else if(gb) {

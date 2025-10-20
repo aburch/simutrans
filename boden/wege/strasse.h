@@ -26,7 +26,8 @@ public:
 	enum {
 		AVOID_CITYROAD   = 0x01, // this street avoid becoming cityroad.
 		CITYCAR_NO_ENTRY = 0x02, // citycar cannot enter this road.
-		USE_GIVEN_HEIGHT = 0x04  // this flag is used only for construction
+		USE_GIVEN_HEIGHT = 0x04, // this flag is used only for construction
+		CAN_BRANCH_CITYROAD = 1U<<4
 	};
 
 private:
@@ -140,6 +141,8 @@ public:
 	void set_avoid_cityroad(bool s) { s ? street_flags |= AVOID_CITYROAD : street_flags &= ~AVOID_CITYROAD; }
 	bool get_citycar_no_entry() const { return street_flags&CITYCAR_NO_ENTRY; }
 	void set_citycar_no_entry(bool s) { s ? street_flags |= CITYCAR_NO_ENTRY : street_flags &= ~CITYCAR_NO_ENTRY; }
+	bool get_allow_branch_cityroad() const { return street_flags&CAN_BRANCH_CITYROAD; }
+	void set_allow_branch_cityroad(bool s) { s ? street_flags |= CAN_BRANCH_CITYROAD : street_flags &= ~CAN_BRANCH_CITYROAD; }
 
 };
 
