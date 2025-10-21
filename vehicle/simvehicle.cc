@@ -3779,7 +3779,7 @@ skip_choose:
 
 		// now it we are in a step and can use the route search
 		route_t target_rt;
-		const int richtung = ribi_type(get_pos(), pos_next);	// to avoid confusion at diagonals
+		const int richtung = ribi_type(cnv->get_route()->at(start_block),cnv->get_route()->at(start_block<cnv->get_route()->get_count()-1?start_block+1:start_block));	// to avoid confusion at diagonals
 		if(  try_coupling  ) {
 			// search for coupling point.
 			route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), true );
@@ -3851,11 +3851,14 @@ bool rail_vehicle_t::is_pre_signal_clear(signal_t *sig, uint16 next_block, sint3
 	uint16 next_signal, next_crossing;
 	if(  block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false )  ) {
 		if(next_signal == route_t::INVALID_INDEX ||
-           cnv->get_route()->at(next_signal) == cnv->get_route()->back() ||
-           is_signal_clear( next_signal, restart_speed )) {
+           cnv->get_route()->at(next_signal) == cnv->get_route()->back()) {
 			// ok, end of route => we can go
 			sig->set_state( roadsign_t::STATE_GREEN );
 			cnv->set_next_stop_index( min( next_signal, next_crossing ) );
+			return true;
+		} else if ( is_signal_clear( next_signal, restart_speed ) ) {
+			// ok, next signal clear
+			sig->set_state( roadsign_t::STATE_GREEN );
 			return true;
 		}
 		// when we reached here, the way is apparently not free => release reservation and set state to next free
