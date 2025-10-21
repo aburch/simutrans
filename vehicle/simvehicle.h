@@ -611,9 +611,6 @@ public:
 	void set_convoi(convoi_t *c) OVERRIDE;
 
 	virtual schedule_t * generate_new_schedule() const OVERRIDE;
-
-	// step() routine called by convoy
-	bool check_longblock_signal(signal_t *sig, uint16 start_index, sint32 &restart_speed);
 };
 
 
