@@ -583,6 +583,7 @@ public:
 
 	sint32 get_passenger_factor() const { return passenger_factor; }
 	uint16 get_passenger_factor_float() const { return passenger_factor_float; }
+	uint16 max_passenger_factor_float() const { return (uint16)100; }
 
 	// town growth stuff
 	sint32 get_passenger_multiplier() const { return passenger_multiplier; }

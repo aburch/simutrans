@@ -1460,7 +1460,7 @@ void stadt_t::step(uint32 delta_t)
 	next_step += delta_t;
 	next_growth_step += delta_t;
 
-	step_interval = (1 << 25U) / (buildings.get_count() * ( welt->get_settings().get_passenger_factor() * 16 + welt->get_settings().get_passenger_factor_float() ) + 1);
+	step_interval = (1 << 22U) * welt->get_settings().max_passenger_factor_float() / (buildings.get_count() * ( welt->get_settings().get_passenger_factor() * welt->get_settings().max_passenger_factor_float() + welt->get_settings().get_passenger_factor_float() ) + 1);
 	if (step_interval < 1) {
 		step_interval = 1;
 	}
