@@ -101,7 +101,6 @@ OTRP's advanced schedule settings create flexible operational possibilities. Adv
 - **Unload All**: Select a station on the schedule, then apply this setting to make all loads once get off at this station.
 - **Load before departure**: Select a station on the schedule, then apply this setting to prevent loading goods before the scheduled departure time comes.
 - **Max speed**: Specifies the maximum speed convoys can travel on this line. Useful for maintaining consistent spacing between convoys when vehicles with differing maximum speeds are used on a line.
-- **Max speed of convoy**: Specifies the maximum speed this vehicle can travel, Useful for temporarily limiting the vehicle's speed.
 
 ## Convoy coupling
 
