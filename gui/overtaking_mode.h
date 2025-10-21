@@ -32,6 +32,7 @@ private:
 	gui_divider_t divider[2];
 	button_t avoid_cityroad_button;
 	button_t citycar_no_entry_button;
+	button_t no_building_button;
 	gui_numberinput_t height_offset;
 	gui_label_t height_offset_label;
 	button_t allow_branching_cityroad_button;

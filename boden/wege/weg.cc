@@ -335,8 +335,13 @@ void weg_t::info(cbuffer_t & buf) const
 			buf.printf("%s\n", translator::translate("Citycars are excluded."));
 		}
 
+
 		if(  str->get_allow_branch_cityroad()  ) {
 			buf.printf("%s\n", translator::translate("Cityroad allow branch from this road"));
+		}
+		if(  str->get_no_building()  ) {
+			buf.printf("%s\n", translator::translate("No buildings along roadside."));
+
 		}
 	}
 
