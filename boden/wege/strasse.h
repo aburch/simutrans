@@ -24,10 +24,10 @@ public:
 	static bool show_reservations;
 	
 	enum {
-		AVOID_CITYROAD   = 0x01, // this street avoid becoming cityroad.
-		CITYCAR_NO_ENTRY = 0x02, // citycar cannot enter this road.
-		USE_GIVEN_HEIGHT = 0x04, // this flag is used only for construction
-		NO_BUILDING      = 0x08  // no building can be built adjacent to this road
+		AVOID_CITYROAD   = 1U << 0, // this street avoid becoming cityroad.
+		CITYCAR_NO_ENTRY = 1U << 1, // citycar cannot enter this road.
+		USE_GIVEN_HEIGHT = 1U << 2, // this flag is used only for construction
+		NO_BUILDING      = 1U << 3  // no building can be built adjacent to this road
 	};
 
 private:
