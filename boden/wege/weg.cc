@@ -336,7 +336,7 @@ void weg_t::info(cbuffer_t & buf) const
 		}
 
 		if(  str->get_no_building()  ) {
-			buf.printf("%s\n", translator::translate("No building adjacent."));
+			buf.printf("%s\n", translator::translate("No buildings along roadside."));
 		}
 	}
 
