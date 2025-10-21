@@ -195,10 +195,20 @@ bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, int rotation)
 			case 's':
 				// road?
 				if (!gr->hat_weg(road_wt)) return false;
+				// roads with NO_BUILDING flag should not be treated as roads for building placement
+				if (const strasse_t* str = (const strasse_t*)gr->get_weg(road_wt)) {
+					if (str->get_no_building()) return false;
+				}
 				break;
 			case 'S':
 				// not road?
-				if (gr->hat_weg(road_wt)) return false;
+				// roads with NO_BUILDING flag are treated as "not road"
+				if (gr->hat_weg(road_wt)) {
+					if (const strasse_t* str = (const strasse_t*)gr->get_weg(road_wt)) {
+						if (str->get_no_building()) break; // NO_BUILDING road is treated as "not road", so continue
+					}
+					return false;
+				}
 				break;
 			case 'h':
 				// is house
@@ -2298,7 +2308,11 @@ class building_place_with_road_finder: public building_placefinder_t
 						}
 						// but near a road if possible
 						if (!next_to_road) {
-							next_to_road = gr->hat_weg(road_wt);
+							// roads with NO_BUILDING flag should not be treated as roads for building placement
+							const strasse_t* str = (const strasse_t*)gr->get_weg(road_wt);
+							if (  str  &&  !str->get_no_building()  ) {
+								next_to_road = true;
+							}
 						}
 					}
 				}

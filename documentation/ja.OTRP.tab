@@ -23,6 +23,8 @@ halt mode
 追越車線にも停車
 avoid becoming cityroad
 市道化を禁止する
+No buildings along roadside.
+建物を接道しない
 Overtaking:
 追越設定:
 Can be cityroad:

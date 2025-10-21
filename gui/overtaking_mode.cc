@@ -75,7 +75,14 @@ void overtaking_mode_frame_t::init( player_t* player_, overtaking_mode_t overtak
 	citycar_no_entry_button.add_listener(this);
 	citycar_no_entry_button.pressed = street_flag_&strasse_t::CITYCAR_NO_ENTRY;
 	add_component(&citycar_no_entry_button);
-	
+
+	no_building_button.init( button_t::square_state, "no building adjacent");
+	no_building_button.add_listener(this);
+	no_building_button.pressed = street_flag_&strasse_t::NO_BUILDING;
+	// NO_BUILDING is only meaningful when AVOID_CITYROAD is true
+	no_building_button.enable( street_flag_&strasse_t::AVOID_CITYROAD );
+	add_component(&no_building_button);
+
 	if(  tool_class==0  &&  !show_avoid_cityroad  ) {
 		// the way is elevated. height offset setting is displayed.
 		add_component(&divider[1]);
@@ -120,9 +127,17 @@ bool overtaking_mode_frame_t::action_triggered( gui_action_creator_t *komp, valu
 		num = 5;
 	}else if(  komp==&avoid_cityroad_button  ) {
 		avoid_cityroad_button.pressed = !(avoid_cityroad_button.pressed);
+		// NO_BUILDING is only meaningful when AVOID_CITYROAD is true
+		no_building_button.enable( avoid_cityroad_button.pressed );
+		if(  !avoid_cityroad_button.pressed  ) {
+			no_building_button.pressed = false;
+		}
 	}
 	else if(  komp==&citycar_no_entry_button  ) {
 		citycar_no_entry_button.pressed = !(citycar_no_entry_button.pressed);
+	}
+	else if(  komp==&no_building_button  ) {
+		no_building_button.pressed = !(no_building_button.pressed);
 	}
 	else if(  komp==&height_offset  ) {
 		if(  tool_class==0  ) {
@@ -144,6 +159,7 @@ bool overtaking_mode_frame_t::action_triggered( gui_action_creator_t *komp, valu
 	uint8 flag = 0;
 	if(  avoid_cityroad_button.pressed  ) { flag |= strasse_t::AVOID_CITYROAD; }
 	if(  citycar_no_entry_button.pressed  ) { flag |= strasse_t::CITYCAR_NO_ENTRY; }
+	if(  no_building_button.pressed  ) { flag |= strasse_t::NO_BUILDING; }
 	switch(  tool_class  ) {
 		case 0:
 		tool_w->set_overtaking_mode(overtaking_mode);

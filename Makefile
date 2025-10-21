@@ -415,6 +415,7 @@ SOURCES += gui/depotlist_frame.cc
 SOURCES += gui/display_settings.cc
 SOURCES += gui/enlarge_map_frame_t.cc
 SOURCES += gui/extend_edit.cc
+SOURCES += gui/end_of_choose_info.cc
 SOURCES += gui/fabrik_info.cc
 SOURCES += gui/factory_chart.cc
 SOURCES += gui/factory_edit.cc

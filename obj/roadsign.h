@@ -44,7 +44,10 @@ protected:
 	enum choose_sign_state {
 		NONE = 0,
 		guide_signal   = 1U<<0,// guide signal for coupling
-		advance_to_end = 1U<<1 // advance to end
+		choose_signal  = 1U<<1,// choose signal
+		advance_to_end = 1U<<2,// advance to end
+		end_of_choose  = 1U<<3,// end of choose signal
+		end_of_guide   = 1U<<4 // end of guide signal (for searching coupling target)
 	};
 
 	sint8 after_yoffset, after_xoffset;
@@ -164,11 +167,17 @@ public:
 	*/
 	image_id get_front_image() const OVERRIDE { return foreground_image; }
 	
-	bool is_guide_signal() const { return choose_sign_flag&guide_signal; }
+	bool is_guide_signal() const { return (choose_sign_flag&guide_signal)>0; }
 	void set_guide_signal(bool tf) { tf? choose_sign_flag|=guide_signal:choose_sign_flag&=~guide_signal; }	
-	bool is_advance_to_end() const { return choose_sign_flag&advance_to_end; }
+	bool is_choose_signal() const { return (choose_sign_flag&choose_signal)>0; }
+	void set_choose_signal(bool tf) { tf? choose_sign_flag|=choose_signal:choose_sign_flag&=~choose_signal; }
+	bool is_advance_to_end() const { return (choose_sign_flag&advance_to_end)>0; }
 	void set_advance_to_end(bool tf) { tf? choose_sign_flag|=advance_to_end:choose_sign_flag&=~advance_to_end; }
-
+	bool is_flag_end_of_choose() const { return (choose_sign_flag&end_of_choose)>0; }
+	void set_end_of_choose(bool tf) { tf? choose_sign_flag|=end_of_choose:choose_sign_flag&=~end_of_choose; }
+	bool is_flag_end_of_guide() const { return (choose_sign_flag&end_of_guide)>0; }
+	void set_end_of_guide(bool tf) { tf? choose_sign_flag|=end_of_guide:choose_sign_flag&=~end_of_guide; }
+	uint8 const get_choose_sign_flag() {return choose_sign_flag;}
 	/**
 	* draw the part overlapping the vehicles
 	* (needed to get the right offset even on hills)

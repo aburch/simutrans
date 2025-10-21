@@ -1835,11 +1835,11 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	setsimrand(0xFFFFFFFF, settings.get_map_number());
 	clear_random_mode( 0xFFFF );
 	set_random_mode( MAP_CREATE_RANDOM );
-
-	if(  old_x == 0  &&  !settings.heightfield.empty()  ) {
+	dbg->message("karte_t::enlarge_map()","heightfield name is %s",settings.heightfield.c_str());
+	if(  !settings.heightfield.empty()  ) {
 		// init from file
-		for(int y=0; y<cached_grid_size.y; y++) {
-			for(int x=0; x<cached_grid_size.x; x++) {
+		for(  sint16 y = 0;  y<=new_size_y;  y++  ) {
+			for(  sint16 x = (y>old_y) ? 0 : old_x+1;  x<=new_size_x;  x++  ) {
 				grid_hgts[x + y*(cached_grid_size.x+1)] = h_field[x+(y*(sint32)cached_grid_size.x)]+1;
 			}
 			grid_hgts[cached_grid_size.x + y*(cached_grid_size.x+1)] = grid_hgts[cached_grid_size.x-1 + y*(cached_grid_size.x+1)];
@@ -6701,7 +6701,7 @@ uint8 karte_t::sp2num(player_t *player)
 }
 
 
-void karte_t::load_heightfield(settings_t* const sets)
+void karte_t::load_heightfield(settings_t* const sets, bool is_new_map)
 {
 	sint16 w, h;
 	sint8 *h_field = NULL;
@@ -6712,9 +6712,24 @@ void karte_t::load_heightfield(settings_t* const sets)
 
 	if(hml.get_height_data_from_file(sets->heightfield.c_str(), (sint8)(sets->get_groundwater()), h_field, w, h, false )) {
 		sets->set_size(w,h);
-		// create map
-		init(sets,h_field);
-		free(h_field);
+		// create new map or enlarge this map
+		if(  is_new_map  ) {
+			// create map
+			init(sets,h_field);
+			free(h_field);
+		} else {
+			if (cached_grid_size.x>w || cached_grid_size.y>h) {
+				// the loaded data is too small
+				dbg->error("karte_t::load_heightfield()","The size of heightfield file '%s' is too small! The size must be larger than (%i,%i).", sets->heightfield.c_str(),cached_grid_size.x,cached_grid_size.y);
+				create_win( new news_img("\nThe size of heightfield file is wrong.\n"), w_info, magic_none );
+				return;
+			}
+			dbg->message("karte_t::load_heightfield()","enlarge with heightfield file '%s'",sets->heightfield.c_str());
+			// enlarge map from this data
+			settings = *sets;
+			enlarge_map(&settings, h_field);
+			free(h_field);
+		}
 	}
 	else {
 		dbg->error("karte_t::load_heightfield()","Cant open file '%s'", sets->heightfield.c_str());
