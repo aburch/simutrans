@@ -31,7 +31,7 @@
 	ADD: (FrankP) new construction sites for res, com, ind as index 7, 8 and 9
 	CHG: Increase maximum loading time of vehicles to 2^31-1 ms
 	ADD: Makeobj now supports named directions for sloped way images (imageup[w]=...)
-	FIX: Wrong expansion of parameterized image lists with empty image (e.g. image[-,nesw]=...)
+	FIX: Wrong expansion of parameterized image lists with no-ribi image (e.g. image[-,nesw]=...)
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):

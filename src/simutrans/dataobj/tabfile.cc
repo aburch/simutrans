@@ -319,7 +319,7 @@ void tabfileobj_t::unused( const char *exclude_start_chars )
 static bool match_ribi(const char *p)
 {
 	return
-		(p[0] == '-' && p[1] < '0' && p[1] > '9') ||
+		(p[0] == '-' && (p[1] < '0' || p[1] > '9')) ||
 		std::tolower(p[0]) == 'n' ||
 		std::tolower(p[0]) == 'e' ||
 		std::tolower(p[0]) == 's' ||
