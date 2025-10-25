@@ -2537,7 +2537,7 @@ bool way_builder_t::build_tunnel_tile()
 					// respect max speed of catenary
 					waytype_t waytype = tunnel_desc->get_waytype();
 					wayobj_t const* const wo = gr->get_wayobj(waytype);
-					if(wo && waytype == track_wt){
+					if(wo && (waytype != water_wt && waytype != air_wt)){
 						weg->set_max_wayobj_speed(wo->get_desc()->get_topspeed());
 					}
 					else if (wo  &&  wo->get_desc()->get_topspeed() < weg->get_max_speed()) {
@@ -2760,7 +2760,7 @@ void way_builder_t::build_track()
 					// respect max speed of catenary
 					waytype_t waytype = desc->get_wtyp();
 					wayobj_t const* const wo = gr->get_wayobj(waytype);
-					if(wo && waytype == track_wt){
+					if(wo && (waytype != water_wt && waytype != air_wt)){
 						weg->set_max_wayobj_speed(wo->get_desc()->get_topspeed());
 					}
 					else if (wo  &&  wo->get_desc()->get_topspeed() < weg->get_max_speed()) {
