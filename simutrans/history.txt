@@ -32,6 +32,7 @@
 	CHG: Increase maximum loading time of vehicles to 2^31-1 ms
 	ADD: Makeobj now supports named directions for sloped way images (imageup[w]=...)
 	FIX: Wrong expansion of parameterized image lists with no-ribi image (e.g. image[-,nesw]=...)
+	FIX: longblock signal reservation broken
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):

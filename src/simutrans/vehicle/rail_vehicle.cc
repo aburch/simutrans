@@ -282,6 +282,10 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, route_t::index_t n
 		return true;
 	}
 
+	// unreserve this stretch (has been successful!)
+	route_t::index_t dummy;
+	block_reserver(cnv->get_route(), next_block+1, dummy, dummy, 0, false, false);
+
 	// no signal before end_of_route => need to do route search in a step
 	if(  !cnv->is_waiting()  ) {
 		restart_speed = -1;
@@ -293,45 +297,43 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, route_t::index_t n
 	uint8 schedule_index = cnv->get_schedule()->get_current_stop()+1;
 	route_t target_rt;
 	koord3d cur_pos = cnv->get_route()->back();
-	route_t::index_t dummy;
 	route_t::index_t next_next_signal = route_t::INVALID_INDEX;
 
 	if(schedule_index >= cnv->get_schedule()->get_count()) {
 		schedule_index = 0;
 	}
 	while(  schedule_index != cnv->get_schedule()->get_current_stop()  ) {
-		// now search
-		// search for route
-		bool success = target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->entries[schedule_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), 8888 /*cnv->get_tile_length()*/ );
-		if(  target_rt.is_contained(get_pos())  ) {
-			// do not reserve route going through my current stop&
+
+		// now search search for route of next segment
+		if (  !target_rt.calc_route(welt, cur_pos, cnv->get_schedule()->entries[schedule_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), 8888 /*cnv->get_tile_length()*/)) {
+			// broken route => no meaning to continue
+			// but we go on to make sure that the convoi drives as far as possible
 			break;
 		}
-		if(  success  ) {
-			success = block_reserver( &target_rt, 1, next_next_signal, dummy, 0, true, false );
-			block_reserver( &target_rt, 1, dummy, dummy, 0, false, false );
+
+		if(  target_rt.is_contained(get_pos())  ) {
+			// do not reserve route going through my current position => finished with checking
+			break;
 		}
+
+		// reserver and unreserve again
+		bool success = block_reserver( &target_rt, 1, next_next_signal, dummy, 0, true, false );
+		block_reserver( &target_rt, 1, dummy, dummy, 0, false, false );
 
 		if(  success  ) {
 			// ok, would be free
 			if(  next_next_signal<target_rt.get_count()  ) {
-				// and here is a signal => finished
-				// (however, if it is this signal, we need to renew reservation ...
-				if(  target_rt.at(next_next_signal) == cnv->get_route()->at( next_block )  ) {
-					block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false );
-				}
-				sig->set_state( roadsign_t::STATE_GREEN );
-				cnv->set_next_stop_index( min( min( next_crossing, next_signal ), cnv->get_route()->get_count()-1-1 ) );
-				return true;
+				// and here is a signal => finished checking
+				break;
 			}
 		}
-
-		if(  !success  ) {
-			block_reserver( cnv->get_route(), next_block+1, next_next_signal, dummy, 0, false, false );
+		else {
+			// route not reservable
 			sig->set_state( roadsign_t::STATE_RED );
 			restart_speed = 0;
 			return false;
 		}
+
 		// prepare for next leg of schedule
 		cur_pos = target_rt.back();
 		schedule_index ++;
@@ -339,9 +341,11 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, route_t::index_t n
 			schedule_index = 0;
 		}
 	}
-	if(  cnv->get_next_stop_index()-1 <= route_index  ) {
-		cnv->set_next_stop_index( cnv->get_route()->get_count()-1 );
-	}
+
+	// we need to renew intial reservation (cannot fail)
+	block_reserver(cnv->get_route(), next_block + 1, next_signal, next_crossing, 0, true, false);
+	sig->set_state(roadsign_t::STATE_GREEN);
+	cnv->set_next_stop_index(min(min(next_crossing, next_signal), cnv->get_route()->get_count() - 1 - 1));
 	return true;
 }
 
