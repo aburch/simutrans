@@ -51,7 +51,7 @@ void simachievements_t::check_state_ach(karte_t* world) {
 	pak_name.erase(pak_name.length() - 1);
 	for ( fabrik_t* fab : world->get_fab_list() ) {
 		if ( STRICMP(pak_name.c_str(), "pak192.comic") == 0 ) {
-			if ( check_yearly_production(fab, "squid", 0) ) {
+			if ( check_yearly_production(fab, "Mr. Kraken", 0) ) {
 				set_achievement(ACH_PROD_INK);
 			}
 		}
