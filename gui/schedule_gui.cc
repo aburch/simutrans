@@ -550,7 +550,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	add_component(&bt_same_dep_time);
 
 	bt_no_overtake.init(button_t::square_automatic, "No overtake");
-	bt_no_overtake.set_tooltip("Do not overtake other cars until next stop");
+	bt_no_overtake.set_tooltip("Do not overtake other cars until this stop.");
 	bt_no_overtake.add_listener(this);
 	add_component(&bt_no_overtake);
 

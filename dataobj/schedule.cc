@@ -654,6 +654,10 @@ void construct_schedule_entry_attributes(cbuffer_t& buf, schedule_entry_t const&
 		str[cnt] = 'T';
 		cnt++;
 	}
+	if(  entry.is_no_overtake()  ) {
+		str[cnt] = 'N';
+		cnt++;
+	}
 	// there are at least one attributes.
 	if(  cnt>1  ) {
 		str[cnt] = ']';
