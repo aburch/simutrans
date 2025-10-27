@@ -550,7 +550,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	add_component(&bt_same_dep_time);
 
 	bt_no_overtake.init(button_t::square_automatic, "No overtake");
-	bt_no_overtake.set_tooltip("Do not overtake other cars");
+	bt_no_overtake.set_tooltip("Do not overtake other cars until next stop");
 	bt_no_overtake.add_listener(this);
 	add_component(&bt_no_overtake);
 
@@ -1112,6 +1112,12 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 		stats->update_schedule();
 		update_selection();
 	}
+	else if(comp == &bt_no_overtake) {
+		if (!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).set_no_overtake(bt_no_overtake.pressed);
+			update_selection();
+		}
+	}
 	else if(  comp == &name_filter_input  ) {
 		if(  strcmp(old_schedule_filter,schedule_filter)  ) {
 			init_line_selector();
@@ -1126,12 +1132,6 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 		}
 		else {
 			schedule->set_new_departure_slot_group_id();
-		}
-	}
-	else if(comp == &bt_no_overtake) {
-		if (!schedule->empty()) {
-			schedule->at(schedule->get_current_stop()).set_no_overtake(!bt_no_overtake.pressed);
-			update_selection();
 		}
 	}
 	// recheck lines
@@ -1393,5 +1393,5 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	bt_reverse_convoy.set_visible(reversible_waytype  &&  yesno);
 	bt_reverse_coupling.set_visible(reversible_waytype  &&  yesno);
 	bt_wait_coupling_done.set_visible(coupling_waytype && yesno);
-	bt_no_overtake.set_visible(schedule->get_waytype()==road_wt); // only for road vehicle
+	bt_no_overtake.set_visible(schedule->get_waytype()==road_wt && yesno); // only for road vehicle
 }

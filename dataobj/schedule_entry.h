@@ -50,7 +50,7 @@ public:
 		REVERSE_CONVOY	  = 1U << 8, // convoy reverses the order of its vehicles.
 		REVERSE_COUPLING  = 1U << 9, // The convoy reverses the parent-child relationship of the convoy coupling.
 		WAIT_COUPLING_DONE= 1U << 10,// Do not reserve departure slot until coupling done.
-		NO_OVERTAKE       = 1U << 14,// Do not overtake(for road)
+		NO_OVERTAKE       = 1U << 11// Do not overtake(for road)
 	};
 
 	/**
@@ -143,8 +143,8 @@ public:
 	uint16 get_stop_flags() const { return stop_flags; }
 	void set_stop_flags(uint16 f) { stop_flags = f; }
 	void set_wait_coupling_done(bool y) {y? stop_flags|= WAIT_COUPLING_DONE : stop_flags &= ~WAIT_COUPLING_DONE; }
-	bool is_wait_coupling_done() const {return (stop_flags&WAIT_COUPLING_DONE) ; }
-	bool is_no_overtake() const {return (stop_flags&NO_OVERTAKE) ;}
+	bool is_wait_coupling_done() const {return (stop_flags&WAIT_COUPLING_DONE)>0 ; }
+	bool is_no_overtake() const {return (stop_flags&NO_OVERTAKE)>0 ;}
 	void set_no_overtake(bool y) { y? stop_flags|=NO_OVERTAKE : stop_flags &= ~NO_OVERTAKE;}
 
 	void set_spacing(uint16 a, uint16 b, uint16 c) {
