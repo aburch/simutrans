@@ -4211,6 +4211,13 @@ bool rail_vehicle_t::block_reserver(const route_t *route, uint16 start_index, ui
 					signal->set_state(roadsign_t::STATE_RED);
 				}
 			}
+			if(gr->has_two_ways()) {
+				// we may need to unreserve the other way as well
+				if (schiene_t* sch0 = dynamic_cast<schiene_t*>(gr->get_weg_nr(gr->get_weg_nr(0) == sch1))) {
+					// the other way is reservable too => try to reserve it
+					sch0->unreserve(cnv->self);
+				}
+			}
 			if(crossing_t* cr = gr->get_crossing()) {
 				cr->release_crossing(this);
 			}
