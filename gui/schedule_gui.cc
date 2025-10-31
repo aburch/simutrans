@@ -235,7 +235,7 @@ bool schedule_gui_stats_t::action_triggered(gui_action_creator_t *, value_t v)
 
 cbuffer_t schedule_gui_stats_t::buf;
 
-schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoihandle_t cnv_) :
+schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoihandle_t cnv_, const char* cnv_line_name) :
 	gui_frame_t( translator::translate("Fahrplan"), NULL),
 	line_selector(line_scrollitem_t::compare),
 	next_line_selector(non_color_line_scroll_item_t::compare),
@@ -255,7 +255,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoih
 	schedule_filter[0] = 0;
 	old_schedule_filter[0] = 0;
 	if (schedule_) {
-		init(schedule_, player_, cnv_);
+		init(schedule_, player_, cnv_, cnv_line_name);
 	}
 }
 
@@ -270,7 +270,7 @@ schedule_gui_t::~schedule_gui_t()
 	delete stats;
 }
 
-void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_t cnv)
+void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_t cnv, const char* cnv_line_name)
 {
 	// initialization
 	this->old_schedule = schedule_;
@@ -297,6 +297,18 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	stats->add_listener(this);
 
 	set_table_layout(1,0);
+
+	add_table(1,1);
+	if(  cnv.is_bound()  ) {
+		snprintf(lb_cnv_line_name_str,255,cnv->get_name());
+	} else {
+		snprintf(lb_cnv_line_name_str,255,cnv_line_name);
+	}
+	lb_cnv_line_name.set_text(lb_cnv_line_name_str);
+	add_component(&lb_cnv_line_name);
+	end_table();
+
+
 
 	if(  cnv.is_bound()  ) {
 		add_table(3,2);
