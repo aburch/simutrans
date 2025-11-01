@@ -77,11 +77,12 @@ void factory_desc_t::correct_smoke()
 			new_tile.x = clamp((int)smoketile[i].x, 0, get_building()->get_x(i) - 1);
 			new_tile.y = clamp((int)smoketile[i].y, 0, get_building()->get_y(i) - 1);
 			if (new_tile != smoketile[i]) {
-				dbg->warning("factory_desc_t::correct_smoke()", "smoke of \"%s\" in rotation %d, changed to (%s)", get_name(), i, new_tile.get_str());
-				// compensate with offsets
+				// tile is outside => compensate with new offsets
 				smokeoffset[i].x += ((smoketile[i].x - new_tile.x) * get_tile_raster_width()) / 2 - ((smoketile[i].y - new_tile.y) * get_tile_raster_width()) / 2;
 				smokeoffset[i].y += ((smoketile[i].x - new_tile.x) * get_tile_raster_width()) / 4 + ((smoketile[i].y - new_tile.y) * get_tile_raster_width()) / 4;
 				smoketile[i] = new_tile;
+
+				dbg->warning("factory_desc_t::correct_smoke()", "smoke of \"%s\" in rotation %d, changed to (%s) and offsets %d,%d", get_name(), i, new_tile.get_str(), smoketile[i].x, smoketile[i].y);
 			}
 		}
 	}
