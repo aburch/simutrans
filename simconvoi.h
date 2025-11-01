@@ -351,7 +351,12 @@ private:
 
 	bool in_delay_recovery;
 
-
+	typedef struct {
+		bool valid;
+		signal_t* sig;
+		uint16 next_block;
+	} longblock_signal_request_t;
+	longblock_signal_request_t longblock_signal_request;
 
 	/**
 	 * struct holds new financial history for convoi
@@ -1033,6 +1038,9 @@ public:
 	void set_next_cross_lane(bool);
 
 	virtual void refresh(sint8,sint8) OVERRIDE;
+
+	void request_longblock_signal_judge(signal_t *sig, uint16 next_block);
+	void set_longblock_signal_judge_request_invalid() { longblock_signal_request.valid = false; };
 
 	void calc_crossing_reservation();
 	vector_tpl<std::pair< uint16, uint16> > get_crossing_reservation_index() const { return crossing_reservation_index; }
