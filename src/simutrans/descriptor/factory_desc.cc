@@ -70,6 +70,21 @@ void factory_desc_t::correct_smoke()
 		smokeuplift = DEFAULT_SMOKE_UPLIFT;
 		smokelifetime = DEFAULT_FACTORYSMOKE_TIME;
 	}
+	// check for smoke outside of boundries
+	if (get_smoke()) {
+		for (int i = 0; i < smokerotations; i++) {
+			koord new_tile;
+			new_tile.x = clamp((int)smoketile[i].x, 0, get_building()->get_x(i) - 1);
+			new_tile.y = clamp((int)smoketile[i].y, 0, get_building()->get_y(i) - 1);
+			if (new_tile != smoketile[i]) {
+				dbg->warning("factory_desc_t::correct_smoke()", "smoke of \"%s\" in rotation %d, changed to (%s)", get_name(), i, new_tile.get_str());
+				// compensate with offsets
+				smokeoffset[i].x += ((smoketile[i].x - new_tile.x) * get_tile_raster_width()) / 2 - ((smoketile[i].y - new_tile.y) * get_tile_raster_width()) / 2;
+				smokeoffset[i].y += ((smoketile[i].x - new_tile.x) * get_tile_raster_width()) / 4 + ((smoketile[i].y - new_tile.y) * get_tile_raster_width()) / 4;
+				smoketile[i] = new_tile;
+			}
+		}
+	}
 }
 
 
