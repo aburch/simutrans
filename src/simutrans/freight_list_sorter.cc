@@ -211,7 +211,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 					if (!merge) {
 						// not same via halt, but maybe same lines
 						for (linehandle_t const& line : h->registered_lines) {
-							if (line->get_goods_catg_index().is_contained(ware.get_catg())) {
+							if (line->get_goods_catg_index().is_contained(ware.get_catg_index())) {
 								// only merge if both can travel with the same line to their stop
 								bool has_line1 = w_next->registered_lines.is_contained(line);
 								bool has_line2 = wi_next->registered_lines.is_contained(line);
@@ -228,7 +228,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 					if (!merge && !has_line) {
 						// not same via halt, not same line, but maybe same convoy
 						for (convoihandle_t const& c : wi_next->registered_convoys) {
-							if (c->get_goods_catg_index().is_contained(ware.get_index())  &&  w_next->registered_convoys.is_contained(c)  &&  (h.is_bound() && h->registered_convoys.is_contained(c))) {
+							if (c->get_goods_catg_index().is_contained(ware.get_catg_index())  &&  w_next->registered_convoys.is_contained(c)  &&  (h.is_bound() && h->registered_convoys.is_contained(c))) {
 								merge = true;
 								break;
 							}
@@ -356,7 +356,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				uint32 linecount = 0;
 				// maybe same line
 				for (linehandle_t const& line : h->registered_lines) {
-					if (h_next->registered_lines.is_contained(line) && line->get_goods_catg_index().is_contained(ware.get_index())) {
+					if (h_next->registered_lines.is_contained(line) && line->get_goods_catg_index().is_contained(ware.get_catg_index())) {
 						if (linecount++) {
 							buf.append(", ");
 						}

@@ -77,6 +77,7 @@ public:
 	const char *get_name() const { return get_desc()->get_name(); }
 	const char *get_mass() const { return get_desc()->get_mass(); }
 	uint8 get_catg() const { return get_desc()->get_catg(); }
+	uint8 get_catg_index() const { return get_desc()->get_catg_index(); }
 	uint8 get_index() const { return index; }
 
 	const goods_desc_t *get_desc() const { return index_to_desc[index]; }
