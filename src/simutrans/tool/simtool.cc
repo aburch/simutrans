@@ -2965,6 +2965,16 @@ const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start
 		bridge_builder_t::build_bridge( player, start, end, zv, bridge_height, desc, way_builder_t::weg_search(desc->get_waytype(), desc->get_topspeed(), welt->get_timeline_year_month(), type_flat));
 		return NULL; // all checks are performed before building.
 	}
+	else {
+		grund_t *gr = welt->lookup(start);
+		if (gr && gr->ist_bruecke()) {
+			// Renovate whole bridge
+			weg_t *w = gr->get_weg_nr(0);
+			if (w  &&  w->get_waytype() == desc->get_waytype()) {
+				return bridge_builder_t::renovate(player, start, w->get_waytype(), desc);
+			}
+		}
+	}
 	return "";
 }
 
@@ -3110,6 +3120,13 @@ uint8 tool_build_bridge_t::is_valid_pos(  player_t *player, const koord3d &pos, 
 	}
 	if (!bridge_builder_t::check_start_tile(player, gr, is_first_click()?0:ribi_type(pos-start), desc)) {
 		return 2;
+	}
+	if (gr->get_typ() == grund_t::brueckenboden) {
+		// Possibly a bridge to update here, but check waytype
+		weg_t *w = gr->get_weg_nr(0);
+		if (w  &&  w->get_waytype() == desc->get_waytype()) {
+			return 1;
+		}
 	}
 	return 0;
 }

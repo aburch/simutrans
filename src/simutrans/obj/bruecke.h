@@ -36,6 +36,7 @@ public:
 	 */
 	waytype_t get_waytype() const OVERRIDE { return desc ? desc->get_waytype() : invalid_wt; }
 
+	void set_desc(const bridge_desc_t *b) { desc = b; }
 	const bridge_desc_t *get_desc() const { return desc; }
 
 	// we will always replace first way image

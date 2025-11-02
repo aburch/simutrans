@@ -11,6 +11,8 @@
 #include "../dataobj/koord.h"
 #include "../dataobj/koord3d.h"
 
+#include "../tpl/slist_tpl.h"
+
 class bridge_desc_t;
 class grund_t;
 class karte_ptr_t;
@@ -30,6 +32,9 @@ private:
 	bridge_builder_t() {} ///< private -> no instance please
 
 	static karte_ptr_t welt;
+
+	// allowed owner?
+	static bool check_owner(const player_t *owner, const player_t *test);
 
 	static bool is_blocked(koord3d pos, ribi_t::ribi check_ribi, const char *&error_msg);
 	static bool is_monorail_junction(koord3d pos, player_t *player, const bridge_desc_t *desc, const char *&error_msg);
@@ -122,9 +127,19 @@ public:
 	static const bridge_desc_t *get_desc(const char *name);
 
 	/**
+	 * Renovates a bridge
+	 * @param player the renovator and owner of the bridge
+	 * @param pos position anywhere on a bridge
+	 * @param wegtyp way type of the bridge
+	 * @param desc descriptor for the new bridge
+	 * @return An error message if the bridge could not be renovated, NULL otherwise
+	 */
+	static const char *renovate(player_t *player, koord3d pos, waytype_t wegtyp, const bridge_desc_t *desc);
+
+	/**
 	 * Removes a bridge
 	 * @param player the demolisher and owner of the bridge
-	 * @param pos position anywhere on a bridge.
+	 * @param pos position anywhere on a bridge
 	 * @param wegtyp way type of the bridge
 	 * @return An error message if the bridge could not be removed, NULL otherwise
 	 */
