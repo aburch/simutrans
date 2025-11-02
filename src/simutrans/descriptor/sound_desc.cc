@@ -90,8 +90,8 @@ DBG_MESSAGE("sound_desc_t::init()","reading sound %s", fn  );
 			compatible_sound_id[i] = get_sound_id( fn );
 DBG_MESSAGE("sound_desc_t::init()","assigned system sound %d to sound %s (id=%i)", i, (const char *)fn, compatible_sound_id[i] );
 		}
-		message_sound = get_sound_id("message.wav");
 	}
+	message_sound = get_sound_id("message.wav");
 
 	// now assign special sounds for climates, beaches and forest
 	beach_sound = get_sound_id( "beaches.wav" );
