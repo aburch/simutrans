@@ -144,7 +144,8 @@ DBG_MESSAGE("event","HOWDY!");
 			scr_coord_val last_draw_y = last_draw_offset.y  + get_pos().y - win_get_pos(win_get_top()).y- D_TITLEBAR_HEIGHT;
 			scr_coord_val height_above = last_draw_y - D_V_SPACE;
 			scr_coord_val height_below = win_height - (last_draw_y + textinp.get_size().h + D_V_SPACE);
-			scr_coord_val request_height = min(max_size.h - closed_size.h, droplist.get_max_size().h);
+			// we try to show all all the time
+			scr_coord_val request_height = min(max(height_above,height_below), droplist.get_max_size().h);
 
 			// request size of droplist, should stay inside window
 			// call returns actual height, might be smaller than request_height
