@@ -33,6 +33,8 @@
 	ADD: Makeobj now supports named directions for sloped way images (imageup[w]=...)
 	FIX: Wrong expansion of parameterized image lists with no-ribi image (e.g. image[-,nesw]=...)
 	FIX: longblock signal reservation broken
+	FIX: wrong smoketile offsets outside factories autocorrecting
+	CHG: Unified handling of pak set dirs and names
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):

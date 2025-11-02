@@ -6,22 +6,23 @@
 #include <string>
 #include <math.h>
 
-#include "settings.h"
-#include "environment.h"
-#include "../pathes.h"
-#include "../simconst.h"
-#include "../simtypes.h"
-#include "../simdebug.h"
-#include "../world/simworld.h"
 #include "../builder/wegbauer.h"
 #include "../descriptor/way_desc.h"
+#include "../pathes.h"
+#include "../player/finance.h"
+#include "../player/simplay.h"
+#include "../simconst.h"
+#include "../simdebug.h"
+#include "../simmain.h"
+#include "../simtypes.h"
+#include "../sys/simsys.h"
 #include "../utils/simrandom.h"
 #include "../utils/simstring.h"
 #include "../vehicle/vehicle_base.h"
-#include "../player/finance.h"
-#include "../player/simplay.h"
-#include "../sys/simsys.h"
+#include "../world/simworld.h"
+#include "environment.h"
 #include "loadsave.h"
+#include "settings.h"
 #include "tabfile.h"
 #include "translator.h"
 
@@ -753,7 +754,7 @@ void settings_t::rdwr(loadsave_t *file)
 
 
 // read the settings from this file
-void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16& disp_height, sint16 &fullscreen, std::string& objfilename )
+void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16& disp_height, sint16 &fullscreen, bool set_objfilename )
 {
 	tabfileobj_t contents;
 
@@ -1435,7 +1436,9 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	stop_halt_as_scheduled = contents.get_int("stop_halt_as_scheduled", stop_halt_as_scheduled);
 
 	// Default pak file path
-	objfilename = ltrim(contents.get_string("pak_file_path", objfilename.c_str() ) );
+	if (set_objfilename   &&  *contents.get("pak_file_path")) {
+		set_pakdir(ltrim(contents.get("pak_file_path")));
+	}
 
 	// FluidSynth MIDI parameters
 	if(  *contents.get("soundfont_filename")  ) {

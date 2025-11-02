@@ -506,7 +506,7 @@ void setup_logging(const args_t &args)
 }
 
 // search for this in all possible pakset locations for the directory chkdir and take the first match
-static bool set_pakdir( const char *chkdir )
+bool set_pakdir( const char *chkdir )
 {
 	if(  !chkdir  ||  !*chkdir  ) {
 		return false;
@@ -518,6 +518,9 @@ static bool set_pakdir( const char *chkdir )
 		dr_getcwd(tmp, lengthof(tmp));
 		env_t::pak_dir = tmp;
 		env_t::pak_dir += PATH_SEPARATOR;
+		const char* new_name = strrchr(tmp, *PATH_SEPARATOR);
+		env_t::pak_name = new_name+1;
+		env_t::pak_name += PATH_SEPARATOR;
 		return true;
 	}
 	dr_chdir( env_t::install_dir );
@@ -525,6 +528,9 @@ static bool set_pakdir( const char *chkdir )
 		dr_getcwd(tmp, lengthof(tmp));
 		env_t::pak_dir = tmp;
 		env_t::pak_dir += PATH_SEPARATOR;
+		const char* new_name = strrchr(tmp, *PATH_SEPARATOR);
+		env_t::pak_name = new_name+1;
+		env_t::pak_name += PATH_SEPARATOR;
 		return true;
 	}
 	dr_chdir( env_t::user_dir );
@@ -533,6 +539,9 @@ static bool set_pakdir( const char *chkdir )
 			dr_getcwd(tmp, lengthof(tmp));
 			env_t::pak_dir = tmp;
 			env_t::pak_dir += PATH_SEPARATOR;
+			const char* new_name = strrchr(tmp, *PATH_SEPARATOR);
+			env_t::pak_name = new_name+1;
+			env_t::pak_name += PATH_SEPARATOR;
 			return true;
 		}
 	}
@@ -664,7 +673,7 @@ int simu_main(int argc, char** argv)
 			std::string old_soundfont_filename = env_t::soundfont_filename;
 
 			dbg->message("simu_main()", "Parsing %s%s", env_t::base_dir, path_to_simuconf);
-			env_t::default_settings.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, env_t::pak_name );
+			env_t::default_settings.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, true );
 			simuconf.close();
 
 			if(  (old_soundfont_filename.length() > 0)  &&  (strcmp( old_soundfont_filename.c_str(), "Error" ) != 0)  ) {
@@ -682,10 +691,7 @@ int simu_main(int argc, char** argv)
 	string obj_conf = string(env_t::user_dir) + "simuconf.tab";
 	if (simuconf.open(obj_conf.c_str())) {
 		dbg->message("simu_main()", "Parsing %s", obj_conf.c_str());
-		env_t::default_settings.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, env_t::pak_name );
-		if(  set_pakdir( env_t::pak_name.c_str() )  ) {
-			env_t::pak_name += PATH_SEPARATOR;
-		}
+		env_t::default_settings.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, true );
 		simuconf.close();
 	}
 
@@ -719,27 +725,18 @@ int simu_main(int argc, char** argv)
 						last_pathsep = c+1;
 					}
 				}
-				if( last_pathsep ) {
-					env_t::pak_name = last_pathsep;
-				}
+				set_pakdir(last_pathsep);
 			}
 		}
 		else {
-			env_t::pak_name = fn;
-			env_t::pak_name += PATH_SEPARATOR;
+			set_pakdir(fn);
 		}
 	}
 
 	if(  env_t::pak_dir.empty()  ) {
 		// old style (deprecated)
 		if( const char* pak = args.gimme_arg( "-objects", 1 ) ) {
-			if( set_pakdir( pak ) ) {
-				env_t::pak_name = pak;
-				if (env_t::pak_name.back() == '/') {
-					env_t::pak_name.pop_back();
-				}
-				env_t::pak_name += PATH_SEPARATOR;
-			}
+			set_pakdir(pak);
 		}
 	}
 
@@ -755,14 +752,12 @@ int simu_main(int argc, char** argv)
 				// add pak extension
 				const char *pak = test.get_pak_extension();
 				if(  strcmp(pak,"(unknown)")!=0  ) {
-					if( set_pakdir( pak ) ) {
-						env_t::pak_name = pak;
-						env_t::pak_name += PATH_SEPARATOR;
-					}
+					set_pakdir(pak);
 				}
 			}
 		}
 	}
+
 	dr_chdir( env_t::base_dir );
 
 	// starting a server?
@@ -1017,6 +1012,7 @@ int simu_main(int argc, char** argv)
 			install_objfilename(); // all other
 		}
 	}
+
 #else
 	// headless server
 	dr_chdir( env_t::base_dir );
@@ -1146,7 +1142,7 @@ int simu_main(int argc, char** argv)
 	// just check before loading objects
 	if(  !args.has_arg("-nosound")  &&  dr_init_sound()  ) {
 		dbg->message("simu_main()","Reading sound data ...");
-		sound_desc_t::init(env_t::pak_dir, std::string("addons") + PATH_SEPARATOR + env_t::pak_name + PATH_SEPARATOR);
+		sound_desc_t::init(env_t::pak_dir, std::string("addons") + PATH_SEPARATOR + env_t::pak_name);
 	}
 	else {
 		sound_set_mute(true);
