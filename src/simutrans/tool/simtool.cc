@@ -3255,7 +3255,7 @@ const char *tool_build_tunnel_t::do_work( player_t *player, const koord3d &start
 					koord3d end = tunnel_builder_t::find_end_pos(player, start, koord(gr->get_grund_hang()), desc, true, &err );
 					if(  end == koord3d::invalid  ||  end == start  ) {
 						// no end found
-						return err;
+						return err ? err : "Tunnel must start on single way!";
 					}
 					if(  !player->can_afford((-(sint64)desc->get_price())*koord_distance(start,end))  ) {
 						return NOTICE_INSUFFICIENT_FUNDS;

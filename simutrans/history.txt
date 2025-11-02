@@ -37,6 +37,7 @@
 	CHG: Unified handling of pak set dirs and names
 	CHG: Combobox try to show as much entries as possible
 	ADD: (Nazalassa) bridge renovation when building on an existing bridge
+	FIX: tunnel route search suceeded even if z coordinates of portals did not match
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):

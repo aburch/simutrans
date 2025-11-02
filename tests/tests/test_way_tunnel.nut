@@ -449,6 +449,66 @@ function test_way_tunnel_build_above_tunnel_slope()
 }
 
 
+function test_way_tunnel_build_across_tunnel_slope()
+{
+	local pl = player_x(0)
+	local default_tunnel = tunnel_desc_x.get_available_tunnels(wt_road)[0]
+	local digger = command_x(tool_build_tunnel)
+	local remover = command_x(tool_remover)
+	local setslope = command_x.set_slope
+
+	// Prepare area
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(1, 1, 1)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(2, 1, 1)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(1, 2, 1)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(2, 2, 1)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(1, 3, 1)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(2, 3, 1)), null)
+
+	{
+		// build lone tunnel mouths
+		digger.set_flags(2)
+		ASSERT_EQUAL(digger.work(pl, tile_x(1, 0, 0), default_tunnel.get_name()), null)
+		ASSERT_EQUAL(digger.work(pl, tile_x(1, 3, 0), default_tunnel.get_name()), null)
+		digger.set_flags(0)
+
+		// make double slope
+		ASSERT_EQUAL(digger.work(pl, tile_x(1, 0, 0), tile_x(1, 1, 0), default_tunnel.get_name()), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(1, 1, 0), slope.all_down_slope), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(1, 1, -1), slope.all_down_slope), null)
+
+		local net_wealth = pl.get_current_net_wealth()
+
+		// try to tunnel across
+		ASSERT_EQUAL(digger.work(pl, tile_x(1, 0, 0), tile_x(1, 3, 0), default_tunnel.get_name()), null)
+
+		// nothing should be buid here
+		ASSERT_EQUAL( net_wealth, pl.get_current_net_wealth() )
+
+		// remove lone tunnel mouth
+		ASSERT_EQUAL(remover.work(pl, coord3d(1, 3,  0)), null)
+
+		// try to build across it - should fail and not build anything since the tunnel builder
+		// only builds straight tunnels with no elevation changes
+		// however, the player cannot call it like this since before the find_end_pos will return an invalid coordinate
+		local err = digger.work(pl, tile_x(1, 3, 0), default_tunnel.get_name())
+		ASSERT_EQUAL(err, "Tunnel must start on single way!")
+	}
+	// clean up
+	ASSERT_EQUAL(remover.work(pl, coord3d(1, 1, -2)), null)
+	ASSERT_EQUAL(remover.work(pl, coord3d(1, 0,  0)), null)
+
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(1, 1, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(2, 1, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(1, 2, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(2, 2, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(1, 3, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(2, 3, 1)), null)
+
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
 function test_way_tunnel_make_public()
 {
 	local pl = player_x(0)

@@ -230,6 +230,7 @@ all_tests <- [
 	test_way_tunnel_build_straight,
 	test_way_tunnel_build_up_down,
 	test_way_tunnel_build_above_tunnel_slope,
+	test_way_tunnel_build_across_tunnel_slope,
 	test_way_tunnel_make_public,
 	test_wayobj_build_straight,
 	test_wayobj_build_disconnected,

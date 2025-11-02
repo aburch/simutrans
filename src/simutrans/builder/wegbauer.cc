@@ -1692,7 +1692,7 @@ void way_builder_t::intern_calc_straight_route(const koord3d start, const koord3
 	test_bd = welt->lookup(ziel);
 	// we have to reach target height if no tunnel building or (target ground does not exists or is underground).
 	// in full underground mode if there is no tunnel under cursor, kartenboden gets selected
-	const bool target_3d = (bautyp&tunnel_flag)==0  ||  test_bd==NULL  ||  !test_bd->ist_karten_boden();
+	const bool target_3d = (bautyp&tunnel_flag)==0  ||  test_bd==NULL  ||  test_bd->ist_karten_boden();
 	if((bautyp&tunnel_flag)==0) {
 		//same thing to the target point
 		ok = false;
