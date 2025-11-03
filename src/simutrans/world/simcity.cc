@@ -218,7 +218,7 @@ bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, int rotation)
 				break;
 			case 'n':
 				// nature/empty
-				if (!gr->ist_natur() || gr->kann_alle_obj_entfernen(NULL) != NULL) return false;
+				if (!gr->ist_natur()  ||  gr->kann_alle_obj_entfernen(NULL) != NULL) return false;
 				break;
 			case 'U':
 				// unbuildable for road

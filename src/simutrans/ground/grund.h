@@ -624,6 +624,11 @@ public:
 	const char * kann_alle_obj_entfernen(const player_t *player) const { return objlist.kann_alle_entfernen(player,offsets[flags/has_way1]); }
 
 	/**
+	* @return NULL wenn OK, oder Meldung, warum nicht
+	*/
+	const char* can_really_remove_all(const player_t* player) const { return objlist.kann_alle_entfernen(player, 0); }
+
+	/**
 	* Interface zum Bauen und abfragen von Gebaeuden
 	* =============================================
 	*/

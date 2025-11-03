@@ -418,10 +418,10 @@ void leitung_t::rdwr(loadsave_t *file)
 // players can remove public owned powerlines
 const char *leitung_t::get_removal_error(const player_t *player)
 {
-	if(  get_owner_nr()==PLAYER_PUBLIC_NR  &&  player  ) {
+	if(  get_owner_nr()==PLAYER_PUBLIC_NR  ||  player->get_player_nr() == get_owner_nr()  ||  player->is_public_service()  ) {
 		return NULL;
 	}
-	return obj_t::get_removal_error(player);
+	return "Der Besitzer erlaubt das Entfernen nicht";
 }
 
 
