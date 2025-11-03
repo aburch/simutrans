@@ -2615,7 +2615,7 @@ void stadt_t::check_bau_townhall(bool new_town, const building_desc_t* desc, sin
 			townhall_road = koord::invalid;
 
 			for (sint8 i = 0; i < 4; i++) {
-				uint8 dir = ribi_t::layout_to_ribi[layout & 3];
+				uint8 dir = ribi_t::layout_to_ribi[(layout + i)&3];
 				switch (dir) {
 				case ribi_t::east:
 					road0.x = road1.x = size.x;

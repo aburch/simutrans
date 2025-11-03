@@ -68,17 +68,20 @@ function test_city_add_near_map_border()
 		ASSERT_EQUAL(command_x(tool_add_city).work(player_x(1), coord3d(0, 15, 0)), null)
 
 		ASSERT_TRUE(tile_x(0, 14, 0).find_object(mo_building) != null)
-		ASSERT_TRUE(tile_x(0, 15, 0).get_way(wt_road) != null)
+		ASSERT_TRUE(tile_x(1, 13, 0).get_way(wt_road) != null)
+		ASSERT_TRUE(tile_x(1, 14, 0).get_way(wt_road) != null)
 		ASSERT_TRUE(tile_x(1, 15, 0).get_way(wt_road) != null)
 	}
 
 	// clean up
 	ASSERT_EQUAL(command_x(tool_remover).work(player_x(1), coord3d(0, 14, 0)), null)
 	// street
-	ASSERT_EQUAL(command_x(tool_remover).work(player_x(1), coord3d(0, 15, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(player_x(1), coord3d(1, 13, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(player_x(1), coord3d(1, 14, 0)), null)
 	ASSERT_EQUAL(command_x(tool_remover).work(player_x(1), coord3d(1, 15, 0)), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
+
 
 function test_city_change_size_invalid_params()
 {
