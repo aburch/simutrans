@@ -1872,6 +1872,8 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player)
 {
 	sint64 cost=0;
 
+	assert(slope_t::is_way(slope));
+
 	// not already there?
 	const weg_t * alter_weg = get_weg(weg->get_waytype());
 	if(alter_weg==NULL) {

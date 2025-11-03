@@ -2430,6 +2430,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 }
 
 
+
 void stadt_t::check_bau_townhall(bool new_town, const building_desc_t* desc, sint16 rotation)
 {
 	if (desc == NULL) {
@@ -2610,8 +2611,12 @@ void stadt_t::check_bau_townhall(bool new_town, const building_desc_t* desc, sin
 			koord road0(0,0);
 			koord road1(0,0);
 			koord size = desc->get_size(layout);
+			koord origin = new_gb->get_pos().get_2d();
+			townhall_road = koord::invalid;
 
-			switch (dir) {
+			for (sint8 i = 0; i < 4; i++) {
+				uint8 dir = ribi_t::layout_to_ribi[layout & 3];
+				switch (dir) {
 				case ribi_t::east:
 					road0.x = road1.x = size.x;
 					road0.y = -neugruendung;
@@ -2633,40 +2638,16 @@ void stadt_t::check_bau_townhall(bool new_town, const building_desc_t* desc, sin
 					road0.x = -neugruendung;
 					road1.x = size.x - umziehen;
 					break;
-			}
-			// make them one tile shorter, if not lookup
-			gr = welt->lookup_kartenboden(best_pos + road0);
-			if (!gr  ||  !slope_t::is_way(gr->get_grund_hang())) {
-				if (dir == ribi_t::east || dir == ribi_t::west) {
-					road0.y ++;
 				}
-				else {
-					road0.x ++;
+				// build the road in front of the townhall, if possible
+				if (test_and_build_cityroad(origin + road0, origin + road1)) {
+					townhall_road = origin + road0;
+					break;
 				}
 			}
-			gr = welt->lookup_kartenboden(best_pos + road1);
-			if (!gr || !slope_t::is_way(gr->get_grund_hang())) {
-				if (dir == ribi_t::east || dir == ribi_t::west) {
-					road0.y --;
-				}
-				else {
-					road0.x --;
-				}
-			}
-			// build the road in front of the townhall
-			if (road0!=road1  &&  welt->lookup_kartenboden(best_pos + road0)  &&  welt->lookup_kartenboden(best_pos + road1)) {
-				way_builder_t bauigel(NULL);
-				bauigel.init_builder(way_builder_t::strasse | way_builder_t::terraform_flag, welt->get_city_road(), NULL, NULL);
-				bauigel.set_build_sidewalk(true);
-				bauigel.calc_straight_route(welt->lookup_kartenboden(best_pos + road0)->get_pos(), welt->lookup_kartenboden(best_pos + road1)->get_pos());
-				bauigel.build();
-			}
-			else {
-				build_road(best_pos + road0, NULL, true);
-			}
-			townhall_road = best_pos + road0;
+
 		}
-		if (umziehen  &&  alte_str != koord::invalid) {
+		if (umziehen  &&  alte_str != koord::invalid  &&  townhall_road != koord::invalid) {
 			// Strasse vom ehemaligen Rathaus zum neuen verlegen.
 			way_builder_t bauer(NULL);
 			bauer.init_builder(way_builder_t::strasse | way_builder_t::terraform_flag, welt->get_city_road());
@@ -3900,6 +3881,57 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 	}
 
 	return false;
+}
+
+
+
+// build a piece of straight road in front of a townhall and take care of flattening th eground etc
+bool stadt_t::test_and_build_cityroad(koord start, koord end)
+{
+	if (start == end) {
+		return build_road(start, NULL, true);
+	}
+
+	const sint16 length = koord_distance(start, end);
+	const koord dir = (end - start) / length;
+	assert(dir.x + dir.y == 1);
+	minivec_tpl<sint8>heights(length);
+	for (sint8 i = 0; i <= length; i++) {
+		grund_t* gr = welt->lookup_kartenboden(start + dir * i);
+		if (!gr || gr->get_typ() != grund_t::boden) {
+			return false;
+		}
+		heights.append(gr->get_hoehe());
+		if (i > 0 && abs(heights[i - 1] - heights[i]) > 2) {
+			return false;
+		}
+	}
+	// now we have to planarise the slopes to have a way
+	for (sint8 i = 0; i <= length; i++) {
+		grund_t* gr = welt->lookup_kartenboden(start +dir*i);
+		if (i < length && heights[i] < heights[i + 1]) {
+			gr->set_grund_hang(slope_type(dir)*(heights[i+1]- heights[i]));
+			gr->calc_image();
+		}
+		else if (i > 0 && heights[i - 1] > heights[i]) {
+			gr->set_grund_hang(slope_type(-dir)*(heights[i-1] - heights[i]));
+			gr->calc_image();
+		}
+		else if(gr->get_grund_hang()) {
+			// any other tile: just planarise it
+			gr->set_grund_hang(slope_t::flat);
+			gr->calc_image();
+		}
+	}
+	// now all slopes should be correct, we can build
+	way_builder_t bauigel(NULL);
+	bauigel.init_builder(way_builder_t::strasse | way_builder_t::terraform_flag, welt->get_city_road(), NULL, NULL);
+	bauigel.set_build_sidewalk(true);
+	if (bauigel.calc_straight_route(welt->lookup_kartenboden(start)->get_pos(), welt->lookup_kartenboden(end)->get_pos())) {
+		return false;
+	}
+	bauigel.build();
+	return true;
 }
 
 
