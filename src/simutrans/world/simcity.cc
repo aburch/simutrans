@@ -3617,7 +3617,6 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 		}
 
 		// we need to connect to a neighbouring tile (or not building anything)
-		bool connections = 0;
 		sint8 r;
 		// try articicial slope. For this, we need to know the height of the tile with the conencting road
 		for (r = 0; r < 4; r++) {
@@ -3625,7 +3624,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 				if (gr->hat_weg(road_wt)) {
 
 					// try to connect
-					if (gr->get_weg_hang() != slope_t::flat  &&  ribi_t::doubles(ribi_type(gr->get_weg_hang()))&ribi_t::nesw[r]==0){
+					if (gr->get_weg_hang() != slope_t::flat  &&  (ribi_t::doubles(ribi_type(gr->get_weg_hang()))&ribi_t::nesw[r]) == 0) {
 						// this is on a slope => we can only connect in straight direction
 						continue;
 					}
