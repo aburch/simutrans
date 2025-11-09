@@ -22,6 +22,8 @@
 #include "../convoihandle_t.h"
 #include "simwin.h"
 
+#include "../dataobj/route.h"
+
 #include "../utils/cbuffer_t.h"
 
 class convoi_detail_t;
@@ -63,6 +65,10 @@ private:
 	button_t set_recovery_button;
 	button_t next_stop_button;
 	button_t reversed_button;
+	button_t route_show_button;
+	bool is_route_show;
+	route_t cnv_route;
+	void show_route(const bool);
 
 	gui_tab_panel_t switch_mode;
 	gui_aligned_container_t container_freight, container_stats, container_line, *container_top, container_details, container_stops;

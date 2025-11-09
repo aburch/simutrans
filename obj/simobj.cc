@@ -243,10 +243,18 @@ void obj_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 				// highlight this tile
 				display_blend( get_image(), xpos, start_ypos, owner_n, color_idx_to_rgb(COL_RED) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
 			}
+			else if(  obj_t::get_flag( convoy_way )  ) {
+			// highlight route tile
+			display_blend( get_image(), xpos, start_ypos, owner_n, color_idx_to_rgb(COL_SOFT_BLUE) | OUTLINE_FLAG | TRANSPARENT75_FLAG,0, is_dirty CLIP_NUM_PAR);
+		}
 		}
 		else if(  obj_t::get_flag( highlight )  ) {
 			// highlight this tile
 			display_blend( get_image(), xpos, start_ypos, owner_n, color_idx_to_rgb(COL_RED) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
+		}
+		else if(  obj_t::get_flag( convoy_way )  ) {
+			// highlight route tile
+			display_blend( get_image(), xpos, start_ypos, owner_n, color_idx_to_rgb(COL_SOFT_BLUE) | OUTLINE_FLAG | TRANSPARENT75_FLAG,0, is_dirty CLIP_NUM_PAR);
 		}
 	}
 }
