@@ -252,7 +252,7 @@ sint32 stadt_t::bewerte_pos(const koord pos, const rule_t &regel)
 {
 	const grund_t* gr = welt->lookup_kartenboden(pos);
 	if (!gr  ||  gr->kann_alle_obj_entfernen(NULL)) {
-		// cannot built on empty tiles or tiles with an other owners object
+		// cannot built on empty tiles or tiles with an other owner's object
 		return 0;
 	}
 
@@ -3623,15 +3623,14 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 		}
 
 		// we need to connect to a neighbouring tile (or not building anything)
-		bool connections = 0;
-		sint8 r;
+		sint8 connections = 0;
 		// try articicial slope. For this, we need to know the height of the tile with the conencting road
-		for (r = 0; r < 4; r++) {
+		for (sint8 r = 0; r < 4; r++) {
 			if (grund_t* gr = welt->lookup_kartenboden(k + koord::nesw[r])) {
 				if (gr->hat_weg(road_wt)) {
 
 					// try to connect
-					if (gr->get_weg_hang() != slope_t::flat  &&  ribi_t::doubles(ribi_type(gr->get_weg_hang()))&ribi_t::nesw[r]==0){
+					if (gr->get_weg_hang() != slope_t::flat  &&  (ribi_t::doubles(ribi_type(gr->get_weg_hang()))&ribi_t::nesw[r])==0){
 						// this is on a slope => we can only connect in straight direction
 						continue;
 					}
@@ -3677,7 +3676,6 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 						}
 						else if (bd->get_hoehe() == target_h) {
 							// up slope
-							sint8 max_h = bd->get_hoehe() + slope_t::max_diff(bd->get_grund_hang());
 							bd->set_grund_hang(slope_type(ribi_t::backward(ribi_t::nesw[r])));
 						}
 						else if (bd->get_hoehe() - 1 == target_h) {

@@ -175,7 +175,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 
 		if(  sort_mode == by_via_sum  ) {
 			// via sort mode merges packets with a common next stop
-			for(  int i=0;  i<pos;  i++  ) {
+			for(  uint32 i=0;  i<pos;  i++  ) {
 				ware_t& wi = wlist[i];
 				if(wi.get_index() == ware.get_index()) {
 					bool merge = wi.get_target_halt() == ware.get_target_halt();
@@ -201,7 +201,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 
 		if (sort_mode == by_connection) {
 			// connection mode merges packets with all their next connections common
-			for (int i = 0; i < pos; i++) {
+			for (  uint32 i = 0; i < pos; i++) {
 				ware_t& wi = wlist[i];
 				if (wi.get_index() == ware.get_index()) {
 					halthandle_t w_next = ware.get_next_halt();
@@ -255,7 +255,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			// player sort mode merges packets which next stop is owned by the
 			// same player
 			player_t* owner = ware.get_next_halt()->get_owner();
-			for(  int i=0;  i<pos;  i++  ) {
+			for(  uint32 i=0;  i<pos;  i++  ) {
 				ware_t& wi = wlist[i];
 				if(  wi.get_index()==ware.get_index()  &&  wi.get_next_halt().is_bound()  &&  wi.get_next_halt()->get_owner() == owner  ) {
 					ware_t::goods_amount_t const remaining_amount = wi.add_goods(ware.amount);
@@ -289,7 +289,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 		int last_goods_index = -1;
 		int last_ware_catg = -1;
 
-		for(  int j = 0;  j < pos;  j++  ) {
+		for(  uint32 j = 0;  j < pos;  j++  ) {
 			halthandle_t const halt     = wlist[j].get_target_halt();
 			halthandle_t const via_halt = wlist[j].get_via_halt();
 
