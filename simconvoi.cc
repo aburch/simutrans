@@ -3734,13 +3734,19 @@ void calc_reachable_halts(vector_tpl<haltestelle_t::reachable_halt_t>& reachable
 void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_steps)
 {
 	convoihandle_t c = self;
+
+
 	if(  get_coupling_convoi().is_bound() && !is_coupled()  ) {
 		convoihandle_t const temp_parent_convoi = self;
 		bool coupled_at_this_stop = false;
 		while(  c->get_coupling_convoi().is_bound()  ) {
+			// if this convoy is trying coupling, we must check the direction and reverse if needed.
+			// THIS CHECK IS ONLY ONECE IN ONE COUPLING!
 			c = c->get_coupling_convoi();
 			coupled_at_this_stop |= ( c->get_schedule()->get_current_entry().is_try_coupling() && c->is_coupling_done() );
-			if(c->get_schedule()->get_current_entry().is_try_coupling()) {c->set_coupling_done(false);}
+			if(c->get_schedule()->get_current_entry().is_try_coupling()) {
+				c->set_coupling_done(false);
+			}
 		}
 		if(  coupled_at_this_stop && c->get_schedule()->get_count()>1  ) {
 			dbg->message("convoi_t::hat_gehalten()","%s coupling at this stop. check the direction at %s",get_name(),temp_parent_convoi->front()->get_pos().get_str());
