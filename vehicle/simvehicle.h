@@ -616,8 +616,6 @@ public:
 	bool check_longblock_signal(signal_t *sig, uint16 start_index, sint32 &restart_speed);
 };
 
-
-
 /**
  * very similar to normal railroad, so we can implement it here completely ...
  * @see vehicle_t
