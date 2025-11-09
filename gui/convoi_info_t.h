@@ -67,7 +67,7 @@ private:
 	button_t reversed_button;
 	button_t route_show_button;
 	bool is_route_show;
-	route_t *cnv_route;
+	route_t cnv_route;
 	void show_route(const bool);
 
 	gui_tab_panel_t switch_mode;

@@ -186,11 +186,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 		route_show_button.set_tooltip("show route of this convoy.");
 		route_show_button.add_listener(this);
 		is_route_show=false;
-		cnv_route = new route_t();
 		add_component(&route_show_button);
-
-		// new_component<gui_fill_t>();
-		// new_component<gui_fill_t>();
 	}
 	end_table();
 
@@ -494,9 +490,9 @@ koord3d convoi_info_t::get_weltpos( bool set )
 
 void convoi_info_t::show_route(bool const yesno)
 {
-	if(!cnv_route->empty()) {
-		for( uint32 i=0; i<cnv_route->get_count(); i++) {
-			if (grund_t* const gr = welt->lookup(cnv_route->at(i))) {
+	if(!cnv_route.empty()) {
+		for( uint32 i=0; i<cnv_route.get_count(); i++) {
+			if (grund_t* const gr = welt->lookup(cnv_route.at(i))) {
 				for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
 					obj_t *obj = gr->obj_bei(idx);
 					obj->clear_flag( obj_t::convoy_way );
@@ -504,7 +500,7 @@ void convoi_info_t::show_route(bool const yesno)
 				gr->set_flag( grund_t::dirty );
 			}
 		}
-		cnv_route->clear();
+		cnv_route.clear();
 	}
 	if(!cnv.is_bound() || route_search_in_progress || cnv->get_state()==convoi_t::EDIT_SCHEDULE || cnv->get_route()->get_count()<1) {
 		return;
@@ -512,14 +508,16 @@ void convoi_info_t::show_route(bool const yesno)
 	// draw route
 	if(yesno) {
 		for( uint32 i=0; i<cnv->get_route()->get_count(); i++) {
-			cnv_route->append(cnv->get_route()->at(i));
+			cnv_route.append(cnv->get_route()->at(i));
 		}
-		if(!cnv_route->empty()) {
-			for( uint32 i=0; i<cnv_route->get_count(); i++) {
-				if (grund_t* const gr = welt->lookup(cnv_route->at(i))) {
+		if(!cnv_route.empty()) {
+			for( uint32 i=0; i<cnv_route.get_count(); i++) {
+				if (grund_t* const gr = welt->lookup(cnv_route.at(i))) {
 					for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
 						obj_t *obj = gr->obj_bei(idx);
-						obj->set_flag( obj_t::convoy_way );
+						if(  !obj->is_moving()  ) {
+							obj->set_flag( obj_t::convoy_way );
+						}
 					}
 					gr->set_flag( grund_t::dirty );
 				}
