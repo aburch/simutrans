@@ -545,11 +545,11 @@ public:
 	static sint8 reverse_base_offsets[8][3];
 	// define reversible waytype
 	static bool reversible_waytype(waytype_t w) {
-		return	w!=waytype_t::invalid_wt||
-		w!=waytype_t::ignore_wt         ||
-		w!=waytype_t::road_wt           ||
-		w!=waytype_t::air_wt            ||
-		w!=waytype_t::powerline_wt      ||
+		return	w!=waytype_t::invalid_wt&&
+		w!=waytype_t::ignore_wt         &&
+		w!=waytype_t::road_wt           &&
+		w!=waytype_t::air_wt            &&
+		w!=waytype_t::powerline_wt      &&
 		w!=waytype_t::any_wt;
 	}
 };
