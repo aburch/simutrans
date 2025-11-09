@@ -40,8 +40,12 @@ field_t::~field_t()
 
 
 
-const char *field_t::get_removal_error(const player_t *)
+const char *field_t::get_removal_error(const player_t *p)
 {
+	if (p == NULL) {
+		// not allowed by city growth
+		return "Der Besitzer erlaubt das Entfernen nicht";
+	}
 	// we allow removal, if there is less than
 	return (fab->get_field_count() > fab->get_desc()->get_field_group()->get_min_fields()) ? NULL : "Not enough fields would remain.";
 }

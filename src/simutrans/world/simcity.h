@@ -158,7 +158,7 @@ private:
 	koord townhall_road;   // road in front of townhall
 	koord lo, ur;          // max size of housing area
 	koord last_center;
-	bool  has_low_density; // in this case extend borders by two
+	bool  has_high_density; // in this case extend borders by two
 
 	bool allow_citygrowth; // town can be static and will grow (true by default)
 
@@ -390,10 +390,15 @@ private:
 	koord evaluate_size_res_com_ind(const koord pos, int& ind_score, int& com_score, int& res_score, sint16& max_area, uint8& rotations, uint32& neighbor_building_clusters, vector_tpl<const building_desc_t*>& exclude);
 
 	/**
-	 * Build/renovates a city building at Planquadrat (tile) x,y
+	 * Builds a city building at Planquadrat (tile) x,y
 	 */
 	void build_city_building(koord pos);
-	void renovate_city_building(gebaeude_t *gb);
+
+	/**
+	 * Renovates a city building at Planquadrat (tile) x,y
+	 * true, if somethign was renovated
+	 */
+	bool renovate_city_building(gebaeude_t *gb);
 
 #ifdef DESTINATION_CITYCARS
 	sint16 number_of_cars; // allowed number of cars to spawn per month

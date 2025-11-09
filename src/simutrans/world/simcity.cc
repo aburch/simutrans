@@ -610,7 +610,7 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 			}
 		}
 		// no update of city limits
-		// as has_low_density may depend on the order the buildings list is filled
+		// as has_high_density may depend on the order the buildings list is filled
 		if (!ordered) {
 			// check borders
 			recalc_city_size();
@@ -671,7 +671,7 @@ bool stadt_t::is_within_players_network(const player_t* player) const
 void stadt_t::recalc_city_size()
 {
 	// WARNING: do not call this during multithreaded loading,
-	// as has_low_density may depend on the order the buildings list is filled
+	// as has_high_density may depend on the order the buildings list is filled
 	lo = pos;
 	ur = pos;
 	for(gebaeude_t* const i : buildings) {
@@ -682,8 +682,8 @@ void stadt_t::recalc_city_size()
 		}
 	}
 
-	has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/((ur.x-lo.x)*(ur.y-lo.y)+1) > min_building_density);
-	if(  has_low_density  ) {
+	has_high_density = (buildings.get_count()<10  ||  get_homeless() > 2500  ||  get_unemployed() > 2500  ||  (buildings.get_count()*100l)/((ur.x-lo.x)*(ur.y-lo.y)+1) > min_building_density);
+	if(  has_high_density  ) {
 		// wider borders for faster growth of sparse small towns
 		lo -= koord(2,2);
 		ur += koord(2,2);
@@ -989,7 +989,7 @@ stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens, const building_de
 	next_step = 0;
 	step_interval = 1;
 	next_growth_step = 0;
-	has_low_density = false;
+	has_high_density = false;
 	has_townhall = false;
 
 	stadtinfo_options = 3; // citizen and growth
@@ -1090,7 +1090,7 @@ stadt_t::stadt_t(loadsave_t* file) :
 	next_step = 0;
 	step_interval = 1;
 	next_growth_step = 0;
-	has_low_density = false;
+	has_high_density = false;
 	has_townhall = false;
 
 	unsupplied_city_growth = 0;
@@ -3423,10 +3423,10 @@ void stadt_t::build_city_building(koord k_org)
 
 
 
-void stadt_t::renovate_city_building(gebaeude_t *gb)
+bool stadt_t::renovate_city_building(gebaeude_t *gb)
 {
 	if(  !gb->is_city_building()  ||  gb->get_first_tile() != gb) {
-		return; // only renovate res, com, ind
+		return false; // only renovate res, com, ind
 	}
 	const building_desc_t::btype alt_typ = gb->get_tile()->get_desc()->get_type();
 
@@ -3436,7 +3436,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 
 	if(  welt->get_timeline_year_month() > gb_desc->no_renovation_month()  ) {
 		// this is a historic city building (as defined by the pak set author), so do not renovate
-		return;
+		return false;
 	}
 
 	const koord3d base_pos = gb->get_pos();
@@ -3455,7 +3455,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 
 	koord k = evaluate_size_res_com_ind(base_pos.get_2d(), industrial_suitability, commercial_suitability, residential_suitability, max_area, rotation, neighbor_building_clusters, exclude_desc);
 	if (k == koord::invalid) {
-		return;
+		return false;
 	}
 
 	const int sum_industrial   = industrial_suitability  + employment_wanted;
@@ -3505,13 +3505,13 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 
 	if (h == NULL) {
 		// no matching building found ...
-		return;
+		return false;
 	}
 
 	// only renovate, if there is a change in level
 	if (h->get_level() < gb_desc->get_level()  &&  h->get_type() == gb_desc->get_type()) {
 		// same level, no reason to replace
-		return;
+		return false;
 	}
 
 	if (alt_typ != want_to_have) {
@@ -3553,6 +3553,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 
 		recalc_city_size();
 	}
+	return true;
 }
 
 
@@ -4034,7 +4035,7 @@ bool stadt_t::test_and_build_cityroad(koord start, koord end)
 // will check a single random pos in the city, then build will be called
 void stadt_t::build()
 {
-	const koord k(lo + koord::koord_random(ur.x - lo.x + 2,ur.y - lo.y + 2)-koord(1,1) );
+	const koord k = koord(lo + koord::koord_random(ur.x - lo.x, ur.y - lo.y));
 
 	// do not build on any border tile
 	if(  !welt->is_within_limits(k+koord(1,1))  ||  k.x<=0  ||  k.y<=0  ) {
@@ -4058,7 +4059,24 @@ void stadt_t::build()
 		return;
 	}
 
-	// not good for road => test for house
+	// renovation (only done when nothing matches a certain location
+	if (!buildings.empty() && simrand(100) <= renovation_percentage) {
+		// try to find a public owned building
+		for (uint8 i = 0; i < 4; i++) {
+			gebaeude_t* gb = pick_any(buildings);
+			if (player_t::check_owner(gb->get_owner(), NULL)) {
+				if (gb->get_tile()->get_offset() != koord(0, 0)) {
+					// go to tile origin to make sure we replace all tiles of a multitle building
+					grund_t* gr = welt->lookup_kartenboden(gb->get_pos().get_2d() - gb->get_tile()->get_offset());
+					gb = gr->find<gebaeude_t>();
+				}
+				if (renovate_city_building(gb)) {
+					INT_CHECK("simcity 876");
+					return;
+				}
+			}
+		}
+	}
 
 	// since only a single location is checked, we can stop after we have found a positive rule
 	best_haus.reset(k);
@@ -4073,24 +4091,6 @@ void stadt_t::build()
 		build_city_building(best_haus.get_pos());
 		INT_CHECK("simcity 1163");
 		return;
-	}
-
-	// renovation (only done when nothing matches a certain location
-	if(  !buildings.empty()  &&  simrand(100) <= renovation_percentage  ) {
-		// try to find a public owned building
-		for(  uint8 i=0;  i<4;  i++  ) {
-			gebaeude_t *gb = pick_any(buildings);
-			if(  player_t::check_owner(gb->get_owner(),NULL)  ) {
-				if (gb->get_tile()->get_offset() != koord(0, 0)) {
-					// go to tile origin to make sure we replace all tiles of a multitle building
-					grund_t *gr = welt->lookup_kartenboden(gb->get_pos().get_2d() - gb->get_tile()->get_offset());
-					gb = gr->find<gebaeude_t>();
-				}
-				renovate_city_building(gb);
-				break;
-			}
-		}
-		INT_CHECK("simcity 876");
 	}
 }
 
