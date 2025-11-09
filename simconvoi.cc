@@ -3741,7 +3741,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 		bool coupled_at_this_stop = false;
 		while(  c->get_coupling_convoi().is_bound()  ) {
 			// if this convoy is trying coupling, we must check the direction and reverse if needed.
-			// THIS CHECK IS ONLY ONECE IN ONE COUPLING!
+			// THIS CHECK IS ONLY ONECE IN ONE COUPLING! We use a coupling_done flag in try_coupling convoy to know.
 			c = c->get_coupling_convoi();
 			coupled_at_this_stop |= ( c->get_schedule()->get_current_entry().is_try_coupling() && c->is_coupling_done() );
 			if(c->get_schedule()->get_current_entry().is_try_coupling()) {
