@@ -218,7 +218,7 @@ bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, int rotation)
 				break;
 			case 'n':
 				// nature/empty
-				if (!gr->ist_natur()  ||  gr->kann_alle_obj_entfernen(NULL) != NULL) return false;
+				if (!gr->ist_natur()) return false;
 				break;
 			case 'U':
 				// unbuildable for road
@@ -250,6 +250,12 @@ bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, int rotation)
  */
 sint32 stadt_t::bewerte_pos(const koord pos, const rule_t &regel)
 {
+	const grund_t* gr = welt->lookup_kartenboden(pos);
+	if (!gr  ||  gr->kann_alle_obj_entfernen(NULL)) {
+		// cannot built on empty tiles or tiles with an other owners object
+		return 0;
+	}
+
 	// will be called only a single time, so we can stop after a single match
 	if(bewerte_loc(pos, regel,   0) ||
 		 bewerte_loc(pos, regel,  90) ||
@@ -3617,6 +3623,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 		}
 
 		// we need to connect to a neighbouring tile (or not building anything)
+		bool connections = 0;
 		sint8 r;
 		// try articicial slope. For this, we need to know the height of the tile with the conencting road
 		for (r = 0; r < 4; r++) {
@@ -3624,7 +3631,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 				if (gr->hat_weg(road_wt)) {
 
 					// try to connect
-					if (gr->get_weg_hang() != slope_t::flat  &&  (ribi_t::doubles(ribi_type(gr->get_weg_hang()))&ribi_t::nesw[r]) == 0) {
+					if (gr->get_weg_hang() != slope_t::flat  &&  ribi_t::doubles(ribi_type(gr->get_weg_hang()))&ribi_t::nesw[r]==0){
 						// this is on a slope => we can only connect in straight direction
 						continue;
 					}
@@ -4036,46 +4043,38 @@ void stadt_t::build()
 		return;
 	}
 
-	grund_t *gr = welt->lookup_kartenboden(k);
-	if(gr==NULL) {
+	// ATTENTION: the building position IS NOT this position; the is merely where the rule search starts
+
+	// since only a single location is checked, we can stop after we have found a positive rule
+	best_strasse.reset(k);
+	const uint32 num_road_rules = road_rules.get_count();
+	uint32 offset = simrand(num_road_rules); // start with random rule
+	for (uint32 i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
+		uint32 rule = ( i+offset ) % num_road_rules;
+		bewerte_strasse(k, 8 + road_rules[rule]->chance, *road_rules[rule]);
+	}
+	// ok => then built road
+	if (best_strasse.found()) {
+		build_road(best_strasse.get_pos(), NULL, false);
+		INT_CHECK("simcity 1156");
 		return;
 	}
 
-	// checks only make sense on empty ground
-	if(gr->ist_natur()) {
+	// not good for road => test for house
 
-		// since only a single location is checked, we can stop after we have found a positive rule
-		best_strasse.reset(k);
-		const uint32 num_road_rules = road_rules.get_count();
-		uint32 offset = simrand(num_road_rules); // start with random rule
-		for (uint32 i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
-			uint32 rule = ( i+offset ) % num_road_rules;
-			bewerte_strasse(k, 8 + road_rules[rule]->chance, *road_rules[rule]);
-		}
-		// ok => then built road
-		if (best_strasse.found()) {
-			build_road(best_strasse.get_pos(), NULL, false);
-			INT_CHECK("simcity 1156");
-			return;
-		}
-
-		// not good for road => test for house
-
-		// since only a single location is checked, we can stop after we have found a positive rule
-		best_haus.reset(k);
-		const uint32 num_house_rules = house_rules.get_count();
-		offset = simrand(num_house_rules); // start with random rule
-		for(  uint32 i = 0;  i < num_house_rules  &&  !best_haus.found();  i++  ) {
-			uint32 rule = ( i+offset ) % num_house_rules;
-			bewerte_haus(k, 8 + house_rules[rule]->chance, *house_rules[rule]);
-		}
-		// one rule applied?
-		if(  best_haus.found()  ) {
-			build_city_building(best_haus.get_pos());
-			INT_CHECK("simcity 1163");
-			return;
-		}
-
+	// since only a single location is checked, we can stop after we have found a positive rule
+	best_haus.reset(k);
+	const uint32 num_house_rules = house_rules.get_count();
+	offset = simrand(num_house_rules); // start with random rule
+	for(  uint32 i = 0;  i < num_house_rules  &&  !best_haus.found();  i++  ) {
+		uint32 rule = ( i+offset ) % num_house_rules;
+		bewerte_haus(k, 8 + house_rules[rule]->chance, *house_rules[rule]);
+	}
+	// one rule applied?
+	if(  best_haus.found()  ) {
+		build_city_building(best_haus.get_pos());
+		INT_CHECK("simcity 1163");
+		return;
 	}
 
 	// renovation (only done when nothing matches a certain location
