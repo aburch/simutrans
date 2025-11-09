@@ -160,6 +160,7 @@ void convoi_t::init(player_t *player)
 	next_coupling_steps = 0;
 
 	coupling_done = false;
+	uncouple_done = false;
 
 	coupling_convoi = convoihandle_t();
 
@@ -1945,8 +1946,6 @@ void convoi_t::ziel_erreicht()
 			c->set_arrived_time(world()->get_ticks());
 			c = c->get_coupling_convoi();
 		}
-		// check uncouple its child (set in schedule_entry)
-		uncouple_convoy_by_schedule_setting();
 	}
 	else {
 		// Neither depot nor station: waypoint
@@ -2447,6 +2446,7 @@ void convoi_t::vorfahren()
 		// the back vehicles position is set.
 		if (c->reversing_needed){
 			c->reverse_vehicles_at_halt_if_needed();
+			c->uncouple_done = false;
 		}
 		c = c->get_coupling_convoi();
 	}
@@ -3211,6 +3211,11 @@ void convoi_t::rdwr(loadsave_t *file)
 		reversed = false;
 		reversing_needed = true;
 	}
+	if(  file->get_OTRP_version()>=47  ) {
+		file->rdwr_bool(uncouple_done);
+	} else {
+		uncouple_done=false;
+	}
 
 	if(  file->is_loading()  ) {
 		reserve_route();
@@ -3737,8 +3742,8 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 {
 	convoihandle_t c = self;
 
-
 	if(  get_coupling_convoi().is_bound() && !is_coupled()  ) {
+		uncouple_convoy_by_schedule_setting();
 		convoihandle_t const temp_parent_convoi = self;
 		bool coupled_at_this_stop = false;
 		while(  c->get_coupling_convoi().is_bound()  ) {
@@ -5722,8 +5727,9 @@ void convoi_t::uncouple_convoy_by_schedule_setting()
 	while( c.is_bound() ) {
 		// to keep child convoy because it may be uncouple now!
 		convoihandle_t child_convoy = c->get_coupling_convoi();
-		if(c->get_schedule()->get_current_entry().is_uncouple_child()) {
+		if(c->get_schedule()->get_current_entry().is_uncouple_child()&&!c->uncouple_done) {
 			c->uncouple_convoi();
+			c->uncouple_done=true;
 		}
 		c = child_convoy;
 	}

@@ -254,6 +254,11 @@ private:
 	bool no_load;
 
 	/**
+	* uncouple at this stop
+	*/
+	bool uncouple_done;
+
+	/**
 	* the convoi caches its freight info; it is only recalculation after loading or resorting
 	*/
 	bool freight_info_resort;
