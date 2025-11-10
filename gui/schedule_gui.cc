@@ -586,9 +586,11 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	}
 	end_table();
 
+	// maximum loading
 	add_table(2,1);
 	{
 		add_component(&lb_max_load);
+		lb_max_load.set_tooltip("set maximum loading ratio");
 
 		numimp_max_load.set_width( 60 );
 		numimp_max_load.set_value( schedule->get_current_entry().maximum_loading );
