@@ -153,6 +153,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	add_component(&lb_convoi_weight);
 	add_component(&cont_convoi_capacity);
 	add_component(&lb_child_convoy);
+	add_component(&lb_convoi_balance_speed);
 
 	sb_convoi_length.set_base( depot->get_max_convoi_length() * CARUNITS_PER_TILE / 2 - 1);
 	sb_convoi_length.set_vertical(false);
@@ -283,6 +284,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	lb_convoi_value.set_text_pointer( txt_convoi_value );
 	lb_convoi_power.set_text_pointer( txt_convoi_power );
 	lb_convoi_weight.set_text_pointer( txt_convoi_weight );
+	lb_convoi_balance_speed.set_text_pointer( txt_convoi_balance_speed );
 
 	// Bolt image for electrified depots:
 	add_component(&img_bolt);
@@ -523,6 +525,8 @@ void depot_frame_t::layout(scr_size *size)
 
 	lb_convoi_speed.set_pos(scr_coord(D_MARGIN_LEFT, CINFO_VSTART + LINESPACE * 3));
 	lb_convoi_speed.set_width(win_size.w - D_MARGIN_RIGHT - D_MARGIN_LEFT);
+	lb_convoi_balance_speed.set_pos(scr_coord(second_column_x, CINFO_VSTART + LINESPACE * 3));
+	lb_convoi_balance_speed.set_width(second_column_w);
 
 	/*
 	 * [ACTIONS]
@@ -1205,7 +1209,7 @@ void depot_frame_t::update_data()
 				}
 			}
 
-			sint32 empty_kmh, sel_kmh, max_kmh, min_kmh;
+			sint32 empty_kmh, sel_kmh, max_kmh, min_kmh, balance_kmh;
 			if(  cnv->front()->get_waytype() == air_wt  ) {
 				// flying aircraft have 0 friction --> speed not limited by power, so just use top_speed
 				empty_kmh = sel_kmh = max_kmh = min_kmh = speed_to_kmh( cnv->get_min_top_speed() );
@@ -1215,6 +1219,7 @@ void depot_frame_t::update_data()
 				sel_kmh =   speed_to_kmh(convoi_t::calc_max_speed(total_power, total_selected_weight, cnv->get_min_top_speed()));
 				max_kmh =   speed_to_kmh(cnv->get_min_top_speed());
 				min_kmh =   speed_to_kmh(convoi_t::calc_max_speed(total_power, total_max_weight,   cnv->get_min_top_speed()));
+				balance_kmh = speed_to_kmh(convoi_t::calc_max_speed(total_power, use_sel_weight? total_selected_weight: total_max_weight, kmh_to_speed(test_balance_kmh)));
 			}
 
 			const sint32 convoi_length = (cnv->get_vehicle_count()) * CARUNITS_PER_TILE / 2 - 1;
@@ -1250,6 +1255,7 @@ void depot_frame_t::update_data()
 					convoi_length_slower_sb = 0;
 					convoi_length_too_slow_sb = convoi_length;
 				}
+				txt_convoi_balance_speed.printf("%s %d");
 			}
 			else {
 					txt_convoi_speed.printf("%s %d km/h", translator::translate("Max. speed:"), empty_kmh );
@@ -1300,6 +1306,14 @@ void depot_frame_t::update_data()
 			else {
 					txt_convoi_weight.printf("%s %.1ft", translator::translate("Weight:"), total_empty_weight / 1000.0 );
 			}
+			txt_convoi_balance_speed.clear();
+			if(  cnv->front()->get_waytype() != air_wt  ) {
+				if(  balance_kmh<test_balance_kmh  ) {
+					txt_convoi_balance_speed.printf("%s %d km/h","Balance speed:", balance_kmh);
+				} else {
+					txt_convoi_balance_speed.printf("Balance speed: UNLIMITED");
+				}
+			}
 		}
 		else {
 			txt_convoi_count.clear();
@@ -1308,6 +1322,7 @@ void depot_frame_t::update_data()
 			txt_convoi_cost.clear();
 			txt_convoi_power.clear();
 			txt_convoi_weight.clear();
+			txt_convoi_balance_speed.clear();
 		}
 
 		sb_convoi_length.set_visible(true);
@@ -1321,6 +1336,7 @@ void depot_frame_t::update_data()
 		txt_convoi_cost.clear();
 		txt_convoi_power.clear();
 		txt_convoi_weight.clear();
+		txt_convoi_balance_speed.clear();
 		sb_convoi_length.set_visible(false);
 		cont_convoi_capacity.set_visible(false);
 		bt_reverse.disable();
