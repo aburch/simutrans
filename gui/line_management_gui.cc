@@ -17,7 +17,7 @@ line_management_gui_t::line_management_gui_t(linehandle_t line, player_t* player
 	schedule_gui_t()
 {
 	if (line.is_bound() ) {
-		schedule_gui_t::init(line->get_schedule()->copy(), player_, convoihandle_t() );
+		schedule_gui_t::init(line->get_schedule()->copy(), player_, convoihandle_t(), line->get_name() );
 
 		this->line = line;
 		// has this line a single running convoi?

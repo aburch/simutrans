@@ -23,6 +23,8 @@ halt mode
 追越車線にも停車
 avoid becoming cityroad
 市道化を禁止する
+No buildings along roadside.
+建物を接道しない
 Overtaking:
 追越設定:
 Can be cityroad:
@@ -323,6 +325,10 @@ Max speed of convoi: %i km/h
 #------その他の翻訳------
 next stop
 次の駅へ
+show route
+ルートを表示
+show route of this convoy.
+この編成のルートを表示します
 Max. wayobj speed:
 架線速度:
 Fetching server list...

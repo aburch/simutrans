@@ -46,6 +46,9 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 
 	mode_t mode;
 
+	gui_label_t lb_cnv_line_name;
+	char lb_cnv_line_name_str[256];
+
 	// only active with lines
 	button_t bt_promote_to_line;
 	gui_combobox_t line_selector, departure_slot_group_selector, next_line_selector;
@@ -100,10 +103,10 @@ protected:
 
 	linehandle_t new_line, old_line;
 
-	void init(schedule_t* schedule, player_t* player, convoihandle_t cnv);
+	void init(schedule_t* schedule, player_t* player, convoihandle_t cnv, const char* cnv_line_name = "");
 
 public:
-	schedule_gui_t(schedule_t* schedule = NULL, player_t* player = NULL, convoihandle_t cnv = convoihandle_t());
+	schedule_gui_t(schedule_t* schedule = NULL, player_t* player = NULL, convoihandle_t cnv = convoihandle_t(), const char* cnv_line_name = "");
 
 	virtual ~schedule_gui_t();
 
