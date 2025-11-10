@@ -342,8 +342,8 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 
 		numimp_load.set_width( 60 );
 		numimp_load.set_value( schedule->get_current_entry().minimum_loading );
-		numimp_load.set_limits( 0, 200 );
-		numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS );
+		numimp_load.set_limits( 0, 255 );
+		numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS2 );
 		numimp_load.add_listener(this);
 		add_component(&numimp_load);
 
@@ -594,8 +594,9 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 
 		numimp_max_load.set_width( 60 );
 		numimp_max_load.set_value( schedule->get_current_entry().maximum_loading );
-		numimp_max_load.set_limits( 0, 100 );
-		numimp_max_load.set_increment_mode( gui_numberinput_t::PROGRESS );
+		uint8 const max_load_value = (schedule->get_waytype()==air_wt || schedule->get_waytype()==road_wt)? 100: 100;// for overcrowd
+		numimp_max_load.set_limits( 0, max_load_value );
+		numimp_max_load.set_increment_mode( gui_numberinput_t::PROGRESS2 );
 		numimp_max_load.add_listener(this);
 		add_component(&numimp_max_load);		
 	}

@@ -29,6 +29,7 @@ private:
 
 	// more sophisticated increase routines
 	static uint8 percent[8];
+	static uint8 percent2[10];
 	sint32 get_prev_value();
 	sint32 get_next_value();
 
@@ -83,13 +84,15 @@ public:
 	enum {
 		AUTOLINEAR = 0,
 		POWER2     = -1,
-		PROGRESS   = -2
+		PROGRESS   = -2,
+		PROGRESS2  = -3
 	};
 
 	/**
 	 * AUTOLINEAR: linear increment, scroll wheel 1% range
 	 * POWER2: 16, 32, 64, ...
 	 * PROGRESS: 0, 1, 5, 10, 25, 50, 100, 200% of range
+	 * PROGRESS2: 0, 1, 5, 10, 25, 50, 100, 200, 250, 255%
 	 * any other mode value: actual step size
 	 */
 
