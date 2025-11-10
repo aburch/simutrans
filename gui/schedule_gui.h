@@ -59,8 +59,8 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 	button_t bt_revert, bt_return;
 	button_t bt_wait_load;
 
-	gui_label_t lb_wait, lb_load, lb_departure_slot_group;
-	gui_numberinput_t numimp_load, numimp_wait_load;
+	gui_label_t lb_wait, lb_load, lb_departure_slot_group, lb_max_load;
+	gui_numberinput_t numimp_load, numimp_wait_load, numimp_max_load;
 	
 	// for advanced settings
 	// coupling, load/unload only, temp schedule, departure time, max_speed

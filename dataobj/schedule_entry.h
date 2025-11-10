@@ -24,11 +24,12 @@ public:
 		init_convoy_stopping_time();
 	}
 
-	schedule_entry_t(koord3d const& pos, uint8 const minimum_loading, uint16 const waiting_time_shift, uint16 const stop_flags) :
+	schedule_entry_t(koord3d const& pos, uint8 const minimum_loading, uint16 const waiting_time_shift, uint16 const stop_flags, uint8 const maximum_loading) :
 		pos(pos),
 		minimum_loading(minimum_loading),
 		waiting_time_shift(waiting_time_shift),
-		stop_flags(stop_flags)
+		stop_flags(stop_flags),
+		maximum_loading(maximum_loading)
 	{
 		spacing = 1;
 		spacing_shift = delay_tolerance = 0;
@@ -62,6 +63,12 @@ public:
 	 * (ignored on waypoints)
 	 */
 	uint8 minimum_loading;
+
+	/**
+	* the maximum % value load at this stops
+	* (ignored on waypoints)
+	*/
+	uint8 maximum_loading;
 
 	/**
 	 * maximum waiting time in 1/n parts of a month
@@ -167,7 +174,8 @@ public:
 			&&  a.get_stop_flags()   == this->stop_flags
 			&&  a.spacing            == this->spacing
 			&&  a.spacing_shift      == this->spacing_shift
-			&&  a.delay_tolerance    == this->delay_tolerance;
+			&&  a.delay_tolerance    == this->delay_tolerance
+			&&  a.maximum_loading    == this->maximum_loading;
 	}
 };
 

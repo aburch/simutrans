@@ -246,6 +246,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoih
 	lb_departure_slot_group("Departure slot group"),
 	lb_max_speed("Maxspeed"),
 	lb_tbgr_waiting_time("Additional goods routing waiting time"),
+	lb_max_load("Max load"),
 	stats(new schedule_gui_stats_t() ),
 	scrolly(stats)
 {
@@ -584,6 +585,19 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		add_component(&next_line_selector);
 	}
 	end_table();
+
+	add_table(2,1);
+	{
+		add_component(&lb_max_load);
+
+		numimp_max_load.set_width( 60 );
+		numimp_max_load.set_value( schedule->get_current_entry().maximum_loading );
+		numimp_max_load.set_limits( 0, 100 );
+		numimp_max_load.set_increment_mode( gui_numberinput_t::PROGRESS );
+		numimp_max_load.add_listener(this);
+		add_component(&numimp_max_load);		
+	}
+	end_table();
 	
 	extract_advanced_settings(false);
 
@@ -695,6 +709,8 @@ void schedule_gui_t::update_selection()
 	bt_transfer_interval.disable();
 	bt_reverse_convoy.disable();
 	bt_reverse_coupling.disable();
+	numimp_max_load.disable();
+	numimp_max_load.set_value(100);
 
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
@@ -757,6 +773,7 @@ void schedule_gui_t::update_selection()
 			}
 			lb_load.set_color( SYSCOL_TEXT );
 			numimp_load.enable();
+			numimp_max_load.enable();
 			if(  schedule->at(current_stop).minimum_loading>0  ||  schedule->at(current_stop).get_coupling_point()!=0  ) {
 				bt_wait_load.enable();
 				uint16 wait = schedule->at(current_stop).waiting_time_shift;
@@ -775,6 +792,7 @@ void schedule_gui_t::update_selection()
 			numimp_spacing.set_value( schedule->at(current_stop).spacing );
 			numimp_spacing_shift.set_value( schedule->at(current_stop).spacing_shift );
 			numimp_delay_tolerance.set_value( schedule->at(current_stop).delay_tolerance );
+			numimp_max_load.set_value(  schedule->at(current_stop).maximum_loading  );
 		}
 	}
 }
@@ -1063,6 +1081,12 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 			} else {
 				schedule->at(schedule->get_current_stop()).delay_tolerance = (uint16)p.i;
 			}
+			update_selection();
+		}
+	}
+	else if(comp == &numimp_max_load) {
+		if(!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).maximum_loading = (uint8)p.i;
 			update_selection();
 		}
 	}
@@ -1383,6 +1407,8 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	numimp_tbgr_waiting_time.set_visible(yesno);
 	lb_next_line.set_visible(yesno);
 	next_line_selector.set_visible(yesno);
+	lb_max_load.set_visible(yesno);
+	numimp_max_load.set_visible(yesno);
 	
 	const bool coupling_waytype = schedule->get_waytype()!=road_wt  &&  schedule->get_waytype()!=air_wt  &&  schedule->get_waytype()!=water_wt;
 	const bool reversible_waytype = env_t::reversible_waytype(schedule->get_waytype());
