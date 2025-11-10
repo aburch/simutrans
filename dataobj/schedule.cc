@@ -345,7 +345,7 @@ void schedule_t::rdwr(loadsave_t *file)
 					entries[i].waiting_time_shift = 0;
 				}
 			}
-			if(file->get_OTRP_version()>=46) {
+			if(file->get_OTRP_version()>=47) {
 				// read and write max speed of convoy
 				file->rdwr_short(entries[i].max_speed_of_convoi);
 			} else {
