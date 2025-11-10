@@ -446,18 +446,18 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	// convoi max speed setting
 	add_table(2,1);
 	{
-		bt_max_speed_of_convoi.init(button_t::square_state, "Overwrite max speed of convoy");
-		bt_max_speed_of_convoi.set_tooltip("Overwrite max speed of convoy here.");
-		bt_max_speed_of_convoi.add_listener(this);
-		bt_max_speed_of_convoi.disable();
-		add_component(&bt_max_speed_of_convoi);
-		numimp_max_speed_of_convoi.set_width( 60 );
-		numimp_max_speed_of_convoi.set_value( 0 );
-		numimp_max_speed_of_convoi.set_limits( 0, 65535 );
-		numimp_max_speed_of_convoi.set_increment_mode(1);
-		numimp_max_speed_of_convoi.add_listener(this);
-		numimp_max_speed_of_convoi.disable();
-		add_component(&numimp_max_speed_of_convoi);
+		bt_max_speed_kmh_of_convoi.init(button_t::square_state, "Overwrite max speed of convoy");
+		bt_max_speed_kmh_of_convoi.set_tooltip("Overwrite max speed of convoy here.");
+		bt_max_speed_kmh_of_convoi.add_listener(this);
+		bt_max_speed_kmh_of_convoi.disable();
+		add_component(&bt_max_speed_kmh_of_convoi);
+		numimp_max_speed_kmh_of_convoi.set_width( 60 );
+		numimp_max_speed_kmh_of_convoi.set_value( 0 );
+		numimp_max_speed_kmh_of_convoi.set_limits( 0, 65535 );
+		numimp_max_speed_kmh_of_convoi.set_increment_mode(1);
+		numimp_max_speed_kmh_of_convoi.add_listener(this);
+		numimp_max_speed_kmh_of_convoi.disable();
+		add_component(&numimp_max_speed_kmh_of_convoi);
 	}
 	end_table();
 
@@ -714,8 +714,8 @@ void schedule_gui_t::update_selection()
 	bt_transfer_interval.disable();
 	bt_reverse_convoy.disable();
 	bt_reverse_coupling.disable();
-	bt_max_speed_of_convoi.disable();
-	numimp_max_speed_of_convoi.disable();
+	bt_max_speed_kmh_of_convoi.disable();
+	numimp_max_speed_kmh_of_convoi.disable();
 
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
@@ -725,12 +725,12 @@ void schedule_gui_t::update_selection()
 		bt_reverse_coupling.enable();
 		bt_reverse_coupling.pressed = schedule->at(current_stop).is_reverse_convoi_coupling();
 
-		bt_max_speed_of_convoi.enable();
-		bt_max_speed_of_convoi.pressed = schedule->at(current_stop).is_overwrite_max_speed_of_convoi();
-		if (  schedule->at(current_stop).is_overwrite_max_speed_of_convoi()  ) {
-			numimp_max_speed_of_convoi.enable();
+		bt_max_speed_kmh_of_convoi.enable();
+		bt_max_speed_kmh_of_convoi.pressed = schedule->at(current_stop).is_overwrite_max_speed_kmh_of_convoi();
+		if (  schedule->at(current_stop).is_overwrite_max_speed_kmh_of_convoi()  ) {
+			numimp_max_speed_kmh_of_convoi.enable();
 		}
-		numimp_max_speed_of_convoi.set_value( schedule->at(current_stop).max_speed_of_convoi );
+		numimp_max_speed_kmh_of_convoi.set_value( schedule->at(current_stop).max_speed_kmh_of_convoi );
 
 		// if the next_line is set, the last entry is same as the next_line->get_schedule()->at(0)
 		// so, the flags of last entry can not be editted.
@@ -1111,15 +1111,15 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 	else if(comp == &numimp_max_speed) {
 		schedule->set_max_speed((uint16)p.i);
 	}
-	else if(comp == &bt_max_speed_of_convoi) {
+	else if(comp == &bt_max_speed_kmh_of_convoi) {
 		if (!schedule->empty()) {
-			schedule->at(schedule->get_current_stop()).set_overwrite_max_speed_of_convoi(!bt_max_speed_of_convoi.pressed);
+			schedule->at(schedule->get_current_stop()).set_overwrite_max_speed_kmh_of_convoi(!bt_max_speed_kmh_of_convoi.pressed);
 			update_selection();
 		}
 	}
-	else if(comp == &numimp_max_speed_of_convoi) {
+	else if(comp == &numimp_max_speed_kmh_of_convoi) {
 		if (!schedule->empty()) {
-			schedule->at(schedule->get_current_stop()).max_speed_of_convoi = (uint16)p.i;
+			schedule->at(schedule->get_current_stop()).max_speed_kmh_of_convoi = (uint16)p.i;
 			update_selection();
 		}
 	}
@@ -1423,8 +1423,8 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	numimp_tbgr_waiting_time.set_visible(yesno);
 	lb_next_line.set_visible(yesno);
 	next_line_selector.set_visible(yesno);
-	bt_max_speed_of_convoi.set_visible(yesno);
-	numimp_max_speed_of_convoi.set_visible(yesno);
+	bt_max_speed_kmh_of_convoi.set_visible(yesno);
+	numimp_max_speed_kmh_of_convoi.set_visible(yesno);
 	
 	const bool coupling_waytype = schedule->get_waytype()!=road_wt  &&  schedule->get_waytype()!=air_wt  &&  schedule->get_waytype()!=water_wt;
 	const bool reversible_waytype = env_t::reversible_waytype(schedule->get_waytype());

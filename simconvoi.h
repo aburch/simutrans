@@ -383,7 +383,7 @@ private:
 	 * The temporary speed limit for this convoy.
 	 * For example, as limited by a speed limit sign.
 	 */
-	uint16 max_speed_of_convoi;
+	uint16 max_speed_kmh_of_convoi;
 
 	/**
 	* Initialize all variables with default values.
@@ -1118,8 +1118,8 @@ public:
 	// the new line is stored in schedule->next_line_id
 	void change_line_to_next_if_needed();
 
-	uint16 get_max_speed_of_convoi() const {return max_speed_of_convoi;}
-	void set_max_speed_of_convoi(uint16 n);
+	uint16 get_max_speed_kmh_of_convoi() const {return max_speed_kmh_of_convoi;}
+	void set_max_speed_kmh_of_convoi(uint16 n);
 };
 
 #endif

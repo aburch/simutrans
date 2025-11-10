@@ -121,7 +121,7 @@ halthandle_t schedule_t::get_prev_halt( player_t *player ) const
 }
 
 
-bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint16 waiting_time_shift, uint16 stop_flags, uint16 max_speed_of_convoi)
+bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint16 waiting_time_shift, uint16 stop_flags, uint16 max_speed_kmh_of_convoi)
 {
 	// stored in minivec, so we have to avoid adding too many
 	if(  entries.get_count()>=254  ) {
@@ -129,7 +129,7 @@ bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint16 waiting
 		return false;
 	}
 	if(  is_stop_allowed(gr)  ) {
-		entries.insert_at(current_stop, schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, stop_flags, max_speed_of_convoi));
+		entries.insert_at(current_stop, schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, stop_flags, max_speed_kmh_of_convoi));
 		current_stop ++;
 		make_current_stop_valid();
 		return true;
@@ -143,7 +143,7 @@ bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint16 waiting
 
 
 
-bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint16 waiting_time_shift, uint16 stop_flags, uint16 max_speed_of_convoi)
+bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint16 waiting_time_shift, uint16 stop_flags, uint16 max_speed_kmh_of_convoi)
 {
 	// stored in minivec, so we have to avoid adding too many
 	if(entries.get_count()>=254) {
@@ -152,10 +152,10 @@ bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint16 waiting
 	}
 	if(is_stop_allowed(gr)) {
 		if( next_line.is_bound() ) {
-			entries.insert_at(entries.get_count()-1, schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, stop_flags, max_speed_of_convoi));
+			entries.insert_at(entries.get_count()-1, schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, stop_flags, max_speed_kmh_of_convoi));
 			return true;
 		} else {
-			entries.append(schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, stop_flags, max_speed_of_convoi), 4);
+			entries.append(schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, stop_flags, max_speed_kmh_of_convoi), 4);
 			return true;
 		}
 	}
@@ -347,9 +347,9 @@ void schedule_t::rdwr(loadsave_t *file)
 			}
 			if(file->get_OTRP_version()>=47) {
 				// read and write max speed of convoy
-				file->rdwr_short(entries[i].max_speed_of_convoi);
+				file->rdwr_short(entries[i].max_speed_kmh_of_convoi);
 			} else {
-				entries[i].max_speed_of_convoi = 0;
+				entries[i].max_speed_kmh_of_convoi = 0;
 			}
 		}
 	}
@@ -409,7 +409,7 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *schedule)
 		&&  schedule->entries[(uint8)f2].spacing == entries[(uint8)f1].spacing
 		&&  schedule->entries[(uint8)f2].spacing_shift == entries[(uint8)f1].spacing_shift
 		&&  schedule->entries[(uint8)f2].delay_tolerance == entries[(uint8)f1].delay_tolerance
-		&&  schedule->entries[(uint8)f2].max_speed_of_convoi == entries[(uint8)f1].max_speed_of_convoi) {
+		&&  schedule->entries[(uint8)f2].max_speed_kmh_of_convoi == entries[(uint8)f1].max_speed_kmh_of_convoi) {
 			f1++;
 			f2++;
 		}
@@ -519,7 +519,7 @@ void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 	uint32 s = current_stop + (flags<<8) + (max_speed<<16);
 	buf.printf("%u|%ld|%u|%d|%u|", s, departure_slot_group_id, additional_base_waiting_time, (int)get_type(), next_line.get_id());
 	FOR(minivec_tpl<schedule_entry_t>, const& i, entries) {
-		buf.printf("%s,%i,%i,%i,%i,%i,%i,%i|", i.pos.get_str(), (int)i.minimum_loading, (int)i.waiting_time_shift, i.get_stop_flags(), i.max_speed_of_convoi, i.spacing, i.spacing_shift, i.delay_tolerance);
+		buf.printf("%s,%i,%i,%i,%i,%i,%i,%i|", i.pos.get_str(), (int)i.minimum_loading, (int)i.waiting_time_shift, i.get_stop_flags(), i.max_speed_kmh_of_convoi, i.spacing, i.spacing_shift, i.delay_tolerance);
 	}
 }
 
@@ -683,9 +683,9 @@ void schedule_t::gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* 
 			else if (  entry.minimum_loading != 0  ) {
 				buf.printf("%d%% ", entry.minimum_loading);
 			}
-			if(  entry.is_overwrite_max_speed_of_convoi()  ) {
-				if (entry.max_speed_of_convoi != 0) {
-					buf.printf("%dkm/h ", entry.max_speed_of_convoi);
+			if(  entry.is_overwrite_max_speed_kmh_of_convoi()  ) {
+				if (entry.max_speed_kmh_of_convoi != 0) {
+					buf.printf("%dkm/h ", entry.max_speed_kmh_of_convoi);
 				} else {
 					buf.printf("NOLIMIT ");
 				}
@@ -704,9 +704,9 @@ void schedule_t::gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* 
 		else {
 			construct_schedule_entry_attributes(buf, entry);
 			if(  max_chars <= 0  ) {
-				if(  entry.is_overwrite_max_speed_of_convoi()  ) {
-					if (entry.max_speed_of_convoi != 0) {
-						buf.printf("%dkm/h ", entry.max_speed_of_convoi);
+				if(  entry.is_overwrite_max_speed_kmh_of_convoi()  ) {
+					if (entry.max_speed_kmh_of_convoi != 0) {
+						buf.printf("%dkm/h ", entry.max_speed_kmh_of_convoi);
 					} else {
 						buf.printf("NOLIMIT ");
 					}

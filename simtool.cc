@@ -8377,9 +8377,9 @@ bool tool_change_convoi_t::init( player_t *player )
 
 		case 'm':
 		{
-			uint16 max_speed_of_convoi=0;
-			int count=sscanf( p, "%hi", &max_speed_of_convoi);
-			cnv->set_max_speed_of_convoi(max_speed_of_convoi);
+			uint16 max_speed_kmh_of_convoi=0;
+			int count=sscanf( p, "%hi", &max_speed_kmh_of_convoi);
+			cnv->set_max_speed_kmh_of_convoi(max_speed_kmh_of_convoi);
 		}
 		break;
 	}

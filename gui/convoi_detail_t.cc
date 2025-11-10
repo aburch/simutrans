@@ -245,23 +245,23 @@ void convoi_detail_t::init(convoihandle_t cnv)
 	// max speed setting
 	add_table(3,1);
 	{
-		add_component(&label_max_speed_of_convoi);
+		add_component(&label_max_speed_kmh_of_convoi);
 
 		new_component<gui_fill_t>();
 
 		add_table(2,1)->set_force_equal_columns(true);
 		{
-			max_speed_of_convoi_numberinput.set_width(60);
-			max_speed_of_convoi_numberinput.set_value( cnv->get_max_speed_of_convoi() );
-			max_speed_of_convoi_numberinput.set_limits(0, 65535);
-			max_speed_of_convoi_numberinput.set_increment_mode(1);
-			max_speed_of_convoi_numberinput.add_listener(this);
-			add_component(&max_speed_of_convoi_numberinput);
+			max_speed_kmh_of_convoi_numberinput.set_width(60);
+			max_speed_kmh_of_convoi_numberinput.set_value( cnv->get_max_speed_kmh_of_convoi() );
+			max_speed_kmh_of_convoi_numberinput.set_limits(0, 65535);
+			max_speed_kmh_of_convoi_numberinput.set_increment_mode(1);
+			max_speed_kmh_of_convoi_numberinput.add_listener(this);
+			add_component(&max_speed_kmh_of_convoi_numberinput);
 
-			max_speed_of_convoi_button.init(button_t::roundbox| button_t::flexible, "Set Max Speed");
-			max_speed_of_convoi_button.set_tooltip("Set max speed of this convoi");
-			max_speed_of_convoi_button.add_listener(this);
-			add_component(&max_speed_of_convoi_button);
+			max_speed_kmh_of_convoi_button.init(button_t::roundbox| button_t::flexible, "Set Max Speed");
+			max_speed_kmh_of_convoi_button.set_tooltip("Set max speed of this convoi");
+			max_speed_kmh_of_convoi_button.add_listener(this);
+			add_component(&max_speed_kmh_of_convoi_button);
 		}
 		end_table();
 	}
@@ -301,12 +301,12 @@ void convoi_detail_t::update_labels()
 	label_resale.update();
 	label_speed.buf().printf(translator::translate("Bonusspeed: %i km/h"), cnv->get_speedbonus_kmh() );
 	label_speed.update();
-	if(  cnv->get_max_speed_of_convoi()==0  ) {
-		label_max_speed_of_convoi.buf().printf(translator::translate("Max speed of convoi: UNLIMIT"));
+	if(  cnv->get_max_speed_kmh_of_convoi()==0  ) {
+		label_max_speed_kmh_of_convoi.buf().printf(translator::translate("Max speed of convoi: UNLIMIT"));
 	} else {
-		label_max_speed_of_convoi.buf().printf(translator::translate("Max speed of convoi: %i km/h"), cnv->get_max_speed_of_convoi() );
+		label_max_speed_kmh_of_convoi.buf().printf(translator::translate("Max speed of convoi: %i km/h"), cnv->get_max_speed_kmh_of_convoi() );
 	}
-	label_max_speed_of_convoi.update();
+	label_max_speed_kmh_of_convoi.update();
 }
 
 
@@ -335,11 +335,11 @@ void convoi_detail_t::draw(scr_coord offset)
 	trade_convoi_button.set_tooltip(is_owner ? "Permit trade this convoi" : "Accept trade this convoi");
 
 	if (is_owner) {
-		max_speed_of_convoi_numberinput.enable();
+		max_speed_kmh_of_convoi_numberinput.enable();
 	} else {
-		max_speed_of_convoi_numberinput.disable();
+		max_speed_kmh_of_convoi_numberinput.disable();
 	}
-	max_speed_of_convoi_button.enable(is_owner);
+	max_speed_kmh_of_convoi_button.enable(is_owner);
 
 
 	update_labels();
@@ -388,9 +388,9 @@ bool convoi_detail_t::action_triggered(gui_action_creator_t *comp,value_t /* */)
 				return true;
 			}
 		}
-		else if(comp==&max_speed_of_convoi_button) {
+		else if(comp==&max_speed_kmh_of_convoi_button) {
 			cbuffer_t buf;
-			buf.printf( "%d", (uint16)max_speed_of_convoi_numberinput.get_value() );
+			buf.printf( "%d", (uint16)max_speed_kmh_of_convoi_numberinput.get_value() );
 			cnv->call_convoi_tool( 'm', buf );
 			return true;
 		}
