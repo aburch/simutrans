@@ -2967,6 +2967,33 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 			else {
 				way->set_image( desc->get_image_id(zeige,0) );
 			}
+			if(  desc->get_wtyp()==road_wt && skinverwaltung_t::ribi_arrow!=NULL  ) {
+				if(overtaking_mode<=oneway_mode) {
+					if(is_ctrl_pressed()? j!=bauigel.get_count()-1: j!=0) {
+						ribi_t::ribi oneway_ribi = ribi_type(bauigel.get_route()[is_ctrl_pressed()? j+1: j-1]-bauigel.get_route()[j]);
+						if( weg_t* road=gr->get_weg(road_wt) ) {
+							if(  is_ctrl_pressed()? j==0: j==bauigel.get_count()-1  ) {
+								if( ribi_t::is_single(road->get_ribi_unmasked()) ) {
+									// oneway_ribi already updated
+								}
+								else if( ribi_t::is_twoway(road->get_ribi_unmasked()) ) {
+									oneway_ribi=(oneway_ribi&road->get_ribi_unmasked())>0?oneway_ribi:oneway_ribi|road->get_ribi();
+								}
+								else {
+									oneway_ribi |= road->get_ribi();
+								}
+							} else {
+								ribi_t::ribi mask_ribi = ribi_type(bauigel.get_route()[is_ctrl_pressed()? j-1: j+1]-bauigel.get_route()[j]);
+								oneway_ribi |= (road->get_ribi() & ~mask_ribi);
+							}
+						}
+						way->set_foreground_image(skinverwaltung_t::ribi_arrow->get_image_id(oneway_ribi));
+					}
+				}
+				else{
+					way->set_foreground_image(skinverwaltung_t::ribi_arrow->get_image_id(zeige));
+				}
+			}
 			gr->obj_add( way );
 			way->set_yoff(-gr->get_weg_yoff() );
 			marked.insert( way );
