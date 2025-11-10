@@ -682,6 +682,9 @@ void schedule_t::gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* 
 			else if (  entry.minimum_loading != 0  ) {
 				buf.printf("%d%% ", entry.minimum_loading);
 			}
+			if(  entry.maximum_loading != 100  ) {
+				buf.printf("/%d%% ", entry.maximum_loading);
+			}
 		}
 		p = halt->get_name();
 	}
