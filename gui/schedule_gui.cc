@@ -244,7 +244,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoih
 	lb_wait("1/"),
 	lb_load("Full load"),
 	lb_departure_slot_group("Departure slot group"),
-	lb_max_speed("Maxspeed"),
+	lb_max_speed("Max speed of line"),
 	lb_tbgr_waiting_time("Additional goods routing waiting time"),
 	stats(new schedule_gui_stats_t() ),
 	scrolly(stats)
@@ -420,6 +420,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	// max speed setting
 	add_table(2,1);
 	{
+		lb_max_speed.set_tooltip(translator::translate("Limits the max speed of all convoys on this line."));
 		add_component(&lb_max_speed);
 		numimp_max_speed.set_width( 60 );
 		numimp_max_speed.set_value( schedule->get_max_speed() );
@@ -433,8 +434,8 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	// convoi max speed setting
 	add_table(2,1);
 	{
-		bt_max_speed_of_convoi.init(button_t::square_state, "max speed of convoy");
-		bt_max_speed_of_convoi.set_tooltip("Overwrite max speed of convoy at this stop.");
+		bt_max_speed_of_convoi.init(button_t::square_state, "Overwrite max speed of convoy");
+		bt_max_speed_of_convoi.set_tooltip("Overwrite max speed of convoy here.");
 		bt_max_speed_of_convoi.add_listener(this);
 		bt_max_speed_of_convoi.disable();
 		add_component(&bt_max_speed_of_convoi);

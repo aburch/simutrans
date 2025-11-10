@@ -302,9 +302,9 @@ void convoi_detail_t::update_labels()
 	label_speed.buf().printf(translator::translate("Bonusspeed: %i km/h"), cnv->get_speedbonus_kmh() );
 	label_speed.update();
 	if(  cnv->get_max_speed_of_convoi()==0  ) {
-		label_max_speed_of_convoi.buf().printf(translator::translate("MaxspeedOfConvoi: UNLIMIT"));
+		label_max_speed_of_convoi.buf().printf(translator::translate("Max speed of convoi: UNLIMIT"));
 	} else {
-		label_max_speed_of_convoi.buf().printf(translator::translate("MaxspeedOfConvoi: %i km/h"), cnv->get_max_speed_of_convoi() );
+		label_max_speed_of_convoi.buf().printf(translator::translate("Max speed of convoi: %i km/h"), cnv->get_max_speed_of_convoi() );
 	}
 	label_max_speed_of_convoi.update();
 }
