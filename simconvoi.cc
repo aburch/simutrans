@@ -3832,8 +3832,8 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 		} else {
 			amount = 0;
 		}
-
-		const uint16 capacity_left = (v->get_cargo_max()*get_schedule()->get_current_entry().maximum_loading/100 > v->get_total_cargo())?v->get_cargo_max()*get_schedule()->get_current_entry().maximum_loading/100 - v->get_total_cargo(): 0;
+		const uint16 max_load_ratio = v->get_cargo_type()->get_catg_index()==0 ? (uint16)get_schedule()->get_current_entry().maximum_loading: (uint16)min(get_schedule()->get_current_entry().maximum_loading,100);
+		const uint16 capacity_left = (v->get_cargo_max()*max_load_ratio/100 > v->get_total_cargo())?v->get_cargo_max()*max_load_ratio/100 - v->get_total_cargo(): 0;
 
 		if(  loading_needed  &&  capacity_left > 0  &&  halt->gibt_ab(v->get_cargo_type())  ) {
 			// load if: unloaded something (might go back) or previous non-filled car requested different cargo type
