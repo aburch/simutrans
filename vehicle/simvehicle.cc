@@ -1450,7 +1450,11 @@ sint64 vehicle_t::calc_revenue(const koord3d& start, const koord3d& end) const
 			freight_revenue = ware_t::calc_revenue(ware.get_desc(), get_desc()->get_waytype(), cnv_kmh);
 			last_freight = ware.get_desc();
 		}
-		const sint64 price = freight_revenue * (sint64)dist * (sint64)ware.menge;
+		sint64 price = freight_revenue * (sint64)dist * (sint64)ware.menge;
+		// calculate revenue for overcrowd
+		if ( false ) {
+			price *= get_total_cargo() > get_cargo_max() ? get_total_cargo()/get_cargo_max() : 1;
+		}
 
 		// sum up new price
 		value += price;
