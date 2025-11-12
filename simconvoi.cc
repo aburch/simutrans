@@ -723,10 +723,18 @@ void convoi_t::add_running_cost( const weg_t *weg )
 		book( -toll, CONVOI_PROFIT);
 
 	}
-	get_owner()->book_running_costs( sum_running_costs, get_schedule()->get_waytype());
+	sint64 temp_sum_running_costs = 0;
+	for( uint8 i = 0; i<anz_vehikel; i++ ) {
+		if(fahr[i]->get_total_cargo()>fahr[i]->get_cargo_max() && fahr[i]->get_cargo_max>0) {
+			temp_sum_running_costs+=(sint64)fahr[i]->get_desc()->get_running_cost()*(sint64)fahr[i]->get_total_cargo()/(sint64)fahr[i]->get_cargo_max();
+		} else {
+			temp_sum_running_costs+=(sint64)fahr[i]->get_desc()->get_running_cost();
+		}
+	}
+	get_owner()->book_running_costs( temp_sum_running_costs, get_schedule()->get_waytype());
 
-	book( sum_running_costs, CONVOI_OPERATIONS );
-	book( sum_running_costs, CONVOI_PROFIT );
+	book( temp_sum_running_costs, CONVOI_OPERATIONS );
+	book( temp_sum_running_costs, CONVOI_PROFIT );
 
 	total_distance_traveled ++;
 	distance_since_last_stop++;
