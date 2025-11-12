@@ -135,7 +135,7 @@ void vehicle_base_t::set_overtaking_offsets( bool driving_on_the_left )
 	overtaking_base_offsets[4][0] = -sign * XOFF;
 	overtaking_base_offsets[5][0] = sign * XOFF;
 	overtaking_base_offsets[6][0] = 0;
-	overtaking_base_offsets[7][0] = sign * (-XOFF-YOFF);
+	overtaking_base_offsets[7][0] = -sign * XOFF;
 
 	overtaking_base_offsets[0][1] = sign * YOFF;
 	overtaking_base_offsets[1][1] = sign * YOFF;
