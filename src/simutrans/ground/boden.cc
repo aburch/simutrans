@@ -103,6 +103,12 @@ void boden_t::rdwr(loadsave_t *file)
 		}
 		file->wr_obj_id( -1 );
 	}
+
+	if (file->is_loading()  &&  hat_weg(road_wt)  &&  !slope_t::is_way(slope)) {
+		// illegal slope => change to flat slope
+		dbg->warning("boden_t::rdwr", "Illegal street slope %d at (%) set to flat.", slope, pos.get_str());
+		slope = slope_t::flat;
+	}
 }
 
 
