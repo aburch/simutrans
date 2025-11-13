@@ -587,7 +587,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	end_table();
 
 	// maximum loading
-	add_table(2,1);
+	add_table(3,1);
 	{
 		add_component(&lb_max_load);
 		lb_max_load.set_tooltip("set maximum loading ratio");
@@ -598,7 +598,12 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		numimp_max_load.set_limits( 0, max_load_value );
 		numimp_max_load.set_increment_mode( gui_numberinput_t::PROGRESS2 );
 		numimp_max_load.add_listener(this);
-		add_component(&numimp_max_load);		
+		add_component(&numimp_max_load);	
+		
+		bt_max_load_all_stops.init(button_t::roundbox, "for all stops");
+		bt_max_load_all_stops.set_tooltip("rewrite all stops' values of maximum loading ratio");
+		bt_max_load_all_stops.add_listener(this);
+		add_component(&bt_max_load_all_stops);
 	}
 	end_table();
 	
@@ -714,6 +719,7 @@ void schedule_gui_t::update_selection()
 	bt_reverse_coupling.disable();
 	numimp_max_load.disable();
 	numimp_max_load.set_value(100);
+	bt_max_load_all_stops.disable();
 
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
@@ -777,6 +783,7 @@ void schedule_gui_t::update_selection()
 			lb_load.set_color( SYSCOL_TEXT );
 			numimp_load.enable();
 			numimp_max_load.enable();
+			bt_max_load_all_stops.enable();
 			if(  schedule->at(current_stop).minimum_loading>0  ||  schedule->at(current_stop).get_coupling_point()!=0  ) {
 				bt_wait_load.enable();
 				uint16 wait = schedule->at(current_stop).waiting_time_shift;
@@ -1093,6 +1100,15 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 			update_selection();
 		}
 	}
+	else if(comp == &bt_max_load_all_stops) {
+		if(!schedule->empty()) {
+			uint8 const accept_value = schedule->at(schedule->get_current_stop()).maximum_loading;
+			for(uint8 i=0; i<schedule->get_count(); i++) {
+				schedule->at(i).maximum_loading = accept_value;
+			}
+			update_selection();
+		}
+	} 
 	else if(comp == &bt_load_before_departure) {
 		if (!schedule->empty()) {
 			schedule->at(schedule->get_current_stop()).set_load_before_departure(bt_load_before_departure.pressed);
@@ -1412,6 +1428,7 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	next_line_selector.set_visible(yesno);
 	lb_max_load.set_visible(yesno);
 	numimp_max_load.set_visible(yesno);
+	bt_max_load_all_stops.set_visible(yesno);
 	
 	const bool coupling_waytype = schedule->get_waytype()!=road_wt  &&  schedule->get_waytype()!=air_wt  &&  schedule->get_waytype()!=water_wt;
 	const bool reversible_waytype = env_t::reversible_waytype(schedule->get_waytype());
