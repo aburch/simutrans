@@ -3591,7 +3591,7 @@ void stadt_t::generate_private_cars(koord pos, koord target)
 
 
 /**
- * baut ein Stueck Strasse
+ * built/extends  road and maybe changes the tile to continue as much as possible
  * @param k Bauposition
  */
 bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
@@ -3625,7 +3625,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 
 		// we need to connect to a neighbouring tile (or not building anything)
 		sint8 connections = 0;
-		// try articicial slope. For this, we need to know the height of the tile with the conencting road
+		// try articicial slope. For this, we need to know the height of the tile with the connecting road
 		for (sint8 r = 0; r < 4; r++) {
 			if (grund_t* gr = welt->lookup_kartenboden(k + koord::nesw[r])) {
 				if (gr->hat_weg(road_wt)) {
@@ -3637,61 +3637,131 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 					}
 
 					sint8 target_h = gr->get_vmove(ribi_t::backward(ribi_t::nesw[r]));
-					grund_t* to;
-					slope_t::type this_slope = bd->get_grund_hang();
-					if (slope_t::is_way(this_slope)  &&
-						(bd->get_hoehe() == target_h  &&  (this_slope == slope_t::flat  ||
-							(ribi_type(this_slope) & ribi_t::northwest & ribi_t::nesw[r]) != 0))
-						||	(((ribi_type(this_slope) & ribi_t::southeast & ribi_t::nesw[r]) != 0)  &&  target_h == bd->get_hoehe() + slope_t::max_diff(this_slope))
-						) {
-						// we can connect => no further preparations needed
-						continue;
+					if (connections) {
+						// we have already altered, so we just test if we can connect across
+						if (bd->get_weg_hang() != slope_t::flat && (ribi_t::doubles(ribi_type(gr->get_weg_hang())) & ribi_t::nesw[r]) == 0) {
+							// wrong slope
+							continue;
+						}
+						if (bd->get_vmove(ribi_t::nesw[r]) != target_h) {
+							// height do not match
+							continue;
+						}
+						// we can connect to this tile too
 					}
 					else {
-						// slopes do not match
-						// try to level the land
-						if (welt->can_flatten_tile(NULL, k, target_h, true)) {
-							welt->flatten_tile(NULL, k, target_h, true);
-							bd = welt->lookup_kartenboden(k);
-						}
-						// now we do articial slopes
-						else if (bd->get_hoehe() + 2 < target_h) {
-							// ground too deep
-							continue;
-						}
-						else if (bd->get_hoehe() < target_h) {
-							// down or flat slope could connect
-							sint8 max_h = bd->get_hoehe() + slope_t::max_diff(bd->get_grund_hang());
-							if (max_h > gr->get_hoehe()) {
-								// in between, so we raise the entire tile
-								bd->set_grund_hang(slope_t::flat);
-								bd->set_pos(koord3d(k, target_h));
-								for (int i = 0; i < bd->obj_count(); i++) {
-									bd->obj_bei(i)->set_pos(bd->get_pos());
+						// only try to alter once
+						// first: Do we want to connect to nextnext tile?
+						bool connected_across = false;
+						// not conencted already => cannpt alter ground
+						if (grund_t* gr2 = welt->lookup_kartenboden(k - koord::nesw[r])) {
+							if (gr2->hat_weg(road_wt)) {
+								// we may want to connect or give up, if this is impossible
+								if (gr2->get_grund_hang() == slope_t::flat || ribi_t::is_straight(ribi_t::doubles(ribi_t::nesw[r]) | gr2->get_weg_ribi_unmasked(road_wt))) {
+									// we want also to connect to this target slope since it can go in our direction
+									sint8 target_h2 = gr2->get_vmove(ribi_t::nesw[r]);
+									if (abs(target_h - target_h2) > 2) {
+										// too big difference => no road ending at slope please
+										continue;
+									}
+									// we can connect both
+									connected_across = true;
+									if (target_h == target_h2) {
+										// flat tile here
+										bd->set_grund_hang(slope_t::flat);
+										bd->set_pos(koord3d(k, target_h));
+										for (int i = 0; i < bd->obj_count(); i++) {
+											bd->obj_bei(i)->set_pos(bd->get_pos());
+										}
+									}
+									else {
+										// slope and height
+										if (target_h > target_h2) {
+											bd->set_pos(koord3d(k, target_h2));
+											bd->set_grund_hang(slope_type(ribi_t::nesw[r]) * (target_h - target_h2));
+										}
+										else {
+											bd->set_pos(koord3d(k, target_h));
+											bd->set_grund_hang(slope_type(ribi_t::backward(ribi_t::nesw[r])) * (target_h2 - target_h));
+										}
+									}
+								}
+								else {
+									// road on a slope but wrong direction
+									continue;
 								}
 							}
+						}
+
+						if (!connected_across) {
+							// not already sucessful
+
+							slope_t::type this_slope = bd->get_grund_hang();
+							if (slope_t::is_way(this_slope) &&
+								(bd->get_hoehe() == target_h && (this_slope == slope_t::flat ||
+									(ribi_type(this_slope) & ribi_t::northwest & ribi_t::nesw[r]) != 0))
+								|| (((ribi_type(this_slope) & ribi_t::southeast & ribi_t::nesw[r]) != 0) && target_h == bd->get_hoehe() + slope_t::max_diff(this_slope))
+								) {
+								// we can connect => no further preparations needed
+
+							}
 							else {
-								// we make a down slope
-								bd->set_grund_hang(slope_type(ribi_t::nesw[r]) * (target_h-bd->get_hoehe()));
+								// slopes do not match, and we have not yet connected
+								// try to level the land
+								if (welt->can_flatten_tile(NULL, k, target_h, true)) {
+									// sucessful, so now we can build
+									welt->flatten_tile(NULL, k, target_h, true);
+									bd = welt->lookup_kartenboden(k); // since ground has changed
+								}
+								// now we try articial slopes
+								else if (abs(bd->get_hoehe() - target_h) > 2) {
+									// ground too deep => give up
+									continue;
+								}
+								else if (bd->get_hoehe() < target_h) {
+									// down or flat slope could connect
+									sint8 max_h = bd->get_hoehe() + slope_t::max_diff(bd->get_grund_hang());
+									slope_t::type sl = bd->get_grund_hang();
+									if (max_h > gr->get_hoehe() || (max_h == gr->get_hoehe() && 3 == corner_ne(sl) + corner_se(sl) + corner_nw(sl) + corner_sw(sl))) {
+										// in between OR three corners at target height => we raise the entire tile
+										bd->set_grund_hang(slope_t::flat);
+										bd->set_pos(koord3d(k, target_h));
+										for (int i = 0; i < bd->obj_count(); i++) {
+											bd->obj_bei(i)->set_pos(bd->get_pos());
+										}
+									}
+									else {
+										// we make a down slope
+										bd->set_grund_hang(slope_type(ribi_t::nesw[r]) * (target_h - bd->get_hoehe()));
+									}
+								}
+								else if (bd->get_hoehe() == target_h) {
+									slope_t::type sl = bd->get_grund_hang();
+									// find out height of nextnext tile
+									sint8 next_h = bd->get_hoehe();
+									if (grund_t* gr2 = welt->lookup_kartenboden(k - koord::nesw[r])) {
+										next_h = gr2->get_hoehe();
+									}
+									if (next_h>=bd->get_hoehe()) {
+										// at least three raised corners => up slope
+										bd->set_grund_hang(slope_type(ribi_t::backward(ribi_t::nesw[r]))* min(next_h - bd->get_hoehe(), 2));
+									}
+									else {
+										bd->set_grund_hang(slope_t::flat);
+									}
+								}
+								else {
+									// bd height higher than target
+									// lower with up slope
+									sint8 max_h = bd->get_hoehe() + slope_t::max_diff(bd->get_grund_hang());
+									// in between, so we raise the entire tile
+									bd->set_grund_hang(slope_type(ribi_t::backward(ribi_t::nesw[r])) * min(max_h - target_h, 2));
+									bd->set_pos(koord3d(k, target_h));
+									for (int i = 0; i < bd->obj_count(); i++) {
+										bd->obj_bei(i)->set_pos(bd->get_pos());
+									}
+								}
 							}
-						}
-						else if (bd->get_hoehe() == target_h) {
-							// up slope
-							bd->set_grund_hang(slope_type(ribi_t::backward(ribi_t::nesw[r])));
-						}
-						else if (bd->get_hoehe() - 1 == target_h) {
-							// lower with up slope
-							sint8 max_h = bd->get_hoehe() + slope_t::max_diff(bd->get_grund_hang());
-							// in between, so we raise the entire tile
-							bd->set_grund_hang(slope_type(ribi_t::backward(ribi_t::nesw[r]))*min(max_h - target_h,2));
-							bd->set_pos(koord3d(k, target_h));
-							for (int i = 0; i < bd->obj_count(); i++) {
-								bd->obj_bei(i)->set_pos(bd->get_pos());
-							}
-						}
-						else {
-							// to much height difference => give up
-							continue;
 						}
 					}
 
@@ -3710,6 +3780,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 					bauigel.set_build_sidewalk(true);
 					if (!bauigel.calc_straight_route(gr->get_pos(), bd->get_pos())) {
 						bauigel.build();
+						// check other directions for conenctions
 						connections++;
 					}
 				}
@@ -3982,7 +4053,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 
 
 
-// build a piece of straight road in front of a townhall and take care of flattening th eground etc
+// build a piece of straight road in front of a townhall and take care of flattening the ground etc
 bool stadt_t::test_and_build_cityroad(koord start, koord end)
 {
 	if (start == end) {
