@@ -4159,9 +4159,13 @@ void stadt_t::build()
 	}
 	// one rule applied?
 	if(  best_haus.found()  ) {
-		build_city_building(best_haus.get_pos());
-		INT_CHECK("simcity 1163");
-		return;
+		if (grund_t* gr = welt->lookup_kartenboden(best_haus.get_pos())) {
+			if (gr->ist_natur()) {
+				build_city_building(best_haus.get_pos());
+				INT_CHECK("simcity 1163");
+				return;
+			}
+		}
 	}
 }
 
