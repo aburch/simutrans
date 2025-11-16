@@ -42,7 +42,7 @@
 	CHG: cities try harder to build slopes for expansion even in mountanious sites
 	FIX: citybuildings no longer destroy power lines (version 2)
 	FIX: no longer crash when city grows into fields
-	CHG: test renovation before new building san duse homeless and jobless numbers to releive growth of town borders
+	CHG: test renovation before new buildings and use homeless and jobless numbers to decide to extend town borders
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):

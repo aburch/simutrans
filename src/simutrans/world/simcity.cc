@@ -3567,19 +3567,19 @@ void stadt_t::generate_private_cars(koord pos, koord target)
 				if(  grund_t* gr = welt->lookup_kartenboden(k) ) {
 					const weg_t* weg = gr->get_weg(road_wt);
 					if (weg != NULL && (
-								weg->get_ribi_unmasked(road_wt) == ribi_t::northsouth ||
-						        weg->get_ribi_unmasked(road_wt) == ribi_t::eastwest)  &&
-						        player_t::check_owner(NULL,w->get_owner()
-					) {
+						weg->get_ribi_unmasked(road_wt) == ribi_t::northsouth ||
+						weg->get_ribi_unmasked(road_wt) == ribi_t::eastwest) &&
+						player_t::check_owner(NULL, w->get_owner()
+						) {
 						// already a car here => avoid congestion
-						if(gr->obj_bei(gr->get_top()-1)->is_moving()) {
+						if (gr->obj_bei(gr->get_top() - 1)->is_moving()) {
 							continue;
 						}
 						private_car_t* vt = new private_car_t(gr, target);
-						gr->obj_add(vt);
-						city_history_month[0][HIST_CITYCARS] ++;
-						city_history_year[0][HIST_CITYCARS] ++;
-						number_of_cars --;
+							gr->obj_add(vt);
+							city_history_month[0][HIST_CITYCARS]++;
+						city_history_year[0][HIST_CITYCARS]++;
+						number_of_cars--;
 						return;
 					}
 				}
@@ -3598,13 +3598,13 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 {
 	grund_t* bd = welt->lookup_kartenboden(k);
 
-	if (!bd  ||  bd->get_typ() != grund_t::boden) {
+	if (!bd || bd->get_typ() != grund_t::boden) {
 		// not on water, monorails, foundations, tunnel or bridges
 		return false;
 	}
 
 	// we must not built on water or runways etc.
-	if(  bd->hat_wege()  &&  !bd->hat_weg(road_wt)  ) {
+	if (bd->hat_wege() && !bd->hat_weg(road_wt)) {
 		if (weg_t* w = bd->get_weg(track_wt)) {
 			if (w->get_desc()->get_styp() != type_tram) {
 				return false;
@@ -3616,30 +3616,69 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 	}
 
 	// now try single tile road conenction
-	sint8 connections = 0;
-	if (!bd->hat_weg(road_wt)  &&   bd->get_typ()==grund_t::boden) {
+	ribi_t::ribi connection_roads = 0;
+	if (!bd->hat_weg(road_wt) && bd->get_typ() == grund_t::boden) {
+
 		// somebody else's things on it?
 		if (bd->kann_alle_obj_entfernen(NULL)) {
 			return false;
 		}
 
-		// we need to connect to a neighbouring tile (or not building anything)
-		sint8 connections = 0;
 		// try articicial slope. For this, we need to know the height of the tile with the connecting road
 		for (sint8 r = 0; r < 4; r++) {
 			if (grund_t* gr = welt->lookup_kartenboden(k + koord::nesw[r])) {
 				if (gr->hat_weg(road_wt)) {
 
-					// try to connect
-					if (gr->get_weg_hang() != slope_t::flat  &&  (ribi_t::doubles(ribi_type(gr->get_weg_hang()))&ribi_t::nesw[r])==0){
+					// Do we want to connect to nextnext tile?
+					bool connected_across = false;
+					bool terraform_allowed = !connection_roads;
+
+					if (gr->find<crossing_t>() && ribi_t::doubles(gr->get_weg_ribi_unmasked(road_wt)) != ribi_t::doubles(ribi_t::nesw[r])) {
+						// these all force to continue in on direction
+						continue;
+					}
+
+					if (gr->get_typ() == grund_t::brueckenboden || gr->get_typ() == grund_t::tunnelboden) {
+						// must be a ramp or portal, since it is kartenboden
+						if (ribi_t::doubles(gr->get_weg_ribi_unmasked(road_wt)) != ribi_t::doubles(ribi_t::nesw[r])) {
+							// wrong dir
+							continue;
+						}
+						terraform_allowed = false; // vmove will check for height
+					}
+					else if (gr->get_typ() != grund_t::boden) {
+						continue;
+					}
+
+					// try to connect: check if other tile on slope
+					if (gr->get_weg_hang()  &&  ribi_t::doubles(ribi_type(gr->get_weg_hang())) != ribi_t::doubles(ribi_t::nesw[r])){
 						// this is on a slope => we can only connect in straight direction
 						continue;
 					}
 
+					if (connection_roads  &&  bd->get_weg_hang()  &&  ribi_t::doubles(ribi_type(bd->get_weg_hang())) != ribi_t::doubles(ribi_t::nesw[r])) {
+						// we are on a slope => we can only connect in straight direction
+						continue;
+					}
+
+					// Next: other tile  stop/depot with a direction
+					if (const gebaeude_t* gb = gr->find<gebaeude_t>()) {
+						// there is a building on it (halt) => we can only go in the allow ribis
+						if (gb->get_tile()->get_desc()->get_all_layouts() == 4  &&  ribi_t::backward(ribi_t::nesw[r]) != ribi_t::layout_to_ribi[gb->get_tile()->get_layout()]) {
+							// single way => only one dir allowed
+							continue;
+						}
+						else if (gb->get_tile()->get_desc()->get_all_layouts()  &&  ribi_t::doubles(ribi_t::nesw[r]) != ribi_t::doubles(ribi_t::layout_to_ribi[gb->get_tile()->get_layout() & 1])) {
+							// wrong direction of through way
+							continue;
+						}
+					}
+
+					// so we should be able to connect
 					sint8 target_h = gr->get_vmove(ribi_t::backward(ribi_t::nesw[r]));
-					if (connections) {
-						// we have already altered, so we just test if we can connect across
-						if (bd->get_weg_hang() != slope_t::flat && (ribi_t::doubles(ribi_type(gr->get_weg_hang())) & ribi_t::nesw[r]) == 0) {
+					if (connection_roads  ||  !terraform_allowed) {
+						// we have already altered, so we just test if we can connect
+						if (bd->get_weg_hang() != slope_t::flat  &&  (ribi_t::doubles(ribi_type(gr->get_weg_hang())) & ribi_t::nesw[r]) == 0) {
 							// wrong slope
 							continue;
 						}
@@ -3651,10 +3690,8 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 					}
 					else {
 						// only try to alter once
-						// first: Do we want to connect to nextnext tile?
-						bool connected_across = false;
-						// not conencted already => cannpt alter ground
-						if (grund_t* gr2 = welt->lookup_kartenboden(k - koord::nesw[r])) {
+						// not conencted already => cannot alter ground
+						if (const grund_t* gr2 = welt->lookup_kartenboden(k - koord::nesw[r])) {
 							if (gr2->hat_weg(road_wt)) {
 								// we may want to connect or give up, if this is impossible
 								if (gr2->get_grund_hang() == slope_t::flat || ribi_t::is_straight(ribi_t::doubles(ribi_t::nesw[r]) | gr2->get_weg_ribi_unmasked(road_wt))) {
@@ -3774,281 +3811,175 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 						gr->calc_image();
 					}
 
-					// now all slopes should be correct, we can build
-					way_builder_t bauigel(NULL);
-					bauigel.init_builder(way_builder_t::strasse | way_builder_t::terraform_flag, welt->get_city_road(), NULL, NULL);
-					bauigel.set_build_sidewalk(true);
-					if (!bauigel.calc_straight_route(gr->get_pos(), bd->get_pos())) {
-						bauigel.build();
-						// check other directions for conenctions
-						connections++;
+					if (slope_t::is_way(bd->get_grund_hang())) {
+						if (!connection_roads) {
+							// now all slopes should be correct, we can build
+
+							// city roads should not belong to any player => so we can ignore any construction costs ...
+							strasse_t* weg = new strasse_t();
+							weg->set_desc(welt->get_city_road());
+							weg->set_gehweg(true);
+							bd->neuen_weg_bauen(weg, ribi_t::nesw[r], player_);
+							bd->calc_image();
+							gr->weg_erweitern(road_wt, ribi_t::backward(ribi_t::nesw[r]));
+							connection_roads |= ribi_t::nesw[r];
+						}
+						else {
+							// just extend ways
+							bd->weg_erweitern(road_wt, ribi_t::nesw[r]);
+							gr->weg_erweitern(road_wt, ribi_t::backward(ribi_t::nesw[r]));
+						}
 					}
 				}
 			}
 		}
-	}
-
-	if (connections > 0) {
-		// we could build something
-		return true;
 	}
 
 	if (!slope_t::is_way(bd->get_weg_hang())) {
 		return false;
 	}
 
-	// initially allow all possible directions ...
-	ribi_t::ribi allowed_dir = (bd->get_grund_hang() != slope_t::flat ? ribi_t::doubles(ribi_type(bd->get_weg_hang())) : (ribi_t::ribi)ribi_t::all);
-
-	// we have here a road: check for four corner stops
-	const gebaeude_t* gb = bd->find<gebaeude_t>();
-	if(gb) {
-		// nothing to connect
-		if(gb->get_tile()->get_desc()->get_all_layouts()==4) {
-			// single way
-			allowed_dir = ribi_t::layout_to_ribi[gb->get_tile()->get_layout()];
-		}
-		else if(gb->get_tile()->get_desc()->get_all_layouts()) {
-			// through way
-			allowed_dir = ribi_t::doubles( ribi_t::layout_to_ribi[gb->get_tile()->get_layout() & 1] );
-		}
-		else {
-			dbg->error("stadt_t::build_road()", "building on road with not directions at %i,%i?!?", k.x, k.y );
-		}
+	if (!bd->hat_weg(road_wt)  &&  forced) {
+		strasse_t* weg = new strasse_t();
+		weg->set_desc(welt->get_city_road());
+		weg->set_gehweg(true);
+		bd->neuen_weg_bauen(weg, ribi_t::none, player_);
+		bd->calc_image();
+		return true;
 	}
 
-	// we must not built on water or runways etc.
-	// only crossing or tramways allowed
-	if(  bd->hat_weg(track_wt)  ) {
-		weg_t* sch = bd->get_weg(track_wt);
-		if (sch->get_desc()->get_styp() != type_tram) {
-			// not a tramway
-			ribi_t::ribi r = sch->get_ribi_unmasked();
-			if (!ribi_t::is_straight(r)) {
-				// no building on crossings, curves, dead ends
+	// check to bridge a river
+	if(ribi_t::is_single(connection_roads)  &&  !bd->has_two_ways()  ) {
+		koord zv = koord(ribi_t::backward(connection_roads));
+		grund_t *bd_next = welt->lookup_kartenboden( k + zv );
+		if(bd_next  &&  (bd_next->is_water()  ||  (bd_next->hat_weg(water_wt)  &&  bd_next->get_weg(water_wt)->get_desc()->get_styp()== type_river))) {
+			// ok there is a river
+			const bridge_desc_t *bridge = bridge_builder_t::find_bridge(road_wt, welt->get_city_road()->get_topspeed(), welt->get_timeline_year_month() );
+			if(  bridge==NULL  ) {
+				// does not have a bridge available ...
 				return false;
 			}
-			// just the other directions are allowed
-			allowed_dir &= ~r;
-		}
-	}
-
-	// determine now, in which directions we can connect to another road
-	ribi_t::ribi connection_roads = ribi_t::none;
-	// add ribi's to connection_roads if possible
-	for (int r = 0; r < 4; r++) {
-		if (ribi_t::nesw[r] & allowed_dir) {
-			// now we have to check for several problems ...
-			grund_t* bd2;
-			if(bd->get_neighbour(bd2, invalid_wt, ribi_t::nesw[r])) {
-				if(bd2->get_typ()==grund_t::fundament  ||  bd2->get_typ()==grund_t::wasser) {
-					// not connecting to a building of course ...
-				}
-				else if (!bd2->ist_karten_boden()) {
-					// do not connect to elevated ways / bridges
-				}
-				else if (bd2->get_typ()==grund_t::tunnelboden  &&  ribi_t::nesw[r]!=ribi_type(bd2->get_grund_hang())) {
-					// not the correct slope
-				}
-				else if (bd2->get_typ()==grund_t::brueckenboden
-					&&  (bd2->get_grund_hang()==slope_t::flat  ?  ribi_t::nesw[r]!=ribi_type(bd2->get_weg_hang())
-					                                           :  ribi_t::backward(ribi_t::nesw[r])!=ribi_type(bd2->get_grund_hang()))) {
-					// not the correct slope
-				}
-				else if(bd2->hat_weg(road_wt)) {
-					const gebaeude_t* gb = bd2->find<gebaeude_t>();
-					if(gb) {
-						uint8 layouts = gb->get_tile()->get_desc()->get_all_layouts();
-						// nothing to connect
-						if(layouts==4) {
-							// single way
-							if(ribi_t::nesw[r]==ribi_t::backward(ribi_t::layout_to_ribi[gb->get_tile()->get_layout()])) {
-								// allowed ...
-								connection_roads |= ribi_t::nesw[r];
-							}
-						}
-						else if(layouts==2 || layouts==8 || layouts==16) {
-							// through way
-							if((ribi_t::doubles( ribi_t::layout_to_ribi[gb->get_tile()->get_layout() & 1] )&ribi_t::nesw[r])!=0) {
-								// allowed ...
-								connection_roads |= ribi_t::nesw[r];
-							}
-						}
-						else {
-							dbg->error("stadt_t::build_road()", "building on road with not directions at %i,%i?!?", k.x, k.y );
-						}
-					}
-					else if(bd2->get_depot()) {
-						// do not enter depots
-					}
-					else {
-						// check slopes
-						way_builder_t bauer( NULL );
-						bauer.init_builder( way_builder_t::strasse | way_builder_t::terraform_flag, welt->get_city_road() );
-						if(  bauer.check_slope( bd, bd2 )  ) {
-							// allowed ...
-							connection_roads |= ribi_t::nesw[r];
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// now add the ribis to the other ways (if there)
-	for (int r = 0; r < 4; r++) {
-		if (ribi_t::nesw[r] & connection_roads) {
-			grund_t* bd2 = welt->lookup_kartenboden(k + koord::nesw[r]);
-			weg_t* w2 = bd2->get_weg(road_wt);
-			w2->ribi_add(ribi_t::backward(ribi_t::nesw[r]));
-			bd2->calc_image();
-			bd2->set_flag( grund_t::dirty );
-		}
-	}
-
-	if (connection_roads != ribi_t::none || forced) {
-
-		if (!bd->weg_erweitern(road_wt, connection_roads)) {
-			strasse_t* weg = new strasse_t();
-			// city roads should not belong to any player => so we can ignore any construction costs ...
-			weg->set_desc(welt->get_city_road());
-			weg->set_gehweg(true);
-			bd->neuen_weg_bauen(weg, connection_roads, player_);
-			bd->calc_image(); // otherwise the
-		}
-		// check to bridge a river
-		if(ribi_t::is_single(connection_roads)  &&  !bd->has_two_ways()  ) {
-			koord zv = koord(ribi_t::backward(connection_roads));
-			grund_t *bd_next = welt->lookup_kartenboden( k + zv );
-			if(bd_next  &&  (bd_next->is_water()  ||  (bd_next->hat_weg(water_wt)  &&  bd_next->get_weg(water_wt)->get_desc()->get_styp()== type_river))) {
-				// ok there is a river
-				const bridge_desc_t *bridge = bridge_builder_t::find_bridge(road_wt, welt->get_city_road()->get_topspeed(), welt->get_timeline_year_month() );
-				if(  bridge==NULL  ) {
-					// does not have a bridge available ...
-					return false;
-				}
-				// find the first tile which is not a river
-				for (int i = 2; i < 5; i++) {
-					bd_next = welt->lookup_kartenboden(k + zv * i);
-					if (!bd_next) {
-						return false;
-					}
-					if (bd_next->is_water() || (bd_next->hat_weg(water_wt) && bd_next->get_weg(water_wt)->get_desc()->get_styp() == type_river)) {
-						bd_next = NULL;
-						continue;
-					}
-					// first tile after the river
-					else if (bd->get_typ() != grund_t::boden) {
-						return false;
-					}
-					break;
-				}
+			// find the first tile which is not a river
+			for (int i = 2; i < 5; i++) {
+				bd_next = welt->lookup_kartenboden(k + zv * i);
 				if (!bd_next) {
 					return false;
 				}
-				sint8 bridge_height;
-				const char* err = bridge_builder_t::can_build_bridge(NULL, bd->get_pos(), bd_next->get_pos(), bridge_height, bridge, false);
-				// if the river is navigable, we need a two hight slope, so we have to start on a flat tile
-				if (err) {
+				if (bd_next->is_water() || (bd_next->hat_weg(water_wt) && bd_next->get_weg(water_wt)->get_desc()->get_styp() == type_river)) {
+					bd_next = NULL;
+					continue;
+				}
+				// first tile after the river
+				else if (bd->get_typ() != grund_t::boden) {
+					return false;
+				}
+				break;
+			}
+			if (!bd_next) {
+				return false;
+			}
+			sint8 bridge_height;
+			const char* err = bridge_builder_t::can_build_bridge(NULL, bd->get_pos(), bd_next->get_pos(), bridge_height, bridge, false);
+			// if the river is navigable, we need a two hight slope, so we have to start on a flat tile
+			if (err) {
 
-					if(bd->get_grund_hang() != slope_t::flat  ||  bd_next->get_grund_hang() != slope_t::flat) {
+				if(bd->get_grund_hang() != slope_t::flat  ||  bd_next->get_grund_hang() != slope_t::flat) {
 
-						slope_t::type try_flat_start = bd->get_grund_hang();
+					slope_t::type try_flat_start = bd->get_grund_hang();
+					if (try_flat_start != slope_t::flat) {
+						sint8 h_diff = slope_t::max_diff(try_flat_start);
+						// raise up the tile
+						bd->set_grund_hang(slope_t::flat);
+						bd->set_hoehe(bd->get_hoehe() + h_diff);
+						// transfer objects to on new grund
+						for (int i = 0; i < bd->obj_count(); i++) {
+							bd->obj_bei(i)->set_pos(bd->get_pos());
+						}
+					}
+				
+					slope_t::type try_flat_end = bd_next->get_grund_hang();
+					if (try_flat_end != slope_t::flat) {
+						sint8 h_diff = slope_t::max_diff(try_flat_end);
+						// raise up the tile
+						bd_next->set_grund_hang(slope_t::flat);
+						bd_next->set_hoehe(bd_next->get_hoehe() + h_diff);
+						// transfer objects to on new grund
+						for (int i = 0; i < bd_next->obj_count(); i++) {
+							bd_next->obj_bei(i)->set_pos(bd_next->get_pos());
+						}
+					}
+
+					err = bridge_builder_t::can_build_bridge(NULL, bd->get_pos(), bd_next->get_pos(), bridge_height, bridge, false);
+					if (err) {
+						// still impossible => restore slope
 						if (try_flat_start != slope_t::flat) {
 							sint8 h_diff = slope_t::max_diff(try_flat_start);
-							// raise up the tile
-							bd->set_grund_hang(slope_t::flat);
-							bd->set_hoehe(bd->get_hoehe() + h_diff);
+							bd->set_grund_hang(try_flat_start);
+							bd->set_hoehe(bd->get_hoehe() - h_diff);
 							// transfer objects to on new grund
 							for (int i = 0; i < bd->obj_count(); i++) {
 								bd->obj_bei(i)->set_pos(bd->get_pos());
 							}
 						}
-				
-						slope_t::type try_flat_end = bd_next->get_grund_hang();
 						if (try_flat_end != slope_t::flat) {
 							sint8 h_diff = slope_t::max_diff(try_flat_end);
 							// raise up the tile
-							bd_next->set_grund_hang(slope_t::flat);
-							bd_next->set_hoehe(bd_next->get_hoehe() + h_diff);
+							bd_next->set_grund_hang(try_flat_start);
+							bd_next->set_hoehe(bd_next->get_hoehe() - h_diff);
 							// transfer objects to on new grund
 							for (int i = 0; i < bd_next->obj_count(); i++) {
 								bd_next->obj_bei(i)->set_pos(bd_next->get_pos());
 							}
 						}
-
-						err = bridge_builder_t::can_build_bridge(NULL, bd->get_pos(), bd_next->get_pos(), bridge_height, bridge, false);
-						if (err) {
-							// still impossible => restore slope
-							if (try_flat_start != slope_t::flat) {
-								sint8 h_diff = slope_t::max_diff(try_flat_start);
-								bd->set_grund_hang(try_flat_start);
-								bd->set_hoehe(bd->get_hoehe() - h_diff);
-								// transfer objects to on new grund
-								for (int i = 0; i < bd->obj_count(); i++) {
-									bd->obj_bei(i)->set_pos(bd->get_pos());
-								}
-							}
-							if (try_flat_end != slope_t::flat) {
-								sint8 h_diff = slope_t::max_diff(try_flat_end);
-								// raise up the tile
-								bd_next->set_grund_hang(try_flat_start);
-								bd_next->set_hoehe(bd_next->get_hoehe() - h_diff);
-								// transfer objects to on new grund
-								for (int i = 0; i < bd_next->obj_count(); i++) {
-									bd_next->obj_bei(i)->set_pos(bd_next->get_pos());
-								}
-							}
-							return false; // give up
-						}
-
-						// update slope graphics on tile and tile in front
-						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 0, 1 ) ) ) {
-							bd_recalc->check_update_underground();
-						}
-						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 0 ) ) ) {
-							bd_recalc->check_update_underground();
-						}
-						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 1 ) ) ) {
-							bd_recalc->check_update_underground();
-						}
-						bd->mark_image_dirty();
-
-						koord end = bd_next->get_pos().get_2d();
-						// update slope graphics on tile and tile in front
-						if (grund_t* bd_recalc = welt->lookup_kartenboden(end + koord(0, 1))) {
-							bd_recalc->check_update_underground();
-						}
-						if (grund_t* bd_recalc = welt->lookup_kartenboden(end + koord(1, 0))) {
-							bd_recalc->check_update_underground();
-						}
-						if (grund_t* bd_recalc = welt->lookup_kartenboden(end + koord(1, 1))) {
-							bd_recalc->check_update_underground();
-						}
-						bd_next->mark_image_dirty();
+						return false; // give up
 					}
-					else {
-						// err and not a good starting position
-						return false;
+
+					// update slope graphics on tile and tile in front
+					if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 0, 1 ) ) ) {
+						bd_recalc->check_update_underground();
 					}
+					if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 0 ) ) ) {
+						bd_recalc->check_update_underground();
+					}
+					if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 1 ) ) ) {
+						bd_recalc->check_update_underground();
+					}
+					bd->mark_image_dirty();
+
+					koord end = bd_next->get_pos().get_2d();
+					// update slope graphics on tile and tile in front
+					if (grund_t* bd_recalc = welt->lookup_kartenboden(end + koord(0, 1))) {
+						bd_recalc->check_update_underground();
+					}
+					if (grund_t* bd_recalc = welt->lookup_kartenboden(end + koord(1, 0))) {
+						bd_recalc->check_update_underground();
+					}
+					if (grund_t* bd_recalc = welt->lookup_kartenboden(end + koord(1, 1))) {
+						bd_recalc->check_update_underground();
+					}
+					bd_next->mark_image_dirty();
 				}
-				bridge_builder_t::build_bridge(NULL, bd->get_pos(), bd_next->get_pos(), zv, bridge_height, bridge, welt->get_city_road());
-				koord end = bd_next->get_pos().get_2d();
-				build_road( end+zv, NULL, false);
-				// try to build a house near the bridge end
-				uint32 old_count = buildings.get_count();
-				for(uint8 i=0; i<lengthof(koord::neighbours)  &&  buildings.get_count() == old_count; i++) {
-					koord c(end+zv+koord::neighbours[i]);
-					if (welt->is_within_limits(c)) {
-						build_city_building(end+zv+koord::neighbours[i]);
-					}
+				else {
+					// err and not a good starting position
+					return false;
+				}
+			}
+			bridge_builder_t::build_bridge(NULL, bd->get_pos(), bd_next->get_pos(), zv, bridge_height, bridge, welt->get_city_road());
+			koord end = bd_next->get_pos().get_2d();
+			build_road( end+zv, NULL, false);
+			// try to build a house near the bridge end
+			uint32 old_count = buildings.get_count();
+			for(uint8 i=0; i<lengthof(koord::neighbours)  &&  buildings.get_count() == old_count; i++) {
+				koord c(end+zv+koord::neighbours[i]);
+				if (welt->is_within_limits(c)) {
+					build_city_building(end+zv+koord::neighbours[i]);
 				}
 			}
 		}
-		return true;
 	}
 
-	return false;
+	// we could build something
+	return connection_roads;
 }
 
 
@@ -4130,8 +4061,8 @@ void stadt_t::build()
 		return;
 	}
 
-	// renovation (only done when nothing matches a certain location
-	if (!buildings.empty() && simrand(100) <= renovation_percentage) {
+	// renovation  (not done every step)
+	if (!buildings.empty()  &&  simrand(100) <= renovation_percentage) {
 		// try to find a public owned building
 		for (uint8 i = 0; i < 4; i++) {
 			gebaeude_t* gb = pick_any(buildings);

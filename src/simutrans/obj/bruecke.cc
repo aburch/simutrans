@@ -190,7 +190,7 @@ void bruecke_t::finish_rd()
 
 	player_t *player=get_owner();
 	// change maintenance
-	if(desc->get_waytype()!=powerline_wt) {
+	if(desc->get_waytype()!=powerline_wt  &&  gr->get_typ()==grund_t::boden) {
 		weg_t *weg = gr->get_weg(desc->get_waytype());
 		if(weg==NULL) {
 			dbg->error("bruecke_t::finish_rd()","Bridge without way at(%s)!", gr->get_pos().get_str() );
