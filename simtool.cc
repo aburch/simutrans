@@ -2972,6 +2972,7 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 					if(is_ctrl_pressed()? j!=bauigel.get_count()-1: j!=0) {
 						ribi_t::ribi oneway_ribi = ribi_type(bauigel.get_route()[is_ctrl_pressed()? j+1: j-1]-bauigel.get_route()[j]);
 						if( weg_t* road=gr->get_weg(road_wt) ) {
+							dynamic_cast<strasse_t*>(road)->set_way_building(true);
 							if(  is_ctrl_pressed()? j==0: j==bauigel.get_count()-1  ) {
 								if( ribi_t::is_single(road->get_ribi_unmasked()) ) {
 									// oneway_ribi already updated
@@ -2990,7 +2991,7 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 						way->set_foreground_image(skinverwaltung_t::ribi_arrow->get_image_id(oneway_ribi));
 					}
 				}
-				else{
+				else if(!env_t::show_oneway_ribi_only){
 					way->set_foreground_image(skinverwaltung_t::ribi_arrow->get_image_id(zeige));
 				}
 			}

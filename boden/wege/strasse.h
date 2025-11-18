@@ -64,6 +64,8 @@ private:
 	sint16 directional_statistics[MAX_WAY_STAT_MONTHS][MAX_WAY_STATISTICS][MAX_WAY_STAT_DIRECTIONS];
 
 	void init_statistics() OVERRIDE;
+
+	bool way_building;
 	
 	/**
 	* tile reservation system
@@ -119,6 +121,8 @@ public:
 
 	void book(int amount, way_statistics type, ribi_t::ribi dir);
 	void new_month() OVERRIDE;
+
+	void set_way_building(bool yesno) {way_building = yesno;}
 
 	image_id get_front_image() const OVERRIDE;
 	

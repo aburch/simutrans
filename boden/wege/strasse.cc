@@ -21,13 +21,13 @@ const way_desc_t *strasse_t::default_strasse=NULL;
 bool strasse_t::show_masked_ribi = false;
 bool strasse_t::show_reservations = false;
 
-
 void strasse_t::set_gehweg(bool janein)
 {
 	weg_t::set_gehweg(janein);
 	if(janein  &&  get_desc()  &&  get_desc()->get_topspeed()>50) {
 		set_max_speed(50);
 	}
+	way_building = false;
 }
 
 
@@ -38,6 +38,7 @@ strasse_t::strasse_t(loadsave_t *file) : weg_t()
 	for(uint8 i=0; i<4; i++) {
 		reserved_by[i] = NULL;
 	}
+	way_building = false;
 }
 
 
@@ -59,6 +60,7 @@ strasse_t::strasse_t() : weg_t()
 	for(uint8 i=0; i<4; i++) {
 		reserved_by[i] = NULL;
 	}
+	way_building = false;
 }
 
 
@@ -347,7 +349,7 @@ FLAGGED_PIXVAL strasse_t::get_outline_colour() const {
 }
 
 image_id strasse_t::get_front_image() const {
-	if(  skinverwaltung_t::ribi_arrow!=NULL  &&  show_masked_ribi  &&  (!env_t::show_oneway_ribi_only  ||  overtaking_mode<=oneway_mode)  ) {
+	if(  skinverwaltung_t::ribi_arrow!=NULL  &&  show_masked_ribi  &&  (!env_t::show_oneway_ribi_only  ||  overtaking_mode<=oneway_mode)  &&  !way_building  ) {
 		return skinverwaltung_t::ribi_arrow->get_image_id(get_ribi());
 	} else {
 		return weg_t::get_front_image();
