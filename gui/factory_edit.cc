@@ -23,6 +23,7 @@
 #include "factory_edit.h"
 #include "components/gui_label.h"
 
+char factory_edit_frame_t::name_filter_value[64]="";
 
 // new tool definition
 tool_build_land_chain_t factory_edit_frame_t::land_chain_tool = tool_build_land_chain_t();
@@ -122,6 +123,17 @@ factory_edit_frame_t::factory_edit_frame_t(player_t* player_) :
 	bt_land_chain.add_listener(this);
 	cont_filter.add_component(&bt_land_chain);
 
+	name_filter_input.set_text(name_filter_value, 60);
+	add_component(&name_filter_input);
+	name_filter_input.add_listener(this);
+
+	bt_no_supply.init( button_t::square_state, "No Supply" );
+	bt_no_product.init( button_t::square_state, "No Product" );
+	add_component(&bt_no_supply);
+	add_component(&bt_no_product);
+	bt_no_supply.add_listener(this);
+	bt_no_product.add_listener(this);
+
 	// add water to climate selection
 	cb_climates.new_component<gui_climates_item_t>(climate::water_climate);
 
@@ -177,9 +189,12 @@ void factory_edit_frame_t::fill_list()
 				&&  ( desc->get_building()->get_allowed_climate_bits() & get_climate()) ) {
 				// timeline allows for this, and so does climates setting
 
-				if( ( city_chain  &&  (desc->get_placement() == factory_desc_t::City && desc->is_consumer_only() ) )
+				if( (( city_chain  &&  (desc->get_placement() == factory_desc_t::City && desc->is_consumer_only() ) )
 				||  ( land_chain  &&  (desc->get_placement() != factory_desc_t::City && desc->is_consumer_only() ) )
-				||  (!city_chain  &&  !land_chain) ) {
+				||  (!city_chain  &&  !land_chain) ) 
+				&&  (  !bt_no_supply.pressed || !desc->is_producer_only()  )
+				&&  (  !bt_no_product.pressed || !desc->is_consumer_only()  )
+				&&  (  name_filter_value[0]==0  ||  (utf8caseutf8(desc->get_name(), name_filter_value)  ||  utf8caseutf8(translator::translate(desc->get_name()), name_filter_value))  ) ) {
 					switch(sortedby) {
 						case gui_sorting_item_t::BY_NAME_TRANSLATED:     factory_list.insert_ordered( desc, compare_factory_desc_name );           break;
 						case gui_sorting_item_t::BY_LEVEL_PAX:           factory_list.insert_ordered( desc, compare_factory_desc_level_pax );      break;
@@ -232,6 +247,17 @@ bool factory_edit_frame_t::action_triggered( gui_action_creator_t *comp,value_t 
 		if(bt_land_chain.pressed) {
 			bt_city_chain.pressed = 0;
 		}
+		fill_list();
+	}
+	else if(  comp==&bt_no_supply  ) {
+		bt_no_supply.pressed != bt_no_supply.pressed;
+		fill_list();
+	}
+	else if(  comp==&bt_no_product  ) {
+		bt_no_product.pressed != bt_no_product.pressed;
+		fill_list();
+	}
+	else if(  comp==&name_filter_input  ) {
 		fill_list();
 	}
 	else if( comp == &cb_rotation) {
