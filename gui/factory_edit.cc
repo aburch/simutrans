@@ -124,20 +124,20 @@ factory_edit_frame_t::factory_edit_frame_t(player_t* player_) :
 	cont_filter.add_component(&bt_land_chain);
 
 	name_filter_input.set_text(name_filter_value, 60);
-	add_component(&name_filter_input);
+	cont_filter.add_component(&name_filter_input);
 	name_filter_input.add_listener(this);
 
 	bt_no_supply.init( button_t::square_state, "No Supply" );
 	bt_no_product.init( button_t::square_state, "No Product" );
-	add_component(&bt_no_supply);
-	add_component(&bt_no_product);
+	cont_filter.add_component(&bt_no_supply);
+	cont_filter.add_component(&bt_no_product);
 	bt_no_supply.add_listener(this);
 	bt_no_product.add_listener(this);
 
 	bt_must_supply.init( button_t::square_state, "Must Supply" );
 	bt_must_product.init( button_t::square_state, "Must Product" );
-	add_component(&bt_must_supply);
-	add_component(&bt_must_product);
+	cont_filter.add_component(&bt_must_supply);
+	cont_filter.add_component(&bt_must_product);
 	bt_must_supply.add_listener(this);
 	bt_must_product.add_listener(this);
 
@@ -180,6 +180,10 @@ void factory_edit_frame_t::fill_list()
 	const bool use_timeline = bt_timeline.pressed | bt_timeline_custom.pressed;
 	const bool city_chain = bt_city_chain.pressed;
 	const bool land_chain = bt_land_chain.pressed;
+	const bool no_supply = bt_no_supply.pressed;
+	const bool no_product = bt_no_product.pressed;
+	const bool must_supply = bt_must_supply.pressed;
+	const bool must_product = bt_must_product.pressed;
 	const sint32 month_now = bt_timeline.pressed ? welt->get_current_month() : bt_timeline_custom.pressed ? ni_timeline_year.get_value()*12 + ni_timeline_month.get_value()-1 : 0;
 	const uint8 sortedby = get_sortedby();
 	sortreverse = sort_order.pressed;
@@ -199,10 +203,10 @@ void factory_edit_frame_t::fill_list()
 				if( (( city_chain  &&  (desc->get_placement() == factory_desc_t::City && desc->is_consumer_only() ) )
 				||  ( land_chain  &&  (desc->get_placement() != factory_desc_t::City && desc->is_consumer_only() ) )
 				||  (!city_chain  &&  !land_chain) ) 
-				&&  (  !bt_no_supply.pressed || !desc->is_producer_only()  )
-				&&  (  !bt_no_product.pressed || !desc->is_consumer_only()  )
-				&&  (  !bt_must_supply.pressed || desc->is_producer_only()  )
-				&&  (  !bt_must_product.pressed || desc->is_consumer_only()  )
+				&&  (  !no_supply || desc->is_producer_only()  )
+				&&  (  !no_product || desc->is_consumer_only()  )
+				&&  (  !must_supply || !desc->is_producer_only()  )
+				&&  (  !must_product || !desc->is_consumer_only()  )
 				&&  (  name_filter_value[0]==0  ||  (utf8caseutf8(desc->get_name(), name_filter_value)  ||  utf8caseutf8(translator::translate(desc->get_name()), name_filter_value))  ) ) {
 					switch(sortedby) {
 						case gui_sorting_item_t::BY_NAME_TRANSLATED:     factory_list.insert_ordered( desc, compare_factory_desc_name );           break;
@@ -259,22 +263,24 @@ bool factory_edit_frame_t::action_triggered( gui_action_creator_t *comp,value_t 
 		fill_list();
 	}
 	else if(  comp==&bt_no_supply  ) {
-		bt_no_supply.pressed != bt_no_supply.pressed;
+		bt_no_supply.pressed ^= 1;
 		bt_must_supply.pressed = false;
 		fill_list();
 	}
 	else if(  comp==&bt_must_supply  ) {
-		bt_must_supply.pressed != bt_must_supply.pressed;
+		bt_must_supply.pressed ^= 1;
 		bt_no_supply.pressed = false;
+		fill_list();
 	}
 	else if(  comp==&bt_no_product  ) {
-		bt_no_product.pressed != bt_no_product.pressed;
+		bt_no_product.pressed ^= 1;
 		bt_must_product.pressed = false;
 		fill_list();
 	}
 	else if(  comp==&bt_must_product  ) {
-		bt_must_product.pressed != bt_must_product.pressed;
+		bt_must_product.pressed ^= 1;
 		bt_no_product.pressed = false;
+		fill_list();
 	}
 	else if(  comp==&name_filter_input  ) {
 		fill_list();
@@ -452,10 +458,14 @@ void factory_edit_frame_t::set_windowsize(scr_size size)
 
 
 void factory_edit_frame_t::rdwr( loadsave_t *file ) {
-	uint8 button_pressed_flags = bt_city_chain.pressed | (bt_land_chain.pressed<<1);
+	uint8 button_pressed_flags = bt_city_chain.pressed | (bt_land_chain.pressed<<1) | (bt_no_supply.pressed<<2) | (bt_must_supply.pressed<<3) | (bt_no_product.pressed<<4) | (bt_must_product.pressed<<5);
 	file->rdwr_byte(button_pressed_flags);
 	bt_city_chain.pressed = button_pressed_flags & 1;
 	bt_land_chain.pressed = (button_pressed_flags>>1) & 1;
+	bt_no_supply.pressed = (button_pressed_flags>>2) & 1;
+	bt_must_supply.pressed = (button_pressed_flags>>3) & 1;
+	bt_no_product.pressed = (button_pressed_flags>>4) & 1;
+	bt_must_product.pressed = (button_pressed_flags>>5) & 1;
 
 	sint32 production_value = inp_production.get_value();
 	file->rdwr_long(production_value);
