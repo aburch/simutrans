@@ -39,6 +39,8 @@ private:
 	button_t bt_land_chain;
 	button_t bt_no_supply;
 	button_t bt_no_product;
+	button_t bt_must_supply;
+	button_t bt_must_product;
 
 	gui_numberinput_t inp_production;
 	gui_label_t lb_name_filter_input;
