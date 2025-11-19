@@ -1496,6 +1496,12 @@ void two_click_tool_t::cleanup( bool delete_start_marker )
 		z->mark_image_dirty( z->get_front_image(), 0 );
 		koord3d pos = z->get_pos();
 		grund_t *gr = welt->lookup( pos );
+		if(gr) {
+			strasse_t* str = (strasse_t*) gr->get_weg(road_wt);
+			if(str) {
+				str->set_way_building(false);
+			}
+		}
 		delete z;
 		// Remove dummy ground (placed by tool_build_tunnel_t and tool_build_way_t):
 		if(gr  &&  gr->is_dummy_ground()) {
