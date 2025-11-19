@@ -758,7 +758,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 			// builds new way
 			weg_t * const weg = weg_t::alloc( desc->get_waytype() );
 			weg->set_desc( way_desc );
-			player_t::book_construction_costs( player, -start_gr->neuen_weg_bauen( weg, ribi, player ) -weg->get_desc()->get_price(), end.get_2d(), weg->get_waytype());
+			player_t::book_construction_costs(player, -start_gr->neuen_weg_bauen(weg, ribi, player) - weg->get_desc()->get_price(), end.get_2d(), weg->get_waytype());
 		}
 		start_gr->calc_image();
 	}
@@ -779,7 +779,8 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 		if(  desc->get_waytype() != powerline_wt  ) {
 			weg_t * const weg = weg_t::alloc(desc->get_waytype());
 			weg->set_desc(way_desc);
-			bruecke->neuen_weg_bauen(weg, ribi_t::doubles(ribi), player);
+			bruecke->neuen_weg_bauen(weg, ribi_t::doubles(ribi), 0);
+			weg->set_owner(player);
 		}
 		else {
 			leitung_t *lt = new leitung_t(bruecke->get_pos(), player);
@@ -824,7 +825,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 				// builds new way
 				weg_t * const weg = weg_t::alloc( desc->get_waytype() );
 				weg->set_desc( way_desc );
-				player_t::book_construction_costs( player, -gr->neuen_weg_bauen( weg, ribi, player ) -weg->get_desc()->get_price(), end.get_2d(), weg->get_waytype());
+				player_t::book_construction_costs(player, -gr->neuen_weg_bauen(weg, ribi, player) - weg->get_desc()->get_price(), end.get_2d(), weg->get_waytype());
 			}
 			gr->calc_image();
 		}
@@ -842,7 +843,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 	}
 
 	// if start or end are single way, and next tile is not, try to connect
-	if (desc->get_waytype() != powerline_wt && player) {
+	if (desc->get_waytype() != powerline_wt  &&  player) {
 		koord3d endtiles[] = { start, end };
 		for (uint i = 0; i < lengthof(endtiles); i++) {
 			koord3d pos = endtiles[i];
@@ -897,7 +898,8 @@ void bridge_builder_t::build_ramp(player_t* player, koord3d end, ribi_t::ribi ri
 		if (!bruecke->weg_erweitern(desc->get_waytype(), ribi_neu)) {
 			// needs still one
 			weg = weg_t::alloc(desc->get_waytype());
-			player_t::book_construction_costs(player, -bruecke->neuen_weg_bauen(weg, ribi_neu, player), end.get_2d(), desc->get_waytype());
+			bruecke->neuen_weg_bauen(weg, ribi_neu, 0);
+			weg->set_owner(player);
 		}
 		weg->set_max_speed(desc->get_topspeed());
 	}
@@ -1184,6 +1186,9 @@ const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytyp
 		pos = part_list.remove_first();
 
 		grund_t *gr = welt->lookup(pos);
+		if (weg_t* w = gr->get_weg_nr(0)) {
+			w->set_owner(NULL); // no cost for ways on bridges
+		}
 
 		// the following code will check if this is the first of last tile, end then tries to remove the superflous ribis from it
 		if(  first  ||  end_list.empty()  ) {
@@ -1249,6 +1254,9 @@ const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytyp
 		pos = end_list.remove_first();
 
 		grund_t *gr = welt->lookup(pos);
+		if (weg_t* w = gr->get_weg_nr(0)) {
+			w->set_owner(NULL); // no cost for ways on bridges
+		}
 
 		// starts on slope or elevated way, or it consist only of the ramp
 		ribi_t::ribi bridge_ribi = gr->get_weg_ribi_unmasked( wegtyp );

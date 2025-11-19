@@ -195,27 +195,19 @@ void bruecke_t::finish_rd()
 		if(weg==NULL) {
 			dbg->error("bruecke_t::finish_rd()","Bridge without way at(%s)!", gr->get_pos().get_str() );
 			weg = weg_t::alloc( desc->get_waytype() );
-			gr->neuen_weg_bauen( weg, 0, welt->get_public_player() );
+			gr->neuen_weg_bauen( weg, 0, NULL );
+			weg->set_owner(player);
 		}
 		weg->set_max_speed(desc->get_topspeed());
 		// take ownership of way
-		player_t::add_maintenance( weg->get_owner(), -weg->get_desc()->get_maintenance(), desc->get_finance_waytype());
 		weg->set_owner(player);
 	}
-	player_t::add_maintenance( player,  desc->get_maintenance(), desc->get_finance_waytype());
+	player_t::add_maintenance(player, desc->get_maintenance(), desc->get_finance_waytype());
 
 	// with double heights may need to correct image on load (not all desc have double images)
 	// at present only start images have 2 height variants, others to follow...
-	if(  !gr->ist_karten_boden()  ) {
-		if(  desc->get_waytype() != powerline_wt  ) {
-			//img = desc->get_simple( gr->get_weg_ribi_unmasked( desc->get_waytype() ) );
-		}
-	}
-	else {
-		if(  gr->get_grund_hang() == slope_t::flat  ) {
-			//img = desc->get_ramp( gr->get_weg_hang() );
-		}
-		else {
+	if(  gr->ist_karten_boden()  ) {
+		if(  gr->get_grund_hang() != slope_t::flat  ) {
 			img = desc->get_start( gr->get_grund_hang() );
 		}
 	}
@@ -230,7 +222,6 @@ void bruecke_t::cleanup( player_t *player2 )
 	if(  const grund_t *gr = welt->lookup(get_pos())  ) {
 		if(  weg_t *weg0 = gr->get_weg( desc->get_waytype() )  ) {
 			weg0->set_max_speed( weg0->get_desc()->get_topspeed() );
-			player_t::add_maintenance( player,  weg0->get_desc()->get_maintenance(), weg0->get_desc()->get_finance_waytype());
 			// reset offsets
 			weg0->set_xoff(0);
 			weg0->set_yoff(0);
