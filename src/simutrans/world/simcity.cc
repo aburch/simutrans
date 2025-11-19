@@ -2770,7 +2770,7 @@ koord stadt_t::evaluate_size_res_com_ind(const koord pos, int &ind_score, int &c
 							com_score += com_neighbour_score[t];
 							res_score += res_neighbour_score[t];
 							neighbor_building_clusters |= desc->get_clusters();
-							exclude.append(desc);
+							exclude.append_unique(desc);
 							tile_ok = desc->get_area() == 1  &&  gb->get_pos().z == zpos  &&  !gb->get_owner()  &&  desc->no_renovation_month() >= welt->get_timeline_year_month();
 						}
 					}
@@ -3617,7 +3617,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 
 	// now try single tile road conenction
 	ribi_t::ribi connection_roads = 0;
-	if (!bd->hat_weg(road_wt) && bd->get_typ() == grund_t::boden) {
+	if (!bd->hat_weg(road_wt)  &&  bd->get_typ() == grund_t::boden) {
 
 		// somebody else's things on it?
 		if (bd->kann_alle_obj_entfernen(NULL)) {
@@ -3650,14 +3650,20 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 						continue;
 					}
 
+
 					// try to connect: check if other tile on slope
-					if (gr->get_weg_hang()  &&  ribi_t::doubles(ribi_type(gr->get_weg_hang())) != ribi_t::doubles(ribi_t::nesw[r])){
+					if (gr->get_weg_hang()  &&  ribi_t::doubles(ribi_type(gr->get_weg_hang())) != ribi_t::doubles(ribi_t::nesw[r])) {
 						// this is on a slope => we can only connect in straight direction
 						continue;
 					}
 
-					if (connection_roads  &&  bd->get_weg_hang()  &&  ribi_t::doubles(ribi_type(bd->get_weg_hang())) != ribi_t::doubles(ribi_t::nesw[r])) {
+					if (!terraform_allowed  &&  bd->get_weg_hang()  &&  ribi_t::doubles(ribi_type(bd->get_weg_hang())) != ribi_t::doubles(ribi_t::nesw[r])) {
 						// we are on a slope => we can only connect in straight direction
+						continue;
+					}
+
+					if (!terraform_allowed  &&  bd->get_vmove(ribi_t::nesw[r]) != gr->get_vmove(ribi_t::backward(road_wt))) {
+						// connection height do not match and we cannot terraform
 						continue;
 					}
 
@@ -3676,21 +3682,9 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 
 					// so we should be able to connect
 					sint8 target_h = gr->get_vmove(ribi_t::backward(ribi_t::nesw[r]));
-					if (connection_roads  ||  !terraform_allowed) {
-						// we have already altered, so we just test if we can connect
-						if (bd->get_weg_hang() != slope_t::flat  &&  (ribi_t::doubles(ribi_type(gr->get_weg_hang())) & ribi_t::nesw[r]) == 0) {
-							// wrong slope
-							continue;
-						}
-						if (bd->get_vmove(ribi_t::nesw[r]) != target_h) {
-							// height do not match
-							continue;
-						}
-						// we can connect to this tile too
-					}
-					else {
-						// only try to alter once
-						// not conencted already => cannot alter ground
+					if (terraform_allowed) {
+						// only try to alter to accomodate
+						bool connected_across = false;
 						if (const grund_t* gr2 = welt->lookup_kartenboden(k - koord::nesw[r])) {
 							if (gr2->hat_weg(road_wt)) {
 								// we may want to connect or give up, if this is impossible
@@ -3802,15 +3796,6 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 						}
 					}
 
-					// assume that we have terraformed ...
-					bd->calc_image();
-					if (grund_t* gr = welt->lookup_kartenboden(k + koord(1, 0))) {
-						gr->calc_image();
-					}
-					if (grund_t* gr = welt->lookup_kartenboden(k + koord(0, 1))) {
-						gr->calc_image();
-					}
-
 					if (slope_t::is_way(bd->get_grund_hang())) {
 						if (!connection_roads) {
 							// now all slopes should be correct, we can build
@@ -3829,6 +3814,15 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 							bd->weg_erweitern(road_wt, ribi_t::nesw[r]);
 							gr->weg_erweitern(road_wt, ribi_t::backward(ribi_t::nesw[r]));
 						}
+
+						// assume that we have terraformed ...
+						bd->calc_image();
+						if (grund_t* gr = welt->lookup_kartenboden(k + koord(1, 0))) {
+							gr->calc_image();
+						}
+						if (grund_t* gr = welt->lookup_kartenboden(k + koord(0, 1))) {
+							gr->calc_image();
+						}
 					}
 				}
 			}
@@ -3836,6 +3830,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 	}
 
 	if (!slope_t::is_way(bd->get_weg_hang())) {
+		// not a way slope => could not even connect with terraform
 		return false;
 	}
 
@@ -4061,25 +4056,6 @@ void stadt_t::build()
 		return;
 	}
 
-	// renovation  (not done every step)
-	if (!buildings.empty()  &&  simrand(100) <= renovation_percentage) {
-		// try to find a public owned building
-		for (uint8 i = 0; i < 4; i++) {
-			gebaeude_t* gb = pick_any(buildings);
-			if (player_t::check_owner(gb->get_owner(), NULL)) {
-				if (gb->get_tile()->get_offset() != koord(0, 0)) {
-					// go to tile origin to make sure we replace all tiles of a multitle building
-					grund_t* gr = welt->lookup_kartenboden(gb->get_pos().get_2d() - gb->get_tile()->get_offset());
-					gb = gr->find<gebaeude_t>();
-				}
-				if (renovate_city_building(gb)) {
-					INT_CHECK("simcity 876");
-					return;
-				}
-			}
-		}
-	}
-
 	// since only a single location is checked, we can stop after we have found a positive rule
 	best_haus.reset(k);
 	const uint32 num_house_rules = house_rules.get_count();
@@ -4095,6 +4071,25 @@ void stadt_t::build()
 				build_city_building(best_haus.get_pos());
 				INT_CHECK("simcity 1163");
 				return;
+			}
+		}
+	}
+
+	// renovation  (not done every step)
+	if (!buildings.empty() && simrand(100) <= renovation_percentage) {
+		// try to find a public owned building
+		for (uint8 i = 0; i < 4; i++) {
+			gebaeude_t* gb = pick_any(buildings);
+			if (player_t::check_owner(gb->get_owner(), NULL)) {
+				if (gb->get_tile()->get_offset() != koord(0, 0)) {
+					// go to tile origin to make sure we replace all tiles of a multitle building
+					grund_t* gr = welt->lookup_kartenboden(gb->get_pos().get_2d() - gb->get_tile()->get_offset());
+					gb = gr->find<gebaeude_t>();
+				}
+				if (renovate_city_building(gb)) {
+					INT_CHECK("simcity 876");
+					return;
+				}
 			}
 		}
 	}

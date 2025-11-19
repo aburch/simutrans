@@ -909,28 +909,27 @@ static const building_desc_t* get_city_building_from_list(const vector_tpl<const
 		     desc->get_distribution_weight() > 0  &&
 		     desc->is_available(time)  &&
 		     // size check
-			(desc->get_area()>=minsize  && desc->get_area() <= maxsize)
+			(desc->get_area()>=minsize  &&  desc->get_area() <= maxsize)  &&
+			(!exclude  ||  !exclude->is_contained(desc))
 		) {
 			desc_at_least = desc;
 			if( thislevel == level ) {
-				if(!exclude  ||  !exclude->is_contained(desc)) {
 //					DBG_MESSAGE("hausbauer_t::get_city_building_from_list()","appended %s at %i", desc->get_name(), thislevel );
-					/* Level, time period, and climate are all OK.
-					 * Now modify the chance rating by a factor based on the clusters.
-					*/
-					// FIXME: the factor should be configurable by the pakset/
-					int chance = desc->get_distribution_weight();
-					if(  clusters  ) {
-						uint32 my_clusters = desc->get_clusters();
-						if(  my_clusters & clusters  ) {
-							chance *= stadt_t::get_cluster_factor();
-						}
-						else {
-							chance /= stadt_t::get_cluster_factor();
-						}
+				/* Level, time period, and climate are all OK.
+					* Now modify the chance rating by a factor based on the clusters.
+				*/
+				// FIXME: the factor should be configurable by the pakset/
+				int chance = desc->get_distribution_weight();
+				if(  clusters  ) {
+					uint32 my_clusters = desc->get_clusters();
+					if(  my_clusters & clusters  ) {
+						chance *= stadt_t::get_cluster_factor();
 					}
-					selections.append(desc, chance);
+					else {
+						chance /= stadt_t::get_cluster_factor();
+					}
 				}
+				selections.append(desc, chance);
 			}
 		}
 	}
