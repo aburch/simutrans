@@ -93,7 +93,7 @@ private:
 	gui_label_t lb_convoi_power;
 	gui_label_t lb_convoi_weight;
 	gui_label_t lb_convoi_line;
-	gui_label_t lb_convoi_balance_speed;
+	gui_label_t lb_convoi_terminal_speed;
 
 	depot_convoi_capacity_t cont_convoi_capacity;
 
@@ -198,7 +198,7 @@ private:
 	cbuffer_t txt_convoi_cost;
 	cbuffer_t txt_convoi_power;
 	cbuffer_t txt_convoi_weight;
-	cbuffer_t txt_convoi_balance_speed;
+	cbuffer_t txt_convoi_terminal_speed;
 	uint32 const test_balance_kmh = 999;
 
 	scr_coord_val second_column_x; // x position of the second text column
