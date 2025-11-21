@@ -202,6 +202,7 @@ private:
 	sint16 origin_x, origin_y;
 
 	sint32 passenger_factor;
+	// passenger factor float value(passenger factor = float/100)
 	uint16 passenger_factor_float;
 
 	sint16 min_factory_spacing;
