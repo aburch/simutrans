@@ -102,11 +102,7 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 		pak_name.erase( pak_name.length()-1 );
 	}
 
-#ifdef REVISION
-	game_engine_revision = atol( QUOTEME(REVISION) );
-#else
-	game_engine_revision = 0;
-#endif
+	game_engine_revision = OTRP_VERSION_MAJOR * 10000 + OTRP_VERSION_MINOR * 100 + OTRP_VERSION_PATCH;
 	pakset_checksum = *(pakset_info_t::get_checksum());
 }
 
