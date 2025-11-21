@@ -1325,7 +1325,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	minimum_city_distance                = contents.get_int_clamped( "minimum_city_distance",        minimum_city_distance,                1, INT_MAX );
 	industry_increase                    = contents.get_int_clamped( "industry_increase_every",      industry_increase,                    0, INT_MAX );
 	passenger_factor                     = contents.get_int_clamped( "passenger_factor",             passenger_factor,                     0, INT_MAX ); /* this can manipulate the passenger generation */
-	passenger_factor                     = contents.get_int_clamped( "passenger_factor_float",       passenger_factor_float,               0, max_passenger_factor_float()-1 );
+	passenger_factor_float               = contents.get_int_clamped( "passenger_factor_float",       passenger_factor_float,               0, max_passenger_factor_float()-1 );
 	factory_worker_percentage            = contents.get_int_clamped( "factory_worker_percentage",    factory_worker_percentage,            0, 100 );
 	factory_worker_radius                = contents.get_int_clamped( "factory_worker_radius",        factory_worker_radius,                0, 0x7FFF );
 	factory_worker_minimum_towns         = contents.get_int_clamped( "factory_worker_minimum_towns", factory_worker_minimum_towns,         0, 0x7FFF );
