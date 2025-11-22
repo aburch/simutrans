@@ -304,7 +304,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				last_goods_index = ware.get_index();
 				// special freight => handle different
 				last_ware_catg = (ware.get_catg()!=0) ? ware.get_catg() : -1;
-				for(  int i=j;  i<pos;  i++  ) {
+				for(  uint32 i=j;  i<pos;  i++  ) {
 					ware_t const& sumware = wlist[i];
 					if(  last_goods_index != sumware.get_index()  ) {
 						if(  last_ware_catg != sumware.get_catg()  ) {
