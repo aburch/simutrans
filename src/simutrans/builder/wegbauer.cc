@@ -2390,7 +2390,7 @@ void way_builder_t::build_tunnel_and_bridges()
 			if(start->get_grund_hang()==slope_t::flat  ||  start->get_grund_hang()==slope_type(zv*(-1))  ||  start->get_grund_hang()==2*slope_type(zv*(-1))) {
 				sint8 bridge_height = 0;
 				const char* error = bridge_builder_t::can_build_bridge(player_builder, route[i], route[i + 1], bridge_height, bridge_desc);
-				if (d.x * d.y != 0) {
+				if (error) {
 					dbg->error("way_builder_t::build_tunnel_and_bridges()", "Cannot build a bridge between %s (n=%i, max_n=%i) and %s", route[i].get_str(), i, get_count() - 1, route[i + 1].get_str());
 					continue;
 				}
