@@ -356,3 +356,11 @@ transfers
 ご利用
 Factory Type
 産業の種類
+No Supply
+消費しない産業のみ
+No Product
+生産しない産業のみ
+Must Supply
+消費する産業のみ
+Must Product
+生産する産業のみ
