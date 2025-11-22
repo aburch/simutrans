@@ -25,6 +25,8 @@ avoid becoming cityroad
 市道化を禁止する
 No buildings along roadside.
 建物を接道しない
+Cityroad allow branch from this road
+市道の分岐を許可
 Overtaking:
 追越設定:
 Can be cityroad:
