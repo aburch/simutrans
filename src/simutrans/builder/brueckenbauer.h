@@ -58,7 +58,7 @@ public:
 	 * @return NULL on success or an error message
 	 *         on success h contains the height of the bridge
 	 */
-	static const char* can_build_bridge(const player_t* pl, koord3d start_pos, koord3d end_pos, sint8& height, const bridge_desc_t* desc, bool try_flat_bridge);
+	static const char* can_build_bridge(const player_t* pl, koord3d start_pos, koord3d end_pos, sint8& height, const bridge_desc_t* desc);
 
 	/**
 	 * Finds the position of the end of the bridge. Does all kind of checks.

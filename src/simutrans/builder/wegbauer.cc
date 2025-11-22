@@ -1240,7 +1240,7 @@ void way_builder_t::check_for_bridge(const grund_t* parent_from, const grund_t* 
 				break;
 			}
 			koord3d end = gr_end->get_pos();
-			const char *error = bridge_builder_t::can_build_bridge( player_builder, from->get_pos(), end, bridge_height, bridge_desc, false);
+			const char *error = bridge_builder_t::can_build_bridge( player_builder, from->get_pos(), end, bridge_height, bridge_desc);
 			if(error) {
 				// no valid end point found
 				min_length++;
@@ -2389,7 +2389,7 @@ void way_builder_t::build_tunnel_and_bridges()
 
 			if(start->get_grund_hang()==slope_t::flat  ||  start->get_grund_hang()==slope_type(zv*(-1))  ||  start->get_grund_hang()==2*slope_type(zv*(-1))) {
 				sint8 bridge_height = 0;
-				const char* error = bridge_builder_t::can_build_bridge(player_builder, route[i], route[i + 1], bridge_height, bridge_desc, false);
+				const char* error = bridge_builder_t::can_build_bridge(player_builder, route[i], route[i + 1], bridge_height, bridge_desc);
 				if (d.x * d.y != 0) {
 					dbg->error("way_builder_t::build_tunnel_and_bridges()", "Cannot build a bridge between %s (n=%i, max_n=%i) and %s", route[i].get_str(), i, get_count() - 1, route[i + 1].get_str());
 					continue;
@@ -2423,7 +2423,7 @@ void way_builder_t::build_tunnel_and_bridges()
 						// its a bridge
 						if( bridge_desc ) {
 							sint8 bridge_height = 0;
-							const char* error = bridge_builder_t::can_build_bridge(player_builder, route[i], route[i + 1], bridge_height, bridge_desc, false);
+							const char* error = bridge_builder_t::can_build_bridge(player_builder, route[i], route[i + 1], bridge_height, bridge_desc);
 							if (!error) {
 								bridge_builder_t::build_bridge(player_builder, route[i], route[i + 1], zv, bridge_height, bridge_desc, way_builder_t::weg_search(bridge_desc->get_waytype(), bridge_desc->get_topspeed(), welt->get_timeline_year_month(), type_flat));
 							}

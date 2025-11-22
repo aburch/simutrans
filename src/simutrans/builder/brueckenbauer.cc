@@ -533,7 +533,7 @@ const char *bridge_builder_t::can_span_bridge(const player_t* player, koord3d st
 
 
 // checks if we can build a bridge here
-const char* bridge_builder_t::can_build_bridge(const player_t* pl, koord3d start_pos, koord3d end_pos, sint8 &height, const bridge_desc_t* desc, bool try_high_bridge)
+const char* bridge_builder_t::can_build_bridge(const player_t* pl, koord3d start_pos, koord3d end_pos, sint8 &height, const bridge_desc_t* desc)
 {
 	const char* err = "A bridge must start on a way!";
 	minivec_tpl<sint8>heights;
@@ -674,7 +674,7 @@ const char *bridge_builder_t::find_end_pos(player_t* player, koord3d &pos, const
 		if (gr_end->get_hoehe() + slope_t::max_diff(gr_end->get_grund_hang()) == finish_height) {
 			// try to connect to a slope or flat tile ending here
 			koord3d end = gr_end->get_pos();
-			error = bridge_builder_t::can_build_bridge(player, pos, end, bridge_height, desc, false);
+			error = bridge_builder_t::can_build_bridge(player, pos, end, bridge_height, desc);
 			if (!error) {
 				pos = end;
 				return NULL;
@@ -689,7 +689,7 @@ const char *bridge_builder_t::find_end_pos(player_t* player, koord3d &pos, const
 		for (uint8 i = min_length;  i <= max_length; i++) {
 			const grund_t* gr_end = welt->lookup_kartenboden(pos.get_2d() + zv * i);	// must succeed, we tested above
 			koord3d end = gr_end->get_pos();
-			if (const char* err = bridge_builder_t::can_build_bridge(player, pos, end, bridge_height, desc, false)) {
+			if (const char* err = bridge_builder_t::can_build_bridge(player, pos, end, bridge_height, desc)) {
 				if (err && *err) {
 					error = err;
 				}

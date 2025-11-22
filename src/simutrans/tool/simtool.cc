@@ -385,7 +385,7 @@ const char *tool_query_t::work( player_t *, koord3d pos )
 						}
 					}
 					break;
-				
+
 				case 1: // labels
 					if(  gr->get_flag(grund_t::marked)  ) {
 						if(label_t *lb = gr->find<label_t>()) {
@@ -415,7 +415,7 @@ const char *tool_query_t::work( player_t *, koord3d pos )
 						}
 					}
 					break;
-				
+
 				case 3: // objects
 					for (uint8 n = gr->obj_count(); n-- != 0;) {
 						obj_t* obj = gr->obj_bei(reverse ? gr->obj_count() - 1 - n : n);
@@ -437,7 +437,7 @@ const char *tool_query_t::work( player_t *, koord3d pos )
 						}
 					}
 					break;
-				
+
 				case 4:
 				default: // ground
 					gr->open_info_window();
@@ -2796,7 +2796,7 @@ const char *tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d 
 				}
 			}
 		}
-		// both start and end are one tile from a way 
+		// both start and end are one tile from a way
 		assume_parallel &= assume_parallel2;
 	}
 	bauigel.set_prefer_parallel(assume_parallel);
@@ -2958,7 +2958,7 @@ const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start
 	if (end!=koord3d::invalid) {
 		const koord zv(ribi_type(end-start));
 		sint8 bridge_height;
-		if (const char* error=bridge_builder_t::can_build_bridge(player, start, end, bridge_height, desc, is_ctrl_pressed())) {
+		if (const char* error=bridge_builder_t::can_build_bridge(player, start, end, bridge_height, desc)) {
 			// cannot build bridge here
 			return error;
 		}
@@ -2993,7 +2993,7 @@ void tool_build_bridge_t::mark_tiles( player_t *player, const koord3d &start, co
 	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
 	sint8 bridge_height;
 
-	if (bridge_builder_t::can_build_bridge(player, start, end, bridge_height, desc, is_ctrl_pressed())) {
+	if (bridge_builder_t::can_build_bridge(player, start, end, bridge_height, desc)) {
 		// cannot build bridge here
 		return;
 	}
@@ -5903,7 +5903,7 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 
 	if (stadt_t* city = welt->find_nearest_city(k)) {
 		// we need a city for it
-	
+
 		// process ignore climates switch
 		climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : desc->get_allowed_climate_bits();
 

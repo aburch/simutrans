@@ -3874,7 +3874,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 				return false;
 			}
 			sint8 bridge_height;
-			const char* err = bridge_builder_t::can_build_bridge(NULL, bd->get_pos(), bd_next->get_pos(), bridge_height, bridge, false);
+			const char* err = bridge_builder_t::can_build_bridge(NULL, bd->get_pos(), bd_next->get_pos(), bridge_height, bridge);
 			// if the river is navigable, we need a two hight slope, so we have to start on a flat tile
 			if (err) {
 
@@ -3891,7 +3891,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 							bd->obj_bei(i)->set_pos(bd->get_pos());
 						}
 					}
-				
+
 					slope_t::type try_flat_end = bd_next->get_grund_hang();
 					if (try_flat_end != slope_t::flat) {
 						sint8 h_diff = slope_t::max_diff(try_flat_end);
@@ -3904,7 +3904,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 						}
 					}
 
-					err = bridge_builder_t::can_build_bridge(NULL, bd->get_pos(), bd_next->get_pos(), bridge_height, bridge, false);
+					err = bridge_builder_t::can_build_bridge(NULL, bd->get_pos(), bd_next->get_pos(), bridge_height, bridge);
 					if (err) {
 						// still impossible => restore slope
 						if (try_flat_start != slope_t::flat) {
