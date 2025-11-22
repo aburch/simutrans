@@ -3630,7 +3630,6 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 				if (gr->hat_weg(road_wt)) {
 
 					// Do we want to connect to nextnext tile?
-					bool connected_across = false;
 					bool terraform_allowed = !connection_roads;
 
 					if (gr->find<crossing_t>() && ribi_t::doubles(gr->get_weg_ribi_unmasked(road_wt)) != ribi_t::doubles(ribi_t::nesw[r])) {
@@ -3767,7 +3766,6 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 									}
 								}
 								else if (bd->get_hoehe() == target_h) {
-									slope_t::type sl = bd->get_grund_hang();
 									// find out height of nextnext tile
 									sint8 next_h = bd->get_hoehe();
 									if (grund_t* gr2 = welt->lookup_kartenboden(k - koord::nesw[r])) {
