@@ -42,7 +42,7 @@ private:
 	char canary_used[4] = "\x55\xAA\x55";
 
 	size_t NODE_SIZE;
-	size_t new_chuck_size;
+	size_t new_chunk_size;
 
 	// next free node (or NULL)
 	nodelist_node_t* freelist;
@@ -64,7 +64,7 @@ public:
 		chunk_list(0)
 	{
 		NODE_SIZE = (size + sizeof(nodelist_node_t) - sizeof(nodelist_node_t*));
-		new_chuck_size = ((32768 - sizeof(void*)) / NODE_SIZE);
+		new_chunk_size = ((32768 - sizeof(void*)) / NODE_SIZE);
 		canary_free[3] = canary_used[3] = NODE_SIZE;
 	}
 
@@ -80,11 +80,11 @@ public:
 #endif
 		nodelist_node_t *tmp;
 		if (freelist == NULL) {
-			char* p = (char*)xmalloc(new_chuck_size*NODE_SIZE + sizeof(nodelist_node_t));
+			char* p = (char*)xmalloc(new_chunk_size*NODE_SIZE + sizeof(nodelist_node_t));
 
 #ifdef USE_VALGRIND_MEMCHECK
 			// tell valgrind that we still cannot access the pool p
-			VALGRIND_MAKE_MEM_NOACCESS(p, chunksize *sizeof(T) + sizeof(nodelist_node_t));
+			VALGRIND_MAKE_MEM_NOACCESS(p, new_chunk_size*NODE_SIZE + sizeof(nodelist_node_t));
 #endif
 			// put the memory into the chunklist for free it
 			nodelist_node_t* chunk = (nodelist_node_t *)p;
@@ -99,7 +99,7 @@ public:
 			chunk_list = chunk;
 			p += sizeof(nodelist_node_t);
 			// then enter nodes into nodelist
-			for (size_t i = 0; i < new_chuck_size; i++) {
+			for (size_t i = 0; i < new_chunk_size; i++) {
 				nodelist_node_t* tmp = (nodelist_node_t*)(p + i*NODE_SIZE);
 #ifdef USE_VALGRIND_MEMCHECK
 				// tell valgrind that we reserved space for one nodelist_node_t
@@ -136,8 +136,8 @@ public:
 
 #ifdef USE_VALGRIND_MEMCHECK
 		// tell valgrind that we now have access to a chunk of size bytes
-		VALGRIND_MEMPOOL_CHANGE(tmp, tmp, tmp, sizeof(T));
-		VALGRIND_MAKE_MEM_UNDEFINED(tmp, sizeof(T));
+		VALGRIND_MEMPOOL_CHANGE(tmp, tmp, tmp, NODE_SIZE);
+		VALGRIND_MAKE_MEM_UNDEFINED(tmp, NODE_SIZE);
 #endif
 
 		return (void *)(&(tmp->next));
@@ -165,7 +165,7 @@ public:
 #ifdef USE_VALGRIND_MEMCHECK
 		// tell valgrind that we keep access to a nodelist_node_t within the memory chunk
 		VALGRIND_MEMPOOL_CHANGE(p, p, p, sizeof(nodelist_node_t));
-		VALGRIND_MAKE_MEM_NOACCESS(p, sizeof(T));
+		VALGRIND_MAKE_MEM_NOACCESS(p, NODE_SIZE);
 		VALGRIND_MAKE_MEM_UNDEFINED(p, sizeof(nodelist_node_t));
 #endif
 
