@@ -24,14 +24,16 @@ public:
 		init_convoy_stopping_time();
 	}
 
-	schedule_entry_t(koord3d const& pos, uint8 const minimum_loading, uint16 const waiting_time_shift, uint16 const stop_flags) :
+	schedule_entry_t(koord3d const& pos, uint8 const minimum_loading, uint16 const waiting_time_shift, uint16 const stop_flags, uint16 max_speed_kmh_of_convoi) :
 		pos(pos),
 		minimum_loading(minimum_loading),
 		waiting_time_shift(waiting_time_shift),
-		stop_flags(stop_flags)
+		stop_flags(stop_flags),
+		max_speed_kmh_of_convoi(max_speed_kmh_of_convoi)
 	{
 		spacing = 1;
 		spacing_shift = delay_tolerance = 0;
+		max_speed_kmh_of_convoi = 0;
 		init_journey_time();
 		init_waiting_time();
 		init_convoy_stopping_time();
@@ -50,7 +52,9 @@ public:
 		REVERSE_CONVOY	  = 1U << 8, // convoy reverses the order of its vehicles.
 		REVERSE_COUPLING  = 1U << 9, // The convoy reverses the parent-child relationship of the convoy coupling.
 		WAIT_COUPLING_DONE= 1U << 10,// Do not reserve departure slot until coupling done.
-		UNCOUPLE_CHILD    = 1U << 12,// The convoy uncouple its child convoy (only its child: this convoy will be the most child convoy).
+		MAX_SPEED_KMH_OF_CONVOI= 1U << 11,// Overwrite max speed of convoy here.
+		NO_OVERTAKE       = 1U << 12,// Do not overtake(for road)
+		UNCOUPLE_CHILD    = 1U << 13 // The convoy uncouple its child convoy (only its child: this convoy will be the most child convoy).
 	};
 
 	/**
@@ -71,6 +75,11 @@ public:
 	uint16 waiting_time_shift;
 	
 	uint16 spacing, spacing_shift, delay_tolerance;
+
+	/**
+	 * Overwrite max speed of convoy here.
+	 */
+	uint16 max_speed_kmh_of_convoi;
 	
 	/*
 	 * store last 5 journey time of this stop.
@@ -148,6 +157,12 @@ public:
 	bool is_uncouple_child() const { return (stop_flags & UNCOUPLE_CHILD) > 0; }
 	void set_stop_flags(uint16 f) { stop_flags = f; }
 	uint16 get_stop_flags() const { return stop_flags; }
+	void set_overwrite_max_speed_kmh_of_convoi(bool y) { y ? stop_flags |= MAX_SPEED_KMH_OF_CONVOI : stop_flags &= ~MAX_SPEED_KMH_OF_CONVOI; }
+	bool is_overwrite_max_speed_kmh_of_convoi() const {return (stop_flags&MAX_SPEED_KMH_OF_CONVOI) ; }
+	uint16 get_stop_flags() const { return stop_flags; }
+	void set_stop_flags(uint16 f) { stop_flags = f; }
+	bool is_no_overtake() const {return (stop_flags&NO_OVERTAKE)>0 ;}
+	void set_no_overtake(bool y) { y? stop_flags|=NO_OVERTAKE : stop_flags &= ~NO_OVERTAKE;}
 
 	void set_spacing(uint16 a, uint16 b, uint16 c) {
 		spacing = a;
@@ -170,7 +185,8 @@ public:
 			&&  a.get_stop_flags()   == this->stop_flags
 			&&  a.spacing            == this->spacing
 			&&  a.spacing_shift      == this->spacing_shift
-			&&  a.delay_tolerance    == this->delay_tolerance;
+			&&  a.delay_tolerance    == this->delay_tolerance
+			&&  a.max_speed_kmh_of_convoi== this->max_speed_kmh_of_convoi;
 	}
 };
 
