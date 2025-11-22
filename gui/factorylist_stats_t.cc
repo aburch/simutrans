@@ -139,7 +139,11 @@ bool factorylist_stats_t::compare(const gui_component_t *aa, const gui_component
 		case factorylist::by_name:
 			cmp = 0;
 			break;
-
+		case factorylist::by_desc_name:
+		{	
+			cmp = STRICMP(a->get_desc()->get_name(), b->get_desc()->get_name());
+			break;
+		}
 		case factorylist::by_input:
 		{
 			int a_in = a->get_input().empty() ? -1 : (int)a->get_total_in();
