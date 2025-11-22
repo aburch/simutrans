@@ -203,6 +203,10 @@ Overwrite max speed of convoy
 編成最高速度を上書きする
 Overwrite max speed of convoy here.
 この地点に到達した編成の最高速度を設定した値で上書きします．
+No overtake
+追い越し禁止
+Do not overtake other cars until this stop.
+この駅に向かう間はほかの車を追い越しません．
 #------円表記------
 $
  円

@@ -2444,7 +2444,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		// At an intersection, decide whether the convoi should go on passing lane.
 		// side road -> main road from passing lane side: vehicle should enter passing lane on main road.
 		next_lane = 0;
-		if(  (str->get_ribi_unmasked() == ribi_t::all  ||  ribi_t::is_threeway(str->get_ribi_unmasked()))  &&  str->get_overtaking_mode() <= oneway_mode  ) {
+		if(  !cnv->get_schedule()->get_current_entry().is_no_overtake()  &&  (str->get_ribi_unmasked() == ribi_t::all  ||  ribi_t::is_threeway(str->get_ribi_unmasked()))  &&  str->get_overtaking_mode() <= oneway_mode  ) {
 			const strasse_t* str_prev = route_index == 0 ? NULL : (strasse_t *)welt->lookup(r.at(route_index - 1u))->get_weg(road_wt);
 			const grund_t* gr_next = route_index < r.get_count() - 1u ? welt->lookup(r.at(route_index + 1u)) : NULL;
 			const strasse_t* str_next = gr_next ? (strasse_t*)gr_next -> get_weg(road_wt) : NULL;
@@ -2707,10 +2707,10 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			sint8 overtaking_mode = str->get_overtaking_mode();
 			if(  overtaking_mode <= oneway_mode  ) {
 				// road is one-way.
-				bool can_judge_overtaking = (test_index == route_index + 1u);
+				bool can_judge_overtaking = !cnv->get_schedule()->get_current_entry().is_no_overtake()  &&  (test_index == route_index + 1u);
 				// The overtaking judge method itself works only when test_index==route_index+1, that means the front tile is not an intersection.
 				// However, with halt_mode we want to simulate a bus terminal. Overtaking in a intersection is essential. So we make a exception to the test_index==route_index+1 condition, although it is not clear that this exception is safe or not!
-				if(  !can_judge_overtaking  &&  test_index == route_index + 2u  &&  overtaking_mode == halt_mode  ) {
+				if(  !cnv->get_schedule()->get_current_entry().is_no_overtake()  &&  !can_judge_overtaking  &&  test_index == route_index + 2u  &&  overtaking_mode == halt_mode  ) {
 					can_judge_overtaking = true;
 				}
 				if(  can_judge_overtaking  ) {
