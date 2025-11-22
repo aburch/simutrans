@@ -549,6 +549,13 @@ fabrik_t* factory_builder_t::build_factory(koord3d* parent, const factory_desc_t
 				}
 			}
 		}
+		// set factory name with nearest city name
+		stadt_t *stadt = welt->find_nearest_city(pos.get_2d());
+		if(  stadt  ) {
+			cbuffer_t buf;
+			buf.printf("%s %s", stadt->get_name(), translator::translate(info->get_name(), welt->get_settings().get_name_language_id()));
+			fab->set_name(buf);
+		}
 	}
 
 	// add passenger to pax>0, (so no suicide diver at the fish swarm)

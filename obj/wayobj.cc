@@ -92,7 +92,7 @@ wayobj_t::~wayobj_t()
 					}
 				}
 				// Updating way's max speed is needed unless the way is a railway track.
-				if(  wt!=track_wt  ) {
+				if(  wt == water_wt || wt == air_wt  ) {
 					weg->set_max_speed(max_speed);
 				}
 				weg->set_max_wayobj_speed(0);
@@ -218,7 +218,7 @@ void wayobj_t::finish_rd()
 		if(weg) {
 			// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
 			weg->set_electrify(true);
-			if(wt == track_wt){
+			if((wt != water_wt && wt != air_wt)){
 				weg->set_max_wayobj_speed(desc->get_topspeed());
 			}
 			else if(weg->get_max_speed()>desc->get_topspeed()) {

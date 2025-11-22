@@ -45,7 +45,9 @@ private:
 	gui_label_buf_t map_number_label;
 
 	button_t
-		start_button;
+		start_button,
+		load_map;
+	bool loaded_heightfield;
 
 	gui_label_buf_t
 		size_label; // memory requirement
@@ -56,6 +58,7 @@ public:
 
 	enlarge_map_frame_t();
 	~enlarge_map_frame_t();
+	bool update_from_heightfield(const char *filename);
 
 	/**
 	* Calculate the new Map-Preview. Initialize the new RNG!

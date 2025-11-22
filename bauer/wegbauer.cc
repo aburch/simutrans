@@ -2537,7 +2537,7 @@ bool way_builder_t::build_tunnel_tile()
 					// respect max speed of catenary
 					waytype_t waytype = tunnel_desc->get_waytype();
 					wayobj_t const* const wo = gr->get_wayobj(waytype);
-					if(wo && waytype == track_wt){
+					if(wo && (waytype != water_wt && waytype != air_wt)){
 						weg->set_max_wayobj_speed(wo->get_desc()->get_topspeed());
 					}
 					else if (wo  &&  wo->get_desc()->get_topspeed() < weg->get_max_speed()) {
@@ -2624,6 +2624,7 @@ void way_builder_t::build_road()
 			str->set_overtaking_mode(overtaking_mode);
 			update_ribi_mask_oneway(str,i);
 			str->set_street_flag(street_flag);
+			str->set_way_building(false);// show ribi
 			continue;
 		}
 
@@ -2637,6 +2638,7 @@ void way_builder_t::build_road()
 				str->set_overtaking_mode(overtaking_mode);
 				update_ribi_mask_oneway(str,i);
 				str->set_street_flag(street_flag);
+				str->set_way_building(false);// show ribi
 			}
 			// keep faster ways or if it is the same way ... (@author prissi)
 			else if((str->get_desc()==desc  &&  str->get_overtaking_mode()==overtaking_mode  &&  str->get_street_flag()==street_flag  )
@@ -2646,7 +2648,7 @@ void way_builder_t::build_road()
 				||  (player_builder!=NULL  &&  str->is_deletable(player_builder)!=NULL)
 				||  (gr->has_two_ways()  &&  gr->get_weg_nr(1)->is_deletable(player_builder)!=NULL) // do not replace public roads crossing rails of other players
 			) {
-
+				str->set_way_building(false);// show ribi	
 				//nothing to be done
 			}
 			else {
@@ -2666,6 +2668,7 @@ void way_builder_t::build_road()
 				str->set_gehweg(add_sidewalk);
 				player_t::add_maintenance( player_builder, str->get_desc()->get_maintenance(), str->get_desc()->get_finance_waytype());
 				str->set_owner(player_builder);
+				str->set_way_building(false);// show ribi
 				if (crossing_t* crossing = gr->get_crossing()) {
 					crossing->finish_rd();
 				}
@@ -2760,7 +2763,7 @@ void way_builder_t::build_track()
 					// respect max speed of catenary
 					waytype_t waytype = desc->get_wtyp();
 					wayobj_t const* const wo = gr->get_wayobj(waytype);
-					if(wo && waytype == track_wt){
+					if(wo && (waytype != water_wt && waytype != air_wt)){
 						weg->set_max_wayobj_speed(wo->get_desc()->get_topspeed());
 					}
 					else if (wo  &&  wo->get_desc()->get_topspeed() < weg->get_max_speed()) {

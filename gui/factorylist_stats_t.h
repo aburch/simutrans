@@ -24,6 +24,7 @@ namespace factorylist {
 		by_maxprod,
 		by_status,
 		by_power,
+		by_desc_name,
 		SORT_MODES,
 
 		// the last two are unused
