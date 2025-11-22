@@ -135,7 +135,7 @@ void vehicle_base_t::set_overtaking_offsets( bool driving_on_the_left )
 	overtaking_base_offsets[4][0] = -sign * XOFF;
 	overtaking_base_offsets[5][0] = sign * XOFF;
 	overtaking_base_offsets[6][0] = 0;
-	overtaking_base_offsets[7][0] = sign * (-XOFF-YOFF);
+	overtaking_base_offsets[7][0] = -sign * XOFF;
 
 	overtaking_base_offsets[0][1] = sign * YOFF;
 	overtaking_base_offsets[1][1] = sign * YOFF;
@@ -1237,6 +1237,9 @@ void vehicle_t::hop(grund_t* gr)
 			while(  c.is_bound()  ) {
 				if(c->get_schedule()->get_current_entry().is_reverse_convoy()) {
 					c->reverse_vehicles_on_user_request();
+				}
+				if (  c->get_schedule()->get_current_entry().is_overwrite_max_speed_kmh_of_convoi()  ) {
+					c->set_max_speed_kmh_of_convoi(c->get_schedule()->get_current_entry().max_speed_kmh_of_convoi);
 				}
 				c->set_time_last_arrived(world()->get_ticks());
 				c->get_schedule()->advance();

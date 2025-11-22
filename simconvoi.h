@@ -378,6 +378,14 @@ private:
 
 	bool reversed; // true when the vehicles are in the reversed order.
 	bool reversing_needed;// Whether this convoy's vehicles will be arranged in reverse order.
+
+	/**
+	 * The temporary speed limit for this convoy.
+	 * For example, as limited by a speed limit sign.
+	 * This value is set from schedule_entry_t, and can be edited from convoy detail window by user anytime.
+	 */
+	uint16 max_speed_kmh_of_convoi;
+
 	/**
 	* Initialize all variables with default values.
 	* Each constructor must call this method first!
@@ -1111,6 +1119,8 @@ public:
 	// the new line is stored in schedule->next_line_id
 	void change_line_to_next_if_needed();
 
+	uint16 get_max_speed_kmh_of_convoi() const {return max_speed_kmh_of_convoi;}
+	void set_max_speed_kmh_of_convoi(uint16 n);
 };
 
 #endif
