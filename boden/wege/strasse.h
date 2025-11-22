@@ -27,7 +27,8 @@ public:
 		AVOID_CITYROAD   = 1U << 0, // this street avoid becoming cityroad.
 		CITYCAR_NO_ENTRY = 1U << 1, // citycar cannot enter this road.
 		USE_GIVEN_HEIGHT = 1U << 2, // this flag is used only for construction
-		NO_BUILDING      = 1U << 3  // no building can be built adjacent to this road
+		NO_BUILDING      = 1U << 3, // no building can be built adjacent to this road
+		ALLOW_BRANCH_CITYROAD = 1U<<4 // allow branch cityroad from avoid-cityroad
 	};
 
 private:
@@ -145,8 +146,13 @@ public:
 	void set_avoid_cityroad(bool s) { s ? street_flags |= AVOID_CITYROAD : street_flags &= ~AVOID_CITYROAD; }
 	bool get_citycar_no_entry() const { return street_flags&CITYCAR_NO_ENTRY; }
 	void set_citycar_no_entry(bool s) { s ? street_flags |= CITYCAR_NO_ENTRY : street_flags &= ~CITYCAR_NO_ENTRY; }
+
+	bool get_allow_branch_cityroad() const { return street_flags&ALLOW_BRANCH_CITYROAD; }
+	void set_allow_branch_cityroad(bool s) { s ? street_flags |= ALLOW_BRANCH_CITYROAD : street_flags &= ~ALLOW_BRANCH_CITYROAD; }
+
 	bool get_no_building() const { return street_flags&NO_BUILDING; }
 	void set_no_building(bool s) { s ? street_flags |= NO_BUILDING : street_flags &= ~NO_BUILDING; }
+
 
 };
 
