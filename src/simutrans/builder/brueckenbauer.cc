@@ -931,7 +931,6 @@ const char* bridge_builder_t::renovate(player_t* player, koord3d pos_start, wayt
 	}
 	slist_tpl<grund_t*> part_list;
 	slist_tpl<grund_t*> end_list;
-	const char* msg;
 
 	grund_t* start = welt->lookup(pos_start);
 	if (!start) {
