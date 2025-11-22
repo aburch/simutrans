@@ -1460,7 +1460,7 @@ void stadt_t::step(uint32 delta_t)
 	next_step += delta_t;
 	next_growth_step += delta_t;
 
-	step_interval = (1 << 21U) / (buildings.get_count() * welt->get_settings().get_passenger_factor() + 1);
+	step_interval = (1 << 21U) * welt->get_settings().max_passenger_factor_float() / (buildings.get_count() * ( welt->get_settings().get_passenger_factor() * welt->get_settings().max_passenger_factor_float() + welt->get_settings().get_passenger_factor_float() ) + 1);
 	if (step_interval < 1) {
 		step_interval = 1;
 	}
@@ -3467,7 +3467,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 	// this road prohibits becoming a cityroad.
 	if(  bd->hat_weg(road_wt)  ) {
 		strasse_t* str = (strasse_t*)(bd->get_weg(road_wt));
-		if(  str  &&  str->get_avoid_cityroad()  ) {
+		if(  str  &&  str->get_avoid_cityroad()  &&  !str->get_allow_branch_cityroad()  ) {
 			return false;
 		}
 	}
@@ -3556,7 +3556,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 				else if(bd2->hat_weg(road_wt)) {
 					const gebaeude_t* gb = bd2->find<gebaeude_t>();
 					const strasse_t* str = (strasse_t*)(bd2->get_weg(road_wt));
-					if(  str  &&  str->get_avoid_cityroad()  ) {
+					if(  str  &&  str->get_avoid_cityroad() && !str->get_allow_branch_cityroad()  ) {
 						// do not connect to road that is not alllowed to become cityroad
 					}
 					else if(gb) {

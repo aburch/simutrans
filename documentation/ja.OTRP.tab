@@ -25,6 +25,10 @@ avoid becoming cityroad
 市道化を禁止する
 No buildings along roadside.
 建物を接道しない
+Can branch cityroad
+市道の分岐を許可
+Cityroad allow branch from this road
+この道路からの市道の分岐を許可する
 Overtaking:
 追越設定:
 Can be cityroad:
@@ -199,6 +203,18 @@ Convoys are teleported to depot immediately
 路線のすべての編成を車庫に即座に転送します
 Remove vehicle from here and send to the nearest depot.
 全ての車両を車庫に転送します。
+Max speed of line
+路線最高速度
+Limits the max speed of all convoys on this line.
+この路線に所属する全ての編成の最高速度を制限します.
+Overwrite max speed of convoy
+編成最高速度を上書きする
+Overwrite max speed of convoy here.
+この地点に到達した編成の最高速度を設定した値で上書きします．
+No overtake
+追い越し禁止
+Do not overtake other cars until this stop.
+この駅に向かう間はほかの車を追い越しません．
 #------円表記------
 $
  円
@@ -210,6 +226,13 @@ Cost: %8s (%d$/km)\n
 費用: %8s (%d 円/km)\n
 (%d$/km)
 (%d 円/km)
+#------加速度表記-----
+terminal speed:
+終端速度:
+terminal speed: UNLIMITED
+終端速度: ∞
+terminal speed: to compare acceleration.
+終端速度:加速度比較用の数値で、平坦線における性能上到達可能な最高速度です。
 #------送金関連------
 Sending money
 送金
@@ -309,6 +332,15 @@ Vehicle %s will couple with vehicle %s, but the next stop positions are differen
 %sと%sは連結して発車する予定ですが、次の駅の座標が異なるため連結できません!
 %s is not front convoy.
 %sは先頭の編成ではありません。
+#------編成最高速度機能------
+Set Max Speed
+編成最高速度を設定
+Set max speed of this convoi
+編成の最高速度を設定します．
+Max speed of convoi: UNLIMIT
+編成最高速度：UNLIMIT(制限無し)
+Max speed of convoi: %i km/h
+編成最高速度： %i km/h
 #------その他の翻訳------
 next stop
 次の駅へ
@@ -328,3 +360,15 @@ hl_btn_sort_waiting_percentage
 待機率
 transfers
 ご利用
+Factory Type
+産業の種類
+No Supply
+消費しない産業のみ
+No Product
+生産しない産業のみ
+Must Supply
+消費する産業のみ
+Must Product
+生産する産業のみ
+Goods waiting time of %s
+%s の各駅での到着待ち時間
