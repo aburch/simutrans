@@ -953,7 +953,7 @@ const char* bridge_builder_t::renovate(player_t* player, koord3d pos_start, wayt
 
 	if (!player->is_public_service()) {
 		bruecke_t* br = start->find<bruecke_t>();
-		if (!br->get_owner_nr() == player->get_player_nr()) {
+		if (br->get_owner_nr() != player->get_player_nr()) {
 			// since bridges are fully owned by one player, check only one tile
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
