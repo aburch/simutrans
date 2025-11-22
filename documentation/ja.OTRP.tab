@@ -25,6 +25,10 @@ avoid becoming cityroad
 市道化を禁止する
 No buildings along roadside.
 建物を接道しない
+Can branch cityroad
+市道の分岐を許可
+Cityroad allow branch from this road
+この道路からの市道の分岐を許可する
 Overtaking:
 追越設定:
 Can be cityroad:
@@ -207,6 +211,10 @@ Overwrite max speed of convoy
 編成最高速度を上書きする
 Overwrite max speed of convoy here.
 この地点に到達した編成の最高速度を設定した値で上書きします．
+No overtake
+追い越し禁止
+Do not overtake other cars until this stop.
+この駅に向かう間はほかの車を追い越しません．
 #------円表記------
 $
  円
@@ -218,6 +226,13 @@ Cost: %8s (%d$/km)\n
 費用: %8s (%d 円/km)\n
 (%d$/km)
 (%d 円/km)
+#------加速度表記-----
+terminal speed:
+終端速度:
+terminal speed: UNLIMITED
+終端速度: ∞
+terminal speed: to compare acceleration.
+終端速度:加速度比較用の数値で、平坦線における性能上到達可能な最高速度です。
 #------送金関連------
 Sending money
 送金
@@ -345,3 +360,15 @@ hl_btn_sort_waiting_percentage
 待機率
 transfers
 ご利用
+Factory Type
+産業の種類
+No Supply
+消費しない産業のみ
+No Product
+生産しない産業のみ
+Must Supply
+消費する産業のみ
+Must Product
+生産する産業のみ
+Goods waiting time of %s
+%s の各駅での到着待ち時間

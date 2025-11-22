@@ -581,6 +581,11 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	bt_same_dep_time.pressed = schedule->is_same_dep_time();
 	add_component(&bt_same_dep_time);
 
+	bt_no_overtake.init(button_t::square_automatic, "No overtake");
+	bt_no_overtake.set_tooltip("Do not overtake other cars until this stop.");
+	bt_no_overtake.add_listener(this);
+	add_component(&bt_no_overtake);
+
 	if(  !cnv.is_bound()  ) {
 		lb_departure_slot_group.set_tooltip(translator::translate("Shares the departure time slot with the selected line here."));
 		add_component(&lb_departure_slot_group);
@@ -739,6 +744,7 @@ void schedule_gui_t::update_selection()
 	numimp_max_load.disable();
 	numimp_max_load.set_value(100);
 	bt_max_load_all_stops.disable();
+	bt_no_overtake.disable();
 	bt_max_speed_kmh_of_convoi.disable();
 	numimp_max_speed_kmh_of_convoi.disable();
 
@@ -749,6 +755,8 @@ void schedule_gui_t::update_selection()
 		bt_reverse_convoy.pressed = schedule->at(current_stop).is_reverse_convoy();
 		bt_reverse_coupling.enable();
 		bt_reverse_coupling.pressed = schedule->at(current_stop).is_reverse_convoi_coupling();
+		bt_no_overtake.enable();
+		bt_no_overtake.pressed = schedule->at(current_stop).is_no_overtake();
 
 		bt_max_speed_kmh_of_convoi.enable();
 		bt_max_speed_kmh_of_convoi.pressed = schedule->at(current_stop).is_overwrite_max_speed_kmh_of_convoi();
@@ -1199,6 +1207,12 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 		stats->update_schedule();
 		update_selection();
 	}
+	else if(comp == &bt_no_overtake) {
+		if (!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).set_no_overtake(bt_no_overtake.pressed);
+			update_selection();
+		}
+	}
 	else if(  comp == &name_filter_input  ) {
 		if(  strcmp(old_schedule_filter,schedule_filter)  ) {
 			init_line_selector();
@@ -1479,4 +1493,5 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	bt_reverse_convoy.set_visible(reversible_waytype  &&  yesno);
 	bt_reverse_coupling.set_visible(reversible_waytype  &&  yesno);
 	bt_wait_coupling_done.set_visible(coupling_waytype && yesno);
+	bt_no_overtake.set_visible(schedule->get_waytype()==road_wt && yesno); // only for road vehicle
 }

@@ -13,6 +13,7 @@
 #include "../boden/grund.h"
 #include "../dataobj/environment.h"
 #include "zeiger.h"
+#include "../boden/wege/strasse.h"
 
 zeiger_t::zeiger_t(loadsave_t *file) : obj_no_info_t()
 {
@@ -50,6 +51,9 @@ void zeiger_t::change_pos(koord3d k )
 			gr = welt->lookup_kartenboden( get_pos().get_2d() );
 		}
 		if(gr) {
+			if(  strasse_t* road = (strasse_t*)gr->get_weg(road_wt)  ) {
+				road->set_way_building(false);
+			}
 			if(  gr->get_halt().is_bound()  ) {
 				gr->get_halt()->mark_unmark_coverage( false );
 			}

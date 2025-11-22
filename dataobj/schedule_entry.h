@@ -41,19 +41,20 @@ public:
 	}
 
 	enum {
-		NONE               = 0,
-		WAIT_FOR_COUPLING  = 1U << 0, // The convoy waits for the child to couple with.
-		TRY_COUPLING       = 1U << 1, // The convoy finds a parent and couple with. 
-		NO_LOAD            = 1U << 2, // The convoy loads nothing here.
-		NO_UNLOAD          = 1U << 3, // The convoy unloads nothing here.
-		WAIT_FOR_TIME      = 1U << 4, // The convoy waits for the departure time.
-		UNLOAD_ALL         = 1U << 5, // The convoy unloads all loads here.
-		LOAD_BEFORE_DEP    = 1U << 6, // The convoy loads just before the departure.
-		TRANSFER_INTERVAL  = 1U << 7,
-		REVERSE_CONVOY	   = 1U << 8, // convoy reverses the order of its vehicles.
-		REVERSE_COUPLING   = 1U << 9, // The convoy reverses the parent-child relationship of the convoy coupling.
-		WAIT_COUPLING_DONE = 1U << 10,// Do not reserve departure slot until coupling done.
+		NONE              = 0,
+		WAIT_FOR_COUPLING = 1U << 0, // The convoy waits for the child to couple with.
+		TRY_COUPLING      = 1U << 1, // The convoy finds a parent and couple with. 
+		NO_LOAD           = 1U << 2, // The convoy loads nothing here.
+		NO_UNLOAD         = 1U << 3, // The convoy unloads nothing here.
+		WAIT_FOR_TIME     = 1U << 4, // The convoy waits for the departure time.
+		UNLOAD_ALL        = 1U << 5, // The convoy unloads all loads here.
+		LOAD_BEFORE_DEP   = 1U << 6, // The convoy loads just before the departure.
+		TRANSFER_INTERVAL = 1U << 7,
+		REVERSE_CONVOY	  = 1U << 8, // convoy reverses the order of its vehicles.
+		REVERSE_COUPLING  = 1U << 9, // The convoy reverses the parent-child relationship of the convoy coupling.
+		WAIT_COUPLING_DONE= 1U << 10,// Do not reserve departure slot until coupling done.
 		MAX_SPEED_KMH_OF_CONVOI= 1U << 11,// Overwrite max speed of convoy here.
+		NO_OVERTAKE       = 1U << 12// Do not overtake(for road)
 	};
 
 	/**
@@ -162,6 +163,8 @@ public:
 	bool is_overwrite_max_speed_kmh_of_convoi() const {return (stop_flags&MAX_SPEED_KMH_OF_CONVOI) ; }
 	uint16 get_stop_flags() const { return stop_flags; }
 	void set_stop_flags(uint16 f) { stop_flags = f; }
+	bool is_no_overtake() const {return (stop_flags&NO_OVERTAKE)>0 ;}
+	void set_no_overtake(bool y) { y? stop_flags|=NO_OVERTAKE : stop_flags &= ~NO_OVERTAKE;}
 
 	void set_spacing(uint16 a, uint16 b, uint16 c) {
 		spacing = a;
