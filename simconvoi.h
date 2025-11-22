@@ -382,7 +382,7 @@ private:
 	/**
 	 * The temporary speed limit for this convoy.
 	 * For example, as limited by a speed limit sign.
-	 * This value can be edited from vehicle detail window by user.
+	 * This value is set from schedule_entry_t, and can be edited from convoy detail window by user anytime.
 	 */
 	uint16 max_speed_kmh_of_convoi;
 
