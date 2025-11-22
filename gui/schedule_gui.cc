@@ -737,11 +737,9 @@ void schedule_gui_t::update_selection()
 		bt_reverse_convoy.pressed = schedule->at(current_stop).is_reverse_convoy();
 		bt_reverse_coupling.enable();
 		bt_reverse_coupling.pressed = schedule->at(current_stop).is_reverse_convoi_coupling();
-<<<<<<< HEAD
 		bt_uncouple_child.enable();
 		bt_uncouple_child.pressed = schedule->at(current_stop).is_uncouple_child();
     
-=======
 		bt_no_overtake.enable();
 		bt_no_overtake.pressed = schedule->at(current_stop).is_no_overtake();
 
@@ -752,7 +750,6 @@ void schedule_gui_t::update_selection()
 		}
 		numimp_max_speed_kmh_of_convoi.set_value( schedule->at(current_stop).max_speed_kmh_of_convoi );
 
->>>>>>> OTRP-KUTAv6
 		// if the next_line is set, the last entry is same as the next_line->get_schedule()->at(0)
 		// so, the flags of last entry can not be editted.
 		if(  haltestelle_t::get_stoppable_halt(schedule->at(current_stop).pos, player, schedule->get_waytype()).is_bound()  && (  (current_stop != schedule->get_count()-1)  ||  !schedule->get_next_line().is_bound()  )  ) {

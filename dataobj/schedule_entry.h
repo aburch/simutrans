@@ -159,8 +159,6 @@ public:
 	uint16 get_stop_flags() const { return stop_flags; }
 	void set_overwrite_max_speed_kmh_of_convoi(bool y) { y ? stop_flags |= MAX_SPEED_KMH_OF_CONVOI : stop_flags &= ~MAX_SPEED_KMH_OF_CONVOI; }
 	bool is_overwrite_max_speed_kmh_of_convoi() const {return (stop_flags&MAX_SPEED_KMH_OF_CONVOI) ; }
-	uint16 get_stop_flags() const { return stop_flags; }
-	void set_stop_flags(uint16 f) { stop_flags = f; }
 	bool is_no_overtake() const {return (stop_flags&NO_OVERTAKE)>0 ;}
 	void set_no_overtake(bool y) { y? stop_flags|=NO_OVERTAKE : stop_flags &= ~NO_OVERTAKE;}
 
