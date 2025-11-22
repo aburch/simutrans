@@ -214,6 +214,13 @@ Cost: %8s (%d$/km)\n
 費用: %8s (%d 円/km)\n
 (%d$/km)
 (%d 円/km)
+#------加速度表記-----
+terminal speed:
+終端速度:
+terminal speed: UNLIMITED
+終端速度: ∞
+terminal speed: to compare acceleration.
+終端速度:加速度比較用の数値で、平坦線における性能上到達可能な最高速度です。
 #------送金関連------
 Sending money
 送金

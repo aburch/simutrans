@@ -527,7 +527,7 @@ void depot_frame_t::layout(scr_size *size)
 	lb_convoi_speed.set_width(win_size.w - D_MARGIN_RIGHT - D_MARGIN_LEFT);
 	lb_convoi_terminal_speed.set_pos(scr_coord(second_column_x, CINFO_VSTART + LINESPACE * 3));
 	lb_convoi_terminal_speed.set_width(second_column_w);
-	lb_convoi_terminal_speed.set_tooltip("terminal speed: to compare acceleration.");
+	lb_convoi_terminal_speed.set_tooltip(translator::translate("terminal speed: to compare acceleration."));
 
 	/*
 	 * [ACTIONS]
@@ -1310,9 +1310,9 @@ void depot_frame_t::update_data()
 			txt_convoi_terminal_speed.clear();
 			if(  cnv->front()->get_waytype() != air_wt  ) {
 				if(  balance_kmh<test_balance_kmh  ) {
-					txt_convoi_terminal_speed.printf("%s %d km/h","terminal speed:", balance_kmh);
+					txt_convoi_terminal_speed.printf("%s %d km/h", translator::translate("terminal speed:"), balance_kmh);
 				} else {
-					txt_convoi_terminal_speed.printf("terminal speed: UNLIMITED");
+					txt_convoi_terminal_speed.printf(translator::translate("terminal speed: UNLIMITED"));
 				}
 			}
 		}
