@@ -553,7 +553,7 @@ fabrik_t* factory_builder_t::build_factory(koord3d* parent, const factory_desc_t
 		stadt_t *stadt = welt->find_nearest_city(pos.get_2d());
 		if(  stadt  ) {
 			cbuffer_t buf;
-			buf.printf("%s(%s)", translator::translate(info->get_name(), welt->get_settings().get_name_language_id()), stadt->get_name());
+			buf.printf("%s %s", stadt->get_name(), translator::translate(info->get_name(), welt->get_settings().get_name_language_id()));
 			fab->set_name(buf);
 		}
 	}

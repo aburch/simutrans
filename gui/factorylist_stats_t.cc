@@ -141,7 +141,7 @@ bool factorylist_stats_t::compare(const gui_component_t *aa, const gui_component
 			break;
 		case factorylist::by_desc_name:
 		{	
-			cmp = STRICMP(a->get_desc()->get_name(), b->get_desc()->get_name());
+			cmp = STRICMP(translator::translate(a->get_desc()->get_name()), translator::translate(b->get_desc()->get_name()));
 			break;
 		}
 		case factorylist::by_input:
