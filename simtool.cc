@@ -57,6 +57,7 @@
 #include "gui/messagebox.h"
 #include "gui/simple_number_input.h"
 #include "gui/signal_info.h"
+#include "gui/end_of_choose_info.h"
 
 #include "obj/zeiger.h"
 #include "obj/bruecke.h"
@@ -2965,6 +2966,32 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 			}
 			else {
 				way->set_image( desc->get_image_id(zeige,0) );
+			}
+			if(  desc->get_wtyp()==road_wt && skinverwaltung_t::ribi_arrow!=NULL  ) {
+				if(overtaking_mode<=oneway_mode) {
+					ribi_t::ribi oneway_ribi = (is_ctrl_pressed()? j!=bauigel.get_count()-1: j!=0)? ribi_type(bauigel.get_route()[is_ctrl_pressed()? j+1: j-1]-bauigel.get_route()[j]): ribi_t::none;
+					if( weg_t* road=gr->get_weg(road_wt) ) {
+						dynamic_cast<strasse_t*>(road)->set_way_building(true);
+						if(  is_ctrl_pressed()? j==0: j==bauigel.get_count()-1  ) {
+							if( ribi_t::is_single(road->get_ribi_unmasked()) ) {
+								// oneway_ribi already updated
+							}
+							else if( ribi_t::is_twoway(road->get_ribi_unmasked()) ) {
+								oneway_ribi=(oneway_ribi&road->get_ribi_unmasked())>0?oneway_ribi:oneway_ribi|road->get_ribi();
+							}
+							else {
+								oneway_ribi |= road->get_ribi();
+							}
+						} else {
+							ribi_t::ribi mask_ribi = ribi_type(bauigel.get_route()[is_ctrl_pressed()? j-1: j+1]-bauigel.get_route()[j]);
+							oneway_ribi |= (road->get_ribi() & ~mask_ribi);
+						}
+					}
+					way->set_foreground_image(skinverwaltung_t::ribi_arrow->get_image_id(oneway_ribi));
+				}
+				else if(!env_t::show_oneway_ribi_only){
+					way->set_foreground_image(skinverwaltung_t::ribi_arrow->get_image_id(zeige));
+				}
 			}
 			gr->obj_add( way );
 			way->set_yoff(-gr->get_weg_yoff() );
@@ -7055,7 +7082,7 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 			}
 			else if(!catch_all_halt) {
 				// builds a coordinate list
-				if(wt==road_wt) {
+				if(is_ctrl_pressed()) {
 					old_platform.append(last_pos);
 				}
 				else {
@@ -8170,6 +8197,7 @@ bool scenario_check_convoy(karte_t *welt, player_t *player, convoihandle_t cnv, 
  * 'e' : toggle delay recovery
  * 't' : go to next stop
  * 'v' : reversing convoi direction
+ * 'm' : apply max speed of convoy
  */
 bool tool_change_convoi_t::init( player_t *player )
 {
@@ -8370,6 +8398,14 @@ bool tool_change_convoi_t::init( player_t *player )
 		case 'v':
 		{
 			cnv->reverse_vehicles_on_user_request();
+		}
+		break;
+
+		case 'm':
+		{
+			uint16 max_speed_kmh_of_convoi=0;
+			int count=sscanf( p, "%hi", &max_speed_kmh_of_convoi);
+			cnv->set_max_speed_kmh_of_convoi(max_speed_kmh_of_convoi);
 		}
 		break;
 	}
@@ -9059,7 +9095,10 @@ bool tool_change_traffic_light_t::init( player_t *player )
  * change state of roadsign
  * r:set lane affinity for oneway road sign
  * s:set guide signal state for signal
+ * o:set choose signal
  * a:set advance to end state for signal
+ * c:set end of choose signal
+ * g:set end of guide signal
  * 
  */
 bool tool_change_roadsign_t::init( player_t* )
@@ -9099,6 +9138,19 @@ bool tool_change_roadsign_t::init( player_t* )
 		}
 		break;
 
+		case 'o':
+		// set guide signal state for signal
+		if(  grund_t *gr = welt->lookup(pos)  ) {
+			if( roadsign_t *rs = gr->find<signal_t>()  ) {
+				rs->set_choose_signal(inst);
+				signal_info_t* signal_info_win = (signal_info_t*)win_get_magic((ptrdiff_t)rs);
+				if(  signal_info_win  ) {
+					signal_info_win->update_data();
+				}
+			}
+		}
+		break;
+
 		case 'a':
 		// set advance to end state for signal
 		if(  grund_t *gr = welt->lookup(pos)  ) {
@@ -9110,6 +9162,34 @@ bool tool_change_roadsign_t::init( player_t* )
 				}
 			}
 		}
+		break;
+		case 'c':
+		if(  grund_t *gr = welt->lookup(pos)  ) {
+			if( roadsign_t *rs = gr->find<roadsign_t>()  ) {
+				if(  rs->get_waytype()!=road_wt && rs->get_waytype()!=water_wt && rs->get_waytype()!=air_wt  ) {
+					rs->set_end_of_choose(inst);
+					end_of_choose_info_t* signal_info_win = (end_of_choose_info_t*)win_get_magic((ptrdiff_t)rs);
+					if(  signal_info_win  ) {
+						signal_info_win->update_data();
+					}
+				}
+			}
+		}
+		break;
+		case 'g':
+		if(  grund_t *gr = welt->lookup(pos)  ) {
+			if( roadsign_t *rs = gr->find<roadsign_t>()  ) {
+				if(  rs->get_waytype()!=road_wt && rs->get_waytype()!=water_wt && rs->get_waytype()!=air_wt  ) {
+					rs->set_end_of_guide(inst);
+					end_of_choose_info_t* signal_info_win = (end_of_choose_info_t*)win_get_magic((ptrdiff_t)rs);
+					if(  signal_info_win  ) {
+						signal_info_win->update_data();
+					}
+				}
+			}
+		}
+		break;
+
 
 		default:
 		// do nothing

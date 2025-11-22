@@ -235,7 +235,7 @@ bool schedule_gui_stats_t::action_triggered(gui_action_creator_t *, value_t v)
 
 cbuffer_t schedule_gui_stats_t::buf;
 
-schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoihandle_t cnv_) :
+schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoihandle_t cnv_, const char* cnv_line_name) :
 	gui_frame_t( translator::translate("Fahrplan"), NULL),
 	line_selector(line_scrollitem_t::compare),
 	next_line_selector(non_color_line_scroll_item_t::compare),
@@ -244,7 +244,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoih
 	lb_wait("1/"),
 	lb_load("Full load"),
 	lb_departure_slot_group("Departure slot group"),
-	lb_max_speed("Maxspeed"),
+	lb_max_speed("Max speed of line"),
 	lb_tbgr_waiting_time("Additional goods routing waiting time"),
 	lb_length_coupling_done("Convoys length coupling done"),
 	stats(new schedule_gui_stats_t() ),
@@ -256,7 +256,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoih
 	schedule_filter[0] = 0;
 	old_schedule_filter[0] = 0;
 	if (schedule_) {
-		init(schedule_, player_, cnv_);
+		init(schedule_, player_, cnv_, cnv_line_name);
 	}
 }
 
@@ -271,7 +271,7 @@ schedule_gui_t::~schedule_gui_t()
 	delete stats;
 }
 
-void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_t cnv)
+void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_t cnv, const char* cnv_line_name)
 {
 	// initialization
 	this->old_schedule = schedule_;
@@ -298,6 +298,18 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	stats->add_listener(this);
 
 	set_table_layout(1,0);
+
+	add_table(1,1);
+	if(  cnv.is_bound()  ) {
+		snprintf(lb_cnv_line_name_str,255,cnv->get_name());
+	} else {
+		snprintf(lb_cnv_line_name_str,255,cnv_line_name);
+	}
+	lb_cnv_line_name.set_text(lb_cnv_line_name_str);
+	add_component(&lb_cnv_line_name);
+	end_table();
+
+
 
 	if(  cnv.is_bound()  ) {
 		add_table(3,2);
@@ -421,6 +433,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	// max speed setting
 	add_table(2,1);
 	{
+		lb_max_speed.set_tooltip(translator::translate("Limits the max speed of all convoys on this line."));
 		add_component(&lb_max_speed);
 		numimp_max_speed.set_width( 60 );
 		numimp_max_speed.set_value( schedule->get_max_speed() );
@@ -428,6 +441,24 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		numimp_max_speed.set_increment_mode(1);
 		numimp_max_speed.add_listener(this);
 		add_component(&numimp_max_speed);
+	}
+	end_table();
+
+	// convoi max speed setting
+	add_table(2,1);
+	{
+		bt_max_speed_kmh_of_convoi.init(button_t::square_state, "Overwrite max speed of convoy");
+		bt_max_speed_kmh_of_convoi.set_tooltip("Overwrite max speed of convoy here.");
+		bt_max_speed_kmh_of_convoi.add_listener(this);
+		bt_max_speed_kmh_of_convoi.disable();
+		add_component(&bt_max_speed_kmh_of_convoi);
+		numimp_max_speed_kmh_of_convoi.set_width( 60 );
+		numimp_max_speed_kmh_of_convoi.set_value( 0 );
+		numimp_max_speed_kmh_of_convoi.set_limits( 0, 65535 );
+		numimp_max_speed_kmh_of_convoi.set_increment_mode(1);
+		numimp_max_speed_kmh_of_convoi.add_listener(this);
+		numimp_max_speed_kmh_of_convoi.disable();
+		add_component(&numimp_max_speed_kmh_of_convoi);
 	}
 	end_table();
 
@@ -566,6 +597,11 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	bt_same_dep_time.pressed = schedule->is_same_dep_time();
 	add_component(&bt_same_dep_time);
 
+	bt_no_overtake.init(button_t::square_automatic, "No overtake");
+	bt_no_overtake.set_tooltip("Do not overtake other cars until this stop.");
+	bt_no_overtake.add_listener(this);
+	add_component(&bt_no_overtake);
+
 	if(  !cnv.is_bound()  ) {
 		lb_departure_slot_group.set_tooltip(translator::translate("Shares the departure time slot with the selected line here."));
 		add_component(&lb_departure_slot_group);
@@ -700,6 +736,9 @@ void schedule_gui_t::update_selection()
 	bt_transfer_interval.disable();
 	bt_reverse_convoy.disable();
 	bt_reverse_coupling.disable();
+	bt_no_overtake.disable();
+	bt_max_speed_kmh_of_convoi.disable();
+	numimp_max_speed_kmh_of_convoi.disable();
 
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
@@ -708,7 +747,16 @@ void schedule_gui_t::update_selection()
 		bt_reverse_convoy.pressed = schedule->at(current_stop).is_reverse_convoy();
 		bt_reverse_coupling.enable();
 		bt_reverse_coupling.pressed = schedule->at(current_stop).is_reverse_convoi_coupling();
-    
+		bt_no_overtake.enable();
+		bt_no_overtake.pressed = schedule->at(current_stop).is_no_overtake();
+
+		bt_max_speed_kmh_of_convoi.enable();
+		bt_max_speed_kmh_of_convoi.pressed = schedule->at(current_stop).is_overwrite_max_speed_kmh_of_convoi();
+		if (  schedule->at(current_stop).is_overwrite_max_speed_kmh_of_convoi()  ) {
+			numimp_max_speed_kmh_of_convoi.enable();
+		}
+		numimp_max_speed_kmh_of_convoi.set_value( schedule->at(current_stop).max_speed_kmh_of_convoi );
+
 		// if the next_line is set, the last entry is same as the next_line->get_schedule()->at(0)
 		// so, the flags of last entry can not be editted.
 		if(  haltestelle_t::get_stoppable_halt(schedule->at(current_stop).pos, player, schedule->get_waytype()).is_bound()  && (  (current_stop != schedule->get_count()-1)  ||  !schedule->get_next_line().is_bound()  )  ) {
@@ -1096,6 +1144,18 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 	else if(comp == &numimp_max_speed) {
 		schedule->set_max_speed((uint16)p.i);
 	}
+	else if(comp == &bt_max_speed_kmh_of_convoi) {
+		if (!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).set_overwrite_max_speed_kmh_of_convoi(!bt_max_speed_kmh_of_convoi.pressed);
+			update_selection();
+		}
+	}
+	else if(comp == &numimp_max_speed_kmh_of_convoi) {
+		if (!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).max_speed_kmh_of_convoi = (uint16)p.i;
+			update_selection();
+		}
+	}
 	else if(comp == &numimp_tbgr_waiting_time) {
 		schedule->set_additional_base_waiting_time((uint32)p.i);
 	}
@@ -1128,6 +1188,12 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 		init_departure_slot_group_selector();
 		stats->update_schedule();
 		update_selection();
+	}
+	else if(comp == &bt_no_overtake) {
+		if (!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).set_no_overtake(bt_no_overtake.pressed);
+			update_selection();
+		}
 	}
 	else if(  comp == &name_filter_input  ) {
 		if(  strcmp(old_schedule_filter,schedule_filter)  ) {
@@ -1396,13 +1462,17 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	numimp_tbgr_waiting_time.set_visible(yesno);
 	lb_next_line.set_visible(yesno);
 	next_line_selector.set_visible(yesno);
+	bt_max_speed_kmh_of_convoi.set_visible(yesno);
+	numimp_max_speed_kmh_of_convoi.set_visible(yesno);
 	
 	const bool coupling_waytype = schedule->get_waytype()!=road_wt  &&  schedule->get_waytype()!=air_wt  &&  schedule->get_waytype()!=water_wt;
+	const bool reversible_waytype = env_t::reversible_waytype(schedule->get_waytype());
 	bt_wait_for_child.set_visible(coupling_waytype  &&  yesno);
 	bt_find_parent.set_visible(coupling_waytype  &&  yesno);
-	bt_reverse_convoy.set_visible(coupling_waytype  &&  yesno);
-	bt_reverse_coupling.set_visible(coupling_waytype  &&  yesno);
+	bt_reverse_convoy.set_visible(reversible_waytype  &&  yesno);
+	bt_reverse_coupling.set_visible(reversible_waytype  &&  yesno);
 	bt_wait_coupling_done.set_visible(coupling_waytype && yesno);
 	lb_length_coupling_done.set_visible(coupling_waytype && yesno);
 	numimp_length_coupling_done.set_visible(coupling_waytype && yesno);
+	bt_no_overtake.set_visible(schedule->get_waytype()==road_wt && yesno); // only for road vehicle
 }
