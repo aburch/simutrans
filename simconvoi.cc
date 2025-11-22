@@ -187,6 +187,8 @@ void convoi_t::init(player_t *player)
 
 	in_delay_recovery = false;
 	reversed = false;
+
+	max_speed_kmh_of_convoi = 0;
 }
 
 
@@ -814,6 +816,10 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 			if(  c->get_schedule()->get_max_speed()>0  ) {
 				// max speed of schedule is enforced.
 				speed_limit = min( speed_limit, kmh_to_speed(c->get_schedule()->get_max_speed()) );
+			}
+			if(  c->get_max_speed_kmh_of_convoi()>0  ) {
+				// max speed of convoi is enforced.
+				speed_limit = min( speed_limit, kmh_to_speed(c->get_max_speed_kmh_of_convoi()) );
 			}
 			c = c->get_coupling_convoi();
 		}
@@ -1850,6 +1856,15 @@ void convoi_t::ziel_erreicht()
 	c = self;
 	while(  c.is_bound()  ) {
 		c->reset_departure_time();
+		c = c->get_coupling_convoi();
+	}
+
+	c = self;
+	while(c.is_bound()) {
+		if (  c->get_schedule()->get_current_entry().is_overwrite_max_speed_kmh_of_convoi()  ) {
+			c->set_max_speed_kmh_of_convoi(c->get_schedule()->get_current_entry().max_speed_kmh_of_convoi);
+			c->must_recalc_speed_limit();
+		}
 		c = c->get_coupling_convoi();
 	}
 
@@ -3208,6 +3223,12 @@ void convoi_t::rdwr(loadsave_t *file)
 		// before v45, reversing in depot flag is recorded in reversed
 		reversed = false;
 		reversing_needed = true;
+	}
+
+	if(  file->get_OTRP_version()>=47  ) {
+		file->rdwr_short( max_speed_kmh_of_convoi );
+	} else {
+		max_speed_kmh_of_convoi = 0;
 	}
 
 	if(  file->is_loading()  ) {
@@ -5722,6 +5743,11 @@ void convoi_t::unset_convoi_coupling_in_progress() {
 	c->delete_convoi_coupling_in_progress();
 	self->delete_convoi_coupling_in_progress();
 	dbg->message( "convoi_t::unset_convoi_coupling_in_progress()","%i and %i convoys are now coupling or canceling couple", self.get_id(), c->self.get_id() );
+}
+
+void convoi_t::set_max_speed_kmh_of_convoi(uint16 n) {
+	max_speed_kmh_of_convoi = n;
+	must_recalc_speed_limit();
 }
 
 
