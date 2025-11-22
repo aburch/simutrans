@@ -32,7 +32,8 @@ public:
 		dirty      = 1 << 0, /// mark image dirty when drawing
 		not_on_map = 1 << 1, /// this object is not placed on any tile (e.g. vehicles in a depot)
 		is_vehicle = 1 << 2, /// this object is a vehicle obviously
-		highlight  = 1 << 3  /// for drawing some highlighted outline
+		highlight  = 1 << 3, /// for drawing some highlighted outline
+		convoy_way = 1 << 4  /// for drawing convoy route
 	};
 
 	// display only outline with player color on owner stuff
@@ -68,7 +69,7 @@ private:
 	/**
 	 * @see flag_values
 	 */
-	uint8 flags:4;
+	uint8 flags:5;
 
 private:
 	/**

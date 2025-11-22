@@ -177,6 +177,7 @@ void convoi_t::init(player_t *player)
 	request_cross_ticks = 0;
 	prev_tiles_overtaking = 0;
 
+	longblock_signal_request.valid = false;
 	crossing_reservation_index.clear();
 	recalc_min_top_speed = true;
 	recalc_friction_weight = true;
@@ -186,6 +187,8 @@ void convoi_t::init(player_t *player)
 
 	in_delay_recovery = false;
 	reversed = false;
+
+	max_speed_kmh_of_convoi = 0;
 }
 
 
@@ -813,6 +816,10 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 			if(  c->get_schedule()->get_max_speed()>0  ) {
 				// max speed of schedule is enforced.
 				speed_limit = min( speed_limit, kmh_to_speed(c->get_schedule()->get_max_speed()) );
+			}
+			if(  c->get_max_speed_kmh_of_convoi()>0  ) {
+				// max speed of convoi is enforced.
+				speed_limit = min( speed_limit, kmh_to_speed(c->get_max_speed_kmh_of_convoi()) );
 			}
 			c = c->get_coupling_convoi();
 		}
@@ -1529,6 +1536,15 @@ void convoi_t::step()
 			return; // must not continue method after deleting this object
 
 		case DRIVING:
+			if(fahr[0]->get_waytype()==track_wt  ||  fahr[0]->get_waytype()==monorail_wt  ||  fahr[0]->get_waytype()==maglev_wt  ||  fahr[0]->get_waytype()==narrowgauge_wt) {
+				rail_vehicle_t* v = dynamic_cast<rail_vehicle_t*>(fahr[0]);
+				if(  v  &&  longblock_signal_request.valid  ) {
+					// process longblock signal judgement request
+					sint32 dummy = -1;
+					v->check_longblock_signal(longblock_signal_request.sig, longblock_signal_request.next_block, dummy);
+					set_longblock_signal_judge_request_invalid();
+				}
+			}
 			break;
 
 		case WAITING_FOR_LEAVING_DEPOT:
@@ -1843,6 +1859,15 @@ void convoi_t::ziel_erreicht()
 		c = c->get_coupling_convoi();
 	}
 
+	c = self;
+	while(c.is_bound()) {
+		if (  c->get_schedule()->get_current_entry().is_overwrite_max_speed_kmh_of_convoi()  ) {
+			c->set_max_speed_kmh_of_convoi(c->get_schedule()->get_current_entry().max_speed_kmh_of_convoi);
+			c->must_recalc_speed_limit();
+		}
+		c = c->get_coupling_convoi();
+	}
+
 	const vehicle_t* v = fahr[0];
 
 	// check, what is at destination!
@@ -1916,17 +1941,7 @@ void convoi_t::ziel_erreicht()
 				set_next_coupling(route_t::INVALID_INDEX, 0);
 				v->get_convoi()->set_coupling_done(true);
 				coupling_done = true;
-				// then, chage the order if next direction is backward of "self"
-				// Attention! reverse_convoy_coupling() must be called when loading!
-				// if we call it before stop, the convoys will be reversed immediately, and it makes position calculation bug. 
-				// the direction of the waiting vehicle is same? opposite?
-				route_t r;
 				check_electrification();
-				route_t::route_result_t res = r.calc_route(welt, front()->get_pos(), schedule->get_next_entry().pos, front(), speed_to_kmh(min_top_speed), 8888);
-				bool const should_this_convoy_be_parent = (res==route_t::no_route || r.get_count()<2) ? false : (ribi_type(r.at(0), r.at(1)) & front()->get_direction()) == 0 ? true : false;
-				if(  should_this_convoy_be_parent  ) {
-					temp_parent_convoi->reverse_convoy_coupling();
-				}
 				return;
 			}
 		}
@@ -3210,6 +3225,12 @@ void convoi_t::rdwr(loadsave_t *file)
 		reversing_needed = true;
 	}
 
+	if(  file->get_OTRP_version()>=47  ) {
+		file->rdwr_short( max_speed_kmh_of_convoi );
+	} else {
+		max_speed_kmh_of_convoi = 0;
+	}
+
 	if(  file->is_loading()  ) {
 		reserve_route();
 		recalc_catg_index();
@@ -3733,6 +3754,35 @@ void calc_reachable_halts(vector_tpl<haltestelle_t::reachable_halt_t>& reachable
  */
 void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_steps)
 {
+	convoihandle_t c = self;
+
+
+	if(  get_coupling_convoi().is_bound() && !is_coupled()  ) {
+		convoihandle_t const temp_parent_convoi = self;
+		bool coupled_at_this_stop = false;
+		while(  c->get_coupling_convoi().is_bound()  ) {
+			// if this convoy is trying coupling, we must check the direction and reverse if needed.
+			// THIS CHECK IS ONLY ONECE IN ONE COUPLING! We use a coupling_done flag in try_coupling convoy to know.
+			c = c->get_coupling_convoi();
+			coupled_at_this_stop |= ( c->get_schedule()->get_current_entry().is_try_coupling() && c->is_coupling_done() );
+			if(c->get_schedule()->get_current_entry().is_try_coupling()) {
+				c->set_coupling_done(false);
+			}
+		}
+		if(  coupled_at_this_stop && c->get_schedule()->get_count()>1  ) {
+			dbg->message("convoi_t::hat_gehalten()","%s coupling at this stop. check the direction at %s",get_name(),temp_parent_convoi->front()->get_pos().get_str());
+			// chage the order if next direction is backward of "self"
+			// Attention! reverse_convoy_coupling() must be called when loading!
+			// if we call it before stop, the convoys will be reversed immediately, and it makes position calculation bug. 
+			// the direction of the waiting vehicle is same? opposite?
+			route_t r;
+			route_t::route_result_t res = r.calc_route(welt, c->front()->get_pos(), c->get_schedule()->get_next_entry().pos, front(), speed_to_kmh(min_top_speed), 8888);
+			bool const should_this_convoy_be_parent = (res==route_t::no_route || r.get_count()<2) ? false : ((ribi_type(r.at(0), r.at(1)) & c->front()->get_direction()) == 0 ? true : false);
+			if(  should_this_convoy_be_parent  ) {
+				temp_parent_convoi->reverse_convoy_coupling();
+			}
+		}
+	}
 	// Count how many vehicles can load and unload.
 	uint8 vehicles_loading = 0;
 	uint32 convoy_length_step = 0;
@@ -3873,7 +3923,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 		return;
 	}
 
-	convoihandle_t c = self;
+	c = self;
 	if(  !is_coupled()  &&  recalc_min_top_speed  ) {
 		check_electrification();
 		calc_min_top_speed();
@@ -5215,6 +5265,11 @@ void convoi_t::set_next_cross_lane(bool n) {
 	}
 }
 
+void convoi_t::request_longblock_signal_judge(signal_t *sig, uint16 next_block) {
+	longblock_signal_request.sig = sig;
+	longblock_signal_request.next_block = next_block;
+	longblock_signal_request.valid = true;
+}
 
 void convoi_t::clear_reserved_tiles(){
 	if(  reserved_tiles.get_count()==0  ) {
@@ -5679,6 +5734,11 @@ void convoi_t::unset_convoi_coupling_in_progress() {
 	c->delete_convoi_coupling_in_progress();
 	self->delete_convoi_coupling_in_progress();
 	dbg->message( "convoi_t::unset_convoi_coupling_in_progress()","%i and %i convoys are now coupling or canceling couple", self.get_id(), c->self.get_id() );
+}
+
+void convoi_t::set_max_speed_kmh_of_convoi(uint16 n) {
+	max_speed_kmh_of_convoi = n;
+	must_recalc_speed_limit();
 }
 
 
