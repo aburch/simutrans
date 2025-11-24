@@ -8,27 +8,35 @@ sudo apt-get -ym install curl expect git libc6:i386 libgcc1:i386 libncurses6:i38
 sudo mkdir -p /opt/android-sdk-linux
 sudo chown -R $USER /opt/android-sdk-linux
 
+cd /opt/android-sdk-linux
+wget https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip
+unzip commandlinetools-linux-13114758_latest.zip
+rm commandlinetools-linux-13114758_latest.zip
+mv cmdline-tools latest
+mkdir cmdline-tools
+mv latest cmdline-tools/latest
+
 echo "export ANDROID_HOME=/opt/android-sdk-linux" >> ~/.profile
 echo "export ANDROID_SDK_HOME=/opt/android-sdk-linux" >> ~/.profile
 echo "export ANDROID_SDK_ROOT=/opt/android-sdk-linux" >> ~/.profile
 echo "export ANDROID_SDK=/opt/android-sdk-linux" >> ~/.profile
 echo "export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> ~/.profile
-echo "export ANDROID_NDK=/opt/android-sdk-linux/ndk/25.1.8937393/" >> ~/.profile
+echo "export ANDROID_NDK=/opt/android-sdk-linux/ndk/28.2.13676358/" >> ~/.profile
 
 echo 'alias bundletool="java -jar /opt/android-sdk-linux/cmdline-tools/latest/bin/bundletool-all-1.15.2.jar"' >> ~/.profile
 
-echo 'PATH=$PATH:/opt/android-sdk-linux/cmdline-tools/latest/bin:/opt/android-sdk-linux/platform-tools:/opt/android-sdk-linux/build-tools/34.0.0:/opt/android-sdk-linux/cmake/3.22.1/bin:/opt/android-sdk-linux/ndk/25.1.8937393:/opt/android-sdk-linux/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/' >> ~/.profile
+echo 'PATH=$PATH:/opt/android-sdk-linux/cmdline-tools/latest/bin:/opt/android-sdk-linux/platform-tools:/opt/android-sdk-linux/build-tools/35.0.0:/opt/android-sdk-linux/cmake/3.22.1/bin:/opt/android-sdk-linux/ndk/28.2.13676358:/opt/android-sdk-linux/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/' >> ~/.profile
 
 export ANDROID_HOME=/opt/android-sdk-linux
 export ANDROID_SDK_HOME=/opt/android-sdk-linux
 export ANDROID_SDK_ROOT=/opt/android-sdk-linux
 export ANDROID_SDK=/opt/android-sdk-linux
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-export ANDROID_NDK=/opt/android-sdk-linux/ndk/25.1.8937393/
+export ANDROID_NDK=/opt/android-sdk-linux/ndk/28.2.13676358/
 
 alias bundletool="java -jar /opt/android-sdk-linux/cmdline-tools/latest/bin/bundletool-all-1.15.2.jar"
 
-PATH=$PATH:/opt/android-sdk-linux/cmdline-tools/latest/bin:/opt/android-sdk-linux/platform-tools:/opt/android-sdk-linux/build-tools/34.0.0:/opt/android-sdk-linux/cmake/3.22.1/bin:/opt/android-sdk-linux/ndk/25.1.8937393:/opt/android-sdk-linux/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/
+PATH=$PATH:/opt/android-sdk-linux/cmdline-tools/latest/bin:/opt/android-sdk-linux/platform-tools:/opt/android-sdk-linux/build-tools/35.0.0:/opt/android-sdk-linux/cmake/3.22.1/bin:/opt/android-sdk-linux/ndk/28.2.13676358:/opt/android-sdk-linux/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/
 
 cd /opt/android-sdk-linux
 wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
@@ -39,10 +47,10 @@ mkdir cmdline-tools
 mv latest cmdline-tools/latest
 yes | cmdline-tools/latest/bin/sdkmanager --licenses
 yes | cmdline-tools/latest/bin/sdkmanager --install "platform-tools"
-yes | cmdline-tools/latest/bin/sdkmanager --install "build-tools;34.0.0"
+yes | cmdline-tools/latest/bin/sdkmanager --install "build-tools;35.0.0"
 yes | cmdline-tools/latest/bin/sdkmanager --install "cmake;3.22.1"
-yes | cmdline-tools/latest/bin/sdkmanager --install "ndk;25.1.8937393"
-ln -s llvm-objdump /opt/android-sdk-linux/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/objdump
+yes | cmdline-tools/latest/bin/sdkmanager --install "ndk;28.2.13676358"
+ln -s llvm-objdump /opt/android-sdk-linux/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/objdump
 
 cd cmdline-tools/latest/bin
 wget https://github.com/google/bundletool/releases/download/1.15.2/bundletool-all-1.15.2.jar
@@ -59,3 +67,7 @@ echo "export SIGNING_KEYSTORE=~/.android/debug.keystore" >> ~/.profile
 echo "export SIGNING_STORE_PASSWORD=android" >> ~/.profile
 echo "export SIGNING_KEY_PASSWORD=android" >> ~/.profile
 echo "export SIGNING_KEY_ALIAS=androiddebugkey" >> ~/.profile
+
+echo "**************************************************"
+echo "** Please logout before run the next setup script!"
+echo "**************************************************"
