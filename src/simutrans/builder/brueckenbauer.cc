@@ -1009,7 +1009,7 @@ const char* bridge_builder_t::renovate(player_t* player, koord3d pos_start, wayt
 	// Check whether we can replace the ends
 	for (grund_t *& gr : end_list) {
 		const slope_t::type slope = gr->get_grund_hang();
-		if (desc->get_end(slope, slope, gr->get_weg_hang()) == IMG_EMPTY) {
+		if (desc->get_end(slope, slope, gr->get_weg_hang()) == (bridge_desc_t::img_t)IMG_EMPTY) {
 			// wrong starting slope
 			return "bridge is too high for its type!";
 		}
