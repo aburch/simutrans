@@ -12,6 +12,7 @@
 #include "simdebug.h"
 #include "display/simimg.h"
 #include "simcolor.h"
+#include "simmesg.h"
 #include "boden/grund.h"
 #include "boden/boden.h"
 #include "boden/fundament.h"
@@ -2772,9 +2773,19 @@ void fabrik_t::new_month()
 	const uint16 timeline_month = welt->get_timeline_year_month(); // This will be 0 if timeline is disabled.
 	const uint16 retire_month = desc->get_building()->get_retire_year_month();
 	const uint32 latest_retire_month = retire_month + (12 * welt->get_settings().get_factory_max_years_obsolete());//welt->get_settings().get_factory_max_years_obsolete());
-	if(welt->get_settings().is_close_old_factory() && (timeline_month > retire_month && (latest_retire_month <= timeline_month || simrand(latest_retire_month - timeline_month) == 0)))
+	if(welt->get_settings().is_close_old_factory() && timeline_month > retire_month)
 	{
-		welt->closed_factories_this_month.append(this);
+		if(latest_retire_month <= timeline_month || simrand(latest_retire_month - timeline_month) == 0)
+		{
+			welt->closed_factories_this_month.append(this);
+			cbuffer_t buf;
+			buf.printf( translator::translate("Factory %s has closed."), get_name());
+			welt->get_message()->add_message( (const char *)buf, get_pos().get_2d(), message_t::warnings, CITY_KI, get_desc()->get_building()->get_tile(0)->get_background(0, 0, 0));
+		} else {
+			cbuffer_t buf;
+			buf.printf( translator::translate("Factory %s is retired! Close soon!"), get_name());
+			welt->get_message()->add_message( (const char *)buf, get_pos().get_2d(), message_t::warnings, CITY_KI, get_desc()->get_building()->get_tile(0)->get_background(0, 0, 0));
+		}
 	}
 }
 
@@ -3033,6 +3044,11 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 				);
 			}
 		}
+	}
+	
+	if ( welt->get_settings().is_close_old_factory() && welt->get_timeline_year_month()>desc->get_building()->get_retire_year_month() ) {
+		buf.append("\n\n");
+		buf.append("** This Factory Will Close Soon! **");
 	}
 }
 
