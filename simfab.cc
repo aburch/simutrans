@@ -2784,7 +2784,7 @@ void fabrik_t::new_month()
 		} else {
 			cbuffer_t buf;
 			buf.printf( translator::translate("Factory %s is retired! Close soon!"), get_name());
-			welt->get_message()->add_message( (const char *)buf, get_pos().get_2d(), message_t::warnings, CITY_KI, get_desc()->get_building()->get_tile(0)->get_background(0, 0, 0));
+			welt->get_message()->add_message( (const char *)buf, get_pos().get_2d(), message_t::industry, CITY_KI, get_desc()->get_building()->get_tile(0)->get_background(0, 0, 0));
 		}
 	}
 }
