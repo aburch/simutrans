@@ -2765,6 +2765,17 @@ void fabrik_t::new_month()
 
 	// since target cities' population may be increased -> re-apportion pax/mail demand
 	recalc_demands_at_target_cities();
+	
+	// Check to see whether factory is obsolete.
+	// If it is, give it a distribution_weight of being closed down.
+
+	const uint16 timeline_month = welt->get_timeline_year_month(); // This will be 0 if timeline is disabled.
+	const uint16 retire_month = desc->get_building()->get_retire_year_month();
+	const uint32 latest_retire_month = retire_month + (12 * 30);//welt->get_settings().get_factory_max_years_obsolete());
+	if(welt->get_settings().is_close_old_factory() && (timeline_month > retire_month && (latest_retire_month <= timeline_month || simrand(latest_retire_month - timeline_month) == 0)))
+	{
+		welt->closed_factories_this_month.append(this);
+	}
 }
 
 
