@@ -157,7 +157,11 @@ settings_t::settings_t() :
 	crossconnect_factories=false;
 	crossconnect_factor=33;
 #endif
+
+	// Factory retirement settings
+	factory_max_years_obsolete = 30;
 	close_old_factory = false;
+	
 
 	/* minimum spacing between two factories */
 	min_factory_spacing = 6;
@@ -983,6 +987,7 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 		if(  file->get_OTRP_version() >= 48  ) {
 			file->rdwr_bool(close_old_factory);
+			file->rdwr_short(factory_max_years_obsolete);
 		}
 		if(  file->is_version_atleast(122, 1)  ) {
 			file->rdwr_enum(climate_generator);
@@ -1553,6 +1558,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	crossconnect_factories         = contents.get_int("crossconnect_factories", crossconnect_factories ) != 0;
 
 	close_old_factory			   = contents.get_int("close_old_factory", close_old_factory) != 0;
+	factory_max_years_obsolete = contents.get_int("max_years_obsolete", factory_max_years_obsolete);
 
 	env_t::just_in_time = contents.get_int_clamped("just_in_time", env_t::just_in_time, 0, 2);
 	just_in_time = env_t::just_in_time;
