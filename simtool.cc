@@ -3220,9 +3220,16 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 		grund_t *kb = welt->lookup_kartenboden(pos.get_2d());
 		sint16 height = pos.z - kb->get_pos().z;
 		way->set_image(desc->get_background(desc->get_straight(ribi_mark,height-slope_t::max_diff(kb->get_grund_hang())),0));
-		way->set_foreground_image(desc->get_foreground(desc->get_straight(ribi_mark,height-slope_t::max_diff(kb->get_grund_hang())), 0));
+		// way->set_foreground_image(desc->get_foreground(desc->get_straight(ribi_mark,height-slope_t::max_diff(kb->get_grund_hang())), 0));
 		marked.insert( way );
 		way->mark_image_dirty( way->get_image(), 0 );
+		if (desc->get_wtyp() == road_wt  &&  skinverwaltung_t::ribi_arrow  ) {
+			if(   get_overtaking_mode() <= oneway_mode  ) {
+				way->set_foreground_image(skinverwaltung_t::ribi_arrow->get_image_id(ribi_mark));
+			} else if(  !env_t::show_oneway_ribi_only  ) {
+				way->set_foreground_image(skinverwaltung_t::ribi_arrow->get_image_id(ribi_mark+ribi_t::backward(ribi_mark)));
+			}
+		}
 		pos = pos + zv;
 	}
 	costs += desc->get_price() * koord_distance(start, pos);
@@ -3612,6 +3619,32 @@ void tool_build_tunnel_t::mark_tiles(  player_t *player, const koord3d &start, c
 			}
 			else {
 				way->set_image( wb->get_image_id(zeige,0) );
+			}
+			if(  desc->get_wtyp()==road_wt && skinverwaltung_t::ribi_arrow!=NULL  ) {
+				if(overtaking_mode<=oneway_mode) {
+					ribi_t::ribi oneway_ribi = (j!=bauigel.get_count()-1)? ribi_type(bauigel.get_route()[j+1]-bauigel.get_route()[j]): ribi_t::none;
+					if( weg_t* road=gr->get_weg(road_wt) ) {
+						dynamic_cast<strasse_t*>(road)->set_way_building(true);
+						if(  j==0  ) {
+							if( ribi_t::is_single(road->get_ribi_unmasked()) ) {
+								// oneway_ribi already updated
+							}
+							else if( ribi_t::is_twoway(road->get_ribi_unmasked()) ) {
+								oneway_ribi=(oneway_ribi&road->get_ribi_unmasked())>0?oneway_ribi:oneway_ribi|road->get_ribi();
+							}
+							else {
+								oneway_ribi |= road->get_ribi();
+							}
+						} else {
+							ribi_t::ribi mask_ribi = ribi_type(bauigel.get_route()[j-1]-bauigel.get_route()[j]);
+							oneway_ribi |= (road->get_ribi() & ~mask_ribi);
+						}
+					}
+					way->set_foreground_image(skinverwaltung_t::ribi_arrow->get_image_id(oneway_ribi));
+				}
+				else if(!env_t::show_oneway_ribi_only){
+					way->set_foreground_image(skinverwaltung_t::ribi_arrow->get_image_id(zeige));
+				}
 			}
 			gr->obj_add( way );
 			marked.insert( way );
