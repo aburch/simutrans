@@ -113,7 +113,7 @@ void fabrik_info_t::init(fabrik_t* fab_, const gebaeude_t* gb)
 	{
 		add_table(1,2);
 		{
-			bt_no_close_factory.init(button_t::roundbox, "no close this factory");
+			bt_no_close_factory.init(button_t::square_state, "no close this factory");
 			bt_no_close_factory.add_listener(this);
 			bt_no_close_factory.enable();
 			add_component(&bt_no_close_factory);
