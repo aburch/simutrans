@@ -63,6 +63,7 @@ private:
 
 	button_t highlight_suppliers;
 	button_t highlight_consumers;
+	button_t bt_no_close_factory;
 
 
 	void rename_factory();
