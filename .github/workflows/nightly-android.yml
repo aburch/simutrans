@@ -73,7 +73,11 @@ jobs:
         git clone --depth 1 https://github.com/simutrans/simutrans-android-project
         cd simutrans-android-project
         git submodule init
-        git submodule update --depth 1
+        git submodule update
+        cd simutrans/jni/SDL
+        git revert 53dbe18  --no-commit
+        cd ../../..
+
         cp -r $GITHUB_WORKSPACE/gh-clone/simutrans simutrans/jni/simutrans
         cp -r simutrans/jni/SDL/android-project/app/src/main/java simutrans/src/main
         cd simutrans/jni
@@ -84,9 +88,6 @@ jobs:
     - name: Build libraries
       working-directory: /android-sdl/simutrans-android-project/simutrans/jni
       run: |
-        cd SDL
-        git revert 53dbe18  --no-commit
-        cd ..
         ./build_libraries.sh
         # Fluidsynth is a PITA to build; using the prebuilt release instead
         wget https://github.com/FluidSynth/fluidsynth/releases/download/v2.5.1/fluidsynth-2.5.1-android24.zip

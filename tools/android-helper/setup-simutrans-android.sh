@@ -1,11 +1,12 @@
 #!/bin/bash
 
-git clone https://github.com/simutrans/simutrans-android-project
+git clone --depth 1 https://github.com/simutrans/simutrans-android-project
 cd simutrans-android-project
 git submodule init
-git submodule update --recursive
+git submodule update 
 
 cd simutrans/jni/SDL/
+echo "Reverting linekr flg removal in SDL2"
 git revert 53dbe18  --no-commit
 
 cd ..
