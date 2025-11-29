@@ -3,10 +3,12 @@
 git clone https://github.com/simutrans/simutrans-android-project
 cd simutrans-android-project
 git submodule init
-git submodule update --recursive --depth 1
+git submodule update --recursive
 
-cd simutrans/jni
-mkdir simutrans
+cd simutrans/jni/SDL/
+git revert 53dbe18  --no-commit
+
+cd ..
 svn checkout svn://servers.simutrans.org/simutrans/trunk simutrans
 
 ./build_libraries.sh
