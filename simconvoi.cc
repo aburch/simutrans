@@ -1246,12 +1246,12 @@ bool convoi_t::drive_to()
 				}
 
 				// set next schedule target position if next is a waypoint
-				if(  is_waypoint(schedule->get_current_entry()) && !schedule->at(current_stop).is_reverse_convoi_coupling() && !schedule->at(current_stop).is_pass_stop()  ) {
+				if(  is_waypoint(schedule->get_current_entry()) && !schedule->at(current_stop).is_reverse_convoi_coupling()  ) {
 					schedule_target = ziel;
 				}
 
 				// continue route search until the destination is a station
-				while(  is_waypoint(schedule->get_current_entry()) && !schedule->get_current_entry().is_reverse_convoi_coupling() && !schedule->at(current_stop).is_pass_stop()  ) {
+				while(  is_waypoint(schedule->get_current_entry()) && !schedule->get_current_entry().is_reverse_convoi_coupling()  ) {
 					start = ziel;
 					schedule->advance();
 					ziel = schedule->get_current_entry().pos;
@@ -1293,7 +1293,7 @@ bool convoi_t::drive_to()
 #endif
 						}
 
-						if(  looped  ) {
+						if(  looped || schedule->at(current_stop).is_pass_stop()  ) {
 							// proceed upto the waypoint before the loop. Will pause there for a new route search.
 							break;
 						}
