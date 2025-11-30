@@ -570,10 +570,9 @@ protected:
 
 	void enter_tile(grund_t*) OVERRIDE;
 
-	bool is_signal_clear(uint16 start_index, sint32 &restart_speed);
-	bool is_pre_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed);
-	bool is_priority_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed);
-	bool is_longblock_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed);
+	bool is_pre_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const check_longblock);
+	bool is_priority_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const check_longblock);
+	bool is_longblock_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const check_longblock);
 	bool is_choose_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed);
 
 public:
@@ -614,6 +613,7 @@ public:
 
 	// step() routine called by convoy
 	bool check_longblock_signal(signal_t *sig, uint16 start_index, sint32 &restart_speed);
+	bool is_signal_clear(uint16 start_index, sint32 &restart_speed, bool const check_longblock);
 };
 
 /**

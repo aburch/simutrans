@@ -1541,7 +1541,7 @@ void convoi_t::step()
 				if(  v  &&  longblock_signal_request.valid  ) {
 					// process longblock signal judgement request
 					sint32 dummy = -1;
-					v->check_longblock_signal(longblock_signal_request.sig, longblock_signal_request.next_block, dummy);
+					v->is_signal_clear(get_next_stop_index()-1, dummy, true);
 					set_longblock_signal_judge_request_invalid();
 				}
 			}
