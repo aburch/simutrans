@@ -3690,7 +3690,7 @@ bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_bl
 	uint16 next_signal, next_crossing;
 	grund_t const* const target = welt->lookup(cnv->get_route()->back());
 	bool try_coupling = cnv->get_schedule()->get_current_entry().get_coupling_point()==2;
-	if(  cnv->get_schedule_target()!=koord3d::invalid  ) {
+	if(  !haltestelle_t::get_stoppable_halt(cnv->get_route()->back(),cnv->get_owner(),get_waytype()).is_bound()  ) {
 		// destination is a waypoint!
 		goto skip_choose;
 	}
