@@ -585,6 +585,11 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	bt_no_overtake.add_listener(this);
 	add_component(&bt_no_overtake);
 
+	bt_pass_stop.init(button_t::square_automatic, "Pass this stop");
+	bt_pass_stop.set_tooltip("Pass this stop even if there is a platform.");
+	bt_pass_stop.add_listener(this);
+	add_component(&bt_pass_stop);
+
 	if(  !cnv.is_bound()  ) {
 		lb_departure_slot_group.set_tooltip(translator::translate("Shares the departure time slot with the selected line here."));
 		add_component(&lb_departure_slot_group);
@@ -722,6 +727,7 @@ void schedule_gui_t::update_selection()
 	bt_no_overtake.disable();
 	bt_max_speed_kmh_of_convoi.disable();
 	numimp_max_speed_kmh_of_convoi.disable();
+	bt_pass_stop.disable();
 
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
@@ -739,10 +745,12 @@ void schedule_gui_t::update_selection()
 			numimp_max_speed_kmh_of_convoi.enable();
 		}
 		numimp_max_speed_kmh_of_convoi.set_value( schedule->at(current_stop).max_speed_kmh_of_convoi );
+		bt_pass_stop.enable();
+		bt_pass_stop.pressed = schedule->at(current_stop).is_pass_stop();
 
 		// if the next_line is set, the last entry is same as the next_line->get_schedule()->at(0)
 		// so, the flags of last entry can not be editted.
-		if(  haltestelle_t::get_stoppable_halt(schedule->at(current_stop).pos, player, schedule->get_waytype()).is_bound()  && (  (current_stop != schedule->get_count()-1)  ||  !schedule->get_next_line().is_bound()  )  ) {
+		if(  haltestelle_t::get_stoppable_halt(schedule->at(current_stop).pos, player, schedule->get_waytype()).is_bound()  && (  (current_stop != schedule->get_count()-1)  ||  !schedule->get_next_line().is_bound()  ) && !schedule->at(current_stop).is_pass_stop()  ) {
 
 			
 			const uint8 c = schedule->at(current_stop).get_coupling_point();
@@ -964,6 +972,12 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 			} else {
 				schedule->at(schedule->get_current_stop()).waiting_time_shift = 0;
 			}
+			update_selection();
+		}
+	}
+	else if(comp == &bt_pass_stop) {
+		if(!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).set_pass_stop(!schedule->at(schedule->get_current_stop()).is_pass_stop());
 			update_selection();
 		}
 	}
@@ -1439,6 +1453,7 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	next_line_selector.set_visible(yesno);
 	bt_max_speed_kmh_of_convoi.set_visible(yesno);
 	numimp_max_speed_kmh_of_convoi.set_visible(yesno);
+	bt_pass_stop.set_visible(yesno);	
 	
 	const bool coupling_waytype = schedule->get_waytype()!=road_wt  &&  schedule->get_waytype()!=air_wt  &&  schedule->get_waytype()!=water_wt;
 	const bool reversible_waytype = env_t::reversible_waytype(schedule->get_waytype());

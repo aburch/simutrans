@@ -13,6 +13,7 @@
 #include "simunits.h"
 #include "simcolor.h"
 #include "linehandle_t.h"
+#include "dataobj/schedule_entry.h"
 
 #include "ifc/sync_steppable.h"
 
@@ -562,7 +563,7 @@ public:
 	void check_pending_updates();
 
 	// true if this is a waypoint
-	bool is_waypoint( koord3d ) const;
+	bool is_waypoint( schedule_entry_t ) const;
 
 	/* changes the state of a convoi via tool_t; mandatory for networkmode!
 	 * for list of commands and parameter see tool_t::tool_change_convoi_t

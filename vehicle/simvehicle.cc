@@ -1255,7 +1255,7 @@ void vehicle_t::hop(grund_t* gr)
 				child = child->get_coupling_convoi();
 			}
 			const koord3d ziel = cnv->get_schedule()->get_current_entry().pos;
-			cnv->set_schedule_target( cnv->is_waypoint(ziel) ? ziel : koord3d::invalid );
+			cnv->set_schedule_target( cnv->is_waypoint(cnv->get_schedule()->get_current_entry()) ? ziel : koord3d::invalid );
 		}
 	}
 
@@ -4280,7 +4280,7 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 	sint16 idx = cnv->get_schedule()->get_current_stop();
 	bool stop_found = false;
 	do {
-		if(  !cnv->is_waypoint(cnv->get_schedule()->at(idx).pos)  ) {
+		if(  !cnv->is_waypoint(cnv->get_schedule()->at(idx))  ) {
 			stop_found = true;
 			break;
 		}

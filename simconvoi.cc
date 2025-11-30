@@ -254,11 +254,11 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 
 
 // waypoint: no stop, resp. for airplanes in air (i.e. no air strip below)
-bool convoi_t::is_waypoint( koord3d ziel ) const
+bool convoi_t::is_waypoint( schedule_entry_t entry ) const
 {
 	if(  fahr[0]->get_waytype() == air_wt  ) {
 		// separate logic for airplanes, since the can have waypoints over stops etc.
-		grund_t *gr = welt->lookup_kartenboden(ziel.get_2d());
+		grund_t *gr = welt->lookup_kartenboden(entry.pos.get_2d());
 		if(  gr == NULL  ||  gr->get_weg(air_wt) == NULL  ) {
 			// during flight always a waypoint
 			return true;
@@ -269,7 +269,8 @@ bool convoi_t::is_waypoint( koord3d ziel ) const
 		}
 		// so we are on a taxiway/runway here ...
 	}
-	return !haltestelle_t::get_stoppable_halt(ziel,get_owner(),fahr[0]->get_waytype()).is_bound();
+	if(  entry.is_pass_stop()  ) { return true; }
+	return !haltestelle_t::get_stoppable_halt(entry.pos,get_owner(),fahr[0]->get_waytype()).is_bound();
 }
 
 
@@ -392,7 +393,7 @@ void convoi_t::finish_rd()
 	else {
 		// restore next schedule target for non-stop waypoint handling
 		const koord3d ziel = schedule->get_current_entry().pos;
-		if(  anz_vehikel>0  &&  is_waypoint(ziel)  ) {
+		if(  anz_vehikel>0  &&  is_waypoint(schedule->get_current_entry())  ) {
 			schedule_target = ziel;
 		}
 	}
@@ -1245,12 +1246,12 @@ bool convoi_t::drive_to()
 				}
 
 				// set next schedule target position if next is a waypoint
-				if(  is_waypoint(ziel) && !schedule->at(current_stop).is_reverse_convoi_coupling()  ) {
+				if(  is_waypoint(schedule->get_current_entry()) && !schedule->at(current_stop).is_reverse_convoi_coupling()  ) {
 					schedule_target = ziel;
 				}
 
 				// continue route search until the destination is a station
-				while(  is_waypoint(ziel) && !schedule->get_current_entry().is_reverse_convoi_coupling()  ) {
+				while(  is_waypoint(schedule->get_current_entry()) && !schedule->get_current_entry().is_reverse_convoi_coupling()  ) {
 					start = ziel;
 					schedule->advance();
 					ziel = schedule->get_current_entry().pos;
@@ -5394,7 +5395,7 @@ bool convoi_t::can_start_coupling(convoi_t* parent) const {
 	sint16 t_idx = schedule->get_current_stop();
 	bool stop_found = false;
 	do {
-		if(  !is_waypoint(schedule->at(t_idx).pos)  ) {
+		if(  !is_waypoint(schedule->at(t_idx))  ) {
 			stop_found = true;
 			break;
 		}
