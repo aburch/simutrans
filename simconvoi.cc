@@ -1246,12 +1246,12 @@ bool convoi_t::drive_to()
 				}
 
 				// set next schedule target position if next is a waypoint
-				if(  is_waypoint(schedule->get_current_entry()) && !schedule->at(current_stop).is_reverse_convoi_coupling()  ) {
+				if(  is_waypoint(schedule->get_current_entry()) && !schedule->at(current_stop).is_reverse_convoi_coupling() && !schedule->at(current_stop).is_pass_stop()  ) {
 					schedule_target = ziel;
 				}
 
 				// continue route search until the destination is a station
-				while(  is_waypoint(schedule->get_current_entry()) && !schedule->get_current_entry().is_reverse_convoi_coupling()  ) {
+				while(  is_waypoint(schedule->get_current_entry()) && !schedule->get_current_entry().is_reverse_convoi_coupling() && !schedule->at(current_stop).is_pass_stop()  ) {
 					start = ziel;
 					schedule->advance();
 					ziel = schedule->get_current_entry().pos;
@@ -1951,7 +1951,7 @@ void convoi_t::ziel_erreicht()
 	}
 
 	// no depot reached, no coupling, check for stop!
-	if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  ) {
+	if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0 && !schedule->get_current_entry().is_pass_stop()  ) {
 		// seems to be a stop, so book the money for the trip
 		halt->book(1, HALT_CONVOIS_ARRIVED);
 		c = self;
