@@ -3901,7 +3901,7 @@ bool rail_vehicle_t::is_priority_signal_clear(signal_t *sig, uint16 next_block, 
 		}
 		cnv->set_next_stop_index( min( next_signal, next_crossing ) );
 
-		return false;
+		return true;
 	}
 
 	// if we end up here, there was not even the next block free
