@@ -666,11 +666,11 @@ void construct_schedule_entry_attributes(cbuffer_t& buf, schedule_entry_t const&
 		cnt++;
 	}
 	if(  entry.is_temp_unload()  ) {
-		str[cnt] = 'd';
+		str[cnt] = 'u';
 		cnt++;
 	}
 	if(  entry.is_temp_load()  ) {
-		str[cnt] = 'b';
+		str[cnt] = 'l';
 		cnt++;
 	}
 	// there are at least one attributes.

@@ -1728,7 +1728,7 @@ sint32 haltestelle_t::rebuild_connections()
 				continue;
 			}
 
-			no_load_section |= current_entry.is_unload_all();
+			no_load_section |= (current_entry.is_unload_all()||current_entry.is_temp_unload_all());
 			
 			if(current_entry.is_transfer_interval()){
 				if(interval == 1){
