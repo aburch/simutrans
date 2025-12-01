@@ -428,6 +428,21 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		add_component(&bt_transfer_interval);
 	}
 	end_table();
+
+	add_table(2,1);
+	{
+		bt_temp_load.init(button_t::square_state, "load temporary");
+		bt_temp_load.set_tooltip("Can load but not use for goods routing");
+		bt_temp_load.add_listener(this);
+		bt_temp_load.disable();
+		add_component(&bt_temp_load);
+		bt_temp_unload.init(button_t::square_state, "unload temporary");
+		bt_temp_unload.set_tooltip("Can unload but not use for goods routing");
+		bt_temp_unload.add_listener(this);
+		bt_temp_unload.disable();
+		add_component(&bt_temp_unload);
+	}
+	end_table();
 	
 	// max speed setting
 	add_table(2,1);
@@ -722,6 +737,8 @@ void schedule_gui_t::update_selection()
 	bt_no_overtake.disable();
 	bt_max_speed_kmh_of_convoi.disable();
 	numimp_max_speed_kmh_of_convoi.disable();
+	bt_temp_load.disable();
+	bt_temp_unload.disable();
 
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
@@ -759,7 +776,10 @@ void schedule_gui_t::update_selection()
 			bt_load_before_departure.pressed = schedule->at(current_stop).is_load_before_departure();
 			bt_transfer_interval.enable();
 			bt_transfer_interval.pressed = schedule->at(current_stop).is_transfer_interval();
-
+			bt_temp_load.enable();
+			bt_temp_load.pressed = schedule->at(current_stop).is_temp_load();
+			bt_temp_unload.enable();
+			bt_temp_unload.pressed = schedule->at(current_stop).is_temp_unload();
 			
 			// wait_for_time releated things
 			const bool wft = schedule->at(current_stop).get_wait_for_time();
@@ -948,6 +968,18 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 			if(  bt_find_parent.pressed  ) {
 				schedule->at(schedule->get_current_stop()).reset_coupling();
 			} 
+			update_selection();
+		}
+	}
+	else if(comp == &bt_temp_load) {
+		if(!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).set_temp_load(!schedule->at(schedule->get_current_stop()).is_temp_load());
+			update_selection();
+		}
+	}
+	else if(comp == &bt_temp_unload) {
+		if(!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).set_temp_unload(!schedule->at(schedule->get_current_stop()).is_temp_unload());
 			update_selection();
 		}
 	}
@@ -1439,6 +1471,8 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	next_line_selector.set_visible(yesno);
 	bt_max_speed_kmh_of_convoi.set_visible(yesno);
 	numimp_max_speed_kmh_of_convoi.set_visible(yesno);
+	bt_temp_load.set_visible(yesno);
+	bt_temp_unload.set_visible(yesno);
 	
 	const bool coupling_waytype = schedule->get_waytype()!=road_wt  &&  schedule->get_waytype()!=air_wt  &&  schedule->get_waytype()!=water_wt;
 	const bool reversible_waytype = env_t::reversible_waytype(schedule->get_waytype());
