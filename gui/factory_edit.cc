@@ -193,31 +193,27 @@ void factory_edit_frame_t::fill_list()
 	// timeline will be obeyed; however, we may show obsolete ones ...
 	FOR(stringhashtable_tpl<factory_desc_t const*>, const& i, factory_builder_t::get_factory_table()) {
 		factory_desc_t const* const desc = i.value;
-		if(desc->get_distribution_weight()>0) {
-			// DistributionWeight=0 is obsoleted item, only for backward compatibility
+		if( (!use_timeline  ||  (!desc->get_building()->is_future(month_now)  &&  (!desc->get_building()->is_retired(month_now)  ||  allow_obsolete)))
+			&&  ( desc->get_building()->get_allowed_climate_bits() & get_climate()) ) {
+			// timeline allows for this, and so does climates setting
 
-			if( (!use_timeline  ||  (!desc->get_building()->is_future(month_now)  &&  (!desc->get_building()->is_retired(month_now)  ||  allow_obsolete)))
-				&&  ( desc->get_building()->get_allowed_climate_bits() & get_climate()) ) {
-				// timeline allows for this, and so does climates setting
-
-				if( (( city_chain  &&  (desc->get_placement() == factory_desc_t::City && desc->is_consumer_only() ) )
-				||  ( land_chain  &&  (desc->get_placement() != factory_desc_t::City && desc->is_consumer_only() ) )
-				||  (!city_chain  &&  !land_chain) ) 
-				&&  (  !no_supply || desc->is_producer_only()  )
-				&&  (  !no_product || desc->is_consumer_only()  )
-				&&  (  !must_supply || !desc->is_producer_only()  )
-				&&  (  !must_product || !desc->is_consumer_only()  )
-				&&  (  name_filter_value[0]==0  ||  (utf8caseutf8(desc->get_name(), name_filter_value)  ||  utf8caseutf8(translator::translate(desc->get_name()), name_filter_value))  ) ) {
-					switch(sortedby) {
-						case gui_sorting_item_t::BY_NAME_TRANSLATED:     factory_list.insert_ordered( desc, compare_factory_desc_name );           break;
-						case gui_sorting_item_t::BY_LEVEL_PAX:           factory_list.insert_ordered( desc, compare_factory_desc_level_pax );      break;
-						case gui_sorting_item_t::BY_LEVEL_MAIL:          factory_list.insert_ordered( desc, compare_factory_desc_level_mail );     break;
-						case gui_sorting_item_t::BY_DATE_INTRO:          factory_list.insert_ordered( desc, compare_factory_desc_date_intro );     break;
-						case gui_sorting_item_t::BY_DATE_RETIRE:         factory_list.insert_ordered( desc, compare_factory_desc_date_retire );    break;
-						case gui_sorting_item_t::BY_SIZE:                factory_list.insert_ordered( desc, compare_factory_desc_size );           break;
-						case gui_sorting_item_t::BY_GOODS_NUMBER:        factory_list.insert_ordered( desc, compare_factory_desc_goods_number );   break;
-						default:                                         factory_list.insert_ordered( desc, compare_factory_desc );
-					}
+			if( (( city_chain  &&  (desc->get_placement() == factory_desc_t::City && desc->is_consumer_only() ) )
+			||  ( land_chain  &&  (desc->get_placement() != factory_desc_t::City && desc->is_consumer_only() ) )
+			||  (!city_chain  &&  !land_chain) ) 
+			&&  (  !no_supply || desc->is_producer_only()  )
+			&&  (  !no_product || desc->is_consumer_only()  )
+			&&  (  !must_supply || !desc->is_producer_only()  )
+			&&  (  !must_product || !desc->is_consumer_only()  )
+			&&  (  name_filter_value[0]==0  ||  (utf8caseutf8(desc->get_name(), name_filter_value)  ||  utf8caseutf8(translator::translate(desc->get_name()), name_filter_value))  ) ) {
+				switch(sortedby) {
+					case gui_sorting_item_t::BY_NAME_TRANSLATED:     factory_list.insert_ordered( desc, compare_factory_desc_name );           break;
+					case gui_sorting_item_t::BY_LEVEL_PAX:           factory_list.insert_ordered( desc, compare_factory_desc_level_pax );      break;
+					case gui_sorting_item_t::BY_LEVEL_MAIL:          factory_list.insert_ordered( desc, compare_factory_desc_level_mail );     break;
+					case gui_sorting_item_t::BY_DATE_INTRO:          factory_list.insert_ordered( desc, compare_factory_desc_date_intro );     break;
+					case gui_sorting_item_t::BY_DATE_RETIRE:         factory_list.insert_ordered( desc, compare_factory_desc_date_retire );    break;
+					case gui_sorting_item_t::BY_SIZE:                factory_list.insert_ordered( desc, compare_factory_desc_size );           break;
+					case gui_sorting_item_t::BY_GOODS_NUMBER:        factory_list.insert_ordered( desc, compare_factory_desc_goods_number );   break;
+					default:                                         factory_list.insert_ordered( desc, compare_factory_desc );
 				}
 			}
 		}
