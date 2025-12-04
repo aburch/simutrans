@@ -3676,7 +3676,7 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block,
 	}
 	else {
 		// we are in a sync_step. request to do this in a step.
-		cnv->request_longblock_signal_judge(sig, next_block);
+		cnv->request_longblock_signal_judge();
 		restart_speed = 0;
 		return false;
 	}
