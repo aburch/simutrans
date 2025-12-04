@@ -170,7 +170,7 @@ void factory_edit_frame_t::fill_list()
 	// timeline will be obeyed; however, we may show obsolete ones ...
 	for(auto const& i : factory_builder_t::get_factory_table()) {
 		factory_desc_t const* const desc = i.value;
-		if(desc->get_distribution_weight()>0) {
+		if(desc->get_distribution_weight() > 0  ||  allow_obsolete) {
 			// DistributionWeight=0 is obsoleted item, only for backward compatibility
 
 			if( (!use_timeline  ||  (!desc->get_building()->is_future(month_now)  &&  (!desc->get_building()->is_retired(month_now)  ||  allow_obsolete)))

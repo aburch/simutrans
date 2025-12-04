@@ -44,6 +44,7 @@
 	FIX: no longer crash when city grows into fields
 	CHG: test renovation before new buildings and use homeless and jobless numbers to decide to extend town borders
 	FIX: bridge removal costs
+	CHG: Show obsolete shows lso distribution_weight=0 factories in the editor window
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):
