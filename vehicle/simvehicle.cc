@@ -3557,6 +3557,7 @@ bool rail_vehicle_t::is_coupling_target(const grund_t *gr, const grund_t *prev_g
 
 bool rail_vehicle_t::check_longblock_signal(signal_t *sig, uint16 next_block, sint32 &restart_speed)
 {
+	uint16 const start_point = next_block;
 	// longblock signal: first check, whether there is a signal coming up on the route => just like normal signal
 	uint16 next_signal, next_crossing;
 	if(  !block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false, true )  ) {
@@ -3634,6 +3635,13 @@ bool rail_vehicle_t::check_longblock_signal(signal_t *sig, uint16 next_block, si
 			vector_tpl<koord3d> tiles_convoy_on;
 			for(  uint16 i=0;  i<cnv->get_vehicle_count();  i++  ) {
 				tiles_convoy_on.append_unique(cnv->get_vehikel(i)->get_pos());
+			}
+			// already reserved tiles by other signals should not be release 
+			if(  cnv->front()->get_route_index()<start_point+1  ) {
+				for(  uint16 i=cnv->front()->get_route_index();  i<start_point+1; i++  ) {
+					tiles_convoy_on.append_unique(cnv->get_route()->at(i));
+					dbg->message("rail_vehicle_t::check_longblock_signal_clear()","%i tiles will be kept", i);
+				}
 			}
 			// now we unreserve the tiles
 			for(  sint32 i=cnv->get_reserved_tiles().get_count()-1;  i>=start_idx;  i--  ) {
