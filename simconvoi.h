@@ -351,12 +351,6 @@ private:
 
 	bool in_delay_recovery;
 
-	// typedef struct {
-	// 	bool valid;
-	// 	signal_t* sig;
-	// 	uint16 next_block;
-	// } longblock_signal_request_t;
-	// longblock_signal_request_t longblock_signal_request;
 	bool longblock_signal_request;
 
 	/**
@@ -1048,7 +1042,7 @@ public:
 
 	virtual void refresh(sint8,sint8) OVERRIDE;
 
-	void request_longblock_signal_judge() {longblock_signal_request = true;} //signal_t *sig, uint16 next_block);
+	void request_longblock_signal_judge() {longblock_signal_request = true;}
 	void set_longblock_signal_judge_request_invalid() { longblock_signal_request = false; };
 
 	void calc_crossing_reservation();

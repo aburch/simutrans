@@ -5265,11 +5265,6 @@ void convoi_t::set_next_cross_lane(bool n) {
 	}
 }
 
-// void convoi_t::request_longblock_signal_judge(signal_t *sig, uint16 next_block) {
-// 	longblock_signal_request.sig = sig;
-// 	longblock_signal_request.next_block = next_block;
-// 	longblock_signal_request.valid = true;
-// }
 
 void convoi_t::clear_reserved_tiles(){
 	if(  reserved_tiles.get_count()==0  ) {
