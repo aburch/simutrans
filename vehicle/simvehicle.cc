@@ -3636,7 +3636,7 @@ bool rail_vehicle_t::check_longblock_signal(signal_t *sig, uint16 next_block, si
 			for(  uint16 i=0;  i<cnv->get_vehicle_count();  i++  ) {
 				tiles_already_reserved.append_unique(cnv->get_vehikel(i)->get_pos());
 			}
-			// already reserved tiles by other signals should not be release 
+			// already reserved tiles by other signals should not be released.
 			if(  cnv->front()->get_route_index()<start_block+1  ) {
 				for(  uint16 i=cnv->front()->get_route_index();  i<start_block+1; i++  ) {
 					tiles_already_reserved.append_unique(cnv->get_route()->at(i));
