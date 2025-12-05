@@ -37,9 +37,15 @@ private:
 
 	button_t bt_city_chain;
 	button_t bt_land_chain;
+	button_t bt_no_supply;
+	button_t bt_no_product;
+	button_t bt_must_supply;
+	button_t bt_must_product;
 
 	gui_numberinput_t inp_production;
-
+	gui_label_t lb_name_filter_input;
+	static char name_filter_value[64];
+	gui_textinput_t name_filter_input;
 	void fill_list() OVERRIDE;
 
 	void change_item_info( sint32 i ) OVERRIDE;

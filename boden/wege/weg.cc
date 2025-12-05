@@ -290,7 +290,7 @@ void weg_t::info(cbuffer_t & buf) const
 	obj_t::info(buf);
 
 	buf.printf("%s %u%s", translator::translate("Max. speed:"), max_speed, translator::translate("km/h\n"));
-	if( get_waytype() == track_wt && max_wayobj_speed ){
+	if( (get_waytype() != water_wt && get_waytype() != air_wt) && max_wayobj_speed ){
 		buf.printf("%s %u%s", translator::translate("Max. wayobj speed:"), max_wayobj_speed, translator::translate("km/h\n"));
 	}
 	buf.printf("%s%u",    translator::translate("\nRibi (unmasked)"), get_ribi_unmasked());
@@ -335,8 +335,13 @@ void weg_t::info(cbuffer_t & buf) const
 			buf.printf("%s\n", translator::translate("Citycars are excluded."));
 		}
 
+
+		if(  str->get_allow_branch_cityroad()  ) {
+			buf.printf("%s\n", translator::translate("Cityroad allow branch from this road"));
+		}
 		if(  str->get_no_building()  ) {
 			buf.printf("%s\n", translator::translate("No buildings along roadside."));
+
 		}
 	}
 

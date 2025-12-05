@@ -24,8 +24,24 @@ jobs:
         run: sh ./.github/build64.sh
         shell: msys2 {0}
 
+      - name: Set suffix for file naming
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            echo "SUFFIX=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          else
+            echo "SUFFIX=" >> $GITHUB_ENV
+          fi
+        shell: msys2 {0}
+
+      - name: Rename executable
+        run: |
+          if [ -n "${{ env.SUFFIX }}" ]; then
+            mv sim-WinGDI-OTRP.exe sim-WinGDI-OTRP${{ env.SUFFIX }}.exe
+          fi
+        shell: msys2 {0}
+
       - name: Upload sim.exe
         uses: actions/upload-artifact@v4
         with:
-          name: sim-WinGDI-OTRP.exe
-          path: ./sim-WinGDI-OTRP.exe
+          name: sim-WinGDI-OTRP${{ env.SUFFIX }}.exe
+          path: ./sim-WinGDI-OTRP${{ env.SUFFIX }}.exe

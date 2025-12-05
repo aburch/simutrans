@@ -351,7 +351,12 @@ private:
 
 	bool in_delay_recovery;
 
-
+	typedef struct {
+		bool valid;
+		signal_t* sig;
+		uint16 next_block;
+	} longblock_signal_request_t;
+	longblock_signal_request_t longblock_signal_request;
 
 	/**
 	 * struct holds new financial history for convoi
@@ -373,6 +378,14 @@ private:
 
 	bool reversed; // true when the vehicles are in the reversed order.
 	bool reversing_needed;// Whether this convoy's vehicles will be arranged in reverse order.
+
+	/**
+	 * The temporary speed limit for this convoy.
+	 * For example, as limited by a speed limit sign.
+	 * This value is set from schedule_entry_t, and can be edited from convoy detail window by user anytime.
+	 */
+	uint16 max_speed_kmh_of_convoi;
+
 	/**
 	* Initialize all variables with default values.
 	* Each constructor must call this method first!
@@ -1034,6 +1047,9 @@ public:
 
 	virtual void refresh(sint8,sint8) OVERRIDE;
 
+	void request_longblock_signal_judge(signal_t *sig, uint16 next_block);
+	void set_longblock_signal_judge_request_invalid() { longblock_signal_request.valid = false; };
+
 	void calc_crossing_reservation();
 	vector_tpl<std::pair< uint16, uint16> > get_crossing_reservation_index() const { return crossing_reservation_index; }
 	void remove_crossing_reservation_at(uint16 idx) { crossing_reservation_index.remove_at(idx); }
@@ -1103,6 +1119,8 @@ public:
 	// the new line is stored in schedule->next_line_id
 	void change_line_to_next_if_needed();
 
+	uint16 get_max_speed_kmh_of_convoi() const {return max_speed_kmh_of_convoi;}
+	void set_max_speed_kmh_of_convoi(uint16 n);
 };
 
 #endif

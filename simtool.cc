@@ -2967,6 +2967,32 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 			else {
 				way->set_image( desc->get_image_id(zeige,0) );
 			}
+			if(  desc->get_wtyp()==road_wt && skinverwaltung_t::ribi_arrow!=NULL  ) {
+				if(overtaking_mode<=oneway_mode) {
+					ribi_t::ribi oneway_ribi = (is_ctrl_pressed()? j!=bauigel.get_count()-1: j!=0)? ribi_type(bauigel.get_route()[is_ctrl_pressed()? j+1: j-1]-bauigel.get_route()[j]): ribi_t::none;
+					if( weg_t* road=gr->get_weg(road_wt) ) {
+						dynamic_cast<strasse_t*>(road)->set_way_building(true);
+						if(  is_ctrl_pressed()? j==0: j==bauigel.get_count()-1  ) {
+							if( ribi_t::is_single(road->get_ribi_unmasked()) ) {
+								// oneway_ribi already updated
+							}
+							else if( ribi_t::is_twoway(road->get_ribi_unmasked()) ) {
+								oneway_ribi=(oneway_ribi&road->get_ribi_unmasked())>0?oneway_ribi:oneway_ribi|road->get_ribi();
+							}
+							else {
+								oneway_ribi |= road->get_ribi();
+							}
+						} else {
+							ribi_t::ribi mask_ribi = ribi_type(bauigel.get_route()[is_ctrl_pressed()? j-1: j+1]-bauigel.get_route()[j]);
+							oneway_ribi |= (road->get_ribi() & ~mask_ribi);
+						}
+					}
+					way->set_foreground_image(skinverwaltung_t::ribi_arrow->get_image_id(oneway_ribi));
+				}
+				else if(!env_t::show_oneway_ribi_only){
+					way->set_foreground_image(skinverwaltung_t::ribi_arrow->get_image_id(zeige));
+				}
+			}
 			gr->obj_add( way );
 			way->set_yoff(-gr->get_weg_yoff() );
 			marked.insert( way );
@@ -3194,9 +3220,15 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 		grund_t *kb = welt->lookup_kartenboden(pos.get_2d());
 		sint16 height = pos.z - kb->get_pos().z;
 		way->set_image(desc->get_background(desc->get_straight(ribi_mark,height-slope_t::max_diff(kb->get_grund_hang())),0));
-		way->set_foreground_image(desc->get_foreground(desc->get_straight(ribi_mark,height-slope_t::max_diff(kb->get_grund_hang())), 0));
 		marked.insert( way );
 		way->mark_image_dirty( way->get_image(), 0 );
+		if (desc->get_wtyp() == road_wt  &&  skinverwaltung_t::ribi_arrow  ) {
+			if(   get_overtaking_mode() <= oneway_mode  ) {
+				way->set_foreground_image(skinverwaltung_t::ribi_arrow->get_image_id(ribi_mark));
+			} else if(  !env_t::show_oneway_ribi_only  ) {
+				way->set_foreground_image(skinverwaltung_t::ribi_arrow->get_image_id(ribi_mark+ribi_t::backward(ribi_mark)));
+			}
+		}
 		pos = pos + zv;
 	}
 	costs += desc->get_price() * koord_distance(start, pos);
@@ -3586,6 +3618,32 @@ void tool_build_tunnel_t::mark_tiles(  player_t *player, const koord3d &start, c
 			}
 			else {
 				way->set_image( wb->get_image_id(zeige,0) );
+			}
+			if(  desc->get_wtyp()==road_wt && skinverwaltung_t::ribi_arrow!=NULL  ) {
+				if(overtaking_mode<=oneway_mode) {
+					ribi_t::ribi oneway_ribi = (j!=bauigel.get_count()-1)? ribi_type(bauigel.get_route()[j+1]-bauigel.get_route()[j]): ribi_t::none;
+					if( weg_t* road=gr->get_weg(road_wt) ) {
+						dynamic_cast<strasse_t*>(road)->set_way_building(true);
+						if(  j==0  ) {
+							if( ribi_t::is_single(road->get_ribi_unmasked()) ) {
+								// oneway_ribi already updated
+							}
+							else if( ribi_t::is_twoway(road->get_ribi_unmasked()) ) {
+								oneway_ribi=(oneway_ribi&road->get_ribi_unmasked())>0?oneway_ribi:oneway_ribi|road->get_ribi();
+							}
+							else {
+								oneway_ribi |= road->get_ribi();
+							}
+						} else {
+							ribi_t::ribi mask_ribi = ribi_type(bauigel.get_route()[j-1]-bauigel.get_route()[j]);
+							oneway_ribi |= (road->get_ribi() & ~mask_ribi);
+						}
+					}
+					way->set_foreground_image(skinverwaltung_t::ribi_arrow->get_image_id(oneway_ribi));
+				}
+				else if(!env_t::show_oneway_ribi_only){
+					way->set_foreground_image(skinverwaltung_t::ribi_arrow->get_image_id(zeige));
+				}
 			}
 			gr->obj_add( way );
 			marked.insert( way );
@@ -8171,6 +8229,7 @@ bool scenario_check_convoy(karte_t *welt, player_t *player, convoihandle_t cnv, 
  * 'e' : toggle delay recovery
  * 't' : go to next stop
  * 'v' : reversing convoi direction
+ * 'm' : apply max speed of convoy
  */
 bool tool_change_convoi_t::init( player_t *player )
 {
@@ -8371,6 +8430,14 @@ bool tool_change_convoi_t::init( player_t *player )
 		case 'v':
 		{
 			cnv->reverse_vehicles_on_user_request();
+		}
+		break;
+
+		case 'm':
+		{
+			uint16 max_speed_kmh_of_convoi=0;
+			int count=sscanf( p, "%hi", &max_speed_kmh_of_convoi);
+			cnv->set_max_speed_kmh_of_convoi(max_speed_kmh_of_convoi);
 		}
 		break;
 	}
