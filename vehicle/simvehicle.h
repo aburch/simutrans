@@ -573,7 +573,7 @@ protected:
 	bool is_pre_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const check_longblock);
 	bool is_priority_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const check_longblock);
 	bool is_longblock_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const check_longblock);
-	bool is_choose_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed);
+	bool is_choose_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const check_longblock);
 
 public:
 	waytype_t get_waytype() const OVERRIDE { return track_wt; }

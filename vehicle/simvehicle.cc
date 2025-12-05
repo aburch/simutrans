@@ -3690,7 +3690,7 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block,
 	}
 }
 
-bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_block, sint32 &restart_speed)
+bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_block, sint32 &restart_speed, const bool check_longblock)
 {
 	bool choose_ok = false;
 	target_halt = halthandle_t();
@@ -3698,16 +3698,21 @@ bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_bl
 	uint16 next_signal, next_crossing;
 	grund_t const* const target = welt->lookup(cnv->get_route()->back());
 	bool try_coupling = cnv->get_schedule()->get_current_entry().get_coupling_point()==2;
-	if(  cnv->get_schedule_target()!=koord3d::invalid  ) {
+	if(  cnv->get_schedule_target()!=koord3d::invalid && target!=NULL  ) {
 		// destination is a waypoint!
-		for(  uint16 i=get_route_index(); i<start_block; i++  ) {
-			if(  cnv->get_schedule_target()==cnv->get_route()->at(i)  ) {
-				// next waypoint is before this signal
-				// do not search tile until pass this waypoint
-				return false;
+		koord3d temp_target = cnv->get_schedule()->get_current_entry().pos;
+		uint8 test_iter = 0;
+		while(  cnv->get_route()->back()!=temp_target && test_iter<cnv->get_schedule()->get_count()  ) {
+			for(  uint16 i=start_block+1; i<cnv->get_route()->get_count(); i++  ) {
+				if(  temp_target==cnv->get_route()->at(i)  ) {
+					// next waypoint is after this signal-> skip choosing
+					goto skip_choose;
+				}
 			}
+			test_iter++;
+			temp_target = cnv->get_schedule()->at((cnv->get_schedule()->get_current_stop()+test_iter)%cnv->get_schedule()->get_count()).pos;
 		}
-		goto skip_choose;
+		try_coupling = cnv->get_schedule()->at((cnv->get_schedule()->get_current_stop()+test_iter)%cnv->get_schedule()->get_count()).get_coupling_point()==2;
 	}
 	
 	if(  !try_coupling&&!sig->is_choose_signal()  ) {
@@ -3781,17 +3786,20 @@ skip_choose:
 	if(  !try_coupling  ) {
 		// call block_reserver only when the next halt is not a coupling point.
 		route_found = block_reserver( cnv->get_route(), start_block+1, next_signal, next_crossing, 100000, true, false );
+		cnv->set_longblock_signal_judge_request_invalid();
 	}
 	if(  !route_found  ) {
 		// no free route to target!
 		// note: any old reservations should be invalid after the block reserver call.
 		// => We can now start freshly all over
 
-		if(!cnv->is_waiting()) {
+		if(!cnv->is_waiting()&&!check_longblock) {
+			cnv->request_longblock_signal_judge();
 			restart_speed = -1;
 			target_halt = halthandle_t();
 			return false;
 		}
+		cnv->set_longblock_signal_judge_request_invalid();
 		// now we are in a step and can use the route search array
 
 		// now it we are in a step and can use the route search
@@ -3973,7 +3981,7 @@ bool rail_vehicle_t::is_signal_clear(uint16 next_block, sint32 &restart_speed, b
 	}
 
 	if(  sig_desc->is_choose_sign()  ) {
-		return is_choose_signal_clear( sig, next_block, restart_speed );
+		return is_choose_signal_clear( sig, next_block, restart_speed, check_longblock );
 	}
 
 	dbg->error( "rail_vehicle_t::is_signal_clear()", "felt through at signal at %s", cnv->get_route()->at(next_block).get_str() );
