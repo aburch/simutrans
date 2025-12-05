@@ -3700,6 +3700,13 @@ bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_bl
 	bool try_coupling = cnv->get_schedule()->get_current_entry().get_coupling_point()==2;
 	if(  cnv->get_schedule_target()!=koord3d::invalid  ) {
 		// destination is a waypoint!
+		for(  uint16 i=get_route_index(); i<start_block; i++  ) {
+			if(  cnv->get_schedule_target()==cnv->get_route()->at(i)  ) {
+				// next waypoint is before this signal
+				// do not search tile until pass this waypoint
+				return false;
+			}
+		}
 		goto skip_choose;
 	}
 	
