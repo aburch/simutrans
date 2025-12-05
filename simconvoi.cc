@@ -177,7 +177,7 @@ void convoi_t::init(player_t *player)
 	request_cross_ticks = 0;
 	prev_tiles_overtaking = 0;
 
-	longblock_signal_request.valid = false;
+	longblock_signal_request = false;
 	crossing_reservation_index.clear();
 	recalc_min_top_speed = true;
 	recalc_friction_weight = true;
@@ -1538,10 +1538,10 @@ void convoi_t::step()
 		case DRIVING:
 			if(fahr[0]->get_waytype()==track_wt  ||  fahr[0]->get_waytype()==monorail_wt  ||  fahr[0]->get_waytype()==maglev_wt  ||  fahr[0]->get_waytype()==narrowgauge_wt) {
 				rail_vehicle_t* v = dynamic_cast<rail_vehicle_t*>(fahr[0]);
-				if(  v  &&  longblock_signal_request.valid  ) {
+				if(  v  &&  longblock_signal_request  ) {
 					// process longblock signal judgement request
 					sint32 dummy = -1;
-					v->check_longblock_signal(longblock_signal_request.sig, longblock_signal_request.next_block, dummy);
+					v->is_signal_clear(get_next_reservation_index()-1, dummy, true);
 					set_longblock_signal_judge_request_invalid();
 				}
 			}
@@ -5265,11 +5265,6 @@ void convoi_t::set_next_cross_lane(bool n) {
 	}
 }
 
-void convoi_t::request_longblock_signal_judge(signal_t *sig, uint16 next_block) {
-	longblock_signal_request.sig = sig;
-	longblock_signal_request.next_block = next_block;
-	longblock_signal_request.valid = true;
-}
 
 void convoi_t::clear_reserved_tiles(){
 	if(  reserved_tiles.get_count()==0  ) {
