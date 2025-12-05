@@ -3632,14 +3632,14 @@ bool rail_vehicle_t::check_longblock_signal(signal_t *sig, uint16 next_block, si
 			sint32 start_idx;
 			for(  start_idx=0;  start_idx<(sint32)cnv->get_reserved_tiles().get_count()  &&  cnv->get_reserved_tiles()[start_idx]!=cnv->get_route()->at(next_block+1);  start_idx++  );
 			// tiles on which this convoy is must not be unreserved.
-			vector_tpl<koord3d> tiles_convoy_on;
+			vector_tpl<koord3d> tiles_already_reserved;
 			for(  uint16 i=0;  i<cnv->get_vehicle_count();  i++  ) {
-				tiles_convoy_on.append_unique(cnv->get_vehikel(i)->get_pos());
+				tiles_already_reserved.append_unique(cnv->get_vehikel(i)->get_pos());
 			}
 			// already reserved tiles by other signals should not be release 
 			if(  cnv->front()->get_route_index()<start_block+1  ) {
 				for(  uint16 i=cnv->front()->get_route_index();  i<start_block+1; i++  ) {
-					tiles_convoy_on.append_unique(cnv->get_route()->at(i));
+					tiles_already_reserved.append_unique(cnv->get_route()->at(i));
 					dbg->message("rail_vehicle_t::check_longblock_signal_clear()","%i tiles will be kept", i);
 				}
 			}
@@ -3647,7 +3647,7 @@ bool rail_vehicle_t::check_longblock_signal(signal_t *sig, uint16 next_block, si
 			for(  sint32 i=cnv->get_reserved_tiles().get_count()-1;  i>=start_idx;  i--  ) {
 				grund_t* gr = welt->lookup(cnv->get_reserved_tiles()[i]);
 				schiene_t* sch1 = gr ? (schiene_t*)gr->get_weg(get_waytype()) : NULL;
-				if(  sch1  &&  !tiles_convoy_on.is_contained(gr->get_pos())  ) {
+				if(  sch1  &&  !tiles_already_reserved.is_contained(gr->get_pos())  ) {
 					sch1->unreserve(cnv->self);
 				}
 				cnv->get_reserved_tiles().remove_at(i);
