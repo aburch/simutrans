@@ -3689,22 +3689,9 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 	if(  file->is_version_atleast(112, 8)  ) {
 		xml_tag_t t( file, "motd_t" );
 
-		dr_chdir( env_t::user_dir );
-		// maybe show message about server
-DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server_motd_filename.c_str() );
-		if(  FILE *fmotd = dr_fopen( env_t::server_motd_filename.c_str(), "r" )  ) {
-			struct stat st;
-			stat( env_t::server_motd_filename.c_str(), &st );
-
-			sint32 len = min( 32760, st.st_size+1 );
-			char *motd = (char *)malloc( len );
-			if (fread( motd, len-1, 1, fmotd ) != 1) {
-				len = 1;
-			}
-			fclose( fmotd );
-			motd[len-1] = 0;
-			file->rdwr_str( motd, len );
-			free( motd );
+		if (env_t::networkmode  &&  settings.motd.size()>0) {
+			const char* motd = settings.motd.c_str();
+			file->rdwr_str(motd);
 		}
 		else {
 			// no message
@@ -4265,11 +4252,38 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		xml_tag_t t( file, "motd_t" );
 		char msg[32766];
 		file->rdwr_str( msg, 32766 );
-		if(  *msg  &&  !env_t::server  ) {
-			// if not empty ...
-			help_frame_t *win = new help_frame_t();
-			win->set_text( msg );
-			create_win(win, w_info, magic_motd);
+
+		if (env_t::server) {
+			// maybe show message about server
+			dr_chdir(env_t::user_dir);
+			DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server_motd_filename.c_str());
+			if (FILE* fmotd = dr_fopen(env_t::server_motd_filename.c_str(), "r")) {
+				struct stat st;
+				stat(env_t::server_motd_filename.c_str(), &st);
+
+				sint32 len = min(32760, st.st_size + 1);
+				char* motd = (char*)malloc(len);
+				if (fread(motd, len - 1, 1, fmotd) != 1) {
+					len = 1;
+				}
+				fclose(fmotd);
+				motd[len - 1] = 0;
+				settings.motd = motd;
+				free(motd);
+			}
+		}
+		else if (env_t::networkmode) {
+
+			settings.motd = msg;
+			if (*msg  &&  !env_t::restore_UI) {
+				// if not empty ...
+				help_frame_t* win = new help_frame_t();
+				win->set_text(settings.motd.c_str());
+				create_win(win, w_info, magic_motd);
+			}
+		}
+		else {
+			settings.motd = "";
 		}
 	}
 

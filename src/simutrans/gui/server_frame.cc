@@ -118,6 +118,7 @@ server_frame_t::server_frame_t() :
 		add_component(&revision);
 
 		find_mismatch.init(button_t::roundbox | button_t::flexible, "find mismatch");
+		show_offline.set_tooltip("Compile a report what pak files are wrong (can be slow)");
 		find_mismatch.add_listener(this);
 		add_component(&find_mismatch,2);
 	}
@@ -139,9 +140,15 @@ server_frame_t::server_frame_t() :
 		{
 			add_component(&label_size);
 			new_component<gui_fill_t>();
-			add_component( &date );
+			add_component(&date);
 
-			add_component(&game_text,3);
+			add_component(&game_text);
+			new_component<gui_fill_t>();
+			show_motd.init(button_t::roundbox | button_t::flexible, "Server message");
+			show_motd.set_rigid(true);
+			show_motd.set_visible(gi.motd.size() > 0);
+			show_motd.add_listener(this);
+			add_component(&show_motd, 2);
 		}
 		end_table();
 	}
@@ -244,6 +251,8 @@ PIXVAL server_frame_t::update_info()
 	revision.buf().printf( "%s %u", translator::translate( "Revision:" ), gi.get_game_engine_revision() );
 	revision.set_color( engine_match ? SYSCOL_TEXT : MONEY_MINUS );
 	revision.update();
+
+	show_motd.set_visible(gi.motd.size() > 0);
 
 	pak_version.set_text( gi.get_pak_name() );
 	pak_version.set_color( pakset_match ? SYSCOL_TEXT : SYSCOL_OBSOLETE );
@@ -540,6 +549,11 @@ bool server_frame_t::action_triggered (gui_action_creator_t *comp, value_t p)
 				create_win( win, w_info, magic_pakset_info_t );
 			}
 		}
+	}
+	else if (&show_motd == comp) {
+		help_frame_t* win = new help_frame_t();
+		win->set_text(gi.motd.c_str());
+		create_win(win, w_info, magic_motd);
 	}
 	return true;
 }

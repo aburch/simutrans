@@ -164,6 +164,10 @@ public:
 		TREE_DIST_RAINFALL = 2,
 		TREE_DIST_COUNT
 	};
+
+	// server message (if any)
+	std::string motd = "";
+
 private:
 	uint16 tree_distribution = tree_distribution_t::TREE_DIST_RANDOM;
 

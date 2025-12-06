@@ -34,7 +34,7 @@ private:
 	static char newserver_name[2048];
 
 	gui_scrolled_list_t serverlist;
-	button_t add, join, find_mismatch;
+	button_t add, join, find_mismatch, show_motd;
 	button_t show_mismatched, show_offline;
 	gui_label_t pak_version;
 	gui_label_buf_t revision, date, label_size;

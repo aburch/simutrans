@@ -4512,6 +4512,14 @@ obj=program_text
 name=%d more convois
 note=message when additional convois serve that stop for sorting display
 --
+obj=button_text
+name=Server message
+note=button shown if there is a server motd in the network dialog
+--
+obj=help_text
+name=Compile a report what pak files are wrong (can be slow)
+note=tooltip for compare paks
+--
 
 #obj=help_text
 #name=Lower values mean more local sounds

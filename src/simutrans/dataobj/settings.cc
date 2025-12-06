@@ -89,6 +89,8 @@ settings_t::settings_t()
 		startingmoneyperyear[i].money = 0;
 		startingmoneyperyear[i].interpol = 0;
 	}
+
+	motd = "";
 }
 
 
@@ -749,6 +751,10 @@ void settings_t::rdwr(loadsave_t *file)
 	// sometimes broken savegames could have no legal direction for take off ...
 	if( !ribi_t::is_single( wind_direction ) ) {
 		wind_direction = ribi_t::west;
+	}
+
+	if (file->is_loading()) {
+		motd = "";
 	}
 }
 

@@ -35,9 +35,6 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 	size_x = welt->get_size().x;
 	size_y = welt->get_size().y;
 
-	// create a minimap
-
-
 	industries = welt->get_fab_list().get_count();
 	tourist_attractions = welt->get_attractions().get_count();
 	city_count = welt->get_cities().get_count();
@@ -46,6 +43,7 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 		citizen_count += i->get_einwohner();
 	}
 
+	// make minimap
 	const int gr_x = welt->get_size().x;
 	const int gr_y = welt->get_size().y;
 	for( uint16 i = 0; i < MINIMAP_SIZE; i++ ) {
@@ -106,6 +104,8 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 	game_engine_revision = 0;
 #endif
 	pakset_checksum = *(pakset_info_t::get_checksum());
+
+	motd = welt->get_settings().motd;
 }
 
 
@@ -115,6 +115,7 @@ gameinfo_t::gameinfo_t(loadsave_t *file) :
 	file_name(""),
 	pak_name("")
 {
+	motd = "";
 	rdwr( file );
 }
 
@@ -170,8 +171,15 @@ void gameinfo_t::rdwr(loadsave_t *file)
 	if(  file->is_loading()  ) {
 		pak_name = temp;
 	}
-	file->rdwr_long( game_engine_revision );
-
+	if (file->is_version_atleast(124, 4)) {
+		// get motd from server (to keep paket small, max message is truncated to 1024 bytes)
+		tstrncpy(temp, motd.c_str(), lengthof(temp));
+		file->rdwr_str(temp, lengthof(temp)); // motd for server
+		if (file->is_loading()) {
+			motd = temp;
+		}
+	}
+	file->rdwr_long(game_engine_revision);
 	for(  int i=0;  i<16;  i++  ) {
 		file->rdwr_byte( player_type[i] );
 	}

@@ -64,6 +64,8 @@ private:
 	uint8 clients; // currently connected players
 
 public:
+	std::string motd;
+
 	gameinfo_t( karte_t *welt );
 	gameinfo_t( loadsave_t *file );
 
