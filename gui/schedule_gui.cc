@@ -334,6 +334,8 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		add_component(&line_selector);
 	}
 
+	// schedule settings
+
 	add_table(2,1);
 	{
 		bt_extract_schedule_settings.init(button_t::arrowdown, "Extract schedule settings");
@@ -422,6 +424,8 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 
 	extract_schedule_settings(false);
 
+	// loading settings
+
 	add_table(2,1);
 	{
 		bt_extract_loading_settings.init(button_t::arrowdown, "Extract loading settings");
@@ -495,6 +499,8 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	end_table();
 
 	extract_loading_settings(false);
+
+	// driving, waiting, coupling, reversing settings
 
 	add_table(2,1);
 	{
