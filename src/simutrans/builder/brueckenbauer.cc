@@ -375,6 +375,12 @@ const char* bridge_builder_t::check_start_tile(const player_t* player, const gru
 	}
 
 	if (desc->get_waytype() == powerline_wt) {
+
+		if (gr->hat_wege()) {
+			// no pylons on roads please
+			return "Tile not empty.";
+		}
+
 		if (leitung_t* lt = gr->get_leitung()) {
 			ribi_t::ribi ribi = lt->get_ribi();
 			if (ribi_t::is_single(ribi)) {
