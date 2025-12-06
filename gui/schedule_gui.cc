@@ -334,6 +334,106 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		add_component(&line_selector);
 	}
 
+	add_table(2,1);
+	{
+		bt_extract_schedule_settings.init(button_t::arrowdown, "Extract schedule settings");
+		bt_extract_schedule_settings.set_tooltip("Show some settings for whole schedule");
+		bt_extract_schedule_settings.add_listener(this);
+		bt_extract_schedule_settings.pressed = false;
+		add_component(&bt_extract_schedule_settings);
+		
+		new_component<gui_label_t>("Extract schedule settings");
+	}
+	end_table();
+	
+	// Components for advanced settings	
+	add_table(3,1);
+	{
+		bt_tmp_schedule.init(button_t::square_state, "Temporary schedule");
+		bt_tmp_schedule.set_tooltip("This schedule does not affect the route cost calculation.");
+		bt_tmp_schedule.add_listener(this);
+		bt_tmp_schedule.pressed = schedule->is_temporary();
+		add_component(&bt_tmp_schedule);
+		
+		bt_full_load_acceleration.init(button_t::square_state, "Full Load Acceleration");
+		bt_full_load_acceleration.set_tooltip("Always use full load acceleration regardless of loadings.");
+		bt_full_load_acceleration.add_listener(this);
+		bt_full_load_acceleration.pressed = schedule->is_full_load_acceleration();
+		add_component(&bt_full_load_acceleration);
+
+		bt_full_load_time.init(button_t::square_state, "Full Get on/off Time");
+		bt_full_load_time.set_tooltip("Always use maximum boarding and alighting time, regardless of boardings and alightings.");
+		bt_full_load_time.add_listener(this);
+		bt_full_load_time.pressed = schedule->is_full_load_time();
+		add_component(&bt_full_load_time);
+	}
+	end_table();
+
+	// max speed setting
+	add_table(2,1);
+	{
+		lb_max_speed.set_tooltip(translator::translate("Limits the max speed of all convoys on this line."));
+		add_component(&lb_max_speed);
+		numimp_max_speed.set_width( 60 );
+		numimp_max_speed.set_value( schedule->get_max_speed() );
+		numimp_max_speed.set_limits( 0, 65535 );
+		numimp_max_speed.set_increment_mode(1);
+		numimp_max_speed.add_listener(this);
+		add_component(&numimp_max_speed);
+	}
+	end_table();
+
+	// Additional waiting time on goods routing, when TBGR is enabled
+	add_table(2,1);
+	{
+		add_component(&lb_tbgr_waiting_time);
+		numimp_tbgr_waiting_time.set_width( 60 );
+		numimp_tbgr_waiting_time.set_value( schedule->get_additional_base_waiting_time() );
+		numimp_tbgr_waiting_time.set_limits( 0, 999999 );
+		numimp_tbgr_waiting_time.set_increment_mode(1);
+		numimp_tbgr_waiting_time.add_listener(this);
+		add_component(&numimp_tbgr_waiting_time);
+	}
+	end_table();
+
+	if(  !cnv.is_bound()  ) {
+		lb_departure_slot_group.set_tooltip(translator::translate("Shares the departure time slot with the selected line here."));
+		add_component(&lb_departure_slot_group);
+
+		init_departure_slot_group_selector();
+		departure_slot_group_selector.add_listener(this);
+		add_component(&departure_slot_group_selector);
+	}
+
+	// next_line setting
+	add_table(2,1);
+	{
+		lb_next_line.set_text("Next line:");
+		add_component(&lb_next_line);
+
+		next_line_selector.clear_elements();
+		lb_next_line.set_tooltip("Jump to this Next-line's schedule at the end of this schedule.");
+
+		init_next_line_selector();
+		next_line_selector.add_listener(this);
+		add_component(&next_line_selector);
+	}
+	end_table();
+
+	extract_schedule_settings(false);
+
+	add_table(2,1);
+	{
+		bt_extract_loading_settings.init(button_t::arrowdown, "Extract loading settings");
+		bt_extract_loading_settings.set_tooltip("Show loading settings for each stop");
+		bt_extract_loading_settings.add_listener(this);
+		bt_extract_loading_settings.pressed = false;
+		add_component(&bt_extract_loading_settings);
+		
+		new_component<gui_label_t>("Extract loading settings");
+	}
+	end_table();
+
 	// loading level and waiting time
 	add_table(2,2);
 	{
@@ -361,42 +461,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		end_table();
 	}
 	end_table();
-	
-	add_table(2,1);
-	{
-		bt_extract_settings.init(button_t::arrowdown, "Extract advanced settings");
-		bt_extract_settings.set_tooltip("Show some more."); // TODO: fix me :(
-		bt_extract_settings.add_listener(this);
-		bt_extract_settings.pressed = false;
-		add_component(&bt_extract_settings);
-		
-		new_component<gui_label_t>("Extract advanced settings");
-	}
-	end_table();
-	
-	// Components for advanced settings	
-	add_table(3,1);
-	{
-		bt_tmp_schedule.init(button_t::square_state, "Temporary schedule");
-		bt_tmp_schedule.set_tooltip("This schedule does not affect the route cost calculation.");
-		bt_tmp_schedule.add_listener(this);
-		bt_tmp_schedule.pressed = schedule->is_temporary();
-		add_component(&bt_tmp_schedule);
-		
-		bt_full_load_acceleration.init(button_t::square_state, "Full Load Acceleration");
-		bt_full_load_acceleration.set_tooltip("Always use full load acceleration regardless of loadings.");
-		bt_full_load_acceleration.add_listener(this);
-		bt_full_load_acceleration.pressed = schedule->is_full_load_acceleration();
-		add_component(&bt_full_load_acceleration);
 
-		bt_full_load_time.init(button_t::square_state, "Full Get on/off Time");
-		bt_full_load_time.set_tooltip("Always use maximum boarding and alighting time, regardless of boardings and alightings.");
-		bt_full_load_time.add_listener(this);
-		bt_full_load_time.pressed = schedule->is_full_load_time();
-		add_component(&bt_full_load_time);
-	}
-	end_table();
-	
 	// load and unload settings
 	add_table(3,1);
 	{
@@ -428,21 +493,21 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		add_component(&bt_transfer_interval);
 	}
 	end_table();
-	
-	// max speed setting
+
+	extract_loading_settings(false);
+
 	add_table(2,1);
 	{
-		lb_max_speed.set_tooltip(translator::translate("Limits the max speed of all convoys on this line."));
-		add_component(&lb_max_speed);
-		numimp_max_speed.set_width( 60 );
-		numimp_max_speed.set_value( schedule->get_max_speed() );
-		numimp_max_speed.set_limits( 0, 65535 );
-		numimp_max_speed.set_increment_mode(1);
-		numimp_max_speed.add_listener(this);
-		add_component(&numimp_max_speed);
+		bt_extract_driving_settings.init(button_t::arrowdown, "Extract driving settings");
+		bt_extract_driving_settings.set_tooltip("Show driving and departure setting for each stops/waypoints");
+		bt_extract_driving_settings.add_listener(this);
+		bt_extract_driving_settings.pressed = false;
+		add_component(&bt_extract_driving_settings);
+		
+		new_component<gui_label_t>("Extract driving settings");
 	}
 	end_table();
-
+	
 	// convoi max speed setting
 	add_table(2,1);
 	{
@@ -461,18 +526,6 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	}
 	end_table();
 
-	// Additional waiting time on goods routing, when TBGR is enabled
-	add_table(2,1);
-	{
-		add_component(&lb_tbgr_waiting_time);
-		numimp_tbgr_waiting_time.set_width( 60 );
-		numimp_tbgr_waiting_time.set_value( schedule->get_additional_base_waiting_time() );
-		numimp_tbgr_waiting_time.set_limits( 0, 999999 );
-		numimp_tbgr_waiting_time.set_increment_mode(1);
-		numimp_tbgr_waiting_time.add_listener(this);
-		add_component(&numimp_tbgr_waiting_time);
-	}
-	end_table();
 	
 	// coupling related buttons
 	add_table(2,1);
@@ -585,31 +638,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	bt_no_overtake.add_listener(this);
 	add_component(&bt_no_overtake);
 
-	if(  !cnv.is_bound()  ) {
-		lb_departure_slot_group.set_tooltip(translator::translate("Shares the departure time slot with the selected line here."));
-		add_component(&lb_departure_slot_group);
-
-		init_departure_slot_group_selector();
-		departure_slot_group_selector.add_listener(this);
-		add_component(&departure_slot_group_selector);
-	}
-
-	// next_line setting
-	add_table(2,1);
-	{
-		lb_next_line.set_text("Next line:");
-		add_component(&lb_next_line);
-
-		next_line_selector.clear_elements();
-		lb_next_line.set_tooltip("Jump to this Next-line's schedule at the end of this schedule.");
-
-		init_next_line_selector();
-		next_line_selector.add_listener(this);
-		add_component(&next_line_selector);
-	}
-	end_table();
-	
-	extract_advanced_settings(false);
+	extract_driving_settings(false);
 
 	add_table(2,1);
 	{
@@ -1032,8 +1061,18 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 			update_selection();
 		}
 	}
-	else if(comp == &bt_extract_settings) {
-		extract_advanced_settings(!bt_tmp_schedule.is_visible());
+	else if(comp == &bt_extract_schedule_settings) {
+		extract_schedule_settings(!bt_tmp_schedule.is_visible());
+		// reload window
+		reset_min_windowsize();
+	}
+	else if(comp == &bt_extract_loading_settings) {
+		extract_loading_settings(!bt_no_load.is_visible());
+		// reload window
+		reset_min_windowsize();
+	}
+	else if(comp == &bt_extract_driving_settings) {
+		extract_driving_settings(!bt_wait_for_time.is_visible());
 		// reload window
 		reset_min_windowsize();
 	}
@@ -1409,34 +1448,44 @@ void schedule_gui_t::rdwr(loadsave_t *file)
 		}
 	}
 }
-
-void schedule_gui_t::extract_advanced_settings(bool yesno) {
-	bt_extract_settings.set_typ(yesno ? button_t::arrowup : button_t::arrowdown);
+void schedule_gui_t::extract_schedule_settings(bool yesno) {
+	bt_extract_schedule_settings.set_typ(yesno? button_t::arrowup : button_t::arrowdown);
 	bt_tmp_schedule.set_visible(yesno);
 	bt_full_load_acceleration.set_visible(yesno);
 	bt_full_load_time.set_visible(yesno);
-	bt_no_load.set_visible(yesno);
-	bt_no_unload.set_visible(yesno);
-	bt_unload_all.set_visible(yesno);
-	bt_wait_for_time.set_visible(yesno);
-	lb_spacing.set_visible(yesno);
-	lb_spacing_shift.set_visible(yesno);
-	lb_title1.set_visible(yesno);
-	lb_title2.set_visible(yesno);
 	lb_max_speed.set_visible(yesno);
-	numimp_spacing.set_visible(yesno);
-	numimp_spacing_shift.set_visible(yesno);
-	numimp_delay_tolerance.set_visible(yesno);
 	numimp_max_speed.set_visible(yesno);
-	bt_same_dep_time.set_visible(yesno);
-	bt_load_before_departure.set_visible(yesno);
-	bt_transfer_interval.set_visible(yesno);
 	lb_departure_slot_group.set_visible(yesno);
 	departure_slot_group_selector.set_visible(yesno);
 	lb_tbgr_waiting_time.set_visible(yesno);
 	numimp_tbgr_waiting_time.set_visible(yesno);
 	lb_next_line.set_visible(yesno);
 	next_line_selector.set_visible(yesno);
+}
+void schedule_gui_t::extract_loading_settings(bool yesno) {
+	bt_extract_loading_settings.set_typ(yesno? button_t::arrowup: button_t::arrowdown);
+	lb_load.set_visible(yesno);
+	numimp_load.set_visible(yesno);
+	lb_wait.set_visible(yesno);
+	numimp_wait_load.set_visible(yesno);
+	bt_wait_load.set_visible(yesno);
+	bt_no_load.set_visible(yesno);
+	bt_no_unload.set_visible(yesno);
+	bt_unload_all.set_visible(yesno);
+	bt_transfer_interval.set_visible(yesno);
+}
+void schedule_gui_t::extract_driving_settings(bool yesno) {
+	bt_extract_driving_settings.set_typ(yesno ? button_t::arrowup : button_t::arrowdown);
+	bt_wait_for_time.set_visible(yesno);
+	lb_spacing.set_visible(yesno);
+	lb_spacing_shift.set_visible(yesno);
+	lb_title1.set_visible(yesno);
+	lb_title2.set_visible(yesno);
+	numimp_spacing.set_visible(yesno);
+	numimp_spacing_shift.set_visible(yesno);
+	numimp_delay_tolerance.set_visible(yesno);
+	bt_same_dep_time.set_visible(yesno);
+	bt_load_before_departure.set_visible(yesno);
 	bt_max_speed_kmh_of_convoi.set_visible(yesno);
 	numimp_max_speed_kmh_of_convoi.set_visible(yesno);
 	
