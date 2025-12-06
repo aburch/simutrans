@@ -45,6 +45,8 @@
 	CHG: test renovation before new buildings and use homeless and jobless numbers to decide to extend town borders
 	FIX: bridge removal costs
 	CHG: Show obsolete shows lso distribution_weight=0 factories in the editor window
+	FIX: Not allowed for powerbridges to end on ways
+	ADD: Retain message of the day in servergames. Can be reshown in the game info/network dialog
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):
