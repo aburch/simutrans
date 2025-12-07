@@ -565,15 +565,15 @@ public:
 class rail_vehicle_t : public vehicle_t
 {
 protected:
-	bool check_next_tile(const grund_t *bd, bool coupling) const OVERRIDE;
-	bool check_next_tile(const grund_t *bd) const OVERRIDE { return check_next_tile(bd,false); }
+	bool check_next_tile(const grund_t *bd, bool find_route, bool coupling) const OVERRIDE;
+	bool check_next_tile(const grund_t *bd) const OVERRIDE { return check_next_tile(bd, false, false); }
 
 	void enter_tile(grund_t*) OVERRIDE;
 
-	bool is_pre_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const check_longblock);
-	bool is_priority_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const check_longblock);
-	bool is_longblock_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const check_longblock);
-	bool is_choose_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed);
+	bool is_pre_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const call_by_step);
+	bool is_priority_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const call_by_step);
+	bool is_longblock_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const call_by_step);
+	bool is_choose_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const call_by_step);
 
 public:
 	waytype_t get_waytype() const OVERRIDE { return track_wt; }
@@ -613,7 +613,7 @@ public:
 
 	// step() routine called by convoy
 	bool check_longblock_signal(signal_t *sig, uint16 start_index, sint32 &restart_speed);
-	bool is_signal_clear(uint16 start_index, sint32 &restart_speed, bool const check_longblock);
+	bool is_signal_clear(uint16 start_index, sint32 &restart_speed, bool const call_by_step);
 };
 
 /**
