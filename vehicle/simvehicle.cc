@@ -3674,9 +3674,9 @@ bool rail_vehicle_t::check_longblock_signal(signal_t *sig, uint16 next_block, si
 	return true;
 }
 
-bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block, sint32 &restart_speed, const bool check_at_step)
+bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block, sint32 &restart_speed, const bool call_by_step)
 {
-	if(  cnv->is_waiting() || check_at_step  ) {
+	if(  cnv->is_waiting() || call_by_step  ) {
 		// we are in a step. do that.
 		const bool res = check_longblock_signal(sig, next_block, restart_speed);
 		cnv->set_signal_check_in_step_request_invalid();
@@ -3690,7 +3690,7 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block,
 	}
 }
 
-bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_block, sint32 &restart_speed, const bool check_at_step)
+bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_block, sint32 &restart_speed, const bool call_by_step)
 {
 	bool choose_ok = false;
 	target_halt = halthandle_t();
@@ -3792,7 +3792,7 @@ skip_choose:
 		// note: any old reservations should be invalid after the block reserver call.
 		// => We can now start freshly all over
 
-		if(!cnv->is_waiting()&&!check_at_step) {
+		if(!cnv->is_waiting()&&!call_by_step) {
 			if(!try_coupling) {
 				// non coupling -> non stop(search new route to halt in step)
 				cnv->request_signal_check_in_step();
@@ -3873,7 +3873,7 @@ skip_choose:
 }
 
 
-bool rail_vehicle_t::is_pre_signal_clear(signal_t *sig, uint16 next_block, sint32 &restart_speed, bool const check_at_step)
+bool rail_vehicle_t::is_pre_signal_clear(signal_t *sig, uint16 next_block, sint32 &restart_speed, bool const call_by_step)
 {
 	// parse to next signal; if needed recurse, since we allow cascading
 	uint16 next_signal, next_crossing;
@@ -3884,7 +3884,7 @@ bool rail_vehicle_t::is_pre_signal_clear(signal_t *sig, uint16 next_block, sint3
 			sig->set_state( roadsign_t::STATE_GREEN );
 			cnv->set_next_stop_index( min( next_signal, next_crossing ) );
 			return true;
-		} else if ( is_signal_clear( next_signal, restart_speed, check_at_step ) ) {
+		} else if ( is_signal_clear( next_signal, restart_speed, call_by_step ) ) {
 			// ok, next signal clear
 			sig->set_state( roadsign_t::STATE_GREEN );
 			return true;
@@ -3903,13 +3903,13 @@ bool rail_vehicle_t::is_pre_signal_clear(signal_t *sig, uint16 next_block, sint3
 
 
 
-bool rail_vehicle_t::is_priority_signal_clear(signal_t *sig, uint16 next_block, sint32 &restart_speed, bool const check_at_step)
+bool rail_vehicle_t::is_priority_signal_clear(signal_t *sig, uint16 next_block, sint32 &restart_speed, bool const call_by_step)
 {
 	// parse to next signal; if needed recurse, since we allow cascading
 	uint16 next_signal, next_crossing;
 
 	if(  block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false )  ) {
-		if(  next_signal == route_t::INVALID_INDEX  ||  cnv->get_route()->at(next_signal) == cnv->get_route()->back()  ||  is_signal_clear( next_signal, restart_speed, check_at_step )  ) {
+		if(  next_signal == route_t::INVALID_INDEX  ||  cnv->get_route()->at(next_signal) == cnv->get_route()->back()  ||  is_signal_clear( next_signal, restart_speed, call_by_step )  ) {
 			// ok, end of route => we can go
 			sig->set_state( roadsign_t::STATE_GREEN );
 			cnv->set_next_stop_index( min( next_signal, next_crossing ) );
@@ -3938,7 +3938,7 @@ bool rail_vehicle_t::is_priority_signal_clear(signal_t *sig, uint16 next_block, 
 }
 
 
-bool rail_vehicle_t::is_signal_clear(uint16 next_block, sint32 &restart_speed, bool const check_at_step=false)
+bool rail_vehicle_t::is_signal_clear(uint16 next_block, sint32 &restart_speed, bool const call_by_step=false)
 {
 	// called, when there is a signal; will call other signal routines if needed
 	grund_t *gr_next_block = welt->lookup(cnv->get_route()->at(next_block));
@@ -3972,19 +3972,19 @@ bool rail_vehicle_t::is_signal_clear(uint16 next_block, sint32 &restart_speed, b
 	}
 
 	if(  sig_desc->is_pre_signal()  ) {
-		return is_pre_signal_clear( sig, next_block, restart_speed, check_at_step );
+		return is_pre_signal_clear( sig, next_block, restart_speed, call_by_step );
 	}
 
 	if (  sig_desc->is_priority_signal()  ) {
-		return is_priority_signal_clear( sig, next_block, restart_speed, check_at_step );
+		return is_priority_signal_clear( sig, next_block, restart_speed, call_by_step );
 	}
 
 	if(  sig_desc->is_longblock_signal()  ) {
-		return is_longblock_signal_clear( sig, next_block, restart_speed, check_at_step );
+		return is_longblock_signal_clear( sig, next_block, restart_speed, call_by_step );
 	}
 
 	if(  sig_desc->is_choose_sign()  ) {
-		return is_choose_signal_clear( sig, next_block, restart_speed, check_at_step );
+		return is_choose_signal_clear( sig, next_block, restart_speed, call_by_step );
 	}
 
 	dbg->error( "rail_vehicle_t::is_signal_clear()", "felt through at signal at %s", cnv->get_route()->at(next_block).get_str() );
