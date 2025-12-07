@@ -3377,7 +3377,7 @@ bool rail_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, r
 }
 
 
-bool rail_vehicle_t::check_next_tile(const grund_t *bd, bool coupling) const
+bool rail_vehicle_t::check_next_tile(const grund_t *bd, bool find_route, bool coupling) const
 {
 	schiene_t const* const sch = obj_cast<schiene_t>(bd->get_weg(get_waytype()));
 	if(  !sch  ) {
@@ -3411,7 +3411,7 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd, bool coupling) const
 		}
 	}
 
-	if(  target_halt.is_bound()  &&  cnv->is_waiting()  ) {
+	if(  target_halt.is_bound() && find_route  ) {
 		// we are searching a stop here:
 		// ok, we can go where we already are ...
 		if(bd->get_pos()==get_pos()) {
@@ -3692,7 +3692,6 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block,
 
 bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_block, sint32 &restart_speed, const bool check_at_step)
 {
-	dbg->message("rail_vehicle_t::is_choose_signal_clear","%s check signal in %s, from %s", cnv->get_name(), check_at_step? "step": "sync_step", cnv->get_route()->at(start_block+1).get_str());
 	bool choose_ok = false;
 	target_halt = halthandle_t();
 
@@ -3792,10 +3791,8 @@ skip_choose:
 		// no free route to target!
 		// note: any old reservations should be invalid after the block reserver call.
 		// => We can now start freshly all over
-		dbg->message("rail_vehicle_t::is_choose_signal_clear()","%s check choose signal: %s", cnv->get_name(), try_coupling? "coupling": "choose");
 
 		if(!cnv->is_waiting()&&!check_at_step) {
-			dbg->message("rail_vehicle_t::is_choose_signal_clear()","%s request signal check in step",cnv->get_name());
 			if(!try_coupling) {
 				// non coupling -> non stop(search new route to halt in step)
 				cnv->request_signal_check_in_step();
@@ -3817,7 +3814,6 @@ skip_choose:
 		if(  !route_found  &&  (!sig->is_guide_signal()  ||  !try_coupling)  ) {
 			route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), false );
 			try_coupling = false;
-			dbg->message("rail_vehicle_t::is_choose_signal_clear()","%s choose route %s", cnv->get_name(), route_found? "found": "no");
 		}
 		if(  !route_found  ) {
 			// nothing empty or not route with less than get_max_choose_route_steps() tiles

@@ -565,8 +565,8 @@ public:
 class rail_vehicle_t : public vehicle_t
 {
 protected:
-	bool check_next_tile(const grund_t *bd, bool coupling) const OVERRIDE;
-	bool check_next_tile(const grund_t *bd) const OVERRIDE { return check_next_tile(bd,false); }
+	bool check_next_tile(const grund_t *bd, bool find_route, bool coupling) const OVERRIDE;
+	bool check_next_tile(const grund_t *bd) const OVERRIDE { return check_next_tile(bd, false, false); }
 
 	void enter_tile(grund_t*) OVERRIDE;
 
