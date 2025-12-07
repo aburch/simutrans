@@ -4315,10 +4315,23 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 			cnv->unset_convoi_coupling_in_progress();
 			return false;
 		}
+		// find coupling target? who is it?
+		bool find_coupling_target = false;
+		convoihandle_t coupling_target = convoihandle_t();
+		// check for direction of coupling target
 		const ribi_t::ribi dir = i==start_index ? ribi_t::none : ribi_type(route->at(i-1), route->at(i));
+		ribi_t::ribi coupling_target_ribi = ribi_t::none;
+		// check the stop step for coupling
+		sint16 c_step = -VEHICLE_STEPS_PER_TILE;
+		const bool is_diagonal_way = ribi_t::is_bend(gr->get_weg(get_waytype())->get_ribi_unmasked());
+		const sint16 tile_length = is_diagonal_way ? diagonal_vehicle_steps_per_tile : VEHICLE_STEPS_PER_TILE;
+		// check the real coupling target if there are vehicles in same tile. 
+		sint16 other_step = VEHICLE_STEPS_PER_TILE;
 		for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
 			if(  rail_vehicle_t* const v = dynamic_cast<rail_vehicle_t*>(gr->obj_bei(pos))  ) {
 				// there is a suitable waiting convoy for coupling -> this is coupling point.
+				// if this vehicle is not real target and find other real coupling target, check this value with real target.
+				other_step = min(other_step,((v->get_direction()&dir)==0)? tile_length - (sint16)v->get_steps() - 1 : (sint16)v->get_steps()-(sint16)v->get_desc()->get_length()*VEHICLE_STEPS_PER_CARUNIT);
 				if(  cnv->can_start_coupling(v->get_convoi())  &&  v->get_convoi()->is_loading()  ) {
 					if(  !v->is_last()  &&  !v->is_leading()  ) {
 						// we have to couple with either end of the convoy.
@@ -4337,39 +4350,49 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 					if(  v->get_convoi()->get_convoi_coupling_in_progress().is_bound() && v->get_convoi()->get_convoi_coupling_in_progress() != cnv->self  ) {
 						continue;
 					}
-					// set convoi as coupling now!
-					v->get_convoi()->self->set_convoi_coupling_in_progress(cnv->self);
-					cnv->set_convoi_coupling_in_progress(v->get_convoi()->self);
 					// set coupling index and step
 					// c_step can be negative, so it must be handled as sint16.
-					const bool is_diagonal_way = ribi_t::is_bend(gr->get_weg(get_waytype())->get_ribi_unmasked());
-					const sint16 tile_length = is_diagonal_way ? diagonal_vehicle_steps_per_tile : VEHICLE_STEPS_PER_TILE;
 					// if target vehicle's direction is same as my route's it, the coupling step is (v's steps)-(v's length)
-					// otherwise, (tile length)-(v's steps) 
-					sint16 c_step = ((v->get_direction()&dir)==0) ? tile_length - (sint16)v->get_steps() - 1 -  VEHICLE_STEPS_PER_TILE/2 - env_t::reverse_base_offsets[v->get_direction()][2] : (sint16)v->get_steps()-(sint16)v->get_desc()->get_length()*VEHICLE_STEPS_PER_CARUNIT;
-					coupling_index = i;
-					// if the target vehicle overlaps another tile, fix index and steps
-					while(c_step<0&&coupling_index>0) {
-						coupling_index--;
-						grund_t* gr_coupling = welt->lookup(route->at(coupling_index));
-						c_step += (sint16)(ribi_t::is_bend(gr_coupling->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile : VEHICLE_STEPS_PER_TILE);
-					}
-					// set coupling steps as positive value
-					coupling_steps = c_step;
-					//reserve tiles
-					for(  uint16 h=start_index;  h<coupling_index;  h++  ) {
-						grund_t* grn = welt->lookup(route->at(h));
-						schiene_t * schn = gr ? (schiene_t *)grn->get_weg(get_waytype()) : NULL;
-						if(  schn  ) {
-							schn->reserve( cnv->self, ribi_type(route->at(max(1u,h)-1u), route->at(min(route->get_count()-1u,h+1u))) );
-						}
-					}
-					return true;
+					// otherwise, (tile length)-(v's steps)
+					coupling_target_ribi = v->get_direction();
+					c_step = ((coupling_target_ribi&dir)==0) ? tile_length - (sint16)v->get_steps() - 1 : (sint16)v->get_steps()-(sint16)v->get_desc()->get_length()*VEHICLE_STEPS_PER_CARUNIT;
+					coupling_target = v->get_convoi()->self;
+					// find the real target!
+					find_coupling_target = true;
 				} else {
 					// other convoy exists.
 					continue;
 				}
 			}
+		}
+		if(  other_step<c_step  ) {
+			// there are another vehicles front of the target-> wait for clearance (return false);
+			find_coupling_target = false;
+		}
+		if(  find_coupling_target && coupling_target.is_bound()  ) {
+			// ok! find real coupling target convoy and there are no obstacles.
+			// set convoi as coupling now!
+			coupling_target->set_convoi_coupling_in_progress(cnv->self);
+			cnv->set_convoi_coupling_in_progress(coupling_target);
+			coupling_index = i;
+			// if the target vehicle overlaps another tile, fix index and steps
+			c_step -= ((coupling_target_ribi&dir)==0) ? env_t::reverse_base_offsets[coupling_target_ribi][2] -  VEHICLE_STEPS_PER_TILE/2 : 0;
+			while(c_step<0&&coupling_index>0) {
+				coupling_index--;
+				grund_t* gr_coupling = welt->lookup(route->at(coupling_index));
+				c_step += (sint16)(ribi_t::is_bend(gr_coupling->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile : VEHICLE_STEPS_PER_TILE);
+			}
+			// set coupling steps as positive value
+			coupling_steps = c_step;
+			//reserve tiles
+			for(  uint16 h=start_index;  h<coupling_index;  h++  ) {
+				grund_t* grn = welt->lookup(route->at(h));
+				schiene_t * schn = gr ? (schiene_t *)grn->get_weg(get_waytype()) : NULL;
+				if(  schn  ) {
+					schn->reserve( cnv->self, ribi_type(route->at(max(1u,h)-1u), route->at(min(route->get_count()-1u,h+1u))) );
+				}
+			}
+			return true;
 		}
 		// check for signals
 		schiene_t * sch = gr ? (schiene_t *)gr->get_weg(get_waytype()) : NULL;
