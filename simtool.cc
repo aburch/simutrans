@@ -15,6 +15,7 @@
 #include "simcity.h"
 #include "simmesg.h"
 #include "simconvoi.h"
+
 #include "gui/simwin.h"
 #include "display/viewport.h"
 
@@ -6367,14 +6368,14 @@ void tool_build_house_t::rdwr_custom_data(memory_rw_t *packet)
 	} else {
 		// writing
         if (count > 0) {
-            srand((unsigned int)time(NULL)); 
+			dbg->message("tool_build_house_t::rdwr_custom_data()","randbuildingset");
             uint32 i = 0;
             bool* used_flags = new bool[count];
             for( uint32 j = 0; j < count; j++) {
                 used_flags[j] = false;
             }
             while (i < count) {
-                uint32 rand_index = rand() % count;
+                uint32 rand_index = sim_async_rand(count);
                 if(used_flags[rand_index]){
 					continue;
 				}
