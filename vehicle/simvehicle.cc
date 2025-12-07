@@ -3786,7 +3786,6 @@ skip_choose:
 	if(  !try_coupling  ) {
 		// call block_reserver only when the next halt is not a coupling point.
 		route_found = block_reserver( cnv->get_route(), start_block+1, next_signal, next_crossing, 100000, true, false );
-		cnv->set_signal_check_in_step_request_invalid();
 	}
 	if(  !route_found  ) {
 		// no free route to target!
@@ -3867,6 +3866,7 @@ skip_choose:
 		}
 		// reserved route to target
 	}
+	cnv->set_signal_check_in_step_request_invalid();
 	sig->set_state( roadsign_t::STATE_GREEN );
 	cnv->set_next_stop_index( min( next_crossing, next_signal ) );
 	return true;
