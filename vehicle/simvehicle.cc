@@ -3793,6 +3793,7 @@ skip_choose:
 		// => We can now start freshly all over
 
 		if(!cnv->is_waiting()&&!call_by_step) {
+			// we are in a sync_step->no calculate route, return
 			if(!try_coupling) {
 				// non coupling -> non stop(search new route to halt in step)
 				cnv->request_signal_check_in_step();
@@ -3801,6 +3802,8 @@ skip_choose:
 			target_halt = halthandle_t();
 			return false;
 		}
+		// we are in a step. calculate route.
+		// reset request
 		cnv->set_signal_check_in_step_request_invalid();
 		// now we are in a step and can use the route search array
 
