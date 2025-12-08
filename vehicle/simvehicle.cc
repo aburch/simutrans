@@ -4205,11 +4205,13 @@ bool rail_vehicle_t::block_reserver(const route_t *route, uint16 start_index, ui
 		}
 #endif
 		if(reserve) {
-			if(  sch1->has_signal()  &&  i<route->get_count()-1  ) {
-				if(count) {
-					signs.append(gr);
+			if(  sch1->has_signal()  &&  i<route->get_count()  ) {
+				if( i < route->get_count()-1 ) {
+					if(count) {
+						signs.append(gr);
+					}
+					count --;
 				}
-				count --;
 				next_signal_index = i;
 			}
 			if(  !sch1->reserve( cnv->self, ribi_type( route->at(max(1u,i)-1u), route->at(min(route->get_count()-1u,i+1u)) ) )  ) {
