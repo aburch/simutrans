@@ -4212,6 +4212,7 @@ bool rail_vehicle_t::block_reserver(const route_t *route, uint16 start_index, ui
 					}
 					count --;
 				}
+				// we must find the signal on the last tile of the route(for longblock_signal_clear())
 				next_signal_index = i;
 			}
 			if(  !sch1->reserve( cnv->self, ribi_type( route->at(max(1u,i)-1u), route->at(min(route->get_count()-1u,i+1u)) ) )  ) {
