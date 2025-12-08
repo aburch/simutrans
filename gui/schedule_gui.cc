@@ -11,6 +11,7 @@
 #include "../simconvoi.h"
 #include "../display/simgraph.h"
 #include "../display/viewport.h"
+#include "components/gui_divider.h"
 
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
@@ -409,7 +410,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	end_table();
 
 	extract_loading_settings(false);
-	new_component<gui_fill_t>();
+	new_component<gui_divider_t>();
 
 	// driving, waiting, coupling, reversing settings
 
@@ -556,8 +557,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	add_component(&bt_no_overtake);
 
 	extract_driving_settings(false);
-
-	new_component<gui_fill_t>();
+	new_component<gui_divider_t>();
 
 	// schedule settings
 
