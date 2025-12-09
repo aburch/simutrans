@@ -2461,8 +2461,9 @@ void convoi_t::vorfahren()
 		// the back vehicles position is set.
 		if (c->reversing_needed){
 			c->reverse_vehicles_at_halt_if_needed();
-			c->uncouple_done = false;
 		}
+		// reset uncouple done flag
+		c->uncouple_done = false;
 		c = c->get_coupling_convoi();
 	}
 
@@ -3226,16 +3227,17 @@ void convoi_t::rdwr(loadsave_t *file)
 		reversed = false;
 		reversing_needed = true;
 	}
-	if(  file->get_OTRP_version()>=47  ) {
-		file->rdwr_bool(uncouple_done);
-	} else {
-		uncouple_done=false;
-	}
 
 	if(  file->get_OTRP_version()>=47  ) {
 		file->rdwr_short( max_speed_kmh_of_convoi );
 	} else {
 		max_speed_kmh_of_convoi = 0;
+	}
+
+	if(  file->get_OTRP_version()>=48  ) {
+		file->rdwr_bool(uncouple_done);
+	} else {
+		uncouple_done=false;
 	}
 
 	if(  file->is_loading()  ) {
@@ -5745,8 +5747,9 @@ void convoi_t::uncouple_convoy_by_schedule_setting()
 		convoihandle_t child_convoy = c->get_coupling_convoi();
 		if(c->get_schedule()->get_current_entry().is_uncouple_child()&&!c->uncouple_done) {
 			c->uncouple_convoi();
-			c->uncouple_done=true;
 		}
+		// avoid uncouple repeatedly
+		c->uncouple_done=true;
 		c = child_convoy;
 	}
 }
