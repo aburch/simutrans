@@ -3560,7 +3560,7 @@ bool rail_vehicle_t::check_longblock_signal(signal_t *sig, uint16 next_block, si
 	uint16 const start_block = next_block;
 	// longblock signal: first check, whether there is a signal coming up on the route => just like normal signal
 	uint16 next_signal, next_crossing;
-	if(  !block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false, true )  ) {
+	if(  !block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false, true, true )  ) {
 		// not even the "Normal" signal route part is free => no bother checking further on
 		sig->set_state( roadsign_t::STATE_RED );
 		restart_speed = 0;
@@ -3612,7 +3612,7 @@ bool rail_vehicle_t::check_longblock_signal(signal_t *sig, uint16 next_block, si
 			break;
 		}
 		if(  success  ) {
-			success = block_reserver( &target_rt, 1, next_next_signal, dummy, 0, true, false, true );
+			success = block_reserver( &target_rt, 1, next_next_signal, dummy, 0, true, false, true, true );
 		}
 
 		if(  success  ) {
@@ -4161,7 +4161,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
  * if (!reserve && force_unreserve) then un-reserve everything till the end of the route
  * return the last checked block
  */
-bool rail_vehicle_t::block_reserver(const route_t *route, uint16 start_index, uint16 &next_signal_index, uint16 &next_crossing_index, int count, bool reserve, bool force_unreserve, bool use_vector  ) const
+bool rail_vehicle_t::block_reserver(const route_t *route, uint16 start_index, uint16 &next_signal_index, uint16 &next_crossing_index, int count, bool reserve, bool force_unreserve, bool use_vector, bool signal_index_must_return  ) const
 {
 	bool success=true;
 #ifdef MAX_CHOOSE_BLOCK_TILES
@@ -4211,9 +4211,12 @@ bool rail_vehicle_t::block_reserver(const route_t *route, uint16 start_index, ui
 						signs.append(gr);
 					}
 					count --;
+					next_signal_index = i;
 				}
-				// we must find the signal on the last tile of the route(for longblock_signal_clear())
-				next_signal_index = i;
+				else if (  signal_index_must_return  ) {
+					// we must find the signal on the last tile of the route(for longblock_signal_clear())
+					next_signal_index = i;
+				}
 			}
 			if(  !sch1->reserve( cnv->self, ribi_type( route->at(max(1u,i)-1u), route->at(min(route->get_count()-1u,i+1u)) ) )  ) {
 				success = false;
