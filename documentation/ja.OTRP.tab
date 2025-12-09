@@ -219,6 +219,8 @@ Revert schedule
 元に戻す
 Revert to original schedule
 編集前のスケジュールに戻します．
+Additional goods routing waiting time
+所要時間を加算します
 #------円表記------
 $
  円
