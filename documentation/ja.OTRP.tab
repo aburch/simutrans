@@ -376,3 +376,5 @@ Must Product
 生産する産業のみ
 Goods waiting time of %s
 %s の各駅での到着待ち時間
+load map
+地形データを読み込み
