@@ -83,6 +83,10 @@ Require parent convoy to enter.
 連結相手がいる時のみ進入を許可
 Advance to end
 ホーム終端まで進む
+Choose signal
+振分信号を有効化(空いているホームに進入を許可)
+remove signal
+この信号を撤去する
 release back
 後ろを解放
 A convoy waits for other convoy to couple.
