@@ -348,10 +348,13 @@ void schedule_t::rdwr(loadsave_t *file)
 			if(file->get_OTRP_version()>=47) {
 				// read and write max speed of convoy
 				file->rdwr_short(entries[i].max_speed_kmh_of_convoi);
-				// read and write max loading
-				file->rdwr_byte(entries[i].maximum_loading);
 			} else {
 				entries[i].max_speed_kmh_of_convoi = 0;
+			}
+			if(file->get_OTRP_version()>=48) {
+				// read and write max loading level
+				file->rdwr_byte(entries[i].maximum_loading);
+			} else {
 				entries[i].maximum_loading = 100;
 			}
 		}
