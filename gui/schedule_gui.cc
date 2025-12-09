@@ -428,6 +428,16 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		add_component(&bt_transfer_interval);
 	}
 	end_table();
+
+	add_table(1,1);
+	{
+		bt_no_go_no_users.init(button_t::square_state, "not go if no users");
+		bt_no_go_no_users.set_tooltip("If there are no users, this convoy will not go to this stop");
+		bt_no_go_no_users.add_listener(this);
+		bt_no_go_no_users.disable();
+		add_component(&bt_no_go_no_users);
+	}
+	end_table();
 	
 	// max speed setting
 	add_table(2,1);
@@ -722,6 +732,7 @@ void schedule_gui_t::update_selection()
 	bt_no_overtake.disable();
 	bt_max_speed_kmh_of_convoi.disable();
 	numimp_max_speed_kmh_of_convoi.disable();
+	bt_no_go_no_users.disable();
 
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
@@ -759,6 +770,8 @@ void schedule_gui_t::update_selection()
 			bt_load_before_departure.pressed = schedule->at(current_stop).is_load_before_departure();
 			bt_transfer_interval.enable();
 			bt_transfer_interval.pressed = schedule->at(current_stop).is_transfer_interval();
+			bt_no_go_no_users.enable();
+			bt_no_go_no_users.pressed = schedule->at(current_stop).is_no_go_no_users();
 
 			
 			// wait_for_time releated things
@@ -948,6 +961,12 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 			if(  bt_find_parent.pressed  ) {
 				schedule->at(schedule->get_current_stop()).reset_coupling();
 			} 
+			update_selection();
+		}
+	}
+	else if(comp == &bt_no_go_no_users) {
+		if(!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).set_no_go_no_users(!bt_no_go_no_users.pressed);
 			update_selection();
 		}
 	}
@@ -1439,6 +1458,7 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	next_line_selector.set_visible(yesno);
 	bt_max_speed_kmh_of_convoi.set_visible(yesno);
 	numimp_max_speed_kmh_of_convoi.set_visible(yesno);
+	bt_no_go_no_users.set_visible(yesno);
 	
 	const bool coupling_waytype = schedule->get_waytype()!=road_wt  &&  schedule->get_waytype()!=air_wt  &&  schedule->get_waytype()!=water_wt;
 	const bool reversible_waytype = env_t::reversible_waytype(schedule->get_waytype());

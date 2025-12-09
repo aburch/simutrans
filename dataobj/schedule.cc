@@ -665,6 +665,10 @@ void construct_schedule_entry_attributes(cbuffer_t& buf, schedule_entry_t const&
 		str[cnt] = 'N';
 		cnt++;
 	}
+	if(  entry.is_no_go_no_users()  ) {
+		str[cnt] = 'G';
+		cnt++;
+	}
 	// there are at least one attributes.
 	if(  cnt>1  ) {
 		str[cnt] = ']';

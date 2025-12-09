@@ -722,6 +722,8 @@ public:
 	 */
 	void add_running_cost( const weg_t *weg );
 
+	bool is_users_at_next_stop() const;
+
 	/**
 	 * moving the vehicles of a convoi and acceleration/deceleration
 	 * all other stuff => convoi_t::step()
