@@ -215,6 +215,10 @@ No overtake
 追い越し禁止
 Do not overtake other cars until this stop.
 この駅に向かう間はほかの車を追い越しません．
+Revert schedule
+元に戻す
+Revert to original schedule
+編集前のスケジュールに戻します．
 #------円表記------
 $
  円
