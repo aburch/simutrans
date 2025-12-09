@@ -5738,7 +5738,7 @@ void convoi_t::check_and_set_coupling_done_over_length() {
 	uint16 length_coupling_done = get_length_coupling_done();
 	uint32 total_vehicle_length = 0;
 	convoihandle_t c = self;
-	while(c.is_bound()) {
+	while(c->get_coupling_convoi().is_bound()) {
 		total_vehicle_length+=c->get_length();
 		if(!c->can_continue_coupling()) { 
 			break;
@@ -5748,6 +5748,8 @@ void convoi_t::check_and_set_coupling_done_over_length() {
 	if( c->get_coupling_convoi().is_bound() ) {
 		// this child will be uncouple here, so we must recalculate them.
 		c->get_coupling_convoi()->check_and_set_coupling_done_over_length();
+	} else {
+		total_vehicle_length += c->get_length();
 	}
 	if( length_coupling_done==0 ) {
 		// no set length coupling done, return
