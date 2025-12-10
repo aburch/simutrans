@@ -105,6 +105,12 @@ Journey Time
 路線所要時間
 Journey time of %s
 %sの所要時間
+Show journey times between stations.
+駅間の所要時間を表示します．
+Waiting Time
+駅での待ち時間
+Show goods waiting times at stations.
+各駅での貨物の待ち時間を表示します．
 Halt name
 停留所名
 Copy names
