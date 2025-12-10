@@ -347,6 +347,11 @@ Max speed of convoi: UNLIMIT
 編成最高速度：UNLIMIT(制限無し)
 Max speed of convoi: %i km/h
 編成最高速度： %i km/h
+#------ルート計算方法------
+route by route cost
+ルートコスト法で計算
+route by journey time
+所要時間をもとに計算
 #------その他の翻訳------
 next stop
 次の駅へ
