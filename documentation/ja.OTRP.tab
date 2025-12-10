@@ -201,6 +201,10 @@ Next line:
 この路線へ飛ぶ:
 Jump to this Next-line's schedule at the end of this schedule.
 このスケジュールの最後の駅で、指定された路線のスケジュールに切り替わります。
+Freight
+積載情報
+Vehicle count:
+車両数:
 Teleport to Depot
 車庫に転送
 Teleport All to Depot
