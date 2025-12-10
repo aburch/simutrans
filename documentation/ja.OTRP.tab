@@ -395,3 +395,5 @@ Goods waiting time of %s
 %s の各駅での到着待ち時間
 load map
 地形データを読み込み
+At least one tile is connected to one stop
+駅に接続しているもののみ表示します
