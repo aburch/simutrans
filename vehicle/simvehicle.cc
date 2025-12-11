@@ -3769,7 +3769,6 @@ bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_bl
 
 skip_choose:
 	if(  !choose_ok  ) {
-		dbg->message("rail_vehicle_t::is_choose_signal_clear()","%s skip choose",cnv->get_name());
 		// just act as normal signal
 		if(  block_reserver( cnv->get_route(), start_block+1, next_signal, next_crossing, 0, true, false )  ) {
 			sig->set_state( roadsign_t::STATE_GREEN );
