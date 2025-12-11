@@ -177,7 +177,7 @@ void convoi_t::init(player_t *player)
 	request_cross_ticks = 0;
 	prev_tiles_overtaking = 0;
 
-	longblock_signal_request = false;
+	signal_check_in_step_request = false;
 	crossing_reservation_index.clear();
 	recalc_min_top_speed = true;
 	recalc_friction_weight = true;
@@ -1538,11 +1538,11 @@ void convoi_t::step()
 		case DRIVING:
 			if(fahr[0]->get_waytype()==track_wt  ||  fahr[0]->get_waytype()==monorail_wt  ||  fahr[0]->get_waytype()==maglev_wt  ||  fahr[0]->get_waytype()==narrowgauge_wt) {
 				rail_vehicle_t* v = dynamic_cast<rail_vehicle_t*>(fahr[0]);
-				if(  v  &&  longblock_signal_request  ) {
+				if(  v  &&  signal_check_in_step_request  ) {
 					// process longblock signal judgement request
 					sint32 dummy = -1;
-					v->is_signal_clear(get_next_reservation_index()-1, dummy, true);
-					set_longblock_signal_judge_request_invalid();
+					v->is_signal_clear(max(get_next_reservation_index()>0?get_next_reservation_index()-1:0,v->get_route_index()>0?v->get_route_index()-1:0), dummy, true);
+					set_signal_check_in_step_request_invalid();
 				}
 			}
 			break;

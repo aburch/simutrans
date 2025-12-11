@@ -23,9 +23,9 @@ halt mode
 追越車線にも停車
 avoid becoming cityroad
 市道化を禁止する
-No buildings along roadside.
+no building adjacent
 建物を接道しない
-Can branch cityroad
+can branch cityroad
 市道の分岐を許可
 Cityroad allow branch from this road
 この道路からの市道の分岐を許可する
@@ -83,6 +83,10 @@ Require parent convoy to enter.
 連結相手がいる時のみ進入を許可
 Advance to end
 ホーム終端まで進む
+Choose signal
+振分信号を有効化(空いているホームに進入を許可)
+remove signal
+この信号を撤去する
 release back
 後ろを解放
 A convoy waits for other convoy to couple.
@@ -101,6 +105,12 @@ Journey Time
 路線所要時間
 Journey time of %s
 %sの所要時間
+Show journey times between stations.
+駅間の所要時間を表示します．
+Waiting Time
+駅での待ち時間
+Show goods waiting times at stations.
+各駅での貨物の待ち時間を表示します．
 Halt name
 停留所名
 Copy names
@@ -109,6 +119,8 @@ Copy stations
 駅名と座標をコピー
 Copy csv format
 csv形式でコピー
+Copy the list of city name and population to clipboard in csv format.
+クリップボードに都市名と人口をコピーしました．
 Station infos were copied to clipboard.\n
 クリップボードに駅情報をコピーしました．\n
 There is nothing to copy.\n
@@ -203,6 +215,10 @@ Next line:
 この路線へ飛ぶ:
 Jump to this Next-line's schedule at the end of this schedule.
 このスケジュールの最後の駅で、指定された路線のスケジュールに切り替わります。
+Freight
+積載情報
+Vehicle count:
+車両数:
 Teleport to Depot
 車庫に転送
 Teleport All to Depot
@@ -223,6 +239,12 @@ No overtake
 追い越し禁止
 Do not overtake other cars until this stop.
 この駅に向かう間はほかの車を追い越しません．
+Revert schedule
+元に戻す
+Revert to original schedule
+編集前のスケジュールに戻します．
+Additional goods routing waiting time
+所要時間を加算します
 #------円表記------
 $
  円
@@ -349,9 +371,16 @@ Max speed of convoi: UNLIMIT
 編成最高速度：UNLIMIT(制限無し)
 Max speed of convoi: %i km/h
 編成最高速度： %i km/h
+#------ルート計算方法------
+route by route cost
+ルートコスト法で計算
+route by journey time
+所要時間をもとに計算
 #------その他の翻訳------
 next stop
 次の駅へ
+Go to the next station.
+１つ先の駅へ向かいます．
 show route
 ルートを表示
 show route of this convoy.
@@ -380,3 +409,9 @@ Must Product
 生産する産業のみ
 Goods waiting time of %s
 %s の各駅での到着待ち時間
+load map
+地形データを読み込み
+At least one tile is connected to one stop
+駅に接続している産業のみ表示します
+At least one stop is connected to the town
+駅に接続している都市のみ表示します
