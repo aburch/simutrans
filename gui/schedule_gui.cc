@@ -792,7 +792,7 @@ void schedule_gui_t::update_selection()
 			}
 			lb_load.set_color( SYSCOL_TEXT );
 			numimp_load.enable();
-			if(  schedule->at(current_stop).minimum_loading>0  ||  schedule->at(current_stop).get_coupling_point()!=0  ) {
+			if(  schedule->at(current_stop).minimum_loading>0  ||  schedule->at(current_stop).is_wait_for_coupling() ) {
 				bt_wait_load.enable();
 				uint16 wait = schedule->at(current_stop).waiting_time_shift;
 				bt_wait_load.pressed = wait>0;
