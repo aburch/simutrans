@@ -24,7 +24,7 @@ public:
 		init_convoy_stopping_time();
 	}
 
-	schedule_entry_t(koord3d const& pos, uint8 const minimum_loading, uint16 const waiting_time_shift, uint16 const stop_flags, uint16 max_speed_kmh_of_convoi) :
+	schedule_entry_t(koord3d const& pos, uint8 const minimum_loading, uint16 const waiting_time_shift, uint32 const stop_flags, uint16 max_speed_kmh_of_convoi) :
 		pos(pos),
 		minimum_loading(minimum_loading),
 		waiting_time_shift(waiting_time_shift),
@@ -104,7 +104,7 @@ public:
 	uint8 cs_at_index; // which index of convoy_stopping_time should be overwritten next.
 	
 private:
-	uint16 stop_flags;
+	uint32 stop_flags;
 	
 	void init_journey_time() {
 		jt_at_index = 0;
@@ -128,7 +128,7 @@ private:
 	}
 	
 public:
-	uint16 get_coupling_point() const { return (stop_flags&0x0003); }
+	uint32 get_coupling_point() const { return (stop_flags&0x0003); }
 	void set_wait_for_coupling() { stop_flags |= WAIT_FOR_COUPLING; stop_flags &= ~TRY_COUPLING; }
 	void set_try_coupling() { stop_flags |= TRY_COUPLING; stop_flags &= ~WAIT_FOR_COUPLING; }
 	void reset_coupling() { stop_flags &= ~TRY_COUPLING; stop_flags &= ~WAIT_FOR_COUPLING; }
@@ -154,8 +154,8 @@ public:
 	bool is_wait_coupling_done() const {return (stop_flags&WAIT_COUPLING_DONE) ; }
 	void set_overwrite_max_speed_kmh_of_convoi(bool y) { y ? stop_flags |= MAX_SPEED_KMH_OF_CONVOI : stop_flags &= ~MAX_SPEED_KMH_OF_CONVOI; }
 	bool is_overwrite_max_speed_kmh_of_convoi() const {return (stop_flags&MAX_SPEED_KMH_OF_CONVOI) ; }
-	uint16 get_stop_flags() const { return stop_flags; }
-	void set_stop_flags(uint16 f) { stop_flags = f; }
+	uint32 get_stop_flags() const { return stop_flags; }
+	void set_stop_flags(uint32 f) { stop_flags = f; }
 	bool is_no_overtake() const {return (stop_flags&NO_OVERTAKE)>0 ;}
 	void set_no_overtake(bool y) { y? stop_flags|=NO_OVERTAKE : stop_flags &= ~NO_OVERTAKE;}
 

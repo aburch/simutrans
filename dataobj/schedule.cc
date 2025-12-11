@@ -121,7 +121,7 @@ halthandle_t schedule_t::get_prev_halt( player_t *player ) const
 }
 
 
-bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint16 waiting_time_shift, uint16 stop_flags, uint16 max_speed_kmh_of_convoi)
+bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint16 waiting_time_shift, uint32 stop_flags, uint16 max_speed_kmh_of_convoi)
 {
 	// stored in minivec, so we have to avoid adding too many
 	if(  entries.get_count()>=254  ) {
@@ -143,7 +143,7 @@ bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint16 waiting
 
 
 
-bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint16 waiting_time_shift, uint16 stop_flags, uint16 max_speed_kmh_of_convoi)
+bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint16 waiting_time_shift, uint32 stop_flags, uint16 max_speed_kmh_of_convoi)
 {
 	// stored in minivec, so we have to avoid adding too many
 	if(entries.get_count()>=254) {
@@ -287,17 +287,22 @@ void schedule_t::rdwr(loadsave_t *file)
 					}
 				}
 			}
-			if(file->get_OTRP_version()>=41) {
+			if(file->get_OTRP_version()>=48) {
+				uint32 flags = entries[i].get_stop_flags();
+				file->rdwr_long(flags);
+				entries[i].set_stop_flags(flags);
+			}
+			else if(file->get_OTRP_version()>=41) {
 				uint16 flags = entries[i].get_stop_flags();
 				file->rdwr_short(flags);
-				entries[i].set_stop_flags(flags);
+				entries[i].set_stop_flags((uint32)flags);
 			}
 			else if(file->get_OTRP_version()>=22) {
 				uint8 flags = entries[i].get_stop_flags();
 				file->rdwr_byte(flags);
-				entries[i].set_stop_flags(flags);
+				entries[i].set_stop_flags((uint32)flags);
 			} else {
-				entries[i].set_stop_flags(0);
+				entries[i].set_stop_flags((uint32)0);
 			}
 			if(file->get_OTRP_version()>=25) {
 				// prepare for configurable departure slots
@@ -624,7 +629,7 @@ void construct_schedule_entry_attributes(cbuffer_t& buf, schedule_entry_t const&
 	uint8 cnt = 1;
 	char str[10];
 	str[0] = '[';
-	const uint16 flag = entry.get_stop_flags();
+	const uint32 flag = entry.get_stop_flags();
 	if(  flag&schedule_entry_t::WAIT_FOR_COUPLING  ) {
 		str[cnt] = 'W';
 		cnt++;
