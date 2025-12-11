@@ -3702,7 +3702,7 @@ bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_bl
 		// destination is a waypoint!
 		koord3d temp_target = cnv->get_schedule()->get_current_entry().pos;
 		uint8 test_iter = 0;
-		while(  !cnv->is_waypoint(temp_target) && cnv->get_route()->back()!=temp_target && test_iter<cnv->get_schedule()->get_count()  ) {
+		while(  cnv->is_waypoint(temp_target) && cnv->get_route()->back()!=temp_target && test_iter<cnv->get_schedule()->get_count()  ) {
 			for(  uint16 i=start_block+1; i<cnv->get_route()->get_count(); i++  ) {
 				if(  temp_target==cnv->get_route()->at(i)  ) {
 					// next waypoint is after this signal-> skip choosing
@@ -3769,6 +3769,7 @@ bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_bl
 
 skip_choose:
 	if(  !choose_ok  ) {
+		dbg->message("rail_vehicle_t::is_choose_signal_clear()","%s skip choose",cnv->get_name());
 		// just act as normal signal
 		if(  block_reserver( cnv->get_route(), start_block+1, next_signal, next_crossing, 0, true, false )  ) {
 			sig->set_state( roadsign_t::STATE_GREEN );
