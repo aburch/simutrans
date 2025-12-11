@@ -387,6 +387,10 @@ transfers
 ご利用
 Factory Type
 産業の種類
+no close this factory
+この産業を閉鎖しない
+close_old_factory
+古い産業を閉鎖する
 No Supply
 消費しない産業のみ
 No Product
