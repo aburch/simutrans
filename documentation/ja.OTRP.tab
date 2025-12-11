@@ -153,6 +153,18 @@ Unload All
 全員降車(A)
 All passengers once get off at this stop.
 この停留所ですべての積載物を一旦降ろします．
+load temporary
+臨時乗車(l)
+unload temporary
+臨時降車(u)
+unload all temporary
+臨時全員降車(a)
+Can load but not use for goods routing
+旅客ルート計算上は乗車扱いしません(その駅からの客が待機している場合は乗車できます)．
+Can unload but not use for goods routing
+旅客ルート計算上は降車扱いしません(その駅への客が乗車している場合は降車できます)．
+Terminate goods routing (can continue boarding).
+旅客ルート計算上はこの駅を跨ぐ客が生じません(既に駅を跨いで乗車継続する客がいる場合は乗車継続できます)．
 Wait for time
 発車時刻まで待機
 Spacing cnv/month, shift
