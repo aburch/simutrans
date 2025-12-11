@@ -930,24 +930,14 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 	}
 	else if(comp == &bt_find_parent) {
 		if(!schedule->empty()) {
-			if(  bt_find_parent.pressed  ) {
-				schedule->at(schedule->get_current_stop()).reset_coupling();
-			} else {
-				schedule->at(schedule->get_current_stop()).set_try_coupling();
-			}
-			bt_wait_for_child.pressed = false;
+			schedule->at(schedule->get_current_stop()).set_try_coupling();
 			schedule->at(schedule->get_current_stop()).set_reverse_convoi_coupling(false);
 			update_selection();
 		}
 	}
 	else if(comp == &bt_wait_for_child) {
 		if(!schedule->empty()) {
-			if(  bt_wait_for_child.pressed  ) {
-				schedule->at(schedule->get_current_stop()).reset_coupling();
-			} else {
-				schedule->at(schedule->get_current_stop()).set_wait_for_coupling();
-			}
-			bt_find_parent.pressed = false;
+			schedule->at(schedule->get_current_stop()).set_wait_for_coupling();
 			schedule->at(schedule->get_current_stop()).set_reverse_convoi_coupling(false);
 			update_selection();
 		}
