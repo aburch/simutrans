@@ -978,6 +978,8 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 	else if(comp == &bt_pass_stop) {
 		if(!schedule->empty()) {
 			schedule->at(schedule->get_current_stop()).set_pass_stop(!schedule->at(schedule->get_current_stop()).is_pass_stop());
+			// we do not wait for couple or try coupling at passing stop. 
+			schedule->at(schedule->get_current_stop()).reset_coupling();
 			update_selection();
 		}
 	}
