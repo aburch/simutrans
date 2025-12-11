@@ -5086,6 +5086,7 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 			txt = "%s leads\ndifferent owner's or\ndifferent waytype convoy.\n",get_name();
 			return txt;
 		}
+		c = c->get_coupling_convoi();
 	} 
 	// iterate over all depots and try to find shortest route
 	route_t *shortest_route = new route_t();
