@@ -119,6 +119,8 @@ Copy stations
 駅名と座標をコピー
 Copy csv format
 csv形式でコピー
+Copy the list of city name and population to clipboard in csv format.
+クリップボードに都市名と人口をコピーしました．
 Station infos were copied to clipboard.\n
 クリップボードに駅情報をコピーしました．\n
 There is nothing to copy.\n
@@ -365,6 +367,8 @@ route by journey time
 #------その他の翻訳------
 next stop
 次の駅へ
+Go to the next station.
+１つ先の駅へ向かいます．
 show route
 ルートを表示
 show route of this convoy.
@@ -396,4 +400,6 @@ Goods waiting time of %s
 load map
 地形データを読み込み
 At least one tile is connected to one stop
-駅に接続しているもののみ表示します
+駅に接続している産業のみ表示します
+At least one stop is connected to the town
+駅に接続している都市のみ表示します
