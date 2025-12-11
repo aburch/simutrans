@@ -135,6 +135,8 @@ The latest departure slots were not used.
 直近の発車枠が使われませんでした．
 #------Schedule window related stuff------
 #------スケジュールウィンドウ関連のエントリ------
+Please click on the map to add\nwaypoints or stops to this\nschedule.
+マップ上をクリックして、\nこのスケジュールの中継点や\n停車駅を設定してください．
 Extract advanced settings
 詳細設定を展開
 Temporary schedule
