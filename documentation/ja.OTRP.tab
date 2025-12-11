@@ -77,6 +77,10 @@ Wait for coupling
 連結相手を待つ(W)
 Try coupling
 連結を試みる(C)
+End couple
+後ろと連結終了(E)
+It will uncouple the child convoy here.
+後ろの編成を駅到着時に切り離します．
 Waiting for coupling! (%i->%i%%)
 連結相手を待機中 (%i->%i%%)
 Require parent convoy to enter.
