@@ -144,13 +144,15 @@ public:
 			if(reverse_index>-1) {
 				goods_index = reverse_index;//find the reverse images, we use reversed one.
 			}
-			image=list2d->get_image(dir, goods_index);
-			if(!image) {
-				if(dir>3) {
-					image = list2d->get_image(dir - 4, goods_index);
+			if( ware!=NULL) {
+				image=list2d->get_image(dir, goods_index);
+				if(!image) {
+					if(dir>3) {
+						image = list2d->get_image(dir - 4, goods_index);
+					}
 				}
+				if (image != NULL) return image->get_id();
 			}
-			if (image != NULL) return image->get_id();
 		}
 
 		// only try 1d freight image list for old style vehicles
