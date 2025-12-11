@@ -565,16 +565,15 @@ public:
 class rail_vehicle_t : public vehicle_t
 {
 protected:
-	bool check_next_tile(const grund_t *bd, bool coupling) const OVERRIDE;
-	bool check_next_tile(const grund_t *bd) const OVERRIDE { return check_next_tile(bd,false); }
+	bool check_next_tile(const grund_t *bd, bool find_route, bool coupling) const OVERRIDE;
+	bool check_next_tile(const grund_t *bd) const OVERRIDE { return check_next_tile(bd, false, false); }
 
 	void enter_tile(grund_t*) OVERRIDE;
 
-	bool is_signal_clear(uint16 start_index, sint32 &restart_speed);
-	bool is_pre_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed);
-	bool is_priority_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed);
-	bool is_longblock_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed);
-	bool is_choose_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed);
+	bool is_pre_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const call_by_step);
+	bool is_priority_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const call_by_step);
+	bool is_longblock_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const call_by_step);
+	bool is_choose_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const call_by_step);
 
 public:
 	waytype_t get_waytype() const OVERRIDE { return track_wt; }
@@ -596,7 +595,7 @@ public:
 
 	// reserves or un-reserves all blocks and returns the handle to the next block (if there)
 	// returns true on successful reservation
-	bool block_reserver(const route_t *route, uint16 start_index, uint16 &next_signal, uint16 &next_crossing, int signal_count, bool reserve, bool force_unreserve, bool use_vector = false ) const;
+	bool block_reserver(const route_t *route, uint16 start_index, uint16 &next_signal, uint16 &next_crossing, int signal_count, bool reserve, bool force_unreserve, bool use_vector = false, bool signal_index_must_return = false ) const;
 
 	bool can_couple(const route_t* route, uint16 start_index, uint16 &coupling_index, uint8 &coupling_steps, bool ignore_signals = false);
 
@@ -614,6 +613,7 @@ public:
 
 	// step() routine called by convoy
 	bool check_longblock_signal(signal_t *sig, uint16 start_index, sint32 &restart_speed);
+	bool is_signal_clear(uint16 start_index, sint32 &restart_speed, bool const call_by_step);
 };
 
 /**
