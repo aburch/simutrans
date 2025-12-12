@@ -53,6 +53,7 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 	button_t bt_promote_to_line;
 	gui_combobox_t line_selector, departure_slot_group_selector, next_line_selector;
 	gui_label_buf_t lb_waitlevel;
+	gui_fill_t sp_load_settings,sp_departure_settings;
 
 	// always needed
 	button_t bt_add, bt_insert, bt_remove; // stop management
