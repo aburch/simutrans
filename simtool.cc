@@ -7,9 +7,6 @@
 #include <string.h>
 #include <math.h>
 
-#include <stdlib.h>
-#include <time.h>
-
 #include "simdebug.h"
 #include "simevent.h"
 #include "simcity.h"
