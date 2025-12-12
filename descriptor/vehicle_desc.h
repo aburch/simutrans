@@ -124,7 +124,7 @@ public:
 		if(freight_image_type>0  &&  (ware!=NULL||is_reversed)) {
 			// more freight images and a freight: find the right one
 
-			sint8 goods_index=0; // freight images: if not found use first freight
+			sint8 goods_index=-1; // freight images: if not found use first freight
 			sint8 reverse_index=-1; // reversed images. if reverse_index<0, this vehicle do not have freightimagetype="Reverse".
 
 			for( sint8 i=0;  i<freight_image_type;  i++  ) {
@@ -144,7 +144,10 @@ public:
 			if(reverse_index>-1) {
 				goods_index = reverse_index;//find the reverse images, we use reversed one.
 			}
-			if( ware!=NULL) {
+			if(goods_index==-1 && ware!=NULL) {
+				goods_index = 0;
+			}
+			if(goods_index>-1) {
 				image=list2d->get_image(dir, goods_index);
 				if(!image) {
 					if(dir>3) {
