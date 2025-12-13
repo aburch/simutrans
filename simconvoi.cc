@@ -3558,7 +3558,7 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 			// Reset the flag if it is outdated to avoid blocking the departure forever.
 			c->unset_convoi_coupling_in_progress();
 		}
-		coupling_done_cond &= !(e.is_wait_for_coupling()  &&  !c->is_coupling_done()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled())); // coupling condition
+		coupling_done_cond &= !(e.is_wait_for_coupling()  &&  !c->is_coupling_done()  &&  !c->is_cease_coupling_due_to_length_over()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled())); // coupling condition
 		c = c->get_coupling_convoi();
 	}
 	c = cnv;
