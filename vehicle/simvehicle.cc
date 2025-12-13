@@ -4359,7 +4359,11 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 			if(  rail_vehicle_t* const v = dynamic_cast<rail_vehicle_t*>(gr->obj_bei(pos))  ) {
 				// there is a suitable waiting convoy for coupling -> this is coupling point.
 				// if this vehicle is not real target and find other real coupling target, check this value with real target.
-				other_step = min(other_step,((v->get_direction()&dir)==0)? tile_length - (sint16)v->get_steps() - 1 : (sint16)v->get_steps()-(sint16)v->get_desc()->get_length()*VEHICLE_STEPS_PER_CARUNIT);
+				// step can be negative, so it must be handled as sint16.
+				// if target vehicle's direction is same as my route's it, the coupling step is (v's steps)-(v's length)
+				// otherwise, (tile length)-(v's steps)
+				sint16 const temp_car_step=((v->get_direction()&dir)==0)? tile_length - (sint16)v->get_steps() - 1 : (sint16)v->get_steps()-(sint16)v->get_desc()->get_length()*VEHICLE_STEPS_PER_CARUNIT;
+				other_step = min(other_step,temp_car_step);
 				if(  cnv->can_start_coupling(v->get_convoi())  &&  v->get_convoi()->is_loading()  ) {
 					if(  v!=v->get_convoi()->front()&&v!=v->get_convoi()->back()  ) {
 						// we have to couple with either end of the convoy.
@@ -4373,12 +4377,13 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 					if(  v->get_convoi()->get_convoi_coupling_in_progress().is_bound() && v->get_convoi()->get_convoi_coupling_in_progress() != cnv->self  ) {
 						continue;
 					}
+					// if this target is behind old target -> this is not real target!
+					if(find_coupling_target && c_step<temp_car_step) {
+						continue;
+					}
 					// set coupling index and step
-					// c_step can be negative, so it must be handled as sint16.
-					// if target vehicle's direction is same as my route's it, the coupling step is (v's steps)-(v's length)
-					// otherwise, (tile length)-(v's steps)
 					coupling_target_ribi = v->get_direction();
-					c_step = ((coupling_target_ribi&dir)==0) ? tile_length - (sint16)v->get_steps() - 1 : (sint16)v->get_steps()-(sint16)v->get_desc()->get_length()*VEHICLE_STEPS_PER_CARUNIT;
+					c_step = temp_car_step;
 					coupling_target = v->get_convoi()->self;
 					// find the real target!
 					find_coupling_target = true;
