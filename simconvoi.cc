@@ -1295,7 +1295,7 @@ bool convoi_t::drive_to()
 #endif
 						}
 
-						if(  looped || schedule->at(current_stop).is_pass_stop()  ) {
+						if(  looped  ) {
 							// proceed upto the waypoint before the loop. Will pause there for a new route search.
 							break;
 						}
