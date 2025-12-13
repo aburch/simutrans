@@ -65,7 +65,7 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 	// for advanced settings
 	// coupling, load/unload only, temp schedule, departure time, max_speed
 	button_t bt_extract_settings;
-	button_t bt_find_parent, bt_wait_for_child; // convoy coupling
+	button_t bt_find_parent, bt_wait_for_child, bt_reset_coupling; // convoy coupling
 	button_t bt_no_load, bt_no_unload, bt_tmp_schedule, bt_wait_for_time, 
 		bt_same_dep_time, bt_full_load_acceleration, bt_full_load_time,bt_unload_all,bt_transfer_interval,
 		bt_load_before_departure, bt_reverse_convoy, bt_reverse_coupling, bt_wait_coupling_done, bt_uncouple_child, bt_max_speed_kmh_of_convoi, bt_no_overtake;

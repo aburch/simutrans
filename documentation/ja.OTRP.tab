@@ -73,6 +73,10 @@ driving
 運転中
 #------Convoy coupling related stuff------
 #------増解結関連のエントリ------
+Reset coupling
+連結設定を解除
+Reset coupling settings
+この駅での連結設定を解除します．
 Wait for coupling
 連結相手を待つ(W)
 Try coupling
@@ -139,6 +143,8 @@ The latest departure slots were not used.
 直近の発車枠が使われませんでした．
 #------Schedule window related stuff------
 #------スケジュールウィンドウ関連のエントリ------
+Please click on the map to add\nwaypoints or stops to this\nschedule.
+マップ上をクリックして、\nこのスケジュールの中継点や\n停車駅を設定してください．
 Extract advanced settings
 詳細設定を展開
 Temporary schedule

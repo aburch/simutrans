@@ -130,11 +130,11 @@ private:
 	
 public:
 	uint16 get_coupling_point() const { return (stop_flags&0x0003); }
-	void set_wait_for_coupling() { stop_flags |= WAIT_FOR_COUPLING; stop_flags &= ~TRY_COUPLING; }
-	void set_try_coupling() { stop_flags |= TRY_COUPLING; stop_flags &= ~WAIT_FOR_COUPLING; }
-	void reset_coupling() { stop_flags &= ~TRY_COUPLING; stop_flags &= ~WAIT_FOR_COUPLING; }
+	void set_wait_for_coupling(bool y=true) { y? stop_flags|=WAIT_FOR_COUPLING : stop_flags &= ~WAIT_FOR_COUPLING; }
+	void set_try_coupling(bool y=true) { y? stop_flags |= TRY_COUPLING : stop_flags &= ~TRY_COUPLING; }
 	bool is_wait_for_coupling() const { return stop_flags&WAIT_FOR_COUPLING; }
 	bool is_try_coupling() const { return stop_flags&TRY_COUPLING; }
+	void reset_coupling() { stop_flags &= ~TRY_COUPLING; stop_flags &= ~WAIT_FOR_COUPLING; }
 	bool is_no_load() const { return (stop_flags&NO_LOAD)>0; }
 	void set_no_load(bool y) { y ? stop_flags |= NO_LOAD : stop_flags &= ~NO_LOAD; }
 	bool is_no_unload() const { return (stop_flags&NO_UNLOAD)>0; }
