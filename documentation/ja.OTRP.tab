@@ -197,6 +197,10 @@ Load before departure
 出発直前に積載(B)
 Do not load cargos until the departure time comes.
 発車時刻になるまで積載しません．
+Max load
+最大乗車率
+set maximum loading ratio
+最大乗車率を設定します
 hlf_chk_include_public
 公共駅を含める
 Departure slot group
@@ -405,6 +409,10 @@ transfers
 ご利用
 Factory Type
 産業の種類
+no close this factory
+この産業を閉鎖しない
+close_old_factory
+古い産業を閉鎖する
 No Supply
 消費しない産業のみ
 No Product

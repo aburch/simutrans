@@ -3571,7 +3571,7 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 	while(  c.is_bound()  ) {
 		const schedule_entry_t e = c->get_schedule()->get_current_entry();
 		// And check the loading condition: load enough? maximum waiting time? coupling done?
-		const bool loading_level_cond = c->get_loading_level() >= e.minimum_loading; // minimum loading
+		const bool loading_level_cond = (c->get_schedule()->get_current_entry().maximum_loading<c->get_schedule()->get_current_entry().minimum_loading)?(c->get_loading_level() >= e.minimum_loading):(c->get_capacity_left()<=0); // minimum loading
 		const bool waiting_time_cond = (e.waiting_time_shift > 0  &&  world()->get_ticks() - arrived_time > (world()->ticks_per_world_month / e.waiting_time_shift) ); // waiting time
 		bool c_cond = loading_level_cond; // condition of this convoy
 		c_cond |= c->get_no_load(); // no load
@@ -3882,7 +3882,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 			amount = 0;
 		}
 
-		const uint16 capacity_left = v->get_cargo_max() - v->get_total_cargo();
+		const uint16 capacity_left = (v->get_cargo_max()*get_schedule()->get_current_entry().maximum_loading/100 > v->get_total_cargo())?v->get_cargo_max()*get_schedule()->get_current_entry().maximum_loading/100 - v->get_total_cargo(): 0;
 
 		if(  loading_needed  &&  capacity_left > 0  &&  halt->gibt_ab(v->get_cargo_type())  ) {
 			// load if: unloaded something (might go back) or previous non-filled car requested different cargo type
@@ -4075,6 +4075,15 @@ uint16 convoi_t::fetch_goods_and_load(vehicle_t* vehicle, const halthandle_t hal
 		halt->fetch_goods_nearest_first(fetched_goods, vehicle->get_cargo_type(), requested_amount, destination_halts);
 	}
 	return vehicle->load_cargo(fetched_goods);
+}
+
+sint32 convoi_t::get_capacity_left() const
+{
+	sint32 convoy_capacity_left = 0;
+	for( uint8 i=0; i<anz_vehikel; i++) {
+		convoy_capacity_left += (sint32)fahr[i]->get_cargo_max()*(sint32)get_schedule()->get_current_entry().minimum_loading/100-fahr[i]->get_total_cargo();
+	}
+	return convoy_capacity_left;
 }
 
 

@@ -59,8 +59,8 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 	button_t bt_revert, bt_return;
 	button_t bt_wait_load;
 
-	gui_label_t lb_wait, lb_load, lb_departure_slot_group;
-	gui_numberinput_t numimp_load, numimp_wait_load;
+	gui_label_t lb_wait, lb_load, lb_departure_slot_group, lb_max_load;
+	gui_numberinput_t numimp_load, numimp_wait_load, numimp_max_load;
 	
 	// for advanced settings
 	// coupling, load/unload only, temp schedule, departure time, max_speed
@@ -68,7 +68,7 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 	button_t bt_find_parent, bt_wait_for_child, bt_reset_coupling; // convoy coupling
 	button_t bt_no_load, bt_no_unload, bt_tmp_schedule, bt_wait_for_time, 
 		bt_same_dep_time, bt_full_load_acceleration, bt_full_load_time,bt_unload_all,bt_transfer_interval,
-		bt_load_before_departure, bt_reverse_convoy, bt_reverse_coupling, bt_wait_coupling_done, bt_uncouple_child, bt_max_speed_kmh_of_convoi, bt_no_overtake, bt_pass_stop;
+		bt_load_before_departure, bt_reverse_convoy, bt_reverse_coupling, bt_wait_coupling_done, bt_uncouple_child, bt_max_speed_kmh_of_convoi, bt_no_overtake, bt_max_load_all_stops, bt_pass_stop;
 
 	gui_numberinput_t numimp_spacing, numimp_spacing_shift, 
 		numimp_delay_tolerance, numimp_max_speed, numimp_max_speed_kmh_of_convoi , numimp_tbgr_waiting_time, numimp_length_coupling_done;

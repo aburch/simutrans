@@ -654,6 +654,11 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 			}
 		}
 		else {
+			fabrik_t* const fab=gb->get_fabrik();
+			if(  fab && fab->is_no_close_factory()  ) {
+				msg = "This factory cannot be destroyed!";
+				return false;
+			}
 			// townhall is also removed during town removal
 			hausbauer_t::remove( player, gb );
 		}
