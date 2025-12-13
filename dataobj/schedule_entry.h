@@ -24,12 +24,13 @@ public:
 		init_convoy_stopping_time();
 	}
 
-	schedule_entry_t(koord3d const& pos, uint8 const minimum_loading, uint16 const waiting_time_shift, uint32 const stop_flags, uint16 max_speed_kmh_of_convoi) :
+	schedule_entry_t(koord3d const& pos, uint8 const minimum_loading, uint16 const waiting_time_shift, uint32 const stop_flags, uint16 max_speed_kmh_of_convoi, uint16 const length_coupling_done) :
 		pos(pos),
 		minimum_loading(minimum_loading),
 		waiting_time_shift(waiting_time_shift),
 		stop_flags(stop_flags),
-		max_speed_kmh_of_convoi(max_speed_kmh_of_convoi)
+		max_speed_kmh_of_convoi(max_speed_kmh_of_convoi),
+		length_coupling_done(length_coupling_done)
 	{
 		spacing = 1;
 		spacing_shift = delay_tolerance = 0;
@@ -53,7 +54,8 @@ public:
 		REVERSE_COUPLING  = 1U << 9, // The convoy reverses the parent-child relationship of the convoy coupling.
 		WAIT_COUPLING_DONE= 1U << 10,// Do not reserve departure slot until coupling done.
 		MAX_SPEED_KMH_OF_CONVOI= 1U << 11,// Overwrite max speed of convoy here.
-		NO_OVERTAKE       = 1U << 12// Do not overtake(for road)
+		NO_OVERTAKE       = 1U << 12,// Do not overtake(for road)
+		UNCOUPLE_CHILD    = 1U << 13 // The convoy uncouple its child convoy (only its child: this convoy will be the most child convoy).
 	};
 
 	/**
@@ -74,6 +76,8 @@ public:
 	uint16 waiting_time_shift;
 	
 	uint16 spacing, spacing_shift, delay_tolerance;
+
+	uint16 length_coupling_done;
 
 	/**
 	 * Overwrite max speed of convoy here.
@@ -129,11 +133,11 @@ private:
 	
 public:
 	uint32 get_coupling_point() const { return (stop_flags&0x0003); }
-	void set_wait_for_coupling() { stop_flags |= WAIT_FOR_COUPLING; stop_flags &= ~TRY_COUPLING; }
-	void set_try_coupling() { stop_flags |= TRY_COUPLING; stop_flags &= ~WAIT_FOR_COUPLING; }
-	void reset_coupling() { stop_flags &= ~TRY_COUPLING; stop_flags &= ~WAIT_FOR_COUPLING; }
+	void set_wait_for_coupling(bool y=true) { y? stop_flags|=WAIT_FOR_COUPLING : stop_flags &= ~WAIT_FOR_COUPLING; }
+	void set_try_coupling(bool y=true) { y? stop_flags |= TRY_COUPLING : stop_flags &= ~TRY_COUPLING; }
 	bool is_wait_for_coupling() const { return stop_flags&WAIT_FOR_COUPLING; }
 	bool is_try_coupling() const { return stop_flags&TRY_COUPLING; }
+	void reset_coupling() { stop_flags &= ~TRY_COUPLING; stop_flags &= ~WAIT_FOR_COUPLING; }
 	bool is_no_load() const { return (stop_flags&NO_LOAD)>0; }
 	void set_no_load(bool y) { y ? stop_flags |= NO_LOAD : stop_flags &= ~NO_LOAD; }
 	bool is_no_unload() const { return (stop_flags&NO_UNLOAD)>0; }
@@ -152,6 +156,8 @@ public:
 	void set_reverse_convoi_coupling(bool y) { y ? stop_flags |= REVERSE_COUPLING : stop_flags &= ~REVERSE_COUPLING; }
 	void set_wait_coupling_done(bool y) {y? stop_flags|= WAIT_COUPLING_DONE : stop_flags &= ~WAIT_COUPLING_DONE; }
 	bool is_wait_coupling_done() const {return (stop_flags&WAIT_COUPLING_DONE) ; }
+	void set_uncouple_child( bool y ) { y ? stop_flags |= UNCOUPLE_CHILD : stop_flags &= ~UNCOUPLE_CHILD; }
+	bool is_uncouple_child() const { return (stop_flags & UNCOUPLE_CHILD) > 0; }
 	void set_overwrite_max_speed_kmh_of_convoi(bool y) { y ? stop_flags |= MAX_SPEED_KMH_OF_CONVOI : stop_flags &= ~MAX_SPEED_KMH_OF_CONVOI; }
 	bool is_overwrite_max_speed_kmh_of_convoi() const {return (stop_flags&MAX_SPEED_KMH_OF_CONVOI) ; }
 	uint32 get_stop_flags() const { return stop_flags; }
@@ -164,7 +170,11 @@ public:
 		spacing_shift = b;
 		delay_tolerance = c;
 	}
-
+	void set_length_coupling_done(uint16 l) {
+		length_coupling_done = l;
+	}
+	uint16 get_length_coupling_done() const {return length_coupling_done;}
+ 
 	void push_journey_time(uint32 time);
 	void push_waiting_time(uint32 time);
 	void push_convoy_stopping_time(uint32 time);
@@ -181,6 +191,7 @@ public:
 			&&  a.spacing            == this->spacing
 			&&  a.spacing_shift      == this->spacing_shift
 			&&  a.delay_tolerance    == this->delay_tolerance
+			&&  a.length_coupling_done == this->length_coupling_done
 			&&  a.max_speed_kmh_of_convoi== this->max_speed_kmh_of_convoi;
 	}
 };
