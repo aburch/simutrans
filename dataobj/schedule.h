@@ -186,12 +186,13 @@ public:
 	/**
 	 * Inserts a coordinate at current_stop into the schedule.
 	 */
-	bool insert(const grund_t* gr, uint8 minimum_loading = 0, uint16 waiting_time_shift = 0, uint16 stop_flags = 0, uint16 max_speed_kmh_of_convoi = 0, uint16 length_coupling_done = 0);
+	bool insert(const grund_t* gr, uint8 minimum_loading = 0, uint16 waiting_time_shift = 0, uint16 stop_flags = 0, uint16 max_speed_kmh_of_convoi = 0, uint16 length_coupling_done = 0, uint8 maximum_loading = 100);
+
 
 	/**
 	 * Appends a coordinate to the schedule.
 	 */
-	bool append(const grund_t* gr, uint8 minimum_loading = 0, uint16 waiting_time_shift = 0, uint16 stop_flags = 0, uint16 max_speed_kmh_of_convoi = 0, uint16 length_coupling_done = 0);
+	bool append(const grund_t* gr, uint8 minimum_loading = 0, uint16 waiting_time_shift = 0, uint16 stop_flags = 0, uint16 max_speed_kmh_of_convoi = 0, uint16 length_coupling_done = 0, uint8 maximum_loading = 100);
 
 
 	/**

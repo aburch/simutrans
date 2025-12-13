@@ -884,6 +884,7 @@ public:
 	* vehicles.
 	*/
 	const sint32 &get_loading_level() const { return loading_level; }
+	sint32 get_capacity_left() const;
 
 	/**
 	* At which loading level is the train allowed to start? 0 during driving.

@@ -246,6 +246,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoih
 	lb_departure_slot_group("Departure slot group"),
 	lb_max_speed("Max speed of line"),
 	lb_tbgr_waiting_time("Additional goods routing waiting time"),
+	lb_max_load("Max load"),
 	lb_length_coupling_done("Convoys length coupling done"),
 	stats(new schedule_gui_stats_t() ),
 	scrolly(stats)
@@ -342,8 +343,8 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 
 		numimp_load.set_width( 60 );
 		numimp_load.set_value( schedule->get_current_entry().minimum_loading );
-		numimp_load.set_limits( 0, 200 );
-		numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS );
+		numimp_load.set_limits( 0, 255 );
+		numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS2 );
 		numimp_load.add_listener(this);
 		add_component(&numimp_load);
 
@@ -637,6 +638,27 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		add_component(&next_line_selector);
 	}
 	end_table();
+
+	// maximum loading
+	add_table(3,1);
+	{
+		add_component(&lb_max_load);
+		lb_max_load.set_tooltip("set maximum loading ratio");
+
+		numimp_max_load.set_width( 60 );
+		numimp_max_load.set_value( schedule->get_current_entry().maximum_loading );
+		uint8 const max_load_value = (schedule->get_waytype()==air_wt || schedule->get_waytype()==road_wt)? 100: 100;// for overcrowd
+		numimp_max_load.set_limits( 0, max_load_value );
+		numimp_max_load.set_increment_mode( gui_numberinput_t::PROGRESS2 );
+		numimp_max_load.add_listener(this);
+		add_component(&numimp_max_load);	
+		
+		bt_max_load_all_stops.init(button_t::roundbox, "for all stops");
+		bt_max_load_all_stops.set_tooltip("rewrite all stops' values of maximum loading ratio");
+		bt_max_load_all_stops.add_listener(this);
+		add_component(&bt_max_load_all_stops);
+	}
+	end_table();
 	
 	extract_advanced_settings(false);
 
@@ -750,6 +772,9 @@ void schedule_gui_t::update_selection()
 	bt_transfer_interval.disable();
 	bt_reverse_convoy.disable();
 	bt_reverse_coupling.disable();
+	numimp_max_load.disable();
+	numimp_max_load.set_value(100);
+	bt_max_load_all_stops.disable();
 	bt_no_overtake.disable();
 	bt_max_speed_kmh_of_convoi.disable();
 	numimp_max_speed_kmh_of_convoi.disable();
@@ -827,6 +852,8 @@ void schedule_gui_t::update_selection()
 			}
 			lb_load.set_color( SYSCOL_TEXT );
 			numimp_load.enable();
+			numimp_max_load.enable();
+			bt_max_load_all_stops.enable();
 			if(  schedule->at(current_stop).minimum_loading>0  ||  schedule->at(current_stop).is_wait_for_coupling() ) {
 				bt_wait_load.enable();
 				uint16 wait = schedule->at(current_stop).waiting_time_shift;
@@ -845,6 +872,7 @@ void schedule_gui_t::update_selection()
 			numimp_spacing.set_value( schedule->at(current_stop).spacing );
 			numimp_spacing_shift.set_value( schedule->at(current_stop).spacing_shift );
 			numimp_delay_tolerance.set_value( schedule->at(current_stop).delay_tolerance );
+			numimp_max_load.set_value(  schedule->at(current_stop).maximum_loading  );
 		}
 	}
 }
@@ -1145,6 +1173,21 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 			update_selection();
 		}
 	}
+	else if(comp == &numimp_max_load) {
+		if(!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).maximum_loading = (uint8)p.i;
+			update_selection();
+		}
+	}
+	else if(comp == &bt_max_load_all_stops) {
+		if(!schedule->empty()) {
+			uint8 const accept_value = schedule->at(schedule->get_current_stop()).maximum_loading;
+			for(uint8 i=0; i<schedule->get_count(); i++) {
+				schedule->at(i).maximum_loading = accept_value;
+			}
+			update_selection();
+		}
+	} 
 	else if(comp == &bt_load_before_departure) {
 		if (!schedule->empty()) {
 			schedule->at(schedule->get_current_stop()).set_load_before_departure(bt_load_before_departure.pressed);
@@ -1480,6 +1523,9 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	numimp_tbgr_waiting_time.set_visible(yesno);
 	lb_next_line.set_visible(yesno);
 	next_line_selector.set_visible(yesno);
+	lb_max_load.set_visible(yesno);
+	numimp_max_load.set_visible(yesno);
+	bt_max_load_all_stops.set_visible(yesno);
 	bt_max_speed_kmh_of_convoi.set_visible(yesno);
 	numimp_max_speed_kmh_of_convoi.set_visible(yesno);
 	
