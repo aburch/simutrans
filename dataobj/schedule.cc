@@ -287,7 +287,7 @@ void schedule_t::rdwr(loadsave_t *file)
 					}
 				}
 			}
-			if(file->get_OTRP_version()>=48) {
+			if(file->get_OTRP_version()>=49) {
 				uint32 flags = entries[i].get_stop_flags();
 				file->rdwr_long(flags);
 				entries[i].set_stop_flags(flags);
