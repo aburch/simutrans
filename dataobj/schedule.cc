@@ -705,6 +705,9 @@ void schedule_t::gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* 
 					buf.printf("NOLIMIT ");
 				}
 			}
+			if(  entry.length_coupling_done != 0) {
+				buf.printf("%dtiles ", entry.length_coupling_done);
+			}
 		}
 		p = halt->get_name();
 	}
