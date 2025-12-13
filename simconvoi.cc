@@ -5738,6 +5738,7 @@ uint16 convoi_t::get_length_coupling_done() const {
 			length_coupling_done = c->get_schedule()->get_current_entry().get_length_coupling_done();
 		}
 		else {
+			// update by max value
 			if( c->get_schedule()->get_current_entry().get_length_coupling_done()>length_coupling_done ) {
 				length_coupling_done = c->get_schedule()->get_current_entry().get_length_coupling_done();
 			}
