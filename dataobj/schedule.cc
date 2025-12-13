@@ -666,6 +666,10 @@ void construct_schedule_entry_attributes(cbuffer_t& buf, schedule_entry_t const&
 		str[cnt] = 'I';
 		cnt++;
 	}
+	if(  flag&schedule_entry_t::UNCOUPLE_CHILD  ) {
+		str[cnt] = 'E';
+		cnt++;
+	}
 	if(  entry.is_reverse_convoy()  ) {
 		str[cnt] = 'R';
 		cnt++;

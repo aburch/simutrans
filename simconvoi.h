@@ -254,6 +254,11 @@ private:
 	bool no_load;
 
 	/**
+	* uncouple at this stop
+	*/
+	bool uncouple_done;
+
+	/**
 	* the convoi caches its freight info; it is only recalculation after loading or resorting
 	*/
 	bool freight_info_resort;
@@ -1119,6 +1124,12 @@ public:
 	// jump to other line's schedule
 	// the new line is stored in schedule->next_line_id
 	void change_line_to_next_if_needed();
+
+
+	// uncouple child concoy by schedule_entry
+	// this function should be called in ziel_erreicht() or at waypoint
+	// this function must be called after stop or reach waypoint & before reverse convoy coupling!
+	void uncouple_convoy_by_schedule_setting();
 
 	// get length if total length reach this value.
 	// 0 means no setting specific value.

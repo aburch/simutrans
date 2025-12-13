@@ -56,7 +56,8 @@ public:
 		REVERSE_COUPLING  = 1U << 9, // The convoy reverses the parent-child relationship of the convoy coupling.
 		WAIT_COUPLING_DONE= 1U << 10,// Do not reserve departure slot until coupling done.
 		MAX_SPEED_KMH_OF_CONVOI= 1U << 11,// Overwrite max speed of convoy here.
-		NO_OVERTAKE       = 1U << 12// Do not overtake(for road)
+		NO_OVERTAKE       = 1U << 12,// Do not overtake(for road)
+		UNCOUPLE_CHILD    = 1U << 13 // The convoy uncouple its child convoy (only its child: this convoy will be the most child convoy).
 	};
 
 	/**
@@ -163,10 +164,12 @@ public:
 	void set_reverse_convoi_coupling(bool y) { y ? stop_flags |= REVERSE_COUPLING : stop_flags &= ~REVERSE_COUPLING; }
 	void set_wait_coupling_done(bool y) {y? stop_flags|= WAIT_COUPLING_DONE : stop_flags &= ~WAIT_COUPLING_DONE; }
 	bool is_wait_coupling_done() const {return (stop_flags&WAIT_COUPLING_DONE) ; }
+	void set_uncouple_child( bool y ) { y ? stop_flags |= UNCOUPLE_CHILD : stop_flags &= ~UNCOUPLE_CHILD; }
+	bool is_uncouple_child() const { return (stop_flags & UNCOUPLE_CHILD) > 0; }
+	void set_stop_flags(uint16 f) { stop_flags = f; }
+	uint16 get_stop_flags() const { return stop_flags; }
 	void set_overwrite_max_speed_kmh_of_convoi(bool y) { y ? stop_flags |= MAX_SPEED_KMH_OF_CONVOI : stop_flags &= ~MAX_SPEED_KMH_OF_CONVOI; }
 	bool is_overwrite_max_speed_kmh_of_convoi() const {return (stop_flags&MAX_SPEED_KMH_OF_CONVOI) ; }
-	uint16 get_stop_flags() const { return stop_flags; }
-	void set_stop_flags(uint16 f) { stop_flags = f; }
 	bool is_no_overtake() const {return (stop_flags&NO_OVERTAKE)>0 ;}
 	void set_no_overtake(bool y) { y? stop_flags|=NO_OVERTAKE : stop_flags &= ~NO_OVERTAKE;}
 

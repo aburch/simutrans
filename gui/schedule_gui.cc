@@ -477,7 +477,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	end_table();
 	
 	// coupling related buttons
-	add_table(3,1);
+	add_table(2,2);
 	{
 		bt_wait_for_child.init(button_t::square_state, "Wait for coupling");
 		bt_wait_for_child.set_tooltip("A convoy waits for other convoy to couple.");
@@ -491,6 +491,12 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		bt_find_parent.disable();
 		add_component(&bt_find_parent);
 
+		bt_uncouple_child.init(button_t::square_state, "End couple");
+		bt_uncouple_child.set_tooltip("It will uncouple the child convoy here.");
+		bt_uncouple_child.add_listener(this);
+		bt_uncouple_child.disable();
+		add_component(&bt_uncouple_child);
+
 		bt_reset_coupling.init(button_t::roundbox, "Reset coupling");
 		bt_reset_coupling.set_tooltip("Reset coupling settings");
 		bt_reset_coupling.add_listener(this);
@@ -500,7 +506,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	end_table();
 
 	// set total length which convoy end coupling at this stop
-	add_table(2,1);
+	add_table(3,1);
 	{
 		lb_length_coupling_done.set_tooltip("If total length of convoys is over this value, coupling done and depart(if 0, no limit).");
 		add_component(&lb_length_coupling_done);
@@ -752,6 +758,7 @@ void schedule_gui_t::update_selection()
 	numimp_load.set_value( 0 );
 	bt_find_parent.disable();
 	bt_wait_for_child.disable();
+	bt_uncouple_child.disable();
 	bt_reset_coupling.disable();
 	bt_no_load.disable();
 	bt_no_unload.disable();
@@ -779,6 +786,9 @@ void schedule_gui_t::update_selection()
 		bt_reverse_convoy.pressed = schedule->at(current_stop).is_reverse_convoy();
 		bt_reverse_coupling.enable();
 		bt_reverse_coupling.pressed = schedule->at(current_stop).is_reverse_convoi_coupling();
+		bt_uncouple_child.enable();
+		bt_uncouple_child.pressed = schedule->at(current_stop).is_uncouple_child();
+    
 		bt_no_overtake.enable();
 		bt_no_overtake.pressed = schedule->at(current_stop).is_no_overtake();
 
@@ -978,6 +988,7 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 	else if(comp == &bt_reset_coupling) {
 		if(!schedule->empty()) {
 			schedule->at(schedule->get_current_stop()).reset_coupling();
+			schedule->at(schedule->get_current_stop()).set_uncouple_child(true);
 			update_selection();
 		}
 	}
@@ -1018,6 +1029,12 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 	else if(comp == &numimp_wait_load && bt_wait_load.pressed) {
 		if(!schedule->empty()) {
 			schedule->at(schedule->get_current_stop()).waiting_time_shift = (uint16)p.i;
+			update_selection();
+		}
+	}
+	else if(comp == &bt_uncouple_child) {
+		if(!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).set_uncouple_child(!bt_uncouple_child.pressed);
 			update_selection();
 		}
 	}
@@ -1520,6 +1537,7 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	bt_reverse_convoy.set_visible(reversible_waytype  &&  yesno);
 	bt_reverse_coupling.set_visible(reversible_waytype  &&  yesno);
 	bt_wait_coupling_done.set_visible(coupling_waytype && yesno);
+	bt_uncouple_child.set_visible(coupling_waytype && yesno);
 	lb_length_coupling_done.set_visible(coupling_waytype && yesno);
 	numimp_length_coupling_done.set_visible(coupling_waytype && yesno);
 	bt_no_overtake.set_visible(schedule->get_waytype()==road_wt && yesno); // only for road vehicle
