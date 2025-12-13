@@ -476,7 +476,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	end_table();
 	
 	// coupling related buttons
-	add_table(2,1);
+	add_table(3,1);
 	{
 		bt_wait_for_child.init(button_t::square_state, "Wait for coupling");
 		bt_wait_for_child.set_tooltip("A convoy waits for other convoy to couple.");
@@ -489,6 +489,12 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		bt_find_parent.add_listener(this);
 		bt_find_parent.disable();
 		add_component(&bt_find_parent);
+
+		bt_reset_coupling.init(button_t::roundbox, "Reset coupling");
+		bt_reset_coupling.set_tooltip("Reset coupling settings");
+		bt_reset_coupling.add_listener(this);
+		bt_reset_coupling.disable();
+		add_component(&bt_reset_coupling);
 	}	
 	end_table();
 
@@ -724,6 +730,7 @@ void schedule_gui_t::update_selection()
 	numimp_load.set_value( 0 );
 	bt_find_parent.disable();
 	bt_wait_for_child.disable();
+	bt_reset_coupling.disable();
 	bt_no_load.disable();
 	bt_no_unload.disable();
 	bt_unload_all.disable();
@@ -764,6 +771,7 @@ void schedule_gui_t::update_selection()
 			bt_find_parent.pressed = schedule->at(current_stop).is_try_coupling();
 			bt_wait_for_child.enable();
 			bt_wait_for_child.pressed = schedule->at(current_stop).is_wait_for_coupling();
+			bt_reset_coupling.enable();
 			bt_no_load.enable();
 			bt_no_load.pressed = schedule->at(current_stop).is_no_load();
 			bt_no_unload.enable();
@@ -809,7 +817,7 @@ void schedule_gui_t::update_selection()
 			}
 			lb_load.set_color( SYSCOL_TEXT );
 			numimp_load.enable();
-			if(  schedule->at(current_stop).minimum_loading>0  ||  schedule->at(current_stop).get_coupling_point()!=0  ) {
+			if(  schedule->at(current_stop).minimum_loading>0  ||  schedule->at(current_stop).is_wait_for_coupling() ) {
 				bt_wait_load.enable();
 				uint16 wait = schedule->at(current_stop).waiting_time_shift;
 				bt_wait_load.pressed = wait>0;
@@ -936,6 +944,12 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 		if(!schedule->empty()) {
 			schedule->at(schedule->get_current_stop()).set_wait_for_coupling(!bt_wait_for_child.pressed);
 			schedule->at(schedule->get_current_stop()).set_reverse_convoi_coupling(false);
+			update_selection();
+		}
+	}
+	else if(comp == &bt_reset_coupling) {
+		if(!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).reset_coupling();
 			update_selection();
 		}
 	}
@@ -1456,6 +1470,7 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	const bool reversible_waytype = env_t::reversible_waytype(schedule->get_waytype());
 	bt_wait_for_child.set_visible(coupling_waytype  &&  yesno);
 	bt_find_parent.set_visible(coupling_waytype  &&  yesno);
+	bt_reset_coupling.set_visible(coupling_waytype && yesno);
 	bt_reverse_convoy.set_visible(reversible_waytype  &&  yesno);
 	bt_reverse_coupling.set_visible(reversible_waytype  &&  yesno);
 	bt_wait_coupling_done.set_visible(coupling_waytype && yesno);
