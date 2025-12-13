@@ -518,6 +518,9 @@ private:
 	// a helper function for convoi_t::vorfahren(), check reserved_tiles
 	void clear_reserved_tile_if_not_matching_route();
 
+	// total length is enough than this length->coupling cancel
+	bool cease_coupling_due_to_length_over;
+
 public:
 	bool is_reversed() const { return reversed; }
 	void set_reversed(bool yesno) { reversed = yesno; }
@@ -527,6 +530,8 @@ public:
 	// Can be executed even with a vehicle array that does not belong to convoy for UI
 	
 	void reverse_vehicles_on_user_request();
+
+	bool is_cease_coupling_due_to_length_over() const { return cease_coupling_due_to_length_over; }
 
 	/**
 	* Convoi haelt an Haltestelle und setzt quote fuer Fracht

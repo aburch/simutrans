@@ -187,6 +187,7 @@ void convoi_t::init(player_t *player)
 
 	in_delay_recovery = false;
 	reversed = false;
+	cease_coupling_due_to_length_over = false;
 
 	max_speed_kmh_of_convoi = 0;
 }
@@ -2471,6 +2472,7 @@ void convoi_t::vorfahren()
 	c = self;
 	while(  c.is_bound()  ) {
 		c->set_coupling_done(false);
+		c->cease_coupling_due_to_length_over=false;
 		c = c->get_coupling_convoi();
 	}
 
@@ -3240,6 +3242,11 @@ void convoi_t::rdwr(loadsave_t *file)
 	} else {
 		max_speed_kmh_of_convoi = 0;
 	}
+	if(  file->get_OTRP_version()>=48  ) {
+		file->rdwr_bool(cease_coupling_due_to_length_over);
+	} else {
+		cease_coupling_due_to_length_over = false;
+	}
 
 	if(  file->is_loading()  ) {
 		reserve_route();
@@ -3545,7 +3552,7 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 	while(  c.is_bound()  ) {
 		const schedule_entry_t e = c->get_schedule()->get_current_entry();
 		// First, check whether we have to wait for coupling at this stop.
-		coupling_cond |= (e.is_wait_for_coupling() &&  !c->is_coupling_done()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled()));
+		coupling_cond |= (e.is_wait_for_coupling() &&  !c->is_coupling_done()  &&  !c->is_cease_coupling_due_to_length_over()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled()));
 		if (  c->is_coupling_done()  ||  !c->get_convoi_coupling_in_progress().is_bound()  ||  c->get_convoi_coupling_in_progress()->get_convoi_coupling_in_progress()!=c  ) {
 			// The convoi_coupling_in_progress flag blocks the departure.
 			// Reset the flag if it is outdated to avoid blocking the departure forever.
@@ -5438,6 +5445,10 @@ bool convoi_t::can_start_coupling(convoi_t* parent) const {
 	if(  parent->self->is_coupling_done()  ) {
 		return false;
 	}
+	// because the total length is over, cancel coupling.
+	if(  parent->self->cease_coupling_due_to_length_over  ) {
+		return false;
+	}
 	return true;
 }
 
@@ -5769,9 +5780,9 @@ void convoi_t::check_and_set_coupling_done_over_length() {
 		// no set length coupling done, return
 		return;
 	}
-	if( length_coupling_done*CARUNITS_PER_TILE < total_vehicle_length ) {
-		set_coupling_done(true);
-		c.is_bound()? c->set_coupling_done(true): find_most_child_convoi()->set_coupling_done(true);	
+	if( (length_coupling_done-1)*CARUNITS_PER_TILE < total_vehicle_length ) {
+		cease_coupling_due_to_length_over=true;
+		c.is_bound()? c->cease_coupling_due_to_length_over=true: find_most_child_convoi()->cease_coupling_due_to_length_over=true;	
 		dbg->message("convoi_t::check_and_set_coupling_done_over_length","coupling done: %i < %i",length_coupling_done*CARUNITS_PER_TILE,total_vehicle_length);
 		return;
 	}
