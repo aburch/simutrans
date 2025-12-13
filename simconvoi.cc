@@ -2468,6 +2468,11 @@ void convoi_t::vorfahren()
 		}
 		c = c->get_coupling_convoi();
 	}
+	c = self;
+	while(  c.is_bound()  ) {
+		c->set_coupling_done(false);
+		c = c->get_coupling_convoi();
+	}
 
 	koord3d k0 = route.front();
 	grund_t *gr = welt->lookup(k0);
