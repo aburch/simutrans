@@ -187,6 +187,7 @@ void convoi_t::init(player_t *player)
 
 	in_delay_recovery = false;
 	reversed = false;
+	cease_coupling_due_to_length_over = false;
 
 	max_speed_kmh_of_convoi = 0;
 }
@@ -1944,6 +1945,7 @@ void convoi_t::ziel_erreicht()
 				set_next_coupling(route_t::INVALID_INDEX, 0);
 				v->get_convoi()->set_coupling_done(true);
 				coupling_done = true;
+				temp_parent_convoi->check_and_set_coupling_done_over_length();
 				check_electrification();
 				return;
 			}
@@ -1963,6 +1965,7 @@ void convoi_t::ziel_erreicht()
 			c->set_arrived_time(world()->get_ticks());
 			c = c->get_coupling_convoi();
 		}
+		check_and_set_coupling_done_over_length();
 	}
 	else {
 		// Neither depot nor station: waypoint
@@ -2464,6 +2467,12 @@ void convoi_t::vorfahren()
 		if (c->reversing_needed){
 			c->reverse_vehicles_at_halt_if_needed();
 		}
+		c = c->get_coupling_convoi();
+	}
+	c = self;
+	while(  c.is_bound()  ) {
+		c->set_coupling_done(false);
+		c->cease_coupling_due_to_length_over=false;
 		c = c->get_coupling_convoi();
 	}
 
@@ -3233,6 +3242,11 @@ void convoi_t::rdwr(loadsave_t *file)
 	} else {
 		max_speed_kmh_of_convoi = 0;
 	}
+	if(  file->get_OTRP_version()>=48  ) {
+		file->rdwr_bool(cease_coupling_due_to_length_over);
+	} else {
+		cease_coupling_due_to_length_over = false;
+	}
 
 	if(  file->is_loading()  ) {
 		reserve_route();
@@ -3538,13 +3552,13 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 	while(  c.is_bound()  ) {
 		const schedule_entry_t e = c->get_schedule()->get_current_entry();
 		// First, check whether we have to wait for coupling at this stop.
-		coupling_cond |= (e.is_wait_for_coupling() &&  !c->is_coupling_done()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled()));
+		coupling_cond |= (e.is_wait_for_coupling() &&  !c->is_coupling_done()  &&  !c->is_cease_coupling_due_to_length_over()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled()));
 		if (  c->is_coupling_done()  ||  !c->get_convoi_coupling_in_progress().is_bound()  ||  c->get_convoi_coupling_in_progress()->get_convoi_coupling_in_progress()!=c  ) {
 			// The convoi_coupling_in_progress flag blocks the departure.
 			// Reset the flag if it is outdated to avoid blocking the departure forever.
 			c->unset_convoi_coupling_in_progress();
 		}
-		coupling_done_cond &= !(e.is_wait_for_coupling()  &&  !c->is_coupling_done()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled())); // coupling condition
+		coupling_done_cond &= !(e.is_wait_for_coupling()  &&  !c->is_coupling_done()  &&  !c->is_cease_coupling_due_to_length_over()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled())); // coupling condition
 		c = c->get_coupling_convoi();
 	}
 	c = cnv;
@@ -3786,6 +3800,11 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 			}
 		}
 	}
+	if(!is_coupled()) {
+		// check the vehicle length for coupling done
+		check_and_set_coupling_done_over_length();
+	}
+
 	// Count how many vehicles can load and unload.
 	uint8 vehicles_loading = 0;
 	uint32 convoy_length_step = 0;
@@ -5426,6 +5445,10 @@ bool convoi_t::can_start_coupling(convoi_t* parent) const {
 	if(  parent->self->is_coupling_done()  ) {
 		return false;
 	}
+	// because the total length is over, cancel coupling.
+	if(  parent->self->cease_coupling_due_to_length_over  ) {
+		return false;
+	}
 	return true;
 }
 
@@ -5713,6 +5736,57 @@ bool convoi_t::couple_convoi_during_running(convoihandle_t coupled) {
 	must_recalc_min_top_speed();
 	must_recalc_friction_weight();
 	return true;
+}
+
+uint16 convoi_t::get_length_coupling_done() const {
+	convoihandle_t c = self;
+	if( c->is_coupled() ) {
+		c = find_most_parent_convoi();
+	}
+	uint16 length_coupling_done = 0;
+	while( c.is_bound() ) {
+		if( length_coupling_done == 0 ) {
+			length_coupling_done = c->get_schedule()->get_current_entry().get_length_coupling_done();
+		}
+		else {
+			// update by max value
+			if( c->get_schedule()->get_current_entry().get_length_coupling_done()>length_coupling_done ) {
+				length_coupling_done = c->get_schedule()->get_current_entry().get_length_coupling_done();
+			}
+		}
+		c = c->can_continue_coupling()? c->get_coupling_convoi(): convoihandle_t();
+	}
+	return length_coupling_done;
+}
+
+void convoi_t::check_and_set_coupling_done_over_length() {
+	uint32 length_coupling_done = (uint32)get_length_coupling_done();
+	uint32 total_vehicle_length = 0;
+	convoihandle_t c = self;
+	while(c->get_coupling_convoi().is_bound()) {
+		total_vehicle_length+=c->get_length();
+		if(!c->can_continue_coupling()) { 
+			break;
+		}
+		c = c->get_coupling_convoi();
+	}
+	if( c->get_coupling_convoi().is_bound() ) {
+		// this child will be uncouple here, so we must recalculate them.
+		c->get_coupling_convoi()->check_and_set_coupling_done_over_length();
+	} else {
+		total_vehicle_length += c->get_length();
+	}
+	if( length_coupling_done==0 ) {
+		// no set length coupling done, return
+		return;
+	}
+	if( length_coupling_done*CARUNITS_PER_TILE < total_vehicle_length ) {
+		cease_coupling_due_to_length_over=true;
+		c.is_bound()? c->cease_coupling_due_to_length_over=true: find_most_child_convoi()->cease_coupling_due_to_length_over=true;	
+		dbg->message("convoi_t::check_and_set_coupling_done_over_length","coupling done: %i < %i",length_coupling_done*CARUNITS_PER_TILE,total_vehicle_length);
+		return;
+	}
+	dbg->message("convoi_t::check_and_set_coupling_done_over_length","coupling not done: %i > %i",length_coupling_done*CARUNITS_PER_TILE,total_vehicle_length);
 }
 
 void convoi_t::set_convoi_coupling_in_progress(convoihandle_t convoi_coupling_undergo) {

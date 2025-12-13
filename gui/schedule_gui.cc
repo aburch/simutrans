@@ -246,6 +246,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoih
 	lb_departure_slot_group("Departure slot group"),
 	lb_max_speed("Max speed of line"),
 	lb_tbgr_waiting_time("Additional goods routing waiting time"),
+	lb_length_coupling_done("Convoys length coupling done"),
 	stats(new schedule_gui_stats_t() ),
 	scrolly(stats)
 {
@@ -495,6 +496,22 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		bt_reset_coupling.disable();
 		add_component(&bt_reset_coupling);
 	}	
+	end_table();
+
+	// set total length which convoy end coupling at this stop
+	add_table(2,1);
+	{
+		lb_length_coupling_done.set_tooltip("If total length of convoys is over this value, coupling done and depart(if 0, no limit).");
+		add_component(&lb_length_coupling_done);
+
+		numimp_length_coupling_done.set_width( 60 );
+		numimp_length_coupling_done.set_height( 5 );
+		numimp_length_coupling_done.set_limits( 0, 0xFFFF );
+		numimp_length_coupling_done.set_increment_mode( 1 );
+		numimp_length_coupling_done.disable();
+		numimp_length_coupling_done.add_listener(this);
+		add_component(&numimp_length_coupling_done);
+	}
 	end_table();
 
 	// reverse setting
@@ -750,8 +767,6 @@ void schedule_gui_t::update_selection()
 		// if the next_line is set, the last entry is same as the next_line->get_schedule()->at(0)
 		// so, the flags of last entry can not be editted.
 		if(  haltestelle_t::get_stoppable_halt(schedule->at(current_stop).pos, player, schedule->get_waytype()).is_bound()  && (  (current_stop != schedule->get_count()-1)  ||  !schedule->get_next_line().is_bound()  )  ) {
-
-			
 			bt_find_parent.enable();
 			bt_find_parent.pressed = schedule->at(current_stop).is_try_coupling();
 			bt_wait_for_child.enable();
@@ -766,6 +781,8 @@ void schedule_gui_t::update_selection()
 			bt_load_before_departure.pressed = schedule->at(current_stop).is_load_before_departure();
 			bt_transfer_interval.enable();
 			bt_transfer_interval.pressed = schedule->at(current_stop).is_transfer_interval();
+			numimp_length_coupling_done.enable();
+			numimp_length_coupling_done.set_value( schedule->at(current_stop).get_length_coupling_done() );
 
 			
 			// wait_for_time releated things
@@ -1072,6 +1089,12 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 		if( !schedule->empty() ) {
 			schedule->at(schedule->get_current_stop()).set_wait_coupling_done(!bt_wait_coupling_done.pressed);
 			bt_wait_coupling_done.pressed = schedule->at(schedule->get_current_stop()).is_wait_coupling_done();
+			update_selection();
+		}
+	}
+	else if(comp == &numimp_length_coupling_done ) {
+		if( !schedule->empty() ) {
+			schedule->at(schedule->get_current_stop()).set_length_coupling_done((uint16)p.i);
 			update_selection();
 		}
 	}
@@ -1451,5 +1474,7 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	bt_reverse_convoy.set_visible(reversible_waytype  &&  yesno);
 	bt_reverse_coupling.set_visible(reversible_waytype  &&  yesno);
 	bt_wait_coupling_done.set_visible(coupling_waytype && yesno);
+	lb_length_coupling_done.set_visible(coupling_waytype && yesno);
+	numimp_length_coupling_done.set_visible(coupling_waytype && yesno);
 	bt_no_overtake.set_visible(schedule->get_waytype()==road_wt && yesno); // only for road vehicle
 }
