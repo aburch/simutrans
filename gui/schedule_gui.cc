@@ -247,6 +247,8 @@ schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoih
 	lb_departure_slot_group("Departure slot group"),
 	lb_max_speed("Max speed of line"),
 	lb_tbgr_waiting_time("Additional goods routing waiting time"),
+	lb_max_load("Max load"),
+	lb_length_coupling_done("Convoys length coupling done"),
 	stats(new schedule_gui_stats_t() ),
 	scrolly(stats)
 {
@@ -356,8 +358,8 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 
 		numimp_load.set_width( 60 );
 		numimp_load.set_value( schedule->get_current_entry().minimum_loading );
-		numimp_load.set_limits( 0, 200 );
-		numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS );
+		numimp_load.set_limits( 0, 255 );
+		numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS2 );
 		numimp_load.add_listener(this);
 		add_component(&numimp_load);
 		new_component<gui_fill_t>();
@@ -402,6 +404,23 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		add_component(&bt_transfer_interval);
 		add_component(&sp_load_settings);
 		add_component(&sp_load_settings);
+		add_component(&lb_max_load);
+
+		// maximum loading
+		lb_max_load.set_tooltip("set maximum loading ratio");
+
+		numimp_max_load.set_width( 60 );
+		numimp_max_load.set_value( schedule->get_current_entry().maximum_loading );
+		uint8 const max_load_value = (schedule->get_waytype()==air_wt || schedule->get_waytype()==road_wt)? 100: 100;// for overcrowd
+		numimp_max_load.set_limits( 0, max_load_value );
+		numimp_max_load.set_increment_mode( gui_numberinput_t::PROGRESS2 );
+		numimp_max_load.add_listener(this);
+		add_component(&numimp_max_load);	
+		
+		bt_max_load_all_stops.init(button_t::roundbox, "for all stops");
+		bt_max_load_all_stops.set_tooltip("rewrite all stops' values of maximum loading ratio");
+		bt_max_load_all_stops.add_listener(this);
+		add_component(&bt_max_load_all_stops);
 	}
 	end_table();
 
@@ -440,7 +459,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		add_component(&numimp_max_speed_kmh_of_convoi);
 		add_component(&sp_departure_settings);
 
-	
+
 		// coupling related buttons
 		bt_wait_for_child.init(button_t::square_state, "Wait for coupling");
 		bt_wait_for_child.set_tooltip("A convoy waits for other convoy to couple.");
@@ -453,8 +472,31 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		bt_find_parent.add_listener(this);
 		bt_find_parent.disable();
 		add_component(&bt_find_parent);
-		add_component(&sp_departure_settings);
+		bt_reset_coupling.init(button_t::roundbox, "Reset coupling");
+		bt_reset_coupling.set_tooltip("Reset coupling settings");
+		bt_reset_coupling.add_listener(this);
+		bt_reset_coupling.disable();
+		add_component(&bt_reset_coupling);
 
+		bt_uncouple_child.init(button_t::square_state, "End couple");
+		bt_uncouple_child.set_tooltip("It will uncouple the child convoy here.");
+		bt_uncouple_child.add_listener(this);
+		bt_uncouple_child.disable();
+		add_component(&bt_uncouple_child);
+		add_component(&sp_departure_settings);
+		add_component(&sp_departure_settings);
+		lb_length_coupling_done.set_tooltip("If total length of convoys is over this value, coupling done and depart(if 0, no limit).");
+		add_component(&lb_length_coupling_done);
+
+		numimp_length_coupling_done.set_width( 60 );
+		numimp_length_coupling_done.set_height( 5 );
+		numimp_length_coupling_done.set_limits( 0, 0xFFFF );
+		numimp_length_coupling_done.set_increment_mode( 1 );
+		numimp_length_coupling_done.disable();
+		numimp_length_coupling_done.add_listener(this);
+		add_component(&numimp_length_coupling_done);
+		add_component(&sp_departure_settings);
+		
 		// reverse setting
 		bt_reverse_convoy.init(button_t::square_state, "reverse convoy");
 		bt_reverse_convoy.set_tooltip("Reverses the direction of convoy.");
@@ -737,6 +779,8 @@ void schedule_gui_t::update_selection()
 	numimp_load.set_value( 0 );
 	bt_find_parent.disable();
 	bt_wait_for_child.disable();
+	bt_uncouple_child.disable();
+	bt_reset_coupling.disable();
 	bt_no_load.disable();
 	bt_no_unload.disable();
 	bt_unload_all.disable();
@@ -749,6 +793,9 @@ void schedule_gui_t::update_selection()
 	bt_transfer_interval.disable();
 	bt_reverse_convoy.disable();
 	bt_reverse_coupling.disable();
+	numimp_max_load.disable();
+	numimp_max_load.set_value(100);
+	bt_max_load_all_stops.disable();
 	bt_no_overtake.disable();
 	bt_max_speed_kmh_of_convoi.disable();
 	numimp_max_speed_kmh_of_convoi.disable();
@@ -760,6 +807,9 @@ void schedule_gui_t::update_selection()
 		bt_reverse_convoy.pressed = schedule->at(current_stop).is_reverse_convoy();
 		bt_reverse_coupling.enable();
 		bt_reverse_coupling.pressed = schedule->at(current_stop).is_reverse_convoi_coupling();
+		bt_uncouple_child.enable();
+		bt_uncouple_child.pressed = schedule->at(current_stop).is_uncouple_child();
+    
 		bt_no_overtake.enable();
 		bt_no_overtake.pressed = schedule->at(current_stop).is_no_overtake();
 
@@ -773,13 +823,11 @@ void schedule_gui_t::update_selection()
 		// if the next_line is set, the last entry is same as the next_line->get_schedule()->at(0)
 		// so, the flags of last entry can not be editted.
 		if(  haltestelle_t::get_stoppable_halt(schedule->at(current_stop).pos, player, schedule->get_waytype()).is_bound()  && (  (current_stop != schedule->get_count()-1)  ||  !schedule->get_next_line().is_bound()  )  ) {
-
-			
-			const uint8 c = schedule->at(current_stop).get_coupling_point();
 			bt_find_parent.enable();
-			bt_find_parent.pressed = c==2;
+			bt_find_parent.pressed = schedule->at(current_stop).is_try_coupling();
 			bt_wait_for_child.enable();
-			bt_wait_for_child.pressed = c==1;
+			bt_wait_for_child.pressed = schedule->at(current_stop).is_wait_for_coupling();
+			bt_reset_coupling.enable();
 			bt_no_load.enable();
 			bt_no_load.pressed = schedule->at(current_stop).is_no_load();
 			bt_no_unload.enable();
@@ -789,6 +837,8 @@ void schedule_gui_t::update_selection()
 			bt_load_before_departure.pressed = schedule->at(current_stop).is_load_before_departure();
 			bt_transfer_interval.enable();
 			bt_transfer_interval.pressed = schedule->at(current_stop).is_transfer_interval();
+			numimp_length_coupling_done.enable();
+			numimp_length_coupling_done.set_value( schedule->at(current_stop).get_length_coupling_done() );
 
 			
 			// wait_for_time releated things
@@ -823,7 +873,9 @@ void schedule_gui_t::update_selection()
 			}
 			lb_load.set_color( SYSCOL_TEXT );
 			numimp_load.enable();
-			if(  schedule->at(current_stop).minimum_loading>0  ||  schedule->at(current_stop).get_coupling_point()!=0  ) {
+			numimp_max_load.enable();
+			bt_max_load_all_stops.enable();
+			if(  schedule->at(current_stop).minimum_loading>0  ||  schedule->at(current_stop).is_wait_for_coupling() ) {
 				bt_wait_load.enable();
 				uint16 wait = schedule->at(current_stop).waiting_time_shift;
 				bt_wait_load.pressed = wait>0;
@@ -841,6 +893,7 @@ void schedule_gui_t::update_selection()
 			numimp_spacing.set_value( schedule->at(current_stop).spacing );
 			numimp_spacing_shift.set_value( schedule->at(current_stop).spacing_shift );
 			numimp_delay_tolerance.set_value( schedule->at(current_stop).delay_tolerance );
+			numimp_max_load.set_value(  schedule->at(current_stop).maximum_loading  );
 		}
 	}
 }
@@ -941,25 +994,22 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 	}
 	else if(comp == &bt_find_parent) {
 		if(!schedule->empty()) {
-			if(  bt_find_parent.pressed  ) {
-				schedule->at(schedule->get_current_stop()).reset_coupling();
-			} else {
-				schedule->at(schedule->get_current_stop()).set_try_coupling();
-			}
-			bt_wait_for_child.pressed = false;
+			schedule->at(schedule->get_current_stop()).set_try_coupling(!bt_find_parent.pressed);
 			schedule->at(schedule->get_current_stop()).set_reverse_convoi_coupling(false);
 			update_selection();
 		}
 	}
 	else if(comp == &bt_wait_for_child) {
 		if(!schedule->empty()) {
-			if(  bt_wait_for_child.pressed  ) {
-				schedule->at(schedule->get_current_stop()).reset_coupling();
-			} else {
-				schedule->at(schedule->get_current_stop()).set_wait_for_coupling();
-			}
-			bt_find_parent.pressed = false;
+			schedule->at(schedule->get_current_stop()).set_wait_for_coupling(!bt_wait_for_child.pressed);
 			schedule->at(schedule->get_current_stop()).set_reverse_convoi_coupling(false);
+			update_selection();
+		}
+	}
+	else if(comp == &bt_reset_coupling) {
+		if(!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).reset_coupling();
+			schedule->at(schedule->get_current_stop()).set_uncouple_child(true);
 			update_selection();
 		}
 	}
@@ -1000,6 +1050,12 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 	else if(comp == &numimp_wait_load && bt_wait_load.pressed) {
 		if(!schedule->empty()) {
 			schedule->at(schedule->get_current_stop()).waiting_time_shift = (uint16)p.i;
+			update_selection();
+		}
+	}
+	else if(comp == &bt_uncouple_child) {
+		if(!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).set_uncouple_child(!bt_uncouple_child.pressed);
 			update_selection();
 		}
 	}
@@ -1112,6 +1168,12 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 			update_selection();
 		}
 	}
+	else if(comp == &numimp_length_coupling_done ) {
+		if( !schedule->empty() ) {
+			schedule->at(schedule->get_current_stop()).set_length_coupling_done((uint16)p.i);
+			update_selection();
+		}
+	}
 	else if(comp == &numimp_spacing) {
 		if (!schedule->empty()) {
 			if(  schedule->is_same_dep_time()  ) {
@@ -1142,6 +1204,21 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 			update_selection();
 		}
 	}
+	else if(comp == &numimp_max_load) {
+		if(!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).maximum_loading = (uint8)p.i;
+			update_selection();
+		}
+	}
+	else if(comp == &bt_max_load_all_stops) {
+		if(!schedule->empty()) {
+			uint8 const accept_value = schedule->at(schedule->get_current_stop()).maximum_loading;
+			for(uint8 i=0; i<schedule->get_count(); i++) {
+				schedule->at(i).maximum_loading = accept_value;
+			}
+			update_selection();
+		}
+	} 
 	else if(comp == &bt_load_before_departure) {
 		if (!schedule->empty()) {
 			schedule->at(schedule->get_current_stop()).set_load_before_departure(bt_load_before_departure.pressed);
@@ -1465,16 +1542,14 @@ void schedule_gui_t::extract_schedule_settings(bool yesno) {
 }
 void schedule_gui_t::extract_loading_settings(bool yesno) {
 	bt_extract_loading_settings.set_typ(yesno? button_t::arrowup: button_t::arrowdown);
-	// lb_load.set_visible(yesno);
-	// numimp_load.set_visible(yesno);
-	// lb_wait.set_visible(yesno);
-	// numimp_wait_load.set_visible(yesno);
-	// bt_wait_load.set_visible(yesno);
 	bt_no_load.set_visible(yesno);
 	bt_no_unload.set_visible(yesno);
 	bt_unload_all.set_visible(yesno);
 	bt_transfer_interval.set_visible(yesno);
 	sp_load_settings.set_visible(yesno);
+	lb_max_load.set_visible(yesno);
+	numimp_max_load.set_visible(yesno);
+	bt_max_load_all_stops.set_visible(yesno);
 }
 void schedule_gui_t::extract_driving_settings(bool yesno) {
 	bt_extract_driving_settings.set_typ(yesno ? button_t::arrowup : button_t::arrowdown);
@@ -1496,8 +1571,12 @@ void schedule_gui_t::extract_driving_settings(bool yesno) {
 	const bool reversible_waytype = env_t::reversible_waytype(schedule->get_waytype());
 	bt_wait_for_child.set_visible(coupling_waytype  &&  yesno);
 	bt_find_parent.set_visible(coupling_waytype  &&  yesno);
+	bt_reset_coupling.set_visible(coupling_waytype && yesno);
 	bt_reverse_convoy.set_visible(reversible_waytype  &&  yesno);
 	bt_reverse_coupling.set_visible(reversible_waytype  &&  yesno);
 	bt_wait_coupling_done.set_visible(coupling_waytype && yesno);
+	bt_uncouple_child.set_visible(coupling_waytype && yesno);
+	lb_length_coupling_done.set_visible(coupling_waytype && yesno);
+	numimp_length_coupling_done.set_visible(coupling_waytype && yesno);
 	bt_no_overtake.set_visible(schedule->get_waytype()==road_wt && yesno); // only for road vehicle
 }

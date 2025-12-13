@@ -12,6 +12,7 @@
 #include "simcity.h"
 #include "simmesg.h"
 #include "simconvoi.h"
+
 #include "gui/simwin.h"
 #include "display/viewport.h"
 
@@ -653,6 +654,11 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 			}
 		}
 		else {
+			fabrik_t* const fab=gb->get_fabrik();
+			if(  fab && fab->is_no_close_factory()  ) {
+				msg = "This factory cannot be destroyed!";
+				return false;
+			}
 			// townhall is also removed during town removal
 			hausbauer_t::remove( player, gb );
 		}
@@ -6415,12 +6421,32 @@ void tool_build_house_t::rdwr_custom_data(memory_rw_t *packet)
 				buildings.append(tile->get_desc());
 			}
 		}
-	} else {
-		// writing
+	} else if(env_t::server){
 		for(  uint32 i=0;  i<count;  i++  ) {
 			ps = plainstring(buildings[i]->get_name());
 			packet->rdwr_str(ps);
 		}
+	} else {
+		// writing
+        if (count > 0) {
+			dbg->message("tool_build_house_t::rdwr_custom_data()","randbuildingset");
+            uint32 i = 0;
+            bool* used_flags = new bool[count];
+            for( uint32 j = 0; j < count; j++) {
+                used_flags[j] = false;
+            }
+            while (i < count) {
+                uint32 rand_index = sim_async_rand(count);
+                if(used_flags[rand_index]){
+					continue;
+				}
+                ps = plainstring(buildings[rand_index]->get_name());
+                packet->rdwr_str(ps);
+				used_flags[rand_index] = true;
+                i++;
+            }
+			delete[] used_flags;
+        }
 	}
 }
 
