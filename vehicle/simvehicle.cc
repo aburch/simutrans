@@ -4369,15 +4369,6 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 						// we find vehicle either end of the convoy, but direction is invalid
 						continue;
 					}
-					if(  i!=start_index  &&  v->get_convoi()->get_vehicle_count()>1  &&  ((v->is_last()&&(v->get_direction()&dir)==0)  ||  (v->is_leading()&&(v->get_direction()&dir)!=0))  ) {
-						// direction is bad to couple.
-						continue;
-					}
-					// if v is only one car train, determine the direction based on the information of the coupling of v->get_convoi().
-					if(  i!=start_index  &&  ((v->get_convoi()->is_coupled()&&(v->get_direction()&dir)==0)  ||  (v->get_convoi()->get_coupling_convoi().is_bound()&&(v->get_direction()&dir)!=0))   ) {
-						// direction is bad to couple.
-						continue;
-					}
 					// The waiting convoi is currently coupling with another convoy.
 					if(  v->get_convoi()->get_convoi_coupling_in_progress().is_bound() && v->get_convoi()->get_convoi_coupling_in_progress() != cnv->self  ) {
 						continue;

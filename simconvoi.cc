@@ -1918,9 +1918,11 @@ void convoi_t::ziel_erreicht()
 				if(  !v  ||  !can_start_coupling(v->get_convoi())  ||  !v->get_convoi()->is_loading()  ) {
 					continue;
 				}
-				// if there are many convoys in the same tile, the coupled convoy is the front or end convoy!
-				if(  (   (v->get_direction()&front()->get_direction())==0  &&  v->get_convoi()->is_coupled()  )  ||  (  (v->get_direction()&self->front()->get_direction())!=0  &&  v->get_convoi()->get_coupling_convoi().is_bound()  )  ) {
-					continue;
+				if(  v->get_convoi()->self != get_convoi_coupling_in_progress()  ) {
+					// if there are many convoys in the same tile, the coupled convoy is the front or end convoy!
+					if(  (   (v->get_direction()&front()->get_direction())==0  &&  v->get_convoi()->is_coupled()  )  ||  (  (v->get_direction()&self->front()->get_direction())!=0  &&  v->get_convoi()->get_coupling_convoi().is_bound()  )  ) {
+						continue;
+					}
 				}
 				// there is a suitable waiting convoy for coupling -> this is coupling point.
 				akt_speed = 0;
@@ -1937,6 +1939,7 @@ void convoi_t::ziel_erreicht()
 				}
 				v->get_convoi()->couple_convoi(self);
 				unset_convoi_coupling_in_progress();
+				wait_lock = 0;
 				set_next_coupling(route_t::INVALID_INDEX, 0);
 				v->get_convoi()->set_coupling_done(true);
 				coupling_done = true;
