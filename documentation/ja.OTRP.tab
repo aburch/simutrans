@@ -151,6 +151,18 @@ Please click on the map to add\nwaypoints or stops to this\nschedule.
 マップ上をクリックして、\nこのスケジュールの中継点や\n停車駅を設定してください．
 Extract advanced settings
 詳細設定を展開
+Extract schedule settings
+スケジュールの設定を展開
+Show some settings for whole schedule
+スケジュール全体の設定を表示/非表示します(臨時系統等)
+Extract loading settings
+乗降関係の設定を展開
+Show loading settings for each stop
+各駅における乗降関係の設定を表示/非表示します
+Extract driving settings
+運転関係の設定を展開
+Show driving and departure setting for each stops/waypoints
+各駅・中継点における運転関係の設定を表示/非表示します(発車時刻、反転、連結等)
 Temporary schedule
 臨時系統
 This schedule does not affect the route cost calculation.
@@ -193,6 +205,10 @@ Load before departure
 出発直前に積載(B)
 Do not load cargos until the departure time comes.
 発車時刻になるまで積載しません．
+Max load
+最大乗車率
+set maximum loading ratio
+最大乗車率を設定します
 hlf_chk_include_public
 公共駅を含める
 Departure slot group
@@ -401,6 +417,10 @@ transfers
 ご利用
 Factory Type
 産業の種類
+no close this factory
+この産業を閉鎖しない
+close_old_factory
+古い産業を閉鎖する
 No Supply
 消費しない産業のみ
 No Product

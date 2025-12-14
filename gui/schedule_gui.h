@@ -53,22 +53,24 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 	button_t bt_promote_to_line;
 	gui_combobox_t line_selector, departure_slot_group_selector, next_line_selector;
 	gui_label_buf_t lb_waitlevel;
+	gui_fill_t sp_load_settings,sp_departure_settings;
 
 	// always needed
 	button_t bt_add, bt_insert, bt_remove; // stop management
 	button_t bt_revert, bt_return;
 	button_t bt_wait_load;
 
-	gui_label_t lb_wait, lb_load, lb_departure_slot_group;
-	gui_numberinput_t numimp_load, numimp_wait_load;
+	gui_label_t lb_wait, lb_load, lb_departure_slot_group, lb_max_load;
+	gui_numberinput_t numimp_load, numimp_wait_load, numimp_max_load;
 	
 	// for advanced settings
 	// coupling, load/unload only, temp schedule, departure time, max_speed
-	button_t bt_extract_settings;
+	button_t bt_extract_schedule_settings, bt_extract_loading_settings, bt_extract_driving_settings;
 	button_t bt_find_parent, bt_wait_for_child, bt_reset_coupling; // convoy coupling
 	button_t bt_no_load, bt_no_unload, bt_tmp_schedule, bt_wait_for_time, 
 		bt_same_dep_time, bt_full_load_acceleration, bt_full_load_time,bt_unload_all,bt_transfer_interval,
-		bt_load_before_departure, bt_reverse_convoy, bt_reverse_coupling, bt_wait_coupling_done, bt_uncouple_child, bt_max_speed_kmh_of_convoi, bt_no_overtake;
+		bt_load_before_departure, bt_reverse_convoy, bt_reverse_coupling, bt_wait_coupling_done, bt_uncouple_child, bt_max_speed_kmh_of_convoi, bt_no_overtake, bt_max_load_all_stops;
+
 	gui_numberinput_t numimp_spacing, numimp_spacing_shift, 
 		numimp_delay_tolerance, numimp_max_speed, numimp_max_speed_kmh_of_convoi , numimp_tbgr_waiting_time, numimp_length_coupling_done;
 	gui_label_t lb_spacing, lb_spacing_shift, lb_title1, lb_title2, lb_max_speed, lb_tbgr_waiting_time, lb_next_line, lb_length_coupling_done;
@@ -93,7 +95,10 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 	// changes the waiting/loading levels if allowed
 	void update_selection();
 	
-	void extract_advanced_settings(bool yesno);
+	// void extract_advanced_settings(bool yesno);
+	void extract_schedule_settings(bool yesno);
+	void extract_loading_settings(bool yesno);
+	void extract_driving_settings(bool yesno);
 	
 protected:
 	schedule_t *schedule;

@@ -111,11 +111,19 @@ void fabrik_info_t::init(fabrik_t* fab_, const gebaeude_t* gb)
 	// top part: production number & details, boost indicators, factory view
 	add_table(6,0)->set_alignment(ALIGN_LEFT | ALIGN_TOP);
 	{
-		// production details per input/output
-		fab->info_prod( prod_buf );
-		prod.recalc_size();
-		add_component( &prod );
+		add_table(1,2);
+		{
+			bt_no_close_factory.init(button_t::square_state, "no close this factory");
+			bt_no_close_factory.add_listener(this);
+			bt_no_close_factory.enable();
+			add_component(&bt_no_close_factory);
 
+			// production details per input/output
+			fab->info_prod( prod_buf );
+			prod.recalc_size();
+			add_component( &prod );
+		}
+		end_table();
 		new_component<gui_fill_t>();
 
 		// indicator for possible boost by electricity, passengers, mail
@@ -280,6 +288,10 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t)
 		highlight_suppliers.pressed ^= 1;
 		highlight(fab->get_suppliers(), highlight_suppliers.pressed);
 	}
+	else if (comp == &bt_no_close_factory)
+	{
+		fab->set_no_close_factory(!fab->is_no_close_factory());
+	}
 	return true;
 }
 
@@ -374,6 +386,7 @@ void fabrik_info_t::update_components()
 		old_cities_count = fab->get_target_cities().get_count();
 	}
 	container_info.set_size(container_info.get_min_size());
+	bt_no_close_factory.pressed = fab->is_no_close_factory();
 	set_dirty();
 }
 

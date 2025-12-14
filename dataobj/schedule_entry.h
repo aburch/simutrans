@@ -24,13 +24,14 @@ public:
 		init_convoy_stopping_time();
 	}
 
-	schedule_entry_t(koord3d const& pos, uint8 const minimum_loading, uint16 const waiting_time_shift, uint32 const stop_flags, uint16 max_speed_kmh_of_convoi, uint16 const length_coupling_done) :
+	schedule_entry_t(koord3d const& pos, uint8 const minimum_loading, uint16 const waiting_time_shift, uint32 const stop_flags, uint16 max_speed_kmh_of_convoi, uint16 const length_coupling_done, uint8 const maximum_loading) :
 		pos(pos),
 		minimum_loading(minimum_loading),
 		waiting_time_shift(waiting_time_shift),
 		stop_flags(stop_flags),
 		max_speed_kmh_of_convoi(max_speed_kmh_of_convoi),
-		length_coupling_done(length_coupling_done)
+		length_coupling_done(length_coupling_done),
+		maximum_loading(maximum_loading)
 	{
 		spacing = 1;
 		spacing_shift = delay_tolerance = 0;
@@ -68,6 +69,12 @@ public:
 	 * (ignored on waypoints)
 	 */
 	uint8 minimum_loading;
+
+	/**
+	* the maximum % value load at this stops
+	* (ignored on waypoints)
+	*/
+	uint8 maximum_loading;
 
 	/**
 	 * maximum waiting time in 1/n parts of a month
@@ -191,8 +198,9 @@ public:
 			&&  a.spacing            == this->spacing
 			&&  a.spacing_shift      == this->spacing_shift
 			&&  a.delay_tolerance    == this->delay_tolerance
+			&&  a.max_speed_kmh_of_convoi== this->max_speed_kmh_of_convoi
 			&&  a.length_coupling_done == this->length_coupling_done
-			&&  a.max_speed_kmh_of_convoi== this->max_speed_kmh_of_convoi;
+			&&  a.maximum_loading    == this->maximum_loading;
 	}
 };
 
