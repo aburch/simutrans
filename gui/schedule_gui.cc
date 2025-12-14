@@ -485,7 +485,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		add_component(&bt_uncouple_child);
 		add_component(&sp_departure_settings);
 		add_component(&sp_departure_settings);
-		lb_length_coupling_done.set_tooltip("If total length of convoys is over this value, coupling done and depart(if 0, no limit).");
+		lb_length_coupling_done.set_tooltip("If total length of convoys achieves this value, coupling done and depart(if 0, no limit).");
 		add_component(&lb_length_coupling_done);
 
 		numimp_length_coupling_done.set_width( 60 );
