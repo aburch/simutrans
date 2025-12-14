@@ -37,6 +37,8 @@ Yes
 はい
 No
 いいえ
+show directions only for oneway roads
+一方通行の道路のみ接続方向を表示
 Prior
 優先方向
 northsouth
@@ -209,6 +211,8 @@ Max load
 最大乗車率
 set maximum loading ratio
 最大乗車率を設定します
+for all stops
+全駅に適用
 hlf_chk_include_public
 公共駅を含める
 Departure slot group
@@ -437,3 +441,7 @@ At least one tile is connected to one stop
 駅に接続している産業のみ表示します
 At least one stop is connected to the town
 駅に接続している都市のみ表示します
+Highlight
+町内の建物を表示
+Make building belong to
+建物をこの町の所属にする
