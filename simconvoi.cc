@@ -5794,7 +5794,7 @@ void convoi_t::check_and_set_coupling_done_over_length() {
 		// no set length coupling done, return
 		return;
 	}
-	if( length_coupling_done*CARUNITS_PER_TILE < total_vehicle_length ) {
+	if( (length_coupling_done-1)*CARUNITS_PER_TILE < total_vehicle_length ) {
 		cease_coupling_due_to_length_over=true;
 		c.is_bound()? c->cease_coupling_due_to_length_over=true: find_most_child_convoi()->cease_coupling_due_to_length_over=true;	
 		dbg->message("convoi_t::check_and_set_coupling_done_over_length","coupling done: %i < %i",length_coupling_done*CARUNITS_PER_TILE,total_vehicle_length);

@@ -107,8 +107,8 @@ Please decouple the other convoy to edit the schedule.
 スケジュールを編集するには連結解除してください．
 Convoys length coupling done
 連結上限タイル数:
-If total length of convoys is over this value, coupling done and depart(if 0, no limit).
-総編成長がこのタイル数を超えた場合、連結待機を終了して発車します．0の場合は編成長による連結終了はありません．
+If total length of convoys reaches this value, coupling done and depart(if 0, no limit).
+総編成長がこのタイル数に達した場合、連結待機を終了して発車します．0の場合は編成長による連結終了はありません．
 Copy Line
 路線複製
 Copy the selected line
