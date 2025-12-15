@@ -5363,6 +5363,7 @@ bool convoi_t::couple_convoi(convoihandle_t coupled) {
 	convoihandle_t c = coupled;
 	while( c.is_bound() ) {
 		c->set_state(COUPLED_LOADING);
+		c->most_parent_convoi = most_parent_convoi;
 		c = c->get_coupling_convoi();
 	}
 	if(  !is_coupled()  ) {
@@ -5384,6 +5385,7 @@ convoihandle_t convoi_t::uncouple_convoi() {
 	coupling_convoi->set_state(is_loading() ? LOADING : ROUTING_1);
 	coupling_convoi->front()->set_leading(true);
 	back()->set_last(true);
+	coupling_convoi->most_parent_convoi=coupling_convoi;
 	// for child convoy, recalculate is_electric and min_top_speed immediately.
 	coupling_convoi->check_electrification();
 	coupling_convoi->must_recalc_friction_weight();
@@ -5391,6 +5393,7 @@ convoihandle_t convoi_t::uncouple_convoi() {
 	convoihandle_t c = coupling_convoi->get_coupling_convoi();
 	// broadcast min_top_speed
 	while(  c.is_bound()  ) {
+		c->most_parent_convoi=coupling_convoi;
 		c->set_min_top_speed(mts);
 		c = c->get_coupling_convoi();
 	}
@@ -5686,13 +5689,13 @@ convoihandle_t convoi_t::find_most_parent_convoi() const {
 	if(  !is_coupled()  ) {
 		return self;
 	}
-	if(  most_parent_convoi.is_bound() && !most_parent_convoi.is_coupled() && most_parent_convoi != self  ) {
+	if(  most_parent_convoi.is_bound() && !most_parent_convoi->is_coupled() && most_parent_convoi != self  ) {
 		// this convoy might already know who is its most parent convoi
 		// check it is real parent or not.
 		convoihandle_t c = most_parent_convoi;
 		while(  c.is_bound()  ) {
 			c = c->get_coupling_convoi();
-			if(  c == self  ) {
+			if(  c.is_bound() && c == self  ) {
 				// find me! this convoy is realy its parent!
 				return most_parent_convoi;
 			}
@@ -5762,6 +5765,11 @@ bool convoi_t::couple_convoi_during_running(convoihandle_t coupled) {
 	coupled->set_state(COUPLED);
 	// couplilng
 	coupling_convoi = coupled;
+	convoihandle_t c = coupled;
+	while(c.is_bound()) {
+		c->most_parent_convoi = most_parent_convoi;
+		c=c->get_coupling_convoi();
+	}
 	coupling_convoi->front()->set_leading(false);
 	back()->set_last(false);
 	must_recalc_min_top_speed();
