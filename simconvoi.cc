@@ -560,6 +560,8 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 	// If this is a coupled convoi, the front car is not a leading car of the entire convoi.
 	if(  state==COUPLED  ||  state==COUPLED_LOADING  ) {
 		front()->set_leading(false);
+		// set most parent convoy
+		most_parent_convoi = find_most_parent_convoi();
 	}
 	// If this has a child convoi, the last car is not the last of the entire convoi.
 	if(  coupling_convoi.is_bound()  ) {
