@@ -4449,7 +4449,7 @@ void rail_vehicle_t::leave_tile()
 				sch0->unreserve(this);
 				if(  cnv  ) {
 					// If reservation is controlled by next_reservation_index, this does nothing.
-					cnv->unreserve_pos(get_pos());
+					cnv->find_most_parent_convoi()->unreserve_pos(get_pos());
 				}
 				// tell next signal?
 				// and switch to red
