@@ -4447,8 +4447,9 @@ void rail_vehicle_t::leave_tile()
 			schiene_t *sch0 = (schiene_t *) gr->get_weg(get_waytype());
 			if(sch0) {
 				sch0->unreserve(this);
-				if(  cnv && cnv->get_reserved_tiles().get_count()>0  ) {
-					cnv->find_most_parent_convoi()->unreserve_pos(get_pos());
+				if(  cnv  ) {
+					// If reservation is controlled by next_reservation_index, this does nothing.
+					cnv->unreserve_pos(get_pos());
 				}
 				// tell next signal?
 				// and switch to red
