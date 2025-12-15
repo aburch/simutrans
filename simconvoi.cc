@@ -163,6 +163,7 @@ void convoi_t::init(player_t *player)
 	uncouple_done = false;
 
 	coupling_convoi = convoihandle_t();
+	most_parent_convoi = convoihandle_t();
 
 	line_update_pending = linehandle_t();
 
@@ -5683,10 +5684,9 @@ void convoi_t::reverse_convoy_coupling()
 
 convoihandle_t convoi_t::find_most_parent_convoi() const {
 	if(  !is_coupled()  ) {
-		most_parent_convoi = self;
 		return self;
 	}
-	if(  most_parent_convoi.is_bound()  ) {
+	if(  most_parent_convoi.is_bound() && !most_parent_convoi.is_coupled() && most_parent_convoi != self  ) {
 		// this convoy might already know who is its most parent convoi
 		// check it is real parent or not.
 		convoihandle_t c = most_parent_convoi;
@@ -5711,11 +5711,9 @@ convoihandle_t convoi_t::find_most_parent_convoi() const {
 		}
 		if(  !found  ) {
 			dbg->error("convoi_t::find_most_parent_convoi", "could not find the parent for %s", tc->get_name());
-			most_parent_convoi = self;
 			return self;
 		}
 	}
-	most_parent_convoi = tc;
 	return tc;
 }
 
