@@ -230,6 +230,11 @@ private:
 	convoihandle_t coupling_convoi;
 
 	/**
+	* a convoy that pull me.
+	*/
+	convoihandle_t most_parent_convoi;
+
+	/**
 	* a convoy that is coupling now.
 	*/
 	convoihandle_t convoi_coupling_in_progress;
