@@ -5682,23 +5682,6 @@ void convoi_t::reverse_convoy_coupling()
 
 
 convoihandle_t convoi_t::find_most_parent_convoi() const {
-	if(  !is_coupled()  ) {
-		most_parent_convoi = self;
-		return self;
-	}
-	if(  most_parent_convoi.is_bound()  ) {
-		// this convoy might already know who is its most parent convoi
-		// check it is real parent or not.
-		convoihandle_t c = most_parent_convoi;
-		while(  c.is_bound()  ) {
-			c = c->get_coupling_convoi();
-			if(  c == self  ) {
-				// find me! this convoy is realy its parent!
-				return most_parent_convoi;
-			}
-		}
-	}
-	// it does not know who is the most parent convoi. search it. 
 	convoihandle_t tc = self;
 	while(  tc->is_coupled()  ) {
 		bool found = false;
@@ -5711,11 +5694,9 @@ convoihandle_t convoi_t::find_most_parent_convoi() const {
 		}
 		if(  !found  ) {
 			dbg->error("convoi_t::find_most_parent_convoi", "could not find the parent for %s", tc->get_name());
-			most_parent_convoi = self;
 			return self;
 		}
 	}
-	most_parent_convoi = tc;
 	return tc;
 }
 
