@@ -4256,12 +4256,7 @@ void convoi_t::self_destruct()
 		return;
 	}
 	else if(  is_coupled()  ) {
-		// find parent convoy and try uncoupling.
-		FOR(vector_tpl<convoihandle_t>, const& c, world()->convoys()) {
-			if(  c->get_coupling_convoi()==self  ) {
-				c->uncouple_convoi();
-			}
-		}
+		parent_convoi->uncouple_convoi();
 	}
 	state = SELF_DESTRUCT;
 	wait_lock = 0;
