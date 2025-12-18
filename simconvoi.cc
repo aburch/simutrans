@@ -163,7 +163,7 @@ void convoi_t::init(player_t *player)
 	uncouple_done = false;
 
 	coupling_convoi = convoihandle_t();
-	parent_convoi = convoihandle_t();
+	parent_convoi = self;
 
 	line_update_pending = linehandle_t();
 
