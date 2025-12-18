@@ -581,6 +581,7 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 		register_stops();
 	}
 
+	// only for leading convoy
 	if(  state!=COUPLED && state!=COUPLED_LOADING  ) {
 		check_electrification();
 		calc_min_top_speed();
