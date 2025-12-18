@@ -163,7 +163,7 @@ void convoi_t::init(player_t *player)
 	uncouple_done = false;
 
 	coupling_convoi = convoihandle_t();
-	parent_convoi = self;
+	parent_convoi = convoihandle_t();
 
 	line_update_pending = linehandle_t();
 
@@ -5393,7 +5393,7 @@ convoihandle_t convoi_t::uncouple_convoi() {
 	coupling_convoi->set_state(is_loading() ? LOADING : ROUTING_1);
 	coupling_convoi->front()->set_leading(true);
 	back()->set_last(true);
-	coupling_convoi->parent_convoi = coupling_convoi;
+	coupling_convoi->parent_convoi = convoihandle_t();
 	// for child convoy, recalculate is_electric and min_top_speed immediately.
 	coupling_convoi->check_electrification();
 	coupling_convoi->must_recalc_friction_weight();
