@@ -560,12 +560,15 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 	// If this is a coupled convoi, the front car is not a leading car of the entire convoi.
 	if(  state==COUPLED  ||  state==COUPLED_LOADING  ) {
 		front()->set_leading(false);
-		// set most parent convoy
-		parent_convoi = find_parent_convoi();
 	}
 	// If this has a child convoi, the last car is not the last of the entire convoi.
 	if(  coupling_convoi.is_bound()  ) {
 		back()->set_last(false);
+		if(  state!=INITIAL  ) {
+			// set parent convoy if not in depot
+			dbg->message("convoi_t::finish_rd()","set parent convoy for my child");
+			coupling_convoi->parent_convoi = self;
+		}
 	}
 	// remove wrong freight
 	check_freight();
@@ -578,8 +581,10 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 		register_stops();
 	}
 
-	check_electrification();
-	calc_min_top_speed();
+	if(  state!=COUPLED && state!=COUPLED_LOADING  ) {
+		check_electrification();
+		calc_min_top_speed();
+	}
 	calc_speedbonus_kmh();
 }
 
@@ -5683,22 +5688,6 @@ void convoi_t::reverse_convoy_coupling()
 	} else {
 		new_parent_convoy->couple_convoi_during_running(self);
 	}
-}
-
-
-convoihandle_t convoi_t::find_parent_convoi() const {
-	if(  !is_coupled()  ) {
-		return self;
-	}
-	// it does not know who is the most parent convoi. search it. 
-	convoihandle_t tc = self;
-	FOR(vector_tpl<convoihandle_t>, const& c, world()->convoys()) {
-		if(  c->get_coupling_convoi()==tc  ) {
-			tc = c;
-			break;
-		}
-	}
-	return tc;
 }
 
 convoihandle_t convoi_t::get_most_parent_convoi() const

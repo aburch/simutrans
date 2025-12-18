@@ -230,7 +230,7 @@ private:
 	convoihandle_t coupling_convoi;
 
 	/**
-	* a convoy that pull me.
+	* a convoy that pulls me.
 	*/
 	convoihandle_t parent_convoi;
 
@@ -1108,9 +1108,7 @@ public:
 	uint32 calc_available_halt_length_in_vehicle_steps(koord3d front_vehicle_pos, ribi_t::ribi front_vehicle_dir) const;
 
 	// Returns the root parent convoi of this convoy. Returns this convoy if not coupled.
-	// Warning: The calculation cost is O(n) where n is the number of convoys in the world.
-	convoihandle_t find_parent_convoi() const;
-	convoihandle_t get_parent_convoi() const {return parent_convoi;}
+	convoihandle_t get_parent_convoi() const {return parent_convoi.is_bound()? parent_convoi: self;}
 	convoihandle_t get_most_parent_convoi() const;
 
 	// Returns the most child convoi of this convoy.
