@@ -303,19 +303,31 @@ function test_way_tram_build_in_tunel()
 				"........"
 			])
 
-		ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 1, 0), coord3d(2, 3, 0), tramway, true), "")
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 1, 0), coord3d(2, 3, 0), tramway, true), null)
 		ASSERT_WAY_PATTERN(wt_rail, coord3d(0, 0, 0),
 			[
 				"........",
-				"..0.....",
-				".2AA8...",
-				"..0.....",
+				"..4.....",
+				".2FA8...",
+				"..1.....",
 				"........",
 				"........",
 				"........",
 				"........"
 			])
 
+		ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(2, 1, 0), coord3d(2, 3, 0), "" + wt_rail), null)
+		ASSERT_WAY_PATTERN(wt_rail, coord3d(0, 0, 0),
+			[
+				"........",
+				"........",
+				".2AA8...",
+				"........",
+				"........",
+				"........",
+				"........",
+				"........"
+			])
 		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
 			[
 				"........",
@@ -328,8 +340,7 @@ function test_way_tram_build_in_tunel()
 				"........"
 			])
 
-		ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(2, 1, 0), coord3d(2, 1, 0), "" + wt_rail), null)
-		ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(2, 3, 0), coord3d(2, 3, 0), "" + wt_rail), null)
+
 		ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(1, 2, 0), coord3d(4, 2, 0), "" + wt_rail), null)
 	}
 
