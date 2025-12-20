@@ -2667,8 +2667,8 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 	error = NULL;
 	grund_t *gr=welt->lookup(pos);
 	if(  gr  &&  slope_t::is_way(gr->get_weg_hang())  ) {
-		// ignore tunnel tiles (except road tunnel for tram track building ..)
-		if(  gr->get_typ() == grund_t::tunnelboden  &&  !gr->ist_karten_boden()  && !(desc->is_tram()  && gr->hat_weg(road_wt)) ) {
+		// ignore tunnel tiles (for tram track building where we forbind trams on water ... )
+		if(  gr->get_typ() == grund_t::tunnelboden  &&  !gr->ist_karten_boden()  && !(desc->is_tram()  && !gr->hat_weg(water_wt)) ) {
 			return 0;
 		}
 		bool const elevated = desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt;
@@ -2692,10 +2692,11 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 		// test if way already exists on the way and if we are allowed to connect
 		weg_t *way = gr->get_weg(desc->get_wtyp());
 		if(  way  ) {
-			// allow to connect to any road
+			// allow to connect to any road or waterway
 			if(  desc->get_wtyp() == road_wt  ||  desc->get_wtyp() == water_wt  ) {
 				return 2;
 			}
+			// for others check ownership
 			error = way->get_removal_error(player);
 			return error==NULL ? 2 : 0;
 		}
