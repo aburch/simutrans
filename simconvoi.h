@@ -230,6 +230,11 @@ private:
 	convoihandle_t coupling_convoi;
 
 	/**
+	* a convoy that pulls me.
+	*/
+	convoihandle_t parent_convoi;
+
+	/**
 	* a convoy that is coupling now.
 	*/
 	convoihandle_t convoi_coupling_in_progress;
@@ -1102,9 +1107,9 @@ public:
 	static uint32 calc_available_halt_length_in_vehicle_steps(koord3d front_vehicle_pos, ribi_t::ribi front_vehicle_dir, const waytype_t waytype);
 	uint32 calc_available_halt_length_in_vehicle_steps(koord3d front_vehicle_pos, ribi_t::ribi front_vehicle_dir) const;
 
-	// Returns the root parent convoi of this convoy. Returns this convoy if not coupled.
-	// Warning: The calculation cost is O(n) where n is the number of convoys in the world.
-	convoihandle_t find_most_parent_convoi() const;
+	// Returns the parent and root parent convoi of this convoy. Returns this convoy if not coupled.
+	convoihandle_t get_parent_convoi() const {return parent_convoi.is_bound()? parent_convoi: self;}
+	convoihandle_t get_most_parent_convoi() const;
 
 	// Returns the most child convoi of this convoy.
 	convoihandle_t find_most_child_convoi() const;

@@ -163,6 +163,7 @@ void convoi_t::init(player_t *player)
 	uncouple_done = false;
 
 	coupling_convoi = convoihandle_t();
+	parent_convoi = convoihandle_t();
 
 	line_update_pending = linehandle_t();
 
@@ -563,6 +564,11 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 	// If this has a child convoi, the last car is not the last of the entire convoi.
 	if(  coupling_convoi.is_bound()  ) {
 		back()->set_last(false);
+		if(  state!=INITIAL  ) {
+			// set parent convoy if not in depot
+			dbg->message("convoi_t::finish_rd()","set parent convoy for my child");
+			coupling_convoi->parent_convoi = self;
+		}
 	}
 	// remove wrong freight
 	check_freight();
@@ -575,8 +581,11 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 		register_stops();
 	}
 
-	check_electrification();
-	calc_min_top_speed();
+	// only for leading convoy
+	if(  state!=COUPLED && state!=COUPLED_LOADING  ) {
+		check_electrification();
+		calc_min_top_speed();
+	}
 	calc_speedbonus_kmh();
 }
 
@@ -1938,7 +1947,7 @@ void convoi_t::ziel_erreicht()
 					temp_parent_convoi = v->get_convoi()->find_most_child_convoi();
 					v->get_convoi()->reverse_convoy_coupling();
 				} else {
-					temp_parent_convoi = v->get_convoi()->find_most_parent_convoi();
+					temp_parent_convoi = v->get_convoi()->get_most_parent_convoi();
 				}
 				v->get_convoi()->couple_convoi(self);
 				unset_convoi_coupling_in_progress();
@@ -2017,7 +2026,7 @@ bool convoi_t::reverse_convoy_coupling_at_waypoint()
 	}
 	dbg->message("convoi_t::ziel_erreicht()","reversing coupling in waypoint");
 	self->reverse_convoy_coupling();
-	c = find_most_parent_convoi();
+	c = get_most_parent_convoi();
 	while(  c.is_bound()  ) {
 		if(c->get_schedule()->get_current_entry().is_reverse_convoy()) {
 			c->reverse_vehicles_on_user_request();
@@ -2026,7 +2035,7 @@ bool convoi_t::reverse_convoy_coupling_at_waypoint()
 		c = c->get_coupling_convoi();
 	}
 	// if the next stop position is different, uncouple
-	c = find_most_parent_convoi();
+	c = get_most_parent_convoi();
 	convoihandle_t child = get_coupling_convoi(); 
 	while(  child.is_bound()  ) {
 		if( c->get_schedule()->get_current_entry().pos != child->get_schedule()->get_current_entry().pos ) {
@@ -2035,7 +2044,7 @@ bool convoi_t::reverse_convoy_coupling_at_waypoint()
 		c = child;
 		child = child->get_coupling_convoi();
 	}
-	find_most_parent_convoi()->state=EDIT_SCHEDULE;
+	get_most_parent_convoi()->state=EDIT_SCHEDULE;
 	//reversing done
 	return true;
 }
@@ -3836,7 +3845,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 	const goods_desc_t* cargo_type_prev = NULL;
 	bool loading_needed = !no_load  &&  !next_depot;
 	// When load_before_departure is enabled, load cargos only when the departure time condition is satisfied.
-	convoihandle_t leading_convoy = find_most_parent_convoi();
+	convoihandle_t leading_convoy = get_most_parent_convoi();
 	if(  leading_convoy->schedule->get_current_entry().get_wait_for_time()  &&  schedule->get_current_entry().is_load_before_departure()  ) {
 		loading_needed &= (leading_convoy->scheduled_departure_time!=0  &&  is_first_ticks_bigger(welt->get_ticks(), leading_convoy->scheduled_departure_time - time));
 	}
@@ -4247,12 +4256,7 @@ void convoi_t::self_destruct()
 		return;
 	}
 	else if(  is_coupled()  ) {
-		// find parent convoy and try uncoupling.
-		FOR(vector_tpl<convoihandle_t>, const& c, world()->convoys()) {
-			if(  c->get_coupling_convoi()==self  ) {
-				c->uncouple_convoi();
-			}
-		}
+		parent_convoi->uncouple_convoi();
 	}
 	state = SELF_DESTRUCT;
 	wait_lock = 0;
@@ -5368,6 +5372,7 @@ bool convoi_t::couple_convoi(convoihandle_t coupled) {
 		set_state(LOADING);
 	}
 	coupling_convoi = coupled;
+	coupled->parent_convoi = self;
 	coupling_convoi->front()->set_leading(false);
 	back()->set_last(false);
 	must_recalc_min_top_speed();
@@ -5383,6 +5388,7 @@ convoihandle_t convoi_t::uncouple_convoi() {
 	coupling_convoi->set_state(is_loading() ? LOADING : ROUTING_1);
 	coupling_convoi->front()->set_leading(true);
 	back()->set_last(true);
+	coupling_convoi->parent_convoi = convoihandle_t();
 	// for child convoy, recalculate is_electric and min_top_speed immediately.
 	coupling_convoi->check_electrification();
 	coupling_convoi->must_recalc_friction_weight();
@@ -5394,9 +5400,9 @@ convoihandle_t convoi_t::uncouple_convoi() {
 		c = c->get_coupling_convoi();
 	}
 	coupling_convoi = convoihandle_t();
-	find_most_parent_convoi()->must_recalc_min_top_speed();
-	find_most_parent_convoi()->check_electrification();
-	find_most_parent_convoi()->must_recalc_friction_weight();
+	get_most_parent_convoi()->must_recalc_min_top_speed();
+	get_most_parent_convoi()->check_electrification();
+	get_most_parent_convoi()->must_recalc_friction_weight();
 	return ret;
 }
 
@@ -5478,7 +5484,7 @@ bool convoi_t::is_waiting_for_coupling() const {
 
 bool convoi_t::check_electrification() {
 	is_electric = false;
-	const convoihandle_t most_parent_convoi = find_most_parent_convoi();
+	const convoihandle_t most_parent_convoi = get_most_parent_convoi();
 	convoihandle_t c = most_parent_convoi;
 	// Are there electric cars?
 	while(  c.is_bound()  &&  !is_electric  ) {
@@ -5624,7 +5630,7 @@ void convoi_t::reverse_vehicles_on_user_request()
 	}
 	reversing_needed = true;
 	// trigger repositioning on the most parent convoy
-	find_most_parent_convoi()->set_state(EDIT_SCHEDULE);
+	get_most_parent_convoi()->set_state(EDIT_SCHEDULE);
 }
 
 void convoi_t::reverse_vehicles_at_halt_if_needed()
@@ -5680,24 +5686,17 @@ void convoi_t::reverse_convoy_coupling()
 	}
 }
 
-
-convoihandle_t convoi_t::find_most_parent_convoi() const {
-	convoihandle_t tc = self;
-	while(  tc->is_coupled()  ) {
-		bool found = false;
-		FOR(vector_tpl<convoihandle_t>, const& c, world()->convoys()) {
-			if(  c->get_coupling_convoi()==tc  ) {
-				tc = c;
-				found = true;
-				break;
-			}
-		}
-		if(  !found  ) {
-			dbg->error("convoi_t::find_most_parent_convoi", "could not find the parent for %s", tc->get_name());
-			return self;
-		}
+convoihandle_t convoi_t::get_most_parent_convoi() const
+{
+	convoihandle_t c = self;
+	while(c.is_bound() && c->is_coupled()) {
+		c = c->get_parent_convoi();
 	}
-	return tc;
+	if(c.is_bound()) {
+		return c;
+	} else {
+		return self;
+	}
 }
 
 convoihandle_t convoi_t::find_most_child_convoi() const
@@ -5745,6 +5744,7 @@ bool convoi_t::couple_convoi_during_running(convoihandle_t coupled) {
 	coupled->set_state(COUPLED);
 	// couplilng
 	coupling_convoi = coupled;
+	coupled->parent_convoi = self;
 	coupling_convoi->front()->set_leading(false);
 	back()->set_last(false);
 	must_recalc_min_top_speed();
@@ -5755,7 +5755,7 @@ bool convoi_t::couple_convoi_during_running(convoihandle_t coupled) {
 uint16 convoi_t::get_length_coupling_done() const {
 	convoihandle_t c = self;
 	if( c->is_coupled() ) {
-		c = find_most_parent_convoi();
+		c = get_most_parent_convoi();
 	}
 	uint16 length_coupling_done = 0;
 	while( c.is_bound() ) {
