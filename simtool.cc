@@ -2815,8 +2815,9 @@ tool_build_way_t* get_build_way_tool_from_toolbar(const way_desc_t* desc) {
 	return NULL;
 }
 
-void tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start, const koord3d &end )
+bool tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start, const koord3d &end )
 {
+	bool route_reversed = false;
 	// recalc type of construction
 	way_builder_t::bautyp_t bautyp = (way_builder_t::bautyp_t)desc->get_wtyp();
 	if(desc->is_tram()) {
@@ -2860,9 +2861,10 @@ void tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start,
 		bauigel.calc_straight_route(start,my_end);
 	}
 	else {
-		bauigel.calc_route(start,my_end);
+		route_reversed = bauigel.calc_route(start,my_end);
 	}
 	DBG_MESSAGE("tool_build_way_t()", "builder found route with %d squares length.", bauigel.get_count());
+	return route_reversed;
 }
 
 const char *tool_build_way_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
@@ -2927,7 +2929,7 @@ void tool_build_way_t::rdwr_custom_data(memory_rw_t *packet)
 void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, const koord3d &end )
 {
 	way_builder_t bauigel(player);
-	calc_route( bauigel, start, end );
+	bool route_reversed = calc_route( bauigel, start, end );
 	bool keep_city_roads = is_shift_pressed()  &&  desc->get_styp() == type_flat  &&  desc->get_wtyp() == road_wt;
 
 	uint8 hf = height_offset;
@@ -2975,10 +2977,10 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 			}
 			if(  desc->get_wtyp()==road_wt && skinverwaltung_t::ribi_arrow!=NULL  ) {
 				if(overtaking_mode<=oneway_mode) {
-					ribi_t::ribi oneway_ribi = (is_ctrl_pressed()? j!=bauigel.get_count()-1: j!=0)? ribi_type(bauigel.get_route()[is_ctrl_pressed()? j+1: j-1]-bauigel.get_route()[j]): ribi_t::none;
+					ribi_t::ribi oneway_ribi = (!route_reversed? j!=bauigel.get_count()-1: j!=0)? ribi_type(bauigel.get_route()[(!route_reversed)? j+1: j-1]-bauigel.get_route()[j]): ribi_t::none;
 					if( weg_t* road=gr->get_weg(road_wt) ) {
 						dynamic_cast<strasse_t*>(road)->set_way_building(true);
-						if(  is_ctrl_pressed()? j==0: j==bauigel.get_count()-1  ) {
+						if(  !route_reversed? j==0: j==bauigel.get_count()-1  ) {
 							if( ribi_t::is_single(road->get_ribi_unmasked()) ) {
 								// oneway_ribi already updated
 							}
@@ -2989,7 +2991,7 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 								oneway_ribi |= road->get_ribi();
 							}
 						} else {
-							ribi_t::ribi mask_ribi = ribi_type(bauigel.get_route()[is_ctrl_pressed()? j-1: j+1]-bauigel.get_route()[j]);
+							ribi_t::ribi mask_ribi = ribi_type(bauigel.get_route()[!route_reversed? j-1: j+1]-bauigel.get_route()[j]);
 							oneway_ribi |= (road->get_ribi() & ~mask_ribi);
 						}
 					}
