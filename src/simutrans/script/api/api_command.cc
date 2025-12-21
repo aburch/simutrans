@@ -329,7 +329,7 @@ call_tool_work build_wayobj(player_t* pl, koord3d start, koord3d end, const way_
 
 typedef call_tool_work(*bsr_type)(player_t*, koord3d, const building_desc_t*, sint16);
 
-call_tool_work build_station_rotation(player_t* pl, koord3d pos, const building_desc_t* building, sint16 rot)
+call_tool_work build_station_rotation(player_t* pl, koord3d pos, const building_desc_t* building, sint16 layout)
 {
 	// rotation: SENW -> 0123, see station_building_select_t
 	if (building == NULL  ||  !building->is_transport_building()) {
@@ -340,8 +340,21 @@ call_tool_work build_station_rotation(player_t* pl, koord3d pos, const building_
 	}
 	static cbuffer_t buf;
 	buf.clear();
-	if (rot >= 0) {
-		buf.printf("%s,%i", building->get_name(), rot);
+	if (layout >= 0) {
+		uint8 rotation = welt->get_settings().get_rotation();
+		// we need to rotate the station back according to the map
+		if (rotation) {
+			if (building->get_all_layouts() <= 4) {
+				layout = (layout + 4 - rotation) & (building->get_all_layouts() - 1);
+			}
+			else for (uint8 i = 0; i < rotation; i++) {
+				// this is different for station building that houses ...
+				static uint8 layout_rotate[16] = { 1, 8, 5, 10, 3, 12, 7, 14, 9, 0, 13, 2, 11, 4, 15, 6 };
+				// 8 & 16 tile lyoutout for stations
+				layout = layout_rotate[layout] & (building->get_all_layouts()-1);
+			}
+		}
+		buf.printf("%s,%i", building->get_name(), layout);
 	}
 	else {
 		buf.printf("%s", building->get_name());
