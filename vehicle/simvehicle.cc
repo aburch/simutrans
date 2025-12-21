@@ -3508,10 +3508,14 @@ bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr) const
 	if(  ribi_t::is_single(next_gr_ribi)  &&
 		gr->get_neighbour(to, get_waytype(), next_gr_ribi)  &&
 		(to->get_halt()==target_halt)  &&
-		(to->get_weg(get_waytype())->get_ribi_maske() & ribi_type(dir))==0
+		(to->get_weg(get_waytype())->get_ribi_maske() & ribi_type(dir))==0 
 	) {
-		// We can still go forward.
-		return false;
+		// check electrification
+		schiene_t const* const sch = obj_cast<schiene_t>(to->get_weg(get_waytype()));
+		if(!(((cnv!=NULL ? cnv->needs_electrification() : desc->get_engine_type()==vehicle_desc_t::electric)  &&  !sch->is_electrified())  ||  sch->get_max_speed() == 0  )) {
+			// We can still go forward.
+			return false;
+		}
 	}
 	// end of stop: Is it long enough?
 	const uint32 available_halt_length = cnv->calc_available_halt_length_in_vehicle_steps(gr->get_pos(), ribi); // 256 units per a straight tile
