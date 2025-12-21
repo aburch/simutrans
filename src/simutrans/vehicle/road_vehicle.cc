@@ -113,7 +113,7 @@ bool road_vehicle_t::check_next_tile(const grund_t *bd) const
 	if(str==NULL  ||  str->get_max_speed()==0) {
 		return false;
 	}
-	bool electric = cnv!=NULL  ?  cnv->needs_electrification() : desc->get_engine_type()==vehicle_desc_t::electric;
+	bool electric = cnv!=NULL  &&  cnv->needs_electrification();
 	if(electric  &&  !str->is_electrified()) {
 		return false;
 	}

@@ -247,26 +247,28 @@ bool rail_vehicle_t::is_target(const grund_t* gr, const grund_t* prev_gr) const
 					return false;
 				}
 				grund_t* to;
-				if (gr->get_neighbour(to, get_waytype(), ribi)!=0  &&  to->get_halt() == target_halt  &&  (to->get_weg(get_waytype())->get_ribi_maske() & ribi_type(dir)) == 0  ) {
-					// end of stop: Is it long enough?
-					// end of stop could be also signal!
-					uint16 tiles = cnv->get_tile_length();
-					// check for electrifiction needed? (we have checked this tile on route already)
-					const bool needs_electric = cnv != NULL  &&  cnv->needs_electrification();
-					while (tiles > 1) {
-						if (gr->get_weg(get_waytype())->get_ribi_maske() & ribi || !gr->get_neighbour(to, get_waytype(), ribi_t::backward(ribi)) || !(to->get_halt() == target_halt)) {
-							return false;
-						}
-						// check electrification or illegal tracks (i.e. city walls with speed equals zero)
-						weg_t *sch = to->get_weg(get_waytype());
-						if(sch->get_max_speed() == 0  ||  (needs_electric  &&  !sch->is_electrified())  ) {
-							return false;
-						}
-						gr = to;
-						tiles --;
+				// end of stop: Is it long enough?
+				uint16 tiles = cnv->get_tile_length();
+				// check for electrifiction needed? (we have checked this tile on route already)
+				const bool needs_electric = cnv != NULL  &&  cnv->needs_electrification();
+				while (tiles > 1) {
+					weg_t* w = gr->get_weg(get_waytype());
+
+					// check electrification or illegal tracks (i.e. city walls with speed equals zero)
+					if (w->get_max_speed() == 0  ||  (needs_electric && !w->is_electrified())) {
+						return false;
 					}
-					return true;
+					// signal or sign?
+					if(w->get_ribi_maske() & ribi  &&  (w->has_signal() || w->has_sign())) {
+						return false;
+					}
+					if (!gr->get_neighbour(to, get_waytype(), ribi_t::backward(ribi)) || to->get_halt() != target_halt) {
+						return false;
+					}
+					gr = to;
+					tiles --;
 				}
+				return true;
 			}
 		}
 	}
