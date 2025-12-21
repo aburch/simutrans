@@ -112,8 +112,8 @@ private:
 	uint8 withdraw            : 1; ///< the convoi is being withdrawn from service
 	uint8 no_load             : 1; ///< nothing will be loaded onto this convoi
 	uint8 has_obsolete        : 1; ///< true, if at least one vehicle of a convoi is obsolete
-	uint8 is_electric         : 1; ///< true, if there is at least one engine that requires catenary
-	// 4 bits free
+	bool  needs_electric      : 1; ///< true, if needs catenary
+	// 5 bits free
 
 	uint8 old_sort_mode;	///< the convoi caches its freight info; only recalculate after loading or resorting
 
@@ -124,6 +124,7 @@ private:
 	 * Used in movement calculations.
 	 */
 	sint32 sum_gear_and_power;
+	uint32 sum_gear_and_power_non_electric, sum_gear_and_power_electric;
 
 	// 32 bytes
 
@@ -356,7 +357,10 @@ public:
 	linehandle_t get_line() const {return line;}
 
 	/* true, if electrification needed for this convoi */
-	bool needs_electrification() const { return is_electric; }
+	bool needs_electrification() const { return needs_electric; }
+
+	/* true, if electrification needed for this convoi */
+	bool can_use_electrification() const { return sum_gear_and_power_electric!=0; }
 
 	/**
 	* set line

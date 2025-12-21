@@ -47,6 +47,8 @@
 	CHG: Show obsolete shows lso distribution_weight=0 factories in the editor window
 	FIX: Not allowed for powerbridges to end on ways
 	ADD: Retain message of the day in servergames. Can be reshown in the game info/network dialog
+	FIX: (poppo) trains could not choose if electrification was not to the end of track
+	CHG: trains with both diesel and electric engine can go on non-electricfied track, but run without electric power there
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):

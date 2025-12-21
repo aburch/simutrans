@@ -151,45 +151,48 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd) const
 	if(  !sch  ) {
 		return false;
 	}
-
-	// diesel and steam engines can use electrified track as well.
-	// also allow driving on foreign tracks ...
-	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : desc->get_engine_type()==vehicle_desc_t::electric);
-	if(  (!needs_no_electric  &&  !sch->is_electrified())  ||  sch->get_max_speed() == 0  ) {
+	if (sch->get_max_speed() == 0) {
+		// city walls etc.
 		return false;
 	}
 
-	if (depot_t *depot = bd->get_depot()) {
-		if (depot->get_waytype() != desc->get_waytype()  ||  depot->get_owner() != get_owner()) {
+	// check for electrification
+	const bool needs_electric = cnv != NULL  &&  cnv->needs_electrification();
+	if(  needs_electric  &&  !sch->is_electrified()  ) {
+		return false;
+	}
+
+	if (depot_t* depot = bd->get_depot()) {
+		if (depot->get_waytype() != desc->get_waytype() || depot->get_owner() != get_owner()) {
 			return false;
 		}
 	}
 	// now check for special signs
-	if(sch->has_sign()) {
+	if (sch->has_sign()) {
 		const roadsign_t* rs = bd->find<roadsign_t>();
-		if(  rs->get_desc()->get_wtyp()==get_waytype()  ) {
-			if(  cnv != NULL  &&  rs->get_desc()->get_min_speed() > 0  &&  rs->get_desc()->get_min_speed() > cnv->get_min_top_speed()  ) {
+		if (rs->get_desc()->get_wtyp() == get_waytype()) {
+			if (cnv != NULL && rs->get_desc()->get_min_speed() > 0 && rs->get_desc()->get_min_speed() > cnv->get_min_top_speed()) {
 				// below speed limit
 				return false;
 			}
-			if(  rs->get_desc()->is_private_way()  &&  (rs->get_player_mask() & (1<<get_owner_nr()) ) == 0  ) {
+			if (rs->get_desc()->is_private_way() && (rs->get_player_mask() & (1 << get_owner_nr())) == 0) {
 				// private road
 				return false;
 			}
 		}
 	}
 
-	if(  target_halt.is_bound()  &&  cnv->is_waiting()  ) {
+	if (target_halt.is_bound() && cnv->is_waiting()) {
 		// we are searching a stop here:
 		// ok, we can go where we already are ...
-		if(bd->get_pos()==get_pos()) {
+		if (bd->get_pos() == get_pos()) {
 			return true;
 		}
 		// we cannot pass an end of choose area
-		if(sch->has_sign()) {
+		if (sch->has_sign()) {
 			const roadsign_t* rs = bd->find<roadsign_t>();
-			if(  rs->get_desc()->get_wtyp()==get_waytype()  ) {
-				if(  rs->get_desc()->get_flags() & roadsign_desc_t::END_OF_CHOOSE_AREA  ) {
+			if (rs->get_desc()->get_wtyp() == get_waytype()) {
+				if (rs->get_desc()->get_flags() & roadsign_desc_t::END_OF_CHOOSE_AREA) {
 					return false;
 				}
 			}
@@ -204,23 +207,23 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd) const
 
 
 // how expensive to go here (for way search)
-int rail_vehicle_t::get_cost(const grund_t *gr, const weg_t *w, const sint32 max_speed, ribi_t::ribi from) const
+int rail_vehicle_t::get_cost(const grund_t* gr, const weg_t* w, const sint32 max_speed, ribi_t::ribi from) const
 {
 	// first favor faster ways
-	if(  w==NULL  ) {
+	if (w == NULL) {
 		// only occurs when deletion during way search
 		return 999;
 	}
 
 	// add cost for going (with maximum speed, cost is 1)
 	const sint32 max_tile_speed = w->get_max_speed();
-	int costs = (max_speed<=max_tile_speed) ? 1 : 4-(3*max_tile_speed)/max_speed;
+	int costs = (max_speed <= max_tile_speed) ? 1 : 4 - (3 * max_tile_speed) / max_speed;
 
 	// effect of slope
-	if(  gr->get_weg_hang()!=0  ) {
+	if (gr->get_weg_hang() != 0) {
 		// check if the slope is upwards, relative to the previous tile
 		// 25 hardcoded, see get_cost_upslope()
-		costs += 25 * get_sloping_upwards( gr->get_weg_hang(), from );
+		costs += 25 * get_sloping_upwards(gr->get_weg_hang(), from);
 	}
 
 	return costs;
@@ -228,28 +231,35 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const weg_t *w, const sint32 max
 
 
 // this routine is called by find_route, to determined if we reached a destination
-bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr) const
+bool rail_vehicle_t::is_target(const grund_t* gr, const grund_t* prev_gr) const
 {
-	const schiene_t * sch1 = (const schiene_t *) gr->get_weg(get_waytype());
+	const schiene_t* sch1 = (const schiene_t*)gr->get_weg(get_waytype());
 	// first check blocks, if we can go there
-	if(  sch1->can_reserve(cnv->self)  ) {
+	if (sch1->can_reserve(cnv->self)) {
 		//  just check, if we reached a free stop position of this halt
-		if(  gr->is_halt()  &&  gr->get_halt()==target_halt  ) {
+		if (gr->is_halt() && gr->get_halt() == target_halt) {
 			// now we must check the predecessor ...
-			if(  prev_gr!=NULL  ) {
-				const koord dir=gr->get_pos().get_2d()-prev_gr->get_pos().get_2d();
+			if (prev_gr != NULL) {
+				const koord dir = gr->get_pos().get_2d() - prev_gr->get_pos().get_2d();
 				const ribi_t::ribi ribi = ribi_type(dir);
-				if(  gr->get_weg(get_waytype())->get_ribi_maske() & ribi  ) {
+				if (gr->get_weg(get_waytype())->get_ribi_maske() & ribi) {
 					// signal/one way sign wrong direction
 					return false;
 				}
-				grund_t *to;
-				if(  !gr->get_neighbour(to,get_waytype(),ribi)  ||  !(to->get_halt()==target_halt)  ||  (to->get_weg(get_waytype())->get_ribi_maske() & ribi_type(dir))!=0  ) {
+				grund_t* to;
+				if (gr->get_neighbour(to, get_waytype(), ribi)!=0  &&  to->get_halt() == target_halt  &&  (to->get_weg(get_waytype())->get_ribi_maske() & ribi_type(dir)) == 0  ) {
 					// end of stop: Is it long enough?
 					// end of stop could be also signal!
 					uint16 tiles = cnv->get_tile_length();
-					while(  tiles>1  ) {
-						if(  gr->get_weg(get_waytype())->get_ribi_maske() & ribi  ||  !gr->get_neighbour(to,get_waytype(),ribi_t::backward(ribi))  ||  !(to->get_halt()==target_halt)  ) {
+					// check for electrifiction needed? (we have checked this tile on route already)
+					const bool needs_electric = cnv != NULL  &&  cnv->needs_electrification();
+					while (tiles > 1) {
+						if (gr->get_weg(get_waytype())->get_ribi_maske() & ribi || !gr->get_neighbour(to, get_waytype(), ribi_t::backward(ribi)) || !(to->get_halt() == target_halt)) {
+							return false;
+						}
+						// check electrification or illegal tracks (i.e. city walls with speed equals zero)
+						weg_t *sch = to->get_weg(get_waytype());
+						if(sch->get_max_speed() == 0  ||  (needs_electric  &&  !sch->is_electrified())  ) {
 							return false;
 						}
 						gr = to;

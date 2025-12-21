@@ -110,9 +110,10 @@ void convoi_t::init(player_t *player)
 {
 	owner = player;
 
-	is_electric = false;
+	needs_electric = false;
 	sum_gesamtweight = sum_weight = 0;
 	sum_running_costs = sum_fixed_costs = sum_gear_and_power = previous_delta_v = 0;
+	sum_gear_and_power_non_electric = sum_gear_and_power_electric = 0;
 	sum_power = 0;
 	min_top_speed = SPEED_UNLIMITED;
 	speedbonus_kmh = SPEED_UNLIMITED; // speed_to_kmh() not needed
@@ -654,8 +655,9 @@ void convoi_t::add_running_cost( const weg_t *weg )
 		// running on non-public way costs toll (since running costs are positive => invert)
 		sint64 toll = -(sum_running_costs*welt->get_settings().get_way_toll_runningcost_percentage())/100l;
 		if(  welt->get_settings().get_way_toll_waycost_percentage()  ) {
-			if(  weg->is_electrified()  &&  needs_electrification()  ) {
+			if(  weg->is_electrified()  &&  (needs_electrification()  ||  can_use_electrification())) {
 				// toll for using electricity
+				sum_gear_and_power = sum_gear_and_power_non_electric + sum_gear_and_power_electric;
 				grund_t *gr = welt->lookup(weg->get_pos());
 				for(  int i=1;  i<gr->obj_count();  i++  ) {
 					obj_t *d=gr->obj_bei(i);
@@ -666,6 +668,10 @@ void convoi_t::add_running_cost( const weg_t *weg )
 						}
 					}
 				}
+			}
+			else {
+				// can run with non-electric power
+				sum_gear_and_power = sum_gear_and_power_non_electric;
 			}
 			// now add normal way toll be maintenance
 			toll += (weg->get_desc()->get_maintenance()*welt->get_settings().get_way_toll_waycost_percentage())/100l;
@@ -1591,10 +1597,10 @@ void convoi_t::start()
 		}
 		wait_lock = 0;
 
-		DBG_MESSAGE("convoi_t::start()","Convoi %s wechselt von INITIAL nach ROUTING_1", name_and_id);
+		DBG_MESSAGE("convoi_t::start()", "Convoi %s wechselt von INITIAL nach ROUTING_1", name_and_id);
 	}
 	else {
-		dbg->warning("convoi_t::start()","called with state=%s\n",state_names[state]);
+		dbg->warning("convoi_t::start()", "called with state=%s\n", state_names[state]);
 	}
 }
 
@@ -1608,10 +1614,10 @@ void convoi_t::ziel_erreicht()
 	alte_richtung = v->get_direction();
 
 	// check, what is at destination!
-	const grund_t *gr = welt->lookup(v->get_pos());
-	depot_t *dp = gr->get_depot();
+	const grund_t* gr = welt->lookup(v->get_pos());
+	depot_t* dp = gr->get_depot();
 
-	if(dp) {
+	if (dp) {
 		// ok, we are entering a depot
 		cbuffer_t buf;
 
@@ -1619,15 +1625,15 @@ void convoi_t::ziel_erreicht()
 		calc_gewinn();
 
 		akt_speed = 0;
-		buf.printf( translator::translate("%s has entered a depot."), get_name() );
-		welt->get_message()->add_message(buf, v->get_pos(),message_t::warnings, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_EMPTY);
+		buf.printf(translator::translate("%s has entered a depot."), get_name());
+		welt->get_message()->add_message(buf, v->get_pos(), message_t::warnings, PLAYER_FLAG | get_owner()->get_player_nr(), IMG_EMPTY);
 
 		betrete_depot(dp);
 	}
 	else {
 		// no depot reached, check for stop!
-		halthandle_t halt = haltestelle_t::get_halt(schedule->get_current_entry().pos,owner);
-		if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  ) {
+		halthandle_t halt = haltestelle_t::get_halt(schedule->get_current_entry().pos, owner);
+		if (halt.is_bound() && gr->get_weg_ribi(v->get_waytype()) != 0) {
 			// seems to be a stop, so book the money for the trip
 			calc_gewinn();
 
@@ -1652,31 +1658,31 @@ void convoi_t::ziel_erreicht()
  */
 void convoi_t::warten_bis_weg_frei(sint32 restart_speed)
 {
-	if(!is_waiting()) {
+	if (!is_waiting()) {
 		state = WAITING_FOR_CLEARANCE;
 		wait_lock = 0;
 	}
-	if(restart_speed>=0) {
+	if (restart_speed >= 0) {
 		// langsam anfahren
 		akt_speed = restart_speed;
 	}
 }
 
 
-bool convoi_t::add_vehicle(vehicle_t *v, bool infront)
+bool convoi_t::add_vehicle(vehicle_t* v, bool infront)
 {
-DBG_MESSAGE("convoi_t::add_vehicle()","at pos %i of %i total vehicles.",vehicle_count,fahr.get_count());
+	DBG_MESSAGE("convoi_t::add_vehicle()", "at pos %i of %i total vehicles.", vehicle_count, fahr.get_count());
 	// extend array if requested
-	if(vehicle_count == fahr.get_count()) {
-		fahr.resize(vehicle_count+1,NULL);
-DBG_MESSAGE("convoi_t::add_vehicle()","extend array_tpl to %i totals.",fahr.get_count());
+	if (vehicle_count == fahr.get_count()) {
+		fahr.resize(vehicle_count + 1, NULL);
+		DBG_MESSAGE("convoi_t::add_vehicle()", "extend array_tpl to %i totals.", fahr.get_count());
 	}
 	// now append
 	if (vehicle_count < fahr.get_count()) {
 		v->set_convoi(this);
 
-		if(infront) {
-			for(unsigned i = vehicle_count; i > 0; i--) {
+		if (infront) {
+			for (unsigned i = vehicle_count; i > 0; i--) {
 				fahr[i] = fahr[i - 1];
 			}
 			fahr[0] = v;
@@ -1684,14 +1690,19 @@ DBG_MESSAGE("convoi_t::add_vehicle()","extend array_tpl to %i totals.",fahr.get_
 		else {
 			fahr[vehicle_count] = v;
 		}
-		vehicle_count ++;
+		vehicle_count++;
 
-		const vehicle_desc_t *info = v->get_desc();
-		if(info->get_power()) {
-			is_electric |= info->get_engine_type()==vehicle_desc_t::electric;
+		const vehicle_desc_t* info = v->get_desc();
+		if (info->get_power()) {
+			if (info->get_engine_type() == vehicle_desc_t::electric) {
+				sum_gear_and_power_electric += info->get_power() * info->get_gear();
+			}
+			else {
+				sum_gear_and_power_non_electric += info->get_power() * info->get_gear();
+			}
+			sum_power += info->get_power();
+			sum_gear_and_power += info->get_power() * info->get_gear();
 		}
-		sum_power += info->get_power();
-		sum_gear_and_power += info->get_power()*info->get_gear();
 		sum_weight += info->get_weight();
 		sum_running_costs -= info->get_running_cost();
 		sum_fixed_costs -= welt->scale_with_month_length( info->get_fixed_cost() );
@@ -1709,6 +1720,8 @@ DBG_MESSAGE("convoi_t::add_vehicle()","extend array_tpl to %i totals.",fahr.get_
 		if(!has_obsolete  &&  welt->use_timeline()) {
 			has_obsolete = info->is_retired( welt->get_timeline_year_month() );
 		}
+		// cannot run without catenary
+		needs_electric = sum_gear_and_power_electric > 0  &&  sum_gear_and_power_non_electric == 0;
 	}
 	else {
 		return false;
@@ -1740,6 +1753,14 @@ vehicle_t *convoi_t::remove_vehicle_at(uint16 i)
 			const vehicle_desc_t *info = v->get_desc();
 			sum_power -= info->get_power();
 			sum_gear_and_power -= info->get_power()*info->get_gear();
+			if (info->get_engine_type() == vehicle_desc_t::electric) {
+				sum_gear_and_power_electric -= info->get_power() * info->get_gear();
+			}
+			else {
+				sum_gear_and_power_non_electric -= info->get_power() * info->get_gear();
+			}
+			sum_power += info->get_power();
+			sum_gear_and_power += info->get_power() * info->get_gear();
 			sum_weight -= info->get_weight();
 			sum_running_costs += info->get_running_cost();
 			sum_fixed_costs += welt->scale_with_month_length( info->get_fixed_cost() );
@@ -1767,14 +1788,8 @@ vehicle_t *convoi_t::remove_vehicle_at(uint16 i)
 		recalc_catg_index();
 
 		// still requires electrifications?
-		if(is_electric) {
-			is_electric = false;
-			for(unsigned i=0; i<vehicle_count; i++) {
-				if(fahr[i]->get_desc()->get_power()) {
-					is_electric |= fahr[i]->get_desc()->get_engine_type()==vehicle_desc_t::electric;
-				}
-			}
-		}
+		// cannot run without catenary
+		needs_electric = sum_gear_and_power_electric > 0 && sum_gear_and_power_non_electric == 0;
 	}
 	return v;
 }
@@ -2285,7 +2300,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	}
 	else {
 		bool override_monorail = false;
-		is_electric = false;
+		needs_electric = false;
 		for(  uint8 i=0;  i<vehicle_count;  i++  ) {
 			obj_t::typ typ = (obj_t::typ)file->rd_obj_id();
 			vehicle_t *v = 0;
@@ -2348,10 +2363,15 @@ void convoi_t::rdwr(loadsave_t *file)
 			if(info) {
 				sum_power += info->get_power();
 				sum_gear_and_power += info->get_power()*info->get_gear();
+				if (info->get_engine_type() == vehicle_desc_t::electric) {
+					sum_gear_and_power_electric += info->get_power() * info->get_gear();
+				}
+				else {
+					sum_gear_and_power_non_electric += info->get_power() * info->get_gear();
+				}
 				sum_weight += info->get_weight();
 				sum_running_costs -= info->get_running_cost();
 				sum_fixed_costs -= welt->scale_with_month_length( info->get_fixed_cost() );
-				is_electric |= info->get_engine_type()==vehicle_desc_t::electric;
 				has_obsolete |= welt->use_timeline()  &&  info->is_retired( welt->get_timeline_year_month() );
 				// we do not add maintenance here, the fixed costs are booked as running costs
 			}
@@ -2398,6 +2418,8 @@ void convoi_t::rdwr(loadsave_t *file)
 			fahr[i] = v;
 		}
 		sum_gesamtweight = sum_weight;
+		// cannot run without catenary
+		needs_electric = sum_gear_and_power_electric > 0 && sum_gear_and_power_non_electric == 0;
 	}
 
 	bool has_schedule = (schedule != NULL);
