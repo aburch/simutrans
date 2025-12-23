@@ -2269,7 +2269,7 @@ bool road_vehicle_t::is_target(const grund_t *gr, const grund_t *prev_gr) const
 					return false;
 				}
 				uint8 empty_lane = target_halt->get_empty_lane(gr,cnv->self);
-				while(  gr->get_neighbour(to,get_waytype(),ribi_t::backward(ribi)) || to->get_halt().is_bound() || (to->get_halt()==target_halt)  ) {
+				while(  gr->get_neighbour(to,get_waytype(),ribi_t::backward(ribi)) && to->get_halt().is_bound() && (to->get_halt()==target_halt)  ) {
 					dbg->message("road_vehicle_t::is_target()","check position (%s), empty lane:%i",to->get_pos().get_str(),empty_lane);
 					if(  (empty_lane &= target_halt->get_empty_lane(to,cnv->self))==0  ) {
 						// there are other cars.
