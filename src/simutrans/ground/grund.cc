@@ -1216,12 +1216,12 @@ void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile
 	if(  pos.y-welt->get_size().y+1 == 0  ) {
 		// move slopes to front of tile
 		sint16 x = xpos - raster_tile_width/2;
-		sint16 y = ypos + raster_tile_width/4 + (pos.z-welt->get_groundwater())*hgt_step;
+		sint16 y = ypos + raster_tile_width/4 + (pos.z - welt->min_height) * hgt_step;
 		// left side border
 		sint16 diff = corner_sw(slope)-corner_se(slope);
 		image_id slope_img = ground_desc_t::slopes->get_image( lookup_hgt[ 2+diff ]+11 );
 		diff = -min(corner_sw(slope),corner_se(slope));
-		sint16 zz = pos.z-welt->get_groundwater();
+		sint16 zz = pos.z - welt->min_height;
 		if(  diff < zz && ((zz-diff)&1)==1  ) {
 			display_normal( ground_desc_t::slopes->get_image(15), x, y, 0, true, false CLIP_NUM_PAR );
 			y -= hgt_step;
@@ -1239,12 +1239,12 @@ void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile
 	if(  pos.x-welt->get_size().x+1 == 0  ) {
 		// move slopes to front of tile
 		sint16 x = xpos + raster_tile_width/2;
-		sint16 y = ypos + raster_tile_width/4 + (pos.z-welt->get_groundwater())*hgt_step;
+		sint16 y = ypos + raster_tile_width/4 + (pos.z - welt->min_height) * hgt_step;
 		// right side border
 		sint16 diff = corner_se(slope)-corner_ne(slope);
 		image_id slope_img = ground_desc_t::slopes->get_image( lookup_hgt[ 2+diff ] );
 		diff = -min(corner_se(slope),corner_ne(slope));
-		sint16 zz = pos.z-welt->get_groundwater();
+		sint16 zz = pos.z - welt->min_height;
 		if(  diff < zz && ((zz-diff)&1)==1  ) {
 			display_normal( ground_desc_t::slopes->get_image(4), x, y, 0, true, false CLIP_NUM_PAR );
 			y -= hgt_step;
