@@ -2263,13 +2263,13 @@ bool road_vehicle_t::is_target(const grund_t *gr, const grund_t *prev_gr) const
 			if(  !gr->get_neighbour(to,road_wt,ribi)  ||  !(to->get_halt()==target_halt)  ||  (gr->get_weg(get_waytype())->get_ribi_masked() & ribi_type(dir))!=0  ) {
 				// end of stop: Is it long enough?
 				uint32 length=cnv->get_length_in_steps();
-				uint32 stop_length=cnv->calc_available_halt_length_in_vehicle_steps(gr->get_pos(), ribi_t::backward(ribi));
+				ribi_t::ribi back_ribi=ribi_t::backward(ribi_type(dir));
+				uint32 stop_length=cnv->calc_available_halt_length_in_vehicle_steps(gr->get_pos(),back_ribi);
 				if(length>stop_length) {
 					// length not enough
 					return false;
 				}
 				uint8 empty_lane = target_halt->get_empty_lane(gr,cnv->self);
-				ribi_t::ribi back_ribi=ribi_t::backward(ribi_type(dir));
 				while(  gr->get_neighbour(to,get_waytype(),back_ribi) && to->get_halt().is_bound() && (to->get_halt()==target_halt)  ) {
 					if(  (empty_lane &= target_halt->get_empty_lane(to,cnv->self))==0  ) {
 						// there are other cars.
