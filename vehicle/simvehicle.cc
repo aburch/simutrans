@@ -2253,11 +2253,11 @@ bool road_vehicle_t::is_target(const grund_t *gr, const grund_t *prev_gr) const
 		// now we must check the predecessor => try to advance as much as possible
 		if(prev_gr!=NULL) {
 			const koord dir=gr->get_pos().get_2d()-prev_gr->get_pos().get_2d();
-			ribi_t::ribi ribi = gr->get_weg(get_waytype())->get_ribi() & ~ribi_t::backward(ribi_type(dir));
-			if(  !ribi_t::is_single(ribi)  ) {
+			if(  (prev_gr->get_weg(get_waytype())->get_ribi()&ribi_type(dir))==0  ) {
 				// one way sign wrong direction
 				return false;
 			}
+			ribi_t::ribi ribi = gr->get_weg(get_waytype())->get_ribi() & ~ribi_t::backward(ribi_type(dir));
 			
 			grund_t *to;
 			if(  !gr->get_neighbour(to,road_wt,ribi)  ||  !(to->get_halt()==target_halt)  ||  (gr->get_weg(get_waytype())->get_ribi_masked() & ribi_type(dir))!=0  ) {
