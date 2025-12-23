@@ -1670,11 +1670,6 @@ void minimap_t::draw(scr_coord pos)
 			display_station = station;
 		}
 	}
-	if(  display_station.is_bound()  ) {
-		scr_coord temp_stop = map_to_screen_coord( display_station->get_basis_pos() );
-		temp_stop = temp_stop + pos;
-		display_ddd_proportional_clip( temp_stop.x + 10, temp_stop.y + 7, color_idx_to_rgb(display_station->get_owner()->get_player_color1()+3), color_idx_to_rgb(COL_WHITE), display_station->get_name(), false );
-	}
 	max_waiting_change = new_max_waiting_change; // update waiting tendencies
 
 	// if we do not do this here, vehicles would erase the town names
@@ -1771,6 +1766,12 @@ void minimap_t::draw(scr_coord pos)
 				display_circle_rgb( depot_pos.x, depot_pos.y, 4, color_idx_to_rgb(COL_BLACK) );
 			}
 		}
+	}
+
+	if(  display_station.is_bound()  ) {
+		scr_coord temp_stop = map_to_screen_coord( display_station->get_basis_pos() );
+		temp_stop = temp_stop + pos;
+		display_ddd_proportional_clip( temp_stop.x + 10, temp_stop.y + 7, color_idx_to_rgb(display_station->get_owner()->get_player_color1()+3), color_idx_to_rgb(COL_WHITE), display_station->get_name(), false );
 	}
 
 	// zoom/resize "selection box" in map
