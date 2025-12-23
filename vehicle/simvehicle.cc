@@ -2259,16 +2259,21 @@ bool road_vehicle_t::is_target(const grund_t *gr, const grund_t *prev_gr) const
 				return false;
 			}
 			grund_t *to;
-			if(  !gr->get_neighbour(to,road_wt,ribi)  ||  !(to->get_halt()==target_halt)  ||  (gr->get_weg(get_waytype())->get_ribi_maske() & ribi_type(dir))!=0  ||  target_halt->get_empty_lane(to,cnv->self)==0  ) {
+			if(  !gr->get_neighbour(to,road_wt,ribi)  ||  !(to->get_halt()==target_halt)  ||  (gr->get_weg(get_waytype())->get_ribi_maske() & ribi_type(dir))!=0  ) {
 				// end of stop: Is it long enough?
-				uint16 tiles = cnv->get_tile_length();
-				uint8 empty_lane = 3;
-				while(  tiles>1  ) {
-					if(  !gr->get_neighbour(to,get_waytype(),ribi_t::backward(ribi))  ||  !(to->get_halt()==target_halt)  ||  (empty_lane &= target_halt->get_empty_lane(to,cnv->self))==0  ) {
+				uint32 length=cnv->get_length_in_steps();
+				uint32 stop_length=cnv->calc_available_halt_length_in_vehicle_steps(gr->get_pos(), ribi_t::backward(ribi));
+				if(length>stop_length) {
+					// length not enough
+					return false;
+				}
+				uint8 empty_lane = target_halt->get_empty_lane(gr,cnv->self);
+				while(  !gr->get_neighbour(to,get_waytype(),ribi_t::backward(ribi)) ||  !(to->get_halt()==target_halt)  ) {
+					if(  (empty_lane &= target_halt->get_empty_lane(to,cnv->self))==0  ) {
+						// there are other cars.
 						return false;
 					}
 					gr = to;
-					tiles --;
 				}
 				return true;
 			}
