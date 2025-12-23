@@ -2263,12 +2263,14 @@ bool road_vehicle_t::is_target(const grund_t *gr, const grund_t *prev_gr) const
 				// end of stop: Is it long enough?
 				uint32 length=cnv->get_length_in_steps();
 				uint32 stop_length=cnv->calc_available_halt_length_in_vehicle_steps(gr->get_pos(), ribi_t::backward(ribi));
+				dbg->message("road_vehicle_t::is_target()","%s find stop at (%s), length %i, my length %i", cnv?cnv->get_name():"",gr->get_pos().get_str(),stop_length,length);
 				if(length>stop_length) {
 					// length not enough
 					return false;
 				}
 				uint8 empty_lane = target_halt->get_empty_lane(gr,cnv->self);
-				while(  !gr->get_neighbour(to,get_waytype(),ribi_t::backward(ribi)) ||  !(to->get_halt()==target_halt)  ) {
+				while(  gr->get_neighbour(to,get_waytype(),ribi_t::backward(ribi)) || to->get_halt().is_bound() || (to->get_halt()==target_halt)  ) {
+					dbg->message("road_vehicle_t::is_target()","check position (%s), empty lane:%i",to->get_pos().get_str(),empty_lane);
 					if(  (empty_lane &= target_halt->get_empty_lane(to,cnv->self))==0  ) {
 						// there are other cars.
 						return false;
