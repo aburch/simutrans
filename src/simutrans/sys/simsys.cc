@@ -564,7 +564,7 @@ char const *dr_query_homedir()
 	}
 #else
 	int maxlen = PATH_MAX + 22;
-	unsigned n;
+	int n;
 	if( getenv("XDG_DATA_HOME") == NULL ) {
 		n = snprintf(buffer, maxlen, "%s/simutrans", getenv("HOME"));
 	}
@@ -616,7 +616,7 @@ char const *dr_query_installdir()
 	tstrncpy(buffer,SDL_AndroidGetExternalStoragePath(),lengthof(buffer));
 #else
 	int maxlen = PATH_MAX + 22;
-	unsigned n;
+	int n;
 	if( getenv("XDG_DATA_HOME") == NULL ) {
 		n = snprintf(buffer, maxlen, "%s/simutrans/paksets", getenv("HOME"));
 	}
