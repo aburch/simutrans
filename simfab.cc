@@ -21,6 +21,7 @@
 #include "simhalt.h"
 #include "simware.h"
 #include "simworld.h"
+#include "simmenu.h"
 #include "descriptor/building_desc.h"
 #include "descriptor/goods_desc.h"
 #include "descriptor/sound_desc.h"
@@ -228,6 +229,19 @@ void fabrik_t::arrival_statistics_t::init()
 	active_slots = 0;
 	aggregate_arrival = 0;
 	scaled_demand = 0;
+}
+
+void fabrik_t::call_factory_tool( const char function, const char *extra ) const 
+{
+	tool_t *tmp_tool = create_tool( TOOL_CHANGE_FACTORY | SIMPLE_TOOL );
+	cbuffer_t param;
+	param.printf("%c,%u,%u", function, get_pos().x, get_pos().y);
+	if(  extra  &&  *extra  ) {
+		param.printf(",%s", extra);
+	}
+	tmp_tool->set_default_param(param);
+	welt->set_tool( tmp_tool, welt->get_active_player() );
+	delete tmp_tool;
 }
 
 
@@ -611,22 +625,27 @@ void fabrik_t::recalc_storage_capacities()
 		const uint32 unit_size = (uint32)(((sint64)output[out].max * (sint64)prod_factor) >> ( precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS ));
 
 		// Determine the number of units to ship. Prefer 10 units although in future a more dynamic choice may be appropiate.
-		uint32 shipment_size;
+		uint32 shipment_unit_size;
+		// Set shipment size
+		dbg->message("fabrik_t::recalc_storage_capacities()","unit size:%i,shipment size:%i",unit_size,shipment_size);
+		if( unit_size >= shipment_size * SHIPMENT_NUM_MIN ) {
+			shipment_unit_size = shipment_size;
+		}
 		// Maximum shipment size.
-		if( unit_size >= SHIPMENT_MAX_SIZE * SHIPMENT_NUM_MIN ) {
-			shipment_size = SHIPMENT_MAX_SIZE;
+		else if( unit_size >= SHIPMENT_MAX_SIZE * SHIPMENT_NUM_MIN ) {
+			shipment_unit_size = SHIPMENT_MAX_SIZE;
 		}
 		// Dynamic shipment size.
 		else if( unit_size > SHIPMENT_NUM_MIN ) {
-			shipment_size = unit_size / SHIPMENT_NUM_MIN;
+			shipment_unit_size = unit_size / SHIPMENT_NUM_MIN;
 		}
 		// Minimum shipment size.
 		else {
-			shipment_size = 1;
+			shipment_unit_size = 1;
 		}
 
 		// Now convert it into the prefered shipment size. Always round up to prevent "off by 1" error.
-		output[out].min_shipment = (sint32)((((sint64)shipment_size << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
+		output[out].min_shipment = (sint32)((((sint64)shipment_unit_size << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
 	}
 
 	if(  welt->get_settings().get_just_in_time() >= 2  ) {
@@ -867,6 +886,7 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* owner, const factory_desc_t* factory_
 	update_scaled_mail_demand();
 
 	no_close_factory = false;
+	shipment_size = SHIPMENT_MAX_SIZE;
 }
 
 
@@ -1568,6 +1588,11 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		file->rdwr_bool(no_close_factory);
 	} else {
 		no_close_factory = false;
+	}
+	if(  file->get_OTRP_version()>=49  ) {
+		file->rdwr_long(shipment_size);
+	} else {
+		shipment_size = SHIPMENT_MAX_SIZE;
 	}
 
 	// save name
