@@ -65,6 +65,7 @@ private:
 	button_t highlight_suppliers;
 	button_t highlight_consumers;
 	button_t bt_no_close_factory;
+	gui_label_t lb_shipment_size;
 	gui_numberinput_t numinp_shipment_size;
 
 

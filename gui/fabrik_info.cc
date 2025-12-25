@@ -79,6 +79,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	view(scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
 	prod(&prod_buf),
 	txt(&info_buf),
+	lb_shipment_size("shipment size:"),
 	scroll_info(&container_info)
 {
 	if (fab) {
@@ -119,13 +120,13 @@ void fabrik_info_t::init(fabrik_t* fab_, const gebaeude_t* gb)
 			add_component(&bt_no_close_factory);
 			add_table(2,1);
 			{
-				new_component<gui_label_t>(  translator::translate("shipment size:")  );
+				lb_shipment_size.set_tooltip(translator::translate("Set shipment size.(default:10)"));
+				add_component(&lb_shipment_size);
 				numinp_shipment_size.set_width(90);
 				numinp_shipment_size.set_value(10);
 				numinp_shipment_size.set_limits(1,200);
 				numinp_shipment_size.set_increment_mode(gui_numberinput_t::PROGRESS);
 				numinp_shipment_size.add_listener(this);
-				numinp_shipment_size.set_tooltip(translator::translate("Set shipment size.(default:10)"))
 				add_component(&numinp_shipment_size);
 			}
 			end_table();
