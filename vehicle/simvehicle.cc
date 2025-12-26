@@ -3375,7 +3375,7 @@ bool rail_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, r
 	target_halt = halthandle_t();	// no block reserved
 	uint16 len = welt->get_settings().get_advance_to_end() ? 8888 : cnv->get_entire_convoy_length();
 	if(route->calc_route(welt, start, ziel, this, max_speed, len, cnv->is_electrification())) {
-		cnv->set_use_electric(true);
+		cnv->set_use_electric(cnv->is_electrification());
 		return true;
 	} else {
 		if(route->calc_route(welt, start, ziel, this, max_speed, len, cnv->needs_electrification())) {
@@ -3827,15 +3827,18 @@ skip_choose:
 		if(  try_coupling  ) {
 			// search for coupling point.
 			route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->is_electrification(), true );
+			cnv->set_use_electric(cnv->is_electrification());
 			if (  !route_found  ) {
 				route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->needs_electrification(), true );
+				cnv->set_use_electric(false);
 			}
 		}
 		if(  !route_found  &&  (!sig->is_guide_signal()  ||  !try_coupling)  ) {
 			route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->is_electrification(), false );
+			cnv->set_use_electric(cnv->is_electrification());
 			if(  !route_found  ) {
-				
-			route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->needs_electrification(), false );
+				route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->needs_electrification(), false );
+				cnv->set_use_electric(false);
 			}
 			try_coupling = false;
 		}
