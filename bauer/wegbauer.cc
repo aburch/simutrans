@@ -2156,18 +2156,18 @@ void way_builder_t::calc_straight_route(koord3d start, const koord3d ziel)
 }
 
 
-void way_builder_t::calc_route(const koord3d &start, const koord3d &ziel)
+bool way_builder_t::calc_route(const koord3d &start, const koord3d &ziel)
 {
 	vector_tpl<koord3d> start_vec(1), ziel_vec(1);
 	start_vec.append(start);
 	ziel_vec.append(ziel);
-	calc_route(start_vec, ziel_vec);
+	return calc_route(start_vec, ziel_vec);
 }
 
 /* calc_route
  *
  */
-void way_builder_t::calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel)
+bool way_builder_t::calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel)
 {
 #ifdef DEBUG_ROUTES
 uint32 ms = dr_time();
@@ -2202,7 +2202,7 @@ uint32 ms = dr_time();
 			if(cost2 < 0) {
 				intern_calc_route_elevated(ziel[0], start[0]);
 				route_reversed = true;
-				return;
+				return route_reversed;
 			}
 		}
 		else {
@@ -2211,7 +2211,7 @@ uint32 ms = dr_time();
 			if(cost2 < 0) {
 				intern_calc_route( ziel, start );
 				route_reversed = true;
-				return;
+				return route_reversed;
 			}
 		}
 
@@ -2242,6 +2242,7 @@ uint32 ms = dr_time();
 #ifdef DEBUG_ROUTES
 DBG_MESSAGE("calc_route::calc_route", "took %u ms", dr_time() - ms );
 #endif
+	return route_reversed;
 }
 
 

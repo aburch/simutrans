@@ -477,6 +477,11 @@ private:
 	 */
 	 sint64 get_power() const;
 
+	/**
+	 * if this flag is true, this factory cannot close even after retire year
+	 */
+	bool no_close_factory=false;
+
 public:
 	fabrik_t(loadsave_t *file);
 	fabrik_t(koord3d pos, player_t* owner, const factory_desc_t* factory_desc, sint32 initial_prod_base);
@@ -724,6 +729,12 @@ public:
 	 * returns: Work rate in fixed point form.
 	 */
 	static sint32 calculate_work_rate_ramp(sint32 const amount, sint32 const minimum, sint32 const maximum, uint32 const precision = WORK_BITS);
+
+	/*
+	* no close factory
+	*/
+	const bool is_no_close_factory() {return no_close_factory;}
+	void set_no_close_factory(bool yesno) { no_close_factory = yesno;}
 };
 
 #endif
