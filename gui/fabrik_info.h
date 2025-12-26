@@ -14,6 +14,7 @@
 #include "components/gui_scrollpane.h"
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
+#include "components/gui_numberinput.h"
 #include "components/gui_obj_view_t.h"
 #include "components/gui_container.h"
 #include "components/gui_colorbox.h"
@@ -64,6 +65,8 @@ private:
 	button_t highlight_suppliers;
 	button_t highlight_consumers;
 	button_t bt_no_close_factory;
+	gui_label_t lb_shipment_size;
+	gui_numberinput_t numinp_shipment_size;
 
 
 	void rename_factory();
