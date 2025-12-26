@@ -22,9 +22,10 @@ class test_driver_t
 {
 public:
 	virtual ~test_driver_t() {}
-	
+
 	virtual bool check_next_tile(const grund_t*) const = 0;
-	virtual bool check_next_tile(const grund_t* bd, bool, bool) const { return check_next_tile(bd); }
+	virtual bool check_next_tile(const grund_t* bd, const bool need_electric) const { return check_next_tile(bd); }
+	virtual bool check_next_tile(const grund_t* bd, const bool need_electric, bool, bool) const { return check_next_tile(bd,need_electric); }
 
 	/**
 	 * Determine the direction bits (ribi) for the applicable vehicle,

@@ -102,6 +102,7 @@ void convoi_t::init(player_t *player)
 	owner = player;
 
 	is_electric = false;
+	need_electric = false;
 	sum_gesamtweight = sum_weight = 0;
 	sum_running_costs = sum_fixed_costs = sum_gear_and_power = previous_delta_v = 0;
 	sum_power = 0;
@@ -2074,6 +2075,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","at pos %i of %i total vehikels.",anz_vehi
 		fahr.resize(anz_vehikel+1,NULL);
 DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",fahr.get_count());
 	}
+	need_electric = true;
 	// now append
 	if (anz_vehikel < fahr.get_count()) {
 		v->set_convoi(this);
@@ -2088,10 +2090,10 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",fahr.get_
 			fahr[anz_vehikel] = v;
 		}
 		anz_vehikel ++;
-
 		const vehicle_desc_t *info = v->get_desc();
 		if(info->get_power()) {
 			is_electric |= info->get_engine_type()==vehicle_desc_t::electric;
+			need_electric &= info->get_engine_type()==vehicle_desc_t::electric;
 		}
 		sum_power += info->get_power();
 		sum_gear_and_power += info->get_power()*info->get_gear();
@@ -2172,11 +2174,13 @@ vehicle_t *convoi_t::remove_vehikel_bei(uint16 i)
 		recalc_catg_index();
 
 		// still requires electrifications?
-		if(is_electric) {
+		if(is_electric||need_electric) {
 			is_electric = false;
+			need_electric = true;
 			for(unsigned i=0; i<anz_vehikel; i++) {
 				if(fahr[i]->get_desc()->get_power()) {
 					is_electric |= fahr[i]->get_desc()->get_engine_type()==vehicle_desc_t::electric;
+					need_electric &= fahr[i]->get_desc()->get_engine_type()==vehicle_desc_t::electric;
 				}
 			}
 		}
@@ -3260,6 +3264,11 @@ void convoi_t::rdwr(loadsave_t *file)
 	} else {
 		cease_coupling_due_to_length_over = false;
 		uncouple_done=false;
+	}
+	if(  file->get_OTRP_version()>=49  ) {
+		file->rdwr_bool(need_electric);
+	} else {
+		need_electric = is_electric;
 	}
 
 	if(  file->is_loading()  ) {
@@ -5482,7 +5491,7 @@ bool convoi_t::is_waiting_for_coupling() const {
 	return waiting_for_coupling;
 }
 
-bool convoi_t::check_electrification() {
+void convoi_t::check_electrification() {
 	is_electric = false;
 	const convoihandle_t most_parent_convoi = get_most_parent_convoi();
 	convoihandle_t c = most_parent_convoi;
@@ -5494,19 +5503,21 @@ bool convoi_t::check_electrification() {
 		c = c->get_coupling_convoi();
 	}
 	c = most_parent_convoi;
+	need_electric = is_electric;
 	// If electric cars are, do they have other engine?
-	while(  c.is_bound()  &&  is_electric  ) {
+	while(  c.is_bound()  &&  need_electric  ) {
 		for(uint8 i=0;  i<c->get_vehicle_count();  i++) {
-			is_electric &= !(c->get_vehikel(i)->get_desc()->get_engine_type()!=vehicle_desc_t::electric && c->get_vehikel(i)->get_desc()->get_power()>0);
+			need_electric &= !(c->get_vehikel(i)->get_desc()->get_engine_type()!=vehicle_desc_t::electric && c->get_vehikel(i)->get_desc()->get_power()>0);
 		}
 		c = c->get_coupling_convoi();
 	}
 	c = most_parent_convoi;
 	while(  c.is_bound()  ) {
 		c->is_electric = is_electric;
+		c->need_electric = need_electric;
 		c = c->get_coupling_convoi();
 	}
-	return is_electric;
+	return;
 }
 
 sint32 convoi_t::calc_min_top_speed() {

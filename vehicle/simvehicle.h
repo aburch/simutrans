@@ -269,7 +269,7 @@ protected:
 	bool check_for_finish:1; // true, if on the last tile
 	bool has_driven:1;
 
-	virtual bool check_next_tile(const grund_t* ) const OVERRIDE {return false;}
+	virtual bool check_next_tile(const grund_t*, const bool need_electric=false ) const OVERRIDE {return false;}
 
 public:
 	void calc_image() OVERRIDE;
@@ -500,7 +500,8 @@ private:
 	vector_tpl<koord3d> reserving_tiles;
 
 protected:
-	bool check_next_tile(const grund_t *bd) const OVERRIDE;
+	bool check_next_tile(const grund_t *bd, const bool need_electric) const OVERRIDE;
+	bool check_next_tile(const grund_t *bd) const OVERRIDE {return check_next_tile(bd, false);}
 
 	koord3d pos_prev; //used in enter_tile()
 
@@ -565,9 +566,9 @@ public:
 class rail_vehicle_t : public vehicle_t
 {
 protected:
-	bool check_next_tile(const grund_t *bd, bool find_route, bool coupling) const OVERRIDE;
-	bool check_next_tile(const grund_t *bd) const OVERRIDE { return check_next_tile(bd, false, false); }
-
+	bool check_next_tile(const grund_t *bd, const bool need_electric, bool find_route, bool coupling) const OVERRIDE;
+	bool check_next_tile(const grund_t *bd, const bool need_electric) const OVERRIDE { return check_next_tile(bd, need_electric, false, false); }
+	bool check_next_tile(const grund_t *bd) const OVERRIDE {return check_next_tile(bd, false, false, false);}
 	void enter_tile(grund_t*) OVERRIDE;
 
 	bool is_pre_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const call_by_step);
@@ -689,7 +690,8 @@ protected:
 
 	void calc_friction(const grund_t *gr) OVERRIDE;
 
-	bool check_next_tile(const grund_t *bd) const OVERRIDE;
+	bool check_next_tile(const grund_t *bd, const bool) const OVERRIDE;
+	bool check_next_tile(const grund_t *bd) const OVERRIDE {return check_next_tile(bd, false);}
 
 	void enter_tile(grund_t*) OVERRIDE;
 
@@ -757,7 +759,8 @@ protected:
 	// jumps to next tile and correct the height ...
 	void hop(grund_t*) OVERRIDE;
 
-	bool check_next_tile(const grund_t *bd) const OVERRIDE;
+	bool check_next_tile(const grund_t *bd, const bool) const OVERRIDE;
+	bool check_next_tile(const grund_t *bd) const OVERRIDE {return check_next_tile(bd, false);}
 
 	void enter_tile(grund_t*) OVERRIDE;
 

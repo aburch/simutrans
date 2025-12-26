@@ -273,6 +273,8 @@ private:
 
 	// true, if there is at least one engine that requires catenary
 	bool is_electric;
+	// true, if it can not run without catenary
+	bool need_electric;
 
 	/**
 	* the convoi caches its freight info; it is only recalculation after loading or resorting
@@ -560,8 +562,9 @@ public:
 	linehandle_t get_line() const {return line;}
 
 	/* true, if electrification needed for this convoi */
-	bool needs_electrification() const { return is_electric; }
-	bool check_electrification();
+	bool needs_electrification() const { return need_electric; }
+	bool is_electrification() const {return is_electric;}
+	void check_electrification();
 
 	/**
 	* set line
