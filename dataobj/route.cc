@@ -198,7 +198,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			already_there = tdriver->is_coupling_target( gr, tmp->parent==NULL ? NULL : tmp->parent->gr);
 		} else {
 			// normal routine.
-			already_there = tdriver->is_target( gr, tmp->parent==NULL ? NULL : tmp->parent->gr );
+			already_there = tdriver->is_target( gr, tmp->parent==NULL ? NULL : tmp->parent->gr, need_electric );
 		}
 		if(  already_there  ) {
 			// we added a target to the closed list: check for length

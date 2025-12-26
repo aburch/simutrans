@@ -129,6 +129,8 @@ private:
 	 * Used in movement calculations.
 	 */
 	sint32 sum_gear_and_power;
+	sint32 sum_gear_and_power_non_electric;
+	sint32 sum_gear_and_power_electric;
 
 	// 40 bytes
 	/**

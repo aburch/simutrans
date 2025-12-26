@@ -3483,7 +3483,7 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const weg_t *w, const sint32 max
 
 
 // this routine is called by find_route, to determined if we reached a destination
-bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr) const
+bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr, const bool need_electric) const
 {
 	const schiene_t * sch1 = (const schiene_t *) gr->get_weg(get_waytype());
 	// first check blocks, if we can go there
@@ -3514,7 +3514,7 @@ bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr) const
 	) {
 		// check electrification
 		schiene_t const* const sch = obj_cast<schiene_t>(to->get_weg(get_waytype()));
-		if(!(((cnv!=NULL ? cnv->needs_electrification() : desc->get_engine_type()==vehicle_desc_t::electric)  &&  !sch->is_electrified())  ||  sch->get_max_speed() == 0  )) {
+		if(!((need_electric  &&  !sch->is_electrified())  ||  sch->get_max_speed() == 0  )) {
 			// We can still go forward.
 			return false;
 		}
