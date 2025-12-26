@@ -1288,6 +1288,12 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 			update_selection();
 		}
 	}
+	else if(comp == &bt_pass_stop) {
+		if(!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).set_pass_stop(!schedule->at(schedule->get_current_stop()).is_pass_stop());
+			update_selection();
+		}
+	}
 	else if(  comp == &name_filter_input  ) {
 		if(  strcmp(old_schedule_filter,schedule_filter)  ) {
 			init_line_selector();
