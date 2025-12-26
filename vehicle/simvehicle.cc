@@ -3375,9 +3375,14 @@ bool rail_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, r
 	target_halt = halthandle_t();	// no block reserved
 	uint16 len = welt->get_settings().get_advance_to_end() ? 8888 : cnv->get_entire_convoy_length();
 	if(route->calc_route(welt, start, ziel, this, max_speed, len, cnv->is_electrification())) {
+		cnv->set_use_electric(true);
 		return true;
 	} else {
-		return route->calc_route(welt, start, ziel, this, max_speed, len, cnv->needs_electrification());
+		if(route->calc_route(welt, start, ziel, this, max_speed, len, cnv->needs_electrification())) {
+			cnv->set_use_electric(false);
+			return true;
+		}
+		return false;
 	}
 }
 

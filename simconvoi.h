@@ -129,8 +129,8 @@ private:
 	 * Used in movement calculations.
 	 */
 	sint32 sum_gear_and_power;
-	sint32 sum_gear_and_power_non_electric;
 	sint32 sum_gear_and_power_electric;
+	bool use_electric;
 
 	// 40 bytes
 	/**
@@ -567,6 +567,7 @@ public:
 	bool needs_electrification() const { return need_electric; }
 	bool is_electrification() const {return is_electric;}
 	void check_electrification();
+	void set_use_electric(bool y);
 
 	/**
 	* set line
@@ -705,7 +706,7 @@ public:
 	 * @return total power of this convoi
 	 */
 	const uint32 & get_sum_power() const {return sum_power;}
-	const sint32 & get_sum_gear_and_power() const {return sum_gear_and_power;}
+	const sint32 get_sum_gear_and_power() const {return use_electric? sum_gear_and_power: sum_gear_and_power-sum_gear_and_power_electric;}
 	const sint32 & get_min_top_speed() const {return min_top_speed;}
 	const sint32 & get_speed_limit() const {return speed_limit;}
 

@@ -103,8 +103,9 @@ void convoi_t::init(player_t *player)
 
 	is_electric = false;
 	need_electric = false;
+	use_electric = false;
 	sum_gesamtweight = sum_weight = 0;
-	sum_running_costs = sum_fixed_costs = sum_gear_and_power = previous_delta_v = 0;
+	sum_running_costs = sum_fixed_costs = sum_gear_and_power = previous_delta_v = sum_gear_and_power_electric = 0;
 	sum_power = 0;
 	min_top_speed = SPEED_UNLIMITED;
 	speedbonus_kmh = SPEED_UNLIMITED; // speed_to_kmh() not needed
@@ -895,7 +896,8 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 		//sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll?0l:sum_gear_and_power) - deccel)*(double)delta_t)/(double)sum_gesamtweight);
 
 		// calculate sum_gear_and_power of all coupled convoys
-		sint32 gear_and_power = sum_gear_and_power;
+		dbg->message("convoi_t::calc_acceleration()","check gear and power");
+		sint32 gear_and_power = get_sum_gear_and_power();
 		c = get_coupling_convoi();
 		while(c.is_bound()) {
 			gear_and_power += c->get_sum_gear_and_power();
@@ -2097,6 +2099,9 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",fahr.get_
 		}
 		sum_power += info->get_power();
 		sum_gear_and_power += info->get_power()*info->get_gear();
+		if (info->get_engine_type() == vehicle_desc_t::electric) {
+			sum_gear_and_power_electric += info->get_power() * info->get_gear();
+		}
 		sum_weight += info->get_weight();
 		sum_running_costs -= info->get_running_cost();
 		sum_fixed_costs -= welt->scale_with_month_length( info->get_fixed_cost() );
@@ -2146,6 +2151,9 @@ vehicle_t *convoi_t::remove_vehikel_bei(uint16 i)
 			const vehicle_desc_t *info = v->get_desc();
 			sum_power -= info->get_power();
 			sum_gear_and_power -= info->get_power()*info->get_gear();
+			if (info->get_engine_type() == vehicle_desc_t::electric) {
+				sum_gear_and_power_electric -= info->get_power() * info->get_gear();
+			}
 			sum_weight -= info->get_weight();
 			sum_running_costs += info->get_running_cost();
 			sum_fixed_costs += welt->scale_with_month_length( info->get_fixed_cost() );
@@ -2898,6 +2906,9 @@ void convoi_t::rdwr(loadsave_t *file)
 			if(info) {
 				sum_power += info->get_power();
 				sum_gear_and_power += info->get_power()*info->get_gear();
+				if (info->get_engine_type() == vehicle_desc_t::electric) {
+					sum_gear_and_power_electric += info->get_power() * info->get_gear();
+				}
 				sum_weight += info->get_weight();
 				sum_running_costs -= info->get_running_cost();
 				has_obsolete |= welt->use_timeline()  &&  info->is_retired( welt->get_timeline_year_month() );
@@ -3269,6 +3280,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_bool(need_electric);
 	} else {
 		need_electric = is_electric;
+		use_electric = is_electric;
 	}
 
 	if(  file->is_loading()  ) {
@@ -3277,6 +3289,13 @@ void convoi_t::rdwr(loadsave_t *file)
 	}
 }
 
+void convoi_t::set_use_electric(bool y) {
+	convoihandle_t c = self;
+	while(c.is_bound()) {
+		c->use_electric = y;
+		c=c->get_coupling_convoi();
+	}
+}
 
 void convoi_t::open_info_window()
 {
