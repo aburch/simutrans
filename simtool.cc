@@ -9604,3 +9604,49 @@ bool tool_merge_player_t::init( player_t *player )
 	
 	return false;
 }
+
+bool tool_change_factory_t::init( player_t* player )
+{
+	char tool=0;
+	koord pos2d;
+	// skip the rest of the command
+	const char *p = default_param;
+	while(  *p  &&  *p<=' '  ) {
+		p++;
+	}
+	sscanf( p, "%c,%hi,%hi", &tool, &pos2d.x, &pos2d.y );
+
+	// skip to the commands ...
+	uint8 z = 3;
+	while(  *p  &&  z>0  ) {
+		if(  *p==','  ) {
+			z--;
+		}
+		p++;
+	}
+
+	fabrik_t *factory = fabrik_t::get_fab(pos2d);
+	if(  factory==NULL  ){
+		dbg->warning("tool_change_factory_t::init", "no factory found at (%s)", pos2d.get_str());
+		return false;
+	}
+	if(  !player_t::check_owner( factory->get_owner(), player)  ) {
+		dbg->warning("tool_change_factory_t::init", "factory at (%s) belongs to another player", pos2d.get_str());
+		return false;
+	}	
+	switch (tool) {
+		case 'd': // avoid destroy, avoid close after retire
+		{
+			factory->set_no_close_factory(!factory->is_no_close_factory());			
+		}
+		break;
+		case 's': // set shipment size
+		{
+			uint16 shipment_size = 0;
+			int count=sscanf( p, "%hi", &shipment_size);
+			factory->set_shipment_size(shipment_size);
+		}
+		break;
+	}
+	return false;
+}
