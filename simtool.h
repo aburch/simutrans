@@ -1379,4 +1379,12 @@ public:
 	bool is_init_network_safe() const OVERRIDE { return false; }
 };
 
+class tool_change_factory_t : public tool_t {
+public:
+	tool_change_factory_t() : tool_t(TOOL_CHANGE_FACTORY | SIMPLE_TOOL) {}
+	bool init(player_t * )OVERRIDE;
+	bool is_init_network_safe() const OVERRIDE {return false;}
+	bool is_work_network_safe() const OVERRIDE {return false;}
+};
+
 #endif
