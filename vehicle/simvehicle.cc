@@ -2257,14 +2257,14 @@ bool road_vehicle_t::is_target(const grund_t *gr, const grund_t *prev_gr) const
 				// one way sign wrong direction
 				return false;
 			}
-			ribi_t::ribi ribi = gr->get_weg(get_waytype())->get_ribi() & ~ribi_t::backward(ribi_type(dir));
+			const ribi_t::ribi ribi = gr->get_weg(get_waytype())->get_ribi() & ~ribi_t::backward(ribi_type(dir));
 			
 			grund_t *to;
 			if(  !ribi_t::is_single(ribi)  ||  !gr->get_neighbour(to,road_wt,ribi)  ||  !(to->get_halt()==target_halt)  ) {
 				// end of stop: Is it long enough?
-				uint32 length=cnv->get_length_in_steps();
+				const uint32 length=cnv->get_length_in_steps();
 				ribi_t::ribi back_ribi=ribi_t::backward(ribi_type(dir));
-				uint32 stop_length=cnv->calc_available_halt_length_in_vehicle_steps(gr->get_pos(),ribi_type(dir));
+				const uint32 stop_length=cnv->calc_available_halt_length_in_vehicle_steps(gr->get_pos(),ribi_type(dir));
 				if(length>stop_length) {
 					// length not enough
 					return false;
