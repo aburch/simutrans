@@ -230,6 +230,11 @@ private:
 	convoihandle_t coupling_convoi;
 
 	/**
+	* a convoy that pulls me.
+	*/
+	convoihandle_t parent_convoi;
+
+	/**
 	* a convoy that is coupling now.
 	*/
 	convoihandle_t convoi_coupling_in_progress;
@@ -252,6 +257,11 @@ private:
 	* nothing will be loaded onto this convoi
 	*/
 	bool no_load;
+
+	/**
+	* uncouple at this stop
+	*/
+	bool uncouple_done;
 
 	/**
 	* the convoi caches its freight info; it is only recalculation after loading or resorting
@@ -518,6 +528,9 @@ private:
 	// a helper function for convoi_t::vorfahren(), check reserved_tiles
 	void clear_reserved_tile_if_not_matching_route();
 
+	// total length is enough than this length->coupling cancel
+	bool cease_coupling_due_to_length_over;
+
 public:
 	bool is_reversed() const { return reversed; }
 	void set_reversed(bool yesno) { reversed = yesno; }
@@ -527,6 +540,8 @@ public:
 	// Can be executed even with a vehicle array that does not belong to convoy for UI
 	
 	void reverse_vehicles_on_user_request();
+
+	bool is_cease_coupling_due_to_length_over() const { return cease_coupling_due_to_length_over; }
 
 	/**
 	* Convoi haelt an Haltestelle und setzt quote fuer Fracht
@@ -876,6 +891,7 @@ public:
 	* vehicles.
 	*/
 	const sint32 &get_loading_level() const { return loading_level; }
+	sint32 get_capacity_left() const;
 
 	/**
 	* At which loading level is the train allowed to start? 0 during driving.
@@ -1093,9 +1109,9 @@ public:
 	static uint32 calc_available_halt_length_in_vehicle_steps(koord3d front_vehicle_pos, ribi_t::ribi front_vehicle_dir, const waytype_t waytype);
 	uint32 calc_available_halt_length_in_vehicle_steps(koord3d front_vehicle_pos, ribi_t::ribi front_vehicle_dir) const;
 
-	// Returns the root parent convoi of this convoy. Returns this convoy if not coupled.
-	// Warning: The calculation cost is O(n) where n is the number of convoys in the world.
-	convoihandle_t find_most_parent_convoi() const;
+	// Returns the parent and root parent convoi of this convoy. Returns this convoy if not coupled.
+	convoihandle_t get_parent_convoi() const {return parent_convoi.is_bound()? parent_convoi: self;}
+	convoihandle_t get_most_parent_convoi() const;
 
 	// Returns the most child convoi of this convoy.
 	convoihandle_t find_most_child_convoi() const;
@@ -1115,6 +1131,17 @@ public:
 	// jump to other line's schedule
 	// the new line is stored in schedule->next_line_id
 	void change_line_to_next_if_needed();
+
+
+	// uncouple child concoy by schedule_entry
+	// this function should be called in ziel_erreicht() or at waypoint
+	// this function must be called after stop or reach waypoint & before reverse convoy coupling!
+	void uncouple_convoy_by_schedule_setting();
+
+	// get length if total length reach this value.
+	// 0 means no setting specific value.
+	uint16 get_length_coupling_done() const;
+	void check_and_set_coupling_done_over_length();
 
 	uint16 get_max_speed_kmh_of_convoi() const {return max_speed_kmh_of_convoi;}
 	void set_max_speed_kmh_of_convoi(uint16 n);

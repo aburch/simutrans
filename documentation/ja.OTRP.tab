@@ -37,6 +37,8 @@ Yes
 はい
 No
 いいえ
+show directions only for oneway roads
+一方通行の道路のみ接続方向を表示
 Prior
 優先方向
 northsouth
@@ -73,10 +75,18 @@ driving
 運転中
 #------Convoy coupling related stuff------
 #------増解結関連のエントリ------
+Reset coupling
+連結設定を解除
+Reset coupling settings
+この駅での連結設定を解除します．
 Wait for coupling
 連結相手を待つ(W)
 Try coupling
 連結を試みる(C)
+End couple
+後ろと連結終了(E)
+It will uncouple the child convoy here.
+後ろの編成を駅到着時に切り離します．
 Waiting for coupling! (%i->%i%%)
 連結相手を待機中 (%i->%i%%)
 Require parent convoy to enter.
@@ -97,6 +107,10 @@ Uncouple the back convoy now.
 即時に後ろの編成を解放します．
 Please decouple the other convoy to edit the schedule.
 スケジュールを編集するには連結解除してください．
+Convoys length coupling done
+連結上限タイル数:
+If total length of convoys reaches this value, coupling done and depart(if 0, no limit).
+総編成長がこのタイル数に達した場合、連結待機を終了して発車します．0の場合は編成長による連結終了はありません．
 Copy Line
 路線複製
 Copy the selected line
@@ -135,8 +149,22 @@ The latest departure slots were not used.
 直近の発車枠が使われませんでした．
 #------Schedule window related stuff------
 #------スケジュールウィンドウ関連のエントリ------
+Please click on the map to add\nwaypoints or stops to this\nschedule.
+マップ上をクリックして、\nこのスケジュールの中継点や\n停車駅を設定してください．
 Extract advanced settings
 詳細設定を展開
+Extract schedule settings
+スケジュールの設定を展開
+Show some settings for whole schedule
+スケジュール全体の設定を表示/非表示します(臨時系統等)
+Extract loading settings
+乗降関係の設定を展開
+Show loading settings for each stop
+各駅における乗降関係の設定を表示/非表示します
+Extract driving settings
+運転関係の設定を展開
+Show driving and departure setting for each stops/waypoints
+各駅・中継点における運転関係の設定を表示/非表示します(発車時刻、反転、連結等)
 Temporary schedule
 臨時系統
 This schedule does not affect the route cost calculation.
@@ -179,6 +207,12 @@ Load before departure
 出発直前に積載(B)
 Do not load cargos until the departure time comes.
 発車時刻になるまで積載しません．
+Max load
+最大乗車率
+set maximum loading ratio
+最大乗車率を設定します
+for all stops
+全駅に適用
 hlf_chk_include_public
 公共駅を含める
 Departure slot group
@@ -391,6 +425,20 @@ transfers
 ご利用
 Factory Type
 産業の種類
+no close this factory
+この産業を閉鎖しない
+close_old_factory
+古い産業を閉鎖する
+Factory %s is retired! Close soon!
+%sは古い産業です!まもなく閉業します!
+Factory %s has closed.
+%sは閉業しました．
+** This Factory Will Close Soon! **
+** この産業はまもなく閉業します **
+shipment size:
+出荷単位:
+Set shipment size.(default:10)
+出荷1回あたりに出荷する貨物量を指定します(デフォルト:10)
 No Supply
 消費しない産業のみ
 No Product
@@ -407,3 +455,7 @@ At least one tile is connected to one stop
 駅に接続している産業のみ表示します
 At least one stop is connected to the town
 駅に接続している都市のみ表示します
+Highlight
+町内の建物を表示
+Make building belong to
+建物をこの町の所属にする

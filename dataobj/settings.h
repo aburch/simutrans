@@ -218,6 +218,10 @@ private:
 	/* crossconnect all factories (like OTTD and similar games) */
 	sint16 crossconnect_factor;
 
+	/* close old factory randomly (like extended)*/
+	bool close_old_factory;
+	uint16 factory_max_years_obsolete;
+
 	/**
 	* Generate random pedestrians in the cities?
 	*/
@@ -535,6 +539,8 @@ public:
 	sint16 get_max_factory_spacing_percent() const { return max_factory_spacing_percentage; }
 	sint16 get_crossconnect_factor() const { return crossconnect_factor; }
 	bool is_crossconnect_factories() const { return crossconnect_factories; }
+	bool is_close_old_factory() const { return close_old_factory; }
+	uint16 get_factory_max_years_obsolete() const { return factory_max_years_obsolete; }
 
 	bool get_numbered_stations() const { return numbered_stations; }
 

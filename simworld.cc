@@ -3871,8 +3871,41 @@ void karte_t::new_month()
 	INT_CHECK( "simworld 1701" );
 
 //	DBG_MESSAGE("karte_t::new_month()","factories");
-	FOR(slist_tpl<fabrik_t*>, const fab, fab_list) {
-		fab->new_month();
+	uint32 total_electric_demand = 1;
+	uint32 electric_productivity = 0;
+	closed_factories_this_month.clear();
+	uint32 closed_factories_count = 0;
+	FOR(slist_tpl<fabrik_t*>, const fab, fab_list)
+	{
+		if(!closed_factories_this_month.is_contained(fab))
+		{
+			fab->new_month();
+			// Check to see whether the factory has closed down - if so, the pointer will be dud.
+			if(closed_factories_count == closed_factories_this_month.get_count())
+			{
+				if(fab->get_desc()->is_electricity_producer())
+				{
+					electric_productivity += fab->get_scaled_electric_demand();
+				}
+				else
+				{
+					total_electric_demand += fab->get_scaled_electric_demand();
+				}
+			}
+			else
+			{
+				closed_factories_count = closed_factories_this_month.get_count();
+			}
+		}
+	}
+
+	FOR(vector_tpl<fabrik_t*>, const fab, closed_factories_this_month)
+	{
+		if(fab_list.is_contained(fab))
+		{
+			gebaeude_t* gb = lookup_kartenboden( fab->get_pos().get_2d() )->find<gebaeude_t>();
+			hausbauer_t::remove(get_public_player(), gb);
+		}
 	}
 	INT_CHECK("simworld 1278");
 
