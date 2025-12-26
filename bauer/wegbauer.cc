@@ -755,17 +755,7 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 			// roads are checked in check_crossing
 			// if no way there: check for right ground type, otherwise check owner
 			ok = sch==NULL  ?  (!fundament  &&  !to->is_water())  :  check_owner(sch->get_owner(),player_builder);
-			// tram track allowed in road tunnels, but only along existing roads / tracks
-			if(from!=to) {
-				if(from->ist_tunnel()) {
-					const ribi_t::ribi ribi = from->get_weg_ribi_unmasked(road_wt)  |  from->get_weg_ribi_unmasked(track_wt)  |  from->get_weg_ribi_unmasked(monorail_wt)  |  from->get_weg_ribi_unmasked(maglev_wt)  |  from->get_weg_ribi_unmasked(narrowgauge_wt)  |  ribi_t::doubles(ribi_type(from->get_grund_hang()));
-					ok = ok && ((ribi & ribi_type(zv))==ribi_type(zv));
-				}
-				if(to->ist_tunnel()) {
-					const ribi_t::ribi ribi = to->get_weg_ribi_unmasked(road_wt)  |  to->get_weg_ribi_unmasked(track_wt)  |  to->get_weg_ribi_unmasked(monorail_wt)  |  to->get_weg_ribi_unmasked(maglev_wt)  |  to->get_weg_ribi_unmasked(narrowgauge_wt)  |  ribi_t::doubles(ribi_type(to->get_grund_hang()));
-					ok = ok && ((ribi & ribi_type(-zv))==ribi_type(-zv));
-				}
-			}
+			// tram track allowed in road and tracks tunnels
 			if(ok) {
 				// calculate costs
 				*costs = s.way_count_straight;
@@ -2156,18 +2146,18 @@ void way_builder_t::calc_straight_route(koord3d start, const koord3d ziel)
 }
 
 
-void way_builder_t::calc_route(const koord3d &start, const koord3d &ziel)
+bool way_builder_t::calc_route(const koord3d &start, const koord3d &ziel)
 {
 	vector_tpl<koord3d> start_vec(1), ziel_vec(1);
 	start_vec.append(start);
 	ziel_vec.append(ziel);
-	calc_route(start_vec, ziel_vec);
+	return calc_route(start_vec, ziel_vec);
 }
 
 /* calc_route
  *
  */
-void way_builder_t::calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel)
+bool way_builder_t::calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel)
 {
 #ifdef DEBUG_ROUTES
 uint32 ms = dr_time();
@@ -2202,7 +2192,7 @@ uint32 ms = dr_time();
 			if(cost2 < 0) {
 				intern_calc_route_elevated(ziel[0], start[0]);
 				route_reversed = true;
-				return;
+				return route_reversed;
 			}
 		}
 		else {
@@ -2211,7 +2201,7 @@ uint32 ms = dr_time();
 			if(cost2 < 0) {
 				intern_calc_route( ziel, start );
 				route_reversed = true;
-				return;
+				return route_reversed;
 			}
 		}
 
@@ -2242,6 +2232,7 @@ uint32 ms = dr_time();
 #ifdef DEBUG_ROUTES
 DBG_MESSAGE("calc_route::calc_route", "took %u ms", dr_time() - ms );
 #endif
+	return route_reversed;
 }
 
 

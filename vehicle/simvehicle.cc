@@ -2253,22 +2253,34 @@ bool road_vehicle_t::is_target(const grund_t *gr, const grund_t *prev_gr) const
 		// now we must check the predecessor => try to advance as much as possible
 		if(prev_gr!=NULL) {
 			const koord dir=gr->get_pos().get_2d()-prev_gr->get_pos().get_2d();
-			ribi_t::ribi ribi = ribi_type(dir);
-			if(  gr->get_weg(get_waytype())->get_ribi_maske() & ribi  ) {
+			if(  (prev_gr->get_weg(get_waytype())->get_ribi()&ribi_type(dir))==0  ) {
 				// one way sign wrong direction
 				return false;
 			}
+			const ribi_t::ribi ribi = gr->get_weg(get_waytype())->get_ribi() & ~ribi_t::backward(ribi_type(dir));
+			
 			grund_t *to;
-			if(  !gr->get_neighbour(to,road_wt,ribi)  ||  !(to->get_halt()==target_halt)  ||  (gr->get_weg(get_waytype())->get_ribi_maske() & ribi_type(dir))!=0  ||  target_halt->get_empty_lane(to,cnv->self)==0  ) {
+			if(  !ribi_t::is_single(ribi)  ||  !gr->get_neighbour(to,road_wt,ribi)  ||  !(to->get_halt()==target_halt)  ) {
 				// end of stop: Is it long enough?
-				uint16 tiles = cnv->get_tile_length();
-				uint8 empty_lane = 3;
-				while(  tiles>1  ) {
-					if(  !gr->get_neighbour(to,get_waytype(),ribi_t::backward(ribi))  ||  !(to->get_halt()==target_halt)  ||  (empty_lane &= target_halt->get_empty_lane(to,cnv->self))==0  ) {
+				const uint32 length=cnv->get_length_in_steps();
+				ribi_t::ribi back_ribi=ribi_t::backward(ribi_type(dir));
+				const uint32 stop_length=cnv->calc_available_halt_length_in_vehicle_steps(gr->get_pos(),ribi_type(dir));
+				if(length>stop_length) {
+					// length not enough
+					return false;
+				}
+				uint8 empty_lane = target_halt->get_empty_lane(gr,cnv->self);
+				while(  gr->get_neighbour(to,get_waytype(),back_ribi) && to->get_halt().is_bound() && (to->get_halt()==target_halt)  ) {
+					if(  (empty_lane &= target_halt->get_empty_lane(to,cnv->self))==0  ) {
+						// there are other cars.
+						return false;
+					}
+					back_ribi = to->get_weg_ribi_unmasked(get_waytype()) & ~ribi_t::backward(back_ribi);
+					if(  !ribi_t::is_single(back_ribi)  ) {
+						// connecting direction something wrong
 						return false;
 					}
 					gr = to;
-					tiles --;
 				}
 				return true;
 			}
@@ -3508,10 +3520,14 @@ bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr) const
 	if(  ribi_t::is_single(next_gr_ribi)  &&
 		gr->get_neighbour(to, get_waytype(), next_gr_ribi)  &&
 		(to->get_halt()==target_halt)  &&
-		(to->get_weg(get_waytype())->get_ribi_maske() & ribi_type(dir))==0
+		(to->get_weg(get_waytype())->get_ribi_maske() & ribi_type(dir))==0 
 	) {
-		// We can still go forward.
-		return false;
+		// check electrification
+		schiene_t const* const sch = obj_cast<schiene_t>(to->get_weg(get_waytype()));
+		if(!(((cnv!=NULL ? cnv->needs_electrification() : desc->get_engine_type()==vehicle_desc_t::electric)  &&  !sch->is_electrified())  ||  sch->get_max_speed() == 0  )) {
+			// We can still go forward.
+			return false;
+		}
 	}
 	// end of stop: Is it long enough?
 	const uint32 available_halt_length = cnv->calc_available_halt_length_in_vehicle_steps(gr->get_pos(), ribi); // 256 units per a straight tile
@@ -4449,7 +4465,7 @@ void rail_vehicle_t::leave_tile()
 				sch0->unreserve(this);
 				if(  cnv  ) {
 					// If reservation is controlled by next_reservation_index, this does nothing.
-					cnv->unreserve_pos(get_pos());
+					cnv->get_most_parent_convoi()->unreserve_pos(get_pos());
 				}
 				// tell next signal?
 				// and switch to red

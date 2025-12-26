@@ -482,10 +482,17 @@ private:
 	 */
 	bool no_close_factory=false;
 
+	/**
+	 * the shipment size
+	 */
+	uint32 shipment_size = SHIPMENT_MAX_SIZE;
+
 public:
 	fabrik_t(loadsave_t *file);
 	fabrik_t(koord3d pos, player_t* owner, const factory_desc_t* factory_desc, sint32 initial_prod_base);
 	~fabrik_t();
+
+	void call_factory_tool( const char function, const char *extra ) const;
 
 	/**
 	 * Return/book statistics
@@ -735,6 +742,12 @@ public:
 	*/
 	const bool is_no_close_factory() {return no_close_factory;}
 	void set_no_close_factory(bool yesno) { no_close_factory = yesno;}
+
+	/**
+	 * get and set shipment size
+	 */
+	const uint32 get_shipment_size() {return shipment_size;}
+	void set_shipment_size(uint32 s) { shipment_size = s; recalc_storage_capacities(); }
 };
 
 #endif

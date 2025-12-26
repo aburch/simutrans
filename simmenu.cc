@@ -160,6 +160,7 @@ const char *tool_t::id_to_string(uint16 id)
 		CASE_TO_STRING(TOOL_MOVE_MAP);
 		CASE_TO_STRING(TOOL_ROLLUP_ALL_WIN);
 		CASE_TO_STRING(TOOL_RECOLOUR_TOOL);
+		CASE_TO_STRING(TOOL_CHANGE_FACTORY);
 		CASE_TO_STRING(UNUSED_TOOL_ADD_MESSAGE);
 		CASE_TO_STRING(UNUSED_WKZ_PWDHASH_TOOL);
 		}
@@ -339,6 +340,7 @@ tool_t *create_simple_tool(int toolnr)
 		case TOOL_SENDING_MONEY:             tool = new tool_sending_money_t(); break;
 		case TOOL_MERGE_PLAYER:      tool = new tool_merge_player_t(); break;
 		case TOOL_CHANGE_HALT:       tool = new tool_change_halt_t(); break;
+		case TOOL_CHANGE_FACTORY:	 tool = new tool_change_factory_t(); break;
 		default:                    dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
 		                            return NULL;
 	}
