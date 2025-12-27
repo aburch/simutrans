@@ -36,6 +36,7 @@
 #include "../gui/minimap.h"
 #include "../gui/simwin.h"
 
+#include "../obj/depot.h"
 #include "../obj/gebaeude.h"
 #include "../obj/way/strasse.h"
 
@@ -3591,7 +3592,7 @@ void stadt_t::generate_private_cars(koord pos, koord target)
 
 
 /**
- * built/extends  road and maybe changes the tile to continue as much as possible
+ * built/extends a road and maybe changes the neighbouring tile to continue it as further as possible
  * @param k Bauposition
  */
 bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
@@ -3661,20 +3662,28 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 						continue;
 					}
 
-					if (!terraform_allowed  &&  bd->get_vmove(ribi_t::nesw[r]) != gr->get_vmove(ribi_t::backward(road_wt))) {
+					if (!terraform_allowed  &&  bd->get_vmove(ribi_t::nesw[r]) != gr->get_vmove(ribi_t::backward(ribi_t::nesw[r]))) {
 						// connection height do not match and we cannot terraform
 						continue;
 					}
 
 					// Next: other tile  stop/depot with a direction
 					if (const gebaeude_t* gb = gr->find<gebaeude_t>()) {
-						// there is a building on it (halt) => we can only go in the allow ribis
+						// there is a building on it halt => we can only go in the allow ribis
 						if (gb->get_tile()->get_desc()->get_all_layouts() == 4  &&  ribi_t::backward(ribi_t::nesw[r]) != ribi_t::layout_to_ribi[gb->get_tile()->get_layout()]) {
 							// single way => only one dir allowed
 							continue;
 						}
 						else if (gb->get_tile()->get_desc()->get_all_layouts()  &&  ribi_t::doubles(ribi_t::nesw[r]) != ribi_t::doubles(ribi_t::layout_to_ribi[gb->get_tile()->get_layout() & 1])) {
 							// wrong direction of through way
+							continue;
+						}
+					}
+
+					// Finally: same for depot
+					if (const depot_t* dp = gr->get_depot()) {
+						if(ribi_t::backward(ribi_t::nesw[r]) != ribi_t::layout_to_ribi[dp->get_tile()->get_layout()]) {
+							// single way => only one dir allowed
 							continue;
 						}
 					}
@@ -3986,7 +3995,10 @@ bool stadt_t::test_and_build_cityroad(koord start, koord end)
 
 	const sint16 length = koord_distance(start, end);
 	const koord dir = (end - start) / length;
-	assert(dir.x + dir.y == 1);
+	if (dir.x + dir.y = 1) {
+		// was a diagonal
+		return false;
+	}
 	minivec_tpl<sint8>heights(length);
 	for (sint8 i = 0; i <= length; i++) {
 		grund_t* gr = welt->lookup_kartenboden(start + dir * i);

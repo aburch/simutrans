@@ -405,7 +405,7 @@ private:
 	void generate_private_cars(koord pos, koord target);
 #endif
 
-protected:
+public:
 	/**
 	 * builds a piece of road
 	 * 
@@ -415,7 +415,7 @@ protected:
 	 */
 	bool build_road(const koord k, player_t *player_, bool forced);
 
-	// build a piece of straight road in front of a townhall and take care of flattening th eground etc
+	// build a piece of straight road in front of a townhall and take care of flattening the ground etc
 	bool test_and_build_cityroad(koord start, koord end);
 
 private:
