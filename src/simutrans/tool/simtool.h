@@ -318,6 +318,9 @@ public:
 class tool_build_cityroad : public tool_build_way_t {
 private:
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
+#ifdef USE_TOWN_ROAD_BUILDER_TOOL
+	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
+#endif
 public:
 	tool_build_cityroad() : tool_build_way_t(TOOL_BUILD_CITYROAD | GENERAL_TOOL) {}
 	way_desc_t const* get_desc(uint16) const OVERRIDE;

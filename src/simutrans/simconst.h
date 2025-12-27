@@ -87,6 +87,9 @@
 /* define USE_VALGRIND_MEMCHECK to make valgrind aware of the freelist memory pool */
 //#define USE_VALGRIND_MEMCHECK
 
+/* uses the actual tools from the city to build cityroads. May result in heavy terraforming */
+//#define USE_TOWN_ROAD_BUILDER_TOOL
+
 /**************************** automatic stuff ********************************/
 
 

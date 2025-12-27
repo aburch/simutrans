@@ -2804,34 +2804,38 @@ const char *tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d 
 
 	// and continue as normal ...
 	const char *err;
-	if(  is_ctrl_pressed()  ||  (env_t::straight_way_without_control  &&  !env_t::networkmode  &&  !is_scripted())  ) {
+	if (is_ctrl_pressed() || (env_t::straight_way_without_control && !env_t::networkmode && !is_scripted())
+#ifdef USE_TOWN_ROAD_BUILDER_TOOL
+		|| get_id() == (TOOL_BUILD_CITYROAD | GENERAL_TOOL)
+#endif
+		) {
 		DBG_MESSAGE("tool_build_way_t()", "try straight route");
-		err = bauigel.calc_straight_route(start,my_end);
+		err = bauigel.calc_straight_route(start, my_end);
 	}
 	else {
-		err = bauigel.calc_route(start,my_end);
+		err = bauigel.calc_route(start, my_end);
 	}
 
 	DBG_MESSAGE("tool_build_way_t()", "builder found route with %d squares length.", bauigel.get_count());
 	return err;
 }
 
-const char *tool_build_way_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
+const char* tool_build_way_t::do_work(player_t* player, const koord3d& start, const koord3d& end)
 {
 	way_builder_t bauigel(player);
-	const char *err = calc_route( bauigel, start, end );
-	if(  bauigel.get_route().get_count()>1  ) {
+	const char* err = calc_route(bauigel, start, end);
+	if (bauigel.get_route().get_count() > 1) {
 		welt->mute_sound(true);
 		bauigel.build();
 		welt->mute_sound(false);
 
 		// set default newly constructed type
 		if (can_use_gui()) {
-			if(  desc->get_styp() == type_tram  ) {
-				defaults[ tram_wt ] = desc;
+			if (desc->get_styp() == type_tram) {
+				defaults[tram_wt] = desc;
 			}
 			else {
-				defaults[desc->get_wtyp()&63] = desc;
+				defaults[desc->get_wtyp() & 63] = desc;
 			}
 		}
 
@@ -2840,68 +2844,95 @@ const char *tool_build_way_t::do_work( player_t *player, const koord3d &start, c
 	return err ? err : "";
 }
 
-void tool_build_way_t::mark_tiles( player_t *player, const koord3d &start, const koord3d &end )
+void tool_build_way_t::mark_tiles(player_t* player, const koord3d& start, const koord3d& end)
 {
 	way_builder_t bauigel(player);
-	const char *err = calc_route( bauigel, start, end );
-	bool keep_city_roads = is_shift_pressed()  &&  desc->get_styp() == type_flat  &&  desc->get_wtyp() == road_wt;
+	const char* err = calc_route(bauigel, start, end);
+	bool keep_city_roads = is_shift_pressed() && desc->get_styp() == type_flat && desc->get_wtyp() == road_wt;
 
-	uint8 offset = (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt) ? welt->get_settings().get_way_height_clearance() : 0;
+	uint8 offset = (desc->get_styp() == type_elevated && desc->get_wtyp() != air_wt) ? welt->get_settings().get_way_height_clearance() : 0;
 
-	if(  bauigel.get_count()>1  ) {
+	if (bauigel.get_count() > 1) {
 		// Set tooltip first (no dummygrounds, if bauigel.calc_casts() is called).
-		win_set_static_tooltip( tooltip_with_price_length("Building costs estimates", bauigel.calc_costs(), bauigel.get_count() ) );
+		win_set_static_tooltip(tooltip_with_price_length("Building costs estimates", bauigel.calc_costs(), bauigel.get_count()));
 
 		// make dummy route from bauigel
-		for(  uint32 j=0;  j<bauigel.get_count();  j++   ) {
-			koord3d pos = bauigel.get_route()[j] + koord3d(0,0,offset);
-			grund_t *gr = welt->lookup( pos );
-			if( !gr ) {
+		for (uint32 j = 0; j < bauigel.get_count(); j++) {
+			koord3d pos = bauigel.get_route()[j] + koord3d(0, 0, offset);
+			grund_t* gr = welt->lookup(pos);
+			if (!gr) {
 				gr = new monorailboden_t(pos, slope_t::flat);
 				// should only be here when elevated/monorail, therefore will be at height offset above ground
-				gr->set_grund_hang( welt->lookup( pos - koord3d( 0, 0, offset ) )->get_grund_hang() );
+				gr->set_grund_hang(welt->lookup(pos - koord3d(0, 0, offset))->get_grund_hang());
 				welt->access(pos.get_2d())->boden_hinzufuegen(gr);
 			}
 			if (gr->is_water()) {
 				continue;
 			}
-			ribi_t::ribi zeige = gr->get_weg_ribi_unmasked(desc->get_wtyp()) | bauigel.get_route().get_ribi( j );
+			ribi_t::ribi zeige = gr->get_weg_ribi_unmasked(desc->get_wtyp()) | bauigel.get_route().get_ribi(j);
 
 			// do not replace city roads if requested
-			if (keep_city_roads  &&  gr->get_weg(road_wt) && gr->get_weg(road_wt)->hat_gehweg()) {
+			if (keep_city_roads && gr->get_weg(road_wt) && gr->get_weg(road_wt)->hat_gehweg()) {
 				continue;
 			}
 
-			zeiger_t *way = new zeiger_t(pos, player);
-			if(gr->get_weg_hang()) {
-				way->set_image( desc->get_slope_image_id(gr->get_weg_hang(),0) );
+			zeiger_t* way = new zeiger_t(pos, player);
+			if (gr->get_weg_hang()) {
+				way->set_image(desc->get_slope_image_id(gr->get_weg_hang(), 0));
 			}
-			else if(desc->get_wtyp()!=powerline_wt  &&  ribi_t::is_bend(zeige)  &&  desc->has_diagonal_image()) {
-				way->set_image( desc->get_diagonal_image_id(zeige,0) );
+			else if (desc->get_wtyp() != powerline_wt && ribi_t::is_bend(zeige) && desc->has_diagonal_image()) {
+				way->set_image(desc->get_diagonal_image_id(zeige, 0));
 			}
 			else {
-				way->set_image( desc->get_image_id(zeige,0) );
+				way->set_image(desc->get_image_id(zeige, 0));
 			}
-			gr->obj_add( way );
-			way->set_yoff(-gr->get_weg_yoff() );
-			marked.insert( way );
-			way->mark_image_dirty( way->get_image(), 0 );
+			gr->obj_add(way);
+			way->set_yoff(-gr->get_weg_yoff());
+			marked.insert(way);
+			way->mark_image_dirty(way->get_image(), 0);
 		}
 	}
-	else if(err) {
+	else if (err) {
 		win_set_static_tooltip(translator::translate(err));
 	}
 }
 
 
 /* city road construction */
-const way_desc_t *tool_build_cityroad::get_desc(uint16) const
+const way_desc_t* tool_build_cityroad::get_desc(uint16) const
 {
 	return welt->get_city_road();
 }
 
-const char *tool_build_cityroad::do_work( player_t *player, const koord3d &start, const koord3d &end )
+
+#ifdef USE_TOWN_ROAD_BUILDER_TOOL
+uint8 tool_build_cityroad::is_valid_pos(player_t* player, const koord3d& pos, const char*& error, const koord3d&)
 {
+	if (stadt_t* city = welt->find_nearest_city(pos.get_2d())) {
+		if (grund_t* gr = welt->lookup(pos)) {
+			if (gr->ist_natur()  ||  gr->hat_weg(road_wt)) {
+				return 3;
+			}
+		}
+	}
+	return 0;
+}
+#endif
+
+const char* tool_build_cityroad::do_work(player_t* player, const koord3d& start, const koord3d& end)
+{
+#ifdef USE_TOWN_ROAD_BUILDER_TOOL
+	if (stadt_t* city = welt->find_nearest_city(start.get_2d())) {
+		if (end == koord3d::invalid) {
+			if (city->build_road(start.get_2d(), NULL, true)) {
+				return NULL;
+			}
+		} else if(city->test_and_build_cityroad(start.get_2d(), end.get_2d()) ) {
+			return NULL;
+		}
+	}
+	return "";
+#else
 	way_builder_t bauigel(player);
 	bauigel.set_build_sidewalk(true);
 	calc_route( bauigel, start, end );
@@ -2913,6 +2944,7 @@ const char *tool_build_cityroad::do_work( player_t *player, const koord3d &start
 		return NULL;
 	}
 	return "";
+#endif
 }
 
 

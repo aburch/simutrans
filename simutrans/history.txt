@@ -51,6 +51,8 @@
 	CHG: trains with both diesel and electric engine can go on non-electricfied track, but run without electric power there
 	CHG: (k47) stations names drawn later in minimap
 	FIX: (k47) world borders soemthimes not correctly displayed
+	FIX: city connects correct over slopes but not to depots
+	CHG: if defined USE_TOWN_ROAD_BUILDER_TOOL the cityroad building tool will use the internal tool of the city (default off)
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):
