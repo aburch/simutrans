@@ -25,7 +25,7 @@ event_t::event_t(event_class_t event_class) :
 	ev_code(0),
 	mouse_pos(0,0),
 	click_pos(0,0),
-	button_state(0),
+	mouse_button_state(0),
 	ev_key_mod(SIM_MOD_NONE)
 {
 }
@@ -256,7 +256,7 @@ static void fill_event(event_t* const ev)
 		repeat_count = 0;
 	}
 
-	ev->button_state = pressed_buttons;
+	ev->mouse_button_state = pressed_buttons;
 	last_mpos = ev->mouse_pos;
 }
 

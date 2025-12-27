@@ -159,7 +159,7 @@ bool tool_selector_t::infowin_event(const event_t *ev)
 			offset.y += env_t::iconsize.h;
 			tool_icon_disp_start++;
 		}
-		if(  !IS_LEFTRELEASE(ev)  &&  ev->button_state != 1 ) {
+		if(  !IS_LEFTRELEASE(ev)  &&  ev->mouse_button_state != MOUSE_LEFTBUTTON ) {
 			is_dragging = false;
 		}
 	}

@@ -874,7 +874,7 @@ int create_win(scr_coord pos, gui_frame_t *const gui, wintype const wt, ptrdiff_
 		ev.mouse_pos.y = 0;
 		ev.click_pos.x = 0;
 		ev.click_pos.y = 0;
-		ev.button_state = 0;
+		ev.mouse_button_state = 0;
 
 		void *old = inside_event_handling;
 		inside_event_handling = gui;
@@ -974,7 +974,7 @@ static int notify_top_win()
 	ev.mouse_pos.y = 0;
 	ev.click_pos.x = 0;
 	ev.click_pos.y = 0;
-	ev.button_state = 0;
+	ev.mouse_button_state = 0;
 
 	void *old = inside_event_handling;
 	inside_event_handling = wins.back().gui;
@@ -1069,7 +1069,7 @@ static bool destroy_framed_win(simwin_t *wins)
 		ev.mouse_pos.y = 0;
 		ev.click_pos.x = 0;
 		ev.click_pos.y = 0;
-		ev.button_state = 0;
+		ev.mouse_button_state = 0;
 
 		void *old = inside_event_handling;
 		inside_event_handling = gui;
@@ -1575,7 +1575,7 @@ bool check_pos_win(event_t *ev,bool modal)
 	}
 
 	// we stop resizing once the user releases the button
-	if(  (is_resizing>=0  ||  is_moving>=0)  &&  (IS_LEFTRELEASE(ev)  ||  (ev->button_state&1)==0)  ) {
+	if(  (is_resizing>=0  ||  is_moving>=0)  &&  (IS_LEFTRELEASE(ev)  ||  (ev->mouse_button_state&1)==0)  ) {
 		is_resizing = -1;
 		is_moving = -1;
 		if(  IS_LEFTRELEASE(ev)  ) {
@@ -1650,7 +1650,7 @@ bool check_pos_win(event_t *ev,bool modal)
 			}
 		}
 
-		is_dragging = ev->ev_class != EVENT_RELEASE  &&  ev->button_state>1;
+		is_dragging = ev->ev_class != EVENT_RELEASE  &&  ev->mouse_button_state>1;
 
 		// swallow event
 		return true;

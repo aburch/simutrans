@@ -156,8 +156,8 @@ public:
 	/// new window size for SYSTEM_RESIZE
 	scr_size new_window_size;
 
-	/// current mouse button state
-	int button_state;
+	/// bitset indicating which mouse buttons are pressed
+	int mouse_button_state;
 
 	/// mod key (SHIFT; ALT; CTRL; etc) pressed while event as triggered
 	unsigned int ev_key_mod;
@@ -190,9 +190,9 @@ static inline bool DOES_WINDOW_CHILDREN_NEED(const event_t *ev) { return ev->ev_
 
 static inline bool IS_WINDOW_TOP(const event_t *ev) { return ev->ev_class == INFOWIN || ev->ev_code == WIN_TOP; }
 
-static inline bool IS_LEFT_BUTTON_PRESSED  (const event_t *ev) { return ev->button_state & MOUSE_LEFTBUTTON;  }
-static inline bool IS_RIGHT_BUTTON_PRESSED (const event_t *ev) { return ev->button_state & MOUSE_RIGHTBUTTON; }
-static inline bool IS_MIDDLE_BUTTON_PRESSED(const event_t *ev) { return ev->button_state & MOUSE_MIDBUTTON;   }
+static inline bool IS_LEFT_BUTTON_PRESSED  (const event_t *ev) { return ev->mouse_button_state & MOUSE_LEFTBUTTON;  }
+static inline bool IS_RIGHT_BUTTON_PRESSED (const event_t *ev) { return ev->mouse_button_state & MOUSE_RIGHTBUTTON; }
+static inline bool IS_MIDDLE_BUTTON_PRESSED(const event_t *ev) { return ev->mouse_button_state & MOUSE_MIDBUTTON;   }
 
 static inline bool IS_SHIFT_PRESSED  (const event_t *ev) { return ev->ev_key_mod & SIM_MOD_SHIFT; }
 static inline bool IS_CONTROL_PRESSED(const event_t *ev) { return ev->ev_key_mod & SIM_MOD_CTRL;  }

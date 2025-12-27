@@ -288,7 +288,7 @@ bool button_t::infowin_event(const event_t *ev)
 
 	// update the button pressed state only when mouse positions are within boundary or when it is mouse release
 	if(  (type & STATE_BIT) == 0  &&  cxy_within_boundary  &&  (  mxy_within_boundary  ||  IS_LEFTRELEASE(ev)  )  ) {
-		pressed = (ev->button_state==1);
+		pressed = (ev->mouse_button_state==1);
 	}
 
 	// make sure that the button will take effect only when the mouse positions are within the component's boundary
@@ -313,7 +313,7 @@ bool button_t::infowin_event(const event_t *ev)
 			return true;
 		}
 	}
-	else if(  (type & TYPE_MASK) >= repeatarrowleft  &&  ev->button_state==1  ) {
+	else if(  (type & TYPE_MASK) >= repeatarrowleft  &&  ev->mouse_button_state==1  ) {
 		uint32 cur_time = dr_time();
 		if (IS_LEFTCLICK(ev)  ||  button_click_time==0) {
 			button_click_time = cur_time;

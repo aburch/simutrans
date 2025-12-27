@@ -70,9 +70,9 @@ void interaction_t::move_cursor( const event_t &ev )
 
 	// move cursor
 	const koord3d prev_pos = zeiger->get_pos();
-	if(  (prev_pos != pos ||  ev.button_state != mb_alt)  ) {
+	if(  (prev_pos != pos ||  ev.mouse_button_state != mb_alt)  ) {
 
-		mb_alt = ev.button_state;
+		mb_alt = ev.mouse_button_state;
 
 		zeiger->change_pos(pos);
 
@@ -82,7 +82,7 @@ void interaction_t::move_cursor( const event_t &ev )
 		else {
 			tool->flags = (event_get_last_control_shift() ^ tool_t::control_invert) | tool_t::WFL_LOCAL;
 			if(tool->check_pos( world->get_active_player(), zeiger->get_pos() )==NULL) {
-				if(  ev.button_state == 0  ) {
+				if(  ev.mouse_button_state == 0  ) {
 					is_dragging = false;
 				}
 				else if(ev.ev_class==EVENT_DRAG) {
@@ -97,7 +97,7 @@ void interaction_t::move_cursor( const event_t &ev )
 			tool->flags = 0;
 		}
 
-		if(  (ev.button_state&7)==0  ) {
+		if(  (ev.mouse_button_state&7)==0  ) {
 			// time, since mouse got here
 			world->set_mouse_rest_time(dr_time());
 			world->set_sound_wait_time(AMBIENT_SOUND_INTERVALL); // 13s no movement: play sound
@@ -351,7 +351,7 @@ bool interaction_t::process_event( event_t &ev )
 	DBG_DEBUG4("interaction_t::process_event", "check if cursor needs movement");
 
 
-	if( (ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_LEFTBUTTON)  ||  (ev.button_state==0  &&  ev.ev_class==EVENT_MOVE)  ||  ev.ev_class==EVENT_RELEASE) {
+	if( (ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_LEFTBUTTON)  ||  (ev.mouse_button_state==0  &&  ev.ev_class==EVENT_MOVE)  ||  ev.ev_class==EVENT_RELEASE) {
 		move_cursor(ev);
 	}
 

@@ -169,7 +169,7 @@ public:
 			welt->get_viewport()->change_world_position( entry.pos );
 			return true;
 		}
-		else if(ev->button_state==1  ){
+		else if(ev->mouse_button_state==1  ){
 			set_focus( this );
 			if( !gui_aligned_container_t::infowin_event( ev ) && stop.getroffen( ev->click_pos ) ) {
 				// not handled, so we make it active

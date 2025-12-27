@@ -314,7 +314,7 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, double *scale, char *c
  */
 bool gui_chart_t::infowin_event(const event_t *ev)
 {
-	if(ev->button_state==1) {
+	if(ev->mouse_button_state==MOUSE_LEFTBUTTON) {
 		// tooptip to show?
 		tooltipcoord = ev->mouse_pos;
 	}
