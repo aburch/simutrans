@@ -22,11 +22,7 @@ static slist_tpl<event_t *> queued_events;
 
 event_t::event_t(event_class_t event_class) :
 	ev_class(event_class),
-	ev_code(0),
-	mouse_pos(0,0),
-	click_pos(0,0),
-	mouse_button_state(0),
-	ev_key_mod(SIM_MOD_NONE)
+	ev_code(0)
 {
 }
 
@@ -40,9 +36,7 @@ void event_t::move_origin(scr_coord delta)
 
 int event_get_last_control_shift()
 {
-	// shift = 1
-	// ctrl  = 2
-	return control_shift_state & 0x03;
+	return control_shift_state & (SIM_MOD_SHIFT | SIM_MOD_CTRL);
 }
 
 
@@ -97,7 +91,7 @@ static void fill_event(event_t* const ev)
 	ev->click_pos.y = cy;
 
 	// always put key mod code into event
-	ev->ev_key_mod = sys_event.key_mod;
+	ev->ev_key_mod      = sys_event.key_mod;
 	control_shift_state = sys_event.key_mod;
 
 	switch (sys_event.type) {

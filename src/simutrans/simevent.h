@@ -140,7 +140,7 @@ public:
 	void move_origin(scr_coord delta);
 
 public:
-	event_class_t ev_class;
+	event_class_t ev_class = EVENT_NONE;
 	union
 	{
 		unsigned int ev_code;
@@ -148,19 +148,19 @@ public:
 	};
 
 	// Mouse position
-	scr_coord mouse_pos;
+	scr_coord mouse_pos = { 0, 0 };
 
 	/// position of last mouse click
-	scr_coord click_pos;
+	scr_coord click_pos = { 0, 0 };
 
 	/// new window size for SYSTEM_RESIZE
-	scr_size new_window_size;
+	scr_size new_window_size = { 0, 0 };
 
 	/// bitset indicating which mouse buttons are pressed
-	int mouse_button_state;
+	int mouse_button_state = 0;
 
-	/// mod key (SHIFT; ALT; CTRL; etc) pressed while event as triggered
-	unsigned int ev_key_mod;
+	/// mod key (SHIFT, CTRL etc) pressed while event as triggered
+	unsigned int ev_key_mod = SIM_MOD_NONE;
 };
 
 
