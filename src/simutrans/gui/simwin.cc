@@ -1657,7 +1657,7 @@ bool check_pos_win(event_t *ev,bool modal)
 	}
 
 	// cursor event only go to top window (but not if rolled up)
-	if(  (ev->ev_class == EVENT_KEYBOARD  ||  ev->ev_class == EVENT_STRING)  &&  !wins.empty()  ) {
+	if(  (IS_KEYDOWN(ev)  ||  ev->ev_class == EVENT_STRING)  &&  !wins.empty()  ) {
 		simwin_t &win  = wins.back();
 		if(  !win.rollup  )  {
 			inside_event_handling = win.gui;
@@ -1681,13 +1681,13 @@ bool check_pos_win(event_t *ev,bool modal)
 	}
 
 	// swallow all other events in the infobar
-	if(  !(ev->ev_class == EVENT_KEYBOARD  ||  ev->ev_class == EVENT_STRING)  &&  y > display_get_height()- win_get_statusbar_height()  ) {
+	if(  !IS_KEYDOWN(ev)  &&  ev->ev_class != EVENT_STRING  &&  y > display_get_height()- win_get_statusbar_height()  ) {
 		// swallow event
 		return true;
 	}
 
 	// swallow all other events in ticker (if there)
-	if(  !(ev->ev_class == EVENT_KEYBOARD  ||  ev->ev_class == EVENT_STRING)  &&  show_ticker  &&  y > display_get_height()- win_get_statusbar_height() - TICKER_HEIGHT  ) {
+	if(  !IS_KEYDOWN(ev)  &&  ev->ev_class != EVENT_STRING  &&  show_ticker  &&  y > display_get_height()- win_get_statusbar_height() - TICKER_HEIGHT  ) {
 		if(  IS_LEFTCLICK(ev)  ) {
 			ticker::process_click(x);
 		}
@@ -2366,7 +2366,7 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 				win_clamp_xywh_position(NULL, ev.mouse_pos, scr_size(1, 1), false);
 				win_clamp_xywh_position(NULL, ev.mouse_pos, scr_size(1, 1), false);
 
-				if (ev.ev_class == EVENT_KEYBOARD && ev.ev_code == SIM_KEYCODE_F1) {
+				if (IS_KEYDOWN(&ev) && ev.ev_code == SIM_KEYCODE_F1) {
 					if (gui_frame_t* win = win_get_top()) {
 						if (const char* helpfile = win->get_help_filename()) {
 							help_frame_t::open_help_on(helpfile);
@@ -2377,7 +2377,7 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 
 				if(dismissible  &&  gui){
 					if (
-						(ev.ev_class == EVENT_KEYBOARD) ||
+						(IS_KEYDOWN(&ev)) ||
 						(ev.ev_class == EVENT_CLICK  &&  !gui->is_hit(ev.click_pos.x - pos.x, ev.click_pos.y - pos.y))
 					) {
 						destroy_win(gui);

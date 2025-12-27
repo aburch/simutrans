@@ -1333,7 +1333,7 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 		update_data();
 	}
 
-	if(  swallowed  &&  get_focus()==&name_filter_input  &&  (ev->ev_class == EVENT_KEYBOARD  ||  ev->ev_class == EVENT_STRING)  ) {
+	if(  swallowed  &&  get_focus()==&name_filter_input  &&  (IS_KEYDOWN(ev)  ||  ev->ev_class == EVENT_STRING)  ) {
 		depot_t::update_all_win();
 	}
 

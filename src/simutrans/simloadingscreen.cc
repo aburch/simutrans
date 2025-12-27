@@ -130,13 +130,11 @@ void loadingscreen_t::set_progress( uint32 progress )
 			delete ev;
 		}
 	}
-	else {
-		if(  ev->ev_class == EVENT_KEYBOARD  ) {
-			queued_events.append(ev);
-		}
-		else {
-			delete ev;
-		}
+	else if(  IS_KEYBOARD(ev)  ) {
+		queued_events.append(ev);
+	}
+	else { // neither a keyboard or system event -> not of interest
+		delete ev;
 	}
 
 	this->progress = progress;

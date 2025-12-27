@@ -106,7 +106,7 @@ public:
 			my -= minimaps_size.h + D_V_SPACE;
 		}
 
-		if(  ev->ev_class!=EVENT_KEYBOARD  &&  ev->ev_code==MOUSE_LEFTBUTTON  &&  0<=my  &&  my<minimaps_size.h  ) {
+		if(  !IS_KEYBOARD(ev)  &&  ev->ev_code==MOUSE_LEFTBUTTON  &&  0<=my  &&  my<minimaps_size.h  ) {
 			int mx = ev->mouse_pos.x;
 			if(  mx > minimaps_size.w  &&  minimap2_offset.x > 0  ) {
 				// Little trick to handle both maps with the same code: Just remap the x-values of the right map.

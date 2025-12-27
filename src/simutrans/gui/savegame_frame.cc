@@ -462,10 +462,12 @@ bool savegame_frame_t::infowin_event(const event_t *event)
 		// Notify of the end
 		list_filled();
 	}
-	if(  event->ev_class == EVENT_KEYBOARD  &&  event->ev_code == 13  ) {
+
+	if(  IS_KEYDOWN(event)  &&  event->ev_code == SIM_KEYCODE_ENTER  ) {
 		action_triggered(&input, (long)0);
 		return true; // swallowed
 	}
+
 	return gui_frame_t::infowin_event(event);
 }
 

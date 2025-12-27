@@ -205,7 +205,7 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 	}
 
 	// navigate among the tabs using shift+tab and tab
-	if(  ev->ev_class==EVENT_KEYBOARD  &&  ev->ev_code == SIM_KEYCODE_TAB  ) {
+	if(  IS_KEYDOWN(ev)  &&  ev->ev_code == SIM_KEYCODE_TAB  ) {
 		int di = 1; // tab -> go to the next tab
 		if(  IS_SHIFT_PRESSED(ev)  ) {
 			// shift+tab -> go to the previous tab
@@ -223,12 +223,13 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 		return true;
 	}
 
-	if(  ev->ev_class == EVENT_KEYBOARD  ||  DOES_WINDOW_CHILDREN_NEED(ev)  ||  get_aktives_tab()->getroffen(ev->mouse_pos)  ||  get_aktives_tab()->getroffen(ev->click_pos)) {
+	if(  IS_KEYDOWN(ev)  ||  DOES_WINDOW_CHILDREN_NEED(ev)  ||  get_aktives_tab()->getroffen(ev->mouse_pos)  ||  get_aktives_tab()->getroffen(ev->click_pos)) {
 		// active tab was hit
 		event_t ev2 = *ev;
 		ev2.move_origin(get_aktives_tab()->get_pos());
 		return get_aktives_tab()->infowin_event(&ev2);
 	}
+
 	return false;
 }
 

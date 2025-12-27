@@ -119,7 +119,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		return false;
 	}
 
-	if(  ev->ev_class==EVENT_KEYBOARD  ) {
+	if(  IS_KEYDOWN(ev)  ) {
 		if(  text  ) {
 			size_t len = strlen(text);
 
@@ -542,11 +542,10 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 void gui_textinput_t::draw(scr_coord offset)
 {
 	display_with_focus( offset, (win_get_focus()==this) );
-	if (text_dirty  &&  next_update_call < dr_time()) {
+	if (text_dirty  &&  dr_time() > next_update_call) {
 		// need to trigger a dummy event for next processing
-		event_t* ev = new event_t();
-		ev->ev_class = EVENT_KEYBOARD;
-		ev->ev_code = 0;
+		event_t* ev = new event_t(EVENT_KEYDOWN);
+		ev->ev_code    = 0;
 		ev->ev_key_mod = 0;
 		queue_event(ev);
 	}

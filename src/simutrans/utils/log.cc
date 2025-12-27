@@ -376,7 +376,8 @@ void log_t::custom_fatal(char *buffer)
 			display_poll_event(&ev);
 			// main window resized
 			check_pos_win(&ev,true);
-			if(ev.ev_class==EVENT_KEYBOARD) {
+
+			if (IS_KEYDOWN(&ev)) {
 				break;
 			}
 		}

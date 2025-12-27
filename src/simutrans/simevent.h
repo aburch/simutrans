@@ -17,14 +17,15 @@
 enum event_class_t
 {
 	EVENT_NONE           =   0,
-	EVENT_KEYBOARD       =   1,
-	EVENT_STRING         =   2,  ///< instead of a single character a ev_ptr points to an utf8 string
-	EVENT_CLICK          =   3,
-	EVENT_DOUBLE_CLICK   =   4,  ///< 2 consecutive sequences of click-release
-	EVENT_TRIPLE_CLICK   =   5,  ///< 3 consecutive sequences of click-release
-	EVENT_RELEASE        =   6,
-	EVENT_MOVE           =   7,
-	EVENT_DRAG           =   8,
+	EVENT_KEYDOWN        =   1,
+	EVENT_KEYUP          =   2,
+	EVENT_STRING         =   3,  ///< instead of a single character a ev_ptr points to an utf8 string
+	EVENT_CLICK          =   4,
+	EVENT_DOUBLE_CLICK   =   5,  ///< 2 consecutive sequences of click-release
+	EVENT_TRIPLE_CLICK   =   6,  ///< 3 consecutive sequences of click-release
+	EVENT_RELEASE        =   7,
+	EVENT_MOVE           =   8,
+	EVENT_DRAG           =   9,
 
 	INFOWIN              =  10,  ///< window event, i.e. WIN_OPEN, WIN_CLOSE
 	WINDOW_RESIZE        =  11,
@@ -163,6 +164,10 @@ public:
 	unsigned int ev_key_mod = SIM_MOD_NONE;
 };
 
+
+static inline bool IS_KEYDOWN    (const event_t *ev) { return ev->ev_class == EVENT_KEYDOWN;  }
+static inline bool IS_KEYUP      (const event_t *ev) { return ev->ev_class == EVENT_KEYUP;    }
+static inline bool IS_KEYBOARD   (const event_t *ev) { return IS_KEYDOWN(ev) || IS_KEYUP(ev); }
 
 static inline bool IS_MOUSE(const event_t *ev) { return ev->ev_class >= EVENT_CLICK && ev->ev_class <= EVENT_DRAG; }
 

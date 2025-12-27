@@ -108,8 +108,8 @@ void interaction_t::move_cursor( const event_t &ev )
 
 void interaction_t::interactive_event( const event_t &ev )
 {
-	if(ev.ev_class == EVENT_KEYBOARD) {
-		DBG_MESSAGE("interaction_t::interactive_event()","Keyboard event with code %d '%c'", ev.ev_code, (ev.ev_code>=32  &&  ev.ev_code<=126) ? ev.ev_code : '?' );
+	if (IS_KEYDOWN(&ev)) {
+		DBG_MESSAGE("interaction_t::interactive_event()", "Key-down event with code %d '%c'", ev.ev_code, (ev.ev_code>=32  &&  ev.ev_code<=126) ? ev.ev_code : '?' );
 
 		switch(ev.ev_code) {
 

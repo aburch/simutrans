@@ -268,7 +268,7 @@ bool button_t::infowin_event(const event_t *ev)
 		}
 	}
 
-	if(  ev->ev_class==EVENT_KEYBOARD  ) {
+	if(  !IS_KEYBOARD(ev)  ) {
 		if(  ev->ev_code==32  &&  get_focus()  ) {
 			// space toggles button
 			call_listeners( (long)0 );

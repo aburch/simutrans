@@ -75,63 +75,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 	}
 
 	// need to change focus?
-	if(  ev->ev_class==EVENT_KEYBOARD  ) {
-
-		if(  comp_focus  &&  comp_focus->is_visible()  ) {
-			event_t ev2 = *ev;
-			ev2.move_origin(comp_focus->get_pos());
-			swallowed = comp_focus->infowin_event(&ev2);
-		}
-
-		// either event not swallowed, or inner container has no focused child component after TAB event
-		if(  !swallowed  ||  (ev->ev_code==SIM_KEYCODE_TAB  &&  comp_focus  &&  comp_focus->get_focus()==NULL)  ) {
-			if(  ev->ev_code==SIM_KEYCODE_TAB  ) {
-				// TAB: find new focus
-				new_focus = NULL;
-				if(  IS_SHIFT_PRESSED(ev)  ) {
-					// find previous textinput field
-					for(gui_component_t* const c : components) {
-						if (c == comp_focus) break;
-						if (c->is_focusable()) {
-							new_focus = c;
-						}
-					}
-				}
-				else {
-					// or next input field
-					bool valid = comp_focus==NULL;
-					for(gui_component_t* const c : components) {
-						if (valid && c->is_focusable()) {
-							new_focus = c;
-							break;
-						}
-						if (c == comp_focus) {
-							valid = true;
-						}
-					}
-				}
-
-				// inner containers with focusable components may not have a focused component yet
-				// ==> give the inner container a chance to activate the first focusable component
-				if(  new_focus  &&  new_focus->get_focus()==NULL  ) {
-					event_t ev2 = *ev;
-					ev2.move_origin(new_focus->get_pos());
-					new_focus->infowin_event(&ev2);
-				}
-
-				swallowed = comp_focus!=new_focus;
-			}
-			else if(  ev->ev_code==SIM_KEYCODE_ENTER  ||  ev->ev_code==SIM_KEYCODE_ESCAPE  ) {
-				new_focus = NULL;
-				if(  ev->ev_code==SIM_KEYCODE_ESCAPE  ) {
-					// no untop message even!
-					comp_focus = NULL;
-				}
-				swallowed = comp_focus!=new_focus;
-			}
-		}
-	}
-	else {
+	if (!IS_KEYBOARD(ev)) {
 		// CASE : not a keyboard event
 		const scr_coord event_pos = ev->ev_class == EVENT_MOVE ? ev->mouse_pos : ev->click_pos;
 
@@ -219,6 +163,61 @@ bool gui_container_t::infowin_event(const event_t *ev)
 				if(  swallowed  ||  comp==new_focus  ) {
 					break;
 				}
+			}
+		}
+	}
+	else if(  IS_KEYDOWN(ev)  ) {
+		if(  comp_focus  &&  comp_focus->is_visible()  ) {
+			event_t ev2 = *ev;
+			ev2.move_origin(comp_focus->get_pos());
+			swallowed = comp_focus->infowin_event(&ev2);
+		}
+
+		// either event not swallowed, or inner container has no focused child component after TAB event
+		if(  !swallowed  ||  (ev->ev_code==SIM_KEYCODE_TAB  &&  comp_focus  &&  comp_focus->get_focus()==NULL)  ) {
+			if(  ev->ev_code==SIM_KEYCODE_TAB  ) {
+				// TAB: find new focus
+				new_focus = NULL;
+				if(  IS_SHIFT_PRESSED(ev)  ) {
+					// find previous textinput field
+					for(gui_component_t* const c : components) {
+						if (c == comp_focus) break;
+						if (c->is_focusable()) {
+							new_focus = c;
+						}
+					}
+				}
+				else {
+					// or next input field
+					bool valid = comp_focus==NULL;
+					for(gui_component_t* const c : components) {
+						if (valid && c->is_focusable()) {
+							new_focus = c;
+							break;
+						}
+						if (c == comp_focus) {
+							valid = true;
+						}
+					}
+				}
+
+				// inner containers with focusable components may not have a focused component yet
+				// ==> give the inner container a chance to activate the first focusable component
+				if(  new_focus  &&  new_focus->get_focus()==NULL  ) {
+					event_t ev2 = *ev;
+					ev2.move_origin(new_focus->get_pos());
+					new_focus->infowin_event(&ev2);
+				}
+
+				swallowed = comp_focus!=new_focus;
+			}
+			else if(  ev->ev_code==SIM_KEYCODE_ENTER  ||  ev->ev_code==SIM_KEYCODE_ESCAPE  ) {
+				new_focus = NULL;
+				if(  ev->ev_code==SIM_KEYCODE_ESCAPE  ) {
+					// no untop message even!
+					comp_focus = NULL;
+				}
+				swallowed = comp_focus!=new_focus;
 			}
 		}
 	}

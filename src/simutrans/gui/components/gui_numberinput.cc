@@ -301,13 +301,13 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
 		}
 
 		// catch non-number keys
-		if(  ev->ev_class == EVENT_KEYBOARD  ||  value==new_value  ) {
+		if(  IS_KEYDOWN(ev)  ||  value==new_value  ) {
 			// assume false input
-			bool call_textinp = ev->ev_class != EVENT_KEYBOARD;
+			bool call_textinp = !IS_KEYBOARD(ev);
 			// editing keys, arrows, hom/end
 			switch (ev->ev_code) {
 				case '-':
-					call_textinp = min_value <0;
+					call_textinp = min_value < 0;
 					break;
 				case 1:   // allow Ctrl-A (select all text) to function
 				case 3:   // allow Ctrl-C (copy text to clipboard)
