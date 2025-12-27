@@ -114,35 +114,35 @@ void interaction_t::interactive_event( const event_t &ev )
 		switch(ev.ev_code) {
 
 			// cursor movements
-			case SIM_KEY_UPRIGHT:
+			case SIM_KEYCODE_UPRIGHT:
 				viewport->change_world_position(viewport->get_world_position() + koord::north);
 				world->set_dirty();
 				break;
-			case SIM_KEY_DOWNLEFT:
+			case SIM_KEYCODE_DOWNLEFT:
 				viewport->change_world_position(viewport->get_world_position() + koord::south);
 				world->set_dirty();
 				break;
-			case SIM_KEY_UPLEFT:
+			case SIM_KEYCODE_UPLEFT:
 				viewport->change_world_position(viewport->get_world_position() + koord::west);
 				world->set_dirty();
 				break;
-			case SIM_KEY_DOWNRIGHT:
+			case SIM_KEYCODE_DOWNRIGHT:
 				viewport->change_world_position(viewport->get_world_position() + koord::east);
 				world->set_dirty();
 				break;
-			case SIM_KEY_RIGHT:
+			case SIM_KEYCODE_RIGHT:
 				viewport->change_world_position(viewport->get_world_position() + koord(+1,-1));
 				world->set_dirty();
 				break;
-			case SIM_KEY_DOWN:
+			case SIM_KEYCODE_DOWN:
 				viewport->change_world_position(viewport->get_world_position() + koord(+1,+1));
 				world->set_dirty();
 				break;
-			case SIM_KEY_UP:
+			case SIM_KEYCODE_UP:
 				viewport->change_world_position(viewport->get_world_position() + koord(-1,-1));
 				world->set_dirty();
 				break;
-			case SIM_KEY_LEFT:
+			case SIM_KEYCODE_LEFT:
 				viewport->change_world_position(viewport->get_world_position() + koord(-1,+1));
 				world->set_dirty();
 				break;
@@ -156,7 +156,7 @@ void interaction_t::interactive_event( const event_t &ev )
 				}
 				break;
 
-			case SIM_KEY_F1:
+			case SIM_KEYCODE_F1:
 				if(  gui_frame_t *win = win_get_top()  ) {
 					if(  const char *helpfile = win->get_help_filename()  ) {
 						help_frame_t::open_help_on( helpfile );
@@ -199,7 +199,7 @@ void interaction_t::interactive_event( const event_t &ev )
 					}
 #ifdef STEAM_BUILT
 					// Block F12 from bringing up Keyboard Help (for Steam Screenshot) - but still allow F12 to be used if defined in pakset
-					if (ev.ev_code==SIM_KEY_F12) {
+					if (ev.ev_code==SIM_KEYCODE_F12) {
 						ok=true;
 					}
 #endif

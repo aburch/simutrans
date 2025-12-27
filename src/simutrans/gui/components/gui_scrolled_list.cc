@@ -187,12 +187,12 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 
 	event_t ev2 = *ev;
 	// translate key up/down to tab/shift-tab
-	if(  ev->ev_class==EVENT_KEYBOARD  && ev->ev_code == SIM_KEY_UP  &&  get_selection()>0) {
-		ev2.ev_code = SIM_KEY_TAB;
+	if(  ev->ev_class==EVENT_KEYBOARD  && ev->ev_code == SIM_KEYCODE_UP  &&  get_selection()>0) {
+		ev2.ev_code = SIM_KEYCODE_TAB;
 		ev2.ev_key_mod |= SIM_MOD_SHIFT;
 	}
-	if(  ev->ev_class==EVENT_KEYBOARD  && ev->ev_code == SIM_KEY_DOWN  &&  (uint32)(get_selection()+1) < item_list.get_count()) {
-		ev2.ev_code = SIM_KEY_TAB;
+	if(  ev->ev_class==EVENT_KEYBOARD  && ev->ev_code == SIM_KEYCODE_DOWN  &&  (uint32)(get_selection()+1) < item_list.get_count()) {
+		ev2.ev_code = SIM_KEYCODE_TAB;
 		ev2.ev_key_mod &= ~SIM_MOD_SHIFT;
 	}
 

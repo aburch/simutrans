@@ -559,7 +559,7 @@ static utf32 str_to_key(const char* str, uint8* modifier)
 		if (str[0] == 'F') {
 			uint8 function = atoi(str + 1);
 			if (function > 0) {
-				return SIM_KEY_F1 + function - 1;
+				return SIM_KEYCODE_F1 + function - 1;
 			}
 		}
 		// COMMA
@@ -568,44 +568,44 @@ static utf32 str_to_key(const char* str, uint8* modifier)
 		}
 		// Scroll lock
 		if (strstart(str, "SCROLLLOCK")) {
-			return SIM_KEY_SCROLLLOCK;
+			return SIM_KEYCODE_SCROLLLOCK;
 		}
 		// break/pause key
 		if (strstart(str, "PAUSE")) {
-			return SIM_KEY_PAUSE;
+			return SIM_KEYCODE_PAUSE;
 		}
 		// HOME
 		if (strstart(str, "HOME")) {
-			return SIM_KEY_HOME;
+			return SIM_KEYCODE_HOME;
 		}
 		// END
 		if (strstart(str, "END")) {
-			return SIM_KEY_END;
+			return SIM_KEYCODE_END;
 		}
 		// SPACE
 		if (strstart(str, "SPACE")) {
-			return SIM_KEY_SPACE;
+			return SIM_KEYCODE_SPACE;
 		}
 		// ENTER
 		//if (strstart(str, "ENTER")) {
-		//	return SIM_KEY_ENTER
+		//	return SIM_KEYCODE_ENTER
 		//}
 		// ESC
 		if (strstart(str, "ESC")) {
 			// but currently fixed binding!
-			return SIM_KEY_ESCAPE;
+			return SIM_KEYCODE_ESCAPE;
 		}
 		if (strstart(str, "DELETE")) {
 			// but currently fixed binding!
-			return SIM_KEY_DELETE;
+			return SIM_KEYCODE_DELETE;
 		}
 		if (strstart(str, "BACKSPACE")) {
 			// but currently fixed binding!
-			return SIM_KEY_BACKSPACE;
+			return SIM_KEYCODE_BACKSPACE;
 		}
 		// NUMPAD
 		if (const char* c = strstart(str, "NUM_")) {
-			return SIM_KEY_NUMPAD_BASE + atoi(c);
+			return SIM_KEYCODE_NUMPAD_BASE + atoi(c);
 		}
 	}
 	// invalid key

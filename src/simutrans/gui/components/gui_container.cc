@@ -84,8 +84,8 @@ bool gui_container_t::infowin_event(const event_t *ev)
 		}
 
 		// either event not swallowed, or inner container has no focused child component after TAB event
-		if(  !swallowed  ||  (ev->ev_code==SIM_KEY_TAB  &&  comp_focus  &&  comp_focus->get_focus()==NULL)  ) {
-			if(  ev->ev_code==SIM_KEY_TAB  ) {
+		if(  !swallowed  ||  (ev->ev_code==SIM_KEYCODE_TAB  &&  comp_focus  &&  comp_focus->get_focus()==NULL)  ) {
+			if(  ev->ev_code==SIM_KEYCODE_TAB  ) {
 				// TAB: find new focus
 				new_focus = NULL;
 				if(  IS_SHIFT_PRESSED(ev)  ) {
@@ -121,9 +121,9 @@ bool gui_container_t::infowin_event(const event_t *ev)
 
 				swallowed = comp_focus!=new_focus;
 			}
-			else if(  ev->ev_code==SIM_KEY_ENTER  ||  ev->ev_code==SIM_KEY_ESCAPE  ) {
+			else if(  ev->ev_code==SIM_KEYCODE_ENTER  ||  ev->ev_code==SIM_KEYCODE_ESCAPE  ) {
 				new_focus = NULL;
-				if(  ev->ev_code==SIM_KEY_ESCAPE  ) {
+				if(  ev->ev_code==SIM_KEYCODE_ESCAPE  ) {
 					// no untop message even!
 					comp_focus = NULL;
 				}

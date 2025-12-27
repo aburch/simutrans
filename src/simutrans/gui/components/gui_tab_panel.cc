@@ -205,7 +205,7 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 	}
 
 	// navigate among the tabs using shift+tab and tab
-	if(  ev->ev_class==EVENT_KEYBOARD  &&  ev->ev_code == SIM_KEY_TAB  ) {
+	if(  ev->ev_class==EVENT_KEYBOARD  &&  ev->ev_code == SIM_KEYCODE_TAB  ) {
 		int di = 1; // tab -> go to the next tab
 		if(  IS_SHIFT_PRESSED(ev)  ) {
 			// shift+tab -> go to the previous tab

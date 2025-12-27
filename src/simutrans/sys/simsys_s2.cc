@@ -929,48 +929,48 @@ static void internal_GetEvents()
 			bool np = false; // to indicate we converted a numpad key
 
 			switch(  sym  ) {
-				case SDLK_BACKSPACE:  code = SIM_KEY_BACKSPACE;             break;
-				case SDLK_TAB:        code = SIM_KEY_TAB;                   break;
-				case SDLK_RETURN:     code = SIM_KEY_ENTER;                 break;
-				case SDLK_ESCAPE:     code = SIM_KEY_ESCAPE;                break;
+				case SDLK_BACKSPACE:  code = SIM_KEYCODE_BACKSPACE;             break;
+				case SDLK_TAB:        code = SIM_KEYCODE_TAB;                   break;
+				case SDLK_RETURN:     code = SIM_KEYCODE_ENTER;                 break;
+				case SDLK_ESCAPE:     code = SIM_KEYCODE_ESCAPE;                break;
 				case SDLK_AC_BACK:
-				case SDLK_DELETE:     code = SIM_KEY_DELETE;                break;
-				case SDLK_DOWN:       code = SIM_KEY_DOWN;                  break;
-				case SDLK_END:        code = SIM_KEY_END;                   break;
-				case SDLK_HOME:       code = SIM_KEY_HOME;                  break;
-				case SDLK_F1:         code = SIM_KEY_F1;                    break;
-				case SDLK_F2:         code = SIM_KEY_F2;                    break;
-				case SDLK_F3:         code = SIM_KEY_F3;                    break;
-				case SDLK_F4:         code = SIM_KEY_F4;                    break;
-				case SDLK_F5:         code = SIM_KEY_F5;                    break;
-				case SDLK_F6:         code = SIM_KEY_F6;                    break;
-				case SDLK_F7:         code = SIM_KEY_F7;                    break;
-				case SDLK_F8:         code = SIM_KEY_F8;                    break;
-				case SDLK_F9:         code = SIM_KEY_F9;                    break;
-				case SDLK_F10:        code = SIM_KEY_F10;                   break;
-				case SDLK_F11:        code = SIM_KEY_F11;                   break;
-				case SDLK_F12:        code = SIM_KEY_F12;                   break;
-				case SDLK_F13:        code = SIM_KEY_F13;                   break;
-				case SDLK_F14:        code = SIM_KEY_F14;                   break;
-				case SDLK_F15:        code = SIM_KEY_F15;                   break;
-				case SDLK_KP_0:       np = true; code = (numlock ? '0' : (unsigned long)SIM_KEY_NUMPAD_BASE); break;
-				case SDLK_KP_1:       np = true; code = (numlock ? '1' : (unsigned long)SIM_KEY_DOWNLEFT); break;
-				case SDLK_KP_2:       np = true; code = (numlock ? '2' : (unsigned long)SIM_KEY_DOWN); break;
-				case SDLK_KP_3:       np = true; code = (numlock ? '3' : (unsigned long)SIM_KEY_DOWNRIGHT); break;
-				case SDLK_KP_4:       np = true; code = (numlock ? '4' : (unsigned long)SIM_KEY_LEFT); break;
-				case SDLK_KP_5:       np = true; code = (numlock ? '5' : (unsigned long)SIM_KEY_CENTER); break;
-				case SDLK_KP_6:       np = true; code = (numlock ? '6' : (unsigned long)SIM_KEY_RIGHT); break;
-				case SDLK_KP_7:       np = true; code = (numlock ? '7' : (unsigned long)SIM_KEY_UPLEFT); break;
-				case SDLK_KP_8:       np = true; code = (numlock ? '8' : (unsigned long)SIM_KEY_UP); break;
-				case SDLK_KP_9:       np = true; code = (numlock ? '9' : (unsigned long)SIM_KEY_UPRIGHT); break;
-				case SDLK_KP_ENTER:   code = SIM_KEY_ENTER;                 break;
-				case SDLK_LEFT:       code = SIM_KEY_LEFT;                  break;
+				case SDLK_DELETE:     code = SIM_KEYCODE_DELETE;                break;
+				case SDLK_DOWN:       code = SIM_KEYCODE_DOWN;                  break;
+				case SDLK_END:        code = SIM_KEYCODE_END;                   break;
+				case SDLK_HOME:       code = SIM_KEYCODE_HOME;                  break;
+				case SDLK_F1:         code = SIM_KEYCODE_F1;                    break;
+				case SDLK_F2:         code = SIM_KEYCODE_F2;                    break;
+				case SDLK_F3:         code = SIM_KEYCODE_F3;                    break;
+				case SDLK_F4:         code = SIM_KEYCODE_F4;                    break;
+				case SDLK_F5:         code = SIM_KEYCODE_F5;                    break;
+				case SDLK_F6:         code = SIM_KEYCODE_F6;                    break;
+				case SDLK_F7:         code = SIM_KEYCODE_F7;                    break;
+				case SDLK_F8:         code = SIM_KEYCODE_F8;                    break;
+				case SDLK_F9:         code = SIM_KEYCODE_F9;                    break;
+				case SDLK_F10:        code = SIM_KEYCODE_F10;                   break;
+				case SDLK_F11:        code = SIM_KEYCODE_F11;                   break;
+				case SDLK_F12:        code = SIM_KEYCODE_F12;                   break;
+				case SDLK_F13:        code = SIM_KEYCODE_F13;                   break;
+				case SDLK_F14:        code = SIM_KEYCODE_F14;                   break;
+				case SDLK_F15:        code = SIM_KEYCODE_F15;                   break;
+				case SDLK_KP_0:       np = true; code = (numlock ? '0' : (unsigned long)SIM_KEYCODE_NUMPAD_BASE); break;
+				case SDLK_KP_1:       np = true; code = (numlock ? '1' : (unsigned long)SIM_KEYCODE_DOWNLEFT); break;
+				case SDLK_KP_2:       np = true; code = (numlock ? '2' : (unsigned long)SIM_KEYCODE_DOWN); break;
+				case SDLK_KP_3:       np = true; code = (numlock ? '3' : (unsigned long)SIM_KEYCODE_DOWNRIGHT); break;
+				case SDLK_KP_4:       np = true; code = (numlock ? '4' : (unsigned long)SIM_KEYCODE_LEFT); break;
+				case SDLK_KP_5:       np = true; code = (numlock ? '5' : (unsigned long)SIM_KEYCODE_CENTER); break;
+				case SDLK_KP_6:       np = true; code = (numlock ? '6' : (unsigned long)SIM_KEYCODE_RIGHT); break;
+				case SDLK_KP_7:       np = true; code = (numlock ? '7' : (unsigned long)SIM_KEYCODE_UPLEFT); break;
+				case SDLK_KP_8:       np = true; code = (numlock ? '8' : (unsigned long)SIM_KEYCODE_UP); break;
+				case SDLK_KP_9:       np = true; code = (numlock ? '9' : (unsigned long)SIM_KEYCODE_UPRIGHT); break;
+				case SDLK_KP_ENTER:   code = SIM_KEYCODE_ENTER;                 break;
+				case SDLK_LEFT:       code = SIM_KEYCODE_LEFT;                  break;
 				case SDLK_PAGEDOWN:   code = '<';                           break;
 				case SDLK_PAGEUP:     code = '>';                           break;
-				case SDLK_RIGHT:      code = SIM_KEY_RIGHT;                 break;
-				case SDLK_UP:         code = SIM_KEY_UP;                    break;
-				case SDLK_PAUSE:      code = SIM_KEY_PAUSE;                 break;
-				case SDLK_SCROLLLOCK: code = SIM_KEY_SCROLLLOCK;            break;
+				case SDLK_RIGHT:      code = SIM_KEYCODE_RIGHT;                 break;
+				case SDLK_UP:         code = SIM_KEYCODE_UP;                    break;
+				case SDLK_PAUSE:      code = SIM_KEYCODE_PAUSE;                 break;
+				case SDLK_SCROLLLOCK: code = SIM_KEYCODE_SCROLLLOCK;            break;
 				default: {
 					// Handle CTRL-keys. SDL_TEXTINPUT event handles regular input
 					if(  (sys_event.key_mod & SIM_MOD_CTRL)  &&  SDLK_a <= sym  &&  sym <= SDLK_z  ) {

@@ -2366,7 +2366,7 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 				win_clamp_xywh_position(NULL, ev.mouse_pos, scr_size(1, 1), false);
 				win_clamp_xywh_position(NULL, ev.mouse_pos, scr_size(1, 1), false);
 
-				if (ev.ev_class == EVENT_KEYBOARD && ev.ev_code == SIM_KEY_F1) {
+				if (ev.ev_class == EVENT_KEYBOARD && ev.ev_code == SIM_KEYCODE_F1) {
 					if (gui_frame_t* win = win_get_top()) {
 						if (const char* helpfile = win->get_help_filename()) {
 							help_frame_t::open_help_on(helpfile);

@@ -355,9 +355,9 @@ void help_frame_t::set_helpfile(const char *filename, bool resize_frame )
 				case '>': c.append( "&gt;" ); break;
 				case 27:  c.append( translator::translate( "[ESCAPE]" ) ); break;
 				case 127: c.append( translator::translate( "[DELETE]" ) ); break;
-				case SIM_KEY_HOME: c.append( translator::translate( "[HOME]" ) ); break;
-				case SIM_KEY_END:  c.append( translator::translate( "[END]" ) ); break;
-				case SIM_KEY_SCROLLLOCK: c.append( translator::translate( "[SCROLLLOCK]" ) ); break;
+				case SIM_KEYCODE_HOME: c.append( translator::translate( "[HOME]" ) ); break;
+				case SIM_KEYCODE_END:  c.append( translator::translate( "[END]" ) ); break;
+				case SIM_KEYCODE_SCROLLLOCK: c.append( translator::translate( "[SCROLLLOCK]" ) ); break;
 				default:
 					if (key <= 26) {
 						c.printf("%c", '@' + key);
@@ -365,8 +365,8 @@ void help_frame_t::set_helpfile(const char *filename, bool resize_frame )
 					else if (key < 256) {
 						c.printf("%c", key);
 					}
-					else if (key < SIM_KEY_F15) {
-						c.printf("F%i", key - SIM_KEY_F1 + 1);
+					else if (key < SIM_KEYCODE_F15) {
+						c.printf("F%i", key - SIM_KEYCODE_F1 + 1);
 					}
 					else {
 						// try unicode

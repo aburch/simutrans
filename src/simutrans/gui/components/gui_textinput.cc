@@ -125,7 +125,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 
 			switch(ev->ev_code) {
 					// handled by container
-				case SIM_KEY_ENTER:
+				case SIM_KEYCODE_ENTER:
 					if(  text_dirty  ) {
 						text_dirty = false;
 						call_listeners((long)INPUT_FINISHED);
@@ -134,13 +134,13 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 					tail_cursor_pos = 0;
 					return false;
 
-				case SIM_KEY_TAB:
+				case SIM_KEYCODE_TAB:
 					// focus is going to be lost -> reset cursor positions to select the whole text by default
 					head_cursor_pos = len;
 					tail_cursor_pos = 0;
 					return false;
 
-				case SIM_KEY_ESCAPE:
+				case SIM_KEYCODE_ESCAPE:
 					return false;
 
 				case 1:
@@ -181,10 +181,10 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 						next_update_call = notify_all_changes_delay == 0xFFFFu ? 0xFFFFFFFFul : dr_time() + notify_all_changes_delay;
 					}
 					break;
-				case SIM_KEY_DOWN: // down arrow
+				case SIM_KEYCODE_DOWN: // down arrow
 					// not used currently
 					break;
-				case SIM_KEY_LEFT: // left arrow
+				case SIM_KEYCODE_LEFT: // left arrow
 					if(  head_cursor_pos>0  ) {
 						// Ctrl key pressed -> skip over to the start of the previous word (as delimited by space(s))
 						if(  IS_CONTROL_PRESSED(ev)  ) {
@@ -192,7 +192,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 							uint8 byte_length = 0;
 							uint8 pixel_width = 0;
 							// first skip over all contiguous space characters to the left
-							while(  head_cursor_pos>0  &&  get_prev_char_with_metrics(tmp_text, text, byte_length, pixel_width)==SIM_KEY_SPACE  ) {
+							while(  head_cursor_pos>0  &&  get_prev_char_with_metrics(tmp_text, text, byte_length, pixel_width)==SIM_KEYCODE_SPACE  ) {
 								head_cursor_pos -= byte_length;
 							}
 							// revert text pointer for further processing
@@ -200,7 +200,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 								tmp_text += byte_length;
 							}
 							// then skip over all contiguous non-space characters further to the left
-							while(  head_cursor_pos>0  &&  get_prev_char_with_metrics(tmp_text, text, byte_length, pixel_width)!=SIM_KEY_SPACE  ) {
+							while(  head_cursor_pos>0  &&  get_prev_char_with_metrics(tmp_text, text, byte_length, pixel_width)!=SIM_KEYCODE_SPACE  ) {
 								head_cursor_pos -= byte_length;
 							}
 						}
@@ -213,7 +213,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 						tail_cursor_pos = head_cursor_pos;
 					}
 					break;
-				case SIM_KEY_RIGHT: // right arrow
+				case SIM_KEYCODE_RIGHT: // right arrow
 					if(  head_cursor_pos<len  ) {
 						// Ctrl key pressed -> skip over to the start of the next word (as delimited by space(s))
 						if(  IS_CONTROL_PRESSED(ev)  ) {
@@ -221,7 +221,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 							uint8 byte_length = 0;
 							uint8 pixel_width = 0;
 							// first skip over all contiguous non-space characters to the right
-							while(  head_cursor_pos<len  &&  get_next_char_with_metrics(tmp_text, byte_length, pixel_width)!=SIM_KEY_SPACE  ) {
+							while(  head_cursor_pos<len  &&  get_next_char_with_metrics(tmp_text, byte_length, pixel_width)!=SIM_KEYCODE_SPACE  ) {
 								head_cursor_pos += byte_length;
 							}
 							// revert text pointer for further processing
@@ -229,7 +229,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 								tmp_text -= byte_length;
 							}
 							// then skip over all contiguous space characters further to the right
-							while(  head_cursor_pos<len  &&  get_next_char_with_metrics(tmp_text, byte_length, pixel_width)==SIM_KEY_SPACE  ) {
+							while(  head_cursor_pos<len  &&  get_next_char_with_metrics(tmp_text, byte_length, pixel_width)==SIM_KEYCODE_SPACE  ) {
 								head_cursor_pos += byte_length;
 							}
 						}
@@ -242,24 +242,24 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 						tail_cursor_pos = head_cursor_pos;
 					}
 					break;
-				case SIM_KEY_UP: // up arrow
+				case SIM_KEYCODE_UP: // up arrow
 					// not used currently
 					break;
-				case SIM_KEY_HOME: // home
+				case SIM_KEYCODE_HOME: // home
 					head_cursor_pos = 0;
 					// do not update tail cursor if SHIFT key is pressed -> enables text selection
 					if(  !IS_SHIFT_PRESSED(ev)  ) {
 						tail_cursor_pos = head_cursor_pos;
 					}
 					break;
-				case SIM_KEY_END: // end
+				case SIM_KEYCODE_END: // end
 					head_cursor_pos = len;
 					// do not update tail cursor if SHIFT key is pressed -> enables text selection
 					if(  !IS_SHIFT_PRESSED(ev)  ) {
 						tail_cursor_pos = head_cursor_pos;
 					}
 					break;
-				case SIM_KEY_BACKSPACE:
+				case SIM_KEYCODE_BACKSPACE:
 					// backspace
 					// check and remove any selected text first
 					if(  !remove_selection()  &&  head_cursor_pos>0  ) {
@@ -280,7 +280,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 						}
 					}
 					break;
-				case SIM_KEY_DELETE:
+				case SIM_KEYCODE_DELETE:
 					// delete
 					// check and remove any selected text first
 					if(  !remove_selection()  &&  head_cursor_pos<=len  ) {
@@ -297,10 +297,10 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 						// ignore special keys not handled so far
 						break;
 					}
-					else if (ev->ev_code>=SIM_KEY_NUMPAD_BASE  &&  ev->ev_code<=SIM_KEY_NUMPAD_BASE+9) {
+					else if (ev->ev_code>=SIM_KEYCODE_NUMPAD_BASE  &&  ev->ev_code<=SIM_KEYCODE_NUMPAD_BASE+9) {
 						// ignore numpad keys if numlock is off
 						// Could also return false here to move the map diagonally but this does not work for 2/4/6/8
-						// (SIM_KEY_LEFT/_RIGHT moves the cursor already)
+						// (SIM_KEYCODE_LEFT/_RIGHT moves the cursor already)
 						break;
 					}
 
@@ -487,13 +487,13 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		const char* tmp_text = text + tail_cursor_pos;
 		uint8 byte_length;
 		uint8 pixel_width;
-		while(  tail_cursor_pos>0  &&  get_prev_char_with_metrics(tmp_text, text, byte_length, pixel_width)!=SIM_KEY_SPACE  ) {
+		while(  tail_cursor_pos>0  &&  get_prev_char_with_metrics(tmp_text, text, byte_length, pixel_width)!=SIM_KEYCODE_SPACE  ) {
 			tail_cursor_pos -= byte_length;
 		}
 		// for head cursor pos -> skip over all contiguous non-space characters to the right
 		const size_t len = strlen(text);
 		tmp_text = text + head_cursor_pos;
-		while(  head_cursor_pos<len  &&  get_next_char_with_metrics(tmp_text, byte_length, pixel_width)!=SIM_KEY_SPACE  ) {
+		while(  head_cursor_pos<len  &&  get_next_char_with_metrics(tmp_text, byte_length, pixel_width)!=SIM_KEYCODE_SPACE  ) {
 			head_cursor_pos += byte_length;
 		}
 	}
