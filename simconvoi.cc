@@ -3611,13 +3611,11 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 		sint64 slot = (calibrated_arrived_time<0 ?((sint64)(1U<<32)+calibrated_arrived_time) : calibrated_arrived_time) * (sint64)current_entry.spacing / (sint64)world()->ticks_per_world_month + (sint64)1;
 		// go_on_ticks = slot * spacing + spacing_shift
 		go_on_ticks = slot * world()->ticks_per_world_month / current_entry.spacing + spacing_shift;
-		dbg->message("convoi_t::can_depart()","calibrated arrived time:%ld, slot %ld, go_on_ticks %u",calibrated_arrived_time,slot,go_on_ticks);
 		// book the departure slot.
 		while(  !halt->book_departure(arrived_time, go_on_ticks, go_on_ticks + 2 * world()->ticks_per_world_month / current_entry.spacing, cnv)  ) {
 			// If the reservation request is denied, increment slot.
 			slot++;
 			go_on_ticks = slot * world()->ticks_per_world_month / current_entry.spacing + spacing_shift;
-			dbg->message("convoi_t::can_depart()","go on tick:%u, slot %ld",go_on_ticks,slot);
 		}
 		dbg->message("convoi_t::can_depart()","%s will be depart at %i, now %i", cnv->get_name(), go_on_ticks, world()->get_ticks());
 		return is_first_ticks_bigger(world()->get_ticks(), go_on_ticks - time_to_load);
