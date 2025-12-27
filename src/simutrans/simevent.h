@@ -165,7 +165,7 @@ enum {
 struct event_t
 {
 public:
-	event_t(event_class_t event_class = EVENT_NONE);
+	explicit event_t(event_class_t event_class = EVENT_NONE);
 
 public:
 	/**
