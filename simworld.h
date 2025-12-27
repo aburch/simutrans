@@ -1874,7 +1874,7 @@ private:
 // a helper function to compare two ticks considering ticks overflow
 inline bool is_first_ticks_bigger(uint32 v1, uint32 v2) {
 	// we treat inverse order if |v1-v2|>(1U<<31) because ticks value changes periodicaly
-	return (v1 != v2) && ((v1 > v2)? v1-v2<(1U<<31): v2-v1>(1U<<31));
+	return (v1 != v2) && ((v1 > v2)? v1-v2<(uint32)(1U<<31): v2-v1>(uint32)(1U<<31));
 }
 
 #endif
