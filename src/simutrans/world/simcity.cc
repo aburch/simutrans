@@ -3995,7 +3995,7 @@ bool stadt_t::test_and_build_cityroad(koord start, koord end)
 
 	const sint16 length = koord_distance(start, end);
 	const koord dir = (end - start) / length;
-	if (dir.x + dir.y = 1) {
+	if (dir.x + dir.y != 1) {
 		// was a diagonal
 		return false;
 	}
