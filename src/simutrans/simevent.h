@@ -112,41 +112,6 @@ enum {
 #define SIM_MOD_CTRL   (1u << 1)
 
 
-/* macros */
-#define IS_MOUSE(ev) ((ev)->ev_class >= EVENT_CLICK && (ev)->ev_class <= EVENT_DRAG)
-
-#define IS_LEFTCLICK(ev)              ((ev)->ev_class == EVENT_CLICK        && (ev)->ev_code == MOUSE_LEFTBUTTON)
-#define IS_LEFTRELEASE(ev)            ((ev)->ev_class == EVENT_RELEASE      && (ev)->ev_code == MOUSE_LEFTBUTTON)
-#define IS_LEFTDRAG(ev)               ((ev)->ev_class == EVENT_DRAG         && (ev)->ev_code == MOUSE_LEFTBUTTON)
-#define IS_LEFTDBLCLK(ev)             ((ev)->ev_class == EVENT_DOUBLE_CLICK && (ev)->ev_code == MOUSE_LEFTBUTTON)
-#define IS_LEFTTPLCLK(ev)             ((ev)->ev_class == EVENT_TRIPLE_CLICK && (ev)->ev_code == MOUSE_LEFTBUTTON)
-
-#define IS_RIGHTCLICK(ev)             ((ev)->ev_class == EVENT_CLICK        && (ev)->ev_code == MOUSE_RIGHTBUTTON)
-#define IS_RIGHTRELEASE(ev)           ((ev)->ev_class == EVENT_RELEASE      && (ev)->ev_code == MOUSE_RIGHTBUTTON)
-#define IS_RIGHTDRAG(ev)              ((ev)->ev_class == EVENT_DRAG         && (ev)->ev_code == MOUSE_RIGHTBUTTON)
-#define IS_RIGHTDBLCLK(ev)            ((ev)->ev_class == EVENT_DOUBLE_CLICK && (ev)->ev_code == MOUSE_RIGHTBUTTON)
-#define IS_RIGHTTPLCLK(ev)            ((ev)->ev_class == EVENT_TRIPLE_CLICK && (ev)->ev_code == MOUSE_RIGHTBUTTON)
-
-#define IS_WHEELUP(ev)                ((ev)->ev_class == EVENT_CLICK        && (ev)->ev_code == MOUSE_WHEELUP)
-#define IS_WHEELDOWN(ev)              ((ev)->ev_class == EVENT_CLICK        && (ev)->ev_code == MOUSE_WHEELDOWN)
-
-#define IS_WINDOW_RESIZE(ev)          ((ev)->ev_class == WINDOW_RESIZE)
-#define IS_WINDOW_MAKE_MIN_SIZE(ev)   ((ev)->ev_class == WINDOW_MAKE_MIN_SIZE)
-#define IS_WINDOW_CHOOSE_NEXT(ev)     ((ev)->ev_class == WINDOW_CHOOSE_NEXT)
-
-// This macro is to determine if the event should be also handled by children of containers.
-#define DOES_WINDOW_CHILDREN_NEED(ev) ((ev)->ev_class == INFOWIN || (ev)->ev_class == WINDOW_RESIZE || (ev)->ev_class == WINDOW_MAKE_MIN_SIZE )
-
-#define IS_WINDOW_TOP(ev)             ((ev)->ev_class == INFOWIN || (ev)->ev_code == WIN_TOP)
-
-#define IS_LEFT_BUTTON_PRESSED(ev)     ((ev)->button_state&1)
-#define IS_RIGHT_BUTTON_PRESSED(ev)   (((ev)->button_state&2)>>1)
-#define IS_MIDDLE_BUTTON_PRESSED(ev)  (((ev)->button_state&4)>>2)
-
-#define IS_SHIFT_PRESSED(ev)          (((ev)->ev_key_mod&SIM_MOD_SHIFT) != 0)
-#define IS_CONTROL_PRESSED(ev)        (((ev)->ev_key_mod&SIM_MOD_CTRL ) != 0)
-
-
 /**
  * Slight explanation of event_t structure:
  * ev_class and ev_code speak for itself.
@@ -197,6 +162,40 @@ public:
 	/// mod key (SHIFT; ALT; CTRL; etc) pressed while event as triggered
 	unsigned int ev_key_mod;
 };
+
+
+static inline bool IS_MOUSE(const event_t *ev) { return ev->ev_class >= EVENT_CLICK && ev->ev_class <= EVENT_DRAG; }
+
+static inline bool IS_LEFTCLICK  (const event_t *ev) { return ev->ev_class == EVENT_CLICK        && ev->ev_code == MOUSE_LEFTBUTTON; }
+static inline bool IS_LEFTRELEASE(const event_t *ev) { return ev->ev_class == EVENT_RELEASE      && ev->ev_code == MOUSE_LEFTBUTTON; }
+static inline bool IS_LEFTDRAG   (const event_t *ev) { return ev->ev_class == EVENT_DRAG         && ev->ev_code == MOUSE_LEFTBUTTON; }
+static inline bool IS_LEFTDBLCLK (const event_t *ev) { return ev->ev_class == EVENT_DOUBLE_CLICK && ev->ev_code == MOUSE_LEFTBUTTON; }
+static inline bool IS_LEFTTPLCLK (const event_t *ev) { return ev->ev_class == EVENT_TRIPLE_CLICK && ev->ev_code == MOUSE_LEFTBUTTON; }
+
+static inline bool IS_RIGHTCLICK  (const event_t *ev) { return ev->ev_class == EVENT_CLICK        && ev->ev_code == MOUSE_RIGHTBUTTON; }
+static inline bool IS_RIGHTRELEASE(const event_t *ev) { return ev->ev_class == EVENT_RELEASE      && ev->ev_code == MOUSE_RIGHTBUTTON; }
+static inline bool IS_RIGHTDRAG   (const event_t *ev) { return ev->ev_class == EVENT_DRAG         && ev->ev_code == MOUSE_RIGHTBUTTON; }
+static inline bool IS_RIGHTDBLCLK (const event_t *ev) { return ev->ev_class == EVENT_DOUBLE_CLICK && ev->ev_code == MOUSE_RIGHTBUTTON; }
+static inline bool IS_RIGHTTPLCLK (const event_t *ev) { return ev->ev_class == EVENT_TRIPLE_CLICK && ev->ev_code == MOUSE_RIGHTBUTTON; }
+
+static inline bool IS_WHEELUP     (const event_t *ev) { return ev->ev_class == EVENT_CLICK        && ev->ev_code == MOUSE_WHEELUP;   }
+static inline bool IS_WHEELDOWN   (const event_t *ev) { return ev->ev_class == EVENT_CLICK        && ev->ev_code == MOUSE_WHEELDOWN; }
+
+static inline bool IS_WINDOW_RESIZE       (const event_t *ev) { return ev->ev_class == WINDOW_RESIZE;        }
+static inline bool IS_WINDOW_MAKE_MIN_SIZE(const event_t *ev) { return ev->ev_class == WINDOW_MAKE_MIN_SIZE; }
+static inline bool IS_WINDOW_CHOOSE_NEXT  (const event_t *ev) { return ev->ev_class == WINDOW_CHOOSE_NEXT;   }
+
+// This function is to determine if the event should be also handled by children of containers.
+static inline bool DOES_WINDOW_CHILDREN_NEED(const event_t *ev) { return ev->ev_class == INFOWIN || ev->ev_class == WINDOW_RESIZE || ev->ev_class == WINDOW_MAKE_MIN_SIZE; }
+
+static inline bool IS_WINDOW_TOP(const event_t *ev) { return ev->ev_class == INFOWIN || ev->ev_code == WIN_TOP; }
+
+static inline bool IS_LEFT_BUTTON_PRESSED  (const event_t *ev) { return ev->button_state & MOUSE_LEFTBUTTON;  }
+static inline bool IS_RIGHT_BUTTON_PRESSED (const event_t *ev) { return ev->button_state & MOUSE_RIGHTBUTTON; }
+static inline bool IS_MIDDLE_BUTTON_PRESSED(const event_t *ev) { return ev->button_state & MOUSE_MIDBUTTON;   }
+
+static inline bool IS_SHIFT_PRESSED  (const event_t *ev) { return ev->ev_key_mod & SIM_MOD_SHIFT; }
+static inline bool IS_CONTROL_PRESSED(const event_t *ev) { return ev->ev_key_mod & SIM_MOD_CTRL;  }
 
 
 /// Return one event. Does *not* wait.
