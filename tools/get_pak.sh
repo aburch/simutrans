@@ -210,7 +210,7 @@ paksets=( \
   "http://downloads.sourceforge.net/project/simutrans/pak64/124-3/simupak64-124-3.zip" \
   "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20ST%20124.3up%20%282.10.0%29/simupak128-2-10-for124-3up.zip" \
   "http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192.comic%20V0.7.2/pak192-comic.zip" \
-  "http://simutrans-germany.com/pak.german/pak64.german_0-124-0-0-7_full.zip" \
+  "http://simutrans-germany.com/pak.german/pak64.german_0-124-0-0-8_full.zip" \
   "http://downloads.sourceforge.net/project/simutrans/pak64.japan/123-0/simupak64.japan-123-0.zip" \
   "https://github.com/wa-st/pak-nippon/releases/download/v0.6.2/pak.nippon-v0.6.2.zip" \
   "http://downloads.sourceforge.net/project/simutrans/Pak128.CS/nightly%20builds/pak128.CS-r2096.zip" \
