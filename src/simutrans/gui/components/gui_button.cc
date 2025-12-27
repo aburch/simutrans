@@ -268,9 +268,9 @@ bool button_t::infowin_event(const event_t *ev)
 		}
 	}
 
-	if(  !IS_KEYBOARD(ev)  ) {
-		if(  ev->ev_code==32  &&  get_focus()  ) {
-			// space toggles button
+	if(  IS_KEYBOARD(ev)  ) {
+		if(  IS_KEYDOWN(ev)  &&  ev->ev_code==32  &&  get_focus()  ) {
+			// pressing spacebar toggles the button if it has focus
 			call_listeners( (long)0 );
 			return true;
 		}
