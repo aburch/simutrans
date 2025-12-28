@@ -68,6 +68,8 @@ echo "export SIGNING_STORE_PASSWORD=android" >> ~/.profile
 echo "export SIGNING_KEY_PASSWORD=android" >> ~/.profile
 echo "export SIGNING_KEY_ALIAS=androiddebugkey" >> ~/.profile
 
+source ~/.profile
+
 echo "**************************************************"
 echo "** Please logout before run the next setup script!"
 echo "**************************************************"
