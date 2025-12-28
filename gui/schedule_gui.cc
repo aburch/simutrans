@@ -398,10 +398,10 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		if(  !cnv.is_bound()  ) {
 			lb_departure_slot_group.set_tooltip(translator::translate("Shares the departure time slot with the selected line here."));
 			add_component(&lb_departure_slot_group);
-			add_component(&sp_schedule_settings);
 			init_departure_slot_group_selector();
 			departure_slot_group_selector.add_listener(this);
 			add_component(&departure_slot_group_selector);
+			add_component(&sp_schedule_settings);
 		}
 
 		// next_line setting

@@ -115,7 +115,7 @@ bool route_t::node_in_use=false;
 /**
  * find the route to an unknown location
  */
-bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 max_depth, bool coupling )
+bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 max_depth, bool need_electric, bool coupling )
 {
 	bool ok = false;
 
@@ -140,7 +140,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	route.clear();
 
 	// first tile is not valid?!?
-	if(  !tdriver->check_next_tile(g, true, coupling)  ) {
+	if(  !tdriver->check_next_tile(g, need_electric, true, coupling)  ) {
 		return false;
 	}
 
@@ -198,7 +198,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			already_there = tdriver->is_coupling_target( gr, tmp->parent==NULL ? NULL : tmp->parent->gr);
 		} else {
 			// normal routine.
-			already_there = tdriver->is_target( gr, tmp->parent==NULL ? NULL : tmp->parent->gr );
+			already_there = tdriver->is_target( gr, tmp->parent==NULL ? NULL : tmp->parent->gr, need_electric );
 		}
 		if(  already_there  ) {
 			// we added a target to the closed list: check for length
@@ -215,7 +215,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			    && koord_distance(start, gr->get_pos() + koord::nesw[r])<max_depth // not too far away
 			    && gr->get_neighbour(to, wegtyp, ribi_t::nesw[r])  // is connected
 			    && !marker.is_marked(to) // not already tested
-			    && tdriver->check_next_tile(to, true, coupling) // can be driven on
+			    && tdriver->check_next_tile(to, need_electric, true, coupling) // can be driven on
 			) {
 				// not in there or taken out => add new
 				ANode* k = &nodes[step++];
@@ -293,7 +293,7 @@ ribi_t::ribi *get_next_dirs(const koord3d& gr_pos, const koord3d& ziel)
 
 
 
-bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, test_driver_t *tdriver, const sint32 max_speed, const uint32 max_cost)
+bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, test_driver_t *tdriver, const sint32 max_speed, const uint32 max_cost, const bool need_electric)
 {
 	bool ok = false;
 
@@ -307,7 +307,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	route.clear();
 
 	// first tile is not valid?!?
-	if(  !tdriver->check_next_tile(gr)  ) {
+	if(  !tdriver->check_next_tile(gr,need_electric)  ) {
 		return false;
 	}
 
@@ -418,7 +418,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 			}
 
 			// a way goes here, and it is not marked (i.e. in the closed list)
-			if((to  ||  gr->get_neighbour(to, wegtyp, next_ribi[r]))  &&  tdriver->check_next_tile(to)  &&  !marker.is_marked(to)) {
+			if((to  ||  gr->get_neighbour(to, wegtyp, next_ribi[r]))  &&  tdriver->check_next_tile(to,need_electric)  &&  !marker.is_marked(to)) {
 
 				weg_t *w = to->get_weg(wegtyp);
 				// Do not go on a tile, where a oneway sign forbids going.
@@ -686,7 +686,7 @@ bool is_way_bend(koord3d pos, waytype_t waytype) {
  * searches route, uses intern_calc_route() for distance between stations
  * handles only driving in stations by itself
  */
-route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, test_driver_t *tdriver, const sint32 max_khm, sint32 max_len )
+route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, test_driver_t *tdriver, const sint32 max_khm, sint32 max_len, const bool need_electric )
 {
 	route.clear();
 
@@ -695,7 +695,7 @@ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, c
 #ifdef DEBUG_ROUTES
 	const uint32 ms = dr_time();
 #endif
-	const bool ok = intern_calc_route(welt, start, ziel, tdriver, max_khm, 0xFFFFFFFFul );
+	const bool ok = intern_calc_route(welt, start, ziel, tdriver, max_khm, 0xFFFFFFFFul, need_electric );
 #ifdef DEBUG_ROUTES
 	if(tdriver->get_waytype()==water_wt) {
 		DBG_DEBUG("route_t::calc_route()", "route from %d,%d to %d,%d with %i steps in %u ms found.", start.x, start.y, ziel.x, ziel.y, route.get_count()-1, dr_time()-ms );
@@ -742,7 +742,7 @@ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, c
 			if(  !ribi_t::is_single(open_dir)  ||
 			  !gr_loop->get_neighbour(gr_loop, waytype, open_dir)  ||
 				gr_loop->get_halt() != halt  ||
-				!tdriver->check_next_tile(gr_loop)
+				!tdriver->check_next_tile(gr_loop,need_electric)
 		    ) 
 			{ 
 				// We cannot go foward anymore.
