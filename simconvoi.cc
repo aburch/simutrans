@@ -5596,10 +5596,23 @@ void convoi_t::check_electrification() {
 		}
 		c = c->get_coupling_convoi();
 	}
+	if(  is_electric && !most_parent_convoi->is_loading() && most_parent_convoi->state!=INITIAL && most_parent_convoi->get_route()->get_count()>0  ) {
+		use_electric = true;
+		for( uint16 i=most_parent_convoi->front()->get_route_index()-1; i<most_parent_convoi->get_route()->get_count(); i++) {
+			grund_t* gr = welt->lookup(most_parent_convoi->get_route()->at(i));
+			if(  gr  ) {
+				schiene_t const* const sch = obj_cast<schiene_t>(gr->get_weg(front()->get_waytype()));
+				if(  sch && !sch->is_electrified()  ){
+					use_electric = false;
+				}
+			}
+		}
+	}
 	c = most_parent_convoi;
 	while(  c.is_bound()  ) {
 		c->is_electric = is_electric;
 		c->need_electric = need_electric;
+		c->use_electric |= use_electric;
 		c = c->get_coupling_convoi();
 	}
 	return;
