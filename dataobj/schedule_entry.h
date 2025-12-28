@@ -56,8 +56,8 @@ public:
 		WAIT_COUPLING_DONE= 1U << 10,// Do not reserve departure slot until coupling done.
 		MAX_SPEED_KMH_OF_CONVOI= 1U << 11,// Overwrite max speed of convoy here.
 		NO_OVERTAKE       = 1U << 12,// Do not overtake(for road)
-		PASS_STOP		  = 1U << 13,// pass this stop even if halt is.
-		UNCOUPLE_CHILD    = 1U << 14 // The convoy uncouple its child convoy (only its child: this convoy will be the most child convoy).
+		UNCOUPLE_CHILD    = 1U << 13,// The convoy uncouple its child convoy (only its child: this convoy will be the most child convoy).
+		PASS_STOP		  = 1U << 14 // pass this stop even if halt is.
 	};
 
 	/**
