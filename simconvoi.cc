@@ -1341,7 +1341,6 @@ bool convoi_t::drive_to()
 			schedule->set_current_stop(current_stop);
 			if(  route_ok  ) {
 				vorfahren();
-				reversing_needed = false;
 				return true;
 			}
 		}
@@ -2702,6 +2701,17 @@ void convoi_t::vorfahren()
 
 	wait_lock = 0;
 	INT_CHECK("simconvoi 711");
+	reversing_needed = false;
+	c = self;
+	bool stop_next=true;
+	while(  c.is_bound()  ) {
+		stop_next&=c->is_users_at_next_stop();
+		c=c->get_coupling_convoi();
+	}
+	if(  !stop_next  ) {
+		// skip next stop!
+		next_stop_button_pressed();
+	}
 }
 
 // a helper function for convoi_t::vorfahren()
@@ -5291,6 +5301,60 @@ bool convoi_t::calc_lane_affinity(uint8 lane_affinity_sign)
 			test_index++;
 		}
 	}
+	return false;
+}
+
+// check next stops user.
+// to check convoy can go next stop or not
+// true->go to next stop, false->go to next-next stop
+bool convoi_t::is_users_at_next_stop() const{
+	if(  is_waypoint(get_schedule()->get_current_entry())  ) {
+		// convoy must go to the waypoint->true!
+		return true;
+	}
+	if(  !get_schedule()->get_current_entry().is_no_go_no_users()  ) {
+		// we do not need check
+		return true;
+	}
+	// users on this convoy?
+	halthandle_t halt = haltestelle_t::get_stoppable_halt(get_schedule()->get_current_entry().pos,owner,front()->get_waytype());
+	int fracht_menge = 0;
+	if(  !get_schedule()->get_current_entry().is_no_unload()  ) {
+		for(  uint32 i = 0;  i != anz_vehikel;  ++i  ) {
+			const vehicle_t* v = fahr[i];
+			// then add the actual load
+			FOR(slist_tpl<ware_t>, ware, v->get_cargo()) {
+				if(  ware.get_ziel()==halt || ware.get_zwischenziel()==halt  ) {
+					// find goods to this stop!
+					return true;
+				}
+			}
+			fracht_menge += v->get_total_cargo();
+		}
+	}
+	if(  get_schedule()->get_current_entry().is_unload_all() && (fracht_menge>0)  ) {
+		// we need to unload all goods at the next stop!
+		return true;
+	}
+	if(  !get_schedule()->get_current_entry().is_no_load()  ) {
+		vector_tpl<haltestelle_t::reachable_halt_t> reachable_halts;
+		calc_reachable_halts(reachable_halts, self);
+		inthashtable_tpl<uint8, vector_tpl<halthandle_t>> destination_halts;
+		halt->calc_destination_halt(destination_halts, reachable_halts, goods_catg_index, self);
+
+		// fetch fresh cargos.
+		FOR(minivec_tpl<uint8>, category_idx, goods_catg_index) {
+			vector_tpl<haltestelle_t::loadable_fresh_goods_t> loadable_fresh_goods;
+			halt->fetch_loadable_fresh_goods(loadable_fresh_goods, category_idx, destination_halts.get(category_idx));
+			FOR(vector_tpl<haltestelle_t::loadable_fresh_goods_t>, &goods, loadable_fresh_goods) {
+				if(  goods.amount>0  ) {
+					// this goods will use this convoy!
+					return true;
+				}
+			}
+		}
+	}
+	// there are no users!
 	return false;
 }
 

@@ -686,6 +686,10 @@ void construct_schedule_entry_attributes(cbuffer_t& buf, schedule_entry_t const&
 		str[cnt] = 'N';
 		cnt++;
 	}
+	if(  entry.is_no_go_no_users()  ) {
+		str[cnt] = 'G';
+		cnt++;
+	}
 	if(  entry.is_pass_stop()  ) {
 		str[cnt] = 'P';
 		cnt++;

@@ -486,7 +486,11 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		bt_transfer_interval.add_listener(this);
 		bt_transfer_interval.disable();
 		add_component(&bt_transfer_interval);
-		add_component(&sp_load_settings);
+		bt_no_go_no_users.init(button_t::square_state, "not go if no users");
+		bt_no_go_no_users.set_tooltip("If there are no users, this convoy will not go to this stop");
+		bt_no_go_no_users.add_listener(this);
+		bt_no_go_no_users.disable();
+		add_component(&bt_no_go_no_users);
 		add_component(&sp_load_settings);
 		add_component(&lb_max_load);
 
@@ -798,6 +802,7 @@ void schedule_gui_t::update_selection()
 	bt_max_load_all_stops.disable();
 	bt_no_overtake.disable();
 	bt_max_speed_kmh_of_convoi.disable();
+	bt_no_go_no_users.disable();
 	numimp_max_speed_kmh_of_convoi.disable();
 	bt_pass_stop.disable();
 
@@ -840,7 +845,8 @@ void schedule_gui_t::update_selection()
 			bt_transfer_interval.pressed = schedule->at(current_stop).is_transfer_interval();
 			numimp_length_coupling_done.enable();
 			numimp_length_coupling_done.set_value( schedule->at(current_stop).get_length_coupling_done() );
-
+			bt_no_go_no_users.enable();
+			bt_no_go_no_users.pressed = schedule->at(current_stop).is_no_go_no_users();
 			
 			// wait_for_time releated things
 			const bool wft = schedule->at(current_stop).get_wait_for_time();
@@ -1045,6 +1051,12 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 			} else {
 				schedule->at(schedule->get_current_stop()).waiting_time_shift = 0;
 			}
+			update_selection();
+		}
+	}
+	else if(comp == &bt_no_go_no_users) {
+		if(!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).set_no_go_no_users(!bt_no_go_no_users.pressed);
 			update_selection();
 		}
 	}
@@ -1558,6 +1570,7 @@ void schedule_gui_t::extract_loading_settings(bool yesno) {
 	lb_max_load.set_visible(yesno);
 	numimp_max_load.set_visible(yesno);
 	bt_max_load_all_stops.set_visible(yesno);
+	bt_no_go_no_users.set_visible(yesno);
 }
 void schedule_gui_t::extract_driving_settings(bool yesno) {
 	bt_extract_driving_settings.set_typ(yesno ? button_t::arrowup : button_t::arrowdown);

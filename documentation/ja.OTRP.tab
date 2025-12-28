@@ -225,6 +225,10 @@ Shares the departure time slot with the selected line here.
 選択された路線と発車枠を共有します。
 <new departure slot group>
 <新しい発車枠グループ>
+not go if no users
+乗降客がいない場合通過する(G)
+If there are no users, this convoy will not go to this stop
+乗降客がいない場合、次の駅に向かいます．
 reverse convoy
 編成を反転する(R)
 Reverses the direction of convoy.
