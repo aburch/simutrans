@@ -1714,7 +1714,7 @@ sint32 haltestelle_t::rebuild_connections()
 			 	force_transfer_search |= (current_entry.is_unload_all()  ||  current_entry.is_no_load()  ||  current_entry.is_no_unload());
 				// If loading is allowed at somewhere by here, we still need to connect the further halts.
 				// Reset no_load_section to false in case that we can load here.
-				no_load_section &= current_entry.is_no_load();
+				no_load_section &= (current_entry.is_no_load()||current_entry.is_temp_load());
 				interval = 0;
 				continue;
 			}
@@ -1723,12 +1723,12 @@ sint32 haltestelle_t::rebuild_connections()
 			aggregate_weight_jt += schedule->get_median_journey_time(current_entry_index, (uint32)speedbonus_kmh);
 			aggregate_weight_rc += WEIGHT_HALT;
 
-			if(  current_entry.is_no_unload()  ||  no_load_section  ) {
+			if(  current_entry.is_no_unload() || current_entry.is_temp_unload()  ||  no_load_section  ) {
 				// do not add connection if this halt is set no_unload or if the previous self stop is set no_load.
 				continue;
 			}
 
-			no_load_section |= current_entry.is_unload_all();
+			no_load_section |= (current_entry.is_unload_all()||current_entry.is_temp_unload_all());
 			
 			if(current_entry.is_transfer_interval()){
 				if(interval == 1){

@@ -492,8 +492,24 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		bt_no_go_no_users.disable();
 		add_component(&bt_no_go_no_users);
 		add_component(&sp_load_settings);
-		add_component(&lb_max_load);
 
+		bt_temp_load.init(button_t::square_state, "load temporary");
+		bt_temp_load.set_tooltip("Can load but not use for goods routing");
+		bt_temp_load.add_listener(this);
+		bt_temp_load.disable();
+		add_component(&bt_temp_load);
+		bt_temp_unload.init(button_t::square_state, "unload temporary");
+		bt_temp_unload.set_tooltip("Can unload but not use for goods routing");
+		bt_temp_unload.add_listener(this);
+		bt_temp_unload.disable();
+		add_component(&bt_temp_unload);
+		bt_temp_unload_all.init(button_t::square_state, "unload all temporary");
+		bt_temp_unload_all.set_tooltip("Terminate goods routing (can continue boarding).");
+		bt_temp_unload_all.add_listener(this);
+		bt_temp_unload_all.disable();
+		add_component(&bt_temp_unload_all);
+
+		add_component(&lb_max_load);
 		// maximum loading
 		lb_max_load.set_tooltip("set maximum loading ratio");
 
@@ -804,7 +820,11 @@ void schedule_gui_t::update_selection()
 	bt_max_speed_kmh_of_convoi.disable();
 	bt_no_go_no_users.disable();
 	numimp_max_speed_kmh_of_convoi.disable();
+	bt_temp_load.disable();
+	bt_temp_unload.disable();
+	bt_temp_unload_all.disable();
 	bt_pass_stop.disable();
+
 
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
@@ -845,6 +865,12 @@ void schedule_gui_t::update_selection()
 			bt_transfer_interval.pressed = schedule->at(current_stop).is_transfer_interval();
 			numimp_length_coupling_done.enable();
 			numimp_length_coupling_done.set_value( schedule->at(current_stop).get_length_coupling_done() );
+			bt_temp_load.enable();
+			bt_temp_load.pressed = schedule->at(current_stop).is_temp_load();
+			bt_temp_unload.enable();
+			bt_temp_unload.pressed = schedule->at(current_stop).is_temp_unload();
+			bt_temp_unload_all.enable();
+			bt_temp_unload_all.pressed = schedule->at(current_stop).is_temp_unload_all();
 			bt_no_go_no_users.enable();
 			bt_no_go_no_users.pressed = schedule->at(current_stop).is_no_go_no_users();
 			
@@ -1035,6 +1061,24 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 			if(  bt_find_parent.pressed  ) {
 				schedule->at(schedule->get_current_stop()).reset_coupling();
 			} 
+			update_selection();
+		}
+	}
+	else if(comp == &bt_temp_load) {
+		if(!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).set_temp_load(!schedule->at(schedule->get_current_stop()).is_temp_load());
+			update_selection();
+		}
+	}
+	else if(comp == &bt_temp_unload) {
+		if(!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).set_temp_unload(!schedule->at(schedule->get_current_stop()).is_temp_unload());
+			update_selection();
+		}
+	}
+	else if(comp == &bt_temp_unload_all) {
+		if(!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).set_temp_unload_all(!schedule->at(schedule->get_current_stop()).is_temp_unload_all());
 			update_selection();
 		}
 	}
@@ -1571,6 +1615,9 @@ void schedule_gui_t::extract_loading_settings(bool yesno) {
 	numimp_max_load.set_visible(yesno);
 	bt_max_load_all_stops.set_visible(yesno);
 	bt_no_go_no_users.set_visible(yesno);
+	bt_temp_load.set_visible(yesno);
+	bt_temp_unload.set_visible(yesno);
+	bt_temp_unload_all.set_visible(yesno);
 }
 void schedule_gui_t::extract_driving_settings(bool yesno) {
 	bt_extract_driving_settings.set_typ(yesno ? button_t::arrowup : button_t::arrowdown);

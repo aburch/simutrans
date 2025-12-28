@@ -686,6 +686,18 @@ void construct_schedule_entry_attributes(cbuffer_t& buf, schedule_entry_t const&
 		str[cnt] = 'N';
 		cnt++;
 	}
+	if(  entry.is_temp_unload()  ) {
+		str[cnt] = 'u';
+		cnt++;
+	}
+	if(  entry.is_temp_load()  ) {
+		str[cnt] = 'l';
+		cnt++;
+	}
+	if(  entry.is_temp_unload_all()  ) {
+		str[cnt] = 'a';
+		cnt++;
+	}
 	if(  entry.is_no_go_no_users()  ) {
 		str[cnt] = 'G';
 		cnt++;

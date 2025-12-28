@@ -58,7 +58,10 @@ public:
 		NO_OVERTAKE       = 1U << 12,// Do not overtake(for road)
 		UNCOUPLE_CHILD    = 1U << 13,// The convoy uncouple its child convoy (only its child: this convoy will be the most child convoy).
 		PASS_STOP		  = 1U << 14,// pass this stop even if halt is.
-		NO_GO_NO_USERS	  = 1U << 15 // do not go to this stop if no users
+		NO_GO_NO_USERS	  = 1U << 15,// do not go to this stop if no users
+		TEMP_LOAD         = 1U << 16,// load temporary(not use for goods routing)
+		TEMP_UNLOAD       = 1U << 17,// unload temporary(not use for goods routing)
+		TEMP_UNLOAD_ALL   = 1U << 18 // unload all only for goods routing
 	};
 
 	/**
@@ -177,6 +180,13 @@ public:
 	void set_pass_stop( bool y ) { y? stop_flags|=(PASS_STOP+NO_LOAD+NO_UNLOAD) : stop_flags &= ~PASS_STOP; }
 	bool is_no_go_no_users() const {return (stop_flags&NO_GO_NO_USERS)>0;}
 	void set_no_go_no_users(bool y) {y? stop_flags|=NO_GO_NO_USERS: stop_flags &= ~NO_GO_NO_USERS; }
+	bool is_temp_load() const {return (stop_flags&TEMP_LOAD)>0;}
+	bool is_temp_unload() const {return (stop_flags&TEMP_UNLOAD)>0;}
+	void set_temp_load(bool y) {y? stop_flags|=TEMP_LOAD: stop_flags&= ~TEMP_LOAD;}
+	void set_temp_unload(bool y) {y? stop_flags|=TEMP_UNLOAD: stop_flags&= ~TEMP_UNLOAD;}
+	bool is_temp_unload_all() const {return (stop_flags&TEMP_UNLOAD_ALL)>0;}
+	void set_temp_unload_all(bool y) {y? stop_flags|=TEMP_UNLOAD_ALL: stop_flags&= ~TEMP_UNLOAD_ALL;}
+
 
 	void set_spacing(uint16 a, uint16 b, uint16 c) {
 		spacing = a;
