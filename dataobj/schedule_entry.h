@@ -57,7 +57,7 @@ public:
 		MAX_SPEED_KMH_OF_CONVOI= 1U << 11,// Overwrite max speed of convoy here.
 		NO_OVERTAKE       = 1U << 12,// Do not overtake(for road)
 		UNCOUPLE_CHILD    = 1U << 13,// The convoy uncouple its child convoy (only its child: this convoy will be the most child convoy).
-		NO_GO_NO_USERS	  = 1U << 17 // do not go to this stop if no users
+		NO_GO_NO_USERS	  = 1U << 15 // do not go to this stop if no users
 	};
 
 	/**
