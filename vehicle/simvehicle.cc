@@ -1257,8 +1257,7 @@ void vehicle_t::hop(grund_t* gr)
 				child = child->get_coupling_convoi();
 			}
 			const koord3d ziel = cnv->get_schedule()->get_current_entry().pos;
-<<<<<<< HEAD
-			cnv->set_schedule_target( cnv->is_waypoint(ziel) ? ziel : koord3d::invalid );
+			cnv->set_schedule_target( cnv->is_waypoint(cnv->get_schedule()->get_current_entry()) ? ziel : koord3d::invalid );
 			c = cnv->self;
 			bool stop_next=true;
 			while(  c.is_bound()  ) {
@@ -1269,9 +1268,6 @@ void vehicle_t::hop(grund_t* gr)
 				// skip next stop!
 				cnv->self->next_stop_button_pressed();
 			}
-=======
-			cnv->set_schedule_target( cnv->is_waypoint(cnv->get_schedule()->get_current_entry()) ? ziel : koord3d::invalid );
->>>>>>> OTRP-KUTAv6
 		}
 	}
 
