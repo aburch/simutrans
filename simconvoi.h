@@ -13,6 +13,7 @@
 #include "simunits.h"
 #include "simcolor.h"
 #include "linehandle_t.h"
+#include "dataobj/schedule_entry.h"
 
 #include "ifc/sync_steppable.h"
 
@@ -129,6 +130,8 @@ private:
 	 * Used in movement calculations.
 	 */
 	sint32 sum_gear_and_power;
+	sint32 sum_gear_and_power_electric;
+	bool use_electric;
 
 	// 40 bytes
 	/**
@@ -273,6 +276,8 @@ private:
 
 	// true, if there is at least one engine that requires catenary
 	bool is_electric;
+	// true, if it can not run without catenary
+	bool need_electric;
 
 	/**
 	* the convoi caches its freight info; it is only recalculation after loading or resorting
@@ -560,8 +565,10 @@ public:
 	linehandle_t get_line() const {return line;}
 
 	/* true, if electrification needed for this convoi */
-	bool needs_electrification() const { return is_electric; }
-	bool check_electrification();
+	bool needs_electrification() const { return need_electric; }
+	bool is_electrification() const {return is_electric;}
+	void check_electrification();
+	void set_use_electric(bool y);
 
 	/**
 	* set line
@@ -572,7 +579,7 @@ public:
 	void check_pending_updates();
 
 	// true if this is a waypoint
-	bool is_waypoint( koord3d ) const;
+	bool is_waypoint( schedule_entry_t ) const;
 
 	/* changes the state of a convoi via tool_t; mandatory for networkmode!
 	 * for list of commands and parameter see tool_t::tool_change_convoi_t
@@ -700,7 +707,7 @@ public:
 	 * @return total power of this convoi
 	 */
 	const uint32 & get_sum_power() const {return sum_power;}
-	const sint32 & get_sum_gear_and_power() const {return sum_gear_and_power;}
+	const sint32 get_sum_gear_and_power() const {return use_electric? sum_gear_and_power: sum_gear_and_power-sum_gear_and_power_electric;}
 	const sint32 & get_min_top_speed() const {return min_top_speed;}
 	const sint32 & get_speed_limit() const {return speed_limit;}
 
@@ -736,6 +743,8 @@ public:
 	 * Add the costs for travelling one tile
 	 */
 	void add_running_cost( const weg_t *weg );
+
+	bool is_users_at_next_stop() const;
 
 	/**
 	 * moving the vehicles of a convoi and acceleration/deceleration

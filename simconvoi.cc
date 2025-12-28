@@ -102,8 +102,10 @@ void convoi_t::init(player_t *player)
 	owner = player;
 
 	is_electric = false;
+	need_electric = false;
+	use_electric = false;
 	sum_gesamtweight = sum_weight = 0;
-	sum_running_costs = sum_fixed_costs = sum_gear_and_power = previous_delta_v = 0;
+	sum_running_costs = sum_fixed_costs = sum_gear_and_power = previous_delta_v = sum_gear_and_power_electric = 0;
 	sum_power = 0;
 	min_top_speed = SPEED_UNLIMITED;
 	speedbonus_kmh = SPEED_UNLIMITED; // speed_to_kmh() not needed
@@ -184,8 +186,8 @@ void convoi_t::init(player_t *player)
 	recalc_min_top_speed = true;
 	recalc_friction_weight = true;
 
-	speed_magnification = atoi(translator::translate("speed_magnification"))!=0 ? atoi(translator::translate("speed_magnification")) : 100;
-	acceleration_magnification = atoi(translator::translate("acceleration_magnification"))!=0 ? atoi(translator::translate("acceleration_magnification")) : 100;
+	speed_magnification = atoi(translator::translate("speed_magnification"))!=0 ? min(atoi(translator::translate("speed_magnification")), 255) : 100;
+	acceleration_magnification = atoi(translator::translate("acceleration_magnification"))!=0 ? min(atoi(translator::translate("acceleration_magnification")), 255) : 100;
 
 	in_delay_recovery = false;
 	reversed = false;
@@ -257,11 +259,11 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 
 
 // waypoint: no stop, resp. for airplanes in air (i.e. no air strip below)
-bool convoi_t::is_waypoint( koord3d ziel ) const
+bool convoi_t::is_waypoint( schedule_entry_t entry ) const
 {
 	if(  fahr[0]->get_waytype() == air_wt  ) {
 		// separate logic for airplanes, since the can have waypoints over stops etc.
-		grund_t *gr = welt->lookup_kartenboden(ziel.get_2d());
+		grund_t *gr = welt->lookup_kartenboden(entry.pos.get_2d());
 		if(  gr == NULL  ||  gr->get_weg(air_wt) == NULL  ) {
 			// during flight always a waypoint
 			return true;
@@ -272,7 +274,8 @@ bool convoi_t::is_waypoint( koord3d ziel ) const
 		}
 		// so we are on a taxiway/runway here ...
 	}
-	return !haltestelle_t::get_stoppable_halt(ziel,get_owner(),fahr[0]->get_waytype()).is_bound();
+	if(  entry.is_pass_stop()  ) { return true; }
+	return !haltestelle_t::get_stoppable_halt(entry.pos,get_owner(),fahr[0]->get_waytype()).is_bound();
 }
 
 
@@ -395,7 +398,7 @@ void convoi_t::finish_rd()
 	else {
 		// restore next schedule target for non-stop waypoint handling
 		const koord3d ziel = schedule->get_current_entry().pos;
-		if(  anz_vehikel>0  &&  is_waypoint(ziel)  ) {
+		if(  anz_vehikel>0  &&  is_waypoint(schedule->get_current_entry())  ) {
 			schedule_target = ziel;
 		}
 	}
@@ -894,7 +897,7 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 		//sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll?0l:sum_gear_and_power) - deccel)*(double)delta_t)/(double)sum_gesamtweight);
 
 		// calculate sum_gear_and_power of all coupled convoys
-		sint32 gear_and_power = sum_gear_and_power;
+		sint32 gear_and_power = get_sum_gear_and_power();
 		c = get_coupling_convoi();
 		while(c.is_bound()) {
 			gear_and_power += c->get_sum_gear_and_power();
@@ -1235,7 +1238,7 @@ bool convoi_t::drive_to()
 			}
 		}
 
-		if(  !fahr[0]->calc_route( start, ziel, speed_to_kmh(min_top_speed), &route )  ) {
+		if(  !fahr[0]->calc_route( start, ziel, speed_to_kmh(min_top_speed), &route, schedule->get_current_entry().is_pass_stop() )  ) {
 			if(  state != NO_ROUTE  ) {
 				state = NO_ROUTE;
 				get_owner()->report_vehicle_problem( self, ziel );
@@ -1256,12 +1259,12 @@ bool convoi_t::drive_to()
 				}
 
 				// set next schedule target position if next is a waypoint
-				if(  is_waypoint(ziel) && !schedule->at(current_stop).is_reverse_convoi_coupling()  ) {
+				if(  is_waypoint(schedule->get_current_entry()) && !schedule->at(current_stop).is_reverse_convoi_coupling()  ) {
 					schedule_target = ziel;
 				}
 
 				// continue route search until the destination is a station
-				while(  is_waypoint(ziel) && !schedule->get_current_entry().is_reverse_convoi_coupling()  ) {
+				while(  is_waypoint(schedule->get_current_entry()) && !schedule->get_current_entry().is_reverse_convoi_coupling()  ) {
 					start = ziel;
 					schedule->advance();
 					ziel = schedule->get_current_entry().pos;
@@ -1272,7 +1275,7 @@ bool convoi_t::drive_to()
 					}
 
 					route_t next_segment;
-					if(  !fahr[0]->calc_route( start, ziel, speed_to_kmh(min_top_speed), &next_segment )  ) {
+					if(  !fahr[0]->calc_route( start, ziel, speed_to_kmh(min_top_speed), &next_segment, schedule->get_current_entry().is_pass_stop() )  ) {
 						// do we still have a valid route to proceed => then go until there
 						if(  route.get_count()>1  ) {
 							break;
@@ -1338,7 +1341,6 @@ bool convoi_t::drive_to()
 			schedule->set_current_stop(current_stop);
 			if(  route_ok  ) {
 				vorfahren();
-				reversing_needed = false;
 				return true;
 			}
 		}
@@ -1965,7 +1967,7 @@ void convoi_t::ziel_erreicht()
 	}
 
 	// no depot reached, no coupling, check for stop!
-	if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  ) {
+	if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0 && !schedule->get_current_entry().is_pass_stop()  ) {
 		// seems to be a stop, so book the money for the trip
 		halt->book(1, HALT_CONVOIS_ARRIVED);
 		c = self;
@@ -2074,6 +2076,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","at pos %i of %i total vehikels.",anz_vehi
 		fahr.resize(anz_vehikel+1,NULL);
 DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",fahr.get_count());
 	}
+	need_electric = true;
 	// now append
 	if (anz_vehikel < fahr.get_count()) {
 		v->set_convoi(this);
@@ -2088,13 +2091,16 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",fahr.get_
 			fahr[anz_vehikel] = v;
 		}
 		anz_vehikel ++;
-
 		const vehicle_desc_t *info = v->get_desc();
 		if(info->get_power()) {
 			is_electric |= info->get_engine_type()==vehicle_desc_t::electric;
+			need_electric &= info->get_engine_type()==vehicle_desc_t::electric;
 		}
 		sum_power += info->get_power();
 		sum_gear_and_power += info->get_power()*info->get_gear();
+		if (info->get_engine_type() == vehicle_desc_t::electric) {
+			sum_gear_and_power_electric += info->get_power() * info->get_gear();
+		}
 		sum_weight += info->get_weight();
 		sum_running_costs -= info->get_running_cost();
 		sum_fixed_costs -= welt->scale_with_month_length( info->get_fixed_cost() );
@@ -2115,6 +2121,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",fahr.get_
 		}
 	}
 	else {
+		need_electric = (sum_gear_and_power_electric>0)&&(sum_gear_and_power==sum_gear_and_power_electric);
 		return false;
 	}
 
@@ -2144,6 +2151,9 @@ vehicle_t *convoi_t::remove_vehikel_bei(uint16 i)
 			const vehicle_desc_t *info = v->get_desc();
 			sum_power -= info->get_power();
 			sum_gear_and_power -= info->get_power()*info->get_gear();
+			if (info->get_engine_type() == vehicle_desc_t::electric) {
+				sum_gear_and_power_electric -= info->get_power() * info->get_gear();
+			}
 			sum_weight -= info->get_weight();
 			sum_running_costs += info->get_running_cost();
 			sum_fixed_costs += welt->scale_with_month_length( info->get_fixed_cost() );
@@ -2172,13 +2182,16 @@ vehicle_t *convoi_t::remove_vehikel_bei(uint16 i)
 		recalc_catg_index();
 
 		// still requires electrifications?
-		if(is_electric) {
+		if(is_electric||need_electric) {
 			is_electric = false;
+			need_electric = true;
 			for(unsigned i=0; i<anz_vehikel; i++) {
 				if(fahr[i]->get_desc()->get_power()) {
 					is_electric |= fahr[i]->get_desc()->get_engine_type()==vehicle_desc_t::electric;
+					need_electric &= fahr[i]->get_desc()->get_engine_type()==vehicle_desc_t::electric;
 				}
 			}
+			need_electric&=is_electric;
 		}
 	}
 	return v;
@@ -2688,6 +2701,17 @@ void convoi_t::vorfahren()
 
 	wait_lock = 0;
 	INT_CHECK("simconvoi 711");
+	reversing_needed = false;
+	c = self;
+	bool stop_next=true;
+	while(  c.is_bound()  ) {
+		stop_next&=c->is_users_at_next_stop();
+		c=c->get_coupling_convoi();
+	}
+	if(  !stop_next  ) {
+		// skip next stop!
+		next_stop_button_pressed();
+	}
 }
 
 // a helper function for convoi_t::vorfahren()
@@ -2894,6 +2918,9 @@ void convoi_t::rdwr(loadsave_t *file)
 			if(info) {
 				sum_power += info->get_power();
 				sum_gear_and_power += info->get_power()*info->get_gear();
+				if (info->get_engine_type() == vehicle_desc_t::electric) {
+					sum_gear_and_power_electric += info->get_power() * info->get_gear();
+				}
 				sum_weight += info->get_weight();
 				sum_running_costs -= info->get_running_cost();
 				has_obsolete |= welt->use_timeline()  &&  info->is_retired( welt->get_timeline_year_month() );
@@ -3261,6 +3288,12 @@ void convoi_t::rdwr(loadsave_t *file)
 		cease_coupling_due_to_length_over = false;
 		uncouple_done=false;
 	}
+	if(  file->get_OTRP_version()>=49  ) {
+		file->rdwr_bool(need_electric);
+	} else {
+		need_electric = is_electric;
+		use_electric = is_electric;
+	}
 
 	if(  file->is_loading()  ) {
 		reserve_route();
@@ -3268,6 +3301,13 @@ void convoi_t::rdwr(loadsave_t *file)
 	}
 }
 
+void convoi_t::set_use_electric(bool y) {
+	convoihandle_t c = self;
+	while(c.is_bound()) {
+		c->use_electric = y;
+		c=c->get_coupling_convoi();
+	}
+}
 
 void convoi_t::open_info_window()
 {
@@ -3608,7 +3648,7 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 		const uint32 delay_tolerance = (uint64)current_entry.delay_tolerance * world()->ticks_per_world_month / world()->get_settings().get_spacing_shift_divisor();
 		// slot = (arrived_time - delay_tolerance - spacing_shift) / spacing + 1
 		const sint64 calibrated_arrived_time = (sint64)arrived_time - (sint64)delay_tolerance - (sint64)spacing_shift + (sint64)time_to_load;
-		sint64 slot = (calibrated_arrived_time<0 ?(1U<<32+calibrated_arrived_time) : calibrated_arrived_time) * (sint64)current_entry.spacing / (sint64)world()->ticks_per_world_month + (sint64)1;
+		sint64 slot = (calibrated_arrived_time<0 ?((sint64)(1U<<32)+calibrated_arrived_time) : calibrated_arrived_time) * (sint64)current_entry.spacing / (sint64)world()->ticks_per_world_month + (sint64)1;
 		// go_on_ticks = slot * spacing + spacing_shift
 		go_on_ticks = slot * world()->ticks_per_world_month / current_entry.spacing + spacing_shift;
 		// book the departure slot.
@@ -5264,6 +5304,60 @@ bool convoi_t::calc_lane_affinity(uint8 lane_affinity_sign)
 	return false;
 }
 
+// check next stops user.
+// to check convoy can go next stop or not
+// true->go to next stop, false->go to next-next stop
+bool convoi_t::is_users_at_next_stop() const{
+	if(  is_waypoint(get_schedule()->get_current_entry())  ) {
+		// convoy must go to the waypoint->true!
+		return true;
+	}
+	if(  !get_schedule()->get_current_entry().is_no_go_no_users()  ) {
+		// we do not need check
+		return true;
+	}
+	// users on this convoy?
+	halthandle_t halt = haltestelle_t::get_stoppable_halt(get_schedule()->get_current_entry().pos,owner,front()->get_waytype());
+	int fracht_menge = 0;
+	if(  !get_schedule()->get_current_entry().is_no_unload()  ) {
+		for(  uint32 i = 0;  i != anz_vehikel;  ++i  ) {
+			const vehicle_t* v = fahr[i];
+			// then add the actual load
+			FOR(slist_tpl<ware_t>, ware, v->get_cargo()) {
+				if(  ware.get_ziel()==halt || ware.get_zwischenziel()==halt  ) {
+					// find goods to this stop!
+					return true;
+				}
+			}
+			fracht_menge += v->get_total_cargo();
+		}
+	}
+	if(  get_schedule()->get_current_entry().is_unload_all() && (fracht_menge>0)  ) {
+		// we need to unload all goods at the next stop!
+		return true;
+	}
+	if(  !get_schedule()->get_current_entry().is_no_load()  ) {
+		vector_tpl<haltestelle_t::reachable_halt_t> reachable_halts;
+		calc_reachable_halts(reachable_halts, self);
+		inthashtable_tpl<uint8, vector_tpl<halthandle_t>> destination_halts;
+		halt->calc_destination_halt(destination_halts, reachable_halts, goods_catg_index, self);
+
+		// fetch fresh cargos.
+		FOR(minivec_tpl<uint8>, category_idx, goods_catg_index) {
+			vector_tpl<haltestelle_t::loadable_fresh_goods_t> loadable_fresh_goods;
+			halt->fetch_loadable_fresh_goods(loadable_fresh_goods, category_idx, destination_halts.get(category_idx));
+			FOR(vector_tpl<haltestelle_t::loadable_fresh_goods_t>, &goods, loadable_fresh_goods) {
+				if(  goods.amount>0  ) {
+					// this goods will use this convoy!
+					return true;
+				}
+			}
+		}
+	}
+	// there are no users!
+	return false;
+}
+
 void convoi_t::refresh(sint8 prev_tiles_overtaking, sint8 current_tiles_overtaking) {
 	if(  fahr[0]  &&  fahr[0]->get_waytype()==road_wt  &&  (prev_tiles_overtaking==0)^(current_tiles_overtaking==0)  ){
 		for(uint8 i=0; i<anz_vehikel; i++) {
@@ -5431,7 +5525,7 @@ bool convoi_t::can_start_coupling(convoi_t* parent) const {
 	sint16 t_idx = schedule->get_current_stop();
 	bool stop_found = false;
 	do {
-		if(  !is_waypoint(schedule->at(t_idx).pos)  ) {
+		if(  !is_waypoint(schedule->at(t_idx))  ) {
 			stop_found = true;
 			break;
 		}
@@ -5482,7 +5576,7 @@ bool convoi_t::is_waiting_for_coupling() const {
 	return waiting_for_coupling;
 }
 
-bool convoi_t::check_electrification() {
+void convoi_t::check_electrification() {
 	is_electric = false;
 	const convoihandle_t most_parent_convoi = get_most_parent_convoi();
 	convoihandle_t c = most_parent_convoi;
@@ -5494,19 +5588,21 @@ bool convoi_t::check_electrification() {
 		c = c->get_coupling_convoi();
 	}
 	c = most_parent_convoi;
+	need_electric = is_electric;
 	// If electric cars are, do they have other engine?
-	while(  c.is_bound()  &&  is_electric  ) {
+	while(  c.is_bound()  &&  need_electric  ) {
 		for(uint8 i=0;  i<c->get_vehicle_count();  i++) {
-			is_electric &= !(c->get_vehikel(i)->get_desc()->get_engine_type()!=vehicle_desc_t::electric && c->get_vehikel(i)->get_desc()->get_power()>0);
+			need_electric &= !(c->get_vehikel(i)->get_desc()->get_engine_type()!=vehicle_desc_t::electric && c->get_vehikel(i)->get_desc()->get_power()>0);
 		}
 		c = c->get_coupling_convoi();
 	}
 	c = most_parent_convoi;
 	while(  c.is_bound()  ) {
 		c->is_electric = is_electric;
+		c->need_electric = need_electric;
 		c = c->get_coupling_convoi();
 	}
-	return is_electric;
+	return;
 }
 
 sint32 convoi_t::calc_min_top_speed() {

@@ -1047,9 +1047,9 @@ vehicle_t::vehicle_t() :
 }
 
 
-bool vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
+bool vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route, bool pass_next)
 {
-	return route->calc_route(welt, start, ziel, this, max_speed, 0 );
+	return route->calc_route(welt, start, ziel, this, max_speed, 0, false );
 }
 
 
@@ -1090,7 +1090,7 @@ grund_t* vehicle_t::hop_check()
 
 		// now check, if we can go here
 		grund_t *bd = welt->lookup(pos_next);
-		if(bd==NULL  ||  !check_next_tile(bd)  ||  cnv->get_route()->empty()) {
+		if(bd==NULL  ||  !check_next_tile(bd, cnv->needs_electrification())  ||  cnv->get_route()->empty()) {
 			// way (weg) not existent (likely destroyed) or no route ...
 			cnv->suche_neue_route();
 			return NULL;
@@ -1257,7 +1257,17 @@ void vehicle_t::hop(grund_t* gr)
 				child = child->get_coupling_convoi();
 			}
 			const koord3d ziel = cnv->get_schedule()->get_current_entry().pos;
-			cnv->set_schedule_target( cnv->is_waypoint(ziel) ? ziel : koord3d::invalid );
+			cnv->set_schedule_target( cnv->is_waypoint(cnv->get_schedule()->get_current_entry()) ? ziel : koord3d::invalid );
+			c = cnv->self;
+			bool stop_next=true;
+			while(  c.is_bound()  ) {
+				stop_next&=c->is_users_at_next_stop();
+				c=c->get_coupling_convoi();
+			}
+			if(  !stop_next  ) {
+				// skip next stop!
+				cnv->self->next_stop_button_pressed();
+			}
 		}
 	}
 
@@ -2166,7 +2176,7 @@ void road_vehicle_t::calc_disp_lane()
 }
 
 // need to reset halt reservation (if there was one)
-bool road_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
+bool road_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route, bool pass_next)
 {
 	assert(cnv);
 	// free target reservation
@@ -2177,7 +2187,7 @@ bool road_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, r
 		}
 	}
 	target_halt = halthandle_t(); // no block reserved
-	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, cnv->get_entire_convoy_length() );
+	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, pass_next?0:cnv->get_entire_convoy_length(), cnv->needs_electrification() );
 	if(  r == route_t::valid_route_halt_too_short  ) {
 		cbuffer_t buf;
 		buf.printf( translator::translate("Vehicle %s cannot choose because stop too short!"), cnv->get_name());
@@ -2187,14 +2197,13 @@ bool road_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, r
 }
 
 
-bool road_vehicle_t::check_next_tile(const grund_t *bd) const
+bool road_vehicle_t::check_next_tile(const grund_t *bd, const bool need_electric) const
 {
 	strasse_t *str=(strasse_t *)bd->get_weg(road_wt);
 	if(str==NULL  ||  str->get_max_speed()==0) {
 		return false;
 	}
-	bool electric = cnv!=NULL  ?  cnv->needs_electrification() : desc->get_engine_type()==vehicle_desc_t::electric;
-	if(electric  &&  !str->is_electrified()) {
+	if(need_electric  &&  !str->is_electrified()) {
 		return false;
 	}
 	// check for signs
@@ -2374,7 +2383,7 @@ bool road_vehicle_t::choose_route(sint32 &restart_speed, ribi_t::ribi start_dire
 			// now it make sense to search a route
 			route_t target_rt;
 			koord3d next3d = rt->at(index);
-			if(  !target_rt.find_route( welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), start_direction, welt->get_settings().get_max_choose_route_steps() )  ) {
+			if(  !target_rt.find_route( welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), start_direction, welt->get_settings().get_max_choose_route_steps(), cnv->needs_electrification() )  ) {
 				// nothing empty or not route with less than 33 tiles
 				target_halt = halthandle_t();
 				restart_speed = 0;
@@ -3378,7 +3387,7 @@ void rail_vehicle_t::set_convoi(convoi_t *c)
 
 
 // need to reset halt reservation (if there was one)
-bool rail_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
+bool rail_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route, bool pass_next)
 {
 	if(  leading  ) {
 		// free all reserved blocks
@@ -3386,12 +3395,21 @@ bool rail_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, r
 	}
 	cnv->set_next_reservation_index( 0 );	// nothing to reserve
 	target_halt = halthandle_t();	// no block reserved
-	uint16 len = welt->get_settings().get_advance_to_end() ? 8888 : cnv->get_entire_convoy_length();
-	return route->calc_route(welt, start, ziel, this, max_speed, len);
+	uint16 len = pass_next?0:(welt->get_settings().get_advance_to_end() ? 8888 : cnv->get_entire_convoy_length());
+	if(route->calc_route(welt, start, ziel, this, max_speed, len, cnv->is_electrification())) {
+		cnv->set_use_electric(cnv->is_electrification());
+		return true;
+	} else {
+		if(route->calc_route(welt, start, ziel, this, max_speed, len, cnv->needs_electrification())) {
+			cnv->set_use_electric(false);
+			return true;
+		}
+		return false;
+	}
 }
 
 
-bool rail_vehicle_t::check_next_tile(const grund_t *bd, bool find_route, bool coupling) const
+bool rail_vehicle_t::check_next_tile(const grund_t *bd, const bool need_electric, bool find_route, bool coupling) const
 {
 	schiene_t const* const sch = obj_cast<schiene_t>(bd->get_weg(get_waytype()));
 	if(  !sch  ) {
@@ -3400,8 +3418,7 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd, bool find_route, bool co
 
 	// diesel and steam engines can use electrified track as well.
 	// also allow driving on foreign tracks ...
-	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : desc->get_engine_type()==vehicle_desc_t::electric);
-	if(  (!needs_no_electric  &&  !sch->is_electrified())  ||  sch->get_max_speed() == 0  ) {
+	if(  (need_electric  &&  !sch->is_electrified())  ||  sch->get_max_speed() == 0  ) {
 		return false;
 	}
 
@@ -3493,7 +3510,7 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const weg_t *w, const sint32 max
 
 
 // this routine is called by find_route, to determined if we reached a destination
-bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr) const
+bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr, const bool need_electric) const
 {
 	const schiene_t * sch1 = (const schiene_t *) gr->get_weg(get_waytype());
 	// first check blocks, if we can go there
@@ -3524,7 +3541,7 @@ bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr) const
 	) {
 		// check electrification
 		schiene_t const* const sch = obj_cast<schiene_t>(to->get_weg(get_waytype()));
-		if(!(((cnv!=NULL ? cnv->needs_electrification() : desc->get_engine_type()==vehicle_desc_t::electric)  &&  !sch->is_electrified())  ||  sch->get_max_speed() == 0  )) {
+		if(!((need_electric  &&  !sch->is_electrified())  ||  sch->get_max_speed() == 0  )) {
 			// We can still go forward.
 			return false;
 		}
@@ -3623,7 +3640,7 @@ bool rail_vehicle_t::check_longblock_signal(signal_t *sig, uint16 next_block, si
 	while(  schedule->at(schedule_index).pos != cnv->get_schedule()->get_current_entry().pos  ) {
 		// now search
 		// search for route
-		uint16 len = welt->get_settings().get_advance_to_end() ? 8888 : cnv->get_tile_length();
+		uint16 len = schedule->at(schedule_index).is_pass_stop()?0:welt->get_settings().get_advance_to_end() ? 8888 : cnv->get_tile_length();
 		bool success = target_rt.calc_route( welt, cur_pos, schedule->at(schedule_index).pos, this, speed_to_kmh(cnv->get_min_top_speed()), len );
 		if(  target_rt.is_contained(get_pos())  ) {
 			// do not reserve route going through my current stop&
@@ -3716,11 +3733,11 @@ bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_bl
 	uint16 next_signal, next_crossing;
 	grund_t const* const target = welt->lookup(cnv->get_route()->back());
 	bool try_coupling = cnv->get_schedule()->get_current_entry().is_try_coupling();
-	if(  cnv->is_waypoint(cnv->get_schedule()->get_current_entry().pos) && target!=NULL  ) {
+	if(  cnv->is_waypoint(cnv->get_schedule()->get_current_entry()) && target!=NULL  ) {
 		// destination is a waypoint!
 		koord3d temp_target = cnv->get_schedule()->get_current_entry().pos;
 		uint8 test_iter = 0;
-		while(  cnv->is_waypoint(temp_target) && cnv->get_route()->back()!=temp_target && test_iter<cnv->get_schedule()->get_count()  ) {
+		while(  cnv->is_waypoint(cnv->get_schedule()->at((cnv->get_schedule()->get_current_stop()+test_iter)%cnv->get_schedule()->get_count())) && cnv->get_route()->back()!=temp_target && test_iter<cnv->get_schedule()->get_count()  ) {
 			for(  uint16 i=start_block+1; i<cnv->get_route()->get_count(); i++  ) {
 				if(  temp_target==cnv->get_route()->at(i)  ) {
 					// next waypoint is after this signal-> skip choosing
@@ -3831,10 +3848,20 @@ skip_choose:
 		const int richtung = ribi_type(cnv->get_route()->at(start_block),cnv->get_route()->at(start_block<cnv->get_route()->get_count()-1?start_block+1:start_block));	// to avoid confusion at diagonals
 		if(  try_coupling  ) {
 			// search for coupling point.
-			route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), true );
+			route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->is_electrification(), true );
+			cnv->set_use_electric(cnv->is_electrification());
+			if (  !route_found  ) {
+				route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->needs_electrification(), true );
+				cnv->set_use_electric(false);
+			}
 		}
 		if(  !route_found  &&  (!sig->is_guide_signal()  ||  !try_coupling)  ) {
-			route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), false );
+			route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->is_electrification(), false );
+			cnv->set_use_electric(cnv->is_electrification());
+			if(  !route_found  ) {
+				route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->needs_electrification(), false );
+				cnv->set_use_electric(false);
+			}
 			try_coupling = false;
 		}
 		if(  !route_found  ) {
@@ -4334,7 +4361,7 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 	sint16 idx = cnv->get_schedule()->get_current_stop();
 	bool stop_found = false;
 	do {
-		if(  !cnv->is_waypoint(cnv->get_schedule()->at(idx).pos)  ) {
+		if(  !cnv->is_waypoint(cnv->get_schedule()->at(idx))  ) {
 			stop_found = true;
 			break;
 		}
@@ -4575,7 +4602,7 @@ void water_vehicle_t::enter_tile(grund_t* gr)
 }
 
 
-bool water_vehicle_t::check_next_tile(const grund_t *bd) const
+bool water_vehicle_t::check_next_tile(const grund_t *bd,const bool) const
 {
 	if(  bd->is_water()  ) {
 		return true;
@@ -4733,7 +4760,7 @@ int air_vehicle_t::get_cost(const grund_t *, const weg_t *w, const sint32, ribi_
 
 
 // whether the ground is drivable or not depends on the current state of the airplane
-bool air_vehicle_t::check_next_tile(const grund_t *bd) const
+bool air_vehicle_t::check_next_tile(const grund_t *bd, const bool) const
 {
 	switch (state) {
 		case taxiing:
@@ -4862,7 +4889,7 @@ bool air_vehicle_t::find_route_to_stop_position()
 		route_t target_rt;
 		flight_state prev_state = state;
 		state = looking_for_parking;
-		if(!target_rt.find_route( welt, rt->at(search_for_stop), this, 500, ribi_t::all, welt->get_settings().get_max_choose_route_steps() )) {
+		if(!target_rt.find_route( welt, rt->at(search_for_stop), this, 500, ribi_t::all, welt->get_settings().get_max_choose_route_steps(), false )) {
 DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found no route to free one");
 
 			// just make sure, that there is a route at all, otherwise start route search again
@@ -4895,7 +4922,7 @@ DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found no route to free 
 
 // main routine: searches the new route in up to three steps
 // must also take care of stops under traveling and the like
-bool air_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
+bool air_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route, bool pass_next)
 {
 //DBG_MESSAGE("aircraft_t::calc_route()","search route from %i,%i,%i to %i,%i,%i",start.x,start.y,start.z,ziel.x,ziel.y,ziel.z);
 
@@ -4942,7 +4969,7 @@ bool air_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, ro
 		approach_dir = welt->get_settings().get_approach_dir(); // reverse
 		DBG_MESSAGE("aircraft_t::calc_route()","search runway start near (%s)",start.get_str());
 
-		if(!route->find_route( welt, start, this, max_speed, ribi_t::all, 100 )) {
+		if(!route->find_route( welt, start, this, max_speed, ribi_t::all, 100, false )) {
 			DBG_MESSAGE("aircraft_t::calc_route()","failed");
 			return false;
 		}
@@ -4965,7 +4992,7 @@ bool air_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, ro
 	approach_dir =  ~welt->get_settings().get_approach_dir(); // reverse
 	route_t end_route;
 
-	if(!end_route.find_route( welt, ziel, this, max_speed, ribi_t::all, welt->get_settings().get_max_choose_route_steps() )) {
+	if(!end_route.find_route( welt, ziel, this, max_speed, ribi_t::all, welt->get_settings().get_max_choose_route_steps(), false )) {
 		// well, probably this is a waypoint
 		if(  grund_t *target = welt->lookup(ziel)  ) {
 			if(  !target->get_weg(air_wt)  ) {
