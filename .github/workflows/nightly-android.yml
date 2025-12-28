@@ -46,7 +46,7 @@ jobs:
         mv cmdline-tools latest
         mkdir cmdline-tools
         mv latest cmdline-tools/latest
-        GITHUB_PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$GITHUB_PATH
+        PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
 
     - name: Install Android SDK dependencies
       working-directory: /opt/android-sdk-linux
