@@ -690,6 +690,10 @@ void construct_schedule_entry_attributes(cbuffer_t& buf, schedule_entry_t const&
 		str[cnt] = 'G';
 		cnt++;
 	}
+	if(  entry.is_pass_stop()  ) {
+		str[cnt] = 'P';
+		cnt++;
+	}
 	// there are at least one attributes.
 	if(  cnt>1  ) {
 		str[cnt] = ']';

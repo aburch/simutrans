@@ -186,8 +186,8 @@ void convoi_t::init(player_t *player)
 	recalc_min_top_speed = true;
 	recalc_friction_weight = true;
 
-	speed_magnification = atoi(translator::translate("speed_magnification"))!=0 ? atoi(translator::translate("speed_magnification")) : 100;
-	acceleration_magnification = atoi(translator::translate("acceleration_magnification"))!=0 ? atoi(translator::translate("acceleration_magnification")) : 100;
+	speed_magnification = atoi(translator::translate("speed_magnification"))!=0 ? min(atoi(translator::translate("speed_magnification")), 255) : 100;
+	acceleration_magnification = atoi(translator::translate("acceleration_magnification"))!=0 ? min(atoi(translator::translate("acceleration_magnification")), 255) : 100;
 
 	in_delay_recovery = false;
 	reversed = false;
@@ -259,11 +259,11 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 
 
 // waypoint: no stop, resp. for airplanes in air (i.e. no air strip below)
-bool convoi_t::is_waypoint( koord3d ziel ) const
+bool convoi_t::is_waypoint( schedule_entry_t entry ) const
 {
 	if(  fahr[0]->get_waytype() == air_wt  ) {
 		// separate logic for airplanes, since the can have waypoints over stops etc.
-		grund_t *gr = welt->lookup_kartenboden(ziel.get_2d());
+		grund_t *gr = welt->lookup_kartenboden(entry.pos.get_2d());
 		if(  gr == NULL  ||  gr->get_weg(air_wt) == NULL  ) {
 			// during flight always a waypoint
 			return true;
@@ -274,7 +274,8 @@ bool convoi_t::is_waypoint( koord3d ziel ) const
 		}
 		// so we are on a taxiway/runway here ...
 	}
-	return !haltestelle_t::get_stoppable_halt(ziel,get_owner(),fahr[0]->get_waytype()).is_bound();
+	if(  entry.is_pass_stop()  ) { return true; }
+	return !haltestelle_t::get_stoppable_halt(entry.pos,get_owner(),fahr[0]->get_waytype()).is_bound();
 }
 
 
@@ -397,7 +398,7 @@ void convoi_t::finish_rd()
 	else {
 		// restore next schedule target for non-stop waypoint handling
 		const koord3d ziel = schedule->get_current_entry().pos;
-		if(  anz_vehikel>0  &&  is_waypoint(ziel)  ) {
+		if(  anz_vehikel>0  &&  is_waypoint(schedule->get_current_entry())  ) {
 			schedule_target = ziel;
 		}
 	}
@@ -1237,7 +1238,7 @@ bool convoi_t::drive_to()
 			}
 		}
 
-		if(  !fahr[0]->calc_route( start, ziel, speed_to_kmh(min_top_speed), &route )  ) {
+		if(  !fahr[0]->calc_route( start, ziel, speed_to_kmh(min_top_speed), &route, schedule->get_current_entry().is_pass_stop() )  ) {
 			if(  state != NO_ROUTE  ) {
 				state = NO_ROUTE;
 				get_owner()->report_vehicle_problem( self, ziel );
@@ -1258,12 +1259,12 @@ bool convoi_t::drive_to()
 				}
 
 				// set next schedule target position if next is a waypoint
-				if(  is_waypoint(ziel) && !schedule->at(current_stop).is_reverse_convoi_coupling()  ) {
+				if(  is_waypoint(schedule->get_current_entry()) && !schedule->at(current_stop).is_reverse_convoi_coupling()  ) {
 					schedule_target = ziel;
 				}
 
 				// continue route search until the destination is a station
-				while(  is_waypoint(ziel) && !schedule->get_current_entry().is_reverse_convoi_coupling()  ) {
+				while(  is_waypoint(schedule->get_current_entry()) && !schedule->get_current_entry().is_reverse_convoi_coupling()  ) {
 					start = ziel;
 					schedule->advance();
 					ziel = schedule->get_current_entry().pos;
@@ -1274,7 +1275,7 @@ bool convoi_t::drive_to()
 					}
 
 					route_t next_segment;
-					if(  !fahr[0]->calc_route( start, ziel, speed_to_kmh(min_top_speed), &next_segment )  ) {
+					if(  !fahr[0]->calc_route( start, ziel, speed_to_kmh(min_top_speed), &next_segment, schedule->get_current_entry().is_pass_stop() )  ) {
 						// do we still have a valid route to proceed => then go until there
 						if(  route.get_count()>1  ) {
 							break;
@@ -1966,7 +1967,7 @@ void convoi_t::ziel_erreicht()
 	}
 
 	// no depot reached, no coupling, check for stop!
-	if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  ) {
+	if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0 && !schedule->get_current_entry().is_pass_stop()  ) {
 		// seems to be a stop, so book the money for the trip
 		halt->book(1, HALT_CONVOIS_ARRIVED);
 		c = self;
@@ -5524,7 +5525,7 @@ bool convoi_t::can_start_coupling(convoi_t* parent) const {
 	sint16 t_idx = schedule->get_current_stop();
 	bool stop_found = false;
 	do {
-		if(  !is_waypoint(schedule->at(t_idx).pos)  ) {
+		if(  !is_waypoint(schedule->at(t_idx))  ) {
 			stop_found = true;
 			break;
 		}
