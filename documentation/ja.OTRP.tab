@@ -169,6 +169,10 @@ Temporary schedule
 臨時系統
 This schedule does not affect the route cost calculation.
 このスケジュールはルートコストの計算に寄与しません．
+Pass this stop
+この駅を通過(P)
+Pass this stop even if there is a platform.
+この駅は、ホームがあっても通過します(中継点と同様の扱いとなります)．
 No Load
 乗車不可(L)
 The convoy does not load goods and passengers at this stop.
