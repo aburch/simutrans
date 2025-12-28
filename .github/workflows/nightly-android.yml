@@ -59,34 +59,6 @@ jobs:
         sudo chown -R runner /android-sdl
         sudo chgrp -R docker /android-sdl
 
-    - name: Install Android SDK tools
-      working-directory: /opt/android-sdk-linux
-      run: |
-#        wget https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip
-#        unzip commandlinetools-linux-13114758_latest.zip
-#        rm commandlinetools-linux-13114758_latest.zip
-#        mv cmdline-tools latest
-#        mkdir cmdline-tools
-#        mv latest cmdline-tools/latest
-#       echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
-
-    - name: Install Android SDK dependencies
-      working-directory: /usr/local/lib/android
-      run: |
-        cd /usr/local/lib/android
-        yes | sdkmanager --licenses
-        yes | sdkmanager --install "platform-tools"
-        echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
-        yes | sdkmanager --install "build-tools;35.0.0"
-        echo "$ANDROID_HOME/build-tools/35.0.0" >> $GITHUB_PATH
-        yes | sdkmanager --install "cmake;3.31.6"
-        echo "$ANDROID_HOME/cmake/3.31.6/bin" >> $GITHUB_PATH
-        yes | sdkmanager --install "ndk;29.0.14206865"
-        echo "$ANDROID_HOME/ndk/29.0.14206865" >> $GITHUB_PATH
-        echo "$ANDROID_HOME/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/" >> $GITHUB_PATH
-        ln -s llvm-objdump ${ANDROID_HOME}/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/objdump
-        echo "Github path ($GITHUB_PATH)"
-
     - name: Install keystore for Android APK signing
       run: |
         mkdir /home/runner/.android/
