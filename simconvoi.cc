@@ -896,7 +896,6 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 		//sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll?0l:sum_gear_and_power) - deccel)*(double)delta_t)/(double)sum_gesamtweight);
 
 		// calculate sum_gear_and_power of all coupled convoys
-		dbg->message("convoi_t::calc_acceleration()","check gear and power");
 		sint32 gear_and_power = get_sum_gear_and_power();
 		c = get_coupling_convoi();
 		while(c.is_bound()) {
@@ -2122,6 +2121,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",fahr.get_
 		}
 	}
 	else {
+		need_electric = (sum_gear_and_power_electric>0)&&(sum_gear_and_power==sum_gear_and_power_electric);
 		return false;
 	}
 
@@ -2191,6 +2191,7 @@ vehicle_t *convoi_t::remove_vehikel_bei(uint16 i)
 					need_electric &= fahr[i]->get_desc()->get_engine_type()==vehicle_desc_t::electric;
 				}
 			}
+			need_electric&=is_electric;
 		}
 	}
 	return v;
