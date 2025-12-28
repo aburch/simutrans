@@ -46,22 +46,23 @@ jobs:
         mv cmdline-tools latest
         mkdir cmdline-tools
         mv latest cmdline-tools/latest
-        echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
+        GITHUB_PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$GITHUB_PATH
 
     - name: Install Android SDK dependencies
       working-directory: /opt/android-sdk-linux
       run: |
         yes | sdkmanager --licenses
         yes | sdkmanager --install "platform-tools"
-        echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
+        GITHUB_PATH=$ANDROID_HOME/platform-tools:$GITHUB_PATH
         yes | sdkmanager --install "build-tools;35.0.0"
-        echo "$ANDROID_HOME/build-tools/35.0.0" >> $GITHUB_PATH
+        GITHUB_PATH=$ANDROID_HOME/build-tools/35.0.0:$GITHUB_PATH
         yes | sdkmanager --install "cmake;3.31.6"
-        echo "$ANDROID_HOME/cmake/3.31.6/bin" >> $GITHUB_PATH
+        GITHUB_PATH=$ANDROID_HOME/cmake/3.31.6/bin:$GITHUB_PATH
         yes | sdkmanager --install "ndk;29.0.14206865"
-        echo "$ANDROID_HOME/ndk/29.0.14206865" >> $GITHUB_PATH
-        echo "$ANDROID_HOME/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/" >> $GITHUB_PATH
+        GITHUB_PATH=$ANDROID_HOME/ndk/29.0.14206865:$GITHUB_PATH
+        GITHUB_PATH=$ANDROID_HOME/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin:$GITHUB_PATH
         ln -s llvm-objdump ${ANDROID_HOME}/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/objdump
+        echo "($GITHUB_PATH)"
 
     - name: Install keystore for Android APK signing
       run: |
@@ -89,6 +90,7 @@ jobs:
     - name: Build libraries
       working-directory: /android-sdl/simutrans-android-project/simutrans/jni
       run: |
+        PATH=$GITHUB_PATH:$PATH
         ./build_libraries.sh
         # Fluidsynth is a PITA to build; using the prebuilt release instead
         wget https://github.com/FluidSynth/fluidsynth/releases/download/v2.5.1/fluidsynth-2.5.1-android24.zip
