@@ -111,9 +111,9 @@ jobs:
         ./gradlew assembleRelease
         ./gradlew bundleRelease
         cd /android-sdl/simutrans-android-project/simutrans/build/outputs/bundle/release
+        jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore $SIGNING_KEYSTORE -storepass $SIGNING_STORE_PASSWORD simutrans-release.aab $SIGNING_KEY_ALIAS
         wget https://github.com/google/bundletool/releases/download/1.18.2/bundletool-all-1.18.2.jar
         chmod 775 bundletool-all-1.18.2.jar
-        java -jar bundletool-all-1.18.2.jar -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore $SIGNING_KEYSTORE -storepass $SIGNING_STORE_PASSWORD simutrans-release.aab $SIGNING_KEY_ALIAS
         java -jar bundletool-all-1.18.2.jar build-apks --bundle=simutrans-release.aab --output=temp.apks --mode=universal
         rm -rf bundletool-all-1.18.2.jar
         unzip temp.apks
