@@ -5308,7 +5308,7 @@ bool convoi_t::calc_lane_affinity(uint8 lane_affinity_sign)
 // to check convoy can go next stop or not
 // true->go to next stop, false->go to next-next stop
 bool convoi_t::is_users_at_next_stop() const{
-	if(  is_waypoint(get_schedule()->get_current_entry().pos)  ) {
+	if(  is_waypoint(get_schedule()->get_current_entry())  ) {
 		// convoy must go to the waypoint->true!
 		return true;
 	}
