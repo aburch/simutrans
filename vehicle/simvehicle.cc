@@ -1047,7 +1047,7 @@ vehicle_t::vehicle_t() :
 }
 
 
-bool vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
+bool vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route, bool pass_next)
 {
 	return route->calc_route(welt, start, ziel, this, max_speed, 0, false );
 }
@@ -2166,7 +2166,7 @@ void road_vehicle_t::calc_disp_lane()
 }
 
 // need to reset halt reservation (if there was one)
-bool road_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
+bool road_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route, bool pass_next)
 {
 	assert(cnv);
 	// free target reservation
@@ -2177,7 +2177,7 @@ bool road_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, r
 		}
 	}
 	target_halt = halthandle_t(); // no block reserved
-	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, cnv->get_entire_convoy_length(), cnv->needs_electrification() );
+	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, pass_next?0:cnv->get_entire_convoy_length(), cnv->needs_electrification() );
 	if(  r == route_t::valid_route_halt_too_short  ) {
 		cbuffer_t buf;
 		buf.printf( translator::translate("Vehicle %s cannot choose because stop too short!"), cnv->get_name());
@@ -3377,7 +3377,7 @@ void rail_vehicle_t::set_convoi(convoi_t *c)
 
 
 // need to reset halt reservation (if there was one)
-bool rail_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
+bool rail_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route, bool pass_next)
 {
 	if(  leading  ) {
 		// free all reserved blocks
@@ -3385,7 +3385,7 @@ bool rail_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, r
 	}
 	cnv->set_next_reservation_index( 0 );	// nothing to reserve
 	target_halt = halthandle_t();	// no block reserved
-	uint16 len = welt->get_settings().get_advance_to_end() ? 8888 : cnv->get_entire_convoy_length();
+	uint16 len = pass_next?0:(welt->get_settings().get_advance_to_end() ? 8888 : cnv->get_entire_convoy_length());
 	if(route->calc_route(welt, start, ziel, this, max_speed, len, cnv->is_electrification())) {
 		cnv->set_use_electric(cnv->is_electrification());
 		return true;
@@ -3630,7 +3630,7 @@ bool rail_vehicle_t::check_longblock_signal(signal_t *sig, uint16 next_block, si
 	while(  schedule->at(schedule_index).pos != cnv->get_schedule()->get_current_entry().pos  ) {
 		// now search
 		// search for route
-		uint16 len = welt->get_settings().get_advance_to_end() ? 8888 : cnv->get_tile_length();
+		uint16 len = schedule->at(schedule_index).is_pass_stop()?0:welt->get_settings().get_advance_to_end() ? 8888 : cnv->get_tile_length();
 		bool success = target_rt.calc_route( welt, cur_pos, schedule->at(schedule_index).pos, this, speed_to_kmh(cnv->get_min_top_speed()), len );
 		if(  target_rt.is_contained(get_pos())  ) {
 			// do not reserve route going through my current stop&
@@ -4912,7 +4912,7 @@ DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found no route to free 
 
 // main routine: searches the new route in up to three steps
 // must also take care of stops under traveling and the like
-bool air_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
+bool air_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route, bool pass_next)
 {
 //DBG_MESSAGE("aircraft_t::calc_route()","search route from %i,%i,%i to %i,%i,%i",start.x,start.y,start.z,ziel.x,ziel.y,ziel.z);
 

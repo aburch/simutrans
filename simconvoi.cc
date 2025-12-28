@@ -1238,7 +1238,7 @@ bool convoi_t::drive_to()
 			}
 		}
 
-		if(  !fahr[0]->calc_route( start, ziel, speed_to_kmh(min_top_speed), &route )  ) {
+		if(  !fahr[0]->calc_route( start, ziel, speed_to_kmh(min_top_speed), &route, schedule->get_current_entry().is_pass_stop() )  ) {
 			if(  state != NO_ROUTE  ) {
 				state = NO_ROUTE;
 				get_owner()->report_vehicle_problem( self, ziel );
@@ -1275,7 +1275,7 @@ bool convoi_t::drive_to()
 					}
 
 					route_t next_segment;
-					if(  !fahr[0]->calc_route( start, ziel, speed_to_kmh(min_top_speed), &next_segment )  ) {
+					if(  !fahr[0]->calc_route( start, ziel, speed_to_kmh(min_top_speed), &next_segment, schedule->get_current_entry().is_pass_stop() )  ) {
 						// do we still have a valid route to proceed => then go until there
 						if(  route.get_count()>1  ) {
 							break;
