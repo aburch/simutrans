@@ -602,8 +602,8 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 		}
 		// update all child's use_electric flag
 		convoihandle_t c = get_coupling_convoi();
-		while( c.is_bound() ){
-			c->use_electric |= use_electric;
+		while( use_electric && c.is_bound() ){
+			c->use_electric = use_electric;
 			c = c->get_coupling_convoi();
 		}
 		calc_min_top_speed();
