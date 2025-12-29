@@ -188,12 +188,12 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 	event_t ev2 = *ev;
 	// translate key up/down to tab/shift-tab
 	if(  IS_KEYDOWN(ev)  && ev->ev_code == SIM_KEYCODE_UP  &&  get_selection()>0) {
-		ev2.ev_code = SIM_KEYCODE_TAB;
-		ev2.ev_key_mod |= SIM_MOD_SHIFT;
+		ev2.ev_code    =  SIM_KEYCODE_TAB;
+		ev2.ev_key_mod |= SIM_KEYMOD_SHIFT;
 	}
 	if(  IS_KEYDOWN(ev)  && ev->ev_code == SIM_KEYCODE_DOWN  &&  (uint32)(get_selection()+1) < item_list.get_count()) {
-		ev2.ev_code = SIM_KEYCODE_TAB;
-		ev2.ev_key_mod &= ~SIM_MOD_SHIFT;
+		ev2.ev_code    =  SIM_KEYCODE_TAB;
+		ev2.ev_key_mod &= ~SIM_KEYMOD_SHIFT;
 	}
 
 	bool swallowed = gui_scrollpane_t::infowin_event(&ev2);

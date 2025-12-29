@@ -36,7 +36,7 @@ void event_t::move_origin(scr_coord delta)
 
 int event_get_last_control_shift()
 {
-	return control_shift_state & (SIM_MOD_SHIFT | SIM_MOD_CTRL);
+	return control_shift_state & (SIM_KEYMOD_SHIFT | SIM_KEYMOD_CTRL);
 }
 
 

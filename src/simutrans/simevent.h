@@ -110,9 +110,13 @@ enum sim_keycode_t
 };
 
 
-#define SIM_MOD_NONE   0
-#define SIM_MOD_SHIFT  (1u << 0)
-#define SIM_MOD_CTRL   (1u << 1)
+enum sim_keymod_t
+{
+	SIM_KEYMOD_NONE   = 0,
+
+	SIM_KEYMOD_SHIFT  = 1u << 0,
+	SIM_KEYMOD_CTRL   = 1u << 1,
+};
 
 
 /**
@@ -163,7 +167,7 @@ public:
 	int mouse_button_state = 0;
 
 	/// mod key (SHIFT, CTRL etc) pressed while event as triggered
-	unsigned int ev_key_mod = SIM_MOD_NONE;
+	unsigned int ev_key_mod = SIM_KEYMOD_NONE;
 };
 
 
@@ -201,8 +205,8 @@ static inline bool IS_LEFT_BUTTON_PRESSED  (const event_t *ev) { return ev->mous
 static inline bool IS_RIGHT_BUTTON_PRESSED (const event_t *ev) { return ev->mouse_button_state & MOUSE_RIGHTBUTTON; }
 static inline bool IS_MIDDLE_BUTTON_PRESSED(const event_t *ev) { return ev->mouse_button_state & MOUSE_MIDBUTTON;   }
 
-static inline bool IS_SHIFT_PRESSED  (const event_t *ev) { return ev->ev_key_mod & SIM_MOD_SHIFT; }
-static inline bool IS_CONTROL_PRESSED(const event_t *ev) { return ev->ev_key_mod & SIM_MOD_CTRL;  }
+static inline bool IS_SHIFT_PRESSED  (const event_t *ev) { return ev->ev_key_mod & SIM_KEYMOD_SHIFT; }
+static inline bool IS_CONTROL_PRESSED(const event_t *ev) { return ev->ev_key_mod & SIM_KEYMOD_CTRL;  }
 
 
 /// Return one event. Does *not* wait.

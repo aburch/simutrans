@@ -342,11 +342,11 @@ void help_frame_t::set_helpfile(const char *filename, bool resize_frame )
 		for(tool_t* const i : tool_t::char_to_tool) {
 			cbuffer_t c;
 			char str[16];
-			if(  i->command_flags & SIM_MOD_CTRL  ) {
+			if(  i->command_flags & SIM_KEYMOD_CTRL  ) {
 				c.append( translator::translate( "[CTRL]" ) );
 				c.append( " + " );
 			}
-			if(  i->command_flags & SIM_MOD_SHIFT  ) {
+			if(  i->command_flags & SIM_KEYMOD_SHIFT  ) {
 				c.append( translator::translate( "[SHIFT]" ) );
 				c.append( " + " );
 			}
