@@ -27,19 +27,20 @@ jobs:
         mv cmdline-tools/latest cmdline-tools/existing
         yes | cmdline-tools/existing/bin/sdkmanager --licenses
         sudo yes | cmdline-tools/existing/bin/sdkmanager --install "cmdline-tools;latest"
-        echo "($pwd)/cmdline-tools/latest/bin" >> $GITHUB_PATH
+        echo "/usr/local/lib/android/sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
         sudo yes | cmdline-tools/latest/bin/sdkmanager --install "platform-tools"
-        echo "($pwd)/platform-tools" >> $GITHUB_PATH
+        echo "/usr/local/lib/android/sdk/platform-tools" >> $GITHUB_PATH
         sudo yes | cmdline-tools/latest/bin/sdkmanager --install "build-tools;35.0.0"
-        echo "($pwd)/build-tools/35.0.0" >> $GITHUB_PATH
+        echo "/usr/local/lib/android/sdk/build-tools/35.0.0" >> $GITHUB_PATH
         sudo yes | cmdline-tools/latest/bin/sdkmanager --install "cmake;3.31.6"
-        echo "($pwd)/cmake/3.31.6/bin" >> $GITHUB_PATH
+        echo "/usr/local/lib/android/sdk/cmake/3.31.6/bin" >> $GITHUB_PATH
         sudo yes | cmdline-tools/latest/bin/sdkmanager --install "ndk;29.0.14206865"
-        echo "($pwd)/ndk/29.0.14206865" >> $GITHUB_PATH
-        echo "ANDROID_NDK=($pwd)/ndk/29.0.14206865" >> $GITHUB_ENV
+        echo "/usr/local/lib/android/sdk/ndk/29.0.14206865" >> $GITHUB_PATH
+        echo "ANDROID_NDK=/usr/local/lib/android/sdk/ndk/29.0.14206865" >> $GITHUB_ENV
         echo "($pwd)/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_PATH
         ln -s llvm-objdump ${ANDROID_HOME}/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/objdump
-        echo "Github path ($GITHUB_PATH)"
+        echo "Github path ($PATH)"
+        echo "Github path ($ENV)"
 
     - name: Setup Android SDK environment variables
       run: |
