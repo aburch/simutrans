@@ -552,6 +552,8 @@ public:
 		w!=waytype_t::powerline_wt      &&
 		w!=waytype_t::any_wt;
 	}
+	// set default reversing or not, when the next direction is opposite.
+	static bool default_reverse;
 };
 
 #endif

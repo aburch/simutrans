@@ -346,6 +346,8 @@ void env_t::init()
 	sprintf(otrp_statistics_log, "");
 	show_oneway_ribi_only = false;
 	put_new_toolbar_below_others = false;
+
+	default_reverse = false;
 }
 
 
@@ -627,6 +629,11 @@ void env_t::rdwr(loadsave_t *file)
 			// strncpy(new_server_name, buf, 2048);
 		}
 	}
+	if(  file->get_OTRP_version()>=50  ) {
+		file->rdwr_bool(default_reverse);
+	} else {
+		default_reverse = false;
+	}
 
 	// server settings are not saved, since they are server specific
 	// and could be different on different servers on the same computers
@@ -635,3 +642,5 @@ void env_t::rdwr(loadsave_t *file)
 // Graphical offsets for reverseing vehicles
 // the reading method is in setting_t, and these parameters are used in vehicle_t.
 sint8 env_t::reverse_base_offsets[8][3];
+// set default reversing or not, when the next direction is opposite.
+bool env_t::default_reverse;
