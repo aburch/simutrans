@@ -363,7 +363,7 @@ uint32 convoi_t::move_to(uint16 const start_index)
 }
 
 
-void convoi_t::finish_rd()
+void convoi_t::finish_rd(const uint8 loaded_OTRP_version)
 {
 	if(schedule==NULL) {
 		if(  state!=INITIAL  ) {
@@ -587,6 +587,25 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 	// only for leading convoy
 	if(  state!=COUPLED && state!=COUPLED_LOADING  ) {
 		check_electrification();
+		// we only recalculate use_electric when load savedata older than OTRP v49.
+		if(  loaded_OTRP_version<49 && is_electric && !is_loading() && state!=INITIAL && get_route()->get_count()>0  ) {
+			use_electric = true;
+			for( uint16 i=front()->get_route_index()-1; i<get_route()->get_count(); i++) {
+				grund_t* gr = welt->lookup(get_route()->at(i));
+				if(  gr  ) {
+					schiene_t const* const sch = obj_cast<schiene_t>(gr->get_weg(front()->get_waytype()));
+					if(  sch && !sch->is_electrified()  ){
+						use_electric = false;
+					}
+				}
+			}
+		}
+		// update all child's use_electric flag
+		convoihandle_t c = get_coupling_convoi();
+		while( c.is_bound() ){
+			c->use_electric |= use_electric;
+			c = c->get_coupling_convoi();
+		}
 		calc_min_top_speed();
 	}
 	calc_speedbonus_kmh();
@@ -5596,25 +5615,11 @@ void convoi_t::check_electrification() {
 		}
 		c = c->get_coupling_convoi();
 	}
-	// we only recalculate use_electric when load savedata older than OTRP v49.
-	if(  welt->must_calculate_use_electric_when_loading_data && is_electric && !most_parent_convoi->is_loading() && most_parent_convoi->state!=INITIAL && most_parent_convoi->get_route()->get_count()>0  ) {
-		use_electric = true;
-		for( uint16 i=most_parent_convoi->front()->get_route_index()-1; i<most_parent_convoi->get_route()->get_count(); i++) {
-			grund_t* gr = welt->lookup(most_parent_convoi->get_route()->at(i));
-			if(  gr  ) {
-				schiene_t const* const sch = obj_cast<schiene_t>(gr->get_weg(front()->get_waytype()));
-				if(  sch && !sch->is_electrified()  ){
-					use_electric = false;
-				}
-			}
-		}
-	}
 	// calculation done! update flags. 
 	c = most_parent_convoi;
 	while(  c.is_bound()  ) {
 		c->is_electric = is_electric;
 		c->need_electric = need_electric;
-		c->use_electric |= use_electric;
 		c = c->get_coupling_convoi();
 	}
 	return;
