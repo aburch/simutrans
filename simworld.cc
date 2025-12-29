@@ -5443,7 +5443,10 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	}
 
 	ls.set_progress( (get_size().y*3)/2+256+(get_size().y*3)/8 );
-
+	if(  file->get_OTRP_version()<49  ) {
+		// we must recalc convoi_t::use_electric in convoi_t::check_electrification()
+		must_calculate_use_electric_when_loading_data = true;
+	}
 	// adding lines and other stuff for convois
 	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
 		convoihandle_t cnv = convoi_array[i];
@@ -5453,6 +5456,9 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 			i--;
 		}
 	}
+	// end convoit_t:: use_electric calculation
+	must_calculate_use_electric_when_loading_data = false;
+
 	haltestelle_t::end_load_game();
 
 	// register all line stops and change line types, if needed

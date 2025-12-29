@@ -1400,6 +1400,11 @@ public:
 	uint32 load_version;
 
 	/**
+	 * when load savedata older than OTRP v49, we must recalc convoi_t::use_electric 
+	 */
+	bool must_calculate_use_electric_when_loading_data=false;
+
+	/**
 	 * Checks if the planquadrat (tile) at coordinate (x,y)
 	 * can be lowered at the specified height.
 	 */

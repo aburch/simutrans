@@ -5596,7 +5596,8 @@ void convoi_t::check_electrification() {
 		}
 		c = c->get_coupling_convoi();
 	}
-	if(  is_electric && !most_parent_convoi->is_loading() && most_parent_convoi->state!=INITIAL && most_parent_convoi->get_route()->get_count()>0  ) {
+	// we only recalculate use_electric when load savedata older than OTRP v49.
+	if(  welt->must_calculate_use_electric_when_loading_data && is_electric && !most_parent_convoi->is_loading() && most_parent_convoi->state!=INITIAL && most_parent_convoi->get_route()->get_count()>0  ) {
 		use_electric = true;
 		for( uint16 i=most_parent_convoi->front()->get_route_index()-1; i<most_parent_convoi->get_route()->get_count(); i++) {
 			grund_t* gr = welt->lookup(most_parent_convoi->get_route()->at(i));
@@ -5608,6 +5609,7 @@ void convoi_t::check_electrification() {
 			}
 		}
 	}
+	// calculation done! update flags. 
 	c = most_parent_convoi;
 	while(  c.is_bound()  ) {
 		c->is_electric = is_electric;
