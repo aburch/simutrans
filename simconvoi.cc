@@ -136,6 +136,7 @@ void convoi_t::init(player_t *player)
 	next_reservation_index = 0;
 	reserved_tiles.clear();
 	reversing_needed = false;
+	reverse_coupling_done = false;
 
 	alte_richtung = ribi_t::none;
 	next_wolke = 0;
@@ -2506,11 +2507,12 @@ void convoi_t::vorfahren()
 	c = self;
 	while(  c.is_bound()  ) {
 		// the back vehicles position is set.
-		if (c->reversing_needed){
+		if (c->reversing_needed^(env_t::default_reverse&&!go_same_direction)){
 			c->reverse_vehicles_at_halt_if_needed();
 		}
 		// reset uncouple done flag
 		c->uncouple_done = false;
+		c->reverse_coupling_done = false;
 		c = c->get_coupling_convoi();
 	}
 	c = self;
@@ -3313,6 +3315,11 @@ void convoi_t::rdwr(loadsave_t *file)
 		need_electric = is_electric;
 		use_electric = is_electric;
 	}
+	if(  file->get_OTRP_version()>=50  ) {
+		file->rdwr_bool(reverse_coupling_done);
+	} else {
+		reverse_coupling_done = false;
+	}
 
 	if(  file->is_loading()  ) {
 		reserve_route();
@@ -3868,6 +3875,12 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 			route_t r;
 			route_t::route_result_t res = r.calc_route(welt, c->front()->get_pos(), c->get_schedule()->get_next_entry().pos, front(), speed_to_kmh(min_top_speed), 8888);
 			bool const should_this_convoy_be_parent = (res==route_t::no_route || r.get_count()<2) ? false : ((ribi_type(r.at(0), r.at(1)) & c->front()->get_direction()) == 0 ? true : false);
+			// reverse check done
+			c = temp_parent_convoi;
+			while(c.is_bound()) {
+				c->reverse_coupling_done = true;
+				c=c->get_coupling_convoi();
+			}
 			if(  should_this_convoy_be_parent  ) {
 				temp_parent_convoi->reverse_convoy_coupling();
 			}
@@ -4057,15 +4070,22 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 		// reverse image direction after departire, in drive_to()
 	}
 	// reverse order of coupling/coupled convois
-	if (  get_schedule()->get_current_entry().is_reverse_convoi_coupling()  &&
-		coupling_convoi.is_bound()  &&  !is_coupled()  &&  !is_waiting_for_coupling()
-	) {
-		convoihandle_t last_child_convoi = self->get_coupling_convoi();
-		while (  last_child_convoi->get_coupling_convoi().is_bound()  ){
-			last_child_convoi = last_child_convoi->get_coupling_convoi();
+	if (  coupling_convoi.is_bound()  &&  !is_coupled()  &&  !is_waiting_for_coupling()  )
+	{
+		bool should_reverse_coupling_done = false;
+		if(env_t::default_reverse) {
+			// the direction of the waiting vehicle is same? opposite?
+			route_t r;
+			route_t::route_result_t res = r.calc_route(welt, front()->get_pos(), get_schedule()->get_next_entry().pos, front(), speed_to_kmh(min_top_speed), 8888);
+			bool const should_reverse_coupling_done = (res==route_t::no_route || r.get_count()<2) ? false : ((ribi_type(r.at(0), r.at(1)) & front()->get_direction()) == 0 ? true : false);
 		}
-		// Avoid infinite loop for the case that the last child convoy also requests reversing the coupling.
-		if(  !last_child_convoi->get_schedule()->get_current_entry().is_reverse_convoi_coupling()  ){
+		// reverse check done
+		c = self;
+		while(c.is_bound()) {
+			c->reverse_coupling_done = true;
+			c=c->get_coupling_convoi();
+		}
+		if(get_schedule()->get_current_entry().is_reverse_convoi_coupling()^(should_reverse_coupling_done)) {
 			reverse_convoy_coupling();
 		}
 	}

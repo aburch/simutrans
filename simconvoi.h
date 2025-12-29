@@ -389,6 +389,9 @@ private:
 	bool reversed; // true when the vehicles are in the reversed order.
 	bool reversing_needed;// Whether this convoy's vehicles will be arranged in reverse order.
 
+	// next direction is opposite?s
+	bool reverse_coupling_done;
+
 	/**
 	 * The temporary speed limit for this convoy.
 	 * For example, as limited by a speed limit sign.
