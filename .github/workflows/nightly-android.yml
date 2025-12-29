@@ -23,7 +23,7 @@ jobs:
     - name: Install dependencies1
       working-directory: /usr/local/lib/android/sdk
       run: |
-        echo "$(ls -l)"
+        echo "$(find .. -maxdepth 3 -type d)"
         mv cmdline-tools/latest cmdline-tools/existing
         yes | cmdline-tools/existing/bin/sdkmanager --licenses
         sudo yes | cmdline-tools/existing/bin/sdkmanager --install "cmdline-tools;latest"
@@ -36,6 +36,7 @@ jobs:
         echo "($pwd)/cmake/3.31.6/bin" >> $GITHUB_PATH
         sudo yes | cmdline-tools/latest/bin/sdkmanager --install "ndk;29.0.14206865"
         echo "($pwd)/ndk/29.0.14206865" >> $GITHUB_PATH
+        echo "ANDROID_NDK=($pwd)/ndk/29.0.14206865" >> $GITHUB_ENV
         echo "($pwd)/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_PATH
         ln -s llvm-objdump ${ANDROID_HOME}/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/objdump
         echo "Github path ($GITHUB_PATH)"
