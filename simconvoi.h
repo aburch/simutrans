@@ -653,7 +653,7 @@ public:
 	 */
 	static void rdwr_convoihandle_t(loadsave_t *file, convoihandle_t &cnv);
 
-	void finish_rd();
+	void finish_rd( const uint8 loaded_OTRP_version );
 
 	void rotate90( const sint16 y_size );
 

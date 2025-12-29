@@ -5447,7 +5447,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	// adding lines and other stuff for convois
 	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
 		convoihandle_t cnv = convoi_array[i];
-		cnv->finish_rd();
+		cnv->finish_rd( file->get_OTRP_version() );
 		// was deleted during loading => use same position again
 		if(!cnv.is_bound()) {
 			i--;
