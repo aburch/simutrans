@@ -114,8 +114,9 @@ enum sim_keymod_t
 {
 	SIM_KEYMOD_NONE   = 0,
 
-	SIM_KEYMOD_SHIFT  = 1u << 0,
-	SIM_KEYMOD_CTRL   = 1u << 1,
+	SIM_KEYMOD_SHIFT  = 1 << 0,
+	SIM_KEYMOD_CTRL   = 1 << 1,
+	SIM_KEYMOD_ALT    = 1 << 2, ///< Currently unused
 };
 
 
