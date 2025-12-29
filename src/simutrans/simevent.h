@@ -58,20 +58,45 @@ enum event_class_t
 #define SYSTEM_RELOAD_WINDOWS         3
 #define SYSTEM_THEME_CHANGED          4
 
+
 /* normal keys have range 0-255, special key follow above 255 */
 /* other would be better for true unicode support :( */
+enum sim_keycode_t
+{
+	SIM_KEYCODE_BACKSPACE   =   8,
+	SIM_KEYCODE_TAB         =   9,
+	SIM_KEYCODE_ENTER       =  13,
+	SIM_KEYCODE_ESCAPE      =  27,
+	SIM_KEYCODE_SPACE       =  32,
+	SIM_KEYCODE_DELETE      = 127,
 
-/* control keys */
-#define SIM_KEYCODE_BACKSPACE             8
-#define SIM_KEYCODE_TAB                   9
-#define SIM_KEYCODE_ENTER                13
-#define SIM_KEYCODE_ESCAPE               27
-#define SIM_KEYCODE_SPACE                32
-#define SIM_KEYCODE_DELETE              127
-#define SIM_KEYCODE_PAUSE               279
+	/* Function keys */
+	SIM_KEYCODE_F1          = 256,
+	SIM_KEYCODE_F2          = 257,
+	SIM_KEYCODE_F3          = 258,
+	SIM_KEYCODE_F4          = 259,
+	SIM_KEYCODE_F5          = 260,
+	SIM_KEYCODE_F6          = 261,
+	SIM_KEYCODE_F7          = 262,
+	SIM_KEYCODE_F8          = 263,
+	SIM_KEYCODE_F9          = 264,
+	SIM_KEYCODE_F10         = 265,
+	SIM_KEYCODE_F11         = 266,
+	SIM_KEYCODE_F12         = 267,
+	SIM_KEYCODE_F13         = 268,
+	SIM_KEYCODE_F14         = 269,
+	SIM_KEYCODE_F15         = 270,
 
-/* arrow (direction) keys */
-enum {
+	/* other navigation keys */
+	SIM_KEYCODE_HOME        = 275,
+	SIM_KEYCODE_END         = 276,
+	SIM_KEYCODE_PGUP        = 277,
+	SIM_KEYCODE_PGDN        = 278,
+	SIM_KEYCODE_SCROLLLOCK  = 279,
+
+	SIM_KEYCODE_PAUSE       = 279,
+
+	/* arrow (direction) keys */
 	SIM_KEYCODE_NUMPAD_BASE = 280, // 0 on keypad
 	SIM_KEYCODE_DOWNLEFT,
 	SIM_KEYCODE_DOWN,
@@ -81,32 +106,9 @@ enum {
 	SIM_KEYCODE_RIGHT,
 	SIM_KEYCODE_UPLEFT,
 	SIM_KEYCODE_UP,
-	SIM_KEYCODE_UPRIGHT
+	SIM_KEYCODE_UPRIGHT,
 };
 
-/* other navigation keys */
-#define SIM_KEYCODE_HOME                275
-#define SIM_KEYCODE_END                 276
-#define SIM_KEYCODE_PGUP                277
-#define SIM_KEYCODE_PGDN                278
-#define SIM_KEYCODE_SCROLLLOCK          279
-
-/* Function keys */
-#define SIM_KEYCODE_F1                  256
-#define SIM_KEYCODE_F2                  257
-#define SIM_KEYCODE_F3                  258
-#define SIM_KEYCODE_F4                  259
-#define SIM_KEYCODE_F5                  260
-#define SIM_KEYCODE_F6                  261
-#define SIM_KEYCODE_F7                  262
-#define SIM_KEYCODE_F8                  263
-#define SIM_KEYCODE_F9                  264
-#define SIM_KEYCODE_F10                 265
-#define SIM_KEYCODE_F11                 266
-#define SIM_KEYCODE_F12                 267
-#define SIM_KEYCODE_F13                 268
-#define SIM_KEYCODE_F14                 269
-#define SIM_KEYCODE_F15                 270
 
 #define SIM_MOD_NONE   0
 #define SIM_MOD_SHIFT  (1u << 0)
