@@ -495,6 +495,55 @@ static inline unsigned int ModifierKeys()
 }
 
 
+static inline unsigned long vkey_to_simkey(WPARAM wParam, LPARAM lParam)
+{
+	sint16 code = lParam >> 16;
+	if(  code >= 0x47  &&  code <= 0x52  &&  code != 0x4A  &&  code != 0x4e  ) {
+		if(  (GetKeyState( VK_NUMLOCK ) & 1) == 0  ||  (env_t::numpad_always_moves_map  &&  !win_is_textinput())  ) { // numlock off?
+			switch( code ) {
+				case 0x47: code = SIM_KEYCODE_UPLEFT; break;
+				case 0x48: code = SIM_KEYCODE_UP; break;
+				case 0x49: code = SIM_KEYCODE_UPRIGHT; break;
+				case 0x4B: code = SIM_KEYCODE_LEFT; break;
+				case 0x4C: code = SIM_KEYCODE_CENTER; break;
+				case 0x4D: code = SIM_KEYCODE_RIGHT; break;
+				case 0x4F: code = SIM_KEYCODE_DOWNLEFT; break;
+				case 0x50: code = SIM_KEYCODE_DOWN; break;
+				case 0x51: code = SIM_KEYCODE_DOWNRIGHT; break;
+				case 0x52: code = SIM_KEYCODE_NUMPAD_BASE; break;
+			}
+
+			if(  code>=SIM_KEYCODE_NUMPAD_BASE  ) {
+				// ok found something
+				return code;
+			}
+		}
+	}
+
+	// do low level special stuff here
+	switch (wParam) {
+		case VK_SCROLL: return SIM_KEYCODE_SCROLLLOCK; break;
+		case VK_PAUSE:  return SIM_KEYCODE_PAUSE;      break;
+		case VK_LEFT:   return SIM_KEYCODE_LEFT;       break;
+		case VK_RIGHT:  return SIM_KEYCODE_RIGHT;      break;
+		case VK_UP:     return SIM_KEYCODE_UP;         break;
+		case VK_DOWN:   return SIM_KEYCODE_DOWN;       break;
+		case VK_PRIOR:  return '>';                    break;
+		case VK_NEXT:   return '<';                    break;
+		case VK_DELETE: return 127;                    break;
+		case VK_HOME:   return SIM_KEYCODE_HOME;       break;
+		case VK_END:    return SIM_KEYCODE_END;        break;
+	}
+
+	// check for F-Keys!
+	if (code == 0 && wParam >= VK_F1 && wParam <= VK_F15) {
+		code = wParam - VK_F1 + SIM_KEYCODE_F1;
+	}
+
+	return code;
+}
+
+
 /* Windows eventhandler: does most of the work */
 LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -649,56 +698,17 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			break;
 		}
 
-		case WM_KEYDOWN: { /* originally KeyPress */
+		/* originally KeyPress */
+		case WM_KEYDOWN:
+		case WM_KEYUP: {
 			// check for not numlock!
-			sys_event.type = SIM_KEYBOARD;
-			sys_event.code = 0;
+			sys_event.type    = msg==WM_KEYDOWN ? SIM_KEYDOWN : SIM_KEYUP;
+			sys_event.code    = vkey_to_simkey(wParam, lParam);
 			sys_event.key_mod = ModifierKeys();
 
-			sint16 code = lParam >> 16;
-			if(  code >= 0x47  &&  code <= 0x52  &&  code != 0x4A  &&  code != 0x4e  ) {
-				if(  (GetKeyState( VK_NUMLOCK ) & 1) == 0  ||  (env_t::numpad_always_moves_map  &&  !win_is_textinput())  ) { // numlock off?
-					switch( code ) {
-						case 0x47: code = SIM_KEYCODE_UPLEFT; break;
-						case 0x48: code = SIM_KEYCODE_UP; break;
-						case 0x49: code = SIM_KEYCODE_UPRIGHT; break;
-						case 0x4B: code = SIM_KEYCODE_LEFT; break;
-						case 0x4C: code = SIM_KEYCODE_CENTER; break;
-						case 0x4D: code = SIM_KEYCODE_RIGHT; break;
-						case 0x4F: code = SIM_KEYCODE_DOWNLEFT; break;
-						case 0x50: code = SIM_KEYCODE_DOWN; break;
-						case 0x51: code = SIM_KEYCODE_DOWNRIGHT; break;
-						case 0x52: code = SIM_KEYCODE_NUMPAD_BASE; break;
-					}
-					if(  code>=SIM_KEYCODE_NUMPAD_BASE  ) {
-						// ok found something
-						sys_event.code = code;
-						break;
-					}
-				}
-			}
-
-			// do low level special stuff here
-			switch (wParam) {
-				case VK_SCROLL: sys_event.code = SIM_KEYCODE_SCROLLLOCK; break;
-				case VK_PAUSE:  sys_event.code = SIM_KEYCODE_PAUSE; break;
-				case VK_LEFT:   sys_event.code = SIM_KEYCODE_LEFT;  break;
-				case VK_RIGHT:  sys_event.code = SIM_KEYCODE_RIGHT; break;
-				case VK_UP:     sys_event.code = SIM_KEYCODE_UP;    break;
-				case VK_DOWN:   sys_event.code = SIM_KEYCODE_DOWN;  break;
-				case VK_PRIOR:  sys_event.code = '>';           break;
-				case VK_NEXT:   sys_event.code = '<';           break;
-				case VK_DELETE: sys_event.code = 127;           break;
-				case VK_HOME:   sys_event.code = SIM_KEYCODE_HOME;  break;
-				case VK_END:    sys_event.code = SIM_KEYCODE_END;   break;
-			}
-			// check for F-Keys!
-			if (sys_event.code == 0 && wParam >= VK_F1 && wParam <= VK_F15) {
-				sys_event.code = wParam - VK_F1 + SIM_KEYCODE_F1;
-				//printf("WindowsEvent: Key %i, (state %i)\n", sys_event.code, sys_event.key_mod);
-			}
 			// some result?
 			if (sys_event.code != 0) return 0;
+
 			sys_event.type = SIM_NOEVENT;
 			sys_event.code = 0;
 			break;
@@ -715,8 +725,8 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 					break;
 				}
 			}
-			sys_event.type = SIM_KEYBOARD;
-			sys_event.code = wParam;
+			sys_event.type    = SIM_KEYDOWN;
+			sys_event.code    = wParam;
 			sys_event.key_mod = ModifierKeys();
 			break;
 		}
@@ -812,7 +822,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 				}
 				else {
 					// single key
-					sys_event.type = SIM_KEYBOARD;
+					sys_event.type = SIM_KEYDOWN;
 					sys_event.code = u16buf[0];
 				}
 				sys_event.key_mod = ModifierKeys();

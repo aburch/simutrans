@@ -638,6 +638,91 @@ static uint16 conv_mouse_buttons(Uint8 const state)
 }
 
 
+static inline bool is_numpad_key(SDL_Keycode keycode)
+{
+	return
+		keycode == SDLK_KP_1 ||
+		keycode == SDLK_KP_2 ||
+		keycode == SDLK_KP_3 ||
+		keycode == SDLK_KP_4 ||
+		keycode == SDLK_KP_5 ||
+		keycode == SDLK_KP_6 ||
+		keycode == SDLK_KP_7 ||
+		keycode == SDLK_KP_8 ||
+		keycode == SDLK_KP_9 ||
+		keycode == SDLK_KP_0;
+}
+
+
+// SDL doesn't set numlock state correctly on startup. Revert to win32 function as workaround.
+static inline bool is_numlock_enabled()
+{
+#ifdef _WIN32
+	return (GetKeyState( VK_NUMLOCK ) & 1) != 0;
+#else
+	return SDL_GetModState() & KMOD_NUM;
+#endif
+}
+
+
+static inline unsigned long sdlk_to_simkey(SDL_Keycode keycode, bool keypad_emits_numbers)
+{
+	switch(  keycode  ) {
+		case SDLK_BACKSPACE:  return SIM_KEYCODE_BACKSPACE;
+		case SDLK_TAB:        return SIM_KEYCODE_TAB;
+		case SDLK_RETURN:     return SIM_KEYCODE_ENTER;
+		case SDLK_ESCAPE:     return SIM_KEYCODE_ESCAPE;
+		case SDLK_AC_BACK:
+		case SDLK_DELETE:     return SIM_KEYCODE_DELETE;
+		case SDLK_DOWN:       return SIM_KEYCODE_DOWN;
+		case SDLK_END:        return SIM_KEYCODE_END;
+		case SDLK_HOME:       return SIM_KEYCODE_HOME;
+		case SDLK_F1:         return SIM_KEYCODE_F1;
+		case SDLK_F2:         return SIM_KEYCODE_F2;
+		case SDLK_F3:         return SIM_KEYCODE_F3;
+		case SDLK_F4:         return SIM_KEYCODE_F4;
+		case SDLK_F5:         return SIM_KEYCODE_F5;
+		case SDLK_F6:         return SIM_KEYCODE_F6;
+		case SDLK_F7:         return SIM_KEYCODE_F7;
+		case SDLK_F8:         return SIM_KEYCODE_F8;
+		case SDLK_F9:         return SIM_KEYCODE_F9;
+		case SDLK_F10:        return SIM_KEYCODE_F10;
+		case SDLK_F11:        return SIM_KEYCODE_F11;
+		case SDLK_F12:        return SIM_KEYCODE_F12;
+		case SDLK_F13:        return SIM_KEYCODE_F13;
+		case SDLK_F14:        return SIM_KEYCODE_F14;
+		case SDLK_F15:        return SIM_KEYCODE_F15;
+		case SDLK_KP_0:       return (keypad_emits_numbers ? '0' : (unsigned long)SIM_KEYCODE_NUMPAD_BASE);
+		case SDLK_KP_1:       return (keypad_emits_numbers ? '1' : (unsigned long)SIM_KEYCODE_DOWNLEFT);
+		case SDLK_KP_2:       return (keypad_emits_numbers ? '2' : (unsigned long)SIM_KEYCODE_DOWN);
+		case SDLK_KP_3:       return (keypad_emits_numbers ? '3' : (unsigned long)SIM_KEYCODE_DOWNRIGHT);
+		case SDLK_KP_4:       return (keypad_emits_numbers ? '4' : (unsigned long)SIM_KEYCODE_LEFT);
+		case SDLK_KP_5:       return (keypad_emits_numbers ? '5' : (unsigned long)SIM_KEYCODE_CENTER);
+		case SDLK_KP_6:       return (keypad_emits_numbers ? '6' : (unsigned long)SIM_KEYCODE_RIGHT);
+		case SDLK_KP_7:       return (keypad_emits_numbers ? '7' : (unsigned long)SIM_KEYCODE_UPLEFT);
+		case SDLK_KP_8:       return (keypad_emits_numbers ? '8' : (unsigned long)SIM_KEYCODE_UP);
+		case SDLK_KP_9:       return (keypad_emits_numbers ? '9' : (unsigned long)SIM_KEYCODE_UPRIGHT);
+		case SDLK_KP_ENTER:   return SIM_KEYCODE_ENTER;
+		case SDLK_LEFT:       return SIM_KEYCODE_LEFT;
+		case SDLK_PAGEDOWN:   return '<';
+		case SDLK_PAGEUP:     return '>';
+		case SDLK_RIGHT:      return SIM_KEYCODE_RIGHT;
+		case SDLK_UP:         return SIM_KEYCODE_UP;
+		case SDLK_PAUSE:      return SIM_KEYCODE_PAUSE;
+		case SDLK_SCROLLLOCK: return SIM_KEYCODE_SCROLLLOCK;
+		default: {
+			// Handle CTRL-keys. SDL_TEXTINPUT event handles regular input
+			if(  (sys_event.key_mod & SIM_KEYMOD_CTRL)  &&  SDLK_a <= keycode  &&  keycode <= SDLK_z  ) {
+				return keycode & 31;
+			}
+			else {
+				return 0;
+			}
+		}
+	}
+}
+
+
 static void internal_GetEvents()
 {
 	// Apparently Cocoa SDL posts key events that meant to be used by IM...
@@ -902,7 +987,7 @@ static void internal_GetEvents()
 			}
 			break;
 
-		case SDL_KEYDOWN: {
+		case SDL_KEYDOWN:
 			// Hack: when 2 byte character composition is under way, we have to leave the key processing with the IME
 			// BUT: if not, we have to do it ourselves, or the cursor or return will not be recognised
 			if(  composition_is_underway  ) {
@@ -915,78 +1000,19 @@ static void internal_GetEvents()
 					}
 				}
 			}
+			// fallthrough
 
-			unsigned long code;
-#ifdef _WIN32
-			// SDL doesn't set numlock state correctly on startup. Revert to win32 function as workaround.
-			const bool key_numlock = ((GetKeyState( VK_NUMLOCK ) & 1) != 0);
-#else
-			const bool key_numlock = (SDL_GetModState() & KMOD_NUM);
-#endif
-			const bool numlock = key_numlock  ||  (env_t::numpad_always_moves_map  &&  !win_is_textinput());
-			sys_event.key_mod = ModifierKeys();
-			SDL_Keycode sym = event.key.keysym.sym;
-			bool np = false; // to indicate we converted a numpad key
+		case SDL_KEYUP:
+			{
+				const bool numlock_enabled = is_numlock_enabled();
+				const bool keypad_emits_numbers = numlock_enabled  ||  (env_t::numpad_always_moves_map  &&  !win_is_textinput());
 
-			switch(  sym  ) {
-				case SDLK_BACKSPACE:  code = SIM_KEYCODE_BACKSPACE;             break;
-				case SDLK_TAB:        code = SIM_KEYCODE_TAB;                   break;
-				case SDLK_RETURN:     code = SIM_KEYCODE_ENTER;                 break;
-				case SDLK_ESCAPE:     code = SIM_KEYCODE_ESCAPE;                break;
-				case SDLK_AC_BACK:
-				case SDLK_DELETE:     code = SIM_KEYCODE_DELETE;                break;
-				case SDLK_DOWN:       code = SIM_KEYCODE_DOWN;                  break;
-				case SDLK_END:        code = SIM_KEYCODE_END;                   break;
-				case SDLK_HOME:       code = SIM_KEYCODE_HOME;                  break;
-				case SDLK_F1:         code = SIM_KEYCODE_F1;                    break;
-				case SDLK_F2:         code = SIM_KEYCODE_F2;                    break;
-				case SDLK_F3:         code = SIM_KEYCODE_F3;                    break;
-				case SDLK_F4:         code = SIM_KEYCODE_F4;                    break;
-				case SDLK_F5:         code = SIM_KEYCODE_F5;                    break;
-				case SDLK_F6:         code = SIM_KEYCODE_F6;                    break;
-				case SDLK_F7:         code = SIM_KEYCODE_F7;                    break;
-				case SDLK_F8:         code = SIM_KEYCODE_F8;                    break;
-				case SDLK_F9:         code = SIM_KEYCODE_F9;                    break;
-				case SDLK_F10:        code = SIM_KEYCODE_F10;                   break;
-				case SDLK_F11:        code = SIM_KEYCODE_F11;                   break;
-				case SDLK_F12:        code = SIM_KEYCODE_F12;                   break;
-				case SDLK_F13:        code = SIM_KEYCODE_F13;                   break;
-				case SDLK_F14:        code = SIM_KEYCODE_F14;                   break;
-				case SDLK_F15:        code = SIM_KEYCODE_F15;                   break;
-				case SDLK_KP_0:       np = true; code = (numlock ? '0' : (unsigned long)SIM_KEYCODE_NUMPAD_BASE); break;
-				case SDLK_KP_1:       np = true; code = (numlock ? '1' : (unsigned long)SIM_KEYCODE_DOWNLEFT); break;
-				case SDLK_KP_2:       np = true; code = (numlock ? '2' : (unsigned long)SIM_KEYCODE_DOWN); break;
-				case SDLK_KP_3:       np = true; code = (numlock ? '3' : (unsigned long)SIM_KEYCODE_DOWNRIGHT); break;
-				case SDLK_KP_4:       np = true; code = (numlock ? '4' : (unsigned long)SIM_KEYCODE_LEFT); break;
-				case SDLK_KP_5:       np = true; code = (numlock ? '5' : (unsigned long)SIM_KEYCODE_CENTER); break;
-				case SDLK_KP_6:       np = true; code = (numlock ? '6' : (unsigned long)SIM_KEYCODE_RIGHT); break;
-				case SDLK_KP_7:       np = true; code = (numlock ? '7' : (unsigned long)SIM_KEYCODE_UPLEFT); break;
-				case SDLK_KP_8:       np = true; code = (numlock ? '8' : (unsigned long)SIM_KEYCODE_UP); break;
-				case SDLK_KP_9:       np = true; code = (numlock ? '9' : (unsigned long)SIM_KEYCODE_UPRIGHT); break;
-				case SDLK_KP_ENTER:   code = SIM_KEYCODE_ENTER;                 break;
-				case SDLK_LEFT:       code = SIM_KEYCODE_LEFT;                  break;
-				case SDLK_PAGEDOWN:   code = '<';                           break;
-				case SDLK_PAGEUP:     code = '>';                           break;
-				case SDLK_RIGHT:      code = SIM_KEYCODE_RIGHT;                 break;
-				case SDLK_UP:         code = SIM_KEYCODE_UP;                    break;
-				case SDLK_PAUSE:      code = SIM_KEYCODE_PAUSE;                 break;
-				case SDLK_SCROLLLOCK: code = SIM_KEYCODE_SCROLLLOCK;            break;
-				default: {
-					// Handle CTRL-keys. SDL_TEXTINPUT event handles regular input
-					if(  (sys_event.key_mod & SIM_KEYMOD_CTRL)  &&  SDLK_a <= sym  &&  sym <= SDLK_z  ) {
-						code = event.key.keysym.sym & 31;
-					}
-					else {
-						code = 0;
-					}
-					break;
-				}
+				ignore_previous_number = (is_numpad_key(event.key.keysym.sym)  &&  numlock_enabled);
+				sys_event.type    = event.type == SDL_KEYDOWN ? SIM_KEYDOWN : SIM_KEYUP;
+				sys_event.code    = sdlk_to_simkey(event.key.keysym.sym, keypad_emits_numbers);
+				sys_event.key_mod = ModifierKeys();
 			}
-			ignore_previous_number = (np  &&  key_numlock);
-			sys_event.type    = SIM_KEYBOARD;
-			sys_event.code    = code;
 			break;
-		}
 
 		case SDL_TEXTINPUT: {
 			size_t in_pos = 0;
@@ -997,8 +1023,8 @@ static void internal_GetEvents()
 					ignore_previous_number = false;
 					break;
 				}
-				sys_event.type    = SIM_KEYBOARD;
-				sys_event.code    = (unsigned long)uc;
+				sys_event.type = SIM_KEYDOWN;
+				sys_event.code = (unsigned long)uc;
 			}
 			else {
 				// string
@@ -1036,11 +1062,6 @@ static void internal_GetEvents()
 			break;
 		}
 #endif
-		case SDL_KEYUP: {
-			sys_event.type = SIM_KEYBOARD;
-			sys_event.code = 0;
-			break;
-		}
 		case SDL_QUIT: {
 			sys_event.type = SIM_SYSTEM;
 			sys_event.code = SYSTEM_QUIT;

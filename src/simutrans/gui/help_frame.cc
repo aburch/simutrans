@@ -353,10 +353,10 @@ void help_frame_t::set_helpfile(const char *filename, bool resize_frame )
 			switch (uint16 const key = i->command_key) {
 				case '<': c.append( "&lt;" ); break;
 				case '>': c.append( "&gt;" ); break;
-				case 27:  c.append( translator::translate( "[ESCAPE]" ) ); break;
-				case 127: c.append( translator::translate( "[DELETE]" ) ); break;
-				case SIM_KEYCODE_HOME: c.append( translator::translate( "[HOME]" ) ); break;
-				case SIM_KEYCODE_END:  c.append( translator::translate( "[END]" ) ); break;
+				case SIM_KEYCODE_ESCAPE:     c.append( translator::translate( "[ESCAPE]" ) );     break;
+				case SIM_KEYCODE_DELETE:     c.append( translator::translate( "[DELETE]" ) );     break;
+				case SIM_KEYCODE_HOME:       c.append( translator::translate( "[HOME]" ) );       break;
+				case SIM_KEYCODE_END:        c.append( translator::translate( "[END]" ) );        break;
 				case SIM_KEYCODE_SCROLLLOCK: c.append( translator::translate( "[SCROLLLOCK]" ) ); break;
 				default:
 					if (key <= 26) {
