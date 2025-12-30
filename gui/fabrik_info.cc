@@ -79,6 +79,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	view(scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
 	prod(&prod_buf),
 	txt(&info_buf),
+	lb_shipment_size("shipment size:"),
 	scroll_info(&container_info)
 {
 	if (fab) {
@@ -111,10 +112,31 @@ void fabrik_info_t::init(fabrik_t* fab_, const gebaeude_t* gb)
 	// top part: production number & details, boost indicators, factory view
 	add_table(6,0)->set_alignment(ALIGN_LEFT | ALIGN_TOP);
 	{
-		// production details per input/output
-		fab->info_prod( prod_buf );
-		prod.recalc_size();
-		add_component( &prod );
+		add_table(1,3);
+		{
+			bt_no_close_factory.init(button_t::square_state, "no close this factory");
+			bt_no_close_factory.add_listener(this);
+			bt_no_close_factory.enable();
+			add_component(&bt_no_close_factory);
+			add_table(2,1);
+			{
+				lb_shipment_size.set_tooltip(translator::translate("Set shipment size.(default:10)"));
+				add_component(&lb_shipment_size);
+				numinp_shipment_size.set_width(90);
+				numinp_shipment_size.set_value(10);
+				numinp_shipment_size.set_limits(1,200);
+				numinp_shipment_size.set_increment_mode(gui_numberinput_t::PROGRESS);
+				numinp_shipment_size.add_listener(this);
+				add_component(&numinp_shipment_size);
+			}
+			end_table();
+
+			// production details per input/output
+			fab->info_prod( prod_buf );
+			prod.recalc_size();
+			add_component( &prod );
+		}
+		end_table();
 
 		new_component<gui_fill_t>();
 
@@ -265,7 +287,7 @@ bool fabrik_info_t::is_weltpos()
  * Returns true, if action is done and no more
  * components should be triggered.
  */
-bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t)
+bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t p)
 {
 	if(  comp == &input  ) {
 		rename_factory();
@@ -279,6 +301,18 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t)
 	{
 		highlight_suppliers.pressed ^= 1;
 		highlight(fab->get_suppliers(), highlight_suppliers.pressed);
+	}
+	else if (comp == &bt_no_close_factory)
+	{
+		fab->call_factory_tool( 'd', NULL );
+	}
+	else if (comp == &numinp_shipment_size)
+	{
+		if(p.i>0) {
+			cbuffer_t buf;
+			buf.printf("%d", (uint16)numinp_shipment_size.get_value() );
+			fab->call_factory_tool( 's', buf );
+		}
 	}
 	return true;
 }
@@ -374,6 +408,14 @@ void fabrik_info_t::update_components()
 		old_cities_count = fab->get_target_cities().get_count();
 	}
 	container_info.set_size(container_info.get_min_size());
+	bt_no_close_factory.disable();
+	numinp_shipment_size.disable();
+	bt_no_close_factory.pressed = fab->is_no_close_factory();
+	numinp_shipment_size.set_value(fab->get_shipment_size());
+	if(  fab->get_owner() == welt->get_active_player()  ) {
+		bt_no_close_factory.enable();
+		numinp_shipment_size.enable();
+	}
 	set_dirty();
 }
 

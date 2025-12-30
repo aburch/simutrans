@@ -53,6 +53,7 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 	button_t bt_promote_to_line;
 	gui_combobox_t line_selector, departure_slot_group_selector, next_line_selector;
 	gui_label_buf_t lb_waitlevel;
+	gui_fill_t sp_schedule_settings,sp_load_settings,sp_departure_settings,sp_coupling_settings,sp_reverse_settings,sp_road_settings;
 
 	// always needed
 	button_t bt_add, bt_insert, bt_remove; // stop management
@@ -64,14 +65,19 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 	
 	// for advanced settings
 	// coupling, load/unload only, temp schedule, departure time, max_speed
-	button_t bt_extract_settings;
-	button_t bt_find_parent, bt_wait_for_child; // convoy coupling
+	button_t bt_extract_schedule_settings, bt_extract_loading_settings, bt_extract_driving_settings;
+	button_t bt_find_parent, bt_wait_for_child, bt_reset_coupling; // convoy coupling
+	button_t bt_no_go_no_users;
 	button_t bt_no_load, bt_no_unload, bt_tmp_schedule, bt_wait_for_time, 
 		bt_same_dep_time, bt_full_load_acceleration, bt_full_load_time,bt_unload_all,bt_transfer_interval,
-		bt_load_before_departure, bt_reverse_convoy, bt_reverse_coupling, bt_wait_coupling_done,bt_max_speed_kmh_of_convoi, bt_no_overtake, bt_max_load_all_stops;
+		bt_load_before_departure, bt_reverse_convoy, bt_reverse_coupling, bt_wait_coupling_done, bt_uncouple_child, bt_max_speed_kmh_of_convoi, bt_no_overtake, bt_max_load_all_stops, bt_pass_stop,
+		bt_temp_load, bt_temp_unload, bt_temp_unload_all;
+
+
 	gui_numberinput_t numimp_spacing, numimp_spacing_shift, 
-		numimp_delay_tolerance, numimp_max_speed, numimp_max_speed_kmh_of_convoi , numimp_tbgr_waiting_time;
-	gui_label_t lb_spacing, lb_spacing_shift, lb_title1, lb_title2, lb_max_speed, lb_tbgr_waiting_time, lb_next_line;
+		numimp_delay_tolerance, numimp_max_speed, numimp_max_speed_kmh_of_convoi , numimp_tbgr_waiting_time, numimp_length_coupling_done;
+	gui_label_t lb_spacing, lb_spacing_shift, lb_title1, lb_title2, lb_max_speed, lb_tbgr_waiting_time, lb_next_line, lb_length_coupling_done;
+
 	char lb_spacing_str[20];
 	char lb_spacing_shift_str[15];
 
@@ -92,7 +98,10 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 	// changes the waiting/loading levels if allowed
 	void update_selection();
 	
-	void extract_advanced_settings(bool yesno);
+	// void extract_advanced_settings(bool yesno);
+	void extract_schedule_settings(bool yesno);
+	void extract_loading_settings(bool yesno);
+	void extract_driving_settings(bool yesno);
 	
 protected:
 	schedule_t *schedule;
