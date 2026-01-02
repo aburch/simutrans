@@ -2081,12 +2081,12 @@ uint32 vehicle_t::get_total_weight() const {
 	}
 	// use full load weight
 	if(  uint32* val = full_load_weights.access(desc)  ) {
-		return *val;
+		return *val*max(get_total_cargo(),get_cargo_max())/get_cargo_max();
 	} else {
 		// full load is not calculated. calculate and register.
 		const uint32 w = calc_full_load_weight(desc);
 		full_load_weights.put(desc, w);
-		return w;
+		return w*max(get_total_cargo(),get_cargo_max())/get_cargo_max();
 	}
 }
 
