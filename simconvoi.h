@@ -388,7 +388,7 @@ private:
 
 	bool reversed; // true when the vehicles are in the reversed order.
 	bool reversing_needed;// Whether this convoy's vehicles will be arranged in reverse order.
-
+	bool reversing_coupling_needed;// Whether these convoys coupling reversing is needed or not. Only using waypoint!
 	// next direction is opposite?s
 	bool reverse_coupling_done;
 

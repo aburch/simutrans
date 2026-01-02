@@ -137,6 +137,7 @@ void convoi_t::init(player_t *player)
 	reserved_tiles.clear();
 	reversing_needed = false;
 	reverse_coupling_done = false;
+	reversing_coupling_needed = false;
 
 	alte_richtung = ribi_t::none;
 	next_wolke = 0;
@@ -1267,6 +1268,20 @@ bool convoi_t::drive_to()
 			wait_lock = 25000;
 		}
 		else {
+			// if change direction at waypoint, we must reverse coupling here!
+			if(  env_t::reversible_waytype(front()->get_waytype())&&front()->get_waytype()!=water_wt&&!reverse_coupling_done&&state!=INITIAL  ) {
+				const bool reverse_here=(env_t::default_reverse&&(route.get_count()<2) ? false : ((ribi_type(route.at(0), route.at(1)) & front()->get_direction()) == 0 ? true : false));
+				if( reversing_coupling_needed^reverse_here )
+				{
+					// we need reverse here!
+					dbg->message("convoi_t::drive_to()","%s reverse at waypoint!",get_name());
+					reverse_convoy_coupling();
+					reversing_coupling_needed=reverse_here;
+					get_most_parent_convoi()->reversing_coupling_needed=reverse_here;
+					get_most_parent_convoi()->state=ROUTING_1;
+					return false;
+				}
+			}
 			bool route_ok = true;
 			const uint8 current_stop = schedule->get_current_stop();
 			if(  fahr[0]->get_waytype() != water_wt  ) {
@@ -2002,8 +2017,8 @@ void convoi_t::ziel_erreicht()
 	else {
 		// Neither depot nor station: waypoint
 		// check the reverse coupling order at this waypoint
-		if(  reverse_convoy_coupling_at_waypoint()  ) {
-			return;
+		if(  get_schedule()->get_current_entry().is_reverse_convoi_coupling()  ) {
+			reversing_coupling_needed=true;
 		}
 		c = self;
 		// advance schedule for all coupling convoys.
@@ -2011,7 +2026,7 @@ void convoi_t::ziel_erreicht()
 		// So, we advance all convoys' schedules first, and check can continue coupling after advancing schedules.
 		while(  c.is_bound()  ) {
 			if(c->get_schedule()->get_current_entry().is_reverse_convoy()) {
-				c->reverse_vehicles_on_user_request();
+				c->reversing_needed=true;
 			}
 			c->get_schedule()->advance();
 			c = c->get_coupling_convoi();
@@ -2051,7 +2066,7 @@ bool convoi_t::reverse_convoy_coupling_at_waypoint()
 	c = get_most_parent_convoi();
 	while(  c.is_bound()  ) {
 		if(c->get_schedule()->get_current_entry().is_reverse_convoy()) {
-			c->reverse_vehicles_on_user_request();
+			c->reversing_needed=true;
 		}
 		c->get_schedule()->advance();
 		c = c->get_coupling_convoi();
@@ -2513,6 +2528,7 @@ void convoi_t::vorfahren()
 		// reset uncouple done flag
 		c->uncouple_done = false;
 		c->reverse_coupling_done = false;
+		c->reversing_coupling_needed = false;
 		c = c->get_coupling_convoi();
 	}
 	c = self;
@@ -3313,12 +3329,18 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_bool(need_electric);
 	} else {
 		need_electric = is_electric;
+	}
+	if(  file->get_OTRP_version()>=50  ) {
+		file->rdwr_bool(need_electric);
+	} else {
 		use_electric = is_electric;
 	}
 	if(  file->get_OTRP_version()>=50  ) {
 		file->rdwr_bool(reverse_coupling_done);
+		file->rdwr_bool(reversing_coupling_needed);
 	} else {
 		reverse_coupling_done = false;
+		reversing_coupling_needed = false;
 	}
 
 	if(  file->is_loading()  ) {
