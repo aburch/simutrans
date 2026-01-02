@@ -4070,14 +4070,14 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 		// reverse image direction after departire, in drive_to()
 	}
 	// reverse order of coupling/coupled convois
-	if (  coupling_convoi.is_bound()  &&  !is_coupled()  &&  !is_waiting_for_coupling()  )
+	if (  coupling_convoi.is_bound()  &&  !is_coupled()  &&  !is_waiting_for_coupling()  &&  !reverse_coupling_done  )
 	{
 		bool should_reverse_coupling_done = false;
 		if(env_t::default_reverse) {
 			// the direction of the waiting vehicle is same? opposite?
 			route_t r;
 			route_t::route_result_t res = r.calc_route(welt, front()->get_pos(), get_schedule()->get_next_entry().pos, front(), speed_to_kmh(min_top_speed), 8888);
-			bool const should_reverse_coupling_done = (res==route_t::no_route || r.get_count()<2) ? false : ((ribi_type(r.at(0), r.at(1)) & front()->get_direction()) == 0 ? true : false);
+			should_reverse_coupling_done = (res==route_t::no_route || r.get_count()<2) ? false : ((ribi_type(r.at(0), r.at(1)) & front()->get_direction()) == 0 ? true : false);
 		}
 		// reverse check done
 		c = self;
@@ -4085,6 +4085,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 			c->reverse_coupling_done = true;
 			c=c->get_coupling_convoi();
 		}
+		dbg->message("convoi_t::hat_gehalten()","check direction and reverse");
 		if(get_schedule()->get_current_entry().is_reverse_convoi_coupling()^(should_reverse_coupling_done)) {
 			reverse_convoy_coupling();
 		}
