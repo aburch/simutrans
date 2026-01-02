@@ -303,7 +303,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t* player_) :
 
 	// load display
 	filled_bar.add_color_value(&loadfactor, color_idx_to_rgb(COL_GREEN));
-	filled_bar.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP+SCL_HEIGHT + D_H_SPACE + D_V_SPACE + D_LABEL_HEIGHT + D_V_SPACE));
+	filled_bar.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP + SCL_HEIGHT + D_V_SPACE + D_EDIT_HEIGHT*2 + D_V_SPACE*2));
 	filled_bar.set_visible(false);
 	add_component(&filled_bar);
 
