@@ -95,6 +95,10 @@ Advance to end
 ホーム終端まで進む
 Choose signal
 振分信号を有効化(空いているホームに進入を許可)
+end of choose signal
+振分信号による進入禁止
+try coupling convoy not enter here
+連結試行時の進入禁止
 remove signal
 この信号を撤去する
 release back
