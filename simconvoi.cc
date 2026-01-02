@@ -3973,14 +3973,14 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 				time = max( time, (amount*v->get_desc()->get_loading_time()) / max(v->get_cargo_max(), 1) );
 			}
 			else{
-				time = max( time, (v->get_cargo_max()*2*v->get_desc()->get_loading_time()) / max(v->get_cargo_max(), 1) );
+				time = max( time, (max(v->get_cargo_max(),v->get_total_cargo())*2*v->get_desc()->get_loading_time()) / max(v->get_cargo_max(), 1) );
 			}
 			v->mark_image_dirty(v->get_image(), 0);
 			v->calc_image();
 			changed_loading_level = true;
 		}
 		else if( halt.is_bound() && schedule->is_full_load_time() ){
-			time = max( time, (v->get_cargo_max()*2*v->get_desc()->get_loading_time()) / max(v->get_cargo_max(), 1) );
+			time = max( time, (max(v->get_cargo_max(),v->get_total_cargo())*2*v->get_desc()->get_loading_time()) / max(v->get_cargo_max(), 1) );
 		}
 	}
 	freight_info_resort |= changed_loading_level;
