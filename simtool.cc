@@ -8491,7 +8491,13 @@ bool tool_change_convoi_t::init( player_t *player )
 /* Handles all action of lines. Needs a default param:
  * [function],[line_id],addition stuff
  * following simple command exists:
+ * 'c' : create line
+ * 'd' : delete line
  * 'g' : apply new schedule to line [schedule follows]
+ * 't' : trims away convois on all lines of linetype with this default parameter
+ * 'u' : unite all lineless convois with similar schedules
+ * 'w' : change withdraw
+ * 'p' : copy line
  * 'm' : change memo of line
  */
 bool tool_change_line_t::init( player_t *player )
@@ -8720,7 +8726,7 @@ bool tool_change_line_t::init( player_t *player )
 			}
 			break;
 
-		case 'w': // change widthdraw
+		case 'w': // change withdraw
 			{
 				if (line.is_bound()) {
 					line->set_withdraw( atoi(p) );
@@ -8757,7 +8763,7 @@ bool tool_change_line_t::init( player_t *player )
 			break;
 
 
-		case 'm': // rewrite line memo
+		case 'm': // change memo of line
 			{
 				if (line.is_bound()) {
 					line->set_memo(p);

@@ -140,11 +140,9 @@ void simline_t::set_name(const char *new_name)
 	}
 }
 
-void simline_t::set_memo(const char* new_memo) {
-
+void simline_t::set_memo(const char* new_memo)
+{
 	memo = new_memo;
-
-	
 }
 
 void simline_t::create_schedule()

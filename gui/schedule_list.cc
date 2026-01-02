@@ -279,31 +279,31 @@ schedule_list_gui_t::schedule_list_gui_t(player_t* player_) :
 
 	// editable line name
 	inp_name.add_listener(this);
-	inp_name.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP + SCL_HEIGHT + D_V_SPACE * 2 + D_EDIT_HEIGHT));
+	inp_name.set_pos(scr_coord(RIGHT_COLUMN_OFFSET + D_BUTTON_WIDTH + D_H_SPACE, D_MARGIN_TOP + SCL_HEIGHT + D_V_SPACE));
 	inp_name.set_size(scr_size(D_BUTTON_WIDTH, D_EDIT_HEIGHT));
 	inp_name.set_visible(false);
 	add_component(&inp_name);
 
 	// line name label
-	name_label.set_pos(scr_coord(D_MARGIN_LEFT + D_BUTTON_WIDTH * 2 + D_H_SPACE * 2, D_MARGIN_TOP + SCL_HEIGHT + D_V_SPACE*2 + D_EDIT_HEIGHT));
+	name_label.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP + SCL_HEIGHT + D_V_SPACE));
 	name_label.set_visible(false);
 	add_component(&name_label);
 
 	// line memo label
-	memo_label.set_pos(scr_coord(D_MARGIN_LEFT + D_BUTTON_WIDTH*2 + D_H_SPACE * 2, D_MARGIN_TOP + SCL_HEIGHT + D_V_SPACE + D_EDIT_HEIGHT*2 + D_V_SPACE*2));
+	memo_label.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP + SCL_HEIGHT + D_V_SPACE + D_EDIT_HEIGHT + D_V_SPACE));
 	memo_label.set_visible(false);
 	add_component(&memo_label);
 
 	//editable memo field
 	inp_memo.add_listener(this);
-	inp_memo.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP + SCL_HEIGHT + D_V_SPACE + D_LABEL_HEIGHT + D_V_SPACE + D_EDIT_HEIGHT + D_V_SPACE));
+	inp_memo.set_pos(scr_coord(RIGHT_COLUMN_OFFSET + D_BUTTON_WIDTH + D_H_SPACE, D_MARGIN_TOP + SCL_HEIGHT + D_V_SPACE + D_EDIT_HEIGHT + D_V_SPACE));
 	inp_memo.set_size(scr_size(D_BUTTON_WIDTH, D_EDIT_HEIGHT)); //I think this fields size is needed to reduce about D_BUTTON_WIDTH + D_H_SPACE but it didnt work.
 	inp_memo.set_visible(false);
 	add_component(&inp_memo);
 
 	// load display
 	filled_bar.add_color_value(&loadfactor, color_idx_to_rgb(COL_GREEN));
-	filled_bar.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP+SCL_HEIGHT + D_H_SPACE + D_V_SPACE + D_LABEL_HEIGHT + D_V_SPACE + D_V_SPACE + D_LABEL_HEIGHT));
+	filled_bar.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP+SCL_HEIGHT + D_H_SPACE + D_V_SPACE + D_LABEL_HEIGHT + D_V_SPACE));
 	filled_bar.set_visible(false);
 	add_component(&filled_bar);
 
@@ -713,8 +713,8 @@ void schedule_list_gui_t::set_windowsize(scr_size size)
 	scrolly_haltestellen.set_size( scr_size(RIGHT_COLUMN_OFFSET, get_client_windowsize().h-scrolly_haltestellen.get_pos().y) );
 
 	chart.set_size( scr_size( rest_width, SCL_HEIGHT-D_MARGIN_TOP-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE)) ) );
-	inp_name.set_size(scr_size(rest_width, D_EDIT_HEIGHT));
-	inp_memo.set_size(scr_size(rest_width, D_EDIT_HEIGHT));
+	inp_name.set_size(scr_size(rest_width - D_BUTTON_WIDTH - D_H_SPACE, D_EDIT_HEIGHT));
+	inp_memo.set_size(scr_size(rest_width - D_BUTTON_WIDTH - D_H_SPACE, D_EDIT_HEIGHT));
 	filled_bar.set_size(scr_size(rest_width, 4));
 
 	int y = D_MARGIN_TOP + SCL_HEIGHT-D_V_SPACE-(button_rows*(D_BUTTON_HEIGHT+D_V_SPACE));
