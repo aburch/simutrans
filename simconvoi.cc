@@ -588,7 +588,7 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 	if(  state!=COUPLED && state!=COUPLED_LOADING  ) {
 		check_electrification();
 		// we only recalculate use_electric when load savedata older than OTRP v49.
-		if(  loaded_OTRP_version<49 && is_electric && !is_loading() && state!=INITIAL && get_route()->get_count()>0  ) {
+		if(  loaded_OTRP_version<50 && is_electric && !is_loading() && state!=INITIAL && get_route()->get_count()>0  ) {
 			use_electric = true;
 			for( uint16 i=front()->get_route_index()-1; i<get_route()->get_count(); i++) {
 				grund_t* gr = welt->lookup(get_route()->at(i));
@@ -3309,6 +3309,9 @@ void convoi_t::rdwr(loadsave_t *file)
 	}
 	if(  file->get_OTRP_version()>=49  ) {
 		file->rdwr_bool(need_electric);
+		if(  file->get_OTRP_version()>=50  ) {
+			file->rdwr_bool(use_electric);
+		}
 	} else {
 		need_electric = is_electric;
 		use_electric = is_electric;
