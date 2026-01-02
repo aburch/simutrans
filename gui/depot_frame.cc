@@ -313,6 +313,7 @@ depot_frame_t::~depot_frame_t()
 	clear_ptr_vector(electrics_vec);
 	clear_ptr_vector(loks_vec);
 	clear_ptr_vector(waggons_vec);
+	strcpy(name_filter_value,"");
 }
 
 
