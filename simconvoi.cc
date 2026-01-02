@@ -3309,7 +3309,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	}
 	if(  file->get_OTRP_version()>=49  ) {
 		file->rdwr_bool(need_electric);
-		if(  file->get_OTRP_version>=50  ) {
+		if(  file->get_OTRP_version()>=50  ) {
 			file->rdwr_bool(use_electric);
 		}
 	} else {
