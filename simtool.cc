@@ -2756,7 +2756,7 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 	grund_t *gr=welt->lookup(pos);
 	if(  gr  &&  slope_t::is_way(gr->get_weg_hang())  ) {
 		// ignore tunnel tiles (except road tunnel for tram track building ..)
-		if(  gr->get_typ() == grund_t::tunnelboden  &&  !gr->ist_karten_boden()  && !( desc->is_tram()  && ( gr->hat_weg(track_wt) || gr->hat_weg(road_wt) || gr->hat_weg(monorail_wt) || gr->hat_weg(maglev_wt) || gr->hat_weg(narrowgauge_wt) ) )  ) {
+		if(  gr->get_typ() == grund_t::tunnelboden  &&  !gr->ist_karten_boden()  && !( desc->is_tram()  && ( gr->hat_weg(road_wt) || gr->hat_weg(monorail_wt) || gr->hat_weg(maglev_wt) || gr->hat_weg(narrowgauge_wt) ) )  ) {
 			return 0;
 		}
 		bool const elevated = desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt;
@@ -8492,6 +8492,7 @@ bool tool_change_convoi_t::init( player_t *player )
  * [function],[line_id],addition stuff
  * following simple command exists:
  * 'g' : apply new schedule to line [schedule follows]
+ * 'm' : change memo of line
  */
 bool tool_change_line_t::init( player_t *player )
 {
@@ -8751,6 +8752,15 @@ bool tool_change_line_t::init( player_t *player )
 					if(  sl  ) {
 						sl->show_lineinfo( new_line );
 					}
+				}
+			}
+			break;
+
+
+		case 'm': // rewrite line memo
+			{
+				if (line.is_bound()) {
+					line->set_memo(p);
 				}
 			}
 			break;
@@ -9604,49 +9614,48 @@ bool tool_merge_player_t::init( player_t *player )
 	
 	return false;
 }
-
-bool tool_change_factory_t::init( player_t* player )
+bool tool_change_factory_t::init(player_t* player)
 {
-	char tool=0;
+	char tool = 0;
 	koord pos2d;
 	// skip the rest of the command
-	const char *p = default_param;
-	while(  *p  &&  *p<=' '  ) {
+	const char* p = default_param;
+	while (*p && *p <= ' ') {
 		p++;
 	}
-	sscanf( p, "%c,%hi,%hi", &tool, &pos2d.x, &pos2d.y );
+	sscanf(p, "%c,%hi,%hi", &tool, &pos2d.x, &pos2d.y);
 
 	// skip to the commands ...
 	uint8 z = 3;
-	while(  *p  &&  z>0  ) {
-		if(  *p==','  ) {
+	while (*p && z > 0) {
+		if (*p == ',') {
 			z--;
 		}
 		p++;
 	}
 
-	fabrik_t *factory = fabrik_t::get_fab(pos2d);
-	if(  factory==NULL  ){
+	fabrik_t* factory = fabrik_t::get_fab(pos2d);
+	if (factory == NULL) {
 		dbg->warning("tool_change_factory_t::init", "no factory found at (%s)", pos2d.get_str());
 		return false;
 	}
-	if(  !player_t::check_owner( factory->get_owner(), player)  ) {
+	if (!player_t::check_owner(factory->get_owner(), player)) {
 		dbg->warning("tool_change_factory_t::init", "factory at (%s) belongs to another player", pos2d.get_str());
 		return false;
-	}	
+	}
 	switch (tool) {
-		case 'd': // avoid destroy, avoid close after retire
-		{
-			factory->set_no_close_factory(!factory->is_no_close_factory());			
-		}
-		break;
-		case 's': // set shipment size
-		{
-			uint16 shipment_size = 0;
-			int count=sscanf( p, "%hi", &shipment_size);
-			factory->set_shipment_size(shipment_size);
-		}
-		break;
+	case 'd': // avoid destroy, avoid close after retire
+	{
+		factory->set_no_close_factory(!factory->is_no_close_factory());
+	}
+	break;
+	case 's': // set shipment size
+	{
+		uint16 shipment_size = 0;
+		int count = sscanf(p, "%hi", &shipment_size);
+		factory->set_shipment_size(shipment_size);
+	}
+	break;
 	}
 	return false;
 }
