@@ -2507,7 +2507,7 @@ void convoi_t::vorfahren()
 	c = self;
 	while(  c.is_bound()  ) {
 		// the back vehicles position is set.
-		if (c->reversing_needed^(env_t::default_reverse&&env_t::reversible_waytype(front()->get_waytype())&&!go_same_direction)){
+		if (c->reversing_needed^(env_t::default_reverse&&env_t::reversible_waytype(front()->get_waytype())&&front()->get_waytype()!=water_wt&&!go_same_direction)){
 			c->reverse_vehicles_at_halt_if_needed();
 		}
 		// reset uncouple done flag
