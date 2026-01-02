@@ -1270,7 +1270,7 @@ bool convoi_t::drive_to()
 		else {
 			// if change direction at waypoint, we must reverse coupling here!
 			if(  env_t::reversible_waytype(front()->get_waytype())&&front()->get_waytype()!=water_wt&&!reverse_coupling_done&&state!=INITIAL  ) {
-				const bool reverse_here=(env_t::default_reverse&&(route.get_count()<2) ? false : ((ribi_type(route.at(0), route.at(1)) & front()->get_direction()) == 0 ? true : false));
+				const bool reverse_here=env_t::default_reverse&&((route.get_count()<2) ? false : ((ribi_type(route.at(0), route.at(1)) & front()->get_direction()) == 0 ? true : false));
 				if( reversing_coupling_needed^reverse_here )
 				{
 					// we need reverse here!
