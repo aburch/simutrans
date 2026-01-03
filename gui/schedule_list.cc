@@ -144,41 +144,41 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	// tab panel
 	tabs.set_pos(scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP));
-	tabs.set_size(scr_size(3*D_BUTTON_WIDTH+2* D_H_SPACE, SCL_HEIGHT));
+	tabs.set_size(scr_size(3*D_BUTTON_WIDTH+2*D_H_SPACE, SCL_HEIGHT));
 	tabs.add_tab(&scl, translator::translate("All"));
 	max_idx = 0;
 	tabs_to_lineindex[max_idx++] = simline_t::line;
 
 	// now add all specific tabs
-	if (  maglev_t::default_maglev  ) {
+	if(  maglev_t::default_maglev  ) {
 		tabs.add_tab(&scl, translator::translate("Maglev"), skinverwaltung_t::maglevhaltsymbol, translator::translate("Maglev"));
 		tabs_to_lineindex[max_idx++] = simline_t::maglevline;
 	}
-	if (  monorail_t::default_monorail  ) {
+	if(  monorail_t::default_monorail  ) {
 		tabs.add_tab(&scl, translator::translate("Monorail"), skinverwaltung_t::monorailhaltsymbol, translator::translate("Monorail"));
 		tabs_to_lineindex[max_idx++] = simline_t::monorailline;
 	}
-	if (  schiene_t::default_schiene  ) {
+	if(  schiene_t::default_schiene  ) {
 		tabs.add_tab(&scl, translator::translate("Train"), skinverwaltung_t::zughaltsymbol, translator::translate("Train"));
 		tabs_to_lineindex[max_idx++] = simline_t::trainline;
 	}
-	if (  narrowgauge_t::default_narrowgauge  ) {
+	if(  narrowgauge_t::default_narrowgauge  ) {
 		tabs.add_tab(&scl, translator::translate("Narrowgauge"), skinverwaltung_t::narrowgaugehaltsymbol, translator::translate("Narrowgauge"));
 		tabs_to_lineindex[max_idx++] = simline_t::narrowgaugeline;
 	}
-	if (  !vehicle_builder_t::get_info(tram_wt).empty()  ) {
+	if(  !vehicle_builder_t::get_info(tram_wt).empty()  ) {
 		tabs.add_tab(&scl, translator::translate("Tram"), skinverwaltung_t::tramhaltsymbol, translator::translate("Tram"));
 		tabs_to_lineindex[max_idx++] = simline_t::tramline;
 	}
-	if (  strasse_t::default_strasse  ) {
+	if(  strasse_t::default_strasse  ) {
 		tabs.add_tab(&scl, translator::translate("Truck"), skinverwaltung_t::autohaltsymbol, translator::translate("Truck"));
 		tabs_to_lineindex[max_idx++] = simline_t::truckline;
 	}
-	if (  !vehicle_builder_t::get_info(water_wt).empty()  ) {
+	if(  !vehicle_builder_t::get_info(water_wt).empty()  ) {
 		tabs.add_tab(&scl, translator::translate("Ship"), skinverwaltung_t::schiffshaltsymbol, translator::translate("Ship"));
 		tabs_to_lineindex[max_idx++] = simline_t::shipline;
 	}
-	if (  runway_t::default_runway  ) {
+	if(  runway_t::default_runway  ) {
 		tabs.add_tab(&scl, translator::translate("Air"), skinverwaltung_t::airhaltsymbol, translator::translate("Air"));
 		tabs_to_lineindex[max_idx++] = simline_t::airline;
 	}
@@ -196,7 +196,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	inp_filter.add_listener(this);
 	add_component(&inp_filter);
 
-		sint16 bt_y = D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT+D_V_SPACE ;
+	sint16 bt_y = D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT+D_V_SPACE ;
 
 	// sort by what
 	for ( int i=0; i<MAX_SORT_IDX;  i++ ) {
