@@ -325,6 +325,8 @@ settings_t::settings_t() :
 	base_waiting_ticks_for_road_convoi = 60000;
 	base_waiting_ticks_for_ship_convoi = 60000;
 	base_waiting_ticks_for_air_convoi = 200000;
+
+	default_reverse=false;
 }
 
 
@@ -989,7 +991,12 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_bool(close_old_factory);
 			file->rdwr_short(factory_max_years_obsolete);
 		}
-		if(  file->is_version_atleast(122, 1)  ) {
+		if(  file->get_OTRP_version() >= 50  ) {
+			file->rdwr_bool(default_reverse);
+		} else {
+			default_reverse = false;
+		}
+ 		if(  file->is_version_atleast(122, 1)  ) {
 			file->rdwr_enum(climate_generator);
 			file->rdwr_byte( wind_direction );
 		}
@@ -1122,7 +1129,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 		}
 	}
 	// setting default reverse or not when next direction is opposite
-	env_t::default_reverse = contents.get_int( "default reverse", env_t::default_reverse )!=0;
+	default_reverse = contents.get_int( "default reverse", default_reverse )!=0;
 
 
 	// network stuff

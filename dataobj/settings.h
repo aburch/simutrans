@@ -356,6 +356,10 @@ private:
 	uint32 base_waiting_ticks_for_ship_convoi;
 	uint32 base_waiting_ticks_for_air_convoi;
 
+	
+	// set default reversing or not, when the next direction is opposite.
+	bool default_reverse;
+
 public:
 	/* the big cost section */
 	sint32 maint_building; // normal building
@@ -722,6 +726,8 @@ public:
 	void set_time_based_routing_enabled(uint8 goods_catg_index, bool is_on) {
 		is_time_based_routing_enabled[goods_catg_index] = is_on; 
 	}
+	// get default reverse
+	bool is_default_reverse() const {return default_reverse;}
 };
 
 #endif
