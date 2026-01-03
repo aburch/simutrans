@@ -105,7 +105,7 @@ void convoi_t::init(player_t *player)
 	need_electric = false;
 	use_electric = false;
 	sum_gesamtweight = sum_weight = 0;
-	sum_running_costs = sum_fixed_costs = sum_gear_and_power = previous_delta_v = sum_gear_and_power_electric = 0;
+	base_sum_running_costs = sum_fixed_costs = sum_gear_and_power = previous_delta_v = sum_gear_and_power_electric = 0;
 	sum_power = 0;
 	min_top_speed = SPEED_UNLIMITED;
 	speedbonus_kmh = SPEED_UNLIMITED; // speed_to_kmh() not needed
@@ -730,11 +730,11 @@ uint32 convoi_t::get_entire_convoy_length() const
  */
 void convoi_t::add_running_cost( const weg_t *weg )
 {
-	jahresgewinn += sum_running_costs;
+	jahresgewinn += base_sum_running_costs;
 
 	if(  weg  &&  weg->get_owner()!=get_owner()  &&  weg->get_owner()!=NULL  ) {
 		// running on non-public way costs toll (since running costs are positive => invert)
-		sint64 toll = -(sum_running_costs*welt->get_settings().get_way_toll_runningcost_percentage())/100l;
+		sint64 toll = -(base_sum_running_costs*welt->get_settings().get_way_toll_runningcost_percentage())/100l;
 		if(  welt->get_settings().get_way_toll_waycost_percentage()  ) {
 			if(  weg->is_electrified()  &&  needs_electrification()  ) {
 				// toll for using electricity
@@ -758,11 +758,11 @@ void convoi_t::add_running_cost( const weg_t *weg )
 		book( -toll, CONVOI_PROFIT);
 
 	}
-	sint64 const temp_sum_running_costs = sum_running_costs * (welt->get_settings().is_overloading_runningcost_increase()?(sint64) max(loading_level,100) / (sint64) 100:1);
-	get_owner()->book_running_costs( temp_sum_running_costs, get_schedule()->get_waytype());
+	sint64 const sum_running_costs = base_sum_running_costs * (welt->get_settings().is_overloading_runningcost_increase()?(sint64) max(loading_level,100) : (sint64) 100)/ (sint64) 100;
+	get_owner()->book_running_costs( sum_running_costs, get_schedule()->get_waytype());
 
-	book( temp_sum_running_costs, CONVOI_OPERATIONS );
-	book( temp_sum_running_costs, CONVOI_PROFIT );
+	book( sum_running_costs, CONVOI_OPERATIONS );
+	book( sum_running_costs, CONVOI_PROFIT );
 
 	total_distance_traveled ++;
 	distance_since_last_stop++;
@@ -2122,7 +2122,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",fahr.get_
 			sum_gear_and_power_electric += info->get_power() * info->get_gear();
 		}
 		sum_weight += info->get_weight();
-		sum_running_costs -= info->get_running_cost();
+		base_sum_running_costs -= info->get_running_cost();
 		sum_fixed_costs -= welt->scale_with_month_length( info->get_fixed_cost() );
 		min_top_speed = min( min_top_speed, kmh_to_speed( v->get_desc()->get_topspeed() ) );
 		sum_gesamtweight = sum_weight;
@@ -2175,7 +2175,7 @@ vehicle_t *convoi_t::remove_vehikel_bei(uint16 i)
 				sum_gear_and_power_electric -= info->get_power() * info->get_gear();
 			}
 			sum_weight -= info->get_weight();
-			sum_running_costs += info->get_running_cost();
+			base_sum_running_costs += info->get_running_cost();
 			sum_fixed_costs += welt->scale_with_month_length( info->get_fixed_cost() );
 		}
 		sum_gesamtweight = sum_weight;
@@ -2942,7 +2942,7 @@ void convoi_t::rdwr(loadsave_t *file)
 					sum_gear_and_power_electric += info->get_power() * info->get_gear();
 				}
 				sum_weight += info->get_weight();
-				sum_running_costs -= info->get_running_cost();
+				base_sum_running_costs -= info->get_running_cost();
 				has_obsolete |= welt->use_timeline()  &&  info->is_retired( welt->get_timeline_year_month() );
 				// we do not add maintenance here, the fixed costs are booked as running costs
 			}
@@ -3952,8 +3952,9 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 		} else {
 			amount = 0;
 		}
-		const uint16 max_load_ratio = ((v->get_cargo_type()->get_catg_index()==0)&&(world()->get_settings().is_allow_overloading()) )? (uint16)get_schedule()->get_current_entry().maximum_loading: (uint16)min(get_schedule()->get_current_entry().maximum_loading,100);
-		const uint16 capacity_left = (v->get_cargo_max()*max_load_ratio/100 > v->get_total_cargo())?v->get_cargo_max()*max_load_ratio/100 - v->get_total_cargo(): 0;
+		bool allow_overload_car = (v->get_cargo_type()->get_catg_index()==0)&&(world()->get_settings().is_allow_overloading());
+		const uint16 max_load_percentage = allow_overload_car ? ( uint16)get_schedule()->get_current_entry().maximum_loading: (uint16)min(get_schedule()->get_current_entry().maximum_loading,100);
+		const uint16 capacity_left = (v->get_cargo_max()*max_load_percentage/100 > v->get_total_cargo())?v->get_cargo_max()*max_load_percentage/100 - v->get_total_cargo(): 0;
 
 		if(  loading_needed  &&  capacity_left > 0  &&  halt->gibt_ab(v->get_cargo_type())  ) {
 			// load if: unloaded something (might go back) or previous non-filled car requested different cargo type

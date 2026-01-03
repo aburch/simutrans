@@ -1467,8 +1467,8 @@ sint64 vehicle_t::calc_revenue(const koord3d& start, const koord3d& end) const
 		}
 		sint64 price = freight_revenue * (sint64)dist * (sint64)ware.menge;
 		// calculate revenue for overcrowd
-		if ( welt->get_settings().is_overloading_revenue_reduced() ) {
-			price *= ((get_total_cargo() > get_cargo_max()) && (get_cargo_max() > 0)) ? (sint64)get_total_cargo()/(sint64)get_cargo_max() : (sint64)1;
+		if ( welt->get_settings().is_overloading_revenue_reduced() && (get_total_cargo() > get_cargo_max()) && (get_cargo_max() > 0) ) {
+			price = price * (sint64)get_total_cargo() / (sint64)get_cargo_max();
 		}
 
 		// sum up new price
