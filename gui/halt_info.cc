@@ -35,6 +35,8 @@
 
 #include "../descriptor/skin_desc.h"
 
+#include "messagebox.h"
+
 
 #define CHART_HEIGHT (100)
 
@@ -429,14 +431,25 @@ void halt_info_t::init(halthandle_t halt)
 halt_info_t::~halt_info_t()
 {
 	if(  halt.is_bound()  &&  strcmp(halt->get_name(),edit_name)  &&  edit_name[0]  ) {
-		// text changed => call tool
-		cbuffer_t buf;
-		buf.printf( "h%u,%s", halt.get_id(), edit_name );
-		tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
-		tool->set_default_param( buf );
-		welt->set_tool( tool, halt->get_owner() );
-		// since init always returns false, it is safe to delete immediately
-		delete tool;
+		// Check for duplicate name before renaming on window close
+		bool duplicate_found = false;
+		const vector_tpl<halthandle_t>& all_halts = haltestelle_t::get_alle_haltestellen();
+		for(  halthandle_t const& h : all_halts  ) {
+			if(  h.is_bound()  &&  h != halt  &&  strcmp(h->get_name(), edit_name) == 0  ) {
+				duplicate_found = true;
+				break;
+			}
+		}
+		if(  !duplicate_found  ) {
+			// Name is unique - proceed with rename
+			cbuffer_t buf;
+			buf.printf( "h%u,%s", halt.get_id(), edit_name );
+			tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
+			tool->set_default_param( buf );
+			welt->set_tool( tool, halt->get_owner() );
+			// since init always returns false, it is safe to delete immediately
+			delete tool;
+		}
 	}
 	delete departure_board;
 	delete halt_detail;
@@ -949,7 +962,23 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	}
 	else if(  comp == &input  ) {
 		if(  strcmp(halt->get_name(),edit_name)  ) {
-			// text changed => call tool
+			// Check for duplicate name
+			bool duplicate_found = false;
+			const vector_tpl<halthandle_t>& all_halts = haltestelle_t::get_alle_haltestellen();
+			for(  halthandle_t const& h : all_halts  ) {
+				if(  h.is_bound()  &&  h != halt  &&  strcmp(h->get_name(), edit_name) == 0  ) {
+					duplicate_found = true;
+					break;
+				}
+			}
+			if(  duplicate_found  ) {
+				// Duplicate found - show error and restore original name
+				create_win( new news_img(translator::translate("Station name already exists")), w_time_delete, magic_none );
+				tstrncpy( edit_name, halt->get_name(), lengthof(edit_name) );
+				input.set_text( edit_name, lengthof(edit_name) );
+				return true;
+			}
+			// Name is unique - proceed with rename
 			cbuffer_t buf;
 			buf.printf( "h%u,%s", halt.get_id(), edit_name );
 			tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );

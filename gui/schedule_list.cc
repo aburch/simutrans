@@ -358,8 +358,10 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	}
 	selected_tab[player->get_player_nr()] = tabs_to_lineindex[index]; // reset if previous selected tab is not there anymore
 	tabs.set_active_tab_index(index);
-	if(  index>0  ) {
-		bt_new_line.enable();
+	if(  index>0  ) {		
+		if(  player == welt->get_active_player()  ||  welt->get_active_player() == welt->get_player(1)  ) {
+			bt_new_line.enable();
+		}
 	}
 	else {
 		bt_new_line.disable();
@@ -484,7 +486,9 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 		update_lineinfo( selected_line[player->get_player_nr()][selected_tab[player->get_player_nr()]] );
 		build_line_list(tab);
 		if(  tab>0  ) {
-			bt_new_line.enable();
+			if(  player == welt->get_active_player()  ||  welt->get_active_player() == welt->get_player(1)  ) {
+				bt_new_line.enable();
+			}
 		}
 		else {
 			bt_new_line.disable();
@@ -547,7 +551,7 @@ void schedule_list_gui_t::reset_line_name()
 
 void schedule_list_gui_t::rename_line()
 {
-	if(  line.is_bound()  ) {
+	if(  line.is_bound()  &&  (  player == welt->get_active_player()  ||  welt->get_active_player() == welt->get_player(1)  )  ) {
 		const char *t = inp_name.get_text();
 		// only change if old name and current name are the same
 		// otherwise some unintended undo if renaming would occur
@@ -749,15 +753,17 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		add_component(&bt_teleport_line_to_depot);
 		bt_withdraw_line.disable();
 		bt_teleport_line_to_depot.disable();
-		if(  icnv>0  ) {
-			bt_withdraw_line.enable();
-			bt_teleport_line_to_depot.enable();
+		if(  player == welt->get_active_player()  ||  welt->get_active_player() == welt->get_player(1)  ) {
+			if(  icnv>0  ) {
+				bt_withdraw_line.enable();
+				bt_teleport_line_to_depot.enable();
+			}
+			else {
+				bt_delete_line.enable();
+			}
+			bt_edit_line.enable();
+			bt_copy_line.enable();
 		}
-		else {
-			bt_delete_line.enable();
-		}
-		bt_edit_line.enable();
-		bt_copy_line.enable();
 		bt_show_journey_time.enable();
 		bt_goods_waiting_time.enable();
 

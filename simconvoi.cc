@@ -2723,6 +2723,9 @@ void convoi_t::vorfahren()
 				vehicle_t const& v = *inspecting->fahr[i];
 				if (schiene_t* const sch0 = obj_cast<schiene_t>(welt->lookup(v.get_pos())->get_weg(v.get_waytype()))) {
 					sch0->reserve(self,ribi_t::none);
+					if(  v.get_pos()!=front()->get_pos()  ) {
+						unreserve_pos(v.get_pos());
+					}
 				}
 				else {
 					break;
