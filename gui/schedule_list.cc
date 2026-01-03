@@ -199,7 +199,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	sint16 bt_y = D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT+D_V_SPACE ;
 
 	// sort by what
-	for ( int i=0; i<MAX_SORT_IDX;  i++ ) {
+	for( int i=0; i<MAX_SORT_IDX;  i++ ) {
 		sort_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate(idx_to_sort_text[i]), SYSCOL_TEXT) ;
 	}
 	sort_type_c.set_selection(current_sort_mode);
@@ -216,10 +216,10 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Post"), SYSCOL_TEXT) ;
 	viewable_freight_types.append(goods_manager_t::none); // for all freight ...
 freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Fracht"), SYSCOL_TEXT) ;
-	for(  int i = 0;  i < goods_manager_t::get_max_catg_index();  i++  ) {
+	for(  int i=0;  i < goods_manager_t::get_max_catg_index();  i++  ) {
 		const goods_desc_t *freight_type = goods_manager_t::get_info_catg(i);
 		const int index = freight_type->get_catg_index();
-		if (  index == goods_manager_t::INDEX_NONE  ||  freight_type->get_catg()==0  ) {
+		if(  index == goods_manager_t::INDEX_NONE  ||  freight_type->get_catg()==0  ) {
 			continue;
 		}
 		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(freight_type->get_catg_name()), SYSCOL_TEXT);
@@ -436,7 +436,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 		}
 	}
 	else if(  comp == &bt_teleport_line_to_depot  &&  line->get_convoys().get_count()>0  ) {
-		for (size_t i = line->get_convoys().get_count(); i-- != 0;) {
+		for(  size_t i=line->get_convoys().get_count();  i--!= 0;  ) {
 			line->get_convoy(i)->call_convoi_tool( 'y', NULL );
 		}
 	}
@@ -532,7 +532,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 	else if(  comp == &inp_name  ) {
 		rename_line();
 	}
-	else if (comp == &inp_memo) {
+	else if(  comp == &inp_memo  ) {
 		if (line.is_bound()	&& (player == welt->get_active_player() || welt->get_active_player() == welt->get_player(1))) {
 			dbg->message("schedule_list_t::action_triggered()","change %s's memo",line->get_name());
 			tool_t* tmp_tool = create_tool(TOOL_CHANGE_LINE | SIMPLE_TOOL);
