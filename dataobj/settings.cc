@@ -292,6 +292,8 @@ settings_t::settings_t() :
 	pay_for_total_distance = TO_PREVIOUS;
 
 	avoid_overcrowding = false;
+	overloading_revenue_reduced = false;
+	overloading_runningcost_increase = true;
 
 	allow_buying_obsolete_vehicles = true;
 
@@ -1360,7 +1362,9 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	avoid_overcrowding           = contents.get_int( "avoid_overcrowding", avoid_overcrowding ) != 0;
 	no_routing_over_overcrowding = contents.get_int( "no_routing_over_overcrowded", no_routing_over_overcrowding ) != 0;
 
-	allow_overloading			 = contents.get_int( "allow_overloading", allow_overloading) != 0;
+	allow_overloading					 = contents.get_int( "allow_overloading", allow_overloading) != 0;
+	overloading_revenue_reduced 		 = contents.get_int( "overloading_revenue_reduced", overloading_revenue_reduced) != 0;
+	overloading_runningcost_increase	 = contents.get_int( "overloading_runningcost_increase", overloading_runningcost_increase) != 0;
 
 	// city stuff
 	passenger_multiplier   = contents.get_int_clamped( "passenger_multiplier",   passenger_multiplier,   0, 100 );

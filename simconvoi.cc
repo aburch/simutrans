@@ -758,7 +758,7 @@ void convoi_t::add_running_cost( const weg_t *weg )
 		book( -toll, CONVOI_PROFIT);
 
 	}
-	sint64 const temp_sum_running_costs = sum_running_costs * (sint64) max(loading_level,100) / (sint64) 100;
+	sint64 const temp_sum_running_costs = sum_running_costs * (welt->get_settings().is_overloading_runningcost_increase()?(sint64) max(loading_level,100) / (sint64) 100:1);
 	get_owner()->book_running_costs( temp_sum_running_costs, get_schedule()->get_waytype());
 
 	book( temp_sum_running_costs, CONVOI_OPERATIONS );
