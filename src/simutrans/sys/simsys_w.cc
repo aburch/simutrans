@@ -539,17 +539,13 @@ static inline unsigned long vkey_to_simkey(WPARAM wParam, LPARAM lParam)
 		case VK_RETURN: return 13;                     break;
 	}
 
-	if (wParam < 0x20  ||  wParam >= 0xA0) {
-		// ignore dead keys like shift or vendor specific
-		return 0;
-	}
-
 	// check for F-Keys!
-	if (code == 0 && wParam >= VK_F1 && wParam <= VK_F15) {
-		code = wParam - VK_F1 + SIM_KEYCODE_F1;
+	if (wParam >= VK_F1 && wParam <= VK_F15) {
+		return wParam - VK_F1 + SIM_KEYCODE_F1;
 	}
 
-	return code;
+	// ignore dead keys like shift or vendor specific
+	return 0;
 }
 
 
@@ -725,14 +721,11 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
 		case WM_CHAR: /* originally KeyPress */
 		{
-			sint16 code = lParam >> 16;
-			if(  code >= 0x47  &&  code <= 0x52  &&  code != 0x4A  &&  code != 0x4e  ) {
-				if(  (GetKeyState( VK_NUMLOCK ) & 1) == 0  ||  (env_t::numpad_always_moves_map  &&  !win_is_textinput())  ) { // numlock off?
-					// we handled this numpad keys already above ...
-					sys_event.type = SIM_NOEVENT;
-					sys_event.code = 0;
-					break;
-				}
+			if (vkey_to_simkey(wParam, lParam)) {
+				// we handled this numpad keys already above ...
+				sys_event.type = SIM_NOEVENT;
+				sys_event.code = 0;
+				break;
 			}
 			sys_event.type    = SIM_KEYDOWN;
 			sys_event.code    = wParam;
