@@ -287,7 +287,7 @@ private:
 	/*
 	 * caches the running costs
 	 */
-	sint64 sum_running_costs;
+	sint64 base_sum_running_costs;
 	sint64 sum_fixed_costs;
 
 	/**
@@ -630,7 +630,7 @@ public:
 	/**
 	 * returns the total running cost for all vehicles in convoi
 	 */
-	sint32 get_running_cost() const { return -sum_running_costs; }
+	sint32 get_running_cost() const { return -base_sum_running_costs; }
 
 	/**
 	 * returns the total new purchase cost for all vehicles in convoy

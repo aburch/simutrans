@@ -1465,7 +1465,11 @@ sint64 vehicle_t::calc_revenue(const koord3d& start, const koord3d& end) const
 			freight_revenue = ware_t::calc_revenue(ware.get_desc(), get_desc()->get_waytype(), cnv_kmh);
 			last_freight = ware.get_desc();
 		}
-		const sint64 price = freight_revenue * (sint64)dist * (sint64)ware.menge;
+		sint64 price = freight_revenue * (sint64)dist * (sint64)ware.menge;
+		// calculate revenue for overcrowd
+		if ( welt->get_settings().is_overloading_revenue_reduced() && (get_total_cargo() > get_cargo_max()) && (get_cargo_max() > 0) ) {
+			price = price * (sint64)get_total_cargo() / (sint64)get_cargo_max();
+		}
 
 		// sum up new price
 		value += price;
@@ -2077,12 +2081,12 @@ uint32 vehicle_t::get_total_weight() const {
 	}
 	// use full load weight
 	if(  uint32* val = full_load_weights.access(desc)  ) {
-		return *val;
+		return *val*max(get_total_cargo(),max(get_cargo_max(),1))/max(1,get_cargo_max());
 	} else {
 		// full load is not calculated. calculate and register.
 		const uint32 w = calc_full_load_weight(desc);
 		full_load_weights.put(desc, w);
-		return w;
+		return w*max(get_total_cargo(),max(get_cargo_max(),1))/max(1,get_cargo_max());
 	}
 }
 
