@@ -1129,7 +1129,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 		}
 	}
 	// setting default reverse or not when next direction is opposite
-	default_reverse = contents.get_int( "default reverse", default_reverse )!=0;
+	default_reverse = contents.get_int( "reverse_by_default", default_reverse )!=0;
 
 
 	// network stuff
