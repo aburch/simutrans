@@ -515,7 +515,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 
 		numimp_max_load.set_width( 60 );
 		numimp_max_load.set_value( schedule->get_current_entry().maximum_loading );
-		uint8 const max_load_value = (schedule->get_waytype()==air_wt || schedule->get_waytype()==road_wt)? 100: 250;// for overcrowd
+		uint8 const max_load_value = (welt->get_settings().is_allow_overloading() || schedule->get_waytype()==air_wt || schedule->get_waytype()==road_wt)? 100: 250;// for overcrowd
 		numimp_max_load.set_limits( 0, max_load_value );
 		numimp_max_load.set_increment_mode( gui_numberinput_t::PROGRESS2 );
 		numimp_max_load.add_listener(this);

@@ -291,6 +291,9 @@ private:
 	/* if set, goods will not routed over overcrowded stations but rather try detours (if possible) */
 	bool no_routing_over_overcrowding;
 
+	/* if set, passagiere can load overcrowded cars*/
+	bool allow_overloading;
+
 	// lowest possible income with speedbonus (1000=1) default 125
 	sint32 bonus_basefactor;
 
@@ -579,6 +582,9 @@ public:
 
 	// do not allow routes over overcrowded destinations
 	bool is_no_routing_over_overcrowding() const { return no_routing_over_overcrowding; }
+
+	// allow overloading
+	bool is_allow_overloading() const {return allow_overloading;}
 
 	sint16 get_river_number() const { return river_number; }
 	sint16 get_min_river_length() const { return min_river_length; }

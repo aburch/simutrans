@@ -219,6 +219,7 @@ void settings_routing_stats_t::init(settings_t const* const sets)
 	INIT_BOOL( "separate_halt_capacities", sets->is_separate_halt_capacities() );
 	INIT_BOOL( "avoid_overcrowding", sets->is_avoid_overcrowding() );
 	INIT_BOOL( "no_routing_over_overcrowded", sets->is_no_routing_over_overcrowding() );
+	INIT_BOOL( "allow overloading", sets->is_allow_overloading() );
 	INIT_NUM( "station_coverage", sets->get_station_coverage(), 1, 127, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "allow_merge_distant_halt", sets->get_allow_merge_distant_halt(), 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
 	SEPERATOR
@@ -262,6 +263,7 @@ void settings_routing_stats_t::read(settings_t* const sets)
 	READ_BOOL_VALUE( sets->separate_halt_capacities );
 	READ_BOOL_VALUE( sets->avoid_overcrowding );
 	READ_BOOL_VALUE( sets->no_routing_over_overcrowding );
+	READ_BOOL_VALUE( sets->allow_overloading );
 	READ_NUM_VALUE( sets->station_coverage_size );
 	READ_NUM_VALUE( sets->allow_merge_distant_halt );
 	READ_NUM_VALUE( sets->max_route_steps );

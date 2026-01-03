@@ -295,6 +295,8 @@ settings_t::settings_t() :
 
 	allow_buying_obsolete_vehicles = true;
 
+	allow_overloading = false;
+
 	// default: load also private extensions of the pak file
 	with_private_paks = true;
 
@@ -989,6 +991,11 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_bool(close_old_factory);
 			file->rdwr_short(factory_max_years_obsolete);
 		}
+		if(  file->get_OTRP_version() >= 50  ) {
+			file->rdwr_bool(allow_overloading);
+		} else {
+			allow_overloading = false;
+		}
 		if(  file->is_version_atleast(122, 1)  ) {
 			file->rdwr_enum(climate_generator);
 			file->rdwr_byte( wind_direction );
@@ -1352,6 +1359,8 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	pay_for_total_distance       = contents.get_int_clamped( "pay_for_total_distance", pay_for_total_distance, 0, 2 );
 	avoid_overcrowding           = contents.get_int( "avoid_overcrowding", avoid_overcrowding ) != 0;
 	no_routing_over_overcrowding = contents.get_int( "no_routing_over_overcrowded", no_routing_over_overcrowding ) != 0;
+
+	allow_overloading			 = contents.get_int( "allow_overloading", allow_overloading) != 0;
 
 	// city stuff
 	passenger_multiplier   = contents.get_int_clamped( "passenger_multiplier",   passenger_multiplier,   0, 100 );
