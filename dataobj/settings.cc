@@ -995,8 +995,12 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 		if(  file->get_OTRP_version() >= 50  ) {
 			file->rdwr_bool(allow_overloading);
+			file->rdwr_bool(overloading_revenue_reduced);
+			file->rdwr_bool(overloading_runningcost_increase);
 		} else {
 			allow_overloading = false;
+			overloading_revenue_reduced = false;
+			overloading_runningcost_increase = true;
 		}
 		if(  file->is_version_atleast(122, 1)  ) {
 			file->rdwr_enum(climate_generator);
