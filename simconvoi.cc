@@ -1279,6 +1279,7 @@ bool convoi_t::drive_to()
 					reversing_coupling_needed=reverse_here;
 					get_most_parent_convoi()->reversing_coupling_needed=reverse_here;
 					get_most_parent_convoi()->state=ROUTING_1;
+					get_most_parent_convoi()->alte_richtung=get_most_parent_convoi()->front()->get_direction();
 					return false;
 				}
 			}
