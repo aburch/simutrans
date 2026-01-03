@@ -569,6 +569,7 @@ public:
 	bool is_electrification() const {return is_electric;}
 	void check_electrification();
 	void set_use_electric(bool y);
+	bool get_use_electric() const {return use_electric;}
 
 	/**
 	* set line
