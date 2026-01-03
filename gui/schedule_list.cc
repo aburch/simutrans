@@ -122,8 +122,8 @@ schedule_list_gui_t::schedule_list_gui_t(player_t* player_) :
 	scrolly_convois(gui_scrolled_list_t::windowskin),
 	scrolly_haltestellen(gui_scrolled_list_t::windowskin),
 	lbl_filter("Line Filter"),
-	memo_label("Line Memo :"),
-	name_label("Line Name :")
+	lbl_memo("Line Memo:"),
+	lbl_name("Line Name:")
 {
 	capacity = load = 0;
 	selection = -1;
@@ -285,14 +285,14 @@ schedule_list_gui_t::schedule_list_gui_t(player_t* player_) :
 	add_component(&inp_name);
 
 	// line name label
-	name_label.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP + SCL_HEIGHT + D_V_SPACE));
-	name_label.set_visible(false);
-	add_component(&name_label);
+	lbl_name.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP + SCL_HEIGHT + D_V_SPACE));
+	lbl_name.set_visible(false);
+	add_component(&lbl_name);
 
 	// line memo label
-	memo_label.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP + SCL_HEIGHT + D_V_SPACE + D_EDIT_HEIGHT + D_V_SPACE));
-	memo_label.set_visible(false);
-	add_component(&memo_label);
+	lbl_memo.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP + SCL_HEIGHT + D_V_SPACE + D_EDIT_HEIGHT + D_V_SPACE));
+	lbl_memo.set_visible(false);
+	add_component(&lbl_memo);
 
 	//editable memo field
 	inp_memo.add_listener(this);
@@ -570,9 +570,7 @@ void schedule_list_gui_t::reset_line_name()
 {
 	// change text input of selected line
 	if(  line.is_bound()  ) {
-		tstrncpy(old_line_name, line->get_name(), sizeof(old_line_name));
 		tstrncpy(line_name, line->get_name(), sizeof(line_name));
-		tstrncpy(old_line_memo, line->get_memo(), sizeof(old_line_memo));
 		tstrncpy(line_memo, line->get_memo(), sizeof(line_memo));
 		inp_name.set_text(line_name, sizeof(line_name));
 		inp_memo.set_text(line_memo, sizeof(line_memo));
@@ -764,9 +762,9 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		// ok, this line is visible
 		scrolly_convois.set_visible(true);
 		scrolly_haltestellen.set_visible(true);
-		name_label.set_visible(true);
+		lbl_name.set_visible(true);
 		inp_name.set_visible(true);
-		memo_label.set_visible(true);
+		lbl_memo.set_visible(true);
 		inp_memo.set_visible(true);
 		filled_bar.set_visible(true);
 
@@ -837,15 +835,13 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 	else if(  inp_name.is_visible()  ) {
 		// previously a line was visible
 		// thus the need to hide everything
-		inp_name.set_visible(false);
-		inp_memo.set_visible(false);
 		filled_bar.set_visible(false);
 		scrolly_convois.set_visible(false);
 		scrolly_haltestellen.set_visible(false);
 		inp_name.set_visible(false);
-		name_label.set_visible(false);
+		lbl_name.set_visible(false);
 		inp_memo.set_visible(false);
-		memo_label.set_visible(false);
+		lbl_memo.set_visible(false);
 		filled_bar.set_visible(false);
 		scl.set_selection(-1);
 		bt_delete_line.disable();

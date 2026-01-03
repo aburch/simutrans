@@ -38,7 +38,7 @@ private:
 	gui_scrolled_list_t scl, scrolly_convois, scrolly_haltestellen;
 	gui_speedbar_t filled_bar;
 	gui_textinput_t inp_name, inp_filter, inp_memo;
-	gui_label_t lbl_filter, memo_label, name_label;
+	gui_label_t lbl_filter, lbl_memo, lbl_name;
 	gui_chart_t chart;
 	button_t filterButtons[MAX_LINE_COST];
 	gui_tab_panel_t tabs;
@@ -57,8 +57,7 @@ private:
 	// so even japanese can have long enough names ...
 	char line_name[512], old_line_name[512];
 
-	// now fooly ZEROSAKA wants memo of line oh dear...
-	char line_memo[1024], old_line_memo[1024];
+	char line_memo[1024];
 
 	// resets textinput to current line name
 	// necessary after line was renamed
@@ -67,10 +66,6 @@ private:
 	// rename selected line
 	// checks if possible / necessary
 	void rename_line();
-
-	// rewrite selected lines memo
-	// checks if possible / necessary
-	void rename_memo();
 
 	void display(scr_coord pos);
 
