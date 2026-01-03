@@ -533,6 +533,15 @@ static inline unsigned long vkey_to_simkey(WPARAM wParam, LPARAM lParam)
 		case VK_DELETE: return 127;                    break;
 		case VK_HOME:   return SIM_KEYCODE_HOME;       break;
 		case VK_END:    return SIM_KEYCODE_END;        break;
+		case VK_ESCAPE: return SIM_KEYCODE_ESCAPE;     break;
+		case VK_TAB:    return SIM_KEYCODE_TAB;        break;
+		case VK_BACK:   return SIM_KEYCODE_BACKSPACE;  break;
+		case VK_RETURN: return 13;                     break;
+	}
+
+	if (wParam < 0x20  ||  wParam >= 0xA0) {
+		// ignore dead keys like shift or vendor specific
+		return 0;
 	}
 
 	// check for F-Keys!
