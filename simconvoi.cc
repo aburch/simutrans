@@ -3316,6 +3316,10 @@ void convoi_t::rdwr(loadsave_t *file)
 		need_electric = is_electric;
 		use_electric = is_electric;
 	}
+	if(  file->get_OTRP_version()>=50  ) {
+		// TODO: Remove this and use arrived_time instead after resolving the desync issue.
+		file->rdwr_long( time_last_arrived );
+	}
 
 	if(  file->is_loading()  ) {
 		reserve_route();
