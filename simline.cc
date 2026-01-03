@@ -320,7 +320,6 @@ void simline_t::rdwr(loadsave_t *file)
 		sint32 dummy = 0;
 		file->rdwr_long(dummy);
 	}
-	// TODO: rdwr line_memo
 	if (file->get_OTRP_version() >= 50) {
 		file->rdwr_str(memo);
 	}
