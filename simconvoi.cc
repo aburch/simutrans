@@ -136,6 +136,8 @@ void convoi_t::init(player_t *player)
 	next_reservation_index = 0;
 	reserved_tiles.clear();
 	reversing_needed = false;
+	reverse_coupling_done = false;
+	reversing_coupling_needed = false;
 
 	alte_richtung = ribi_t::none;
 	next_wolke = 0;
@@ -1267,6 +1269,21 @@ bool convoi_t::drive_to()
 			wait_lock = 25000;
 		}
 		else {
+			// if change direction at waypoint, we must reverse coupling here!
+			if(  env_t::reversible_waytype(front()->get_waytype())&&front()->get_waytype()!=water_wt&&!reverse_coupling_done&&state!=INITIAL  ) {
+				const bool reverse_here=world()->get_settings().is_default_reverse()&&((route.get_count()<2) ? false : ((ribi_type(route.at(0), route.at(1)) & front()->get_direction()) == 0 ? true : false));
+				if( reversing_coupling_needed^reverse_here )
+				{
+					// we need reverse here!
+					dbg->message("convoi_t::drive_to()","%s reverse at waypoint!",get_name());
+					reverse_convoy_coupling();
+					reversing_coupling_needed=reverse_here;
+					get_most_parent_convoi()->reversing_coupling_needed=reverse_here;
+					get_most_parent_convoi()->state=ROUTING_1;
+					get_most_parent_convoi()->alte_richtung=get_most_parent_convoi()->front()->get_direction();
+					return false;
+				}
+			}
 			bool route_ok = true;
 			const uint8 current_stop = schedule->get_current_stop();
 			if(  fahr[0]->get_waytype() != water_wt  ) {
@@ -2002,8 +2019,8 @@ void convoi_t::ziel_erreicht()
 	else {
 		// Neither depot nor station: waypoint
 		// check the reverse coupling order at this waypoint
-		if(  reverse_convoy_coupling_at_waypoint()  ) {
-			return;
+		if(  get_schedule()->get_current_entry().is_reverse_convoi_coupling()  ) {
+			reversing_coupling_needed=true;
 		}
 		c = self;
 		// advance schedule for all coupling convoys.
@@ -2011,7 +2028,7 @@ void convoi_t::ziel_erreicht()
 		// So, we advance all convoys' schedules first, and check can continue coupling after advancing schedules.
 		while(  c.is_bound()  ) {
 			if(c->get_schedule()->get_current_entry().is_reverse_convoy()) {
-				c->reverse_vehicles_on_user_request();
+				c->reversing_needed=true;
 			}
 			c->get_schedule()->advance();
 			c = c->get_coupling_convoi();
@@ -2051,7 +2068,7 @@ bool convoi_t::reverse_convoy_coupling_at_waypoint()
 	c = get_most_parent_convoi();
 	while(  c.is_bound()  ) {
 		if(c->get_schedule()->get_current_entry().is_reverse_convoy()) {
-			c->reverse_vehicles_on_user_request();
+			c->reversing_needed=true;
 		}
 		c->get_schedule()->advance();
 		c = c->get_coupling_convoi();
@@ -2507,11 +2524,13 @@ void convoi_t::vorfahren()
 	c = self;
 	while(  c.is_bound()  ) {
 		// the back vehicles position is set.
-		if (c->reversing_needed){
+		if (c->reversing_needed^(world()->get_settings().is_default_reverse()&&env_t::reversible_waytype(front()->get_waytype())&&front()->get_waytype()!=water_wt&&!go_same_direction)){
 			c->reverse_vehicles_at_halt_if_needed();
 		}
 		// reset uncouple done flag
 		c->uncouple_done = false;
+		c->reverse_coupling_done = false;
+		c->reversing_coupling_needed = false;
 		c = c->get_coupling_convoi();
 	}
 	c = self;
@@ -2706,6 +2725,9 @@ void convoi_t::vorfahren()
 				vehicle_t const& v = *inspecting->fahr[i];
 				if (schiene_t* const sch0 = obj_cast<schiene_t>(welt->lookup(v.get_pos())->get_weg(v.get_waytype()))) {
 					sch0->reserve(self,ribi_t::none);
+					if(  v.get_pos()!=front()->get_pos()  ) {
+						unreserve_pos(v.get_pos());
+					}
 				}
 				else {
 					break;
@@ -3310,12 +3332,22 @@ void convoi_t::rdwr(loadsave_t *file)
 	}
 	if(  file->get_OTRP_version()>=49  ) {
 		file->rdwr_bool(need_electric);
-		if(  file->get_OTRP_version()>=50  ) {
-			file->rdwr_bool(use_electric);
-		}
 	} else {
 		need_electric = is_electric;
+	}
+	if(  file->get_OTRP_version()>=50  ) {
+		file->rdwr_bool(use_electric);
+	} else {
 		use_electric = is_electric;
+	}
+	if(  file->get_OTRP_version()>=50  ) {
+		file->rdwr_bool(reverse_coupling_done);
+		file->rdwr_bool(reversing_coupling_needed);
+		// TODO: Remove this and use arrived_time instead after resolving the desync issue.
+		file->rdwr_long( time_last_arrived );
+	} else {
+		reverse_coupling_done = false;
+		reversing_coupling_needed = false;
 	}
 
 	if(  file->is_loading()  ) {
@@ -3872,6 +3904,12 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 			route_t r;
 			route_t::route_result_t res = r.calc_route(welt, c->front()->get_pos(), c->get_schedule()->get_next_entry().pos, front(), speed_to_kmh(min_top_speed), 8888);
 			bool const should_this_convoy_be_parent = (res==route_t::no_route || r.get_count()<2) ? false : ((ribi_type(r.at(0), r.at(1)) & c->front()->get_direction()) == 0 ? true : false);
+			// reverse check done
+			c = temp_parent_convoi;
+			while(c.is_bound()) {
+				c->reverse_coupling_done = true;
+				c=c->get_coupling_convoi();
+			}
 			if(  should_this_convoy_be_parent  ) {
 				temp_parent_convoi->reverse_convoy_coupling();
 			}
@@ -4062,15 +4100,23 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 		// reverse image direction after departire, in drive_to()
 	}
 	// reverse order of coupling/coupled convois
-	if (  get_schedule()->get_current_entry().is_reverse_convoi_coupling()  &&
-		coupling_convoi.is_bound()  &&  !is_coupled()  &&  !is_waiting_for_coupling()
-	) {
-		convoihandle_t last_child_convoi = self->get_coupling_convoi();
-		while (  last_child_convoi->get_coupling_convoi().is_bound()  ){
-			last_child_convoi = last_child_convoi->get_coupling_convoi();
+	if (  coupling_convoi.is_bound()  &&  !is_coupled()  &&  !is_waiting_for_coupling()  &&  !reverse_coupling_done  )
+	{
+		bool should_reverse_coupling_done = false;
+		if(world()->get_settings().is_default_reverse()) {
+			// the direction of the waiting vehicle is same? opposite?
+			route_t r;
+			route_t::route_result_t res = r.calc_route(welt, front()->get_pos(), get_schedule()->get_next_entry().pos, front(), speed_to_kmh(min_top_speed), 8888);
+			should_reverse_coupling_done = (res==route_t::no_route || r.get_count()<2) ? false : ((ribi_type(r.at(0), r.at(1)) & front()->get_direction()) == 0 ? true : false);
 		}
-		// Avoid infinite loop for the case that the last child convoy also requests reversing the coupling.
-		if(  !last_child_convoi->get_schedule()->get_current_entry().is_reverse_convoi_coupling()  ){
+		// reverse check done
+		c = self;
+		while(c.is_bound()) {
+			c->reverse_coupling_done = true;
+			c=c->get_coupling_convoi();
+		}
+		dbg->message("convoi_t::hat_gehalten()","check direction and reverse");
+		if(get_schedule()->get_current_entry().is_reverse_convoi_coupling()^(should_reverse_coupling_done)) {
 			reverse_convoy_coupling();
 		}
 	}

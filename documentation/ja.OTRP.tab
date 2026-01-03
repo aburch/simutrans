@@ -95,6 +95,10 @@ Advance to end
 ホーム終端まで進む
 Choose signal
 振分信号を有効化(空いているホームに進入を許可)
+end of choose signal
+振分信号による進入禁止
+try coupling convoy not enter here
+連結試行時の進入禁止
 remove signal
 この信号を撤去する
 release back
@@ -475,3 +479,5 @@ Highlight
 町内の建物を表示
 Make building belong to
 建物をこの町の所属にする
+Station name already exists
+駅名が既に使用されています

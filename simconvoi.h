@@ -388,6 +388,8 @@ private:
 
 	bool reversed; // true when the vehicles are in the reversed order.
 	bool reversing_needed;// Whether this convoy's vehicles will be arranged in reverse order.
+	bool reversing_coupling_needed;// Whether these convoys coupling reversing is needed or not. Only using waypoint!
+	bool reverse_coupling_done;// avoid reverse coupling loop in same stop
 
 	/**
 	 * The temporary speed limit for this convoy.
@@ -569,6 +571,7 @@ public:
 	bool is_electrification() const {return is_electric;}
 	void check_electrification();
 	void set_use_electric(bool y);
+	bool get_use_electric() const {return use_electric;}
 
 	/**
 	* set line
@@ -990,7 +993,7 @@ public:
 	 * @author THLeaderH
 	 */
 	void unreserve_pos(koord3d pos) { reserved_tiles.remove(pos); }
-	void reserve_pos(koord3d pos) {reserved_tiles.append_unique(pos); }
+	void reserve_pos(koord3d pos) {reserved_tiles.append(pos); }
 	bool is_reservation_empty() const { return reserved_tiles.empty(); }
 	vector_tpl<koord3d>& get_reserved_tiles() { return reserved_tiles; }
 	void clear_reserved_tiles();

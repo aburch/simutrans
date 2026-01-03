@@ -75,7 +75,7 @@ public:
 			// power
 			if(v->get_desc()->get_power()>0) {
 				l = new_component<gui_label_buf_t>();
-				l->buf().printf("%s %i kW, %s %.2f", translator::translate("Power:"), v->get_desc()->get_power(), translator::translate("Gear:"), v->get_desc()->get_gear()/64.0 );
+				l->buf().printf("%s %i kW, %s %.2f", translator::translate("Power:"), (v->get_desc()->get_engine_type()==vehicle_desc_t::electric&&!v->get_convoi()->get_use_electric())?0:v->get_desc()->get_power(), translator::translate("Gear:"), v->get_desc()->get_gear()/64.0 );
 				l->update();
 			}
 			// friction

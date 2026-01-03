@@ -313,6 +313,7 @@ depot_frame_t::~depot_frame_t()
 	clear_ptr_vector(electrics_vec);
 	clear_ptr_vector(loks_vec);
 	clear_ptr_vector(waggons_vec);
+	strcpy(name_filter_value,"");
 }
 
 
@@ -1523,6 +1524,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 					create_win( new news_img("Can't buy obsolete vehicles!"), w_time_delete, magic_none );
 				}
 			}
+			update_data();
 			return true;
 		}
 		else if(  comp == &convoy_selector  ) {
@@ -1535,6 +1537,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 					selected_line = linehandle_t();
 					apply_line();
 				}
+				update_data();
 				return true;
 			}
 			else if(  selection == 1  ) { // create new line
@@ -1551,12 +1554,14 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 					last_selected_line = linehandle_t(); // clear last selected line so we can get a new one ...
 					depot->call_depot_tool('l', convoihandle_t(), buf);
 				}
+				update_data();
 				return true;
 			}
 			if(  last_selected_line.is_bound()  ) {
 				if(  selection == 2  ) { // last selected line
 					selected_line = last_selected_line;
 					apply_line();
+					update_data();
 					return true;
 				}
 			}
@@ -1568,6 +1573,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 				depot->set_last_selected_line( selected_line );
 				last_selected_line = selected_line;
 				apply_line();
+				update_data();
 				return true;
 			}
 		}
@@ -1610,12 +1616,16 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			}
 			couple_buf.printf("%u", child_convoy_id);
 			depot->call_depot_tool('u',cnv,couple_buf);
+			update_data();
 			return true;
 		}
 		else {
+			update_data();
 			return false;
 		}
 		build_vehicle_lists();
+		update_data();
+		update_tabs();
 	}
 	else {
 		update_data();
