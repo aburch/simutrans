@@ -196,7 +196,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	inp_filter.add_listener(this);
 	add_component(&inp_filter);
 
-	sint16 bt_y = D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT+D_V_SPACE ;
+	sint16 bt_y = D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT*2+D_V_SPACE*2+D_INDICATOR_HEIGHT+D_V_SPACE ;
 
 	// sort by what
 	for( int i=0; i<MAX_SORT_IDX;  i++ ) {
