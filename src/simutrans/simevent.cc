@@ -99,13 +99,8 @@ static void fill_event(event_t* const ev)
 		case SIM_IGNORE_EVENT:
 			break;
 
-		case SIM_KEYDOWN:
+		case SIM_KEYBOARD:
 			ev->ev_class = EVENT_KEYDOWN;
-			ev->ev_code  = sys_event.code;
-			break;
-
-		case SIM_KEYUP:
-			ev->ev_class = EVENT_KEYUP;
 			ev->ev_code  = sys_event.code;
 			break;
 

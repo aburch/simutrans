@@ -29,10 +29,9 @@ enum sim_event_type_t : uint32
 {
 	SIM_NOEVENT         = 0,
 	SIM_MOUSE_BUTTONS   = 1,
-	SIM_KEYDOWN         = 2,
-	SIM_KEYUP           = 3,
-	SIM_MOUSE_MOVE      = 4,
-	SIM_STRING          = 5,
+	SIM_KEYBOARD        = 2,
+	SIM_MOUSE_MOVE      = 3,
+	SIM_STRING          = 4,
 	SIM_SYSTEM          = 254,
 	SIM_IGNORE_EVENT    = 255
 };
