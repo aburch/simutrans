@@ -368,7 +368,7 @@ void halt_info_t::init(halthandle_t halt)
 				bt_no_handle_post.init(button_t::square, "Post");
 				bt_no_handle_post.add_listener(this);
 				add_component(&bt_no_handle_post);
-				bt_no_handle_ware.init(button_t::square, "Ware");
+				bt_no_handle_ware.init(button_t::square, "Fracht");
 				bt_no_handle_ware.add_listener(this);
 				add_component(&bt_no_handle_ware);
 			}
