@@ -308,7 +308,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	add_component(&filled_bar);
 
 	// convoi list
-	scrolly_convois.set_pos(scr_coord(RIGHT_COLUMN_OFFSET-D_H_SPACE, bt_y+2*D_BUTTON_HEIGHT+3*D_V_SPACE+2*LINESPACE));
+	scrolly_convois.set_pos(scr_coord(RIGHT_COLUMN_OFFSET-D_H_SPACE, bt_y + 2 * D_BUTTON_HEIGHT+ 3 * D_V_SPACE + 2*LINESPACE));
 	scrolly_convois.set_show_scroll_x(true);
 	scrolly_convois.set_scroll_amount_y(40);
 	scrolly_convois.set_visible(false);
