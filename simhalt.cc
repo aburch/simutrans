@@ -1787,11 +1787,8 @@ void haltestelle_t::rebuild_linked_connections()
 	schedule_t *schedule;
 	bool lines = true;
 	uint32 current_index = 0;
-	// Is unload_all applied for this halt?
-	// HACK: When unload_all, no_load or no_unload is applied, is_transfer is true regardless of connections.
-	bool force_transfer_search = false;
 	while(  lines  ||  current_index < registered_convoys.get_count()  ) {
-		// Now, collect the "schedule", "owner" and "add_catg_index" from line resp. convoy.
+		// Now, collect the "schedule", "owner" from line resp. convoy.
 		if(  lines  ) {
 			if(  current_index >= registered_lines.get_count()  ) {
 				// We have looped over all lines.
@@ -1843,7 +1840,7 @@ void haltestelle_t::rebuild_linked_connections()
 				continue;
 			}
 			if(  current_halt != self  ) {
-				// check for consecutive halts which precede self halt
+				// check for consecutive halts
 				all.append_unique(current_halt);
 			}
 		}
