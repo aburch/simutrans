@@ -570,6 +570,7 @@ void schedule_list_gui_t::reset_line_name()
 {
 	// change text input of selected line
 	if(  line.is_bound()  ) {
+		tstrncpy(old_line_name, line->get_name(), sizeof(old_line_name));
 		tstrncpy(line_name, line->get_name(), sizeof(line_name));
 		tstrncpy(line_memo, line->get_memo(), sizeof(line_memo));
 		inp_name.set_text(line_name, sizeof(line_name));
