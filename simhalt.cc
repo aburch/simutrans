@@ -1779,14 +1779,12 @@ void haltestelle_t::rebuild_linked_connections()
 	vector_tpl<halthandle_t> all; // all halts connected to this halt
 	// since this halt only knows the halts which can reach from here, not all halts which can reach here from them.
 	// so, we must recalc all halts of all lines and convoys which stop this halt.
-	const player_t *owner;
-	schedule_t *schedule;
 	// check all lines
 	for(uint32 i=0; i<registered_lines.get_count(); ++i) {
 		// Now, collect the "schedule", "owner" from line.
 		const linehandle_t line = registered_lines[i];
-		owner = line->get_owner();
-		schedule = line->get_schedule();
+		const player_t *owner = line->get_owner();
+		schedule_t *schedule = line->get_schedule();
 		if(  schedule->is_temporary()  ) {
 			// this schedule does not affect connection calculation.
 			continue;
@@ -1809,8 +1807,8 @@ void haltestelle_t::rebuild_linked_connections()
 	for(uint32 i=0; i<registered_convoys.get_count(); ++i) {
 		// Now, collect the "schedule", "owner" from convoy.
 		const convoihandle_t cnv = registered_convoys[i];
-		owner = cnv->get_owner();
-		schedule = cnv->get_schedule();
+		const player_t *owner = cnv->get_owner();
+		schedule_t *schedule = cnv->get_schedule();
 		if(  schedule->is_temporary()  ) {
 			// this schedule does not affect connection calculation.
 			continue;
