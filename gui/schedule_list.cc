@@ -436,7 +436,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 		}
 	}
 	else if(  comp == &bt_teleport_line_to_depot  &&  line->get_convoys().get_count()>0  ) {
-		for (size_t i=line->get_convoys().get_count(); i-- != 0;) {
+		for (size_t i = line->get_convoys().get_count(); i-- != 0;) {
 			line->get_convoy(i)->call_convoi_tool( 'y', NULL );
 		}
 	}
