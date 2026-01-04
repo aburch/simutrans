@@ -1777,6 +1777,8 @@ sint32 haltestelle_t::rebuild_connections()
 void haltestelle_t::rebuild_linked_connections()
 {
 	vector_tpl<halthandle_t> all; // all halts connected to this halt
+	// since this halt only know the halts which can reach from here, not all halts which can reach here from them.
+	// so, we must recalc all halts of all lines and convoys which stop this halt.
 	/*
 	 * In the first loops:
 	 * lines==true => search for lines
