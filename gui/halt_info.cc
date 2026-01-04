@@ -359,15 +359,20 @@ void halt_info_t::init(halthandle_t halt)
 			other_players_connection_button.init(button_t::square, "Allow other players to connect");
 			other_players_connection_button.add_listener(this);
 			add_component(&other_players_connection_button);
-			bt_no_handle_pax.init(button_t::square, "No handle passenger");
-			bt_no_handle_pax.add_listener(this);
-			add_component(&bt_no_handle_pax);
-			bt_no_handle_post.init(button_t::square, "No handle mail");
-			bt_no_handle_post.add_listener(this);
-			add_component(&bt_no_handle_post);
-			bt_no_handle_ware.init(button_t::square, "No handle ware");
-			bt_no_handle_ware.add_listener(this);
-			add_component(&bt_no_handle_ware);
+			add_table(4,1);
+			{
+				new_component<gui_label_t>(translator::translate("No handle:"));
+				bt_no_handle_pax.init(button_t::square, "Passagiere");
+				bt_no_handle_pax.add_listener(this);
+				add_component(&bt_no_handle_pax);
+				bt_no_handle_post.init(button_t::square, "Post");
+				bt_no_handle_post.add_listener(this);
+				add_component(&bt_no_handle_post);
+				bt_no_handle_ware.init(button_t::square, "Ware");
+				bt_no_handle_ware.add_listener(this);
+				add_component(&bt_no_handle_ware);
+			}
+			end_table();
 		}
 		end_table();
 
