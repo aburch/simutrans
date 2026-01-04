@@ -359,6 +359,15 @@ void halt_info_t::init(halthandle_t halt)
 			other_players_connection_button.init(button_t::square, "Allow other players to connect");
 			other_players_connection_button.add_listener(this);
 			add_component(&other_players_connection_button);
+			bt_no_handle_pax.init(button_t::square, "No handle passenger");
+			bt_no_handle_pax.add_listener(this);
+			add_component(&bt_no_handle_pax);
+			bt_no_handle_post.init(button_t::square, "No handle mail");
+			bt_no_handle_post.add_listener(this);
+			add_component(&bt_no_handle_post);
+			bt_no_handle_ware.init(button_t::square, "No handle ware");
+			bt_no_handle_ware.add_listener(this);
+			add_component(&bt_no_handle_ware);
 		}
 		end_table();
 
@@ -526,6 +535,24 @@ void halt_info_t::update_components()
 	other_players_connection_button.set_visible(!halt->get_owner()->is_public_service());
 	other_players_connection_button.enable(player_t::check_owner(halt->get_owner(), welt->get_active_player()));
 	other_players_connection_button.pressed = halt->is_other_player_connection_allowed();
+	bt_no_handle_pax.set_visible(true);
+	bt_no_handle_post.set_visible(true);
+	bt_no_handle_ware.set_visible(true);
+	bt_no_handle_pax.disable();
+	bt_no_handle_post.disable();
+	bt_no_handle_ware.disable();
+	if(halt->get_desc_pax_enable()) {
+		bt_no_handle_pax.enable(player_t::check_owner(halt->get_owner(), welt->get_active_player()));
+	}
+	if(halt->get_desc_post_enable()) {
+		bt_no_handle_post.enable(player_t::check_owner(halt->get_owner(), welt->get_active_player()));
+	}
+	if(halt->get_desc_ware_enable()) {
+		bt_no_handle_ware.enable(player_t::check_owner(halt->get_owner(), welt->get_active_player()));
+	}
+	bt_no_handle_pax.pressed = halt->is_no_handle_pax();
+	bt_no_handle_post.pressed = halt->is_no_handle_post();
+	bt_no_handle_ware.pressed = halt->is_no_handle_ware();
 	set_dirty();
 }
 
@@ -993,9 +1020,30 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	}
 	else if(comp == &other_players_connection_button) {
 		cbuffer_t buf;
-		buf.printf("%hu", halt.get_id());
+		buf.printf("c,%hu", halt.get_id());
 		tool_t::simple_tool[TOOL_CHANGE_HALT]->set_default_param(buf);
 		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_HALT], welt->get_active_player() );
+	}
+	else if(comp == &bt_no_handle_pax) {
+		cbuffer_t buf;
+		buf.printf("p,%hu", halt.get_id());
+		tool_t::simple_tool[TOOL_CHANGE_HALT]->set_default_param(buf);
+		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_HALT], welt->get_active_player() );
+
+	}
+	else if(comp == &bt_no_handle_post) {
+		cbuffer_t buf;
+		buf.printf("m,%hu", halt.get_id());
+		tool_t::simple_tool[TOOL_CHANGE_HALT]->set_default_param(buf);
+		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_HALT], welt->get_active_player() );
+
+	}
+	else if(comp == &bt_no_handle_ware) {
+		cbuffer_t buf;
+		buf.printf("w,%hu", halt.get_id());
+		tool_t::simple_tool[TOOL_CHANGE_HALT]->set_default_param(buf);
+		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_HALT], welt->get_active_player() );
+
 	}
 	return true;
 }

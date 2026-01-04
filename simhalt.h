@@ -99,7 +99,10 @@ public:
 	};
 
 	enum station_flag {
-		HS_ALLOW_OTHER_PLAYER_CONNECTION = 1 << 0 // Allows other players to stop and connect to this station
+		HS_ALLOW_OTHER_PLAYER_CONNECTION = 1 << 0,// Allows other players to stop and connect to this station
+		HS_NO_HANDLE_PAX				 = 1 << 1,// do not handle goods type passenger
+		HS_NO_HANDLE_POST				 = 1 << 2,// do not handle goods type post
+		HS_NO_HANDLE_WARE				 = 1 << 3 // do not handle goods type ware
 	};
 
 private:
@@ -614,9 +617,37 @@ public:
 	 */
 	void search_route_resumable( ware_t &ware );
 
-	bool get_pax_enabled()  const { return enables & PAX;  }
-	bool get_mail_enabled() const { return enables & POST; }
-	bool get_ware_enabled() const { return enables & WARE; }
+	// get and set treatable goods type
+	void set_no_handle_pax( bool n ) {
+		n? flags|=HS_NO_HANDLE_PAX: flags&=~HS_NO_HANDLE_PAX; 
+		rebuild_connections();
+		rebuild_linked_connections();
+		rebuild_connected_components();
+	}
+	void set_no_handle_post( bool n ) {
+		n? flags|=HS_NO_HANDLE_POST: flags&=~HS_NO_HANDLE_POST;
+		rebuild_connections();
+		rebuild_linked_connections();
+		rebuild_connected_components();
+	}
+	void set_no_handle_ware( bool n ) {
+		n? flags|=HS_NO_HANDLE_WARE: flags&=~HS_NO_HANDLE_WARE;
+		rebuild_connections();
+		rebuild_linked_connections();
+		rebuild_connected_components();
+	}
+	bool is_no_handle_pax() const {return (flags&HS_NO_HANDLE_PAX)>0;}
+	bool is_no_handle_post() const {return (flags&HS_NO_HANDLE_POST)>0;}
+	bool is_no_handle_ware() const {return (flags&HS_NO_HANDLE_WARE)>0;}
+
+	// return real handle goods type information
+	bool get_pax_enabled()  const { return (enables & PAX)>0 && !is_no_handle_pax();  }
+	bool get_mail_enabled() const { return (enables & POST)>0 && !is_no_handle_post(); }
+	bool get_ware_enabled() const { return (enables & WARE)>0 && !is_no_handle_ware(); }
+	// return handlable goods type information of desc. (for halt_info_t)
+	bool get_desc_pax_enable() const {return enables & PAX;}
+	bool get_desc_post_enable() const {return enables & POST;}
+	bool get_desc_ware_enable() const {return enables & WARE;}
 
 	// check, if we accepts this good
 	// often called, thus inline ...
@@ -628,12 +659,12 @@ public:
 	bool is_enabled( const uint8 catg_index ) const
 	{
 		if (catg_index == goods_manager_t::INDEX_PAS) {
-			return enables&PAX;
+			return get_pax_enabled();
 		}
 		else if(catg_index == goods_manager_t::INDEX_MAIL) {
-			return enables&POST;
+			return get_mail_enabled();
 		}
-		return enables&WARE;
+		return get_ware_enabled();
 	}
 
 	bool is_other_player_connection_allowed() const { return flags & HS_ALLOW_OTHER_PLAYER_CONNECTION; }
