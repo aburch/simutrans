@@ -170,7 +170,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 		tabs.add_tab(&scl, translator::translate("Tram"), skinverwaltung_t::tramhaltsymbol, translator::translate("Tram"));
 		tabs_to_lineindex[max_idx++] = simline_t::tramline;
 	}
-	if(  strasse_t::default_strasse  ) {
+	if(  strasse_t::default_strasse) {
 		tabs.add_tab(&scl, translator::translate("Truck"), skinverwaltung_t::autohaltsymbol, translator::translate("Truck"));
 		tabs_to_lineindex[max_idx++] = simline_t::truckline;
 	}
@@ -215,8 +215,8 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	viewable_freight_types.append(goods_manager_t::mail);
 	freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Post"), SYSCOL_TEXT) ;
 	viewable_freight_types.append(goods_manager_t::none); // for all freight ...
-freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Fracht"), SYSCOL_TEXT) ;
-	for(  int i=0;  i < goods_manager_t::get_max_catg_index();  i++  ) {
+	freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Fracht"), SYSCOL_TEXT) ;
+	for(  int i = 0;  i < goods_manager_t::get_max_catg_index();  i++  ) {
 		const goods_desc_t *freight_type = goods_manager_t::get_info_catg(i);
 		const int index = freight_type->get_catg_index();
 		if(  index == goods_manager_t::INDEX_NONE  ||  freight_type->get_catg()==0  ) {
@@ -436,7 +436,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 		}
 	}
 	else if(  comp == &bt_teleport_line_to_depot  &&  line->get_convoys().get_count()>0  ) {
-		for(  size_t i=line->get_convoys().get_count();  i--!= 0;  ) {
+		for (size_t i=line->get_convoys().get_count(); i-- != 0;) {
 			line->get_convoy(i)->call_convoi_tool( 'y', NULL );
 		}
 	}
