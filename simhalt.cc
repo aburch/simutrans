@@ -1782,7 +1782,7 @@ void haltestelle_t::rebuild_linked_connections()
 	const player_t *owner;
 	schedule_t *schedule;
 	// check all lines
-	for(uint16 i=0; i<registered_lines.get_count(); i++) {
+	for(uint32 i=0; i<registered_lines.get_count(); i++) {
 		// Now, collect the "schedule", "owner" from line.
 		const linehandle_t line = registered_lines[i];
 		owner = line->get_owner();
@@ -1806,7 +1806,7 @@ void haltestelle_t::rebuild_linked_connections()
 		}
 	}
 	// check all convoys
-	for(uint16 i=0; i<registered_convoys.get_count(); i++) {
+	for(uint32 i=0; i<registered_convoys.get_count(); i++) {
 		// Now, collect the "schedule", "owner" from convoy.
 		const convoihandle_t cnv = registered_convoys[i];
 		owner = cnv->get_owner();
