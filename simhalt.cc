@@ -1777,12 +1777,75 @@ sint32 haltestelle_t::rebuild_connections()
 void haltestelle_t::rebuild_linked_connections()
 {
 	vector_tpl<halthandle_t> all; // all halts connected to this halt
-	for(  uint8 i=0;  i<goods_manager_t::get_max_catg_index();  i++  ){
-		// TODO: consider using staged_all_links, since this function is called after rebuild_connections() stores the connections to it.
-		vector_tpl<connection_t>& connections = all_links[i].connections;
+	/*
+	 * In the first loops:
+	 * lines==true => search for lines
+	 * After this:
+	 * lines==false => search for single convoys without lines
+	 */
+	const player_t *owner;
+	schedule_t *schedule;
+	bool lines = true;
+	uint32 current_index = 0;
+	// Is unload_all applied for this halt?
+	// HACK: When unload_all, no_load or no_unload is applied, is_transfer is true regardless of connections.
+	bool force_transfer_search = false;
+	while(  lines  ||  current_index < registered_convoys.get_count()  ) {
+		// Now, collect the "schedule", "owner" and "add_catg_index" from line resp. convoy.
+		if(  lines  ) {
+			if(  current_index >= registered_lines.get_count()  ) {
+				// We have looped over all lines.
+				lines = false;
+				current_index = 0; // start over for registered lineless convoys
+				continue;
+			}
 
-		FOR(vector_tpl<connection_t>, &c, connections) {
-			all.append_unique( c.halt );
+			const linehandle_t line = registered_lines[current_index];
+			++current_index;
+
+			owner = line->get_owner();
+			schedule = line->get_schedule();
+		}
+		else {
+			const convoihandle_t cnv = registered_convoys[current_index];
+			++current_index;
+
+			owner = cnv->get_owner();
+			schedule = cnv->get_schedule();
+		}
+
+		if(  schedule->is_temporary()  ) {
+			// this schedule does not affect connection calculation.
+			continue;
+		}
+
+		// find the index from which to start processing
+		uint8 start_index = 0;
+		while(  start_index < schedule->get_count()  &&  get_stoppable_halt( schedule->at(start_index).pos, owner, schedule->get_waytype() ) != self  ) {
+			++start_index;
+		}
+		if(  start_index==schedule->get_count()  ) {
+			// self halt entry was not found.
+			dbg->error("haltestelle_t::rebuild_linked_connections()", "The self halt was not found for the schedule at %s. Type: %d, number of halts: %d", get_name(), schedule->get_type(), schedule->get_count());
+			continue;
+		}
+		++start_index;	// the next index after self halt; it's okay to be out-of-range
+
+		// now we add the schedule to the connection array
+		const schedule_entry_t start_entry = schedule->at(start_index-1);
+		
+		for(  uint8 j=0;  j<schedule->get_count();  ++j  ) {
+			const uint8 current_entry_index = (start_index+j)%schedule->get_count();
+			const schedule_entry_t current_entry = schedule->at(current_entry_index);
+			halthandle_t current_halt = get_stoppable_halt(current_entry.pos, owner, schedule->get_waytype() );
+			if(  !current_halt.is_bound()  ) {
+				// ignore way points.
+				continue;
+			}
+			if(  current_halt != self  ) {
+				// check for consecutive halts which precede self halt
+				all.append_unique(current_halt);
+			}
 		}
 	}
 	FOR(vector_tpl<halthandle_t>, h, all) {
