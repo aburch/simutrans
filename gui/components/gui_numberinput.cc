@@ -137,7 +137,7 @@ bool gui_numberinput_t::action_triggered( gui_action_creator_t *comp, value_t /*
 
 
 uint8 gui_numberinput_t::percent[8] = { 0, 1, 5, 10, 20, 50, 100, 200 };
-uint8 gui_numberinput_t::percent2[10] = {0, 1, 5, 10, 20, 50, 100, 200, 250, 255};
+uint8 gui_numberinput_t::percent2[10] = {0, 1, 5, 10, 20, 50, 100, 150, 200, 250, 255};
 
 sint32 gui_numberinput_t::get_next_value()
 {
