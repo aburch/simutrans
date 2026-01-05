@@ -456,13 +456,13 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 	route_bar.set_base(cnv->get_route()->get_count()-1);
 	cnv_route_index = cnv->front()->get_route_index() - 1;
 
-	// all gui stuff set => display it
-	gui_frame_t::draw(pos, size);
-
 	// show route update
 	show_route(is_route_show);
 	route_show_button.pressed = is_route_show;
 	route_show_button.enable();
+
+	// all gui stuff set => display it
+	gui_frame_t::draw(pos, size);
 }
 
 
