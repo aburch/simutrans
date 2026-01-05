@@ -2150,11 +2150,11 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 	create_win(x, y, gui, w_info, magic);
 
 	if (welt) {
-		welt->set_pause(false);
+		welt->set_pause(true);
 		welt->reset_interaction();
 		welt->reset_timer();
 
-		const uint32 ms_per_frame = 1000 / env_t::fps;
+		const uint32 ms_per_frame = 0;//1000 / env_t::fps;
 		uint32 last_step = dr_time();
 		uint step_count = 5;
 
