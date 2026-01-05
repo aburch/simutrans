@@ -77,9 +77,11 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 	gui_numberinput_t numimp_spacing, numimp_spacing_shift, 
 		numimp_delay_tolerance, numimp_max_speed, numimp_max_speed_kmh_of_convoi , numimp_tbgr_waiting_time, numimp_length_coupling_done;
 	gui_label_t lb_spacing, lb_spacing_shift, lb_title1, lb_title2, lb_max_speed, lb_tbgr_waiting_time, lb_next_line, lb_length_coupling_done;
+	gui_label_t lb_wait_load_time;
 
 	char lb_spacing_str[20];
 	char lb_spacing_shift_str[15];
+	char lb_wait_load_time_str[25];
 
 	schedule_gui_stats_t* stats;
 	gui_scrollpane_t scrolly;

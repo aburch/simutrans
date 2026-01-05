@@ -461,7 +461,9 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		numimp_wait_load.add_listener(this);
 		add_component(&numimp_wait_load);
 		end_table();
-		new_component<gui_fill_t>();
+		sprintf(lb_wait_load_time_str,"");
+		lb_wait_load_time.set_text_pointer(lb_wait_load_time_str);
+		add_component(&lb_wait_load_time);
 
 		// load and unload settings
 		bt_no_load.init(button_t::square_state, "No Load");
@@ -915,10 +917,21 @@ void schedule_gui_t::update_selection()
 				if(  wait>0  ) {
 					lb_wait.set_color( SYSCOL_TEXT );
 					numimp_wait_load.enable();
-					if(  schedule->at(current_stop).minimum_loading  ==  200  ){
+					if(  schedule->at(current_stop).minimum_loading  >  100  ){
 						bt_load_before_departure.enable();
 					}
+					const uint16 divisor = world()->get_settings().get_spacing_shift_divisor();
+					const uint16 month_ratio_second = 86400/divisor;
+					uint32 second = (86400/wait)/month_ratio_second*month_ratio_second;
+					uint8 hour = second/3600;
+					uint8 minute = (second - hour * 3600)/60;
+					second = second % 60;
+					sprintf(lb_wait_load_time_str, "%d (%02d:%02d:%02d)", divisor/wait,hour,minute,second);
+				} else {
+					sprintf(lb_wait_load_time_str,"");
 				}
+			} else {
+				sprintf(lb_wait_load_time_str,"");
 			}
 			
 			numimp_load.set_value( schedule->at(current_stop).minimum_loading );
