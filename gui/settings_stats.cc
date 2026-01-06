@@ -84,7 +84,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	INIT_BOOL( "numbered_stations", sets->get_numbered_stations() );
 	INIT_NUM( "show_names", env_t::show_names, 0, 3, gui_numberinput_t::AUTOLINEAR, true );
 	SEPERATOR
-	INIT_NUM( "bits_per_month", sets->get_bits_per_month(), 16, 28, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "bits_per_month", sets->get_bits_per_month(), 16, 24, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "use_timeline", sets->get_use_timeline(), 0, 3, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM_NEW( "starting_year", sets->get_starting_year(), 0, 2999, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM_NEW( "starting_month", sets->get_starting_month(), 0, 11, gui_numberinput_t::AUTOLINEAR, false );
