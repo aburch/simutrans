@@ -116,7 +116,10 @@ public:
 	void update_label()
 	{
 		stop.buf().printf("%i) ", number+1);
-		stop.buf().printf("[%.2f] ", (double) halt_length_in_vehicle_step()/VEHICLE_STEPS_PER_TILE);
+		if(waytype!=water_wt) {
+			// ships do not use halt length, so we do not write
+			stop.buf().printf("[%.2f] ", (double) halt_length_in_vehicle_step()/VEHICLE_STEPS_PER_TILE);
+		}
 		schedule_t::gimme_stop_name(stop.buf(), welt, player, entry, -1, waytype);
 		stop.set_color(is_current ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT);
 		stop.update();
