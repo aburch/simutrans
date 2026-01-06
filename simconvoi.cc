@@ -1270,7 +1270,8 @@ bool convoi_t::drive_to()
 		}
 		else {
 			// if change direction at waypoint, we must reverse coupling here!
-			if(  env_t::reversible_waytype(front()->get_waytype())&&front()->get_waytype()!=water_wt&&!reverse_coupling_done&&state!=INITIAL  ) {
+			grund_t *gr=welt->lookup(start);
+			if(  env_t::reversible_waytype(front()->get_waytype())&&front()->get_waytype()!=water_wt&&!reverse_coupling_done&&state!=INITIAL&&!(gr  &&  gr->get_depot())  ) {
 				const bool reverse_here=world()->get_settings().is_default_reverse()&&((route.get_count()<2) ? false : ((ribi_type(route.at(0), route.at(1)) & front()->get_direction()) == 0 ? true : false));
 				if( reversing_coupling_needed^reverse_here )
 				{
@@ -3892,6 +3893,10 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 			coupled_at_this_stop |= ( c->get_schedule()->get_current_entry().is_try_coupling() && c->is_coupling_done() );
 			if(c->get_schedule()->get_current_entry().is_try_coupling()) {
 				c->set_coupling_done(false);
+			}
+			if(c->get_coupling_convoi().is_bound()&&!c->can_continue_coupling()) {
+				// the new most parent or child convoy is me because I release child here!
+				c->uncouple_convoi();
 			}
 		}
 		if(  coupled_at_this_stop && get_schedule()->get_count()>1  ) {
