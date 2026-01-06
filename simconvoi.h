@@ -1116,7 +1116,7 @@ public:
 
 	// returns the available halt length for the given convoy position.
 	// The returned steps includes the entire tile length on which the front vehicle is.
-	static uint32 calc_available_halt_length_in_vehicle_steps(koord3d front_vehicle_pos, ribi_t::ribi front_vehicle_dir, const waytype_t waytype);
+	static uint32 calc_available_halt_length_in_vehicle_steps(koord3d front_vehicle_pos, ribi_t::ribi front_vehicle_dir, const waytype_t waytype, const bool use_electric=false);
 	uint32 calc_available_halt_length_in_vehicle_steps(koord3d front_vehicle_pos, ribi_t::ribi front_vehicle_dir) const;
 
 	// Returns the parent and root parent convoi of this convoy. Returns this convoy if not coupled.
