@@ -23,9 +23,9 @@ halt mode
 追越車線にも停車
 avoid becoming cityroad
 市道化を禁止する
-No buildings along roadside.
+no building adjacent
 建物を接道しない
-Can branch cityroad
+can branch cityroad
 市道の分岐を許可
 Cityroad allow branch from this road
 この道路からの市道の分岐を許可する
@@ -37,6 +37,8 @@ Yes
 はい
 No
 いいえ
+show directions only for oneway roads
+一方通行の道路のみ接続方向を表示
 Prior
 優先方向
 northsouth
@@ -73,16 +75,32 @@ driving
 運転中
 #------Convoy coupling related stuff------
 #------増解結関連のエントリ------
+Reset coupling
+連結設定を解除
+Reset coupling settings
+この駅での連結設定を解除します．
 Wait for coupling
 連結相手を待つ(W)
 Try coupling
 連結を試みる(C)
+End couple
+後ろと連結終了(E)
+It will uncouple the child convoy here.
+後ろの編成を駅到着時に切り離します．
 Waiting for coupling! (%i->%i%%)
 連結相手を待機中 (%i->%i%%)
 Require parent convoy to enter.
 連結相手がいる時のみ進入を許可
 Advance to end
 ホーム終端まで進む
+Choose signal
+振分信号を有効化(空いているホームに進入を許可)
+end of choose signal
+振分信号による進入禁止
+try coupling convoy not enter here
+連結試行時の進入禁止
+remove signal
+この信号を撤去する
 release back
 後ろを解放
 A convoy waits for other convoy to couple.
@@ -93,6 +111,10 @@ Uncouple the back convoy now.
 即時に後ろの編成を解放します．
 Please decouple the other convoy to edit the schedule.
 スケジュールを編集するには連結解除してください．
+Convoys length coupling done
+連結上限タイル数:
+If total length of convoys reaches this value, coupling done and depart(if 0, no limit).
+総編成長がこのタイル数に達した場合、連結待機を終了して発車します．0の場合は編成長による連結終了はありません．
 Copy Line
 路線複製
 Copy the selected line
@@ -101,6 +123,12 @@ Journey Time
 路線所要時間
 Journey time of %s
 %sの所要時間
+Show journey times between stations.
+駅間の所要時間を表示します．
+Waiting Time
+駅での待ち時間
+Show goods waiting times at stations.
+各駅での貨物の待ち時間を表示します．
 Halt name
 停留所名
 Copy names
@@ -109,6 +137,8 @@ Copy stations
 駅名と座標をコピー
 Copy csv format
 csv形式でコピー
+Copy the list of city name and population to clipboard in csv format.
+クリップボードに都市名と人口をコピーしました．
 Station infos were copied to clipboard.\n
 クリップボードに駅情報をコピーしました．\n
 There is nothing to copy.\n
@@ -123,12 +153,30 @@ The latest departure slots were not used.
 直近の発車枠が使われませんでした．
 #------Schedule window related stuff------
 #------スケジュールウィンドウ関連のエントリ------
+Please click on the map to add\nwaypoints or stops to this\nschedule.
+マップ上をクリックして、\nこのスケジュールの中継点や\n停車駅を設定してください．
 Extract advanced settings
 詳細設定を展開
+Extract schedule settings
+スケジュールの設定を展開
+Show some settings for whole schedule
+スケジュール全体の設定を表示/非表示します(臨時系統等)
+Extract loading settings
+乗降関係の設定を展開
+Show loading settings for each stop
+各駅における乗降関係の設定を表示/非表示します
+Extract driving settings
+運転関係の設定を展開
+Show driving and departure setting for each stops/waypoints
+各駅・中継点における運転関係の設定を表示/非表示します(発車時刻、反転、連結等)
 Temporary schedule
 臨時系統
 This schedule does not affect the route cost calculation.
 このスケジュールはルートコストの計算に寄与しません．
+Pass this stop
+この駅を通過(P)
+Pass this stop even if there is a platform.
+この駅は、ホームがあっても通過します(中継点と同様の扱いとなります)．
 No Load
 乗車不可(L)
 The convoy does not load goods and passengers at this stop.
@@ -141,6 +189,18 @@ Unload All
 全員降車(A)
 All passengers once get off at this stop.
 この停留所ですべての積載物を一旦降ろします．
+load temporary
+臨時乗車(l)
+unload temporary
+臨時降車(u)
+unload all temporary
+臨時全員降車(a)
+Can load but not use for goods routing
+旅客ルート計算上は乗車不可(乗車予定の客が既に待機している場合は乗車できます)．
+Can unload but not use for goods routing
+旅客ルート計算上は降車不可(降車予定の客が既に乗車している場合は降車できます)．
+Terminate goods routing (can continue boarding).
+旅客ルート計算上はこの駅を跨ぐ客が生じません(既に乗車している客は継続乗車できます)．
 Wait for time
 発車時刻まで待機
 Spacing cnv/month, shift
@@ -167,6 +227,12 @@ Load before departure
 出発直前に積載(B)
 Do not load cargos until the departure time comes.
 発車時刻になるまで積載しません．
+Max load
+最大乗車率
+set maximum loading ratio
+最大乗車率を設定します
+for all stops
+全駅に適用
 hlf_chk_include_public
 公共駅を含める
 Departure slot group
@@ -175,6 +241,10 @@ Shares the departure time slot with the selected line here.
 選択された路線と発車枠を共有します。
 <new departure slot group>
 <新しい発車枠グループ>
+not go if no users
+乗降客がいない場合経由しない(G)
+If there are no users, this convoy will not go to this stop
+乗降客がいない場合、この駅を無視して次の駅に向かいます．
 reverse convoy
 編成を反転する(R)
 Reverses the direction of convoy.
@@ -191,6 +261,10 @@ Next line:
 この路線へ飛ぶ:
 Jump to this Next-line's schedule at the end of this schedule.
 このスケジュールの最後の駅で、指定された路線のスケジュールに切り替わります。
+Freight
+積載情報
+Vehicle count:
+車両数:
 Teleport to Depot
 車庫に転送
 Teleport All to Depot
@@ -211,6 +285,12 @@ No overtake
 追い越し禁止
 Do not overtake other cars until this stop.
 この駅に向かう間はほかの車を追い越しません．
+Revert schedule
+元に戻す
+Revert to original schedule
+編集前のスケジュールに戻します．
+Additional goods routing waiting time
+所要時間を加算します
 #------円表記------
 $
  円
@@ -337,9 +417,16 @@ Max speed of convoi: UNLIMIT
 編成最高速度：UNLIMIT(制限無し)
 Max speed of convoi: %i km/h
 編成最高速度： %i km/h
+#------ルート計算方法------
+route by route cost
+ルートコスト法で計算
+route by journey time
+所要時間をもとに計算
 #------その他の翻訳------
 next stop
 次の駅へ
+Go to the next station.
+１つ先の駅へ向かいます．
 show route
 ルートを表示
 show route of this convoy.
@@ -350,6 +437,8 @@ Fetching server list...
 サーバリストを取得中...
 Allow other players to connect
 他社の接続を許可
+No handle:
+次を扱わない:
 hl_btn_sort_throughput
 利用者数
 hl_btn_sort_waiting_percentage
@@ -358,6 +447,20 @@ transfers
 ご利用
 Factory Type
 産業の種類
+no close this factory
+この産業を閉鎖しない
+close_old_factory
+古い産業を閉鎖する
+Factory %s is retired! Close soon!
+%sは古い産業です!まもなく閉業します!
+Factory %s has closed.
+%sは閉業しました．
+** This Factory Will Close Soon! **
+** この産業はまもなく閉業します **
+shipment size:
+出荷単位:
+Set shipment size.(default:10)
+出荷1回あたりに出荷する貨物量を指定します(デフォルト:10)
 No Supply
 消費しない産業のみ
 No Product
@@ -368,3 +471,19 @@ Must Product
 生産する産業のみ
 Goods waiting time of %s
 %s の各駅での到着待ち時間
+load map
+地形データを読み込み
+At least one tile is connected to one stop
+駅に接続している産業のみ表示します
+At least one stop is connected to the town
+駅に接続している都市のみ表示します
+Highlight
+町内の建物を表示
+Make building belong to
+建物をこの町の所属にする
+Station name already exists
+駅名が既に使用されています
+Line Memo:
+路線メモ:
+Line Name:
+路線名:

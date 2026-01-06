@@ -44,6 +44,7 @@ simline_t::simline_t(player_t* player, linetype type)
 	char printname[128];
 	sprintf(printname, "(%i) %s", self.get_id(), translator::translate("Line", welt->get_settings().get_name_language_id()));
 	name = printname;
+	memo = "";
 
 	init_financial_history();
 	this->type = type;
@@ -139,6 +140,10 @@ void simline_t::set_name(const char *new_name)
 	}
 }
 
+void simline_t::set_memo(const char* new_memo)
+{
+	memo = new_memo;
+}
 
 void simline_t::create_schedule()
 {
@@ -315,7 +320,12 @@ void simline_t::rdwr(loadsave_t *file)
 		sint32 dummy = 0;
 		file->rdwr_long(dummy);
 	}
-
+	if (file->get_OTRP_version() >= 50) {
+		file->rdwr_str(memo);
+	}
+	else {
+		memo = "";
+	}
 	// otherwise initialized to zero if loading ...
 	financial_history[0][LINE_CONVOIS] = count_convoys();
 }

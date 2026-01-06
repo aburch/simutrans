@@ -1714,7 +1714,7 @@ sint32 haltestelle_t::rebuild_connections()
 			 	force_transfer_search |= (current_entry.is_unload_all()  ||  current_entry.is_no_load()  ||  current_entry.is_no_unload());
 				// If loading is allowed at somewhere by here, we still need to connect the further halts.
 				// Reset no_load_section to false in case that we can load here.
-				no_load_section &= current_entry.is_no_load();
+				no_load_section &= (current_entry.is_no_load()||current_entry.is_temp_load());
 				interval = 0;
 				continue;
 			}
@@ -1723,12 +1723,12 @@ sint32 haltestelle_t::rebuild_connections()
 			aggregate_weight_jt += schedule->get_median_journey_time(current_entry_index, (uint32)speedbonus_kmh);
 			aggregate_weight_rc += WEIGHT_HALT;
 
-			if(  current_entry.is_no_unload()  ||  no_load_section  ) {
+			if(  current_entry.is_no_unload() || current_entry.is_temp_unload()  ||  no_load_section  ) {
 				// do not add connection if this halt is set no_unload or if the previous self stop is set no_load.
 				continue;
 			}
 
-			no_load_section |= current_entry.is_unload_all();
+			no_load_section |= (current_entry.is_unload_all()||current_entry.is_temp_unload_all());
 			
 			if(current_entry.is_transfer_interval()){
 				if(interval == 1){
@@ -1777,12 +1777,54 @@ sint32 haltestelle_t::rebuild_connections()
 void haltestelle_t::rebuild_linked_connections()
 {
 	vector_tpl<halthandle_t> all; // all halts connected to this halt
-	for(  uint8 i=0;  i<goods_manager_t::get_max_catg_index();  i++  ){
-		// TODO: consider using staged_all_links, since this function is called after rebuild_connections() stores the connections to it.
-		vector_tpl<connection_t>& connections = all_links[i].connections;
-
-		FOR(vector_tpl<connection_t>, &c, connections) {
-			all.append_unique( c.halt );
+	// since this halt only knows the halts which can reach from here, not all halts which can reach here from them.
+	// so, we must recalc all halts of all lines and convoys which stop this halt.
+	// check all lines
+	for(uint32 i=0; i<registered_lines.get_count(); ++i) {
+		// Now, collect the "schedule", "owner" from line.
+		const linehandle_t line = registered_lines[i];
+		const player_t *owner = line->get_owner();
+		schedule_t *schedule = line->get_schedule();
+		if(  schedule->is_temporary()  ) {
+			// this schedule does not affect connection calculation.
+			continue;
+		}
+		// now we add the schedule to the connection array
+		for(  uint8 j=0;  j<schedule->get_count();  ++j  ) {
+			const schedule_entry_t current_entry = schedule->at(j);
+			halthandle_t current_halt = get_stoppable_halt(current_entry.pos, owner, schedule->get_waytype() );
+			if(  !current_halt.is_bound()  ) {
+				// ignore way points.
+				continue;
+			}
+			if(  current_halt != self  ) {
+				// check for consecutive halts
+				all.append_unique(current_halt);
+			}
+		}
+	}
+	// check all convoys
+	for(uint32 i=0; i<registered_convoys.get_count(); ++i) {
+		// Now, collect the "schedule", "owner" from convoy.
+		const convoihandle_t cnv = registered_convoys[i];
+		const player_t *owner = cnv->get_owner();
+		schedule_t *schedule = cnv->get_schedule();
+		if(  schedule->is_temporary()  ) {
+			// this schedule does not affect connection calculation.
+			continue;
+		}
+		// now we add the schedule to the connection array
+		for(  uint8 j=0;  j<schedule->get_count();  ++j  ) {
+			const schedule_entry_t current_entry = schedule->at(j);
+			halthandle_t current_halt = get_stoppable_halt(current_entry.pos, owner, schedule->get_waytype() );
+			if(  !current_halt.is_bound()  ) {
+				// ignore way points.
+				continue;
+			}
+			if(  current_halt != self  ) {
+				// check for consecutive halts
+				all.append_unique(current_halt);
+			}
 		}
 	}
 	FOR(vector_tpl<halthandle_t>, h, all) {
