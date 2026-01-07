@@ -4059,9 +4059,18 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 		uncouple_convoi();
 	}
 
-	if(  !is_coupled()  &&  !coupling_convoi.is_bound()  &&  withdraw  &&  (loading_level == 0  ||  goods_catg_index.empty())  ) {
+	if(  !is_coupled()  &&  !coupling_convoi.is_bound()  &&  withdraw  ) {
 		// destroy when empty, alone
-		self_destruct();
+		uint32 total_freight=0;
+		for(  uint8 i=0; i<anz_vehikel; i++  ) {
+			total_freight+=get_vehikel(i)->get_total_cargo();
+			if(total_freight>0){
+				break;
+			}
+		}
+		if (total_freight == 0  ||  goods_catg_index.empty()) {
+			self_destruct();
+		}
 		return;
 	}
 
