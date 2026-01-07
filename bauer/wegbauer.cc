@@ -306,8 +306,7 @@ void way_builder_t::fill_menu(tool_selector_t *tool_selector, const waytype_t wt
 	FOR(stringhashtable_tpl<way_desc_t const*>, const& i, desc_table) {
 		way_desc_t const* const desc = i.value;
 		if (  desc->get_styp()==styp &&  desc->get_wtyp()==wtyp  &&  desc->get_builder()  &&  desc->is_available(time)  ) {
-			dbg->message("way_builder_t::fill_menu()","%s, %i, %i", desc->get_name(), styp, wtyp);	
-			matching.append(desc);
+				matching.append(desc);
 		}
 	}
 	std::sort(matching.begin(), matching.end(), compare_ways);
@@ -559,7 +558,6 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 
 	// universal check for elevated things ...
 	if(bautyp&elevated_flag) {
-		dbg->message("way_builder_t::is_allowed_step()","build %s from %s",to->get_pos().get_str(),from->get_pos().get_str());
 		if(  is_upperlayer  ) {
 			if(  (to->get_typ() != grund_t::monorailboden ||  !to->get_weg_nr(0)  ||  to->get_weg_nr(0)->get_desc()->get_wtyp()!=desc->get_wtyp()  ||  !check_owner(to->obj_bei(0)->get_owner(),player_builder) )  ||  (from->get_typ() != grund_t::monorailboden ||  !from->get_weg_nr(0)  ||  from->get_weg_nr(0)->get_desc()->get_wtyp()!=desc->get_wtyp()  ||  !check_owner(from->obj_bei(0)->get_owner(),player_builder) )  ) {
 				return false;
