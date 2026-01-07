@@ -4061,14 +4061,19 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 
 	if(  !is_coupled()  &&  !coupling_convoi.is_bound()  &&  withdraw  ) {
 		// destroy when empty, alone
-		uint32 total_freight=0;
+		if(  goods_catg_index.empty()  ) {
+			self_destruct();
+			return;
+		}
+		// because loading_level is int value, we must check empty
+		bool empty=true;
 		for(  uint8 i=0; i<anz_vehikel; i++  ) {
-			total_freight+=get_vehikel(i)->get_total_cargo();
-			if(total_freight>0){
+			empty&=(get_vehikel(i)->get_total_cargo()==0);
+			if(!empty){
 				break;
 			}
 		}
-		if (total_freight == 0  ||  goods_catg_index.empty()) {
+		if (  empty  ) {
 			self_destruct();
 		}
 		return;
