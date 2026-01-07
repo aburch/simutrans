@@ -559,7 +559,7 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 	// universal check for elevated things ...
 	if(bautyp&elevated_flag) {
 		if(  is_upperlayer  ) {
-			if(  (to->get_typ() != grund_t::monorailboden ||  !to->get_weg_nr(0)  ||  to->get_weg_nr(0)->get_desc()->get_wtyp()!=desc->get_wtyp()  ||  !check_owner(to->obj_bei(0)->get_owner(),player_builder) )  ||  (from->get_typ() != grund_t::monorailboden ||  !from->get_weg_nr(0)  ||  from->get_weg_nr(0)->get_desc()->get_wtyp()!=desc->get_wtyp()  ||  !check_owner(from->obj_bei(0)->get_owner(),player_builder) )  ) {
+			if(  (to->get_typ() != grund_t::monorailboden ||  (desc->get_waytype()==powerline_wt && to->get_weg_nr(0))  ||  (desc->get_waytype()!=powerline_wt && (!to->get_weg_nr(0)  ||  to->get_weg_nr(0)->get_desc()->get_wtyp()!=desc->get_wtyp()))  ||  !check_owner(to->obj_bei(0)->get_owner(),player_builder) )  ||  (from->get_typ() != grund_t::monorailboden ||  (desc->get_waytype()==powerline_wt&&from->get_weg_nr(0))  || (desc->get_waytype()!=powerline_wt&&(!from->get_weg_nr(0)  ||  from->get_weg_nr(0)->get_desc()->get_wtyp()!=desc->get_wtyp()))  ||  !check_owner(from->obj_bei(0)->get_owner(),player_builder) )  ) {
 				return false;
 			}
 		}
