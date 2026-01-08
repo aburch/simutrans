@@ -4075,8 +4075,8 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 		}
 		if (  empty  ) {
 			self_destruct();
+			return;
 		}
-		return;
 	}
 
 	c = self;
@@ -4834,16 +4834,13 @@ void convoi_t::set_withdraw(bool new_withdraw)
 				return;
 			}
 			// because loading_level is int value, we must check empty
-			bool empty=true;
 			for(  uint8 i=0; i<anz_vehikel; i++  ) {
-				empty&=(get_vehikel(i)->get_total_cargo()==0);
-				if(!empty){
-					break;
+				if(get_vehikel(i)->get_total_cargo()>0) {
+					// not empty!
+					return;
 				}
 			}
-			if (  empty  ) {
-				self_destruct();
-			}
+			self_destruct();
 		}
 	}
 }
