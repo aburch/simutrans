@@ -4044,6 +4044,7 @@ bool tool_build_wayobj_t::init( player_t *player )
 		if( desc ) {
 			cursor = desc->get_cursor()->get_image_id(0);
 			wt = desc->get_wtyp();
+			default_electric = desc;
 		}
 		return desc!=NULL;
 	}
@@ -4269,9 +4270,6 @@ const char *tool_build_wayobj_t::do_work( player_t* player, const koord3d &start
 	if(  depot_t *dep = welt->lookup(r.back())->get_depot()  ) {
 		dep->update_win();
 	}
-
-	// finally update desc last built	
-	default_electric = desc;
 
 	return err;
 }
