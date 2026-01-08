@@ -4844,7 +4844,6 @@ void convoi_t::set_withdraw(bool new_withdraw)
 			if (  empty  ) {
 				self_destruct();
 			}
-			self_destruct();
 		}
 	}
 }
