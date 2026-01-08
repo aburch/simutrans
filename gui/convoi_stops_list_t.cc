@@ -106,7 +106,7 @@ public:
 				create_win(new halt_info_t(h), w_info, magic_halt_info);		
 			}
 			else {
-				call_listeners(number);
+				view_stop();
 			}
 		}
 		return true;
