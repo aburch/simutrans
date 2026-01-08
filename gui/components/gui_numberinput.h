@@ -29,7 +29,7 @@ private:
 
 	// more sophisticated increase routines
 	static uint8 percent[8];
-	static uint8 percent2[10];
+	static uint8 percent2[11];
 	sint32 get_prev_value();
 	sint32 get_next_value();
 

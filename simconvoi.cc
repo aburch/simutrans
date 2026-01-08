@@ -1270,7 +1270,8 @@ bool convoi_t::drive_to()
 		}
 		else {
 			// if change direction at waypoint, we must reverse coupling here!
-			if(  env_t::reversible_waytype(front()->get_waytype())&&front()->get_waytype()!=water_wt&&!reverse_coupling_done&&state!=INITIAL  ) {
+			grund_t *gr=welt->lookup(start);
+			if(  env_t::reversible_waytype(front()->get_waytype())&&front()->get_waytype()!=water_wt&&!reverse_coupling_done&&state!=INITIAL&&!(gr  &&  gr->get_depot())  ) {
 				const bool reverse_here=world()->get_settings().is_default_reverse()&&((route.get_count()<2) ? false : ((ribi_type(route.at(0), route.at(1)) & front()->get_direction()) == 0 ? true : false));
 				if( reversing_coupling_needed^reverse_here )
 				{
@@ -3893,15 +3894,19 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 			if(c->get_schedule()->get_current_entry().is_try_coupling()) {
 				c->set_coupling_done(false);
 			}
+			if(c->get_coupling_convoi().is_bound()&&!c->can_continue_coupling()) {
+				// the new most parent or child convoy is me because I release child here!
+				c->uncouple_convoi();
+			}
 		}
-		if(  coupled_at_this_stop && c->get_schedule()->get_count()>1  ) {
+		if(  coupled_at_this_stop && get_schedule()->get_count()>1  ) {
 			dbg->message("convoi_t::hat_gehalten()","%s coupling at this stop. check the direction at %s",get_name(),temp_parent_convoi->front()->get_pos().get_str());
 			// chage the order if next direction is backward of "self"
 			// Attention! reverse_convoy_coupling() must be called when loading!
 			// if we call it before stop, the convoys will be reversed immediately, and it makes position calculation bug. 
 			// the direction of the waiting vehicle is same? opposite?
 			route_t r;
-			route_t::route_result_t res = r.calc_route(welt, c->front()->get_pos(), c->get_schedule()->get_next_entry().pos, front(), speed_to_kmh(min_top_speed), 8888);
+			route_t::route_result_t res = r.calc_route(welt, c->front()->get_pos(), get_schedule()->get_next_entry().pos, front(), speed_to_kmh(min_top_speed), 8888);
 			bool const should_this_convoy_be_parent = (res==route_t::no_route || r.get_count()<2) ? false : ((ribi_type(r.at(0), r.at(1)) & c->front()->get_direction()) == 0 ? true : false);
 			// reverse check done
 			c = temp_parent_convoi;
