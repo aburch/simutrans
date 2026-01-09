@@ -36,7 +36,9 @@ void citylist_stats_t::update_label()
 	buf.append( city->get_einwohner(), 0 );
 	buf.append( " (" );
 	buf.append( city->get_wachstum()/10.0, 1 );
-	buf.append( ")" );
+	buf.append( ")  [" );
+	buf.append( city->get_buildings(), 0 );
+	buf.append( " buildings]" );
 	label.update();
 }
 
@@ -101,6 +103,8 @@ bool citylist_stats_t::compare(const gui_component_t *aa, const gui_component_t 
 				return a->city->get_einwohner() < b->city->get_einwohner();
 			case SORT_BY_GROWTH:
 				return a->city->get_wachstum() < b->city->get_wachstum();
+				case SORT_BY_BUILDINGS:
+				return a->city->get_buildings() < b->city->get_buildings();
 			default: break;
 		}
 		// default sorting ...
