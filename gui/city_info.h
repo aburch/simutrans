@@ -38,7 +38,7 @@ private:
 	button_t allow_growth;         ///< Checkbox to enable/disable city growth
 	button_t highlight;			   ///< highlight button
 	static stadt_t* highlighted_city; ///< Which city is highlighted
-	gui_label_buf_t lb_size, lb_buildings, lb_border, lb_unemployed, lb_homeless;
+	gui_label_buf_t lb_size, lb_buildings, lb_urban_density, lb_border, lb_unemployed, lb_homeless;
 
 	gui_tab_panel_t year_month_tabs;
 	gui_aligned_container_t container_year, container_month;

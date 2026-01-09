@@ -192,6 +192,7 @@ void city_info_t::init()
 
 		add_component(&lb_size);
 		add_component(&lb_buildings);
+		add_component(&lb_urban_density);
 		add_component(&lb_border);
 		add_component(&lb_unemployed);
 		add_component(&lb_homeless);
@@ -384,6 +385,9 @@ void city_info_t::update_labels()
 	// display city stats
 	lb_size.buf().printf( "%d (%.1f)", c->get_einwohner(), c->get_wachstum() / 10.0);         lb_size.update();
 	lb_buildings.buf().printf( translator::translate("%d buildings\n"), c->get_buildings() ); lb_buildings.update();
+
+	double urban_density = 1.0 * (c->get_einwohner() - c->get_unemployed() - c->get_homeless()) / c->get_buildings();
+	lb_urban_density.buf().printf("%s: %.2f %s", translator::translate("Urban Density"),urban_density, translator::translate("/ buildings"));	lb_urban_density.update();
 
 	const koord ul = c->get_linksoben();
 	const koord lr = c->get_rechtsunten();
