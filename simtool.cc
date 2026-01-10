@@ -7883,7 +7883,14 @@ bool tool_remove_halt_t::remove_halt(player_t* player, koord3d const &pos)
 
 
 const char* tool_extinguish_waiting_goods_t::work(player_t* player, koord3d pos) {
-	const halthandle_t halt = haltestelle_t::get_halt(pos, player);
+	halthandle_t halt = haltestelle_t::get_halt(pos, player);
+	if (!halt.is_bound() && player == welt->get_public_player()) {
+		// public player can extinguish wating goods of other player's halt
+		grund_t *gr = welt->lookup(pos);
+		if (gr) {
+			halt = gr->get_halt();
+		}
+	}
 	if(  !halt.is_bound()  ) {
 		return "No stop found, or different player!";
 	}
