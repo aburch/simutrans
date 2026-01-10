@@ -108,7 +108,7 @@ void bridge_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &o
 	             max_length        = obj.get_int_clamped("max_length", max_length, 0, UINT8_MAX); // with correct spelling
 	const uint8  max_height        = obj.get_int_clamped("max_height",          0, 0, UINT8_MAX); // max_height==0: unlimited
 	const uint16 axle_load         = obj.get_int_clamped("axle_load",        9999, 0, UINT16_MAX);
-	const uint8  clip_below        = obj.get_int_clamped("clip_below",          1, 0, 1);         // clip ground below
+	const uint8  clip_below        = obj.get_int_clamped("clip_below", waytype!=powerline_wt, 0, 1); // clip ground below by default if not power bridge
 
 	// timeline
 	const uint16 intro_date  = 12*obj.get_int_clamped("intro_year",  DEFAULT_INTRO_YEAR,  0, INT32_MAX) + obj.get_int_clamped("intro_month",  1, 1, 12) - 1;
