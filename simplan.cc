@@ -459,8 +459,12 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 		gr0->display_obj_all_quick_and_dirty( xpos, ypos, raster_tile_width, is_global  CLIP_NUM_PAR );
 	}
 	else {
-		// clip everything at the next tile above
-		if(  i < ground_size  ) {
+		if(  (i >= ground_size) || !gr0->obj_bei(0) || gr0->obj_bei(0)->get_typ()==obj_t::way || gr0->obj_bei(0)->get_typ()==obj_t::gebaeude || gr0->get_leitung()  ) {
+			// no tree or not on the ground
+			gr0->display_obj_all( xpos, ypos, raster_tile_width, is_global  CLIP_NUM_PAR );
+		}
+		else {
+			// clip trees at the next tile above
 
 			clip_dimension p_cr = display_get_clip_wh( CLIP_NUM_VAR );
 
@@ -478,10 +482,6 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 				// not too low?
 				if(  htop >= hmin  ) {
 					// something on top: clip horizontally to prevent trees etc shining trough bridges
-					if(  !gr0->obj_bei(0) || gr0->obj_bei(0)->get_typ()==obj_t::way || gr0->obj_bei(0)->get_typ()==obj_t::gebaeude || gr0->get_leitung()  ) {
-						// no tree
-						break;
-					}
 					const sint16 yh = ypos - tile_raster_scale_y( (h + corner_nw(data.some[j]->get_grund_hang()) - h0) * TILE_HEIGHT_STEP, raster_tile_width ) + ((3 * raster_tile_width) >> 2);
 					if(  yh >= p_cr.y  ) {
 						display_push_clip_wh(p_cr.x, yh, p_cr.w, p_cr.h + p_cr.y - yh  CLIP_NUM_PAR  );
@@ -491,9 +491,6 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 			}
 			gr0->display_obj_all( xpos, ypos, raster_tile_width, is_global  CLIP_NUM_PAR );
 			display_pop_clip_wh(CLIP_NUM_VAR);
-		}
-		else {
-			gr0->display_obj_all( xpos, ypos, raster_tile_width, is_global  CLIP_NUM_PAR );
 		}
 	}
 	// above ground drawing height
