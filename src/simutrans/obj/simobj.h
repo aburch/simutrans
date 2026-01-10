@@ -214,6 +214,9 @@ public:
 	 */
 	virtual waytype_t get_waytype() const { return invalid_wt; }
 
+	/// true if clipping below is needed
+	virtual bool is_clipping_below_needed() const { return true; }
+
 	/**
 	 * called whenever the snowline height changes
 	 * return false and the obj_t will be deleted

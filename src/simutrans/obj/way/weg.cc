@@ -57,6 +57,13 @@ const slist_tpl <weg_t*> &weg_t::get_alle_wege()
 }
 
 
+bool weg_t::is_clipping_below_needed() const
+{
+	// elevated no clip?
+	return desc->is_clip_below();
+}
+
+
 void weg_t::set_cityroad_speedlimit(uint16 new_limit)
 {
 	if (cityroad_speed != new_limit) {

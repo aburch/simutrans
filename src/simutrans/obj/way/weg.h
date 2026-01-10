@@ -118,7 +118,6 @@ public:
 
 	virtual ~weg_t();
 
-
 	/**
 	 * @returns true if a crossing is needed
 	 */
@@ -128,6 +127,8 @@ public:
 	void lock_mutex();
 	void unlock_mutex();
 #endif
+
+	virtual bool is_clipping_below_needed() const OVERRIDE;
 
 	/**
 	 * Actual image recalculation

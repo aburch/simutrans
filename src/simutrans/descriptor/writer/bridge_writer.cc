@@ -108,14 +108,15 @@ void bridge_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &o
 	             max_length        = obj.get_int_clamped("max_length", max_length, 0, UINT8_MAX); // with correct spelling
 	const uint8  max_height        = obj.get_int_clamped("max_height",          0, 0, UINT8_MAX); // max_height==0: unlimited
 	const uint16 axle_load         = obj.get_int_clamped("axle_load",        9999, 0, UINT16_MAX);
+	const uint8  clip_below        = obj.get_int_clamped("clip_below",          1, 0, 1);         // clip ground below
 
 	// timeline
 	const uint16 intro_date  = 12*obj.get_int_clamped("intro_year",  DEFAULT_INTRO_YEAR,  0, INT32_MAX) + obj.get_int_clamped("intro_month",  1, 1, 12) - 1;
 	const uint16 retire_date = 12*obj.get_int_clamped("retire_year", DEFAULT_RETIRE_YEAR, 0, INT32_MAX) + obj.get_int_clamped("retire_month", 1, 1, 12) - 1;
 
-	obj_node_t node(this, 32, &parent);
+	obj_node_t node(this, 33, &parent);
 
-	node.write_version(outfp, 10);
+	node.write_version(outfp, 11);
 	node.write_uint16(outfp, topspeed);
 	node.write_sint64(outfp, price);
 	node.write_sint64(outfp, maintenance);
@@ -127,6 +128,7 @@ void bridge_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &o
 	node.write_uint8 (outfp, pillar_asymmetric);
 	node.write_uint16(outfp, axle_load);
 	node.write_uint8 (outfp, max_height);
+	node.write_uint8 (outfp, clip_below);
 
 	char keybuf[40];
 	std::string str = obj.get("backimage[ns][0]");

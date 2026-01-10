@@ -132,20 +132,36 @@ obj_desc_t *bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->max_height         = decode_uint8(p);
 		desc->number_of_seasons  = decode_uint8(p);
 	}
-	else if (version==10) {
+	else if (version == 10) {
 		// cost/maintenance as 64 bit ints
-		desc->topspeed           = decode_uint16(p);
-		desc->price              = decode_sint64(p);
-		desc->maintenance        = decode_sint64(p);
-		desc->wtyp               = decode_uint8(p);
-		desc->pillars_every      = decode_uint8(p);
-		desc->max_length         = decode_uint8(p);
-		desc->intro_date         = decode_uint16(p);
-		desc->retire_date        = decode_uint16(p);
+		desc->topspeed = decode_uint16(p);
+		desc->price = decode_sint64(p);
+		desc->maintenance = decode_sint64(p);
+		desc->wtyp = decode_uint8(p);
+		desc->pillars_every = decode_uint8(p);
+		desc->max_length = decode_uint8(p);
+		desc->intro_date = decode_uint16(p);
+		desc->retire_date = decode_uint16(p);
 		desc->pillars_asymmetric = decode_uint8(p) != 0;
-		desc->axle_load          = decode_uint16(p);
-		desc->max_height         = decode_uint8(p);
-		desc->number_of_seasons  = decode_uint8(p);
+		desc->axle_load = decode_uint16(p);
+		desc->max_height = decode_uint8(p);
+		desc->number_of_seasons = decode_uint8(p);
+	}
+	else if (version == 11) {
+		// cost/maintenance as 64 bit ints
+		desc->topspeed = decode_uint16(p);
+		desc->price = decode_sint64(p);
+		desc->maintenance = decode_sint64(p);
+		desc->wtyp = decode_uint8(p);
+		desc->pillars_every = decode_uint8(p);
+		desc->max_length = decode_uint8(p);
+		desc->intro_date = decode_uint16(p);
+		desc->retire_date = decode_uint16(p);
+		desc->pillars_asymmetric = decode_uint8(p) != 0;
+		desc->axle_load = decode_uint16(p);
+		desc->max_height = decode_uint8(p);
+		desc->number_of_seasons = decode_uint8(p);
+		desc->clip_below = decode_uint8(p);
 	}
 	else {
 		dbg->fatal( "bridge_reader_t::read_node()", "Cannot handle too new node version %i", version );
@@ -160,6 +176,9 @@ obj_desc_t *bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	if(  version < 9  ) {
 		desc->axle_load = 9999;
+	}
+	if (version < 11) {
+		desc->clip_below = desc->wtyp != powerline_wt;
 	}
 
 	PAKSET_INFO("bridge_reader_t::read_node()",

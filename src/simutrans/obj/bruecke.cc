@@ -25,6 +25,13 @@ bruecke_t::bruecke_t(loadsave_t* const file) : obj_no_info_t()
 }
 
 
+bool bruecke_t::is_clipping_below_needed() const
+{
+	// elevated no clip?
+	return desc->is_clip_below();
+}
+
+
 bruecke_t::bruecke_t(koord3d pos, player_t *player, const bridge_desc_t *desc, bridge_desc_t::img_t img) :
  obj_no_info_t(pos)
 {

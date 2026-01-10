@@ -39,6 +39,8 @@ public:
 	void set_desc(const bridge_desc_t *b) { desc = b; }
 	const bridge_desc_t *get_desc() const { return desc; }
 
+	virtual bool is_clipping_below_needed() const OVERRIDE;
+
 	// we will always replace first way image
 	image_id get_image() const OVERRIDE { return IMG_EMPTY; }
 

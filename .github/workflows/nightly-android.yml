@@ -40,7 +40,6 @@ jobs:
         echo "($pwd)/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_PATH
         ln -s llvm-objdump ${ANDROID_HOME}/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/objdump
         echo "Github path ($PATH)"
-        echo "Github path ($ENV)"
 
     - name: Setup Android SDK environment variables
       run: |

@@ -39,6 +39,7 @@ private:
 	uint8 max_height = 0;        // =0 off, else maximum length
 
 	sint8 number_of_seasons = 0; // 0 = no seasons
+	bool  clip_below;  // default is true
 
 public:
 	/*
@@ -78,6 +79,8 @@ public:
 		}
 		return image != NULL ? image->get_id() : IMG_EMPTY;
 	}
+
+	bool is_clip_below() const { return clip_below; }
 
 	img_t get_straight(ribi_t::ribi ribi, uint8 height) const;
 	img_t get_start(slope_t::type slope) const;

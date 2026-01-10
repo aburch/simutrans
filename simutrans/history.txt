@@ -53,6 +53,7 @@
 	FIX: (k47) world borders soemthimes not correctly displayed
 	FIX: city connects correct over slopes but not to depots
 	CHG: if defined USE_TOWN_ROAD_BUILDER_TOOL the cityroad building tool will use the internal tool of the city (default off)
+	ADD: new flag for bridges and ways in makeobj 60.9 "clip_below" Default is (1) but for slim structures (e.g. powerline) it could be set to zero for nicer display of structures below
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):

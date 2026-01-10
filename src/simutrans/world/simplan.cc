@@ -485,6 +485,7 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 		if(  i < ground_size  ) {
 
 			clip_dimension p_cr = display_get_clip_wh( CLIP_NUM_VAR );
+			bool most_pop_clip = false;
 
 			for(  uint8 j = i;  j < ground_size;  j++  ) {
 				const sint8 h = data.some[j]->get_hoehe();
@@ -500,6 +501,14 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 				// not too low?
 				if(  htop >= hmin  ) {
 					// something on top: clip horizontally to prevent trees etc shining trough bridges
+					// but not for powerlines or thin elevated ways
+					if (obj_t *o = data.some[j]->obj_bei(0)) {
+						if (!o->is_clipping_below_needed()) {
+							continue;
+						}
+					}
+					// this needs clipping below
+					most_pop_clip = true;
 					const sint16 yh = ypos - tile_raster_scale_y( (h + corner_nw(data.some[j]->get_grund_hang()) - h0) * TILE_HEIGHT_STEP, raster_tile_width ) + ((3 * raster_tile_width) >> 2);
 					if(  yh >= p_cr.y  ) {
 						display_push_clip_wh(p_cr.x, yh, p_cr.w, p_cr.h + p_cr.y - yh  CLIP_NUM_PAR  );
@@ -508,7 +517,9 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 				}
 			}
 			gr0->display_obj_all( xpos, ypos, raster_tile_width, is_global  CLIP_NUM_PAR );
-			display_pop_clip_wh(CLIP_NUM_VAR);
+			if (most_pop_clip) {
+				display_pop_clip_wh(CLIP_NUM_VAR);
+			}
 		}
 		else {
 			gr0->display_obj_all( xpos, ypos, raster_tile_width, is_global  CLIP_NUM_PAR );
