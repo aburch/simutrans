@@ -246,7 +246,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 	// line memo in tab
 	switch_mode.add_tab(&container_line_memo, translator::translate("line memo"));
 	container_line_memo.set_table_layout(1,0);
-	memo_area = container_line_memo.new_component<gui_fixedwidth_textarea_t>(&buf_line_memo,300);
+	memo_area = container_line_memo.new_component<gui_fixedwidth_textarea_t>(&buf_line_memo,container_top->get_size().w);
 	
 
 	// indicator bars
@@ -352,6 +352,8 @@ void convoi_info_t::update_labels()
 
 	// realign container - necessary if strings changed length
 	container_top->set_size( container_top->get_size() );
+
+	memo_area->set_width(size.w-12*D_H_SPACE);
 }
 
 
@@ -462,8 +464,6 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 	} else {
 		container_line_memo.set_visible(false);
 	}
-	memo_area->set_size(scr_size(get_size().w-6*D_H_SPACE,get_size().h));
-	memo_area->recalc_size();
 
 	// update button & labels
 	follow_button.pressed = (welt->get_viewport()->get_follow_convoi()==cnv);
@@ -479,6 +479,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 	// all gui stuff set => display it
 	gui_frame_t::draw(pos, size);
+	set_windowsize(size);
 }
 
 
