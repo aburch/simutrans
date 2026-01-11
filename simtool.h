@@ -334,7 +334,10 @@ public:
 	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode; }
 	void set_street_flag (uint8 a) { street_flag = a; }
 	uint8 get_street_flag() const { return street_flag; }
-	void set_height_offset (sint8 a) { height_offset = a; }
+	void set_height_offset (sint8 a) { 
+		const sint8 min_offset = 1 - welt->get_settings().get_way_height_clearance();
+		height_offset = a<min_offset?0:a;
+	}
 	sint8 get_height_offset() const { return height_offset; }
 	static void set_mode_str(char* str, overtaking_mode_t overtaking_mode);
 	void set_look_toolbar() { look_toolbar = true; }

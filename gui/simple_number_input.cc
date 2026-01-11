@@ -61,5 +61,5 @@ height_offset_frame_t::height_offset_frame_t(player_t* /*player_*/, tool_build_w
 }
 
 void height_offset_frame_t::register_val(sint8 v) {
-	tool->set_height_offset((sint8)v);
+	tool->set_height_offset(v);
 }
