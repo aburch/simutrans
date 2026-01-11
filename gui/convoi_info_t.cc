@@ -243,6 +243,12 @@ void convoi_info_t::init(convoihandle_t cnv)
 	stops_list = container_stops.new_component<convoi_stops_list_t>(cnv);
 	stops_list->add_listener(this);
 
+	// line memo in tab
+	switch_mode.add_tab(&container_line_memo, translator::translate("line memo"));
+	container_line_memo.set_table_layout(1,0);
+	memo_area = container_line_memo.new_component<gui_fixedwidth_textarea_t>(&buf_line_memo,300);
+	
+
 	// indicator bars
 	filled_bar.add_color_value(&cnv->get_loading_limit(), color_idx_to_rgb(COL_YELLOW));
 	filled_bar.add_color_value(&cnv->get_loading_level(), color_idx_to_rgb(COL_GREEN));
@@ -272,6 +278,7 @@ convoi_info_t::~convoi_info_t()
 {
 	button_to_chart.clear();
 	show_route(false);
+	buf_line_memo.clear();
 	// rename if necessary
 	rename_cnv();
 }
@@ -448,6 +455,15 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		next_stop_button.disable();
 		reversed_button.disable();
 	}
+	buf_line_memo.clear();
+	if (cnv->get_line().is_bound()) {
+		container_line_memo.set_visible(true);
+		buf_line_memo.printf(cnv->get_line()->get_memo());
+	} else {
+		container_line_memo.set_visible(false);
+	}
+	memo_area->set_size(scr_size(get_size().w-6*D_H_SPACE,get_size().h));
+	memo_area->recalc_size();
 
 	// update button & labels
 	follow_button.pressed = (welt->get_viewport()->get_follow_convoi()==cnv);
@@ -456,13 +472,13 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 	route_bar.set_base(cnv->get_route()->get_count()-1);
 	cnv_route_index = cnv->front()->get_route_index() - 1;
 
-	// all gui stuff set => display it
-	gui_frame_t::draw(pos, size);
-
 	// show route update
 	show_route(is_route_show);
 	route_show_button.pressed = is_route_show;
 	route_show_button.enable();
+
+	// all gui stuff set => display it
+	gui_frame_t::draw(pos, size);
 }
 
 

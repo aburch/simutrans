@@ -4059,10 +4059,24 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 		uncouple_convoi();
 	}
 
-	if(  !is_coupled()  &&  !coupling_convoi.is_bound()  &&  withdraw  &&  (loading_level == 0  ||  goods_catg_index.empty())  ) {
+	if(  !is_coupled()  &&  !coupling_convoi.is_bound()  &&  withdraw  ) {
 		// destroy when empty, alone
-		self_destruct();
-		return;
+		if(  goods_catg_index.empty()  ) {
+			self_destruct();
+			return;
+		}
+		// because loading_level is int value, we must check empty
+		bool empty=true;
+		for(  uint8 i=0; i<anz_vehikel; i++  ) {
+			empty&=(get_vehikel(i)->get_total_cargo()==0);
+			if(!empty){
+				break;
+			}
+		}
+		if (  empty  ) {
+			self_destruct();
+			return;
+		}
 	}
 
 	c = self;
@@ -4801,7 +4815,7 @@ void convoi_t::set_withdraw(bool new_withdraw)
 {
 	withdraw = new_withdraw;
 	// coupling convoy must not be withdrawn.
-	if(  withdraw  &&  (loading_level==0  ||  goods_catg_index.empty())  &&  !is_coupled()  &&  !coupling_convoi.is_bound()  ) {
+	if(  withdraw  &&  !is_coupled()  &&  !coupling_convoi.is_bound()  ) {
 		// test if convoi in depot and not driving
 		grund_t *gr = welt->lookup( get_pos());
 		if(  gr  &&  gr->get_depot()  &&  state == INITIAL  ) {
@@ -4815,6 +4829,17 @@ void convoi_t::set_withdraw(bool new_withdraw)
 #endif
 		}
 		else {
+			if(  goods_catg_index.empty()  ) {
+				self_destruct();
+				return;
+			}
+			// because loading_level is int value, we must check empty
+			for(  uint8 i=0; i<anz_vehikel; i++  ) {
+				if(get_vehikel(i)->get_total_cargo()>0) {
+					// not empty!
+					return;
+				}
+			}
 			self_destruct();
 		}
 	}
