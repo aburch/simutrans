@@ -3692,7 +3692,7 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 							bd->calc_image();
 							bd->set_flag(grund_t::dirty);
 						}
-						// delete tunnel ground too, if empty
+						// delete tunnel/monorail ground too, if empty
 						welt->access(gr->get_pos().get_2d())->boden_entfernen(gr);
 						delete gr;
 					}
@@ -3713,8 +3713,8 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 					// remove only single connections
 					lt->cleanup(player);
 					delete lt;
-					// delete tunnel ground too, if empty
-					if (gr->get_typ()==grund_t::tunnelboden) {
+					// delete tunnel/monorail ground too, if empty
+					if (  (gr->get_typ()==grund_t::tunnelboden  ||  gr->get_typ() == grund_t::monorailboden)  &&  !gr->hat_wege()  ) {
 						gr->obj_loesche_alle(player);
 						gr->mark_image_dirty();
 						if (!gr->get_flag(grund_t::is_kartenboden)) {
