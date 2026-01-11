@@ -1519,7 +1519,9 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 			}
 			// slope may alter amount of clearance required
 			if(  gr2  &&  gr2->get_pos().z - new_pos.z + slope_t::min_diff( gr2->get_weg_hang(), new_slope ) < welt->get_settings().get_way_height_clearance()  ) {
-				return NOTICE_TILE_FULL;
+				if(  gr2->get_pos().z - new_pos.z + slope_t::min_diff( gr2->get_weg_hang(), new_slope ) < welt->get_settings().get_way_height_clearance()-1 || (gr1->get_weg_nr(0)  &&  gr1->get_weg_nr(0)->get_desc()->get_topspeed()>0)   ) {
+					return NOTICE_TILE_FULL;
+				}
 			}
 		}
 		if(  new_pos.z <= pos.z  ) {
@@ -1532,7 +1534,9 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 			}
 			// slope may alter amount of clearance required
 			if(  gr2  &&  new_pos.z - gr2->get_pos().z + slope_t::min_diff( new_slope, gr2->get_weg_hang() ) < welt->get_settings().get_way_height_clearance()  ) {
-				return NOTICE_TILE_FULL;
+				if(  new_pos.z - gr2->get_pos().z + slope_t::min_diff( new_slope, gr2->get_weg_hang() ) < welt->get_settings().get_way_height_clearance()-1 || (gr2->get_weg_nr(0)  &&  gr2->get_weg_nr(0)->get_desc()->get_topspeed()>0)   ) {
+					return NOTICE_TILE_FULL;
+				}
 			}
 		}
 
@@ -2825,7 +2829,7 @@ bool tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start,
 	}
 	// elevated track?
 	if(desc->get_styp()==type_elevated  &&  desc->get_wtyp()!=air_wt) {
-		uint8 hf = height_offset;
+		sint8 hf = height_offset;
 		tool_build_way_t* toolbar_tool;
 		if(  look_toolbar  &&  (toolbar_tool=get_build_way_tool_from_toolbar(desc))!=NULL  ) {
 			// look toolbar variable indicates this tool is called from a shortcut key. When a tool is called from a shortcut key, we have to use height_offset of the tool in a toolbar.
@@ -2907,7 +2911,7 @@ void tool_build_way_t::rdwr_custom_data(memory_rw_t *packet)
 	two_click_tool_t::rdwr_custom_data(packet);
 	sint8 i = overtaking_mode;
 	uint8 a = street_flag;
-	uint8 b = height_offset;
+	sint8 b = height_offset;
 	// If this tool is called from a shortcut key, overtaking_mode of the tool in a toolbar has to be used.
 	if(  packet->is_saving()  &&  look_toolbar  ) {
 		tool_build_way_t* toolbar_tool = get_build_way_tool_from_toolbar(desc);
@@ -2932,7 +2936,7 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 	bool route_reversed = calc_route( bauigel, start, end );
 	bool keep_city_roads = is_shift_pressed()  &&  desc->get_styp() == type_flat  &&  desc->get_wtyp() == road_wt;
 
-	uint8 hf = height_offset;
+	sint8 hf = height_offset;
 	tool_build_way_t* toolbar_tool;
 	if(  look_toolbar  &&  (toolbar_tool=get_build_way_tool_from_toolbar(desc))!=NULL  ) {
 		// look toolbar variable indicates this tool is called from a shortcut key. When a tool is called from a shortcut key, we have to use height_offset of the tool in a toolbar.
