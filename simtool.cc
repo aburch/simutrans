@@ -1523,7 +1523,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				const sint8 required_clearance = welt->get_settings().get_way_height_clearance();
 				const sint8 min_clearance = max(required_clearance - 1, 1);
 
-				if( gr2 && clearance < required_clearance ) {
+				if( clearance < required_clearance ) {
 					const bool has_active_way = gr1->get_weg_nr(0) && gr1->get_weg_nr(0)->get_desc()->get_topspeed() > 0;
 					if( clearance < min_clearance || has_active_way ) {
 						// this ground has a way or almost touch above way.
@@ -1546,7 +1546,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				const sint8 required_clearance = welt->get_settings().get_way_height_clearance();
 				const sint8 min_clearance = max(required_clearance - 1, 1);
 
-				if( gr2 && clearance < required_clearance ) {
+				if( clearance < required_clearance ) {
 					const bool has_active_way = gr2->get_weg_nr(0) && gr2->get_weg_nr(0)->get_desc()->get_topspeed() > 0;
 					if( clearance < min_clearance || has_active_way ) {
 						// this ground has a way or almost touch above way.
