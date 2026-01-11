@@ -1519,7 +1519,8 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 			}
 			// slope may alter amount of clearance required
 			if(  gr2  &&  gr2->get_pos().z - new_pos.z + slope_t::min_diff( gr2->get_weg_hang(), new_slope ) < welt->get_settings().get_way_height_clearance()  ) {
-				if(  gr2->get_pos().z - new_pos.z + slope_t::min_diff( gr2->get_weg_hang(), new_slope ) < welt->get_settings().get_way_height_clearance()-1 || (gr1->get_weg_nr(0)  &&  gr1->get_weg_nr(0)->get_desc()->get_topspeed()>0)   ) {
+				if(  gr2->get_pos().z - new_pos.z + slope_t::min_diff( gr2->get_weg_hang(), new_slope ) < max(welt->get_settings().get_way_height_clearance()-1,1) || (gr1->get_weg_nr(0)  &&  gr1->get_weg_nr(0)->get_desc()->get_topspeed()>0)   ) {
+					// this ground has a way or almost touch above way.
 					return NOTICE_TILE_FULL;
 				}
 			}
@@ -1534,7 +1535,8 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 			}
 			// slope may alter amount of clearance required
 			if(  gr2  &&  new_pos.z - gr2->get_pos().z + slope_t::min_diff( new_slope, gr2->get_weg_hang() ) < welt->get_settings().get_way_height_clearance()  ) {
-				if(  new_pos.z - gr2->get_pos().z + slope_t::min_diff( new_slope, gr2->get_weg_hang() ) < welt->get_settings().get_way_height_clearance()-1 || (gr2->get_weg_nr(0)  &&  gr2->get_weg_nr(0)->get_desc()->get_topspeed()>0)   ) {
+				if(  new_pos.z - gr2->get_pos().z + slope_t::min_diff( new_slope, gr2->get_weg_hang() ) < max(welt->get_settings().get_way_height_clearance()-1,1) || (gr2->get_weg_nr(0)  &&  gr2->get_weg_nr(0)->get_desc()->get_topspeed()>0)   ) {
+					// this ground has a way or almost touch above way.
 					return NOTICE_TILE_FULL;
 				}
 			}
