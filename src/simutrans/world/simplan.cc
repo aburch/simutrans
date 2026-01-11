@@ -483,42 +483,69 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 	else {
 		// clip everything at the next tile above
 		if(  i < ground_size  ) {
-
-			clip_dimension p_cr = display_get_clip_wh( CLIP_NUM_VAR );
-			bool most_pop_clip = false;
-
-			for(  uint8 j = i;  j < ground_size;  j++  ) {
-				const sint8 h = data.some[j]->get_hoehe();
-				const sint8 htop = h + slope_t::max_diff(data.some[j]->get_grund_hang());
-				// still underground
-				if(  h < h0  ) {
-					continue;
-				}
-				// too high?
-				if(  h > hmax  ) {
-					break;
-				}
-				// not too low?
-				if(  htop >= hmin  ) {
-					// something on top: clip horizontally to prevent trees etc shining trough bridges
-					// but not for powerlines or thin elevated ways
-					if (obj_t *o = data.some[j]->obj_bei(0)) {
-						if (!o->is_clipping_below_needed()) {
-							continue;
-						}
+			// there are grounds above => check height of height object below
+			sint16 max_height = 0;
+			sint16 rw = get_base_tile_raster_width();
+			const sint16 clip_h = rw / 2 + (env_t::pak_height_conversion_factor * rw / 8);
+			scr_coord_val x, y, w, h;
+			for (uint8 i = 0; i < gr0->obj_count(); i++) {
+				sint16 max_h = 0;
+				obj_t* o = gr0->obj_bei(i);
+				if (o->get_typ() == obj_t::baum   ||  dynamic_cast<gebaeude_t *>(o)) {
+					image_id img = o->get_image();
+					if (img != IMG_EMPTY) {
+						display_get_image_offset(img, &x, &y, &w, &h);
+						max_height = max(max_height, (h - y) / clip_h);
 					}
-					// this needs clipping below
-					most_pop_clip = true;
-					const sint16 yh = ypos - tile_raster_scale_y( (h + corner_nw(data.some[j]->get_grund_hang()) - h0) * TILE_HEIGHT_STEP, raster_tile_width ) + ((3 * raster_tile_width) >> 2);
-					if(  yh >= p_cr.y  ) {
-						display_push_clip_wh(p_cr.x, yh, p_cr.w, p_cr.h + p_cr.y - yh  CLIP_NUM_PAR  );
-					}
-					break;
 				}
 			}
-			gr0->display_obj_all( xpos, ypos, raster_tile_width, is_global  CLIP_NUM_PAR );
-			if (most_pop_clip) {
-				display_pop_clip_wh(CLIP_NUM_VAR);
+
+			if (max_height == 0) {
+				// display without clipping
+				gr0->display_obj_all(xpos, ypos, raster_tile_width, is_global  CLIP_NUM_PAR);
+			}
+			else {
+				// may still need clipping
+				clip_dimension p_cr = display_get_clip_wh( CLIP_NUM_VAR );
+				bool must_pop_clip = false;
+
+				for(  uint8 j = i;  j < ground_size;  j++  ) {
+					const sint8 h = data.some[j]->get_hoehe();
+					const sint8 htop = h + slope_t::max_diff(data.some[j]->get_grund_hang());
+					// still underground
+					if(  h < h0  ) {
+						continue;
+					}
+					// too high?
+					if(  h > hmax  ) {
+						break;
+					}
+					// not too low?
+					if(  htop >= hmin) {
+						// something on top: clip horizontally to prevent trees etc shining trough bridges
+						// but not for powerlines or thin elevated ways
+						if (obj_t *o = data.some[j]->obj_bei(0)) {
+							if (!o->is_clipping_below_needed()) {
+								continue;
+							}
+						}
+						if (htop - hmin > max_height) {
+							// lower than max height difference=> stop checking
+							break;
+						}
+						// this needs clipping below
+						must_pop_clip = true;
+						const sint16 yh = ypos - tile_raster_scale_y( (h + corner_nw(data.some[j]->get_grund_hang()) - h0) * TILE_HEIGHT_STEP, raster_tile_width ) + ((3 * raster_tile_width) >> 2);
+						if(  yh >= p_cr.y  ) {
+							display_push_clip_wh(p_cr.x, yh, p_cr.w, p_cr.h + p_cr.y - yh  CLIP_NUM_PAR  );
+						}
+						break;
+					}
+				}
+				gr0->display_obj_all( xpos, ypos, raster_tile_width, is_global  CLIP_NUM_PAR );
+				if (must_pop_clip) {
+					display_pop_clip_wh(CLIP_NUM_VAR);
+				}
 			}
 		}
 		else {
