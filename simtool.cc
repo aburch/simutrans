@@ -7888,12 +7888,12 @@ const char* tool_extinguish_waiting_goods_t::work(player_t* player, koord3d pos)
 		return "No stop found!";
 	}
 
-	halthandle_t halt = gr->get_halt();
-	if( !halt.is_bound() ) {
+	const halthandle_t halt = gr->get_halt();
+	if(  !halt.is_bound()  ) {
 		return "No stop found!";
 	} 
 	
-	if ( player != halt->get_owner() && player != welt->get_public_player()) {
+	if (  player != halt->get_owner()  &&  player != welt->get_public_player()  ) {
 		return "Different player's stop!";
 	}
 		
