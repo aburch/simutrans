@@ -387,7 +387,7 @@ void city_info_t::update_labels()
 	lb_buildings.buf().printf( translator::translate("%d buildings\n"), c->get_buildings() ); lb_buildings.update();
 
 	// Calculate building structure-based density (average building weight * 6)
-	double urban_density = (c->get_inhabitants() * 1.0) / max(c->get_buildings()*1.0, 1.0);
+	const double urban_density = (c->get_inhabitants() * 1.0) / max(c->get_buildings()*1.0, 1.0);
 	lb_urban_density.buf().printf("%s: %.2f /%s",
 		translator::translate("Urban Density"), 
 		urban_density, 
