@@ -580,9 +580,12 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 	}
 
 	// universal check for elevated things ...
-	if(bautyp&elevated_flag) {
+	if(bautyp & elevated_flag) {
 		if(  is_upperlayer  ) {
-			if(  (to->get_typ() != grund_t::monorailboden ||  to->get_weg_nr(0)->get_desc()->get_wtyp()!=desc->get_wtyp()  ||  !check_owner(to->obj_bei(0)->get_owner(),player_builder) )  ||  (from->get_typ() != grund_t::monorailboden ||  from->get_weg_nr(0)->get_desc()->get_wtyp()!=desc->get_wtyp()  ||  !check_owner(from->obj_bei(0)->get_owner(),player_builder) )  ) {
+			// check if both are elevated grounds with the same waytype
+			if(  (to->get_typ() != grund_t::monorailboden  ||  to->obj_count() == 0  ||  to->obj_bei(0)->get_waytype() != desc->get_wtyp()  ||  !check_owner(to->obj_bei(0)->get_owner(),player_builder) )  ||
+				 (from->get_typ() != grund_t::monorailboden  || from->obj_count() == 0  || from->obj_bei(0)->get_waytype() != desc->get_wtyp()  ||  !check_owner(from->obj_bei(0)->get_owner(),player_builder) )
+				) {
 				return false;
 			}
 		}
@@ -599,14 +602,14 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 			if(gb) {
 				// no halt => citybuilding => do not touch
 				// also check for too high buildings ...
-				if(!check_owner(gb->get_owner(),player_builder)  ||  gb->get_tile()->get_background(0,1,0)!=IMG_EMPTY) {
+				if(!check_owner(gb->get_owner(),player_builder)  ||  gb->get_tile()->get_background(0,1,0) != IMG_EMPTY) {
 					return false;
 				}
 				// building above houses is expensive ... avoid it!
 				*costs += 4;
 			}
 			// absolutely nothing allowed here for set which want double clearance
-			if(  welt->get_settings().get_way_height_clearance()==2  &&  welt->lookup( to->get_pos()+koord3d(0,0,1) )  ) {
+			if(  welt->get_settings().get_way_height_clearance() == 2  &&  welt->lookup( to->get_pos()+koord3d(0,0,1) )  ) {
 				return false;
 			}
 			// up to now 'to' and 'from' referred to the ground one height step below the elevated way
@@ -616,8 +619,8 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 			if(to2) {
 				if(to2->get_weg_nr(0)) {
 					// already an elevated ground here => it will have always a way object, that indicates ownership
-					ok = to2->get_typ()==grund_t::monorailboden  &&  check_owner(to2->obj_bei(0)->get_owner(),player_builder);
-					ok &= to2->get_weg_nr(0)->get_desc()->get_wtyp()==desc->get_wtyp();
+					ok = to2->get_typ() == grund_t::monorailboden  &&  check_owner(to2->obj_bei(0)->get_owner(),player_builder);
+					ok &= to2->get_weg_nr(0)->get_desc()->get_wtyp() == desc->get_wtyp();
 				}
 				else {
 					ok = to2->find<leitung_t>()==NULL;
