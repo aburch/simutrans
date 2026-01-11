@@ -7883,7 +7883,7 @@ bool tool_remove_halt_t::remove_halt(player_t* player, koord3d const &pos)
 
 
 const char* tool_extinguish_waiting_goods_t::work(player_t* player, koord3d pos) {
-	grund_t *gr = welt->lookup(pos);
+	const grund_t *gr = welt->lookup(pos);
 	if (!gr) {
 		return "No stop found!";
 	}
