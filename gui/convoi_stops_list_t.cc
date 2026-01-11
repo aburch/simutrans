@@ -96,7 +96,7 @@ public:
 			gr->get_neighbour(gr, weg->get_waytype(), dir);
 			if(  !gr  ) { break; }
 			const weg_t* w = gr->get_weg(weg->get_waytype());
-			if(  cnv->get_use_electric() && !weg->is_electrified()  ) {
+			if(  cnv->get_use_electric() && !w->is_electrified()  ) {
 				// non-electric! this car can not enter any more!
 				break;
 			}
@@ -116,7 +116,7 @@ public:
 	void update_label()
 	{
 		stop.buf().printf("%i) ", number+1);
-		if(waytype!=water_wt) {
+		if(  waytype!=water_wt && !cnv->is_waypoint(entry)  ) {
 			// ships do not use halt length, so we do not write
 			stop.buf().printf("[%.2f] ", (double) halt_length_in_vehicle_step()/VEHICLE_STEPS_PER_TILE);
 		}
