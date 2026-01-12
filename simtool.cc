@@ -9306,19 +9306,54 @@ bool tool_change_city_t::init( player_t *player )
 	return false;
 }
 
-
+/**
+ * change halt:
+ * tools
+ * 'c' : other_player_connection_allowed
+ * 'p' : no_handle_pax
+ * 'm' : no_handle_post
+ * 'w' : no_handle_ware
+ */
 bool tool_change_halt_t::init(player_t *player) {
-	uint16 halt_id;
-	// Read the halt id and flags from the default param. Then update the flags of the halt.
-	if(  sscanf( default_param, "%hu", &halt_id )!=1  ) {
-		return false;
+	char tool=0;
+	uint16 halt_id = 0;
+
+	// skip the rest of the command
+	const char *p = default_param;
+	while(  *p  &&  *p<=' '  ) {
+		p++;
 	}
+	sscanf( p, "%c,%hi", &tool, &halt_id );
+
+	// skip to the commands ...
+	for(  int z = 2;  *p  &&  z>0;  p++  ) {
+		if(  *p==','  ) {
+			z--;
+		}
+	}
+
 	halthandle_t halt;
 	halt.set_id(halt_id);
 	if(  !halt.is_bound()  ||  !player_t::check_owner(halt->get_owner(), player)  ) {
 		return false;
 	}
-	halt->toggle_other_player_connection_allowed();
+	switch(  tool  ){
+		case 'c':
+			halt->toggle_other_player_connection_allowed();
+			break;
+		case 'p':
+			halt->set_no_handle_pax(!halt->is_no_handle_pax());
+			break;
+		case 'm':
+			halt->set_no_handle_post(!halt->is_no_handle_post());
+			break;
+		case 'w':
+			halt->set_no_handle_ware(!halt->is_no_handle_ware());
+			break;
+		
+		default:
+			break;
+	}
 	return false;
 }
 

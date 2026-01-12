@@ -105,7 +105,7 @@ void convoi_t::init(player_t *player)
 	need_electric = false;
 	use_electric = false;
 	sum_gesamtweight = sum_weight = 0;
-	sum_running_costs = sum_fixed_costs = sum_gear_and_power = previous_delta_v = sum_gear_and_power_electric = 0;
+	base_sum_running_costs = sum_fixed_costs = sum_gear_and_power = previous_delta_v = sum_gear_and_power_electric = 0;
 	sum_power = 0;
 	min_top_speed = SPEED_UNLIMITED;
 	speedbonus_kmh = SPEED_UNLIMITED; // speed_to_kmh() not needed
@@ -136,6 +136,8 @@ void convoi_t::init(player_t *player)
 	next_reservation_index = 0;
 	reserved_tiles.clear();
 	reversing_needed = false;
+	reverse_coupling_done = false;
+	reversing_coupling_needed = false;
 
 	alte_richtung = ribi_t::none;
 	next_wolke = 0;
@@ -588,7 +590,7 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 	if(  state!=COUPLED && state!=COUPLED_LOADING  ) {
 		check_electrification();
 		// we only recalculate use_electric when load savedata older than OTRP v49.
-		if(  loaded_OTRP_version<49 && is_electric && !is_loading() && state!=INITIAL && get_route()->get_count()>0  ) {
+		if(  loaded_OTRP_version<50 && is_electric && !is_loading() && state!=INITIAL && get_route()->get_count()>0  ) {
 			use_electric = true;
 			for( uint16 i=front()->get_route_index()-1; i<get_route()->get_count(); i++) {
 				grund_t* gr = welt->lookup(get_route()->at(i));
@@ -730,11 +732,11 @@ uint32 convoi_t::get_entire_convoy_length() const
  */
 void convoi_t::add_running_cost( const weg_t *weg )
 {
-	jahresgewinn += sum_running_costs;
+	jahresgewinn += base_sum_running_costs;
 
 	if(  weg  &&  weg->get_owner()!=get_owner()  &&  weg->get_owner()!=NULL  ) {
 		// running on non-public way costs toll (since running costs are positive => invert)
-		sint64 toll = -(sum_running_costs*welt->get_settings().get_way_toll_runningcost_percentage())/100l;
+		sint64 toll = -(base_sum_running_costs*welt->get_settings().get_way_toll_runningcost_percentage())/100l;
 		if(  welt->get_settings().get_way_toll_waycost_percentage()  ) {
 			if(  weg->is_electrified()  &&  needs_electrification()  ) {
 				// toll for using electricity
@@ -758,6 +760,7 @@ void convoi_t::add_running_cost( const weg_t *weg )
 		book( -toll, CONVOI_PROFIT);
 
 	}
+	sint64 const sum_running_costs = base_sum_running_costs * (welt->get_settings().is_overloading_runningcost_increase()?(sint64) max(loading_level,100) : (sint64) 100)/ (sint64) 100;
 	get_owner()->book_running_costs( sum_running_costs, get_schedule()->get_waytype());
 
 	book( sum_running_costs, CONVOI_OPERATIONS );
@@ -1266,6 +1269,22 @@ bool convoi_t::drive_to()
 			wait_lock = 25000;
 		}
 		else {
+			// if change direction at waypoint, we must reverse coupling here!
+			grund_t *gr=welt->lookup(start);
+			if(  env_t::reversible_waytype(front()->get_waytype())&&front()->get_waytype()!=water_wt&&!reverse_coupling_done&&state!=INITIAL&&!(gr  &&  gr->get_depot())  ) {
+				const bool reverse_here=world()->get_settings().is_default_reverse()&&((route.get_count()<2) ? false : ((ribi_type(route.at(0), route.at(1)) & front()->get_direction()) == 0 ? true : false));
+				if( reversing_coupling_needed^reverse_here )
+				{
+					// we need reverse here!
+					dbg->message("convoi_t::drive_to()","%s reverse at waypoint!",get_name());
+					reverse_convoy_coupling();
+					reversing_coupling_needed=reverse_here;
+					get_most_parent_convoi()->reversing_coupling_needed=reverse_here;
+					get_most_parent_convoi()->state=ROUTING_1;
+					get_most_parent_convoi()->alte_richtung=get_most_parent_convoi()->front()->get_direction();
+					return false;
+				}
+			}
 			bool route_ok = true;
 			const uint8 current_stop = schedule->get_current_stop();
 			if(  fahr[0]->get_waytype() != water_wt  ) {
@@ -2001,8 +2020,8 @@ void convoi_t::ziel_erreicht()
 	else {
 		// Neither depot nor station: waypoint
 		// check the reverse coupling order at this waypoint
-		if(  reverse_convoy_coupling_at_waypoint()  ) {
-			return;
+		if(  get_schedule()->get_current_entry().is_reverse_convoi_coupling()  ) {
+			reversing_coupling_needed=true;
 		}
 		c = self;
 		// advance schedule for all coupling convoys.
@@ -2010,7 +2029,7 @@ void convoi_t::ziel_erreicht()
 		// So, we advance all convoys' schedules first, and check can continue coupling after advancing schedules.
 		while(  c.is_bound()  ) {
 			if(c->get_schedule()->get_current_entry().is_reverse_convoy()) {
-				c->reverse_vehicles_on_user_request();
+				c->reversing_needed=true;
 			}
 			c->get_schedule()->advance();
 			c = c->get_coupling_convoi();
@@ -2050,7 +2069,7 @@ bool convoi_t::reverse_convoy_coupling_at_waypoint()
 	c = get_most_parent_convoi();
 	while(  c.is_bound()  ) {
 		if(c->get_schedule()->get_current_entry().is_reverse_convoy()) {
-			c->reverse_vehicles_on_user_request();
+			c->reversing_needed=true;
 		}
 		c->get_schedule()->advance();
 		c = c->get_coupling_convoi();
@@ -2121,7 +2140,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",fahr.get_
 			sum_gear_and_power_electric += info->get_power() * info->get_gear();
 		}
 		sum_weight += info->get_weight();
-		sum_running_costs -= info->get_running_cost();
+		base_sum_running_costs -= info->get_running_cost();
 		sum_fixed_costs -= welt->scale_with_month_length( info->get_fixed_cost() );
 		min_top_speed = min( min_top_speed, kmh_to_speed( v->get_desc()->get_topspeed() ) );
 		sum_gesamtweight = sum_weight;
@@ -2174,7 +2193,7 @@ vehicle_t *convoi_t::remove_vehikel_bei(uint16 i)
 				sum_gear_and_power_electric -= info->get_power() * info->get_gear();
 			}
 			sum_weight -= info->get_weight();
-			sum_running_costs += info->get_running_cost();
+			base_sum_running_costs += info->get_running_cost();
 			sum_fixed_costs += welt->scale_with_month_length( info->get_fixed_cost() );
 		}
 		sum_gesamtweight = sum_weight;
@@ -2506,11 +2525,13 @@ void convoi_t::vorfahren()
 	c = self;
 	while(  c.is_bound()  ) {
 		// the back vehicles position is set.
-		if (c->reversing_needed){
+		if (c->reversing_needed^(world()->get_settings().is_default_reverse()&&env_t::reversible_waytype(front()->get_waytype())&&front()->get_waytype()!=water_wt&&!go_same_direction)){
 			c->reverse_vehicles_at_halt_if_needed();
 		}
 		// reset uncouple done flag
 		c->uncouple_done = false;
+		c->reverse_coupling_done = false;
+		c->reversing_coupling_needed = false;
 		c = c->get_coupling_convoi();
 	}
 	c = self;
@@ -2705,6 +2726,9 @@ void convoi_t::vorfahren()
 				vehicle_t const& v = *inspecting->fahr[i];
 				if (schiene_t* const sch0 = obj_cast<schiene_t>(welt->lookup(v.get_pos())->get_weg(v.get_waytype()))) {
 					sch0->reserve(self,ribi_t::none);
+					if(  v.get_pos()!=front()->get_pos()  ) {
+						unreserve_pos(v.get_pos());
+					}
 				}
 				else {
 					break;
@@ -2941,7 +2965,7 @@ void convoi_t::rdwr(loadsave_t *file)
 					sum_gear_and_power_electric += info->get_power() * info->get_gear();
 				}
 				sum_weight += info->get_weight();
-				sum_running_costs -= info->get_running_cost();
+				base_sum_running_costs -= info->get_running_cost();
 				has_obsolete |= welt->use_timeline()  &&  info->is_retired( welt->get_timeline_year_month() );
 				// we do not add maintenance here, the fixed costs are booked as running costs
 			}
@@ -3311,7 +3335,20 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_bool(need_electric);
 	} else {
 		need_electric = is_electric;
+	}
+	if(  file->get_OTRP_version()>=50  ) {
+		file->rdwr_bool(use_electric);
+	} else {
 		use_electric = is_electric;
+	}
+	if(  file->get_OTRP_version()>=50  ) {
+		file->rdwr_bool(reverse_coupling_done);
+		file->rdwr_bool(reversing_coupling_needed);
+		// TODO: Remove this and use arrived_time instead after resolving the desync issue.
+		file->rdwr_long( time_last_arrived );
+	} else {
+		reverse_coupling_done = false;
+		reversing_coupling_needed = false;
 	}
 
 	if(  file->is_loading()  ) {
@@ -3676,7 +3713,6 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 			slot++;
 			go_on_ticks = slot * world()->ticks_per_world_month / current_entry.spacing + spacing_shift;
 		}
-		dbg->message("convoi_t::can_depart()","%s will be depart at %i, now %i", cnv->get_name(), go_on_ticks, world()->get_ticks());
 		return is_first_ticks_bigger(world()->get_ticks(), go_on_ticks - time_to_load);
 	}
 
@@ -3858,16 +3894,26 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 			if(c->get_schedule()->get_current_entry().is_try_coupling()) {
 				c->set_coupling_done(false);
 			}
+			if(c->get_coupling_convoi().is_bound()&&!c->can_continue_coupling()) {
+				// the new most parent or child convoy is me because I release child here!
+				c->uncouple_convoi();
+			}
 		}
-		if(  coupled_at_this_stop && c->get_schedule()->get_count()>1  ) {
+		if(  coupled_at_this_stop && get_schedule()->get_count()>1  ) {
 			dbg->message("convoi_t::hat_gehalten()","%s coupling at this stop. check the direction at %s",get_name(),temp_parent_convoi->front()->get_pos().get_str());
 			// chage the order if next direction is backward of "self"
 			// Attention! reverse_convoy_coupling() must be called when loading!
 			// if we call it before stop, the convoys will be reversed immediately, and it makes position calculation bug. 
 			// the direction of the waiting vehicle is same? opposite?
 			route_t r;
-			route_t::route_result_t res = r.calc_route(welt, c->front()->get_pos(), c->get_schedule()->get_next_entry().pos, front(), speed_to_kmh(min_top_speed), 8888);
+			route_t::route_result_t res = r.calc_route(welt, c->front()->get_pos(), get_schedule()->get_next_entry().pos, front(), speed_to_kmh(min_top_speed), 8888);
 			bool const should_this_convoy_be_parent = (res==route_t::no_route || r.get_count()<2) ? false : ((ribi_type(r.at(0), r.at(1)) & c->front()->get_direction()) == 0 ? true : false);
+			// reverse check done
+			c = temp_parent_convoi;
+			while(c.is_bound()) {
+				c->reverse_coupling_done = true;
+				c=c->get_coupling_convoi();
+			}
 			if(  should_this_convoy_be_parent  ) {
 				temp_parent_convoi->reverse_convoy_coupling();
 			}
@@ -3948,8 +3994,9 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 		} else {
 			amount = 0;
 		}
-
-		const uint16 capacity_left = (v->get_cargo_max()*get_schedule()->get_current_entry().maximum_loading/100 > v->get_total_cargo())?v->get_cargo_max()*get_schedule()->get_current_entry().maximum_loading/100 - v->get_total_cargo(): 0;
+		bool allow_overload_car = (v->get_cargo_type()->get_catg_index()==0)&&(world()->get_settings().is_allow_overloading());
+		const uint16 max_load_percentage = allow_overload_car ? ( uint16)get_schedule()->get_current_entry().maximum_loading: (uint16)min(get_schedule()->get_current_entry().maximum_loading,100);
+		const uint16 capacity_left = (v->get_cargo_max()*max_load_percentage/100 > v->get_total_cargo())?v->get_cargo_max()*max_load_percentage/100 - v->get_total_cargo(): 0;
 
 		if(  loading_needed  &&  capacity_left > 0  &&  halt->gibt_ab(v->get_cargo_type())  ) {
 			// load if: unloaded something (might go back) or previous non-filled car requested different cargo type
@@ -3969,14 +4016,14 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 				time = max( time, (amount*v->get_desc()->get_loading_time()) / max(v->get_cargo_max(), 1) );
 			}
 			else{
-				time = max( time, (v->get_cargo_max()*2*v->get_desc()->get_loading_time()) / max(v->get_cargo_max(), 1) );
+				time = max( time, (max(v->get_cargo_max(),v->get_total_cargo())*2*v->get_desc()->get_loading_time()) / max(v->get_cargo_max(), 1) );
 			}
 			v->mark_image_dirty(v->get_image(), 0);
 			v->calc_image();
 			changed_loading_level = true;
 		}
 		else if( halt.is_bound() && schedule->is_full_load_time() ){
-			time = max( time, (v->get_cargo_max()*2*v->get_desc()->get_loading_time()) / max(v->get_cargo_max(), 1) );
+			time = max( time, (max(v->get_cargo_max(),v->get_total_cargo())*2*v->get_desc()->get_loading_time()) / max(v->get_cargo_max(), 1) );
 		}
 	}
 	freight_info_resort |= changed_loading_level;
@@ -4057,15 +4104,23 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 		// reverse image direction after departire, in drive_to()
 	}
 	// reverse order of coupling/coupled convois
-	if (  get_schedule()->get_current_entry().is_reverse_convoi_coupling()  &&
-		coupling_convoi.is_bound()  &&  !is_coupled()  &&  !is_waiting_for_coupling()
-	) {
-		convoihandle_t last_child_convoi = self->get_coupling_convoi();
-		while (  last_child_convoi->get_coupling_convoi().is_bound()  ){
-			last_child_convoi = last_child_convoi->get_coupling_convoi();
+	if (  coupling_convoi.is_bound()  &&  !is_coupled()  &&  !is_waiting_for_coupling()  &&  !reverse_coupling_done  )
+	{
+		bool should_reverse_coupling_done = false;
+		if(world()->get_settings().is_default_reverse()) {
+			// the direction of the waiting vehicle is same? opposite?
+			route_t r;
+			route_t::route_result_t res = r.calc_route(welt, front()->get_pos(), get_schedule()->get_next_entry().pos, front(), speed_to_kmh(min_top_speed), 8888);
+			should_reverse_coupling_done = (res==route_t::no_route || r.get_count()<2) ? false : ((ribi_type(r.at(0), r.at(1)) & front()->get_direction()) == 0 ? true : false);
 		}
-		// Avoid infinite loop for the case that the last child convoy also requests reversing the coupling.
-		if(  !last_child_convoi->get_schedule()->get_current_entry().is_reverse_convoi_coupling()  ){
+		// reverse check done
+		c = self;
+		while(c.is_bound()) {
+			c->reverse_coupling_done = true;
+			c=c->get_coupling_convoi();
+		}
+		dbg->message("convoi_t::hat_gehalten()","check direction and reverse");
+		if(get_schedule()->get_current_entry().is_reverse_convoi_coupling()^(should_reverse_coupling_done)) {
 			reverse_convoy_coupling();
 		}
 	}

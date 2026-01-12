@@ -118,6 +118,9 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// do not shift these signs to the left for compatibility
 		desc->offset_left = 0;
 	}
+	if(desc->wtyp==tram_wt) {
+		desc->wtyp=track_wt;
+	}
 
 	DBG_DEBUG("roadsign_reader_t::read_node()",
 		"version=%i, min_speed=%i, price=%" PRId64 ", maintenance=%" PRId64 ",flags=%x, wtyp=%i, offset_left=%i, intro=%i/%i, retire=%i/%i",

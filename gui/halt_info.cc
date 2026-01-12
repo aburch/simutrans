@@ -35,6 +35,8 @@
 
 #include "../descriptor/skin_desc.h"
 
+#include "messagebox.h"
+
 
 #define CHART_HEIGHT (100)
 
@@ -357,6 +359,20 @@ void halt_info_t::init(halthandle_t halt)
 			other_players_connection_button.init(button_t::square, "Allow other players to connect");
 			other_players_connection_button.add_listener(this);
 			add_component(&other_players_connection_button);
+			add_table(4,1);
+			{
+				new_component<gui_label_t>(translator::translate("No handle:"));
+				bt_no_handle_pax.init(button_t::square, "Passagiere");
+				bt_no_handle_pax.add_listener(this);
+				add_component(&bt_no_handle_pax);
+				bt_no_handle_post.init(button_t::square, "Post");
+				bt_no_handle_post.add_listener(this);
+				add_component(&bt_no_handle_post);
+				bt_no_handle_ware.init(button_t::square, "Fracht");
+				bt_no_handle_ware.add_listener(this);
+				add_component(&bt_no_handle_ware);
+			}
+			end_table();
 		}
 		end_table();
 
@@ -429,14 +445,25 @@ void halt_info_t::init(halthandle_t halt)
 halt_info_t::~halt_info_t()
 {
 	if(  halt.is_bound()  &&  strcmp(halt->get_name(),edit_name)  &&  edit_name[0]  ) {
-		// text changed => call tool
-		cbuffer_t buf;
-		buf.printf( "h%u,%s", halt.get_id(), edit_name );
-		tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
-		tool->set_default_param( buf );
-		welt->set_tool( tool, halt->get_owner() );
-		// since init always returns false, it is safe to delete immediately
-		delete tool;
+		// Check for duplicate name before renaming on window close
+		bool duplicate_found = false;
+		const vector_tpl<halthandle_t>& all_halts = haltestelle_t::get_alle_haltestellen();
+		for(  halthandle_t const& h : all_halts  ) {
+			if(  h.is_bound()  &&  h != halt  &&  strcmp(h->get_name(), edit_name) == 0  ) {
+				duplicate_found = true;
+				break;
+			}
+		}
+		if(  !duplicate_found  ) {
+			// Name is unique - proceed with rename
+			cbuffer_t buf;
+			buf.printf( "h%u,%s", halt.get_id(), edit_name );
+			tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
+			tool->set_default_param( buf );
+			welt->set_tool( tool, halt->get_owner() );
+			// since init always returns false, it is safe to delete immediately
+			delete tool;
+		}
 	}
 	delete departure_board;
 	delete halt_detail;
@@ -513,6 +540,24 @@ void halt_info_t::update_components()
 	other_players_connection_button.set_visible(!halt->get_owner()->is_public_service());
 	other_players_connection_button.enable(player_t::check_owner(halt->get_owner(), welt->get_active_player()));
 	other_players_connection_button.pressed = halt->is_other_player_connection_allowed();
+	bt_no_handle_pax.set_visible(true);
+	bt_no_handle_post.set_visible(true);
+	bt_no_handle_ware.set_visible(true);
+	bt_no_handle_pax.disable();
+	bt_no_handle_post.disable();
+	bt_no_handle_ware.disable();
+	if(halt->get_desc_pax_enable()) {
+		bt_no_handle_pax.enable(player_t::check_owner(halt->get_owner(), welt->get_active_player()));
+	}
+	if(halt->get_desc_post_enable()) {
+		bt_no_handle_post.enable(player_t::check_owner(halt->get_owner(), welt->get_active_player()));
+	}
+	if(halt->get_desc_ware_enable()) {
+		bt_no_handle_ware.enable(player_t::check_owner(halt->get_owner(), welt->get_active_player()));
+	}
+	bt_no_handle_pax.pressed = halt->is_no_handle_pax();
+	bt_no_handle_post.pressed = halt->is_no_handle_post();
+	bt_no_handle_ware.pressed = halt->is_no_handle_ware();
 	set_dirty();
 }
 
@@ -949,7 +994,23 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	}
 	else if(  comp == &input  ) {
 		if(  strcmp(halt->get_name(),edit_name)  ) {
-			// text changed => call tool
+			// Check for duplicate name
+			bool duplicate_found = false;
+			const vector_tpl<halthandle_t>& all_halts = haltestelle_t::get_alle_haltestellen();
+			for(  halthandle_t const& h : all_halts  ) {
+				if(  h.is_bound()  &&  h != halt  &&  strcmp(h->get_name(), edit_name) == 0  ) {
+					duplicate_found = true;
+					break;
+				}
+			}
+			if(  duplicate_found  ) {
+				// Duplicate found - show error and restore original name
+				create_win( new news_img(translator::translate("Station name already exists")), w_time_delete, magic_none );
+				tstrncpy( edit_name, halt->get_name(), lengthof(edit_name) );
+				input.set_text( edit_name, lengthof(edit_name) );
+				return true;
+			}
+			// Name is unique - proceed with rename
 			cbuffer_t buf;
 			buf.printf( "h%u,%s", halt.get_id(), edit_name );
 			tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
@@ -964,9 +1025,30 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	}
 	else if(comp == &other_players_connection_button) {
 		cbuffer_t buf;
-		buf.printf("%hu", halt.get_id());
+		buf.printf("c,%hu", halt.get_id());
 		tool_t::simple_tool[TOOL_CHANGE_HALT]->set_default_param(buf);
 		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_HALT], welt->get_active_player() );
+	}
+	else if(comp == &bt_no_handle_pax) {
+		cbuffer_t buf;
+		buf.printf("p,%hu", halt.get_id());
+		tool_t::simple_tool[TOOL_CHANGE_HALT]->set_default_param(buf);
+		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_HALT], welt->get_active_player() );
+
+	}
+	else if(comp == &bt_no_handle_post) {
+		cbuffer_t buf;
+		buf.printf("m,%hu", halt.get_id());
+		tool_t::simple_tool[TOOL_CHANGE_HALT]->set_default_param(buf);
+		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_HALT], welt->get_active_player() );
+
+	}
+	else if(comp == &bt_no_handle_ware) {
+		cbuffer_t buf;
+		buf.printf("w,%hu", halt.get_id());
+		tool_t::simple_tool[TOOL_CHANGE_HALT]->set_default_param(buf);
+		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_HALT], welt->get_active_player() );
+
 	}
 	return true;
 }

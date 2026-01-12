@@ -627,7 +627,7 @@ void fabrik_t::recalc_storage_capacities()
 		// Determine the number of units to ship. Prefer 10 units although in future a more dynamic choice may be appropiate.
 		uint32 shipment_unit_size;
 		// Set shipment size
-		dbg->message("fabrik_t::recalc_storage_capacities()","unit size:%i,shipment size:%i",unit_size,shipment_size);
+		//dbg->message("fabrik_t::recalc_storage_capacities()","unit size:%i,shipment size:%i",unit_size,shipment_size);
 		if( unit_size >= shipment_size * SHIPMENT_NUM_MIN ) {
 			shipment_unit_size = shipment_size;
 		}
