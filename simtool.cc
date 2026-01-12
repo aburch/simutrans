@@ -2059,7 +2059,19 @@ bool tool_change_city_size_t::init( player_t * )
 
 const char *tool_change_city_size_t::work( player_t *, koord3d pos )
 {
-	stadt_t *city = welt->find_nearest_city(pos.get_2d());
+	stadt_t *city=NULL;
+	// if there is the townhall at this position, we change this city size.
+	if(  grund_t *gr = welt->lookup(pos)  ) {
+		if(  gebaeude_t *gb = gr->find<gebaeude_t>()  ) {
+			if(  gb->is_townhall()  ) {
+				city = gb->get_stadt();
+			}
+		}
+	}
+	if(  city==NULL  ) {
+		// if no heaquarter, we find nearest city.
+		city = welt->find_nearest_city(pos.get_2d());
+	}
 	if(city!=NULL) {
 		city->change_size( atoi(default_param) );
 		// update the links from other cities to this city
