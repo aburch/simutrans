@@ -3672,6 +3672,7 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 				// auto underground to follow convois
 				if( env_t::follow_convoi_underground ) {
 					grund_t *gr = lookup_kartenboden( new_pos.get_2d() );
+					
 					bool redraw = false;
 					if( new_pos.z < gr->get_hoehe() ) {
 						was_in_underground = true;
@@ -3679,16 +3680,20 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 						grund_t::set_underground_mode( env_t::follow_convoi_underground, new_pos.z );
 					}
 					else {
+						uint8 underground_height = new_pos.z + settings.get_way_height_clearance() - 1;
+						if (gr->ist_karten_boden() && gr->ist_bruecke() ){
+							underground_height += 1;
+						}
 						redraw = grund_t::underground_mode != grund_t::ugm_none;
 						if( was_in_underground ) {
-							grund_t::set_underground_mode( old_underground_mode, new_pos.z );
+							grund_t::set_underground_mode( old_underground_mode, underground_height );
 							was_in_underground = false;
 						}
 						else{
 							if( grund_t::underground_mode != old_underground_mode ) {
 							old_underground_mode = grund_t::underground_mode;
 							}
-							grund_t::set_underground_mode( grund_t::underground_mode, new_pos.z );
+							grund_t::set_underground_mode( grund_t::underground_mode, underground_height );
 						}
 					}
 					if(  redraw  ) {
