@@ -117,6 +117,7 @@ typedef struct {
 map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Towns", "Overlay town names", minimap_t::MAP_TOWN },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "CityLimit", "Overlay city limits", minimap_t::MAP_CITYLIMIT },
+	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Citizens", "Show city citizens as circles", minimap_t::MAP_CITIZENS },
 	{ COL_WHITE,        COL_GREY5,       "Buildings", "Show level of city buildings", minimap_t::MAP_LEVEL },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "PaxDest", "Overlay passenger destinations when a town window is open", minimap_t::MAP_PAX_DEST },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Tourists", "Highlite tourist attraction", minimap_t::MAP_TOURIST },

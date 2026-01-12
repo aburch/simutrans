@@ -1655,6 +1655,34 @@ void minimap_t::draw(scr_coord pos)
 		}
 	}
 
+	// draw city citizens as circles
+	if(  mode & MAP_CITIZENS  ) {
+		static uint32 max_city_citizens = 1;
+		uint32 new_max_city_citizens = 1;
+
+		FOR(  weighted_vector_tpl<stadt_t*>,  const stadt,  world->get_cities()  ) {
+			const uint32 citizens = stadt->get_einwohner();
+			if(  new_max_city_citizens < citizens  ) {
+				new_max_city_citizens = citizens;
+			}
+
+			scr_coord city_pos = map_to_screen_coord( stadt->get_pos() );
+			city_pos = city_pos + pos;
+
+			// Use log scale for color (green for small, red for large)
+			PIXVAL color = calc_severity_color_log( citizens, max_city_citizens );
+
+			// Calculate radius based on citizens with zoom correction
+			int radius = max( (number_to_radius( citizens )*zoom_in)/zoom_out, 1 );
+
+			// Draw filled circle with black outline
+			display_filled_circle_rgb( city_pos.x, city_pos.y, radius, color );
+			display_circle_rgb( city_pos.x, city_pos.y, radius, color_idx_to_rgb(COL_BLACK) );
+		}
+
+		max_city_citizens = new_max_city_citizens;
+	}
+
 	if(  mode & MAP_FACTORIES  ) {
 		FOR(  slist_tpl<fabrik_t*>,  const f,  world->get_fab_list()  ) {
 			// find top-left tile position
