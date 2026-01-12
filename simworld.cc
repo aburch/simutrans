@@ -3674,12 +3674,22 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 					grund_t *gr = lookup_kartenboden( new_pos.get_2d() );
 					bool redraw = false;
 					if( new_pos.z < gr->get_hoehe() ) {
+						was_in_underground = true;
 						redraw = grund_t::underground_mode == grund_t::ugm_none ? grund_t::underground_level != new_pos.z : true;
 						grund_t::set_underground_mode( env_t::follow_convoi_underground, new_pos.z );
 					}
 					else {
 						redraw = grund_t::underground_mode != grund_t::ugm_none;
-						grund_t::set_underground_mode( grund_t::ugm_none, 0 );
+						if( was_in_underground ) {
+							grund_t::set_underground_mode( old_underground_mode, new_pos.z );
+							was_in_underground = false;
+						}
+						else{
+							if( grund_t::underground_mode != old_underground_mode ) {
+							old_underground_mode = grund_t::underground_mode;
+							}
+							grund_t::set_underground_mode( grund_t::underground_mode, new_pos.z );
+						}
 					}
 					if(  redraw  ) {
 						// recalc all images on map

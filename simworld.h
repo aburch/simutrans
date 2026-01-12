@@ -179,9 +179,19 @@ private:
 	bool destroying;
 
 	/**
+	 * Was convoi in underground.
+	 */
+	bool was_in_underground = false;
+
+	/**
 	 * The rotation of the map when first loaded.
 	 */
 	uint8 loaded_rotation;
+
+	/**
+	 * 
+	 */
+	uint8 old_underground_mode = 0;
 
 	/**
 	 * The one and only camera looking at our world.
