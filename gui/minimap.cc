@@ -1683,6 +1683,41 @@ void minimap_t::draw(scr_coord pos)
 		max_city_citizens = new_max_city_citizens;
 	}
 
+	// draw city growth as circles
+	if(  mode & MAP_CITY_GROWTH  ) {
+		static sint32 max_city_growth = 1;
+		sint32 new_max_city_growth = 1;
+
+		FOR(  weighted_vector_tpl<stadt_t*>,  const stadt,  world->get_cities()  ) {
+			const sint32 growth = stadt->get_wachstum();
+			const sint32 abs_growth = abs(growth);
+
+			if(  new_max_city_growth < abs_growth  ) {
+				new_max_city_growth = abs_growth;
+			}
+
+			// Skip cities with no growth
+			if(  growth == 0  ) {
+				continue;
+			}
+
+			scr_coord city_pos = map_to_screen_coord( stadt->get_pos() );
+			city_pos = city_pos + pos;
+
+			// Green for growth, red for decline
+			PIXVAL color = color_idx_to_rgb(growth > 0 ? COL_DARK_GREEN : COL_DARK_RED);
+
+			// Calculate radius based on absolute growth with zoom correction
+			int radius = max( (number_to_radius( abs_growth )*zoom_in)/zoom_out, 1 );
+
+			// Draw filled circle with black outline
+			display_filled_circle_rgb( city_pos.x, city_pos.y, radius, color );
+			display_circle_rgb( city_pos.x, city_pos.y, radius, color_idx_to_rgb(COL_BLACK) );
+		}
+
+		max_city_growth = new_max_city_growth;
+	}
+
 	if(  mode & MAP_FACTORIES  ) {
 		FOR(  slist_tpl<fabrik_t*>,  const f,  world->get_fab_list()  ) {
 			// find top-left tile position
