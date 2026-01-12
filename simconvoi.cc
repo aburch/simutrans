@@ -5279,23 +5279,24 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 		c = c->get_coupling_convoi();
 	}
 	vehicle_t *v = front();
+	koord3d home = koord3d::invalid;
+	bool find_depot_route = false;
+	bool depot_already_know = false;
 	// if we are already at depot (e.g. start but wait for clearance), we go back there. 
 	if(  grund_t *gr=welt->lookup(front()->get_pos())  ) {
 		depot_t *dep=gr->get_depot();
 		// check the owner
 		if(  dep  &&  (dep->get_owner()==get_owner())  ) {
-			txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
-			betrete_depot(dep,false);
-			return txt;
+			// here, we only store the position of the front vehicle. if we already set depot position in schedule, we go there.
+			find_depot_route = true;
+			depot_already_know = true;
+			home = front()->get_pos();
 		}
 	} 
 	// iterate over all depots and try to find shortest route
 	route_t *shortest_route = new route_t();
 	route_t *route = new route_t();
-	koord3d home = koord3d::invalid;
 	uint8 current_stop = schedule->get_current_stop();
-	bool find_depot_route = false;
-	bool depot_already_know = false;
 	// find the depot in the schedule. It doesn't have to be next.
 	for ( uint8 i = 0 ; i<schedule->get_count() ; i++  ) {
 		koord3d next_pos = schedule->at((current_stop+i)%schedule->get_count()).pos;
