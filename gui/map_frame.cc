@@ -557,6 +557,10 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t v )
 						// clear all other halt states
 						env_t::default_mapmode &= ~minimap_t::MAP_MODE_HALT_FLAGS;
 					}
+					else if(  button_init[i].mode & minimap_t::MAP_MODE_CITY_FLAGS  ) {
+						// clear all other city states
+						env_t::default_mapmode &= ~minimap_t::MAP_MODE_CITY_FLAGS;
+					}
 					env_t::default_mapmode |= button_init[i].mode;
 				}
 				filter_buttons[i].pressed ^= 1;
