@@ -170,7 +170,7 @@ Extract driving settings
 Show driving and departure setting for each stops/waypoints
 各駅・中継点における運転関係の設定を表示/非表示します(発車時刻、反転、連結等)
 Temporary schedule
-臨時系統
+臨時系統(T)
 This schedule does not affect the route cost calculation.
 このスケジュールはルートコストの計算に寄与しません．
 Pass this stop
@@ -220,7 +220,7 @@ Replacement seed
 Set as the replacement seed convoy
 車庫に到着した編成の組成を，この編成と同じにします．
 Full Load Acceleration
-応荷重制御
+応荷重制御(R)
 Always use full load acceleration regardless of loadings.
 積載量にかかわらず満載時の加速度で運転します．
 Load before departure
@@ -489,3 +489,13 @@ Line Memo:
 路線メモ:
 Line Name:
 路線名:
+Urban Density
+街の密度
+building
+ブロック
+buildings
+ブロック
+No stop found!
+停車場がありません!
+Different player's stop!
+他社の停車場です!
