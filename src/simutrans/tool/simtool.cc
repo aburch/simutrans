@@ -703,7 +703,7 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 
 		// remove town? (when removing townhall)
 		if(gb->is_townhall()) {
-			stadt_t *stadt = welt->find_nearest_city(k);
+			stadt_t *stadt = gb->get_stadt();
 			if(!welt->remove_city( stadt )) {
 				msg = "Das Feld gehoert\neinem anderen Spieler\n";
 				return false;
@@ -1963,8 +1963,17 @@ bool tool_change_city_size_t::init( player_t * )
 
 const char *tool_change_city_size_t::work( player_t *, koord3d pos )
 {
-	stadt_t *city = welt->find_nearest_city(pos.get_2d());
-	if(city!=NULL) {
+	stadt_t* city = NULL;
+	if (grund_t *gr=welt->lookup_kartenboden(pos.get_2d())) {
+		if (gebaeude_t* gb = gr->find<gebaeude_t>()) {
+			city = gb->get_stadt();
+		}
+
+	}
+	if (!city) {
+		city = welt->find_nearest_city(pos.get_2d());
+	}
+	if(!city) {
 		const int delta = std::atoi(default_param);
 		city->change_size( delta );
 
