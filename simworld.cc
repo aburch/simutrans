@@ -3675,19 +3675,19 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 					
 					bool redraw = false;
 					if( new_pos.z < gr->get_hoehe() ) {
-						was_in_underground = true;
+						is_in_underground = true;
 						redraw = grund_t::underground_mode == grund_t::ugm_none ? grund_t::underground_level != new_pos.z : true;
 						grund_t::set_underground_mode( env_t::follow_convoi_underground, new_pos.z );
 					}
 					else {
 						uint8 underground_height = new_pos.z + settings.get_way_height_clearance() - 1;
 						if (gr->ist_karten_boden() && gr->ist_bruecke() ){
-							underground_height += 1;
+							underground_height += 2;
 						}
 						redraw = grund_t::underground_mode != grund_t::ugm_none;
-						if( was_in_underground ) {
+						if( is_in_underground ) {
 							grund_t::set_underground_mode( old_underground_mode, underground_height );
-							was_in_underground = false;
+							is_in_underground = false;
 						}
 						else{
 							if( grund_t::underground_mode != old_underground_mode ) {
