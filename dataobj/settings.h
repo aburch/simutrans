@@ -78,6 +78,9 @@ private:
 	sint32 growthfactor_medium;
 	sint32 growthfactor_large;
 
+	sint32 growthfactor_small_limit;
+	sint32 growthfactor_medium_limit;
+
 	sint16 special_building_distance; // distance between attraction to factory or other special buildings
 	uint32 minimum_city_distance;
 	uint32 industry_increase;
@@ -619,6 +622,10 @@ public:
 	sint32 get_growthfactor_small() const { return growthfactor_small; }
 	sint32 get_growthfactor_medium() const { return growthfactor_medium; }
 	sint32 get_growthfactor_large() const { return growthfactor_large; }
+
+	// the growthfactor threshold  
+	sint32 get_growthfactor_small_limit() const { return growthfactor_small_limit; }
+	sint32 get_growthfactor_medium_limit() const { return growthfactor_medium_limit; }
 
 	// percentage of passengers for different kinds of trips
 	sint16 get_factory_worker_percentage() const { return factory_worker_percentage; }

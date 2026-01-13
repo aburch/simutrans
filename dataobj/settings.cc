@@ -121,6 +121,9 @@ settings_t::settings_t() :
 	growthfactor_medium = 200;
 	growthfactor_large = 100;
 
+	growthfactor_small_limit = 1000;
+	growthfactor_medium_limit = 10000;
+
 	minimum_city_distance = 16;
 	industry_increase = 2000;
 
@@ -593,6 +596,10 @@ void settings_t::rdwr(loadsave_t *file)
 				file->rdwr_short(factory_worker_percentage );
 				file->rdwr_short(tourist_percentage );
 				file->rdwr_short(factory_worker_radius );
+			}
+			if(file->get_OTRP_version()>=51) {
+				file->rdwr_long(growthfactor_small_limit);
+				file->rdwr_long(growthfactor_medium_limit);
 			}
 
 			file->rdwr_long(electric_promille );
@@ -1385,6 +1392,14 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	growthfactor_small  = contents.get_int_clamped( "growthfactor_villages", growthfactor_small,  1, 10000 );
 	growthfactor_medium = contents.get_int_clamped( "growthfactor_cities",   growthfactor_medium, 1, 10000 );
 	growthfactor_large  = contents.get_int_clamped( "growthfactor_capitals", growthfactor_large,  1, 10000 );
+
+	growthfactor_small_limit = contents.get_int_clamped( "maximum_village_size", growthfactor_small_limit, 1, 0x7FFFFFFF);
+	growthfactor_medium_limit = contents.get_int_clamped( "maximum_city_size", growthfactor_medium_limit, 1, 0x7FFFFFFF);
+	if(  growthfactor_small_limit>growthfactor_medium_limit  ) {
+		// inverse order -> fix: city size limit is 10 times of village size limit
+		dbg->error("settings_t::parse_simconf","maximum village size is larger than maximum city size. maximum village size is set as maximum city size/10.");
+		growthfactor_small_limit = max(growthfactor_medium_limit/10,1);
+	}
 
 	random_pedestrians = contents.get_int( "random_pedestrians", random_pedestrians ) != 0;
 	show_pax           = contents.get_int( "stop_pedestrians",   show_pax           ) != 0;

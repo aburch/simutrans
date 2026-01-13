@@ -388,6 +388,9 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "growthfactor_cities", sets->get_growthfactor_medium(), 1, 10000, 10, false );
 	INIT_NUM( "growthfactor_capitals", sets->get_growthfactor_large(), 1, 10000, 10, false );
 	SEPERATOR
+	INIT_NUM( "maximum_village_size", sets->get_growthfactor_small_limit(), 1, sets->get_growthfactor_medium_limit(), 10, false);
+	INIT_NUM( "maximum_city_size", sets->get_growthfactor_medium_limit(), sets->get_growthfactor_small_limit(), 2147483640, 10, false );
+	SEPERATOR
 	INIT_BOOL( "random_pedestrians", sets->get_random_pedestrians() );
 	INIT_BOOL( "stop_pedestrians", sets->get_show_pax() );
 	INIT_NUM( "citycar_level", sets->get_traffic_level(), 0, 16, 1, false );
@@ -461,6 +464,8 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->growthfactor_small );
 	READ_NUM_VALUE( sets->growthfactor_medium );
 	READ_NUM_VALUE( sets->growthfactor_large );
+	READ_NUM_VALUE( sets->growthfactor_small_limit );
+	READ_NUM_VALUE( sets->growthfactor_medium_limit );
 	READ_BOOL( sets->set_random_pedestrians );
 	READ_BOOL( sets->set_show_pax );
 	READ_NUM( sets->set_traffic_level );
