@@ -2060,19 +2060,17 @@ bool tool_change_city_size_t::init( player_t * )
 const char *tool_change_city_size_t::work( player_t *, koord3d pos )
 {
 	stadt_t *city=NULL;
-	// if there is the townhall at this position, we change this city size.
-	if(  grund_t *gr = welt->lookup(pos)  ) {
+	// if there is a city building at this position, we change this city size.
+	if(  grund_t *gr = welt->lookup_kartenboden(pos.get_2d())  ) {
 		if(  gebaeude_t *gb = gr->find<gebaeude_t>()  ) {
-			if(  gb->is_townhall()  ) {
-				city = gb->get_stadt();
-			}
+			city = gb->get_stadt();
 		}
 	}
-	if(  city==NULL  ) {
-		// if no heaquarter, we find nearest city.
+	if(  !city  ) {
+		// if no city building, we find nearest city.
 		city = welt->find_nearest_city(pos.get_2d());
 	}
-	if(city!=NULL) {
+	if(  city  ) {
 		city->change_size( atoi(default_param) );
 		// update the links from other cities to this city
 		FOR(weighted_vector_tpl<stadt_t*>, const c, welt->get_cities()) {
