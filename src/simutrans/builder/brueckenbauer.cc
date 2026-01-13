@@ -615,6 +615,8 @@ const char* bridge_builder_t::can_build_bridge(const player_t* pl, koord3d start
 			// mismatched heights
 			return "";
 		}
+		heights.clear();
+		heights.append(end_pos.z + end_dz);
 	}
 	else {
 		// start on flat tile => may need a ramp => need clearance
