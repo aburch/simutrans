@@ -3682,7 +3682,8 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 					else {
 						uint8 underground_height = new_pos.z + settings.get_way_height_clearance() - 1;
 						if (gr->ist_karten_boden() && gr->ist_bruecke() ){
-							underground_height += 2;
+							const slope_t::type slope = gr->get_grund_hang();
+							underground_height += slope_t::max_diff(slope);
 						}
 						redraw = grund_t::underground_mode != grund_t::ugm_none;
 						if( is_in_underground ) {
