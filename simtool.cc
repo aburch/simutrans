@@ -977,6 +977,11 @@ const char *tool_raise_lower_base_t::move( player_t *player, uint16 buttonstate,
 		char buf[16];
 		if(!is_dragging) {
 			drag_height = get_drag_height(pos.get_2d());
+			dragged_pos.clear();
+		}
+		if(is_shift_pressed()&&!dragged_pos.is_contained(pos.get_2d())){
+			drag_height = get_drag_height(pos.get_2d());
+			dragged_pos.append(pos.get_2d());
 		}
 		is_dragging = true;
 		is_area_process = false;
