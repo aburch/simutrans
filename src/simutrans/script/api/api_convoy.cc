@@ -165,6 +165,14 @@ sint32 convoy_is_followed(convoi_t const *cnv)
 	return cnv ? world()->get_viewport()->get_follow_convoi().get_id() == cnv->self.get_id() : false;
 }
 
+sint32 convoy_set_followed(convoi_t const *cnv)
+{
+	if (cnv) {
+		world()->get_viewport()->set_follow_convoi(cnv->self);
+	}
+	return 0;
+}
+
 bool convoy_is_loading(convoi_t const *cnv)
 {
 	return cnv->get_state() == convoi_t::LOADING;
@@ -369,6 +377,11 @@ void export_convoy(HSQUIRRELVM vm)
 	 * @returns true if convoy is currently being followed
 	 */
 	register_method(vm, convoy_is_followed, "is_followed", true);
+	/**
+	 * Centers the camera on this convoy and follows it.
+	 * @ingroup game_cmd
+	 */
+	register_method(vm, convoy_set_followed, "set_followed", true);
 	/**
 	 * @returns true if convoy is currently loading or unloading at a stop
 	 */

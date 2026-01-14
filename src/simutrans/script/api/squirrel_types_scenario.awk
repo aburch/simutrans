@@ -65,6 +65,8 @@ BEGIN {
 	export_types_scenario["convoy_x::is_withdrawn"] = "bool()"
 	export_types_scenario["convoy_x::is_in_depot"] = "bool()"
 	export_types_scenario["convoy_x::is_waiting"] = "bool()"
+	export_types_scenario["convoy_x::is_followed"] = "bool()"
+	export_types_scenario["convoy_x::set_followed"] = "void()"
 	export_types_scenario["convoy_x::is_loading"] = "bool()"
 	export_types_scenario["convoy_x::destroy"] = "void(player_x)"
 	export_types_scenario["convoy_x::is_schedule_editor_open"] = "bool()"
