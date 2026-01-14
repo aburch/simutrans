@@ -1973,7 +1973,7 @@ const char *tool_change_city_size_t::work( player_t *, koord3d pos )
 	if (!city) {
 		city = welt->find_nearest_city(pos.get_2d());
 	}
-	if(!city) {
+	if(city) {
 		const int delta = std::atoi(default_param);
 		city->change_size( delta );
 
