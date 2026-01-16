@@ -180,7 +180,7 @@ public:
 	/**
 	 * followed convoi is underground.
 	 */
-	static bool is_underground = false;
+	static bool is_underground;
 
 protected:
 	/**
