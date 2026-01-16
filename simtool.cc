@@ -975,7 +975,7 @@ const char *tool_raise_lower_base_t::move( player_t *player, uint16 buttonstate,
 	const char *result = NULL;
 	if(  buttonstate==1  ) {
 		char buf[16];
-		if(!is_dragging && !is_area_process) {
+		if(!is_dragging) {
 			drag_height = get_drag_height(pos.get_2d());
 		}
 		is_dragging = true;
@@ -1092,7 +1092,7 @@ const char *tool_raise_lower_base_t::do_work( player_t *player, const koord3d &s
 		}
 	}
 
-	if(  !is_dragging  ) { default_param = NULL; }
+	default_param = NULL;
 
 	return NULL;
 }
@@ -1174,7 +1174,7 @@ const char *tool_raise_t::process(player_t* player, koord3d pos )
 
 			int n = 0; // tiles changed
 			if(  !strempty(default_param)  ) {
-				// called by dragging or by AI
+				// called by drag, by area process on flat or by AI
 				err = drag(player, k, atoi(default_param), n);
 			}
 			else {
