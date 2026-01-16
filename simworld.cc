@@ -3693,11 +3693,11 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 							// reset underground flag
 							is_in_underground = false;
 						}
-						else if( grund_t::underground_mode != grund_t::see_heightcut_outdoor ) {
+						else if( grund_t::underground_mode != grund_t::underground_mode_outside ) {
 							// have been on ground. we must keep underground mode
-							grund_t::see_heightcut_outdoor = grund_t::underground_mode;
+							grund_t::underground_mode_outside = grund_t::underground_mode;
 						}
-						grund_t::set_underground_mode( grund_t::see_heightcut_outdoor, underground_height );
+						grund_t::set_underground_mode( grund_t::underground_mode_outside, underground_height );
 						
 					}
 					if(  redraw  ) {

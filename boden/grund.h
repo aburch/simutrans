@@ -173,9 +173,10 @@ public:
 	static uint8 underground_mode;
 	static sint8 underground_level;
 	/**
-	 * we keep underground mode
+	 * we keep underground mode using outside
+	 * we only update this value when following convoy which run outside(not underground)
 	 */
-	static uint8 see_heightcut_outdoor;
+	static uint8 underground_mode_outside;
 
 protected:
 	/**
