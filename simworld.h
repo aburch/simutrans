@@ -179,11 +179,6 @@ private:
 	bool destroying;
 
 	/**
-	 * followed convoi is underground.
-	 */
-	bool is_underground = false;
-
-	/**
 	 * The rotation of the map when first loaded.
 	 */
 	uint8 loaded_rotation;

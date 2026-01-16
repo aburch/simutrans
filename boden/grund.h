@@ -177,6 +177,10 @@ public:
 	 * we only update this value when following convoy which run outside(not underground)
 	 */
 	static uint8 underground_mode_outside;
+	/**
+	 * followed convoi is underground.
+	 */
+	static bool is_underground = false;
 
 protected:
 	/**
