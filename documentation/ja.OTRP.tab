@@ -1,6 +1,8 @@
 §################################################################################
 show connected directions
 接続方向を表示する
+view masked ribi
+接続方向を表示
 message of all players
 全てのプレイヤーの収支を表示
 message of active players
@@ -375,6 +377,8 @@ merge to
 Merge
 併合する
 #------旅客経路検索ウィンドウ------
+goods route search
+旅客経路検索
 Pax route search
 旅客経路検索
 From:
@@ -424,7 +428,16 @@ route by route cost
 ルートコスト法で計算
 route by journey time
 所要時間をもとに計算
+#------スクリプト関連------
+generate script
+スクリプトを生成
+Load tool script
+スクリプトを読み込み
 #------その他の翻訳------
+Remove all waiting goods and pax
+この駅のすべての待機中の旅客と貨物を除去します
+Change to public player
+公共事業へ切り替え
 next stop
 次の駅へ
 Go to the next station.
