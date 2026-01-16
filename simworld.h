@@ -179,9 +179,9 @@ private:
 	bool destroying;
 
 	/**
-	 * Is convoi in underground. True during when convoi is in u.g.
+	 * followed convoi is underground.
 	 */
-	bool is_in_underground = false;
+	bool is_underground = false;
 
 	/**
 	 * The rotation of the map when first loaded.

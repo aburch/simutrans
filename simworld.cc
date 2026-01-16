@@ -3675,23 +3675,24 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 					
 					bool redraw = false;
 					if( new_pos.z < gr->get_hoehe() ) {
-						// in tunnel
-						is_in_underground = true;
+						// in tunnel, set is_underground=true and update underground mode.
+						is_underground = true;
 						redraw = grund_t::underground_mode == grund_t::ugm_none ? grund_t::underground_level != new_pos.z : true;
 						grund_t::set_underground_mode( env_t::follow_convoi_underground, new_pos.z );
 					}
 					else {
 						uint8 underground_height = new_pos.z + settings.get_way_height_clearance() - 1;
 						if (gr->ist_karten_boden() && gr->ist_bruecke() ){
-							// on bridge-slope
+							// on slope with bridge (ground is slope but way is flat)
+							// we must reset underground as the top of this slope.
 							const slope_t::type slope = gr->get_grund_hang();
 							underground_height += slope_t::max_diff(slope);
 						}
 						redraw = grund_t::underground_mode != grund_t::ugm_none;
-						if( is_in_underground ) {
-							// exited tunnel just before
+						if( is_underground ) {
+							// convoi goes out from tunnel.
 							// reset underground flag
-							is_in_underground = false;
+							is_underground = false;
 						}
 						else if( grund_t::underground_mode != grund_t::underground_mode_outside ) {
 							// have been on ground. we must keep underground mode
