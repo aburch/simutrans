@@ -3681,21 +3681,23 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 						grund_t::set_underground_mode( env_t::follow_convoi_underground, new_pos.z );
 					}
 					else {
-						uint8 underground_height = new_pos.z + settings.get_way_height_clearance() - 1;
+						// convoi runs outside
+						// if we follow with ugm_level, we set unvisible the way crossing above.
+						uint8 cut_height = new_pos.z + settings.get_way_height_clearance() - 1;
 						if (  gr->ist_karten_boden()  &&  gr->ist_bruecke()  ){
-							// on slope with bridge (ground is slope but way is flat)
-							// we must reset underground as the top of this slope.
+							// on slope with bridge (ground is slope but way is flat),
+							// we must reset height as the top of this slope.
 							const slope_t::type slope = gr->get_grund_hang();
-							underground_height += slope_t::max_diff(slope);
+							cut_height += slope_t::max_diff(slope);
 						}
 						redraw = grund_t::underground_mode != grund_t::ugm_none;
 						if(  !grund_t::is_underground  &&  grund_t::underground_mode  !=  grund_t::underground_mode_outside  ) {
 							// have been on ground. we must keep underground mode
 							grund_t::underground_mode_outside = grund_t::underground_mode;
 						}
-						// convoi runs outside
+						// reset underground flag
 						grund_t::is_underground = false;
-						grund_t::set_underground_mode( grund_t::underground_mode_outside, underground_height );
+						grund_t::set_underground_mode( grund_t::underground_mode_outside, cut_height );
 						
 					}
 					if(  redraw  ) {
