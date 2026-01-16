@@ -1087,7 +1087,7 @@ const char *tool_raise_lower_base_t::do_work( player_t *player, const koord3d &s
 		}
 	}
 
-	// if we press shift key, we only up or down 1 height for each tiles
+	// if we press shift key, we only up or down 1 height from current height
 	is_area_process = !is_shift_pressed();
 
 	for(  k.x=start.x;  k.x!=(end.x+dx);  k.x+=dx  ) {
