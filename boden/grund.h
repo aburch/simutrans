@@ -172,6 +172,10 @@ public:
 	};
 	static uint8 underground_mode;
 	static sint8 underground_level;
+	/**
+	 * we keep underground mode
+	 */
+	static uint8 see_heightcut_outdoor;
 
 protected:
 	/**

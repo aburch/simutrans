@@ -189,11 +189,6 @@ private:
 	uint8 loaded_rotation;
 
 	/**
-	 * 
-	 */
-	uint8 old_underground_mode = 0;
-
-	/**
 	 * The one and only camera looking at our world.
 	 */
 	viewport_t *viewport;

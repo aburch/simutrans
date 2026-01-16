@@ -3691,19 +3691,13 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 						if( is_in_underground ) {
 							// exited tunnel just before
 							// reset underground flag
-							grund_t::set_underground_mode( old_underground_mode, underground_height );
 							is_in_underground = false;
 						}
-						else{
-							// have been on ground
-							if( grund_t::underground_mode != old_underground_mode ) {
-							old_underground_mode = grund_t::underground_mode;
-							}
-							else{
-								
-							}
+						else if( grund_t::underground_mode != grund_t::see_heightcut_outdoor ) {
+							// have been on ground. we must keep underground mode
+							grund_t::see_heightcut_outdoor = grund_t::underground_mode;
 						}
-						grund_t::set_underground_mode( grund_t::underground_mode, underground_height );
+						grund_t::set_underground_mode( grund_t::see_heightcut_outdoor, underground_height );
 						
 					}
 					if(  redraw  ) {
