@@ -125,6 +125,8 @@ private:
 	gui_label_t lb_name_filter_input;
 	static char name_filter_value[64];
 	gui_textinput_t name_filter_input;
+	char schedule_filter[256];
+	gui_textinput_t line_filter_input;
 
 	gui_tab_panel_t tabs;
 	gui_divider_t div_tabbottom;
@@ -310,6 +312,7 @@ public:
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	void apply_line();
+	void init_line_selector();
 
 	void set_selected_line(linehandle_t line) { selected_line = line; }
 
