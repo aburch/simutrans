@@ -344,6 +344,7 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "electric_promille", sets->get_electric_promille(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL( "allow_underground_transformers", sets->get_allow_underground_transformers() );
 	INIT_NUM( "way_height_clearance", sets->get_way_height_clearance(), 1, 2, gui_numberinput_t::AUTOLINEAR, true );
+	INIT_NUM( "credit_per_MWs", sets->get_credit_per_MWs(), 1, 10000, gui_numberinput_t::AUTOLINEAR, false);
 	SEPERATOR
 
 	INIT_NUM( "passenger_factor",  sets->get_passenger_factor(), 0, 16, gui_numberinput_t::AUTOLINEAR, false );
@@ -438,6 +439,7 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->electric_promille );
 	READ_BOOL_VALUE( sets->allow_underground_transformers );
 	READ_NUM_VALUE( sets->way_height_clearance );
+	READ_NUM_VALUE( sets->credit_per_MWs );
 
 	READ_NUM_VALUE( sets->passenger_factor );
 	READ_NUM_VALUE( sets->passenger_factor_float );

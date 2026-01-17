@@ -148,6 +148,8 @@ settings_t::settings_t() :
 
 	electric_promille = 330;
 
+	credit_per_MWs = 2;
+
 #ifdef OTTD_LIKE
 	// crossconnect all factories (like OTTD and similar games)
 	crossconnect_factories=true;
@@ -1006,6 +1008,9 @@ void settings_t::rdwr(loadsave_t *file)
 			overloading_runningcost_increase = true;
 			default_reverse = false;
 		}
+		if(  file->get_OTRP_version() >= 51  ) {
+			file->rdwr_long( credit_per_MWs );
+		}
  		if(  file->is_version_atleast(122, 1)  ) {
 			file->rdwr_enum(climate_generator);
 			file->rdwr_byte( wind_direction );
@@ -1582,6 +1587,8 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 
 	close_old_factory			   = contents.get_int("close_old_factory", close_old_factory) != 0;
 	factory_max_years_obsolete = contents.get_int("max_years_obsolete", factory_max_years_obsolete);
+
+	credit_per_MWs		   = contents.get_int_clamped( "credit_per_MWs", credit_per_MWs, 1, 10000);
 
 	env_t::just_in_time = contents.get_int_clamped("just_in_time", env_t::just_in_time, 0, 2);
 	just_in_time = env_t::just_in_time;
