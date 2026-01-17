@@ -609,7 +609,7 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	INIT_NUM( "max_no_of_trees_on_square", sets->get_max_no_of_trees_on_square(), 1, 5, 1, true );
 	INIT_NUM_NEW( "tree_climates", sets->get_tree_climates(), 0, 255, 1, false );
 	INIT_NUM_NEW( "no_tree_climates", sets->get_no_tree_climates(), 0, 255, 1, false );
-
+	INIT_NUM( "winter_snowline", sets->get_winter_snowline(), sets->get_groundwater(), 127, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_END
 }
 
@@ -648,6 +648,7 @@ void settings_climates_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->max_no_of_trees_on_square );
 	READ_NUM_VALUE_NEW( sets->tree_climates );
 	READ_NUM_VALUE_NEW( sets->no_tree_climates );
+	READ_NUM_VALUE( sets->winter_snowline );
 
 	(void)booliter; // silence warning
 }
