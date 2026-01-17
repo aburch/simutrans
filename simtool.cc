@@ -7931,7 +7931,7 @@ const char *tool_pipette_t::work(player_t *pl, koord3d pos)
 	static cbuffer_t param_str;
 
 	const grund_t *gr = welt->lookup(pos);
-	if (!gr  ||  gr->obj_count()==0) {
+	if (!gr) {
 		return NULL;
 	}
 
