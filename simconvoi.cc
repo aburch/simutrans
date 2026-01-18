@@ -3711,8 +3711,9 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 		while(  !halt->book_departure(arrived_time, go_on_ticks, go_on_ticks + 2 * world()->ticks_per_world_month / current_entry.spacing, cnv)  ) {
 			// If the reservation request is denied, increment slot.
 			slot++;
-			go_on_ticks = slot * world()->ticks_per_world_month / current_entry.spacing + spacing_shift;
+			go_on_ticks = (slot%(1U<<(32-world()->get_settings().get_bits_per_month()))) * world()->ticks_per_world_month / current_entry.spacing + spacing_shift;
 		}
+		go_on_ticks = go_on_ticks == 0 ? go_on_ticks+1:go_on_ticks; // go_on_ticks=0 means this cannot reserve slot!
 		return is_first_ticks_bigger(world()->get_ticks(), go_on_ticks - time_to_load);
 	}
 
@@ -4165,6 +4166,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 
 		// Advance schedule
 		if(  !is_coupled()  ) {
+			dbg->message("convoi_t::hat_gehalten()","%s is depart because departure time arrive: %i, %i",get_name(),scheduled_departure_time,welt->get_ticks());
 			push_goods_waiting_time_if_needed();
 			push_convoy_stopping_time();
 			schedule->advance();
@@ -4193,8 +4195,8 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 
 	// at least wait the minimum time for loading
 	if(  !is_coupled()  &&  scheduled_departure_time>0  ) {
-		const sint32 ticks_remain = scheduled_departure_time - time - welt->get_ticks();
-		if(  ticks_remain<(sint32)time  ) {
+		const sint64 ticks_remain = (uint64)scheduled_departure_time - (uint64)time - (uint64)welt->get_ticks();
+		if(  ticks_remain<(sint64)time  ) {
 			// this convoy is about to start. we don't want to wait for 2000 ms or more.
 			// just wait for ticks_remain
 			time = max(0, ticks_remain);
