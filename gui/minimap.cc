@@ -1681,19 +1681,14 @@ void minimap_t::draw(scr_coord pos)
 				new_max_city_growth = abs_growth;
 			}
 
-			// Skip cities with no growth
-			if(  growth == 0  ) {
-				continue;
-			}
-
 			scr_coord city_pos = map_to_screen_coord( stadt->get_pos() );
 			city_pos = city_pos + pos;
 
 			// Green for growth, red for decline
-			PIXVAL color = color_idx_to_rgb(growth > 0 ? COL_DARK_GREEN : COL_DARK_RED);
+			PIXVAL color = color_idx_to_rgb(growth > 0 ? COL_LIGHT_RED : growth < 0 ? COL_DARK_GREEN : COL_YELLOW);
 
 			// Calculate radius based on absolute growth with zoom correction
-			int radius = max( (number_to_radius( abs_growth )*zoom_in)/zoom_out, 1 );
+			int radius = max( (number_to_radius( 5 * abs_growth )*zoom_in)/zoom_out, 5 );
 
 			// Draw filled circle with black outline
 			display_filled_circle_rgb( city_pos.x, city_pos.y, radius, color );
