@@ -83,6 +83,7 @@ protected:
 	bool is_dragging;
 	sint16 drag_height;
 	bool is_area_process;
+	// avoid raise or lower same position many times at one dragging
 	vector_tpl<koord> dragged_pos;
 
 	const char* drag(player_t*, koord k, sint16 h, int &n);
