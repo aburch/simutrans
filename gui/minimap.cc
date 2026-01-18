@@ -1592,21 +1592,6 @@ void minimap_t::draw(scr_coord pos)
 	}
 	max_waiting_change = new_max_waiting_change; // update waiting tendencies
 
-	// if we do not do this here, vehicles would erase the town names
-	// ADD: if CRTL key is pressed, temporary show the name
-	if(  mode & MAP_TOWN  ) {
-		const weighted_vector_tpl<stadt_t*>& staedte = world->get_cities();
-		const PIXVAL col = color_idx_to_rgb(showing_schedule ? COL_BLACK : COL_WHITE);
-
-		FOR( weighted_vector_tpl<stadt_t*>, const stadt, staedte ) {
-			const char * name = stadt->get_name();
-
-			scr_coord p = map_to_screen_coord( stadt->get_pos() );
-			p += pos;
-			display_proportional_clip_rgb( p.x, p.y, name, ALIGN_LEFT, col, true );
-		}
-	}
-
 	// draw city limit
 	if(  mode & MAP_CITYLIMIT  ) {
 
@@ -1814,6 +1799,21 @@ void minimap_t::draw(scr_coord pos)
 			}
 		}
 
+	}
+
+	// if we do not do this here, vehicles would erase the town names
+	// ADD: if CRTL key is pressed, temporary show the name
+	if(  mode & MAP_TOWN  ) {
+		const weighted_vector_tpl<stadt_t*>& staedte = world->get_cities();
+		const PIXVAL col = color_idx_to_rgb(showing_schedule ? COL_BLACK : COL_WHITE);
+
+		FOR( weighted_vector_tpl<stadt_t*>, const stadt, staedte ) {
+			const char * name = stadt->get_name();
+
+			scr_coord p = map_to_screen_coord( stadt->get_pos() );
+			p += pos;
+			display_proportional_clip_rgb( p.x, p.y, name, ALIGN_LEFT, col, true );
+		}
 	}
 }
 
