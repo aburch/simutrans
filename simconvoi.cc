@@ -5916,7 +5916,7 @@ void convoi_t::reverse_convoy_coupling()
 convoihandle_t convoi_t::get_most_parent_convoi() const
 {
 	convoihandle_t c = self;
-	while(c.is_bound() && c->is_coupled()) {
+	while(c->parent_convoi.is_bound()) {
 		c = c->get_parent_convoi();
 	}
 	if(c.is_bound()) {
