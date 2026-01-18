@@ -647,7 +647,7 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 
 		// remove town? (when removing townhall)
 		if(gb->is_townhall()) {
-			stadt_t *stadt = welt->find_nearest_city(k);
+			stadt_t *stadt = gb->get_stadt();
 			if(!welt->remove_city( stadt )) {
 				msg = "Das Feld gehoert\neinem anderen Spieler\n";
 				return false;
@@ -977,6 +977,11 @@ const char *tool_raise_lower_base_t::move( player_t *player, uint16 buttonstate,
 		char buf[16];
 		if(!is_dragging) {
 			drag_height = get_drag_height(pos.get_2d());
+			dragged_pos.clear();
+		}
+		if(is_shift_pressed()&&!dragged_pos.is_contained(pos.get_2d())){
+			drag_height = get_drag_height(pos.get_2d());
+			dragged_pos.append(pos.get_2d());
 		}
 		is_dragging = true;
 		is_area_process = false;
@@ -1082,7 +1087,8 @@ const char *tool_raise_lower_base_t::do_work( player_t *player, const koord3d &s
 		}
 	}
 
-	is_area_process = true;
+	// if we press shift key, we only up or down 1 height from current height
+	is_area_process = !is_shift_pressed();
 
 	for(  k.x=start.x;  k.x!=(end.x+dx);  k.x+=dx  ) {
 		for(  k.y=start.y;  k.y!=(end.y+dy);  k.y+=dy  ) {
@@ -2059,8 +2065,18 @@ bool tool_change_city_size_t::init( player_t * )
 
 const char *tool_change_city_size_t::work( player_t *, koord3d pos )
 {
-	stadt_t *city = welt->find_nearest_city(pos.get_2d());
-	if(city!=NULL) {
+	stadt_t *city=NULL;
+	// if there is a city building at this position, we change this city size.
+	if(  grund_t *gr = welt->lookup_kartenboden(pos.get_2d())  ) {
+		if(  gebaeude_t *gb = gr->find<gebaeude_t>()  ) {
+			city = gb->get_stadt();
+		}
+	}
+	if(  !city  ) {
+		// if no city building, we find nearest city.
+		city = welt->find_nearest_city(pos.get_2d());
+	}
+	if(  city  ) {
 		city->change_size( atoi(default_param) );
 		// update the links from other cities to this city
 		FOR(weighted_vector_tpl<stadt_t*>, const c, welt->get_cities()) {
