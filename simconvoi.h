@@ -1120,7 +1120,7 @@ public:
 	uint32 calc_available_halt_length_in_vehicle_steps(koord3d front_vehicle_pos, ribi_t::ribi front_vehicle_dir) const;
 
 	// Returns the parent and root parent convoi of this convoy. Returns this convoy if not coupled.
-	convoihandle_t get_parent_convoi() const {return parent_convoi.is_bound()? parent_convoi: self;}
+	convoihandle_t get_parent_convoi() const {return parent_convoi;}
 	convoihandle_t get_most_parent_convoi() const;
 
 	// Returns the most child convoi of this convoy.
