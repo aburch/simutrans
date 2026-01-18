@@ -3840,10 +3840,8 @@ bool tool_build_wayobj_t::calc_route( route_t &verbindung, player_t *player, con
 		}
 	}
 	// get a default vehicle
-	vehicle_desc_t remover_desc( waytype, 500, vehicle_desc_t::diesel );
-	vehicle_t* test_vehicle = vehicle_builder_t::build(start, player, NULL, &remover_desc);
-	test_vehicle->set_flag( obj_t::not_on_map );
-	test_driver_t* test_driver = scenario_checker_t::apply(test_vehicle, player, this);
+	test_driver_t * test_driver = new way_checker_t(waytype);
+	test_driver = scenario_checker_t::apply(test_driver, player, this);
 
 	bool can_built;
 	if( start != to ) {
@@ -5664,10 +5662,9 @@ built_sign:
 bool tool_build_roadsign_t::calc_route(route_t &route, player_t *player, const koord3d &from, const koord3d &to)
 {
 	// get a default vehicle
-	vehicle_desc_t rs_desc( desc->get_wtyp(), 500, vehicle_desc_t::diesel);
-	vehicle_t *test_vehicle = vehicle_builder_t::build(from, player, NULL, &rs_desc);
-	test_vehicle->set_flag(obj_t::not_on_map);
-	test_driver_t *test_driver = scenario_checker_t::apply(test_vehicle, player, this);
+	waytype_t waytype = desc->get_waytype() == tram_wt ? track_wt : desc->get_waytype();
+	test_driver_t *test_driver = new way_checker_t(waytype);
+	test_driver = scenario_checker_t::apply(test_driver, player, this);
 
 	bool can_build = false;
 
