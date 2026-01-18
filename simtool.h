@@ -796,6 +796,23 @@ public:
 };
 
 
+// Copies item under cursor into cursor
+class tool_pipette_t : public tool_t
+{
+public:
+	tool_pipette_t() : tool_t(TOOL_PIPETTE | GENERAL_TOOL) {}
+
+public:
+	const char *get_tooltip(const player_t *) const OVERRIDE { return translator::translate("Pipette"); }
+	const char *work(player_t *, koord3d) OVERRIDE;
+	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_work_network_safe() const OVERRIDE { return true; }
+
+private:
+	const char* allow_tool_check(const obj_t* obj, const obj_desc_timelined_t* desc, const player_t* pl) const;
+};
+
+
 class tool_extinguish_waiting_goods_t : public tool_t {
 public:
 	tool_extinguish_waiting_goods_t() : tool_t(TOOL_EXTINGUISH_WAITING_GOODS | GENERAL_TOOL) {}
