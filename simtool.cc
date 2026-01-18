@@ -8041,6 +8041,7 @@ const char *tool_pipette_t::work(player_t *pl, koord3d pos)
 		t.set_default_param(param_str);
 		t.cursor = tool_t::general_tool[TOOL_PLANT_TREE]->cursor;
 		welt->set_tool(&t, pl);
+		return NULL;
 	}
 
 	if (groundobj_t* b = gr->find<groundobj_t>()) {
@@ -8051,6 +8052,7 @@ const char *tool_pipette_t::work(player_t *pl, koord3d pos)
 			t.set_default_param(param_str);
 			t.cursor = tool_t::general_tool[TOOL_PLANT_GROUNDOBJ]->cursor;
 			welt->set_tool(&t, pl);
+			return NULL;
 		}
 	}
 
