@@ -8058,6 +8058,7 @@ const char *tool_pipette_t::work(player_t *pl, koord3d pos)
 
 	return gr->obj_count()>0 ? "Not allowed to copy object." : NULL;
 }
+#undef select_and_check
 
 
 const char* tool_extinguish_waiting_goods_t::work(player_t* player, koord3d pos) {
