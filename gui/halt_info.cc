@@ -795,7 +795,7 @@ uint32 gui_departure_board_t::calc_ticks_until_arrival( convoihandle_t cnv )
 		// extra time for acceleration
 		delta_t += kmh_average * 25;
 	}
-	delta_t += ( ((sint64)delta_tiles << (8+12) ) / kmh_to_speed( kmh_average ) );
+	delta_t += ( ((sint64)delta_tiles << (8+12) ) / kmh_to_speed( max(kmh_average,1) ) ); // avoid div. by 0
 	return delta_t;
 }
 
