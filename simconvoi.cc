@@ -5180,11 +5180,31 @@ sint64 convoi_t::get_stat_converted(int month, int cost_type) const
 
 const char* convoi_t::send_to_depot(bool local)
 {
+	const char *txt;
+	vehicle_t *v = front();
+	// if we are already at depot (e.g. start but wait for clearance), we go back there. 
+	if(  grund_t *gr=welt->lookup(front()->get_pos())  ) {
+		depot_t *dep=gr->get_depot();
+		// check the owner
+		if(  dep  &&  (dep->get_owner()==get_owner())  ) {
+			// check waytype
+			convoihandle_t c=get_coupling_convoi();
+			bool valid_waytype = dep->get_waytype()==front()->get_waytype();
+			while(  valid_waytype && c.is_bound()  ) {
+				valid_waytype &= (dep->get_waytype()==c->front()->get_waytype());
+				c = c->get_coupling_convoi();
+			}
+			if(  valid_waytype  ) {
+				txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
+				betrete_depot(dep,false);
+				return txt;
+			}
+		}
+	}
 	// iterate over all depots and try to find shortest route
 	route_t *shortest_route = new route_t();
 	route_t *route = new route_t();
 	koord3d home = koord3d::invalid;
-	vehicle_t *v = front();
 	FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
 		if (depot->get_waytype() != v->get_desc()->get_waytype()  ||  depot->get_owner() != get_owner()) {
 			continue;
@@ -5212,7 +5232,6 @@ const char* convoi_t::send_to_depot(bool local)
 		}
 	}
 	// if route to a depot has been found, update the convoi's schedule
-	const char *txt;
 	if(  !shortest_route->empty()  ) {
 		convoihandle_t c = self;
 		while( c.is_bound() ) {
@@ -5258,15 +5277,26 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 			return txt;
 		}
 		c = c->get_coupling_convoi();
+	}
+	vehicle_t *v = front();
+	koord3d home = koord3d::invalid;
+	bool find_depot_route = false;
+	bool depot_already_know = false;
+	// if we are already at depot (e.g. start but wait for clearance), we go back there. 
+	if(  grund_t *gr=welt->lookup(front()->get_pos())  ) {
+		depot_t *dep=gr->get_depot();
+		// check the owner
+		if(  dep  &&  (dep->get_owner()==get_owner())  ) {
+			// here, we only store the position of the front vehicle. if we already set depot position in schedule, we go there.
+			find_depot_route = true;
+			depot_already_know = true;
+			home = front()->get_pos();
+		}
 	} 
 	// iterate over all depots and try to find shortest route
 	route_t *shortest_route = new route_t();
 	route_t *route = new route_t();
-	koord3d home = koord3d::invalid;
-	vehicle_t *v = front();
 	uint8 current_stop = schedule->get_current_stop();
-	bool find_depot_route = false;
-	bool depot_already_know = false;
 	// find the depot in the schedule. It doesn't have to be next.
 	for ( uint8 i = 0 ; i<schedule->get_count() ; i++  ) {
 		koord3d next_pos = schedule->at((current_stop+i)%schedule->get_count()).pos;
