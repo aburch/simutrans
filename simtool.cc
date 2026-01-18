@@ -977,6 +977,11 @@ const char *tool_raise_lower_base_t::move( player_t *player, uint16 buttonstate,
 		char buf[16];
 		if(!is_dragging) {
 			drag_height = get_drag_height(pos.get_2d());
+			dragged_pos.clear();
+		}
+		if(is_shift_pressed()&&!dragged_pos.is_contained(pos.get_2d())){
+			drag_height = get_drag_height(pos.get_2d());
+			dragged_pos.append(pos.get_2d());
 		}
 		is_dragging = true;
 		is_area_process = false;
@@ -1082,7 +1087,8 @@ const char *tool_raise_lower_base_t::do_work( player_t *player, const koord3d &s
 		}
 	}
 
-	is_area_process = true;
+	// if we press shift key, we only up or down 1 height from current height
+	is_area_process = !is_shift_pressed();
 
 	for(  k.x=start.x;  k.x!=(end.x+dx);  k.x+=dx  ) {
 		for(  k.y=start.y;  k.y!=(end.y+dy);  k.y+=dy  ) {
