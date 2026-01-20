@@ -889,6 +889,7 @@ void stadt_t::factory_set_t::rdwr(loadsave_t *file)
 	if(  file->is_version_atleast(110, 5)  ) {
 		uint32 entry_count = entries.get_count();
 		file->rdwr_long(entry_count);
+		dbg->message("stadt_t::factory_set_t::rdwr()","entry count: %i",entry_count);
 		if(  file->is_loading()  ) {
 			entries.resize( entry_count );
 			factory_entry_t entry;
@@ -1105,6 +1106,7 @@ void stadt_t::rdwr(loadsave_t* file)
 		owner_n = welt->sp2num(owner);
 	}
 	file->rdwr_str(name);
+	dbg->message("stadt_t::rdwr()","loadsave %s", name.c_str());
 	pos.rdwr(file);
 	uint32 lli = lo.x;
 	uint32 lob = lo.y;
