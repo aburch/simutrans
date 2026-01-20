@@ -170,7 +170,7 @@ public:
 #endif
 
 #ifdef MULTI_THREAD
-		pthread_mutex_unlock(&freelist_mutex);
+		pthread_mutex_lock(&freelist_mutex);
 #endif
 
 		// putback to first node
