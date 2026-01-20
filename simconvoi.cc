@@ -3622,7 +3622,7 @@ void convoi_t::calc_gewinn()
 sint32 subtract_ticks(uint32 v1, uint32 v2) {
 	const sint64 v1e = (sint64)v1;
 	const sint64 v2e = (sint64)v2;
-	const sint64 uint32_width = UINT32_MAX+1;
+	const sint64 uint32_width = (sint64)UINT32_MAX+1;
 	if(  v2e-v1e>(1<<31)  ) {
 		// assume v1 is over flow
 		return (sint32)(v1e+uint32_width-v2e);
@@ -3714,6 +3714,7 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 			go_on_ticks = (slot%(1U<<(32-world()->get_settings().get_bits_per_month()))) * world()->ticks_per_world_month / current_entry.spacing + spacing_shift;
 		}
 		go_on_ticks = go_on_ticks == 0 ? go_on_ticks+1:go_on_ticks; // go_on_ticks=0 means this cannot reserve slot!
+		dbg->message("convoi_t::can_depart()","%s reserve %i,%i",cnv->get_name(),go_on_ticks,world()->get_ticks());
 		return is_first_ticks_bigger(world()->get_ticks(), go_on_ticks - time_to_load);
 	}
 
