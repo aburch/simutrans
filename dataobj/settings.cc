@@ -667,7 +667,6 @@ void settings_t::rdwr(loadsave_t *file)
 
 			// cost section ...
 			file->rdwr_bool(freeplay );
-			dbg->message("setting_t::rdwr()","freeplay %i", freeplay);
 			if(  file->is_version_atleast(102, 3)  ) {
 				file->rdwr_longlong(starting_money );
 				// these must be saved, since new player will get different amounts eventually
@@ -1057,7 +1056,6 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long(way_count_no_way);
 			file->rdwr_long(way_count_avoid_crossings);
 			file->rdwr_long(way_count_maximum);
-			dbg->message("settings_t::rdwr()","way_count_maxinum %i",way_count_maximum);
 		}
 		// otherwise the default values of the last one will be used
 	}
