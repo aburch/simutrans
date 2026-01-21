@@ -5758,7 +5758,6 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 	file->rdwr_long(ticks);
 	file->rdwr_long(last_month);
 	file->rdwr_long(last_year);
-	DBG_DEBUG("karte_t::rdwr_gamestate()", "ticks %i, %i/%i", ticks, last_year,last_month);
 
 	if (file->is_loading()) {
 		if(file->is_version_less(86, 6)) {
