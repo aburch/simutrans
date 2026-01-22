@@ -1772,6 +1772,11 @@ void convoi_t::new_month()
 	}
 	get_owner()->book_running_costs( sum_fixed_costs, wtyp );
 	jahresgewinn += sum_fixed_costs;
+
+	// update departure slot if ticks is updated (avoid overflow)
+	if(  welt->get_ticks()<welt->ticks_per_world_month && (scheduled_departure_time!=0)  ) {
+		scheduled_departure_time %= welt->ticks_per_world_month;
+	}
 }
 
 
@@ -3698,23 +3703,22 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 		}
 		// consider spacing
 		// subtract wait_lock (time_to_load) from spacing_shift
-		const sint32 spacing_shift = (sint64)current_entry.spacing_shift * world()->ticks_per_world_month / world()->get_settings().get_spacing_shift_divisor();
+		const sint64 spacing_shift = (sint64)current_entry.spacing_shift * world()->ticks_per_world_month / world()->get_settings().get_spacing_shift_divisor();
 		// NOTE: Treating spacing as int causes numerical error due to decimal amount.
 		// const sint32 spacing = world()->ticks_per_world_month / current_entry.spacing;
-		const uint32 delay_tolerance = (uint64)current_entry.delay_tolerance * world()->ticks_per_world_month / world()->get_settings().get_spacing_shift_divisor();
+		const uint64 delay_tolerance = (uint64)current_entry.delay_tolerance * world()->ticks_per_world_month / world()->get_settings().get_spacing_shift_divisor();
 		// slot = (arrived_time - delay_tolerance - spacing_shift) / spacing + 1
 		const sint64 calibrated_arrived_time = (sint64)arrived_time - (sint64)delay_tolerance - (sint64)spacing_shift + (sint64)time_to_load;
-		sint64 slot = (calibrated_arrived_time<0 ?((sint64)(1U<<32)+calibrated_arrived_time) : calibrated_arrived_time) * (sint64)current_entry.spacing / (sint64)world()->ticks_per_world_month + (sint64)1;
+		sint64 slot = calibrated_arrived_time * (sint64)current_entry.spacing / (sint64)world()->ticks_per_world_month + (sint64)(calibrated_arrived_time<0?0:1);
 		// go_on_ticks = slot * spacing + spacing_shift
 		go_on_ticks = slot * world()->ticks_per_world_month / current_entry.spacing + spacing_shift;
 		// book the departure slot.
 		while(  !halt->book_departure(arrived_time, go_on_ticks, go_on_ticks + 2 * world()->ticks_per_world_month / current_entry.spacing, cnv)  ) {
 			// If the reservation request is denied, increment slot.
 			slot++;
-			go_on_ticks = (slot%(1U<<(32-world()->get_settings().get_bits_per_month()))) * world()->ticks_per_world_month / current_entry.spacing + spacing_shift;
+			go_on_ticks = (slot) * world()->ticks_per_world_month / current_entry.spacing + spacing_shift;
 		}
 		go_on_ticks = go_on_ticks == 0 ? go_on_ticks+1:go_on_ticks; // go_on_ticks=0 means this cannot reserve slot!
-		dbg->message("convoi_t::can_depart()","%s reserve %i,%i",cnv->get_name(),go_on_ticks,world()->get_ticks());
 		return is_first_ticks_bigger(world()->get_ticks(), go_on_ticks - time_to_load);
 	}
 
@@ -4167,7 +4171,6 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 
 		// Advance schedule
 		if(  !is_coupled()  ) {
-			dbg->message("convoi_t::hat_gehalten()","%s is depart because departure time arrive: %i, %i",get_name(),scheduled_departure_time,welt->get_ticks());
 			push_goods_waiting_time_if_needed();
 			push_convoy_stopping_time();
 			schedule->advance();
