@@ -25,7 +25,7 @@ class gui_journey_time_stat_t : public gui_aligned_container_t {
 public:
   gui_journey_time_stat_t(schedule_t*, player_t*);
   
-  void update(linehandle_t, vector_tpl<uint32*>&, vector_tpl<uint32*>&, bool&);
+  void update(linehandle_t, vector_tpl<uint32*>&, vector_tpl<uint32*>&, bool&, bool);
 };
 
 
@@ -34,8 +34,9 @@ class gui_journey_time_info_t : public gui_frame_t, private action_listener_t
 private:
   gui_journey_time_stat_t stat;
 	gui_scrollpane_t scrolly;
-  button_t bt_copy_names, bt_copy_stations, bt_copy_csv;
+  button_t bt_copy_names, bt_copy_stations, bt_copy_csv, bt_change_unit;
   gui_label_t insufficient_cnv_label;
+  bool is_unit_hhmmss_time;// true->hh:mm:ss,false->n/spacing_shift_divisor
   
   player_t* player;
   schedule_t* schedule;
@@ -52,6 +53,7 @@ public:
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	void update();
+  void draw(scr_coord pos, scr_size size);
 
 	//void rdwr( loadsave_t *file );
 };

@@ -97,7 +97,7 @@ void overtaking_mode_frame_t::init( player_t* player_, overtaking_mode_t overtak
 			height_offset_label.set_text("height offset");
 			add_component( &height_offset_label );
 			
-			height_offset.set_limits( 0, 32 );
+			height_offset.set_limits( 1-world()->get_settings().get_way_height_clearance(), 32 );
 			height_offset.set_value( tool_w->get_height_offset() );
 			height_offset.wrap_mode( false );
 			height_offset.add_listener( this );

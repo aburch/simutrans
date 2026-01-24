@@ -1772,6 +1772,11 @@ void convoi_t::new_month()
 	}
 	get_owner()->book_running_costs( sum_fixed_costs, wtyp );
 	jahresgewinn += sum_fixed_costs;
+
+	// update departure slot if ticks is updated (avoid overflow)
+	if(  welt->get_ticks()<welt->ticks_per_world_month && (scheduled_departure_time!=0)  ) {
+		scheduled_departure_time %= welt->ticks_per_world_month;
+	}
 }
 
 
@@ -3622,7 +3627,7 @@ void convoi_t::calc_gewinn()
 sint32 subtract_ticks(uint32 v1, uint32 v2) {
 	const sint64 v1e = (sint64)v1;
 	const sint64 v2e = (sint64)v2;
-	const sint64 uint32_width = UINT32_MAX+1;
+	const sint64 uint32_width = (sint64)UINT32_MAX+1;
 	if(  v2e-v1e>(1<<31)  ) {
 		// assume v1 is over flow
 		return (sint32)(v1e+uint32_width-v2e);
@@ -3698,21 +3703,22 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 		}
 		// consider spacing
 		// subtract wait_lock (time_to_load) from spacing_shift
-		const sint32 spacing_shift = (sint64)current_entry.spacing_shift * world()->ticks_per_world_month / world()->get_settings().get_spacing_shift_divisor();
+		const sint64 spacing_shift = (sint64)current_entry.spacing_shift * world()->ticks_per_world_month / world()->get_settings().get_spacing_shift_divisor();
 		// NOTE: Treating spacing as int causes numerical error due to decimal amount.
 		// const sint32 spacing = world()->ticks_per_world_month / current_entry.spacing;
-		const uint32 delay_tolerance = (uint64)current_entry.delay_tolerance * world()->ticks_per_world_month / world()->get_settings().get_spacing_shift_divisor();
+		const uint64 delay_tolerance = (uint64)current_entry.delay_tolerance * world()->ticks_per_world_month / world()->get_settings().get_spacing_shift_divisor();
 		// slot = (arrived_time - delay_tolerance - spacing_shift) / spacing + 1
 		const sint64 calibrated_arrived_time = (sint64)arrived_time - (sint64)delay_tolerance - (sint64)spacing_shift + (sint64)time_to_load;
-		sint64 slot = (calibrated_arrived_time<0 ?((sint64)(1U<<32)+calibrated_arrived_time) : calibrated_arrived_time) * (sint64)current_entry.spacing / (sint64)world()->ticks_per_world_month + (sint64)1;
+		sint64 slot = calibrated_arrived_time * (sint64)current_entry.spacing / (sint64)world()->ticks_per_world_month + (sint64)(calibrated_arrived_time<0?0:1);
 		// go_on_ticks = slot * spacing + spacing_shift
 		go_on_ticks = slot * world()->ticks_per_world_month / current_entry.spacing + spacing_shift;
 		// book the departure slot.
 		while(  !halt->book_departure(arrived_time, go_on_ticks, go_on_ticks + 2 * world()->ticks_per_world_month / current_entry.spacing, cnv)  ) {
 			// If the reservation request is denied, increment slot.
 			slot++;
-			go_on_ticks = slot * world()->ticks_per_world_month / current_entry.spacing + spacing_shift;
+			go_on_ticks = (slot) * world()->ticks_per_world_month / current_entry.spacing + spacing_shift;
 		}
+		go_on_ticks = go_on_ticks == 0 ? go_on_ticks+1:go_on_ticks; // go_on_ticks=0 means this cannot reserve slot!
 		return is_first_ticks_bigger(world()->get_ticks(), go_on_ticks - time_to_load);
 	}
 
@@ -3721,7 +3727,7 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 }
 
 
-uint32 convoi_t::calc_available_halt_length_in_vehicle_steps(koord3d front_vehicle_pos, ribi_t::ribi front_vehicle_dir, const waytype_t waytype) {
+uint32 convoi_t::calc_available_halt_length_in_vehicle_steps(koord3d front_vehicle_pos, ribi_t::ribi front_vehicle_dir, const waytype_t waytype, const bool use_electric) {
 	if(waytype == water_wt) {
 		// harbour and river stop load any size
 		return UINT_MAX;
@@ -3758,6 +3764,7 @@ uint32 convoi_t::calc_available_halt_length_in_vehicle_steps(koord3d front_vehic
 	while(  gr  &&  haltestelle_t::get_stoppable_halt(gr->get_pos(), NULL, waytype)==halt  ) {
 		const weg_t* way = gr->get_weg(waytype);
 		if(  !way  ) { break; }
+		if(  use_electric && !way->is_electrified()  ) { break; }
 		const ribi_t::ribi way_dir = way->get_ribi_unmasked();
 		is_last_diagonal = ribi_t::is_bend(way_dir);
 		halt_length += is_last_diagonal ? diagonal_tile_length : straight_tile_length;
@@ -4059,10 +4066,24 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 		uncouple_convoi();
 	}
 
-	if(  !is_coupled()  &&  !coupling_convoi.is_bound()  &&  withdraw  &&  (loading_level == 0  ||  goods_catg_index.empty())  ) {
+	if(  !is_coupled()  &&  !coupling_convoi.is_bound()  &&  withdraw  ) {
 		// destroy when empty, alone
-		self_destruct();
-		return;
+		if(  goods_catg_index.empty()  ) {
+			self_destruct();
+			return;
+		}
+		// because loading_level is int value, we must check empty
+		bool empty=true;
+		for(  uint8 i=0; i<anz_vehikel; i++  ) {
+			empty&=(get_vehikel(i)->get_total_cargo()==0);
+			if(!empty){
+				break;
+			}
+		}
+		if (  empty  ) {
+			self_destruct();
+			return;
+		}
 	}
 
 	c = self;
@@ -4178,8 +4199,8 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 
 	// at least wait the minimum time for loading
 	if(  !is_coupled()  &&  scheduled_departure_time>0  ) {
-		const sint32 ticks_remain = scheduled_departure_time - time - welt->get_ticks();
-		if(  ticks_remain<(sint32)time  ) {
+		const sint64 ticks_remain = (uint64)scheduled_departure_time - (uint64)time - (uint64)welt->get_ticks();
+		if(  ticks_remain<(sint64)time  ) {
 			// this convoy is about to start. we don't want to wait for 2000 ms or more.
 			// just wait for ticks_remain
 			time = max(0, ticks_remain);
@@ -4801,7 +4822,7 @@ void convoi_t::set_withdraw(bool new_withdraw)
 {
 	withdraw = new_withdraw;
 	// coupling convoy must not be withdrawn.
-	if(  withdraw  &&  (loading_level==0  ||  goods_catg_index.empty())  &&  !is_coupled()  &&  !coupling_convoi.is_bound()  ) {
+	if(  withdraw  &&  !is_coupled()  &&  !coupling_convoi.is_bound()  ) {
 		// test if convoi in depot and not driving
 		grund_t *gr = welt->lookup( get_pos());
 		if(  gr  &&  gr->get_depot()  &&  state == INITIAL  ) {
@@ -4815,6 +4836,17 @@ void convoi_t::set_withdraw(bool new_withdraw)
 #endif
 		}
 		else {
+			if(  goods_catg_index.empty()  ) {
+				self_destruct();
+				return;
+			}
+			// because loading_level is int value, we must check empty
+			for(  uint8 i=0; i<anz_vehikel; i++  ) {
+				if(get_vehikel(i)->get_total_cargo()>0) {
+					// not empty!
+					return;
+				}
+			}
 			self_destruct();
 		}
 	}
@@ -5154,11 +5186,31 @@ sint64 convoi_t::get_stat_converted(int month, int cost_type) const
 
 const char* convoi_t::send_to_depot(bool local)
 {
+	const char *txt;
+	vehicle_t *v = front();
+	// if we are already at depot (e.g. start but wait for clearance), we go back there. 
+	if(  grund_t *gr=welt->lookup(front()->get_pos())  ) {
+		depot_t *dep=gr->get_depot();
+		// check the owner
+		if(  dep  &&  (dep->get_owner()==get_owner())  ) {
+			// check waytype
+			convoihandle_t c=get_coupling_convoi();
+			bool valid_waytype = dep->get_waytype()==front()->get_waytype();
+			while(  valid_waytype && c.is_bound()  ) {
+				valid_waytype &= (dep->get_waytype()==c->front()->get_waytype());
+				c = c->get_coupling_convoi();
+			}
+			if(  valid_waytype  ) {
+				txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
+				betrete_depot(dep,false);
+				return txt;
+			}
+		}
+	}
 	// iterate over all depots and try to find shortest route
 	route_t *shortest_route = new route_t();
 	route_t *route = new route_t();
 	koord3d home = koord3d::invalid;
-	vehicle_t *v = front();
 	FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
 		if (depot->get_waytype() != v->get_desc()->get_waytype()  ||  depot->get_owner() != get_owner()) {
 			continue;
@@ -5186,7 +5238,6 @@ const char* convoi_t::send_to_depot(bool local)
 		}
 	}
 	// if route to a depot has been found, update the convoi's schedule
-	const char *txt;
 	if(  !shortest_route->empty()  ) {
 		convoihandle_t c = self;
 		while( c.is_bound() ) {
@@ -5232,15 +5283,26 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 			return txt;
 		}
 		c = c->get_coupling_convoi();
+	}
+	vehicle_t *v = front();
+	koord3d home = koord3d::invalid;
+	bool find_depot_route = false;
+	bool depot_already_know = false;
+	// if we are already at depot (e.g. start but wait for clearance), we go back there. 
+	if(  grund_t *gr=welt->lookup(front()->get_pos())  ) {
+		depot_t *dep=gr->get_depot();
+		// check the owner
+		if(  dep  &&  (dep->get_owner()==get_owner())  ) {
+			// here, we only store the position of the front vehicle. if we already set depot position in schedule, we go there.
+			find_depot_route = true;
+			depot_already_know = true;
+			home = front()->get_pos();
+		}
 	} 
 	// iterate over all depots and try to find shortest route
 	route_t *shortest_route = new route_t();
 	route_t *route = new route_t();
-	koord3d home = koord3d::invalid;
-	vehicle_t *v = front();
 	uint8 current_stop = schedule->get_current_stop();
-	bool find_depot_route = false;
-	bool depot_already_know = false;
 	// find the depot in the schedule. It doesn't have to be next.
 	for ( uint8 i = 0 ; i<schedule->get_count() ; i++  ) {
 		koord3d next_pos = schedule->at((current_stop+i)%schedule->get_count()).pos;
@@ -5860,7 +5922,7 @@ void convoi_t::reverse_convoy_coupling()
 convoihandle_t convoi_t::get_most_parent_convoi() const
 {
 	convoihandle_t c = self;
-	while(c.is_bound() && c->is_coupled()) {
+	while(c->parent_convoi.is_bound()) {
 		c = c->get_parent_convoi();
 	}
 	if(c.is_bound()) {

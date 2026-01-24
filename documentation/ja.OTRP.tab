@@ -1,6 +1,8 @@
 §################################################################################
 show connected directions
 接続方向を表示する
+view masked ribi
+接続方向を表示
 message of all players
 全てのプレイヤーの収支を表示
 message of active players
@@ -170,7 +172,7 @@ Extract driving settings
 Show driving and departure setting for each stops/waypoints
 各駅・中継点における運転関係の設定を表示/非表示します(発車時刻、反転、連結等)
 Temporary schedule
-臨時系統
+臨時系統(T)
 This schedule does not affect the route cost calculation.
 このスケジュールはルートコストの計算に寄与しません．
 Pass this stop
@@ -220,7 +222,7 @@ Replacement seed
 Set as the replacement seed convoy
 車庫に到着した編成の組成を，この編成と同じにします．
 Full Load Acceleration
-応荷重制御
+応荷重制御(R)
 Always use full load acceleration regardless of loadings.
 積載量にかかわらず満載時の加速度で運転します．
 Load before departure
@@ -336,6 +338,8 @@ This player is locked
 このプレイヤーはロックされています
 Stops
 停車駅一覧
+line memo
+路線メモ
 #------乗降時間制御------
 Full Get on/off Time
 乗降時間制御(G)
@@ -373,6 +377,8 @@ merge to
 Merge
 併合する
 #------旅客経路検索ウィンドウ------
+goods route search
+旅客経路検索
 Pax route search
 旅客経路検索
 From:
@@ -422,7 +428,25 @@ route by route cost
 ルートコスト法で計算
 route by journey time
 所要時間をもとに計算
+#------スクリプト関連------
+generate script
+スクリプトを生成
+Load tool script
+スクリプトを読み込み
+#------マップ表示機能関連------
+Citizens
+人口
+CityGrowth
+都市成長率
+Show city citizens as circles
+都市人口を円の大きさで表示します
+Show city growth as circles (red=growth, green=decline)
+都市の成長率を円の大きさで表示します(赤:成長、緑:衰退)
 #------その他の翻訳------
+Remove all waiting goods and pax
+この駅のすべての待機中の旅客と貨物を除去します
+Change to public player
+公共事業へ切り替え
 next stop
 次の駅へ
 Go to the next station.
@@ -487,3 +511,15 @@ Line Memo:
 路線メモ:
 Line Name:
 路線名:
+Urban Density
+街の密度
+building
+ブロック
+buildings
+ブロック
+No stop found!
+停車場がありません!
+Different player's stop!
+他社の停車場です!
+Pipette
+ピペットツール

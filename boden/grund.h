@@ -172,6 +172,15 @@ public:
 	};
 	static uint8 underground_mode;
 	static sint8 underground_level;
+	/**
+	 * we keep underground mode using outside
+	 * we only update this value when following convoy which run outside(not underground)
+	 */
+	static uint8 underground_mode_outside;
+	/**
+	 * followed convoi is underground.
+	 */
+	static bool is_underground;
 
 protected:
 	/**

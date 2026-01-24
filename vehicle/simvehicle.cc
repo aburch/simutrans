@@ -105,46 +105,18 @@ bool vehicle_base_t::need_realignment() const
 }
 
 // [0]=xoff [1]=yoff
-sint8 vehicle_base_t::driveleft_base_offsets[8][2] =
-{
-	{  12,  6 },
-	{ -12,  6 },
-	{   0,  6 },
-	{  12,  0 },
-	{ -12, -6 },
-	{  12, -6 },
-	{   0, -6 },
-	{ -12,  0 }
-};
-
-// [0]=xoff [1]=yoff
 sint8 vehicle_base_t::overtaking_base_offsets[8][2];
 
 // recalc offsets for overtaking
 void vehicle_base_t::set_overtaking_offsets( bool driving_on_the_left )
 {
 	sint8 sign = driving_on_the_left ? -1 : 1;
-	// a tile has the internal size of
-	const sint8 XOFF=12;
-	const sint8 YOFF=6;
-
-	overtaking_base_offsets[0][0] = sign * XOFF;
-	overtaking_base_offsets[1][0] = -sign * XOFF;
-	overtaking_base_offsets[2][0] = 0;
-	overtaking_base_offsets[3][0] = sign * XOFF;
-	overtaking_base_offsets[4][0] = -sign * XOFF;
-	overtaking_base_offsets[5][0] = sign * XOFF;
-	overtaking_base_offsets[6][0] = 0;
-	overtaking_base_offsets[7][0] = -sign * XOFF;
-
-	overtaking_base_offsets[0][1] = sign * YOFF;
-	overtaking_base_offsets[1][1] = sign * YOFF;
-	overtaking_base_offsets[2][1] = sign * YOFF;
-	overtaking_base_offsets[3][1] = 0;
-	overtaking_base_offsets[4][1] = -sign * YOFF;
-	overtaking_base_offsets[5][1] = -sign * YOFF;
-	overtaking_base_offsets[6][1] = -sign * YOFF;
-	overtaking_base_offsets[7][1] = 0;
+	
+	for(uint8 d_idx=0; d_idx<8; d_idx++) {
+		for(uint8 i=0; i<2; i++) {
+			overtaking_base_offsets[d_idx][i]=sign*env_t::overtaking_base_offsets[d_idx][i];
+		}
+	}
 }
 
 
@@ -1297,7 +1269,7 @@ void vehicle_t::hop(grund_t* gr)
 	waytype_t waytype = get_waytype();
 	const weg_t *weg = gr->get_weg(waytype);
 	if(  weg  ) {
-		if( (waytype != water_wt && waytype != air_wt) && cnv->needs_electrification() && weg->get_max_speed() > weg->get_max_wayobj_speed()){
+		if( (waytype != water_wt && waytype != air_wt) && cnv->get_use_electric() && weg->get_max_speed() > weg->get_max_wayobj_speed()){
 			speed_limit = kmh_to_speed( weg->get_max_wayobj_speed() );
 		}
 		else{
@@ -2314,8 +2286,8 @@ void road_vehicle_t::get_screen_offset( int &xoff, int &yoff, const sint16 raste
 
 	if(  welt->get_settings().is_drive_left()  ) {
 		const int drive_left_dir = ribi_t::get_dir(get_direction());
-		xoff += tile_raster_scale_x( driveleft_base_offsets[drive_left_dir][0], raster_width );
-		yoff += tile_raster_scale_y( driveleft_base_offsets[drive_left_dir][1], raster_width );
+		xoff += tile_raster_scale_x( env_t::driveleft_base_offsets[drive_left_dir][0], raster_width );
+		yoff += tile_raster_scale_y( env_t::driveleft_base_offsets[drive_left_dir][1], raster_width );
 	}
 
 	// eventually shift position to take care of overtaking

@@ -1141,6 +1141,40 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	// setting default reverse or not when next direction is opposite
 	default_reverse = contents.get_int( "reverse_by_default", default_reverse )!=0;
 
+	// setting driving left and overtaking offsets
+	// a tile has the internal size of
+	const sint8 default_xoff = 12;
+	const sint8 default_yoff = 6;
+	const sint8 default_xoffs[8] = {1,-1,0,1,-1,1,0,-1};
+	const sint8 default_yoffs[8] = {1,1,1,0,-1,-1,-1,0};
+	for(uint8 d_idx = 0; d_idx < 8; d_idx++) {
+		char buf[64];
+		sprintf(buf, "driveleft_base_offset_%s", directions[d_idx]);
+		vector_tpl<int> temp_offset = contents.get_ints(buf);
+		if (temp_offset.get_count()>=2) {
+			for(uint8 i=0; i<2; i++) {
+				env_t::driveleft_base_offsets[d_idx][i] = temp_offset[i];
+			}
+		} else {
+			env_t::driveleft_base_offsets[d_idx][0] = default_xoff*default_xoffs[d_idx];
+			env_t::driveleft_base_offsets[d_idx][1] = default_yoff*default_yoffs[d_idx];
+		}
+	}
+	for(uint8 d_idx = 0; d_idx < 8; d_idx++) {
+		char buf[64];
+		sprintf(buf, "overtaking_base_offset_%s", directions[d_idx]);
+		vector_tpl<int> temp_offset = contents.get_ints(buf);
+		if (temp_offset.get_count()>=2) {
+			for(uint8 i=0; i<2; i++) {
+				env_t::overtaking_base_offsets[d_idx][i] = temp_offset[i];
+			}
+		} else {
+			// if not defined, it should be same as driveleft base offset.
+			for(uint8 i=0; i<2; i++) {
+				env_t::overtaking_base_offsets[d_idx][i] = env_t::driveleft_base_offsets[d_idx][i];
+			}
+		}
+	}
 
 	// network stuff
 	env_t::server_frames_ahead              = contents.get_int_clamped( "server_frames_ahead",             env_t::server_frames_ahead,              0, INT_MAX );

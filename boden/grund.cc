@@ -78,6 +78,8 @@ uint8 grund_t::offsets[4]={0,1,2/*illegal!*/,2};
 
 sint8 grund_t::underground_level = 127;
 uint8 grund_t::underground_mode = ugm_none;
+uint8 grund_t::underground_mode_outside = ugm_none;
+bool grund_t::is_underground = false;
 
 
 // ---------------------- text handling from here ----------------------
