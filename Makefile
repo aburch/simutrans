@@ -11,7 +11,6 @@ LIBS :=
 SOURCES :=
 STATIC := 0
 
-CFLAGS += -g
 
 CFG ?= default
 -include config.$(CFG)
@@ -791,7 +790,7 @@ CXXFLAGS += $(CFLAGS)
 
 BUILDDIR ?= build/$(CFG)
 PROGDIR  ?= $(BUILDDIR)
-PROG     ?= sim-OTRP
+PROG     ?= sim
 
 
 .DEFAULT_GOAL := simutrans

@@ -10,7 +10,6 @@
 #include "../simcolor.h"
 #include "../simtool.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/environment.h"
 #include "../display/viewport.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"

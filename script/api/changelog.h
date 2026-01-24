@@ -52,9 +52,6 @@
  * - Added @ref command_x::build_road
  * - Added fields: @ref field_x
  * - Added powerlines: @ref powerline_x, @ref transformer_x, @ref factory_x::get_transformer, @ref factory_x::is_transformer_connected
- * - Added @ref way_x::get_transported_goods, @ref way_x::get_convoys_passed
- * - Added @ref tile_x::get_way, @ref tile_x::get_depot
- * - Added @ref get_pakset_name, @ref player_x::get_type
  *
  * @section api-121 Release 121.0
  *

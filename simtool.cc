@@ -7224,6 +7224,7 @@ const char* tool_change_city_of_building_t::do_work(player_t* player, koord3d co
 	return NULL;
 }
 
+
 void tool_change_city_of_building_t::mark_tiles(player_t*, koord3d const &start, koord3d const &end) {
 	koord k1, k2;
 	k1.x = start.x < end.x ? start.x : end.x;
@@ -7272,6 +7273,7 @@ stadt_t* tool_change_city_of_building_t::get_highlighted_city() const {
 	}
 	return nullptr;
 }
+
 
 char const* tool_daynight_level_t::get_tooltip(player_t const*) const
 {
