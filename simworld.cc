@@ -5714,8 +5714,8 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 	file->rdwr_long(ticks);
 	file->rdwr_long(last_month);
 	file->rdwr_long(last_year);
-	if(file->get_OTRP_version()>=51) {
-		// game speed
+	if(file->get_OTRP_version()>=51&&env_t::networkmode) {
+		// game speed (only network mode)
 		file->rdwr_long(time_multiplier);
 	}
 
