@@ -10,6 +10,7 @@
 #include "schedule_entry.h"
 
 #include "../halthandle_t.h"
+#include "../linehandle_t.h"
 
 #include "../tpl/minivec_tpl.h"
 
@@ -33,6 +34,9 @@ class schedule_t
 	// operational maximum speed of this schedule. 0 => no limit.
 	uint16 max_speed;
 
+	// The line to which the convoy belongs when the schedule reaches its end.
+	linehandle_t next_line;
+
 	// the id of the departure slot group.
 	// defined in sint64 since uint64 value cannot be handled with rdwr_longlong
 	sint64 departure_slot_group_id;
@@ -42,6 +46,8 @@ class schedule_t
 	uint32 additional_base_waiting_time;
 
 	static schedule_entry_t dummy_entry;
+
+	minivec_tpl<schedule_entry_t> entries;
 
 	/**
 	 * Fix up current_stop value, which we may have made out of range
@@ -80,8 +86,6 @@ public:
 		FULL_LOAD_TIME         = 1U << 3,
 	};
 
-	minivec_tpl<schedule_entry_t> entries;
-
 	/**
 	 * Returns error message if stops are not allowed
 	 */
@@ -96,6 +100,13 @@ public:
 	bool empty() const { return entries.empty(); }
 
 	uint8 get_count() const { return entries.get_count(); }
+
+	const minivec_tpl<schedule_entry_t> &get_entries() const { return entries; }
+	schedule_entry_t& at(uint8 index) { return entries[index]; }
+	const schedule_entry_t& at(uint8 index) const { return entries[index]; }
+
+	schedule_entry_t* begin() { return entries.begin(); }
+	schedule_entry_t* end() { return entries.end(); }
 
 	virtual schedule_type get_type() const = 0;
 
@@ -115,17 +126,23 @@ public:
 	 * Set the current stop of the schedule .
 	 * If new value is bigger than stops available, the max stop will be used.
 	 */
-	void set_current_stop(uint8 new_current_stop) {
+	void set_current_stop(const uint8 new_current_stop) {
 		current_stop = new_current_stop;
 		make_current_stop_valid();
 	}
 
 	/// advance current_stop by one
-	void advance() {
-		if(  !entries.empty()  ) {
-			current_stop = (current_stop+1)%entries.get_count();
-		}
-	}
+	// DO NOT CALL THIS FUNCTION WHEN SCHEDULE IS JUMPED TO OTHER!
+	void advance();
+	
+	// next_line setting
+	void set_next_line( linehandle_t l );
+	void unset_next_line();
+	linehandle_t get_next_line() const {return next_line;}
+	// next_line condition is ok?
+	bool is_next_line_valid() const {return is_valid_as_next_line(next_line);}
+	// Returns true if the given line can be the next line of this schedule.
+	bool is_valid_as_next_line( linehandle_t ) const;
 
 	inline bool is_editing_finished() const { return editing_finished; }
 	void finish_editing() { editing_finished = true; }
@@ -169,12 +186,15 @@ public:
 	/**
 	 * Inserts a coordinate at current_stop into the schedule.
 	 */
-	bool insert(const grund_t* gr, uint8 minimum_loading = 0, uint16 waiting_time_shift = 0, uint16 stop_flags = 0);
+	bool insert(const grund_t* gr, uint8 minimum_loading = 0, uint16 waiting_time_shift = 0, uint32 stop_flags = 0, uint16 max_speed_kmh_of_convoi = 0, uint16 length_coupling_done = 0, uint8 maximum_loading = 100);
+
 
 	/**
 	 * Appends a coordinate to the schedule.
 	 */
-	bool append(const grund_t* gr, uint8 minimum_loading = 0, uint16 waiting_time_shift = 0, uint16 stop_flags = 0);
+	bool append(const grund_t* gr, uint8 minimum_loading = 0, uint16 waiting_time_shift = 0, uint32 stop_flags = 0, uint16 max_speed_kmh_of_convoi = 0, uint16 length_coupling_done = 0, uint8 maximum_loading = 100);
+
+
 
 	/**
 	 * Cleanup a schedule, removes double entries.
@@ -185,6 +205,11 @@ public:
 	 * Remove current_stop entry from the schedule.
 	 */
 	bool remove();
+
+	/**
+	 * Remove all entries from the schedule.
+	 */
+	void remove_all() { entries.clear(); }
 
 	void rdwr(loadsave_t *file);
 
@@ -221,7 +246,7 @@ public:
 	 * Append description of entry to buf.
 	 * If @p max_chars > 0 then append short version, without loading level and position.
 	 */
-	static void gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* player_, schedule_entry_t const& entry, int max_chars);
+	static void gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* player_, schedule_entry_t const& entry, int max_chars, waytype_t const wt);
 	
 	/*
 	 * Get the index of the corresponding entry of this schedule to Nth entry of the other schedule.

@@ -44,6 +44,7 @@ simline_t::simline_t(player_t* player, linetype type)
 	char printname[128];
 	sprintf(printname, "(%i) %s", self.get_id(), translator::translate("Line", welt->get_settings().get_name_language_id()));
 	name = printname;
+	memo = "";
 
 	init_financial_history();
 	this->type = type;
@@ -139,6 +140,10 @@ void simline_t::set_name(const char *new_name)
 	}
 }
 
+void simline_t::set_memo(const char* new_memo)
+{
+	memo = new_memo;
+}
 
 void simline_t::create_schedule()
 {
@@ -315,7 +320,12 @@ void simline_t::rdwr(loadsave_t *file)
 		sint32 dummy = 0;
 		file->rdwr_long(dummy);
 	}
-
+	if (file->get_OTRP_version() >= 50) {
+		file->rdwr_str(memo);
+	}
+	else {
+		memo = "";
+	}
 	// otherwise initialized to zero if loading ...
 	financial_history[0][LINE_CONVOIS] = count_convoys();
 }
@@ -341,8 +351,8 @@ void simline_t::finish_rd()
 void simline_t::register_stops(schedule_t * schedule)
 {
 DBG_DEBUG("simline_t::register_stops()", "%d schedule entries in schedule %p", schedule->get_count(),schedule);
-	FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->entries) {
-		halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, player);
+	FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->get_entries()) {
+		halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, player, schedule->get_waytype());
 		if(halt.is_bound()) {
 //DBG_DEBUG("simline_t::register_stops()", "halt not null");
 			halt->add_line(self);
@@ -363,8 +373,8 @@ void simline_t::unregister_stops()
 
 void simline_t::unregister_stops(schedule_t * schedule)
 {
-	FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->entries) {
-		halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, player);
+	FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->get_entries()) {
+		halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, player, schedule->get_waytype());
 		if(halt.is_bound()) {
 			halt->remove_line(self);
 		}

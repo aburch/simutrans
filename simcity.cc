@@ -195,10 +195,20 @@ bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, int rotation)
 			case 's':
 				// road?
 				if (!gr->hat_weg(road_wt)) return false;
+				// roads with NO_BUILDING flag should not be treated as roads for building placement
+				if (const strasse_t* str = (const strasse_t*)gr->get_weg(road_wt)) {
+					if (str->get_no_building()) return false;
+				}
 				break;
 			case 'S':
 				// not road?
-				if (gr->hat_weg(road_wt)) return false;
+				// roads with NO_BUILDING flag are treated as "not road"
+				if (gr->hat_weg(road_wt)) {
+					if (const strasse_t* str = (const strasse_t*)gr->get_weg(road_wt)) {
+						if (str->get_no_building()) break; // NO_BUILDING road is treated as "not road", so continue
+					}
+					return false;
+				}
 				break;
 			case 'h':
 				// is house
@@ -1450,7 +1460,7 @@ void stadt_t::step(uint32 delta_t)
 	next_step += delta_t;
 	next_growth_step += delta_t;
 
-	step_interval = (1 << 21U) / (buildings.get_count() * welt->get_settings().get_passenger_factor() + 1);
+	step_interval = (1 << 21U) * welt->get_settings().max_passenger_factor_float() / (buildings.get_count() * ( welt->get_settings().get_passenger_factor() * welt->get_settings().max_passenger_factor_float() + welt->get_settings().get_passenger_factor_float() ) + 1);
 	if (step_interval < 1) {
 		step_interval = 1;
 	}
@@ -2298,7 +2308,11 @@ class building_place_with_road_finder: public building_placefinder_t
 						}
 						// but near a road if possible
 						if (!next_to_road) {
-							next_to_road = gr->hat_weg(road_wt);
+							// roads with NO_BUILDING flag should not be treated as roads for building placement
+							const strasse_t* str = (const strasse_t*)gr->get_weg(road_wt);
+							if (  str  &&  !str->get_no_building()  ) {
+								next_to_road = true;
+							}
 						}
 					}
 				}
@@ -3435,7 +3449,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 {
 	grund_t* bd = welt->lookup_kartenboden(k);
 
-	if (bd->get_typ() != grund_t::boden) {
+	if (!bd || bd->get_typ() != grund_t::boden) {
 		// not on water, monorails, foundations, tunnel or bridges
 		return false;
 	}
@@ -3453,7 +3467,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 	// this road prohibits becoming a cityroad.
 	if(  bd->hat_weg(road_wt)  ) {
 		strasse_t* str = (strasse_t*)(bd->get_weg(road_wt));
-		if(  str  &&  str->get_avoid_cityroad()  ) {
+		if(  str  &&  str->get_avoid_cityroad()  &&  !str->get_allow_branch_cityroad()  ) {
 			return false;
 		}
 	}
@@ -3542,7 +3556,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 				else if(bd2->hat_weg(road_wt)) {
 					const gebaeude_t* gb = bd2->find<gebaeude_t>();
 					const strasse_t* str = (strasse_t*)(bd2->get_weg(road_wt));
-					if(  str  &&  str->get_avoid_cityroad()  ) {
+					if(  str  &&  str->get_avoid_cityroad() && !str->get_allow_branch_cityroad()  ) {
 						// do not connect to road that is not alllowed to become cityroad
 					}
 					else if(gb) {

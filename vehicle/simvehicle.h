@@ -167,7 +167,9 @@ public:
 
 	ribi_t::ribi get_90direction() const {return ribi_type(get_pos(), get_pos_next());}
 
-	koord3d get_pos_next() const {return pos_next;}
+	koord3d get_pos_next() const {return pos_next;}	
+	
+	void set_pos_next(koord3d pn) { pos_next = pn; }
 
 	waytype_t get_waytype() const OVERRIDE = 0;
 
@@ -267,10 +269,11 @@ protected:
 	bool check_for_finish:1; // true, if on the last tile
 	bool has_driven:1;
 
-	virtual bool check_next_tile(const grund_t* ) const OVERRIDE {return false;}
+	virtual bool check_next_tile(const grund_t*, const bool need_electric=false ) const OVERRIDE {return false;}
 
 public:
 	void calc_image() OVERRIDE;
+
 
 	// the coordinates, where the vehicle was loaded the last time
 	koord3d last_stop_pos;
@@ -310,7 +313,7 @@ public:
 
 	void get_smoke(bool yesno ) { smoke = yesno;}
 
-	virtual bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
+	virtual bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route, bool pass_next=false);
 	uint16 get_route_index() const {return route_index;}
 
 	/**
@@ -331,7 +334,7 @@ public:
 	/**
 	* @return die running_cost in Cr/100Km
 	*/
-	int get_operating_cost() const { return desc->get_running_cost(); }
+	sint64 get_operating_cost() const { return desc->get_running_cost(); }
 
 	/**
 	* Play sound, when the vehicle is visible on screen
@@ -497,7 +500,8 @@ private:
 	vector_tpl<koord3d> reserving_tiles;
 
 protected:
-	bool check_next_tile(const grund_t *bd) const OVERRIDE;
+	bool check_next_tile(const grund_t *bd, const bool need_electric) const OVERRIDE;
+	bool check_next_tile(const grund_t *bd) const OVERRIDE {return check_next_tile(bd, false);}
 
 	koord3d pos_prev; //used in enter_tile()
 
@@ -524,7 +528,7 @@ public:
 
 	uint32 get_cost_upslope() const OVERRIDE { return 15; }
 
-	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route) OVERRIDE;
+	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route, bool pass_next=false) OVERRIDE;
 
 	bool can_enter_tile(const grund_t *gr_next, sint32 &restart_speed, uint8 second_check_count) OVERRIDE;
 
@@ -562,22 +566,21 @@ public:
 class rail_vehicle_t : public vehicle_t
 {
 protected:
-	bool check_next_tile(const grund_t *bd, bool coupling) const OVERRIDE;
-	bool check_next_tile(const grund_t *bd) const OVERRIDE { return check_next_tile(bd,false); }
-
+	bool check_next_tile(const grund_t *bd, const bool need_electric, bool find_route, bool coupling) const OVERRIDE;
+	bool check_next_tile(const grund_t *bd, const bool need_electric) const OVERRIDE { return check_next_tile(bd, need_electric, false, false); }
+	bool check_next_tile(const grund_t *bd) const OVERRIDE {return check_next_tile(bd, false, false, false);}
 	void enter_tile(grund_t*) OVERRIDE;
 
-	bool is_signal_clear(uint16 start_index, sint32 &restart_speed);
-	bool is_pre_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed);
-	bool is_priority_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed);
-	bool is_longblock_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed);
-	bool is_choose_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed);
+	bool is_pre_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const call_by_step);
+	bool is_priority_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const call_by_step);
+	bool is_longblock_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const call_by_step);
+	bool is_choose_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const call_by_step);
 
 public:
 	waytype_t get_waytype() const OVERRIDE { return track_wt; }
 
 	// since we might need to un-reserve previously used blocks, we must do this before calculation a new route
-	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route) OVERRIDE;
+	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route, bool pass_next=false) OVERRIDE;
 
 	// how expensive to go here (for way search)
 	int get_cost(const grund_t *gr, const weg_t *w, const sint32 max_speed, ribi_t::ribi from) const OVERRIDE;
@@ -585,7 +588,8 @@ public:
 	uint32 get_cost_upslope() const OVERRIDE { return 25; }
 
 	// returns true for the way search to an unknown target.
-	bool is_target(const grund_t *,const grund_t *) const OVERRIDE;
+	bool is_target(const grund_t*, const grund_t*, const bool) const OVERRIDE;
+	bool is_target(const grund_t *gr,const grund_t *prev_gr) const OVERRIDE {return is_target(gr,prev_gr);}
 	bool is_coupling_target(const grund_t *, const grund_t *) const OVERRIDE;
 
 	// handles all block stuff and route choosing ...
@@ -593,7 +597,7 @@ public:
 
 	// reserves or un-reserves all blocks and returns the handle to the next block (if there)
 	// returns true on successful reservation
-	bool block_reserver(const route_t *route, uint16 start_index, uint16 &next_signal, uint16 &next_crossing, int signal_count, bool reserve, bool force_unreserve, bool use_vector = false ) const;
+	bool block_reserver(const route_t *route, uint16 start_index, uint16 &next_signal, uint16 &next_crossing, int signal_count, bool reserve, bool force_unreserve, bool use_vector = false, bool signal_index_must_return = false ) const;
 
 	bool can_couple(const route_t* route, uint16 start_index, uint16 &coupling_index, uint8 &coupling_steps, bool ignore_signals = false);
 
@@ -611,9 +615,8 @@ public:
 
 	// step() routine called by convoy
 	bool check_longblock_signal(signal_t *sig, uint16 start_index, sint32 &restart_speed);
+	bool is_signal_clear(uint16 start_index, sint32 &restart_speed, bool const call_by_step);
 };
-
-
 
 /**
  * very similar to normal railroad, so we can implement it here completely ...
@@ -688,7 +691,8 @@ protected:
 
 	void calc_friction(const grund_t *gr) OVERRIDE;
 
-	bool check_next_tile(const grund_t *bd) const OVERRIDE;
+	bool check_next_tile(const grund_t *bd, const bool) const OVERRIDE;
+	bool check_next_tile(const grund_t *bd) const OVERRIDE {return check_next_tile(bd, false);}
 
 	void enter_tile(grund_t*) OVERRIDE;
 
@@ -726,7 +730,6 @@ public:
 		circling            = 5,
 		taxiing_to_halt     = 6
 	};
-
 private:
 	// only used for is_target() (do not need saving)
 	ribi_t::ribi approach_dir;
@@ -757,7 +760,8 @@ protected:
 	// jumps to next tile and correct the height ...
 	void hop(grund_t*) OVERRIDE;
 
-	bool check_next_tile(const grund_t *bd) const OVERRIDE;
+	bool check_next_tile(const grund_t *bd, const bool) const OVERRIDE;
+	bool check_next_tile(const grund_t *bd) const OVERRIDE {return check_next_tile(bd, false);}
 
 	void enter_tile(grund_t*) OVERRIDE;
 
@@ -767,6 +771,7 @@ protected:
 	bool find_route_to_stop_position();
 
 public:
+	void increment_route_index(sint16 i){route_index+=i;}
 	air_vehicle_t(loadsave_t *file, bool is_first, bool is_last);
 	air_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv); // start and schedule
 
@@ -792,7 +797,7 @@ public:
 
 	void set_convoi(convoi_t *c) OVERRIDE;
 
-	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route) OVERRIDE;
+	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route, bool pass_next=false) OVERRIDE;
 
 	typ get_typ() const OVERRIDE { return air_vehicle; }
 
@@ -801,6 +806,7 @@ public:
 	void rdwr_from_convoi(loadsave_t *file) OVERRIDE;
 
 	int get_flyingheight() const {return flying_height-get_hoff()-2;}
+	int get_targetheight() const {return target_height-get_hoff()-2;}
 
 	// image: when flying empty, on ground the plane
 	image_id get_image() const OVERRIDE {return !is_on_ground() ? IMG_EMPTY : image;}

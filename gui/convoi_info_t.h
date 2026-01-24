@@ -19,12 +19,16 @@
 #include "components/action_listener.h"
 #include "components/gui_tab_panel.h"
 #include "components/gui_button_to_chart.h"
+#include "components/gui_fixedwidth_textarea.h"
 #include "../convoihandle_t.h"
 #include "simwin.h"
+
+#include "../dataobj/route.h"
 
 #include "../utils/cbuffer_t.h"
 
 class convoi_detail_t;
+class convoi_stops_list_t;
 
 /**
  * Displays an information window for a convoi
@@ -62,11 +66,16 @@ private:
 	button_t set_recovery_button;
 	button_t next_stop_button;
 	button_t reversed_button;
+	button_t route_show_button;
+	bool is_route_show;
+	route_t cnv_route;
+	void show_route(const bool);
 
 	gui_tab_panel_t switch_mode;
-	gui_aligned_container_t container_freight, container_stats, container_line, *container_top, container_details;
+	gui_aligned_container_t container_freight, container_stats, container_line, *container_top, container_details, container_stops, container_line_memo;
 	convoi_detail_t *details;
-	gui_scrollpane_t scroll_freight;
+	convoi_stops_list_t *stops_list;
+	gui_scrollpane_t scroll_freight,scroll_stops_list;
 
 	button_t sort_button;
 	button_t line_button; // goto line ...
@@ -97,6 +106,8 @@ private:
 	void show_hide_statistics( bool show );
 
 	gui_button_to_chart_array_t button_to_chart;
+	cbuffer_t buf_line_memo;
+	gui_fixedwidth_textarea_t* memo_area;
 
 	void init(convoihandle_t cnv);
 public:

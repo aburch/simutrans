@@ -272,7 +272,7 @@ ifdef KUTA_REVISION
 endif
 
 
-CFLAGS   += -Wall -Wextra -Wcast-qual -Wpointer-arith -Wcast-align $(FLAGS)
+CFLAGS   += -Wall -Wextra -Wcast-qual -Wpointer-arith -Wcast-align $(FLAGS) -Wconversion
 CCFLAGS  += -ansi -Wstrict-prototypes -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
 
 
@@ -407,6 +407,7 @@ SOURCES += gui/convoi_filter_frame.cc
 SOURCES += gui/convoi_frame.cc
 SOURCES += gui/convoi_info_t.cc
 SOURCES += gui/convoy_item.cc
+SOURCES += gui/convoi_stops_list_t.cc
 SOURCES += gui/curiosity_edit.cc
 SOURCES += gui/curiositylist_frame_t.cc
 SOURCES += gui/curiositylist_stats_t.cc
@@ -415,6 +416,7 @@ SOURCES += gui/depotlist_frame.cc
 SOURCES += gui/display_settings.cc
 SOURCES += gui/enlarge_map_frame_t.cc
 SOURCES += gui/extend_edit.cc
+SOURCES += gui/end_of_choose_info.cc
 SOURCES += gui/fabrik_info.cc
 SOURCES += gui/factory_chart.cc
 SOURCES += gui/factory_edit.cc
@@ -620,6 +622,7 @@ SOURCES += utils/simrandom.cc
 SOURCES += utils/simstring.cc
 SOURCES += utils/simstring+money.cc
 SOURCES += utils/simthread.cc
+SOURCES += utils/thread_pool.cc
 SOURCES += vehicle/movingobj.cc
 SOURCES += vehicle/pedestrian.cc
 SOURCES += vehicle/simroadtraffic.cc

@@ -99,7 +99,10 @@ public:
 	};
 
 	enum station_flag {
-		HS_ALLOW_OTHER_PLAYER_CONNECTION = 1 << 0 // Allows other players to stop and connect to this station
+		HS_ALLOW_OTHER_PLAYER_CONNECTION = 1 << 0,// Allows other players to stop and connect to this station
+		HS_NO_HANDLE_PAX				 = 1 << 1,// do not handle goods type passenger
+		HS_NO_HANDLE_POST				 = 1 << 2,// do not handle goods type post
+		HS_NO_HANDLE_WARE				 = 1 << 3 // do not handle goods type ware
 	};
 
 private:
@@ -194,7 +197,7 @@ public:
 	/*
 	 * Returns the halt at the given position, if stopping is allowed for the given player.
 	*/
-	static halthandle_t get_stoppable_halt(const koord3d pos, const player_t *player );
+	static halthandle_t get_stoppable_halt(const koord3d pos, const player_t *player, const waytype_t wt=any_wt );
 
 	static const vector_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
 
@@ -332,8 +335,11 @@ private:
 
 	using cargo_item_t = std::shared_ptr<halt_waiting_goods_t>;
 
+	// The queue of waiting goods.
+	struct cargo_queue_t;
+
 	// Array with different categories that contains all waiting goods at this stop
-	slist_tpl<cargo_item_t> **cargo;
+	cargo_queue_t** cargo;
 
 	// Array with different categories that contains the reference of
 	// waiting goods which haven't had a chance to be loaded yet.
@@ -580,7 +586,9 @@ private:
 	 * The key is the goods category index.
 	 */
 	inthashtable_tpl<uint8, bool> waiting_amount_exceeds_FIFO_limit;
-	
+
+	void search_route_for_invalid_zwischenziel_goods(cargo_queue_t *wares);
+
 public:
 	enum routing_result_flags {
 		NO_ROUTE          = 0,
@@ -609,9 +617,37 @@ public:
 	 */
 	void search_route_resumable( ware_t &ware );
 
-	bool get_pax_enabled()  const { return enables & PAX;  }
-	bool get_mail_enabled() const { return enables & POST; }
-	bool get_ware_enabled() const { return enables & WARE; }
+	// get and set treatable goods type
+	void set_no_handle_pax( bool n ) {
+		n? flags|=HS_NO_HANDLE_PAX: flags&=~HS_NO_HANDLE_PAX; 
+		rebuild_connections();
+		rebuild_linked_connections();
+		rebuild_connected_components();
+	}
+	void set_no_handle_post( bool n ) {
+		n? flags|=HS_NO_HANDLE_POST: flags&=~HS_NO_HANDLE_POST;
+		rebuild_connections();
+		rebuild_linked_connections();
+		rebuild_connected_components();
+	}
+	void set_no_handle_ware( bool n ) {
+		n? flags|=HS_NO_HANDLE_WARE: flags&=~HS_NO_HANDLE_WARE;
+		rebuild_connections();
+		rebuild_linked_connections();
+		rebuild_connected_components();
+	}
+	bool is_no_handle_pax() const {return (flags&HS_NO_HANDLE_PAX)>0;}
+	bool is_no_handle_post() const {return (flags&HS_NO_HANDLE_POST)>0;}
+	bool is_no_handle_ware() const {return (flags&HS_NO_HANDLE_WARE)>0;}
+
+	// return real handle goods type information
+	bool get_pax_enabled()  const { return (enables & PAX)>0 && !is_no_handle_pax();  }
+	bool get_mail_enabled() const { return (enables & POST)>0 && !is_no_handle_post(); }
+	bool get_ware_enabled() const { return (enables & WARE)>0 && !is_no_handle_ware(); }
+	// return handlable goods type information of desc. (for halt_info_t)
+	bool get_desc_pax_enable() const {return enables & PAX;}
+	bool get_desc_post_enable() const {return enables & POST;}
+	bool get_desc_ware_enable() const {return enables & WARE;}
 
 	// check, if we accepts this good
 	// often called, thus inline ...
@@ -623,12 +659,12 @@ public:
 	bool is_enabled( const uint8 catg_index ) const
 	{
 		if (catg_index == goods_manager_t::INDEX_PAS) {
-			return enables&PAX;
+			return get_pax_enabled();
 		}
 		else if(catg_index == goods_manager_t::INDEX_MAIL) {
-			return enables&POST;
+			return get_mail_enabled();
 		}
-		return enables&WARE;
+		return get_ware_enabled();
 	}
 
 	bool is_other_player_connection_allowed() const { return flags & HS_ALLOW_OTHER_PLAYER_CONNECTION; }

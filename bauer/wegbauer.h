@@ -130,7 +130,7 @@ private:
 	 * Only for elevated way
 	 * @author THLeaderH
 	 */
-	uint8 height_offset;
+	sint8 height_offset;
 
 	/**
 	 * If a way is built on top of another way, should the type
@@ -184,8 +184,6 @@ private:
 	void build_powerline();
 	void build_river();
 
-	void upgrade_crossing_if_needed(const grund_t*);
-
 	uint32 calc_distance( const koord3d &pos, const koord3d &mini, const koord3d &maxi );
 
 	void update_ribi_mask_oneway(strasse_t* str, uint32 i);
@@ -220,19 +218,19 @@ public:
 
 	void set_overtaking_mode(overtaking_mode_t o) { overtaking_mode = o; }
 	void set_street_flag(uint8 a) { street_flag = a; }
-	void set_height_offset(uint8 a) { height_offset = a; }
+	void set_height_offset(sint8 a) { height_offset = a; }
 
 	way_builder_t(player_t *player);
 
 	void calc_straight_route(const koord3d start, const koord3d ziel);
-	void calc_route(const koord3d &start3d, const koord3d &ziel);
-	void calc_route(const vector_tpl<koord3d> &start3d, const vector_tpl<koord3d> &ziel);
+	bool calc_route(const koord3d &start3d, const koord3d &ziel);
+	bool calc_route(const vector_tpl<koord3d> &start3d, const vector_tpl<koord3d> &ziel);
 
 	/* returns the amount needed to built this way
 	*/
 	sint64 calc_costs();
 
-	bool check_crossing(const koord zv, const grund_t *bd,waytype_t wtyp, const player_t *player) const;
+	bool check_crossing(const koord zv, const grund_t *bd, const way_desc_t *desc, const player_t *player) const;
 	bool check_powerline(const koord zv, const grund_t *bd) const;
 	// allowed owner?
 	bool check_owner( const player_t *player1, const player_t *player2 ) const;

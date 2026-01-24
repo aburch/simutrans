@@ -33,13 +33,13 @@ class schedule_list_gui_t : public gui_frame_t, public action_listener_t
 private:
 	player_t *player, *old_player;
 
-	button_t bt_new_line, bt_edit_line, bt_delete_line, bt_withdraw_line;
+	button_t bt_new_line, bt_edit_line, bt_delete_line, bt_withdraw_line, bt_teleport_line_to_depot;
 	button_t bt_copy_line, bt_show_journey_time, bt_goods_waiting_time;
 	button_t bt_copy_data;
 	gui_scrolled_list_t scl, scrolly_convois, scrolly_haltestellen;
 	gui_speedbar_t filled_bar;
-	gui_textinput_t inp_name, inp_filter;
-	gui_label_t lbl_filter;
+	gui_textinput_t inp_name, inp_filter, inp_memo;
+	gui_label_t lbl_filter, lbl_memo, lbl_name;
 	gui_chart_t chart;
 	button_t filterButtons[MAX_LINE_COST];
 	gui_tab_panel_t tabs;
@@ -57,6 +57,8 @@ private:
 
 	// so even japanese can have long enough names ...
 	char line_name[512], old_line_name[512];
+
+	char line_memo[1024];
 
 	// resets textinput to current line name
 	// necessary after line was renamed

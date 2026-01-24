@@ -75,6 +75,7 @@ void export_settings(HSQUIRRELVM vm)
 	register_method(vm, &settings_t::get_station_coverage, "get_station_coverage");
 	/// @returns passenger factors influences passenger generation in cities
 	register_method(vm, &settings_t::get_passenger_factor, "get_passenger_factor");
+	register_method(vm, &settings_t::get_passenger_factor_float, "get_passenger_factor_float");
 	/// @returns maximum distance of city to factory for supplying workers
 	register_method(vm, &settings_t::get_factory_worker_radius, "get_factory_worker_radius");
 	/// @returns minimum number of cities to supply workers for a factory

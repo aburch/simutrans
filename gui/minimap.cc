@@ -231,11 +231,11 @@ void minimap_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints )
 	bool last_diagonal = false;
 	const bool add_schedule = schedule->get_waytype() != air_wt;
 
-	FOR(  minivec_tpl<schedule_entry_t>, cur, schedule->entries  ) {
+	FOR(  minivec_tpl<schedule_entry_t>, cur, schedule->get_entries()  ){
 
 		//cycle on stops
 		//try to read station's coordinates if there's a station at this schedule stop
-		halthandle_t station = haltestelle_t::get_stoppable_halt( cur.pos, cnv->get_owner() );
+		halthandle_t station = haltestelle_t::get_stoppable_halt( cur.pos, cnv->get_owner(), schedule->get_waytype() );
 		if(  station.is_bound()  ) {
 			stop_cache.append_unique( station );
 			temp_stop = station->get_basis_pos();
@@ -1592,21 +1592,6 @@ void minimap_t::draw(scr_coord pos)
 	}
 	max_waiting_change = new_max_waiting_change; // update waiting tendencies
 
-	// if we do not do this here, vehicles would erase the town names
-	// ADD: if CRTL key is pressed, temporary show the name
-	if(  mode & MAP_TOWN  ) {
-		const weighted_vector_tpl<stadt_t*>& staedte = world->get_cities();
-		const PIXVAL col = color_idx_to_rgb(showing_schedule ? COL_BLACK : COL_WHITE);
-
-		FOR( weighted_vector_tpl<stadt_t*>, const stadt, staedte ) {
-			const char * name = stadt->get_name();
-
-			scr_coord p = map_to_screen_coord( stadt->get_pos() );
-			p += pos;
-			display_proportional_clip_rgb( p.x, p.y, name, ALIGN_LEFT, col, true );
-		}
-	}
-
 	// draw city limit
 	if(  mode & MAP_CITYLIMIT  ) {
 
@@ -1655,6 +1640,64 @@ void minimap_t::draw(scr_coord pos)
 			}
 			// otherwise larger attraction will be shown more often ...
 		}
+	}
+
+	// draw city citizens as circles
+	if(  mode & MAP_CITIZENS  ) {
+		static uint32 max_city_citizens = 1;
+		uint32 new_max_city_citizens = 1;
+
+		FOR(  weighted_vector_tpl<stadt_t*>,  const stadt,  world->get_cities()  ) {
+			const uint32 citizens = stadt->get_einwohner();
+			if(  new_max_city_citizens < citizens  ) {
+				new_max_city_citizens = citizens;
+			}
+
+			scr_coord city_pos = map_to_screen_coord( stadt->get_pos() );
+			city_pos = city_pos + pos;
+
+			// Use log scale for color (green for small, red for large)
+			PIXVAL color = calc_severity_color_log( citizens, max_city_citizens );
+
+			// Calculate radius based on citizens with zoom correction
+			int radius = max( (number_to_radius( citizens )*zoom_in)/zoom_out, 1 );
+
+			// Draw filled circle with black outline
+			display_filled_circle_rgb( city_pos.x, city_pos.y, radius, color );
+			display_circle_rgb( city_pos.x, city_pos.y, radius, color_idx_to_rgb(COL_BLACK) );
+		}
+
+		max_city_citizens = new_max_city_citizens;
+	}
+
+	// draw city growth as circles
+	if(  mode & MAP_CITY_GROWTH  ) {
+		static sint32 max_city_growth = 1;
+		sint32 new_max_city_growth = 1;
+
+		FOR(  weighted_vector_tpl<stadt_t*>,  const stadt,  world->get_cities()  ) {
+			const sint32 growth = stadt->get_wachstum();
+			const sint32 abs_growth = abs(growth);
+
+			if(  new_max_city_growth < abs_growth  ) {
+				new_max_city_growth = abs_growth;
+			}
+
+			scr_coord city_pos = map_to_screen_coord( stadt->get_pos() );
+			city_pos = city_pos + pos;
+
+			// Green for growth, red for decline
+			PIXVAL color = color_idx_to_rgb(growth > 0 ? COL_LIGHT_RED : growth < 0 ? COL_DARK_GREEN : COL_YELLOW);
+
+			// Calculate radius based on absolute growth with zoom correction
+			int radius = max( (number_to_radius( 5 * abs_growth )*zoom_in)/zoom_out, 5 );
+
+			// Draw filled circle with black outline
+			display_filled_circle_rgb( city_pos.x, city_pos.y, radius, color );
+			display_circle_rgb( city_pos.x, city_pos.y, radius, color_idx_to_rgb(COL_BLACK) );
+		}
+
+		max_city_growth = new_max_city_growth;
 	}
 
 	if(  mode & MAP_FACTORIES  ) {
@@ -1753,6 +1796,21 @@ void minimap_t::draw(scr_coord pos)
 			}
 		}
 
+	}
+
+	// if we do not do this here, vehicles would erase the town names
+	// ADD: if CRTL key is pressed, temporary show the name
+	if(  mode & MAP_TOWN  ) {
+		const weighted_vector_tpl<stadt_t*>& staedte = world->get_cities();
+		const PIXVAL col = color_idx_to_rgb(showing_schedule ? COL_BLACK : COL_WHITE);
+
+		FOR( weighted_vector_tpl<stadt_t*>, const stadt, staedte ) {
+			const char * name = stadt->get_name();
+
+			scr_coord p = map_to_screen_coord( stadt->get_pos() );
+			p += pos;
+			display_proportional_clip_rgb( p.x, p.y, name, ALIGN_LEFT, col, true );
+		}
 	}
 }
 

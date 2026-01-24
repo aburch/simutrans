@@ -13,6 +13,7 @@
 #include "simunits.h"
 #include "simcolor.h"
 #include "linehandle_t.h"
+#include "dataobj/schedule_entry.h"
 
 #include "ifc/sync_steppable.h"
 
@@ -129,6 +130,8 @@ private:
 	 * Used in movement calculations.
 	 */
 	sint32 sum_gear_and_power;
+	sint32 sum_gear_and_power_electric;
+	bool use_electric;
 
 	// 40 bytes
 	/**
@@ -230,6 +233,20 @@ private:
 	convoihandle_t coupling_convoi;
 
 	/**
+	* a convoy that pulls me.
+	*/
+	convoihandle_t parent_convoi;
+
+	/**
+	* a convoy that is coupling now.
+	*/
+	convoihandle_t convoi_coupling_in_progress;
+	/**
+	* delete currently coupling convoi information
+	*/
+	void delete_convoi_coupling_in_progress() {convoi_coupling_in_progress=convoihandle_t();}
+
+	/**
 	* Current map
 	*/
 	static karte_ptr_t welt;
@@ -245,6 +262,11 @@ private:
 	bool no_load;
 
 	/**
+	* uncouple at this stop
+	*/
+	bool uncouple_done;
+
+	/**
 	* the convoi caches its freight info; it is only recalculation after loading or resorting
 	*/
 	bool freight_info_resort;
@@ -254,6 +276,8 @@ private:
 
 	// true, if there is at least one engine that requires catenary
 	bool is_electric;
+	// true, if it can not run without catenary
+	bool need_electric;
 
 	/**
 	* the convoi caches its freight info; it is only recalculation after loading or resorting
@@ -263,8 +287,8 @@ private:
 	/*
 	 * caches the running costs
 	 */
-	sint32 sum_running_costs;
-	sint32 sum_fixed_costs;
+	sint64 base_sum_running_costs;
+	sint64 sum_fixed_costs;
 
 	/**
 	* Overall performance.
@@ -298,11 +322,6 @@ private:
 
 	bool coupling_done;
 
-	/*
-	 * The initial convoy direction to get to the next stop.
-	 * This is valid only when the convoy is in loading state.
-	*/
-	ribi_t::ribi next_initial_direction;
 
 	/**
 	 * Time when convoi arrived at the current stop
@@ -347,12 +366,7 @@ private:
 
 	bool in_delay_recovery;
 
-	typedef struct {
-		bool valid;
-		signal_t* sig;
-		uint16 next_block;
-	} longblock_signal_request_t;
-	longblock_signal_request_t longblock_signal_request;
+	bool signal_check_in_step_request;
 
 	/**
 	 * struct holds new financial history for convoi
@@ -373,7 +387,16 @@ private:
 	char name_and_id[128];
 
 	bool reversed; // true when the vehicles are in the reversed order.
-	bool reversed_at_current_halt;// Whether this convoy's vehicles are currently arranged in reverse order. The flag for calculation of position.
+	bool reversing_needed;// Whether this convoy's vehicles will be arranged in reverse order.
+	bool reversing_coupling_needed;// Whether these convoys coupling reversing is needed or not. Only using waypoint!
+	bool reverse_coupling_done;// avoid reverse coupling loop in same stop
+
+	/**
+	 * The temporary speed limit for this convoy.
+	 * For example, as limited by a speed limit sign.
+	 * This value is set from schedule_entry_t, and can be edited from convoy detail window by user anytime.
+	 */
+	uint16 max_speed_kmh_of_convoi;
 
 	/**
 	* Initialize all variables with default values.
@@ -386,12 +409,14 @@ private:
 	*/
 	bool drive_to();
 
-	/**
-	* Setup vehicles for moving in same direction than before
-	* if the direction is the same as before
-	*/
-	bool can_go_alte_richtung();
 
+	/**
+	* a helper function for can_go_alte_richtung() and vorfahren()
+	* Inserts the positions where the convoys are to the route.
+	*/
+	bool insert_route_convoy_on();
+	koord3d const find_tiles_convoy_on(convoihandle_t const inspecting, const grund_t* g, ribi_t::ribi next_dir);
+	bool insert_route_to_draw_diagonal();
 	// alte_richtung of coupled convoy is set by the head convoy.
 	void set_alte_richtung(ribi_t::ribi r) { alte_richtung = r; }
 
@@ -404,7 +429,10 @@ private:
 	void set_erstes_letztes();
 
 	// returns the index of the vehikel at position length (16=1 tile)
-	int get_vehicle_at_length(uint16);
+	uint16 get_vehicle_at_length(uint32) const;
+
+	// returns the total vehicle number of the coupling convoys.
+	uint16 get_total_vehicle_count() const;
 
 	/**
 	* calculate income for last hop
@@ -499,21 +527,28 @@ private:
 	void push_convoy_stopping_time();
 
 	void reverse_vehicles_at_halt_if_needed();
-	void reverse_vehicles_to_go_to_depot();
 	void reverse_vehicles();
 
 	// Reverse the order of the coupling/coupled convois
 	void reverse_convoy_coupling();
+	
+	// a helper function for convoi_t::vorfahren(), check reserved_tiles
+	void clear_reserved_tile_if_not_matching_route();
 
-	// a helper function for convoi_t::drive_to()
-	koord3d calc_first_pos_of_route() const;
+	// total length is enough than this length->coupling cancel
+	bool cease_coupling_due_to_length_over;
 
 public:
 	bool is_reversed() const { return reversed; }
+	void set_reversed(bool yesno) { reversed = yesno; }
+	bool is_reversing_needed() const { return reversing_needed; }
+	void set_reversing_needed(bool yesno) { reversing_needed = yesno; }
 	// Reorder the vehicle array
 	// Can be executed even with a vehicle array that does not belong to convoy for UI
 	
 	void reverse_vehicles_on_user_request();
+
+	bool is_cease_coupling_due_to_length_over() const { return cease_coupling_due_to_length_over; }
 
 	/**
 	* Convoi haelt an Haltestelle und setzt quote fuer Fracht
@@ -532,8 +567,11 @@ public:
 	linehandle_t get_line() const {return line;}
 
 	/* true, if electrification needed for this convoi */
-	bool needs_electrification() const { return is_electric; }
-	bool check_electrification();
+	bool needs_electrification() const { return need_electric; }
+	bool is_electrification() const {return is_electric;}
+	void check_electrification();
+	void set_use_electric(bool y);
+	bool get_use_electric() const {return use_electric;}
 
 	/**
 	* set line
@@ -544,7 +582,7 @@ public:
 	void check_pending_updates();
 
 	// true if this is a waypoint
-	bool is_waypoint( koord3d ) const;
+	bool is_waypoint( schedule_entry_t ) const;
 
 	/* changes the state of a convoi via tool_t; mandatory for networkmode!
 	 * for list of commands and parameter see tool_t::tool_change_convoi_t
@@ -592,7 +630,7 @@ public:
 	/**
 	 * returns the total running cost for all vehicles in convoi
 	 */
-	sint32 get_running_cost() const { return -sum_running_costs; }
+	sint32 get_running_cost() const { return -base_sum_running_costs; }
 
 	/**
 	 * returns the total new purchase cost for all vehicles in convoy
@@ -618,7 +656,7 @@ public:
 	 */
 	static void rdwr_convoihandle_t(loadsave_t *file, convoihandle_t &cnv);
 
-	void finish_rd();
+	void finish_rd( const uint8 loaded_OTRP_version );
 
 	void rotate90( const sint16 y_size );
 
@@ -672,12 +710,17 @@ public:
 	 * @return total power of this convoi
 	 */
 	const uint32 & get_sum_power() const {return sum_power;}
-	const sint32 & get_sum_gear_and_power() const {return sum_gear_and_power;}
+	const sint32 get_sum_gear_and_power() const {return use_electric? sum_gear_and_power: sum_gear_and_power-sum_gear_and_power_electric;}
 	const sint32 & get_min_top_speed() const {return min_top_speed;}
 	const sint32 & get_speed_limit() const {return speed_limit;}
 
 	void set_speed_limit(sint32 s) { speed_limit = s;}
 	void set_min_top_speed(sint32 t) {min_top_speed = t;}
+
+	/**
+	 * Check sum power of this and the child convoys
+	 */
+	uint32 get_total_sum_power() const;
 
 	// calculate min_top_speed taking coupling convoys into account. This does not broadcast min_top_speed for the coupling convoys.
 	sint32 calc_min_top_speed();
@@ -704,6 +747,8 @@ public:
 	 */
 	void add_running_cost( const weg_t *weg );
 
+	bool is_users_at_next_stop() const;
+
 	/**
 	 * moving the vehicles of a convoi and acceleration/deceleration
 	 * all other stuff => convoi_t::step()
@@ -714,6 +759,18 @@ public:
 	 * All things like route search or loading, that may take a little
 	 */
 	void step();
+
+	/**
+	 * Check if this convoy needs threaded processing
+	 * @return true if threaded_step() should be called
+	 */
+	bool needs_threaded_step() const;
+
+	/**
+	 * Multithreaded version of some operations from step()
+	 * This is called after all convoys have completed their regular step()
+	 */
+	void threaded_step();
 
 	/**
 	* sets a new convoi in route
@@ -844,6 +901,7 @@ public:
 	* vehicles.
 	*/
 	const sint32 &get_loading_level() const { return loading_level; }
+	sint32 get_capacity_left() const;
 
 	/**
 	* At which loading level is the train allowed to start? 0 during driving.
@@ -908,7 +966,13 @@ public:
 	 * Has to be called synchronously on all clients in networkmode!
 	 * @returns success message
 	 */
-	const char* send_to_depot(bool local);
+	const char* send_to_depot(bool local);	
+	/**
+	* Sends convoi to nearest depot immediately.
+	* Has to be called synchronously on all clients in networkmode!
+	* @returns success message
+	*/
+	const char* send_to_depot_immediately(bool local);
 
 	/**
 	 * this give the index of the next signal or the end of the route
@@ -929,7 +993,7 @@ public:
 	 * @author THLeaderH
 	 */
 	void unreserve_pos(koord3d pos) { reserved_tiles.remove(pos); }
-	void reserve_pos(koord3d pos) {reserved_tiles.append_unique(pos); }
+	void reserve_pos(koord3d pos) {reserved_tiles.append(pos); }
 	bool is_reservation_empty() const { return reserved_tiles.empty(); }
 	vector_tpl<koord3d>& get_reserved_tiles() { return reserved_tiles; }
 	void clear_reserved_tiles();
@@ -943,6 +1007,7 @@ public:
 	void set_next_coupling(uint16 n, uint8 m) { next_coupling_index = n; next_coupling_steps = m; }
 
 	convoihandle_t get_coupling_convoi() const {return coupling_convoi;}
+	void set_coupling_convoi(convoihandle_t c) {coupling_convoi = c;}
 
 	/* the current state of the convoi */
 	PIXVAL get_status_color() const;
@@ -1005,8 +1070,8 @@ public:
 
 	virtual void refresh(sint8,sint8) OVERRIDE;
 
-	void request_longblock_signal_judge(signal_t *sig, uint16 next_block);
-	void set_longblock_signal_judge_request_invalid() { longblock_signal_request.valid = false; };
+	void request_signal_check_in_step() {signal_check_in_step_request = true;}
+	void set_signal_check_in_step_request_invalid() { signal_check_in_step_request = false; };
 
 	void calc_crossing_reservation();
 	vector_tpl<std::pair< uint16, uint16> > get_crossing_reservation_index() const { return crossing_reservation_index; }
@@ -1018,12 +1083,13 @@ public:
 
 	bool is_coupled() const { return state==COUPLED  ||  state==COUPLED_LOADING; }
 	bool is_waiting_for_coupling() const;
+	void set_convoi_coupling_in_progress(convoihandle_t);
+	convoihandle_t get_convoi_coupling_in_progress() const { return convoi_coupling_in_progress; }
+	void unset_convoi_coupling_in_progress();
 
 	bool can_continue_coupling() const;
 	bool can_start_coupling(convoi_t* parent) const;
 
-	ribi_t::ribi get_next_initial_direction() const { return next_initial_direction; }
-	void clear_next_initial_direction() { next_initial_direction = ribi_t::none; }
 	bool is_coupling_done() const { return coupling_done; }
 	void set_coupling_done(bool tf) { coupling_done = tf; }
 
@@ -1050,12 +1116,45 @@ public:
 
 	// returns the available halt length for the given convoy position.
 	// The returned steps includes the entire tile length on which the front vehicle is.
-	static uint32 calc_available_halt_length_in_vehicle_steps(koord3d front_vehicle_pos, ribi_t::ribi front_vehicle_dir, const waytype_t waytype);
+	static uint32 calc_available_halt_length_in_vehicle_steps(koord3d front_vehicle_pos, ribi_t::ribi front_vehicle_dir, const waytype_t waytype, const bool use_electric=false);
 	uint32 calc_available_halt_length_in_vehicle_steps(koord3d front_vehicle_pos, ribi_t::ribi front_vehicle_dir) const;
 
-	// Returns the root parent convoi of this convoy. Returns this convoy if not coupled.
-	// Warning: The calculation cost is O(n) where n is the number of convoys in the world.
-	convoihandle_t find_most_parent_convoi() const;
+	// Returns the parent and root parent convoi of this convoy. Returns this convoy if not coupled.
+	convoihandle_t get_parent_convoi() const {return parent_convoi;}
+	convoihandle_t get_most_parent_convoi() const;
+
+	// Returns the most child convoi of this convoy.
+	convoihandle_t find_most_child_convoi() const;
+
+	// go to next stop (skip one stops)
+	// only called by tool_change_convoi_t
+	void next_stop_button_pressed();
+
+	// Reverse convoy coupling at waypoint
+	// if this bool value is true, reversing done, this convoy is no longer the leading (most parent) convoy.
+	bool reverse_convoy_coupling_at_waypoint();
+
+	// coupling during running.
+	// Only for during leaving a depot
+	bool couple_convoi_during_running(convoihandle_t coupled);
+
+	// jump to other line's schedule
+	// the new line is stored in schedule->next_line_id
+	void change_line_to_next_if_needed();
+
+
+	// uncouple child concoy by schedule_entry
+	// this function should be called in ziel_erreicht() or at waypoint
+	// this function must be called after stop or reach waypoint & before reverse convoy coupling!
+	void uncouple_convoy_by_schedule_setting();
+
+	// get length if total length reach this value.
+	// 0 means no setting specific value.
+	uint16 get_length_coupling_done() const;
+	void check_and_set_coupling_done_over_length();
+
+	uint16 get_max_speed_kmh_of_convoi() const {return max_speed_kmh_of_convoi;}
+	void set_max_speed_kmh_of_convoi(uint16 n);
 };
 
 #endif

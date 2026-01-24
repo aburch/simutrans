@@ -445,9 +445,12 @@ public:
 	/**
 	 * ermittelt die Einwohnerzahl der City
 	 */
-	sint32 get_einwohner() const {return (buildings.get_sum_weight()*6)+((2*bev-arb-won)>>1);}
+	uint32 get_einwohner() const {return ((sint32)buildings.get_sum_weight()*6)+((sint32)(2*bev-arb-won)>>1);}
 
 	uint32 get_buildings()  const { return buildings.get_count(); }
+
+	// get_inhabitants() returns the einwhohner without unemployed and homeless.
+	uint32 get_inhabitants() const { return buildings.get_sum_weight()*6; }
 	sint32 get_unemployed() const { return bev - arb; }
 	sint32 get_homeless()   const { return bev - won; }
 

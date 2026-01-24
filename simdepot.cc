@@ -169,6 +169,12 @@ void replace_cars(convoihandle_t cnv, depot_t* depot) {
  */
 void depot_t::convoi_arrived(convoihandle_t acnv, bool schedule_adjust)
 {
+	for( uint32 i=0; i<convois.get_count(); i++ ) {
+		if (acnv==convois.at(i)) {
+			// there are two same convoys!
+			return;
+		}
+	}
 	if(schedule_adjust) {
 		// here a regular convoi arrived
 
@@ -184,8 +190,8 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool schedule_adjust)
 		schedule_t *schedule = acnv->get_schedule();
 		for(  int i=0;  i<schedule->get_count();  i++  ) {
 			// only if convoi found
-			if(schedule->entries[i].pos==get_pos()) {
-				const bool is_last = i==schedule->entries.get_count()-1;
+			if(schedule->at(i).pos==get_pos()) {
+				const bool is_last = i==schedule->get_count()-1;
 				schedule->set_current_stop( i );
 				schedule->remove();
 				if(  is_last  ) {
@@ -351,7 +357,8 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 		new_cnv->set_name(old_cnv->get_internal_name());
 		int vehicle_count = old_cnv->get_vehicle_count();
 		for (int i = 0; i<vehicle_count; i++) {
-			const vehicle_desc_t * info = old_cnv->get_vehikel(i)->get_desc();
+			const int vehicle_index = old_cnv->is_reversed() ? vehicle_count - i - 1 : i; // Always copy in the normal order
+			const vehicle_desc_t * info = old_cnv->get_vehikel(vehicle_index)->get_desc();
 			if (info != NULL) {
 				// search in depot for an existing vehicle of correct type
 				vehicle_t* oldest_vehicle = get_oldest_vehicle(info);
@@ -408,7 +415,14 @@ bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 				vehicles.append(v);
 			}
 		}
-
+		
+		// this convoy will be removed. so parent convoy uncouple this convoy.
+		for(uint32 i=0; i < convois.get_count() ; i++) {
+			if( cnv==convois.at(i)->get_coupling_convoi() ) {
+				convois.at(i)->set_coupling_convoi(convoihandle_t());
+			}
+		}
+		
 		// remove from depot lists
 		remove_convoi( cnv );
 
@@ -434,8 +448,77 @@ bool depot_t::start_all_convoys()
 // implementation in simtool.cc
 bool scenario_check_convoy(karte_t *welt, player_t *player, convoihandle_t cnv, depot_t* depot, bool local);
 
+convoihandle_t depot_t::find_parent_convoy_in_depot(convoihandle_t cnv) {
+	for(uint32 i=0; i < convois.get_count() ; i++) {
+		if( cnv==convois.at(i)->get_coupling_convoi() ) {
+			return convois.at(i);
+		}
+	}
+	return convoihandle_t();
+}
+
+convoihandle_t depot_t::find_most_parent_convoy_in_depot(convoihandle_t cnv) {
+	convoihandle_t p_c=cnv;
+	while(p_c.is_bound()) {
+		cnv = p_c;
+		p_c = find_parent_convoy_in_depot(cnv);
+	}
+	dbg->message("depot_t::find_most_parent_convoy_in_depot()","most parent convoy is %s",cnv->get_name());
+	return cnv;	
+}
 
 bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
+{
+	// Check if the convoy is coupled or not.
+	// When coupled, the convoy is not allowed to depart alone!
+	convoihandle_t p_c = find_parent_convoy_in_depot(cnv);
+	if( p_c.is_bound() ) {
+		static cbuffer_t buf;
+		buf.clear();
+		buf.printf( translator::translate("Vehicle %s is coupled convoy, so it cannot depart alone!"), cnv->get_name() );
+		create_win( new news_img(buf), w_time_delete, magic_none);
+	}
+	// Check the start condition
+	if(  !can_start_convoi(cnv, local_execution)  ) {
+		return false;
+	}
+	// coupling convoys depart
+	if(  cnv->get_coupling_convoi().is_bound()  ) {
+		dbg->message("depot_t::start_convoi()","start convoys lead by %s",cnv->get_name());
+		// these convoys can depart!
+		// parent starts
+		cnv->start();
+		remove_convoi( cnv );
+		// children start
+		convoihandle_t p_c = cnv;
+		convoihandle_t c_c = cnv->get_coupling_convoi();
+		while(c_c.is_bound()){
+			// child start
+			c_c->start();
+			remove_convoi( c_c );
+			// parent is coupling child convoy already started.
+			p_c->couple_convoi_during_running(c_c);
+			// switch to grandchild convoy 
+			p_c=p_c->get_coupling_convoi();
+			c_c=c_c->get_coupling_convoi();
+		}
+		return true;
+	} else { 
+		// go alone
+		// convoi can start now
+		cnv->start();
+
+		// remove from depot lists
+		remove_convoi( cnv );
+
+		return true;
+	}
+}
+
+/**
+ * return the condition of leaving.
+ */
+bool depot_t::can_start_convoi(convoihandle_t cnv, bool local_execution)
 {
 	// close schedule window if not yet closed
 	if(cnv.is_bound() &&  cnv->get_schedule()!=NULL) {
@@ -444,6 +527,8 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 			destroy_win((ptrdiff_t)cnv->get_schedule());
 		}
 	}
+	const convoihandle_t front_cnv = find_most_parent_convoy_in_depot(cnv);
+	front_cnv->check_electrification();
 
 	// convoi not in depot anymore, maybe user double-clicked on start-button
 	if(!convois.is_contained(cnv)) {
@@ -458,12 +543,12 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 		}
 
 		// check if convoi is complete
-		if(cnv->get_sum_power() == 0 || !cnv->pruefe_alle()) {
+		if( front_cnv->get_total_sum_power() == 0 || !cnv->pruefe_alle()) {
 			if (local_execution) {
 				create_win( new news_img("Diese Zusammenstellung kann nicht fahren!\n"), w_time_delete, magic_none);
 			}
 		}
-		else if(  !cnv->front()->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed(), cnv->access_route())  ) {
+		else if(  !front_cnv->front()->calc_route(this->get_pos(), cur_pos, speed_to_kmh(front_cnv->calc_min_top_speed()), cnv->access_route())  ) {
 			// no route to go ...
 			if(local_execution) {
 				static cbuffer_t buf;
@@ -476,13 +561,34 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 			// not allowed by scenario
 		}
 		else {
-			// convoi can start now
-			cnv->start();
-
-			// remove from depot lists
-			remove_convoi( cnv );
-
-			return true;
+			// if this convoy also has child convoy, now we check the coupling condition
+			if(  cnv->get_coupling_convoi().is_bound()  ) {
+				convoihandle_t child_cnv = cnv->get_coupling_convoi();
+				// check the coupling condition
+				if( !child_cnv->get_schedule() ) {
+					// child convoy does not have schedule
+					if (local_execution) {
+						create_win( new news_img("Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n"), w_time_delete, magic_none);
+					}
+					dbg->warning("depot_t::start_convoi()","No schedule for convoi.");
+					return false;
+				}
+				const schedule_entry_t t = cnv->get_schedule()->get_current_entry();
+				const schedule_entry_t c = child_cnv->get_schedule()->get_current_entry();
+				if(  t.pos!=c.pos  ) {
+					// the next stop is different!->false
+					static cbuffer_t buf;
+					buf.clear();
+					buf.printf( translator::translate("Vehicle %s will couple with vehicle %s, but the next stop positions are different!"), cnv->get_name(), child_cnv->get_name() );
+					create_win( new news_img(buf), w_time_delete, magic_none);
+					return false;
+				}
+				// check child convoy can depot?
+				return(can_start_convoi( child_cnv, local_execution ));
+			} else { 
+				// ok, this child convoy can depart.
+				return true;
+			}
 		}
 	}
 	else {

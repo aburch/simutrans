@@ -22,7 +22,6 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../display/simgraph.h"
 #include "../simhalt.h"
 #include "../gui/simwin.h"
-#include "../simcity.h"
 #include "../player/simplay.h"
 #include "../simdebug.h"
 #include "../simintr.h"
@@ -45,6 +44,7 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../dataobj/environment.h"
 
 #include "../gui/obj_info.h"
+#include "../gui/city_info.h"
 
 #include "gebaeude.h"
 
@@ -403,7 +403,11 @@ image_id gebaeude_t::get_image() const
 
 image_id gebaeude_t::get_outline_image() const
 {
-	if (((env_t::hide_buildings != 0 && env_t::hide_with_transparency) || (env_t::highlight_city && this->get_stadt() == env_t::highlighted_city)) && !zeige_baugrube) {
+	const bool is_city_info_opened = win_get_magic((ptrdiff_t)this->get_stadt()) != NULL;
+	const bool is_in_highlighted_city = is_building_of_city() && this->get_stadt() == city_info_t::get_highlighted_city();
+
+	if (((env_t::hide_buildings != 0 && env_t::hide_with_transparency) || (is_in_highlighted_city && is_city_info_opened)) && !zeige_baugrube)
+	{
 		// opaque houses
 		return tile->get_background( anim_frame, 0, season );
 	}
@@ -416,6 +420,10 @@ FLAGGED_PIXVAL gebaeude_t::get_outline_colour() const
 {
 	uint8 colours[] = { COL_BLACK, COL_YELLOW, COL_YELLOW, COL_PURPLE, COL_RED, COL_GREEN };
 	FLAGGED_PIXVAL disp_colour = 0;
+
+	const bool is_city_info_opened = win_get_magic((ptrdiff_t)this->get_stadt()) != NULL;
+	const bool is_in_highlighted_city = is_building_of_city() && this->get_stadt() == city_info_t::get_highlighted_city();
+
 	if(env_t::hide_buildings!=env_t::NOT_HIDE) {
 		if(is_city_building()) {
 			disp_colour = color_idx_to_rgb(colours[0]) | TRANSPARENT50_FLAG | OUTLINE_FLAG;
@@ -425,10 +433,8 @@ FLAGGED_PIXVAL gebaeude_t::get_outline_colour() const
 			disp_colour = color_idx_to_rgb(colours[tile->get_desc()->get_type()]) | TRANSPARENT50_FLAG | OUTLINE_FLAG;
 		}
 	}
-	else if(env_t::highlight_city) {
-		if(is_city_building() && this->get_stadt() == env_t::highlighted_city) {
-			disp_colour = color_idx_to_rgb(colours[0]) | TRANSPARENT75_FLAG | OUTLINE_FLAG;
-		}
+	else if(  is_in_highlighted_city  &&  is_city_info_opened  ) {
+		disp_colour = color_idx_to_rgb(colours[0]) | TRANSPARENT75_FLAG | OUTLINE_FLAG;
 	}
 
 	return disp_colour;
@@ -437,7 +443,10 @@ FLAGGED_PIXVAL gebaeude_t::get_outline_colour() const
 
 image_id gebaeude_t::get_image(int nr) const
 {
-	if(zeige_baugrube || env_t::hide_buildings || (env_t::highlight_city && this->get_stadt() == env_t::highlighted_city)) {
+	const bool is_city_info_opened = win_get_magic((ptrdiff_t)this->get_stadt()) != NULL;
+	const bool is_in_highlighted_city = is_building_of_city() && this->get_stadt() == city_info_t::get_highlighted_city();
+
+	if(zeige_baugrube || env_t::hide_buildings || (is_in_highlighted_city  &&  is_city_info_opened)) {
 		return IMG_EMPTY;
 	}
 	else {
@@ -451,7 +460,13 @@ image_id gebaeude_t::get_front_image() const
 	if(zeige_baugrube) {
 		return IMG_EMPTY;
 	}
-	if (env_t::hide_buildings != 0   &&  (is_city_building()  ||  (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING  &&  tile->get_desc()->get_type() < building_desc_t::others))) {
+
+	const bool is_city_info_opened = win_get_magic((ptrdiff_t)this->get_stadt()) != NULL;
+	const bool is_in_highlighted_city = is_building_of_city() && this->get_stadt() == city_info_t::get_highlighted_city();
+
+	if (env_t::hide_buildings != 0   &&  (is_building_of_city()  ||  (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING  &&  tile->get_desc()->get_type() < building_desc_t::others))) {
+		return IMG_EMPTY;
+	} else if (  is_in_highlighted_city  &&  is_city_info_opened  ) {
 		return IMG_EMPTY;
 	} else if (env_t::highlight_city && is_city_building()) {
 		return IMG_EMPTY;
@@ -471,7 +486,7 @@ int gebaeude_t::get_passagier_level() const
 	sint32 pax = tile->get_desc()->get_level();
 	if(  !is_factory  &&  ptr.stadt != NULL  ) {
 		// belongs to a city ...
-		return ((pax + 6) >> 2) * welt->get_settings().get_passenger_factor() / 16;
+		return ((pax + 6) >> 2) * (welt->get_settings().get_passenger_factor()*welt->get_settings().max_passenger_factor_float() + welt->get_settings().get_passenger_factor_float()) / (16*welt->get_settings().max_passenger_factor_float());
 	}
 	return pax*dim.x*dim.y;
 }
@@ -482,7 +497,7 @@ int gebaeude_t::get_mail_level() const
 	koord dim = tile->get_desc()->get_size();
 	sint32 mail = tile->get_desc()->get_mail_level();
 	if(  !is_factory  &&  ptr.stadt != NULL  ) {
-		return ((mail + 5) >> 2) * welt->get_settings().get_passenger_factor() / 16;
+		return ((mail + 5) >> 2) * (welt->get_settings().get_passenger_factor()*welt->get_settings().max_passenger_factor_float() + welt->get_settings().get_passenger_factor_float()) / (16*welt->get_settings().max_passenger_factor_float());
 	}
 	return mail*dim.x*dim.y;
 }
@@ -569,6 +584,58 @@ uint32 gebaeude_t::get_tile_list( vector_tpl<grund_t *> &list ) const
 	return list.get_count();
 }
 
+// checking the broken buildings
+// if building is broken, it will be removed
+bool gebaeude_t::is_broken_building() const
+{
+	vector_tpl<grund_t*> grs;
+	if( get_tile_list(grs) < 2 ) {
+		return false;
+	}
+	const koord size = get_tile()->get_desc()->get_size( get_tile()->get_layout() );
+	const koord3d pos0 = get_pos() - get_tile()->get_offset();
+	const uint8 layout_int = (get_tile()->get_layout());
+	// Check about the four corners of the building.
+	grund_t* gr;
+	gebaeude_t* gb;
+	gr = welt->lookup( pos0 );
+	if( gr ) {
+		if( get_tile()->get_desc()->get_tile(layout_int*size.x*size.y)->get_background(0,0,0) != IMG_EMPTY ) {
+			gb = gr->find<gebaeude_t>();
+			if( !gb || !is_same_building(gb)  ) {
+				return true;
+			}
+		}
+	}
+	gr = welt->lookup( pos0+koord3d (size.x-1,0,0) );
+	if( gr ) {
+		if( get_tile()->get_desc()->get_tile(layout_int*size.x*size.y+size.x-1)->get_background(0,0,0) != IMG_EMPTY ) {
+			gb = gr->find<gebaeude_t>();
+			if( !gb || !is_same_building(gb)  ) {
+				return true;
+			}
+		}
+	}
+	gr = welt->lookup( pos0+koord3d (0,size.y-1,0) );
+	if( gr ) {
+		if( get_tile()->get_desc()->get_tile(layout_int*size.x*size.y+size.y*(size.x-1))->get_background(0,0,0) != IMG_EMPTY ) {
+			gb = gr->find<gebaeude_t>();
+			if( !gb || !is_same_building(gb)  ) {
+				return true;
+			}
+		}
+	}
+	gr = welt->lookup( pos0+koord3d(size.x-1,size.y-1,0) );
+	if( gr ) {
+		if( get_tile()->get_desc()->get_tile((layout_int+1)*size.x*size.y-1)->get_background(0,0,0) != IMG_EMPTY ) {
+			gb = gr->find<gebaeude_t>();
+			if( !gb || !is_same_building(gb)  ) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
 
 
 
@@ -1056,7 +1123,7 @@ void gebaeude_t::mark_images_dirty() const
 	image_id img;
 	if(  zeige_baugrube  ||
 			(!env_t::hide_with_transparency  &&
-				env_t::hide_buildings>(is_city_building() ? env_t::NOT_HIDE : env_t::SOME_HIDDEN_BUILDING))  ) {
+				env_t::hide_buildings>(is_building_of_city() ? env_t::NOT_HIDE : env_t::SOME_HIDDEN_BUILDING))) {
 		img = skinverwaltung_t::construction_site->get_image_id(0);
 	}
 	else {

@@ -750,13 +750,13 @@ DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track 
 		// not ok: remove station ...
 		k = platz1;
 		while(k!=size1+platz1) {
-			int cost = -welt->lookup_kartenboden(k)->weg_entfernen( track_wt, true );
+			sint64 cost = -welt->lookup_kartenboden(k)->weg_entfernen( track_wt, true );
 			book_construction_costs(this, cost, k, track_wt);
 			k += diff1;
 		}
 		k = platz2;
 		while(k!=size2+platz2) {
-			int cost = -welt->lookup_kartenboden(k)->weg_entfernen( track_wt, true );
+			sint64 cost = -welt->lookup_kartenboden(k)->weg_entfernen( track_wt, true );
 			book_construction_costs(this, cost, k, track_wt);
 			k += diff2;
 		}
@@ -958,12 +958,12 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 
 			// find the cheapest transport ...
 			// assume maximum cost
-			int cost_rail=0x7FFFFFFF, cost_road=0x7FFFFFFF;
+			sint64 cost_rail=0x7FFFFFFF, cost_road=0x7FFFFFFF;
 			int income_rail=0, income_road=0;
 
 			// calculate cost for rail
 			if(  count_rail<255  ) {
-				int freight_price = (freight->get_value()*rail_vehicle->get_capacity()*count_rail)/24*((8000+(best_rail_speed-80)*freight->get_speed_bonus())/1000);
+				sint64 freight_price = (freight->get_value()*rail_vehicle->get_capacity()*count_rail)/24*((8000+(best_rail_speed-80)*freight->get_speed_bonus())/1000);
 				// calculated here, since the above number was based on production
 				// only uneven number of cars bigger than 3 makes sense ...
 				count_rail = max( 3, count_rail );
@@ -978,7 +978,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				// for short distance: reduce number of cars
 				// calculated here, since the above number was based on production
 				count_road = clamp( (sint32)(dist*15)/best_road_speed, 2, count_road );
-				int freight_price = (freight->get_value()*road_vehicle->get_capacity()*count_road)/24*((8000+(best_road_speed-80)*freight->get_speed_bonus())/1000);
+				sint64 freight_price = (freight->get_value()*road_vehicle->get_capacity()*count_road)/24*((8000+(best_road_speed-80)*freight->get_speed_bonus())/1000);
 				cost_road = road_weg->get_maintenance() + 300/dist + (count_road*road_vehicle->get_running_cost()*best_road_speed)/(2*dist+5);
 				income_road = (freight_price*best_road_speed)/(2*dist+5);
 				DBG_MESSAGE("ai_goods_t::do_ki()","Netto credits per day and km for road transport %.2f (income %.2f)",cost_road/100.0, income_road/100.0 );
@@ -1145,7 +1145,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					if(!lines.empty()) {
 						linehandle_t line = lines.back();
 						schedule_t *schedule=line->get_schedule();
-						if(schedule->get_count()>1  &&  haltestelle_t::get_halt(schedule->entries[0].pos,this)==start_halt) {
+						if(schedule->get_count()>1  &&  haltestelle_t::get_halt(schedule->at(0).pos,this)==start_halt) {
 							while(line->count_convoys()>0) {
 								convoihandle_t cnv = line->get_convoy(0);
 								cnv->self_destruct();
@@ -1245,8 +1245,8 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					koord3d start_pos, end_pos;
 					schedule_t *schedule = cnv->get_schedule();
 					if(schedule  &&  schedule->get_count()>1) {
-						start_pos = schedule->entries[0].pos;
-						end_pos = schedule->entries[1].pos;
+						start_pos = schedule->at(0).pos;
+						end_pos = schedule->at(1).pos;
 					}
 
 					cnv->self_destruct();
@@ -1265,8 +1265,8 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 							simlinemgmt.get_lines( simline_t::shipline, &lines );
 							FOR(vector_tpl<linehandle_t>, const line, lines) {
 								schedule_t *schedule=line->get_schedule();
-								if(schedule->get_count()>1  &&  haltestelle_t::get_halt(schedule->entries[0].pos,this)==start_halt) {
-									water_stop = koord( (start_pos.x+schedule->entries[0].pos.x)/2, (start_pos.y+schedule->entries[0].pos.y)/2 );
+								if(schedule->get_count()>1  &&  haltestelle_t::get_halt(schedule->at(0).pos,this)==start_halt) {
+									water_stop = koord( (start_pos.x+schedule->at(0).pos.x)/2, (start_pos.y+schedule->at(0).pos.y)/2 );
 									while(line->count_convoys()>0) {
 										convoihandle_t cnv = line->get_convoy(0);
 										cnv->self_destruct();

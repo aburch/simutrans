@@ -254,6 +254,7 @@ public:
 	bool is_townhall()      const { return is_type(townhall); }
 	bool is_headquarters()   const { return is_type(headquarters); }
 	bool is_attraction() const { return is_type(attraction_land) || is_type(attraction_city); }
+	bool is_monument() const { return is_type(monument); }
 	bool is_factory()       const { return is_type(factory); }
 	bool is_city_building() const { return is_type(city_res) || is_type(city_com) || is_type(city_ind); }
 	bool is_transport_building() const { return type > headquarters  && type <= flat_dock; }
@@ -262,7 +263,7 @@ public:
 	bool is_connected_with_town() const;
 
 	/// @returns headquarters level (or -1 if building is not headquarters)
-	sint32 get_headquarters_level() const  { return (is_headquarters() ? get_extra() : -1) ; }
+	sint32 get_headquarters_level() const  { return (is_headquarters() ? (sint32)get_extra() : -1) ; }
 
 	/**
 	* the level is used in many places: for price, for capacity, ...

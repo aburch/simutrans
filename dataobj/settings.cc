@@ -58,7 +58,7 @@ settings_t::settings_t() :
 	max_rail_convoi_length = 24;
 	max_road_convoi_length = 4;
 	max_ship_convoi_length = 4;
-	max_air_convoi_length = 1;
+	max_air_convoi_length = 4;
 
 	world_maximum_height = 32;
 	world_minimum_height = -12;
@@ -108,6 +108,7 @@ settings_t::settings_t() :
 
 	// passenger manipulation factor (=16 about old value)
 	passenger_factor = 16;
+	passenger_factor_float = 0;
 
 	// town growth factors
 	passenger_multiplier = 40;
@@ -156,6 +157,11 @@ settings_t::settings_t() :
 	crossconnect_factories=false;
 	crossconnect_factor=33;
 #endif
+
+	// Factory retirement settings
+	factory_max_years_obsolete = 30;
+	close_old_factory = false;
+	
 
 	/* minimum spacing between two factories */
 	min_factory_spacing = 6;
@@ -286,8 +292,12 @@ settings_t::settings_t() :
 	pay_for_total_distance = TO_PREVIOUS;
 
 	avoid_overcrowding = false;
+	overloading_revenue_reduced = false;
+	overloading_runningcost_increase = true;
 
 	allow_buying_obsolete_vehicles = true;
+
+	allow_overloading = false;
 
 	// default: load also private extensions of the pak file
 	with_private_paks = true;
@@ -306,7 +316,8 @@ settings_t::settings_t() :
 	citycar_route_weight_speed = 0;
 	
 	advance_to_end = true;
-	goods_routing_policy = GRP_NF_RC;
+	first_come_first_serve = false;
+	MEMZERON(is_time_based_routing_enabled, 256);
 	waiting_limit_for_first_come_first_serve = 500000;
 	
 	routecost_wait = 8;
@@ -318,6 +329,8 @@ settings_t::settings_t() :
 	base_waiting_ticks_for_road_convoi = 60000;
 	base_waiting_ticks_for_ship_convoi = 60000;
 	base_waiting_ticks_for_air_convoi = 200000;
+
+	default_reverse=false;
 }
 
 
@@ -562,6 +575,11 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short(origin_y );
 
 			file->rdwr_long(passenger_factor );
+			if(  file->get_OTRP_version() > 46  ) {
+				file->rdwr_short(passenger_factor_float);
+			} else {
+				passenger_factor_float = 0;
+			}
 
 			// town grow stuff
 			if(file->is_version_atleast(102, 2)) {
@@ -943,15 +961,21 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_byte(routecost_halt);
 			file->rdwr_short(spacing_shift_divisor);
 		}
-		if(  file->get_OTRP_version() >= 36  ) {
-			uint8 dummy = goods_routing_policy;
+		if(  file->get_OTRP_version() >= 43  ) {
+			file->rdwr_bool(first_come_first_serve);
+		}
+		if(  file->get_OTRP_version() >= 36  &&  file->get_OTRP_version() < 43  ) {
+			uint8 dummy;
 			file->rdwr_byte(dummy);
-			goods_routing_policy = (goods_routing_policy_t)dummy;
+			first_come_first_serve = dummy > 0;
+			if(  dummy==2  ) {
+				// Time based goods routing has to be enabled for all goods categories.
+				for(uint16 i=0; i<256; i++) {
+					is_time_based_routing_enabled[i] = true;
+				}
+			}
 		} else if(  file->get_OTRP_version() >= 28  ) {
-			// previously, only GRP_FIFO_RC or GRP_NF_RC were possible
-			bool dummy = goods_routing_policy == GRP_FIFO_RC;
-			file->rdwr_bool(dummy);
-			goods_routing_policy = dummy ? GRP_FIFO_RC : GRP_NF_RC;
+			file->rdwr_bool(first_come_first_serve);
 		}
 		if(  file->get_OTRP_version() >= 31  ) {
 			file->rdwr_long(waiting_limit_for_first_come_first_serve);
@@ -962,7 +986,27 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long(base_waiting_ticks_for_ship_convoi);
 			file->rdwr_long(base_waiting_ticks_for_air_convoi);
 		}
-		if(  file->is_version_atleast(122, 1)  ) {
+		if(  file->get_OTRP_version() >= 43  ) {
+			for(uint16 i=0; i<256; i++) {
+				file->rdwr_bool(is_time_based_routing_enabled[i]);
+			}
+		}
+		if(  file->get_OTRP_version() >= 48  ) {
+			file->rdwr_bool(close_old_factory);
+			file->rdwr_short(factory_max_years_obsolete);
+		}
+		if(  file->get_OTRP_version() >= 50  ) {
+			file->rdwr_bool(allow_overloading);
+			file->rdwr_bool(overloading_revenue_reduced);
+			file->rdwr_bool(overloading_runningcost_increase);
+			file->rdwr_bool(default_reverse);
+		} else {
+			allow_overloading = false;
+			overloading_revenue_reduced = false;
+			overloading_runningcost_increase = true;
+			default_reverse = false;
+		}
+ 		if(  file->is_version_atleast(122, 1)  ) {
 			file->rdwr_enum(climate_generator);
 			file->rdwr_byte( wind_direction );
 		}
@@ -1058,7 +1102,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	// display stuff
 	env_t::show_names                  = contents.get_int_clamped( "show_names",                     env_t::show_names,                0, 7 );
 	env_t::show_month                  = contents.get_int_clamped( "show_month",                     env_t::show_month,                0, 8 );
-	env_t::show_vehicle_states         = contents.get_int_clamped( "show_vehicle_states",            env_t::show_vehicle_states,       0, 3 );
+	env_t::show_vehicle_states         = contents.get_int_clamped( "show_vehicle_states",            env_t::show_vehicle_states,       0, env_t::MAX_SHOW_VEHICLE_STATES );
 	env_t::follow_convoi_underground   = contents.get_int_clamped( "follow_convoi_underground",      env_t::follow_convoi_underground, 0, 2 );
 	env_t::max_acceleration            = contents.get_int_clamped( "fast_forward",                   env_t::max_acceleration,          0, INT_MAX );
 	env_t::fps                         = contents.get_int_clamped( "frames_per_second",              env_t::fps,                       env_t::min_fps, env_t::max_fps );
@@ -1077,6 +1121,26 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	env_t::numpad_always_moves_map = contents.get_int( "numpad_always_moves_map", env_t::numpad_always_moves_map ) != 0;
 
 	env_t::player_finance_display_account = contents.get_int( "player_finance_display_account", env_t::player_finance_display_account ) != 0;
+
+	// setting reverse offsets
+	const char* directions[] = {"south", "west", "southwest", "southeast", "north", "east", "northeast", "northwest"};
+	for(uint8 d_idx = 0; d_idx < 8; d_idx++) {
+		char buf[64];
+		sprintf(buf, "reverse_base_offset_%s", directions[d_idx]);
+		vector_tpl<int> temp_offset = contents.get_ints(buf);
+		if (temp_offset.get_count()>=3) {
+			for(uint8 i=0; i<3; i++) {
+				env_t::reverse_base_offsets[d_idx][i] = temp_offset[i];
+			}
+		} else {
+			for(uint8 i=0; i<3; i++) {
+				env_t::reverse_base_offsets[d_idx][i] = 0;
+			}			
+		}
+	}
+	// setting default reverse or not when next direction is opposite
+	default_reverse = contents.get_int( "reverse_by_default", default_reverse )!=0;
+
 
 	// network stuff
 	env_t::server_frames_ahead              = contents.get_int_clamped( "server_frames_ahead",             env_t::server_frames_ahead,              0, INT_MAX );
@@ -1289,6 +1353,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	minimum_city_distance                = contents.get_int_clamped( "minimum_city_distance",        minimum_city_distance,                1, INT_MAX );
 	industry_increase                    = contents.get_int_clamped( "industry_increase_every",      industry_increase,                    0, INT_MAX );
 	passenger_factor                     = contents.get_int_clamped( "passenger_factor",             passenger_factor,                     0, INT_MAX ); /* this can manipulate the passenger generation */
+	passenger_factor_float               = contents.get_int_clamped( "passenger_factor_float",       passenger_factor_float,               0, max_passenger_factor_float()-1 );
 	factory_worker_percentage            = contents.get_int_clamped( "factory_worker_percentage",    factory_worker_percentage,            0, 100 );
 	factory_worker_radius                = contents.get_int_clamped( "factory_worker_radius",        factory_worker_radius,                0, 0x7FFF );
 	factory_worker_minimum_towns         = contents.get_int_clamped( "factory_worker_minimum_towns", factory_worker_minimum_towns,         0, 0x7FFF );
@@ -1306,6 +1371,10 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	pay_for_total_distance       = contents.get_int_clamped( "pay_for_total_distance", pay_for_total_distance, 0, 2 );
 	avoid_overcrowding           = contents.get_int( "avoid_overcrowding", avoid_overcrowding ) != 0;
 	no_routing_over_overcrowding = contents.get_int( "no_routing_over_overcrowded", no_routing_over_overcrowding ) != 0;
+
+	allow_overloading					 = contents.get_int( "allow_overloading", allow_overloading) != 0;
+	overloading_revenue_reduced 		 = contents.get_int( "overloading_revenue_reduced", overloading_revenue_reduced) != 0;
+	overloading_runningcost_increase	 = contents.get_int( "overloading_runningcost_increase", overloading_runningcost_increase) != 0;
 
 	// city stuff
 	passenger_multiplier   = contents.get_int_clamped( "passenger_multiplier",   passenger_multiplier,   0, 100 );
@@ -1511,6 +1580,9 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 
 	crossconnect_factories         = contents.get_int("crossconnect_factories", crossconnect_factories ) != 0;
 
+	close_old_factory			   = contents.get_int("close_old_factory", close_old_factory) != 0;
+	factory_max_years_obsolete = contents.get_int("max_years_obsolete", factory_max_years_obsolete);
+
 	env_t::just_in_time = contents.get_int_clamped("just_in_time", env_t::just_in_time, 0, 2);
 	just_in_time = env_t::just_in_time;
 
@@ -1646,7 +1718,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	citycar_route_weight_speed = contents.get_int("citycar_route_weight_speed", citycar_route_weight_speed);
 	
 	advance_to_end = contents.get_int("advance_to_end", advance_to_end);
-	goods_routing_policy = (goods_routing_policy_t)contents.get_int("goods_routing_policy", goods_routing_policy);
+	first_come_first_serve = contents.get_int("first_come_first_serve", first_come_first_serve);
 	waiting_limit_for_first_come_first_serve 
 		= contents.get_int("waiting_limit_for_first_come_first_serve", waiting_limit_for_first_come_first_serve);
 	

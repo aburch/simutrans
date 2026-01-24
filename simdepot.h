@@ -46,6 +46,11 @@ protected:
 	void rdwr_vehikel(slist_tpl<vehicle_t*> &list, loadsave_t *file);
 
 	static slist_tpl<depot_t *> all_depots;
+	/**
+	 *  Search the parent convoy in this depot
+	 */
+	convoihandle_t find_parent_convoy_in_depot(convoihandle_t cnv);
+	convoihandle_t find_most_parent_convoy_in_depot(convoihandle_t cnv);
 
 public:
 	// Last selected vehicle filter
@@ -97,11 +102,16 @@ public:
 	convoihandle_t copy_convoi(convoihandle_t old_cnv, bool local_execution, bool is_copy_schedule = true);
 
 	/**
-	 * Let convoi leave the depot.
+	 * Let convoi leave the depot, if convoys' conditions are OK.
+	 */
+	bool start_convoi(convoihandle_t cnv, bool local_execution);
+	/**
+	 * Check the condition of start convoy (called by depot_t::start_convoi() ).
 	 * If not possible, a message is displayed and the function returns false.
 	 * @param local_execution if true, this method creates pop-ups in case of errors
 	 */
-	bool start_convoi(convoihandle_t cnv, bool local_execution);
+	bool can_start_convoi(convoihandle_t cnv, bool local_execution); 
+
 
 	bool start_all_convoys();
 

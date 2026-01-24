@@ -29,6 +29,7 @@
 #include "../gui/onewaysign_info.h"
 #include "../gui/tool_selector.h"
 #include "../gui/signal_info.h"
+#include "../gui/end_of_choose_info.h"
 
 #include "../tpl/stringhashtable_tpl.h"
 
@@ -82,7 +83,16 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 	ticks_offset = 0;
 	ticks_yellow_ns = ticks_yellow_ow = 2;
 	lane_affinity = 4;
-	guide_signal = false;
+	choose_sign_flag = 0;
+	set_guide_signal(false);
+	if( desc->is_choose_sign() ) {
+		set_advance_to_end(true);
+		set_choose_signal(true);
+	}
+	if( desc->is_end_choose_signal() ) {
+		set_end_of_choose(true);
+		set_end_of_guide(true);
+	}
 	ticks_yellow_ns = ticks_yellow_ow = 2;
 	set_owner( player );
 	if(  desc->is_private_way()  ) {
@@ -208,6 +218,9 @@ void roadsign_t::show_info()
 		else {
 			create_win(new signal_info_t(s), w_info, (ptrdiff_t)this);
 		}
+	}
+	else if(  desc->is_end_choose_signal()  ) {
+		create_win(new end_of_choose_info_t(this), w_info, (ptrdiff_t)this);
 	}
 	else {
 		obj_t::show_info();
@@ -658,10 +671,23 @@ void roadsign_t::rdwr(loadsave_t *file)
 		dir = ribi_t::backward(dir);
 	}
 	
-	if(file->get_OTRP_version()>=22) {
+	if(file->get_OTRP_version()>=46) {	
+		file->rdwr_byte(choose_sign_flag);
+	} 
+	else if(file->get_OTRP_version()>=22) {
+		bool guide_signal = is_guide_signal();
 		file->rdwr_bool(guide_signal);
+		set_guide_signal(guide_signal);
+		set_choose_signal(true);
+		set_advance_to_end(true);
+		set_end_of_choose(true);
+		set_end_of_guide(true);
 	} else {
-		guide_signal = false;
+		set_guide_signal(false);
+		set_choose_signal(true);
+		set_advance_to_end(true);
+		set_end_of_choose(true);
+		set_end_of_guide(true);
 	}
 
 	if(file->is_saving()) {

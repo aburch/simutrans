@@ -164,6 +164,39 @@ weg_t::~weg_t()
 	}
 }
 
+bool weg_t::needs_crossing(const way_desc_t* other) const
+{
+	// certain way always needs crossing (or never)
+	switch (desc->get_waytype()) {
+		case powerline_wt:
+			return false;
+		case water_wt:
+		case air_wt:
+			return true;
+		default:
+			break;
+	}
+	switch (other->get_waytype()) {
+		case powerline_wt:
+			return false;
+		case water_wt:
+		case air_wt:
+			return true;
+		default:
+			break;
+	}
+	// only now we can check if there is a tramway involved
+	if (desc->get_styp() == type_tram) {
+		// we are tramway
+		return false;
+	}
+	if (other->get_styp() == type_tram) {
+		// other is tramway
+		return false;
+	}
+	// needs a crossing
+	return true;
+}
 
 void weg_t::rdwr(loadsave_t *file)
 {
@@ -210,6 +243,7 @@ void weg_t::rdwr(loadsave_t *file)
 
 // calculate the platform length, and append the string of the platform length to buf.
 void append_platform_length_string_if_needed(cbuffer_t & buf, const weg_t* weg) {
+	const koord3d start_pos = weg->get_pos(); // ref. koord which to avoid loop
 	grund_t* gr = world()->lookup(weg->get_pos());
 	const halthandle_t halt = gr ? gr->get_halt() : halthandle_t();
 	if(  !halt.is_bound()  ) {
@@ -236,7 +270,7 @@ void append_platform_length_string_if_needed(cbuffer_t & buf, const weg_t* weg) 
 		if(  !gr  ) { break; }
 		const weg_t* w = gr->get_weg(weg->get_waytype());
 		const halthandle_t h = gr->get_halt();
-		if(  !w  ||  !h.is_bound()  ||  h.get_id()!=halt.get_id()  ) { break; }
+		if(  !w  ||  !h.is_bound()  ||  h.get_id()!=halt.get_id()   ||  gr->get_pos()==start_pos ) { break; }
 		// now, the halt and the way exist on the new tile.
 		pos = gr->get_pos();
 		const ribi_t::ribi new_dir = w->get_ribi_unmasked() & ~(ribi_t::backward(dir));
@@ -256,7 +290,7 @@ void weg_t::info(cbuffer_t & buf) const
 	obj_t::info(buf);
 
 	buf.printf("%s %u%s", translator::translate("Max. speed:"), max_speed, translator::translate("km/h\n"));
-	if( get_waytype() == track_wt && max_wayobj_speed ){
+	if( (get_waytype() != water_wt && get_waytype() != air_wt) && max_wayobj_speed ){
 		buf.printf("%s %u%s", translator::translate("Max. wayobj speed:"), max_wayobj_speed, translator::translate("km/h\n"));
 	}
 	buf.printf("%s%u",    translator::translate("\nRibi (unmasked)"), get_ribi_unmasked());
@@ -299,6 +333,15 @@ void weg_t::info(cbuffer_t & buf) const
 
 		if(  str->get_citycar_no_entry()  ) {
 			buf.printf("%s\n", translator::translate("Citycars are excluded."));
+		}
+
+
+		if(  str->get_allow_branch_cityroad()  ) {
+			buf.printf("%s\n", translator::translate("Cityroad allow branch from this road"));
+		}
+		if(  str->get_no_building()  ) {
+			buf.printf("%s\n", translator::translate("No buildings along roadside."));
+
 		}
 	}
 
@@ -356,13 +399,12 @@ void weg_t::count_sign()
 	flags &= ~(HAS_SIGN|HAS_SIGNAL|HAS_CROSSING);
 	const grund_t *gr=welt->lookup(get_pos());
 	if(gr) {
-		max_speed = desc->get_topspeed(); // reset max_speed
 		uint8 i = 1;
 		// if there is a crossing, the start index is at least three ...
-		if(  gr->ist_uebergang()  ) {
+		if(  const crossing_t* cr = gr->get_crossing()  ) {
+			max_speed = desc->get_topspeed(); // reset max_speed
 			flags |= HAS_CROSSING;
 			i = 3;
-			const crossing_t* cr = gr->find<crossing_t>();
 			uint32 top_speed = cr->get_desc()->get_maxspeed( cr->get_desc()->get_waytype(0)==get_waytype() ? 0 : 1);
 			if(  top_speed < max_speed  ) {
 				max_speed = top_speed;

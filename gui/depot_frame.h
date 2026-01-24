@@ -93,6 +93,7 @@ private:
 	gui_label_t lb_convoi_power;
 	gui_label_t lb_convoi_weight;
 	gui_label_t lb_convoi_line;
+	gui_label_t lb_convoi_terminal_speed;
 
 	depot_convoi_capacity_t cont_convoi_capacity;
 
@@ -104,6 +105,16 @@ private:
 	button_t bt_destroy;
 	button_t bt_sell;
 	button_t bt_replacement_seed;
+	button_t bt_reverse;
+	const char* no_child_text;
+	gui_label_t lb_child_convoy;
+	// coupling convoy selector
+	// if some convoy select, this convoy will depart coupling with selected convoy
+	// the showed convoy itself is not in this selector.
+	gui_combobox_t child_convoi_selector;
+	// When this flag is true, the currently shown convoy is someone's child convoy.
+	// if this flag is true, this convoy cannot depart alone.
+	bool is_shown_convoy_coupled;
 
 	button_t bt_obsolete;
 	button_t bt_show_all;
@@ -187,6 +198,8 @@ private:
 	cbuffer_t txt_convoi_cost;
 	cbuffer_t txt_convoi_power;
 	cbuffer_t txt_convoi_weight;
+	cbuffer_t txt_convoi_terminal_speed;
+	uint32 const test_balance_kmh = 999;
 
 	scr_coord_val second_column_x; // x position of the second text column
 	scr_coord_val second_column_w;

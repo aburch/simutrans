@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - v*
+  workflow_dispatch:
 
 jobs:
   build:
@@ -11,7 +12,7 @@ jobs:
     runs-on: macOS-latest
     
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: install_dependencies
       run: | 
@@ -29,9 +30,20 @@ jobs:
 
     - name: CI-Build
       run: sh ./.github/build-mac.sh
-      
+
+    - name: Set suffix for file naming
+      run: |
+        if [[ $GITHUB_REF == refs/tags/* ]]; then
+          echo "SUFFIX=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        else
+          echo "SUFFIX=_${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+        fi
+
+    - name: Rename executable
+      run: mv sim-mac-OTRP sim-mac-OTRP${{ env.SUFFIX }}
+
     - name: Upload the executable
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
-        name: sim-mac-OTRP
-        path: ./sim-mac-OTRP
+        name: sim-mac-OTRP${{ env.SUFFIX }}
+        path: ./sim-mac-OTRP${{ env.SUFFIX }}

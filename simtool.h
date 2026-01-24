@@ -28,6 +28,7 @@
 #include "player/simplay.h"
 
 #include "tpl/slist_tpl.h"
+#include "utils/cbuffer_t.h"
 
 class koord3d;
 class koord;
@@ -82,6 +83,8 @@ protected:
 	bool is_dragging;
 	sint16 drag_height;
 	bool is_area_process;
+	// avoid raise or lower same position many times at one dragging
+	vector_tpl<koord> dragged_pos;
 
 	const char* drag(player_t*, koord k, sint16 h, int &n);
 	virtual sint16 get_drag_height(koord k) = 0;
@@ -304,10 +307,10 @@ protected:
 	overtaking_mode_t overtaking_mode;
 	bool look_toolbar = false;
 	uint8 street_flag;
-	uint8 height_offset;
+	sint8 height_offset;
 
 	virtual way_desc_t const* get_desc(uint16 timeline_year_month) const;
-	void calc_route( way_builder_t &bauigel, const koord3d &, const koord3d & );
+	bool calc_route( way_builder_t &bauigel, const koord3d &, const koord3d & );
 	void start_at( koord3d &new_start ) OVERRIDE;
 
 public:
@@ -333,8 +336,11 @@ public:
 	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode; }
 	void set_street_flag (uint8 a) { street_flag = a; }
 	uint8 get_street_flag() const { return street_flag; }
-	void set_height_offset (uint8 a) { height_offset = a; }
-	uint8 get_height_offset() const { return height_offset; }
+	void set_height_offset (sint8 a) { 
+		const sint8 min_offset = 1 - welt->get_settings().get_way_height_clearance();
+		height_offset = a<min_offset?0:a;
+	}
+	sint8 get_height_offset() const { return height_offset; }
 	static void set_mode_str(char* str, overtaking_mode_t overtaking_mode);
 	void set_look_toolbar() { look_toolbar = true; }
 	static uint8 get_flag_color(uint8 flag);
@@ -702,13 +708,15 @@ private:
 	void read_start_position(player_t *player, const koord3d &pos);
 };
 
-class tool_change_city_of_citybuilding_t : public two_click_tool_t {
+class tool_change_city_of_building_t : public two_click_kartenboden_tool_t {
 public:
-	tool_change_city_of_citybuilding_t() : two_click_tool_t(TOOL_CHANGE_CITY_OF_CITYBUILDING | GENERAL_TOOL) {}
+	cbuffer_t default_param_buffer;
+	tool_change_city_of_building_t() : two_click_kartenboden_tool_t(TOOL_CHANGE_CITY_OF_BUILDING | GENERAL_TOOL) { one_click = true; }
 	char const *get_tooltip(player_t const *) const OVERRIDE { return translator::translate("change city of citybuilding"); }
-
+	bool is_init_network_safe() const OVERRIDE { return true; }
 private:
 	char const *do_work(player_t*, koord3d const &, koord3d const &) OVERRIDE;
+	const char* work_on_ground(player_t*, koord, stadt_t*);
 	void mark_tiles(player_t*, koord3d const &, koord3d const &) OVERRIDE;
 	uint8 is_valid_pos(player_t*, koord3d const &pos, char const *&error, koord3d const &start) OVERRIDE {
 		grund_t *bd = welt->lookup(pos);
@@ -716,10 +724,12 @@ private:
 			error = "";
 			return 0;
 		}
+		error = NULL;
 
 		return 2;
 	};
-	image_id get_marker_image() const OVERRIDE { return cursor; };
+	image_id get_marker_image() const OVERRIDE { return cursor; }
+	stadt_t* get_highlighted_city() const;
 };
 
 /* make all tiles of this player a public stop
@@ -783,6 +793,23 @@ public:
 	bool init(player_t*) OVERRIDE { return true; }
 	bool is_init_network_safe() const OVERRIDE { return true; }
 	char const* work(player_t*, koord3d) OVERRIDE { return default_param ? default_param : ""; }
+};
+
+
+// Copies item under cursor into cursor
+class tool_pipette_t : public tool_t
+{
+public:
+	tool_pipette_t() : tool_t(TOOL_PIPETTE | GENERAL_TOOL) {}
+
+public:
+	const char *get_tooltip(const player_t *) const OVERRIDE { return translator::translate("Pipette"); }
+	const char *work(player_t *, koord3d) OVERRIDE;
+	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_work_network_safe() const OVERRIDE { return true; }
+
+private:
+	const char* allow_tool_check(const obj_t* obj, const obj_desc_timelined_t* desc, const player_t* pl) const;
 };
 
 
@@ -1095,7 +1122,7 @@ public:
 	tool_vehicle_tooltips_t() : tool_t(TOOL_VEHICLE_TOOLTIPS | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Toggle vehicle tooltips"); }
 	bool init( player_t * ) OVERRIDE {
-		env_t::show_vehicle_states = (env_t::show_vehicle_states+1)%4;
+		env_t::show_vehicle_states = (env_t::show_vehicle_states+1)%env_t::MAX_SHOW_VEHICLE_STATES;
 		welt->set_dirty();
 		return false;
 	}
@@ -1218,7 +1245,7 @@ public:
 	bool init( player_t * ) OVERRIDE {
 		assert(  default_param  );
 		if( const char *c = strchr( default_param, '|' ) ) {
-			koord delta( atoi( default_param ), atoi( c+1 ) );
+			koord delta( (sint16)atoi( default_param ), (sint16)atoi( c+1 ) );
 			welt->get_viewport()->change_world_position(welt->get_viewport()->get_world_position() + delta);
 			welt->set_dirty();
 		}
@@ -1269,7 +1296,7 @@ public:
 	bool is_selected() const OVERRIDE { return false; }
 	bool init( player_t * ) OVERRIDE {
 		assert(  default_param  );
-		sint16 level = clamp(atoi(default_param), 0, 16);
+		sint16 level = (sint16)clamp(atoi(default_param), 0, 16);
 		welt->get_settings().set_traffic_level(level);
 		return false;
 	}
@@ -1372,6 +1399,14 @@ public:
 	tool_merge_player_t() : tool_t(TOOL_MERGE_PLAYER | SIMPLE_TOOL) {}
 	bool init(player_t * ) OVERRIDE;
 	bool is_init_network_safe() const OVERRIDE { return false; }
+};
+
+class tool_change_factory_t : public tool_t {
+public:
+	tool_change_factory_t() : tool_t(TOOL_CHANGE_FACTORY | SIMPLE_TOOL) {}
+	bool init(player_t * )OVERRIDE;
+	bool is_init_network_safe() const OVERRIDE {return false;}
+	bool is_work_network_safe() const OVERRIDE {return false;}
 };
 
 #endif

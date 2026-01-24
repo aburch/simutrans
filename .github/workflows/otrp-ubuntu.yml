@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - v*
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   build:
@@ -11,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
 
     - name: install_dependencies
       run: |
@@ -44,9 +46,25 @@ jobs:
     - name: make
       run: |
         make -j
-      
+
+    - name: Set suffix for file naming
+      run: |
+        if [[ $GITHUB_REF == refs/tags/* ]]; then
+          echo "SUFFIX=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        else
+          echo "SUFFIX=" >> $GITHUB_ENV
+        fi
+
+    - name: Rename executable
+      run: |
+        if [ -n "${{ env.SUFFIX }}" ]; then
+          mv sim sim-linux-OTRP${{ env.SUFFIX }}
+        else
+          mv sim sim-linux-OTRP
+        fi
+
     - name: Upload the executable
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
-        name: sim-linux-OTRP
-        path: ./sim
+        name: sim-linux-OTRP${{ env.SUFFIX }}
+        path: ./sim-linux-OTRP${{ env.SUFFIX }}

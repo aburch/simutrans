@@ -53,4 +53,14 @@ public:
 	}
 };
 
+class non_color_line_scroll_item_t: public line_scrollitem_t 
+{
+public:
+	non_color_line_scroll_item_t( linehandle_t l ) : line_scrollitem_t(l) {};
+	PIXVAL get_color() const OVERRIDE {
+		const uint8 color_idx = SYSCOL_TEXT;
+		return color_idx_to_rgb(color_idx);
+	}
+};
+
 #endif

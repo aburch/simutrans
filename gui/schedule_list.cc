@@ -123,7 +123,9 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	scl(gui_scrolled_list_t::listskin, line_scrollitem_t::compare),
 	scrolly_convois(gui_scrolled_list_t::windowskin),
 	scrolly_haltestellen(gui_scrolled_list_t::windowskin),
-	lbl_filter("Line Filter")
+	lbl_filter("Line Filter"),
+	lbl_memo("Line Memo:"),
+	lbl_name("Line Name:")
 {
 	capacity = load = 0;
 	selection = -1;
@@ -196,7 +198,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	inp_filter.add_listener(this);
 	add_component(&inp_filter);
 
-	sint16 bt_y = D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT+D_V_SPACE ;
+	sint16 bt_y = D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT*2+D_V_SPACE*2+D_INDICATOR_HEIGHT+D_V_SPACE ;
 
 	// sort by what
 	for( int i=0; i<MAX_SORT_IDX;  i++ ) {
@@ -287,19 +289,36 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	// editable line name
 	inp_name.add_listener(this);
-	inp_name.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP + SCL_HEIGHT + D_V_SPACE));
+	inp_name.set_pos(scr_coord(RIGHT_COLUMN_OFFSET+D_BUTTON_WIDTH+D_H_SPACE, D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE));
 	inp_name.set_size(scr_size(D_BUTTON_WIDTH, D_EDIT_HEIGHT));
 	inp_name.set_visible(false);
 	add_component(&inp_name);
 
+	// line name label
+	lbl_name.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE));
+	lbl_name.set_visible(false);
+	add_component(&lbl_name);
+
+	// line memo label
+	lbl_memo.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT+D_V_SPACE));
+	lbl_memo.set_visible(false);
+	add_component(&lbl_memo);
+
+	//editable memo field
+	inp_memo.add_listener(this);
+	inp_memo.set_pos(scr_coord(RIGHT_COLUMN_OFFSET+D_BUTTON_WIDTH+D_H_SPACE, D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT+D_V_SPACE));
+	inp_memo.set_size(scr_size(D_BUTTON_WIDTH, D_EDIT_HEIGHT));
+	inp_memo.set_visible(false);
+	add_component(&inp_memo);
+
 	// load display
 	filled_bar.add_color_value(&loadfactor, color_idx_to_rgb(COL_GREEN));
-	filled_bar.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP+SCL_HEIGHT + D_H_SPACE));
+	filled_bar.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT*2+D_V_SPACE*2));
 	filled_bar.set_visible(false);
 	add_component(&filled_bar);
 
 	// convoi list
-	scrolly_convois.set_pos(scr_coord(RIGHT_COLUMN_OFFSET-D_H_SPACE, bt_y + D_BUTTON_HEIGHT+ D_V_SPACE + 2*LINESPACE));
+	scrolly_convois.set_pos(scr_coord(RIGHT_COLUMN_OFFSET-D_H_SPACE, bt_y + 2 * D_BUTTON_HEIGHT+ 3 * D_V_SPACE + 2*LINESPACE));
 	scrolly_convois.set_show_scroll_x(true);
 	scrolly_convois.set_scroll_amount_y(40);
 	scrolly_convois.set_visible(false);
@@ -311,6 +330,14 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	bt_withdraw_line.set_visible(false);
 	bt_withdraw_line.add_listener(this);
 	add_component(&bt_withdraw_line);
+
+	bt_teleport_line_to_depot.init(button_t::roundbox_state, "Teleport All to Depot",
+		scr_coord(RIGHT_COLUMN_OFFSET, bt_y+D_BUTTON_HEIGHT+D_V_SPACE), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_teleport_line_to_depot.set_tooltip("Convoys are teleported to depot immediately");
+	bt_teleport_line_to_depot.set_visible(false);
+	bt_teleport_line_to_depot.add_listener(this);
+	add_component(&bt_teleport_line_to_depot);
+	
 	
 	bt_show_journey_time.init(button_t::roundbox, "Journey Time",
 		scr_coord(RIGHT_COLUMN_OFFSET+D_BUTTON_WIDTH+D_H_SPACE, bt_y),
@@ -360,8 +387,10 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	}
 	selected_tab[player->get_player_nr()] = tabs_to_lineindex[index]; // reset if previous selected tab is not there anymore
 	tabs.set_active_tab_index(index);
-	if(  index>0  ) {
-		bt_new_line.enable();
+	if(  index>0  ) {		
+		if(  player == welt->get_active_player()  ||  welt->get_active_player() == welt->get_player(1)  ) {
+			bt_new_line.enable();
+		}
 	}
 	else {
 		bt_new_line.disable();
@@ -416,6 +445,11 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 	if(  comp == &bt_edit_line  ) {
 		if(  line.is_bound()  ) {
 			create_win( new line_management_gui_t(line, player), w_info, (ptrdiff_t)line.get_rep() );
+		}
+	}
+	else if(  comp == &bt_teleport_line_to_depot  &&  line->get_convoys().get_count()>0  ) {
+		for (size_t i = line->get_convoys().get_count(); i-- != 0;) {
+			line->get_convoy(i)->call_convoi_tool( 'y', NULL );
 		}
 	}
 	else if(  comp == &bt_new_line  ) {
@@ -484,7 +518,9 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 		update_lineinfo( selected_line[player->get_player_nr()][selected_tab[player->get_player_nr()]] );
 		build_line_list(tab);
 		if(  tab>0  ) {
-			bt_new_line.enable();
+			if(  player == welt->get_active_player()  ||  welt->get_active_player() == welt->get_player(1)  ) {
+				bt_new_line.enable();
+			}
 		}
 		else {
 			bt_new_line.disable();
@@ -513,6 +549,18 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 	else if(  comp == &inp_name  ) {
 		rename_line();
 	}
+	else if(  comp == &inp_memo  ) {
+		if (line.is_bound()	&& (player == welt->get_active_player() || welt->get_active_player() == welt->get_player(1))) {
+			dbg->message("schedule_list_t::action_triggered()","change %s's memo",line->get_name());
+			tool_t* tmp_tool = create_tool(TOOL_CHANGE_LINE | SIMPLE_TOOL);
+			cbuffer_t buf;
+			buf.printf("m,%i,%s", line.get_id(), inp_memo.get_text());
+			tmp_tool->set_default_param(buf);
+			welt->set_tool(tmp_tool, player);
+			// since init always returns false, it is safe to delete immediately
+			delete tmp_tool;
+		}
+	}
 	else {
 		if(  line.is_bound()  ) {
 			for(  int i=0;  i<MAX_LINE_COST;  i++  ) {
@@ -530,6 +578,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 		}
 	}
 
+
 	return true;
 }
 
@@ -540,14 +589,16 @@ void schedule_list_gui_t::reset_line_name()
 	if(  line.is_bound()  ) {
 		tstrncpy(old_line_name, line->get_name(), sizeof(old_line_name));
 		tstrncpy(line_name, line->get_name(), sizeof(line_name));
+		tstrncpy(line_memo, line->get_memo(), sizeof(line_memo));
 		inp_name.set_text(line_name, sizeof(line_name));
+		inp_memo.set_text(line_memo, sizeof(line_memo));
 	}
 }
 
 
 void schedule_list_gui_t::rename_line()
 {
-	if(  line.is_bound()  ) {
+	if(  line.is_bound()  &&  (  player == welt->get_active_player()  ||  welt->get_active_player() == welt->get_player(1)  )  ) {
 		const char *t = inp_name.get_text();
 		// only change if old name and current name are the same
 		// otherwise some unintended undo if renaming would occur
@@ -566,7 +617,6 @@ void schedule_list_gui_t::rename_line()
 	}
 }
 
-
 void schedule_list_gui_t::draw(scr_coord pos, scr_size size)
 {
 	if(  old_line_count != player->simlinemgmt.get_line_count()  ) {
@@ -581,6 +631,7 @@ void schedule_list_gui_t::draw(scr_coord pos, scr_size size)
 		bt_edit_line.enable( activate );
 		bt_new_line.enable( activate   &&  tabs.get_active_tab_index() > 0);
 		bt_withdraw_line.enable( activate );
+		bt_teleport_line_to_depot.enable( activate );
 	}
 
 	// if search string changed, update line selection
@@ -645,7 +696,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 			break;
 		}
 	}
-	sint16 text_y = D_TITLEBAR_HEIGHT+bt_withdraw_line.get_pos().y + bt_withdraw_line.get_size().h + D_V_SPACE;
+	sint16 text_y = D_TITLEBAR_HEIGHT+bt_teleport_line_to_depot.get_pos().y + bt_teleport_line_to_depot.get_size().h + D_V_SPACE;
 	int len=display_proportional_clip_rgb(pos.x+RIGHT_COLUMN_OFFSET,
 		pos.y+text_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 
@@ -678,7 +729,8 @@ void schedule_list_gui_t::set_windowsize(scr_size size)
 	scrolly_haltestellen.set_size( scr_size(RIGHT_COLUMN_OFFSET, get_client_windowsize().h-scrolly_haltestellen.get_pos().y) );
 
 	chart.set_size( scr_size( rest_width, SCL_HEIGHT-D_MARGIN_TOP-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE)) ) );
-	inp_name.set_size(scr_size(rest_width, D_EDIT_HEIGHT));
+	inp_name.set_size(scr_size(rest_width-D_BUTTON_WIDTH - D_H_SPACE, D_EDIT_HEIGHT));
+	inp_memo.set_size(scr_size(rest_width-D_BUTTON_WIDTH - D_H_SPACE, D_EDIT_HEIGHT));
 	filled_bar.set_size(scr_size(rest_width, 4));
 
 	int y = D_MARGIN_TOP + SCL_HEIGHT-D_V_SPACE-(button_rows*(D_BUTTON_HEIGHT+D_V_SPACE));
@@ -728,7 +780,10 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		// ok, this line is visible
 		scrolly_convois.set_visible(true);
 		scrolly_haltestellen.set_visible(true);
+		lbl_name.set_visible(true);
 		inp_name.set_visible(true);
+		lbl_memo.set_visible(true);
+		inp_memo.set_visible(true);
 		filled_bar.set_visible(true);
 
 		// fill container with info of line's convoys
@@ -746,15 +801,20 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		bt_delete_line.disable();
 		bt_copy_data.enable();
 		add_component(&bt_withdraw_line);
+		add_component(&bt_teleport_line_to_depot);
 		bt_withdraw_line.disable();
-		if(  icnv>0  ) {
-			bt_withdraw_line.enable();
+		bt_teleport_line_to_depot.disable();
+		if(  player == welt->get_active_player()  ||  welt->get_active_player() == welt->get_player(1)  ) {
+			if(  icnv>0  ) {
+				bt_withdraw_line.enable();
+				bt_teleport_line_to_depot.enable();
+			}
+			else {
+				bt_delete_line.enable();
+			}
+			bt_edit_line.enable();
+			bt_copy_line.enable();
 		}
-		else {
-			bt_delete_line.enable();
-		}
-		bt_edit_line.enable();
-		bt_copy_line.enable();
 		bt_show_journey_time.enable();
 		bt_goods_waiting_time.enable();
 
@@ -762,8 +822,8 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 
 		// fill haltestellen container with info of stops of the line
 		scrolly_haltestellen.clear_elements();
-		FOR(minivec_tpl<schedule_entry_t>, const& i, new_line->get_schedule()->entries) {
-			halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, player);
+		FOR(minivec_tpl<schedule_entry_t>, const& i, new_line->get_schedule()->get_entries()) {
+			halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, player, new_line->get_schedule()->get_waytype());
 			if(  halt.is_bound()  ) {
 				scrolly_haltestellen.new_component<halt_list_stats_t>(halt);
 			}
@@ -796,11 +856,13 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 	else if(  inp_name.is_visible()  ) {
 		// previously a line was visible
 		// thus the need to hide everything
-		inp_name.set_visible(false);
 		filled_bar.set_visible(false);
 		scrolly_convois.set_visible(false);
 		scrolly_haltestellen.set_visible(false);
 		inp_name.set_visible(false);
+		lbl_name.set_visible(false);
+		inp_memo.set_visible(false);
+		lbl_memo.set_visible(false);
 		filled_bar.set_visible(false);
 		scl.set_selection(-1);
 		bt_delete_line.disable();
@@ -823,9 +885,9 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 	}
 	line = new_line;
 	bt_withdraw_line.set_visible( line.is_bound() );
+	bt_teleport_line_to_depot.set_visible( line.is_bound() );
 	bt_show_journey_time.set_visible( line.is_bound() );
-	const bool is_tbgr_enabled = world()->get_settings().get_goods_routing_policy()==goods_routing_policy_t::GRP_FIFO_ET;
-	bt_goods_waiting_time.set_visible( is_tbgr_enabled  &&  line.is_bound() );
+	bt_goods_waiting_time.set_visible(  line.is_bound() );
 
 	reset_line_name();
 }

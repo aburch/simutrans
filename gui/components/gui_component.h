@@ -281,7 +281,7 @@ class gui_margin_t : public gui_component_t
 	uint16 width;
 	uint16 height;
 public:
-	gui_margin_t(uint margin_x = D_H_SPACE, uint margin_y = D_V_SPACE) : width(margin_x), height(margin_y) {}
+	gui_margin_t(uint margin_x = D_H_SPACE, uint margin_y = D_V_SPACE) : width((uint16)margin_x), height((uint16)margin_y) {}
 
 	void draw(scr_coord) OVERRIDE { }
 

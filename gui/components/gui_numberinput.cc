@@ -137,6 +137,7 @@ bool gui_numberinput_t::action_triggered( gui_action_creator_t *comp, value_t /*
 
 
 uint8 gui_numberinput_t::percent[8] = { 0, 1, 5, 10, 20, 50, 100, 200 };
+uint8 gui_numberinput_t::percent2[11] = {0, 1, 5, 10, 20, 50, 100, 150, 200, 250, 255};
 
 sint32 gui_numberinput_t::get_next_value()
 {
@@ -174,6 +175,15 @@ sint32 gui_numberinput_t::get_next_value()
 				}
 			}
 			return max_value;
+		}
+		case PROGRESS2:
+		{
+			for( int i=0;  i<11;  i++  ) {
+				if(  value<min(percent2[i],max_value)  ) {
+					return percent2[i];
+				}
+			}
+			return max_value; 
 		}
 		// default value is step size
 		default:
@@ -218,6 +228,15 @@ sint32 gui_numberinput_t::get_prev_value()
 				}
 			}
 			return min_value;
+		}
+		case PROGRESS2:
+		{
+			for( int i=9; i>=0; i--  ) {
+				if(  value>min(percent2[i],max_value)  ) {
+					return percent2[i];
+				}
+			}
+			return min_value; 
 		}
 		// default value is step size
 		default:

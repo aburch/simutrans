@@ -15,6 +15,7 @@
 #include "../dataobj/objlist.h"
 #include "../display/clip_num.h"
 #include "wege/weg.h"
+#include "../obj/crossing.h"
 
 
 class player_t;
@@ -171,6 +172,15 @@ public:
 	};
 	static uint8 underground_mode;
 	static sint8 underground_level;
+	/**
+	 * we keep underground mode using outside
+	 * we only update this value when following convoy which run outside(not underground)
+	 */
+	static uint8 underground_mode_outside;
+	/**
+	 * followed convoi is underground.
+	 */
+	static bool is_underground;
 
 protected:
 	/**
@@ -636,7 +646,7 @@ public:
 	/**
 	* The only way to get the type (typ) of a way on a tile
 	*/
-	weg_t *get_weg_nr(int i) const { return (flags&(has_way1<<i)) ? static_cast<weg_t *>(obj_bei(i)) : NULL; }
+	weg_t *get_weg_nr(uint8 i) const { return (flags&(has_way1<<i)) ? static_cast<weg_t *>(obj_bei(i)) : NULL; }
 
 	/**
 	* Inline da sehr oft aufgerufen.
@@ -645,10 +655,6 @@ public:
 	weg_t *get_weg(waytype_t typ) const {
 		if (weg_t* const w = get_weg_nr(0)) {
 			const waytype_t wt = w->get_waytype();
-			if (wt > typ) {
-				// ways are ordered wrt to waytype
-				return NULL;
-			}
 			if(wt == typ || (typ == any_wt && wt > 0)) {
 				return w;
 			}
@@ -710,10 +716,19 @@ public:
 	inline bool hat_wege() const { return (flags&(has_way1|has_way2))!=0;}
 
 	/**
-	* Kreuzen sich hier 2 verschiedene Wege?
-	* Strassenbahnschienen duerfen nicht als Kreuzung erkannt werden!
+	* Are two ways crossing here?
+	* To not discover trams, we look for the crossing object
 	*/
-	inline bool ist_uebergang() const { return (flags&has_way2)!=0  &&  ((weg_t *)objlist.bei(1))->get_desc()->get_styp()!=type_tram; }
+	inline crossing_t *get_crossing() const {
+		if (flags & has_way2) {
+			if (obj_t* obj = objlist.bei(2)) {
+				if (obj->get_typ() == obj_t::crossing) {
+					return static_cast<crossing_t*>(obj);
+				}
+			}
+		}
+		return NULL;
+	}
 
 	/**
 	* returns the vehicle of a convoi (if there)
@@ -762,7 +777,7 @@ public:
 	 * @param wegtyp   um welchen wegtyp geht es
 	 * @param ribi_rem sollen die ribis der nachbar zururckgesetzt werden?
 	 */
-	sint32 weg_entfernen(waytype_t wegtyp, bool ribi_rem);
+	sint64 weg_entfernen(waytype_t wegtyp, bool ribi_rem);
 
 	/**
 	 * Description;

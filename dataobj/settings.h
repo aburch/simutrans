@@ -32,21 +32,6 @@ struct citycar_routing_param_t
 	sint16 weight_speed;
 };
 
-// The policy of how to route and loads the goods at stops.
-enum goods_routing_policy_t {
-	// The goods routing is based on route cost.
-	// At stops, the goods to the nearest destination are loaded first.
-	GRP_NF_RC = 0,
-
-	// The goods routing is based on route cost.
-	// At stops, the goods are loaded in the order of the arrival.
-	GRP_FIFO_RC = 1,
-
-	// The goods routing is based on the estimated time to reach the destination.
-	// At stops, the goods are loaded in the order of the arrival.
-	GRP_FIFO_ET = 2,
-};
-
 /**
  * Game settings
  */
@@ -217,6 +202,8 @@ private:
 	sint16 origin_x, origin_y;
 
 	sint32 passenger_factor;
+	// passenger factor float value(passenger factor = float/100)
+	uint16 passenger_factor_float;
 
 	sint16 min_factory_spacing;
 	sint16 max_factory_spacing;
@@ -230,6 +217,10 @@ private:
 
 	/* crossconnect all factories (like OTTD and similar games) */
 	sint16 crossconnect_factor;
+
+	/* close old factory randomly (like extended)*/
+	bool close_old_factory;
+	uint16 factory_max_years_obsolete;
 
 	/**
 	* Generate random pedestrians in the cities?
@@ -300,6 +291,14 @@ private:
 	/* if set, goods will not routed over overcrowded stations but rather try detours (if possible) */
 	bool no_routing_over_overcrowding;
 
+	/* if set, passagiere can load overcrowded cars*/
+	bool allow_overloading;
+
+	/* if set, overcrowded cars' revenue is reduced*/
+	bool overloading_revenue_reduced;
+	/* if set, overcrowded car's running cost is increase*/
+	bool overloading_runningcost_increase;
+
 	// lowest possible income with speedbonus (1000=1) default 125
 	sint32 bonus_basefactor;
 
@@ -341,7 +340,11 @@ private:
 	// only for trains. If true, trains advance to the end of the platform.
 	bool advance_to_end;
 
-	goods_routing_policy_t goods_routing_policy;
+	bool first_come_first_serve;
+
+	// The flag whether the time based goods routing is enabled for the goods.
+	// The array index is the goods category index.
+	bool is_time_based_routing_enabled[256];
 	
 	// When the amount of waiting goods/passengers exceeds this value,
 	// goods are loaded with "nearest first" policy to reduce the calculation load.
@@ -360,6 +363,10 @@ private:
 	uint32 base_waiting_ticks_for_road_convoi;
 	uint32 base_waiting_ticks_for_ship_convoi;
 	uint32 base_waiting_ticks_for_air_convoi;
+
+	
+	// set default reversing or not, when the next direction is opposite.
+	bool default_reverse;
 
 public:
 	/* the big cost section */
@@ -490,10 +497,10 @@ public:
 	uint8 get_max_ship_convoi_length() const {return max_ship_convoi_length;}
 	uint8 get_max_air_convoi_length() const {return max_air_convoi_length;}
 
-	void set_allow_player_change(char n) {allow_player_change=n;}
+	void set_allow_player_change(char n) {allow_player_change=(uint8)(n);}
 	uint8 get_allow_player_change() const {return allow_player_change;}
 
-	void set_use_timeline(char n) {use_timeline=n;}
+	void set_use_timeline(char n) {use_timeline=(uint8)(n);}
 	uint8 get_use_timeline() const {return use_timeline;}
 
 	void set_starting_year( sint16 n ) { starting_year = n; }
@@ -544,6 +551,8 @@ public:
 	sint16 get_max_factory_spacing_percent() const { return max_factory_spacing_percentage; }
 	sint16 get_crossconnect_factor() const { return crossconnect_factor; }
 	bool is_crossconnect_factories() const { return crossconnect_factories; }
+	bool is_close_old_factory() const { return close_old_factory; }
+	uint16 get_factory_max_years_obsolete() const { return factory_max_years_obsolete; }
 
 	bool get_numbered_stations() const { return numbered_stations; }
 
@@ -583,6 +592,11 @@ public:
 	// do not allow routes over overcrowded destinations
 	bool is_no_routing_over_overcrowding() const { return no_routing_over_overcrowding; }
 
+	// allow overloading
+	bool is_allow_overloading() const {return allow_overloading;}
+	bool is_overloading_revenue_reduced() const {return overloading_revenue_reduced;}
+	bool is_overloading_runningcost_increase() const {return overloading_runningcost_increase;}
+
 	sint16 get_river_number() const { return river_number; }
 	sint16 get_min_river_length() const { return min_river_length; }
 	sint16 get_max_river_length() const { return max_river_length; }
@@ -592,6 +606,8 @@ public:
 	bool get_with_private_paks() const { return with_private_paks; }
 
 	sint32 get_passenger_factor() const { return passenger_factor; }
+	uint16 get_passenger_factor_float() const { return passenger_factor_float; }
+	uint16 max_passenger_factor_float() const { return (uint16)100; }
 
 	// town growth stuff
 	sint32 get_passenger_multiplier() const { return passenger_multiplier; }
@@ -609,15 +625,15 @@ public:
 	sint16 get_tourist_percentage() const { return tourist_percentage; }
 
 	// radius from factories to get workers from towns (usually set to 77 but 1/8 of map size may be meaningful too)
-	uint16 get_factory_worker_radius() const { return factory_worker_radius; }
+	uint16 get_factory_worker_radius() const { return (uint16)(factory_worker_radius); }
 
 	// any factory will be connected to at least this number of next cities
-	uint32 get_factory_worker_minimum_towns() const { return factory_worker_minimum_towns; }
-	void set_factory_worker_minimum_towns(uint32 n) { factory_worker_minimum_towns = n; }
+	sint32 get_factory_worker_minimum_towns() const { return factory_worker_minimum_towns; }
+	void set_factory_worker_minimum_towns(sint32 n) { factory_worker_minimum_towns = n; }
 
 	// any factory will be connected to not more than this number of next cities
-	uint32 get_factory_worker_maximum_towns() const { return factory_worker_maximum_towns; }
-	void set_factory_worker_maximum_towns(uint32 n) { factory_worker_maximum_towns = n; }
+	uint32 get_factory_worker_maximum_towns() const { return (uint32)(factory_worker_maximum_towns); }
+	void set_factory_worker_maximum_towns(uint32 n) { factory_worker_maximum_towns = (sint32)(n); }
 
 	// number of periods for averaging the amount of arrived pax/mail at factories
 	uint16 get_factory_arrival_periods() const { return factory_arrival_periods; }
@@ -708,8 +724,8 @@ public:
 	
 	bool get_advance_to_end() const { return advance_to_end; }
 	void set_advance_to_end(bool b) { advance_to_end = b; }
-	
-	goods_routing_policy_t get_goods_routing_policy() const { return goods_routing_policy; }
+
+	bool get_first_come_first_serve() const { return first_come_first_serve; }
 	uint32 get_waiting_limit_for_first_come_first_serve() const 
 		{ return waiting_limit_for_first_come_first_serve; }
 	
@@ -719,6 +735,12 @@ public:
 	uint16 get_spacing_shift_divisor() const { return spacing_shift_divisor; }
 
 	uint32 get_base_waiting_ticks(waytype_t waytype) const;
+	bool get_time_based_routing_enabled(uint8 goods_catg_index) const { return is_time_based_routing_enabled[goods_catg_index]; }
+	void set_time_based_routing_enabled(uint8 goods_catg_index, bool is_on) {
+		is_time_based_routing_enabled[goods_catg_index] = is_on; 
+	}
+	// get default reverse
+	bool is_default_reverse() const {return default_reverse;}
 };
 
 #endif
