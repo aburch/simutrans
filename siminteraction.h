@@ -58,7 +58,6 @@ private:
 	bool process_event( event_t &ev );
 
 	bool is_dragging;
-	bool is_world_dragging;
 
 public:
 	/**
