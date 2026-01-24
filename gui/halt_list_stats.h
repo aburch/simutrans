@@ -57,6 +57,8 @@ public:
 	scr_size get_max_size() const OVERRIDE {
 		return get_min_size();
 	}
+
+	void set_buffer_to_cargoinfo ( cbuffer_t& buffer) const;
 };
 
 #endif
