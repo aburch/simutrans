@@ -1397,6 +1397,16 @@ void haltestelle_t::new_month()
 	}
 	// number of waiting should be constant ...
 	financial_history[0][HALT_WAITING] = financial_history[1][HALT_WAITING];
+
+	// update departure slot if ticks is updated (avoid overflow)
+	if(  welt->get_ticks()<welt->ticks_per_world_month  ) {
+		for (uint32 i = 0; i < DST_SIZE; ++i) {
+			for (departure_t &slot : departure_slot_table[i]) {
+				slot.dep_tick %= welt->ticks_per_world_month;
+				slot.exp_tick %= welt->ticks_per_world_month;
+			}
+		}
+	}
 }
 
 
