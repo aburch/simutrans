@@ -748,12 +748,7 @@ private:
 	sint16 altitude_level; // for AFHP
 	sint16 landing_distance; // for AFHP
 
-	void calc_altitude_level(sint32 speed_limit_kmh){
-		altitude_level = max(5, speed_limit_kmh/33);
-		altitude_level = min(altitude_level, 30);
-		// landing_distance = altitude_level - 1;
-		landing_distance = altitude_level - 2;
-	}
+	void calc_altitude_level(sint32 speed_limit_kmh);
 
 protected:
 	// jumps to next tile and correct the height ...

@@ -5802,6 +5802,18 @@ void air_vehicle_t::display_overlay(int xpos_org, int ypos_org) const
 	}
 }
 
+void air_vehicle_t::calc_altitude_level(sint32 speed_limit_kmh)
+{
+	if(welt->get_settings().get_allow_higher_flight()) {
+		altitude_level = max(5, speed_limit_kmh/33);
+		altitude_level = min(altitude_level, 30);
+	} else {
+		altitude_level = 3;
+	}
+	// landing_distance = altitude_level - 1;
+	landing_distance = altitude_level - 2;
+}
+
 
 const char *air_vehicle_t::is_deletable(const player_t *player)
 {

@@ -1006,6 +1006,11 @@ void settings_t::rdwr(loadsave_t *file)
 			overloading_runningcost_increase = true;
 			default_reverse = false;
 		}
+		if(  file->get_OTRP_version() >= 51  ) {
+			file->rdwr_bool(allow_higher_flight);
+		} else {
+			allow_higher_flight=true;
+		}
  		if(  file->is_version_atleast(122, 1)  ) {
 			file->rdwr_enum(climate_generator);
 			file->rdwr_byte( wind_direction );
@@ -1756,6 +1761,8 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	waiting_limit_for_first_come_first_serve 
 		= contents.get_int("waiting_limit_for_first_come_first_serve", waiting_limit_for_first_come_first_serve);
 	
+	allow_higher_flight = contents.get_int("allow_higher_flight", allow_higher_flight);
+
 	routecost_wait = contents.get_int("routecost_wait", routecost_wait);
 	routecost_halt = contents.get_int("routecost_halt", routecost_halt);
 	
