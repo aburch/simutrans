@@ -321,6 +321,7 @@ BEGIN {
 	export_types_ai["settings::has_double_slopes"] = "bool()"
 	export_types_ai["settings::get_pay_for_total_distance_mode"] = "integer()"
 	export_types_ai["settings::get_underground_view_level"] = "integer()"
+	export_types_ai["settings::get_make_public_months"] = "integer()"
 	export_types_ai["dir::is_single"] = "bool(dir)"
 	export_types_ai["dir::is_twoway"] = "bool(dir)"
 	export_types_ai["dir::is_threeway"] = "bool(dir)"

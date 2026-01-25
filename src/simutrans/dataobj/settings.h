@@ -662,6 +662,8 @@ public:
 
 	// some settigns are not to be saved in the global settings
 	void reset_after_global_settings_reload();
+
+	sint64 get_make_public_months() const { return cst_make_public_months; }
 };
 
 #endif

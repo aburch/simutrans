@@ -132,4 +132,11 @@ void export_settings(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &get_underground_view_level, "get_underground_view_level", true);
 	end_class(vm);
+
+	/**
+	 * Months after which public player can take over ways/bridges/tunnels
+	 * @returns number of months (uint16)
+	 */
+	register_method(vm, &settings_t::get_make_public_months, "get_make_public_months");
+	end_class(vm);
 }
