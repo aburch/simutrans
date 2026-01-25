@@ -9506,6 +9506,7 @@ bool tool_change_city_t::init( player_t *player )
  * 'p' : no_handle_pax
  * 'm' : no_handle_post
  * 'w' : no_handle_ware
+ * 'l' : allow_unload_longer_convoy
  */
 bool tool_change_halt_t::init(player_t *player) {
 	char tool=0;
@@ -9542,6 +9543,9 @@ bool tool_change_halt_t::init(player_t *player) {
 			break;
 		case 'w':
 			halt->set_no_handle_ware(!halt->is_no_handle_ware());
+			break;
+		case 'l':
+			halt->set_allow_unload_longer_convoy(!halt->is_allow_unload_longer_convoy());
 			break;
 		
 		default:

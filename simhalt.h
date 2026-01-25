@@ -102,7 +102,8 @@ public:
 		HS_ALLOW_OTHER_PLAYER_CONNECTION = 1 << 0,// Allows other players to stop and connect to this station
 		HS_NO_HANDLE_PAX				 = 1 << 1,// do not handle goods type passenger
 		HS_NO_HANDLE_POST				 = 1 << 2,// do not handle goods type post
-		HS_NO_HANDLE_WARE				 = 1 << 3 // do not handle goods type ware
+		HS_NO_HANDLE_WARE				 = 1 << 3,// do not handle goods type ware
+		HS_ALLOW_UNLOAD_LONGER_CONVOY	 = 1 << 4 // allow unload when the halt length is shorter than convoy length
 	};
 
 private:
@@ -962,6 +963,10 @@ public:
 	bool is_departure_booked(uint32 dep_tick, uint8 stop_index, linehandle_t line) const;
 
 	void extinguish_all_waiting_goods();
+
+	// allow unloading from longer convoy
+	bool const is_allow_unload_longer_convoy() { return (flags&HS_ALLOW_UNLOAD_LONGER_CONVOY)>0; }
+	void set_allow_unload_longer_convoy(const bool y) { y? flags|=HS_ALLOW_UNLOAD_LONGER_CONVOY: flags&=~HS_ALLOW_UNLOAD_LONGER_CONVOY; }
 };
 
 ENUM_BITSET(haltestelle_t::stationtyp)

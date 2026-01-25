@@ -373,6 +373,14 @@ void halt_info_t::init(halthandle_t halt)
 				add_component(&bt_no_handle_ware);
 			}
 			end_table();
+			add_table(1,1);
+			{
+				bt_allow_unload_longer_convoy.init(button_t::square, "Unload from longer convoy");
+				bt_allow_unload_longer_convoy.set_tooltip("Allow unloading when convoy length is longer than this station length");
+				bt_allow_unload_longer_convoy.add_listener(this);
+				add_component(&bt_allow_unload_longer_convoy);
+			}
+			end_table();
 		}
 		end_table();
 
@@ -546,6 +554,7 @@ void halt_info_t::update_components()
 	bt_no_handle_pax.disable();
 	bt_no_handle_post.disable();
 	bt_no_handle_ware.disable();
+	bt_allow_unload_longer_convoy.disable();
 	if(halt->get_desc_pax_enable()) {
 		bt_no_handle_pax.enable(player_t::check_owner(halt->get_owner(), welt->get_active_player()));
 	}
@@ -555,9 +564,11 @@ void halt_info_t::update_components()
 	if(halt->get_desc_ware_enable()) {
 		bt_no_handle_ware.enable(player_t::check_owner(halt->get_owner(), welt->get_active_player()));
 	}
+	bt_allow_unload_longer_convoy.enable(player_t::check_owner(halt->get_owner(), welt->get_active_player()));
 	bt_no_handle_pax.pressed = halt->is_no_handle_pax();
 	bt_no_handle_post.pressed = halt->is_no_handle_post();
 	bt_no_handle_ware.pressed = halt->is_no_handle_ware();
+	bt_allow_unload_longer_convoy.pressed = halt->is_allow_unload_longer_convoy();
 	set_dirty();
 }
 
@@ -1046,6 +1057,13 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	else if(comp == &bt_no_handle_ware) {
 		cbuffer_t buf;
 		buf.printf("w,%hu", halt.get_id());
+		tool_t::simple_tool[TOOL_CHANGE_HALT]->set_default_param(buf);
+		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_HALT], welt->get_active_player() );
+
+	}
+	else if(comp == &bt_allow_unload_longer_convoy) {
+		cbuffer_t buf;
+		buf.printf("l,%hu", halt.get_id());
 		tool_t::simple_tool[TOOL_CHANGE_HALT]->set_default_param(buf);
 		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_HALT], welt->get_active_player() );
 
