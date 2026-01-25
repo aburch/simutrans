@@ -19,7 +19,8 @@ const char *factorylist_frame_t::sort_text[factorylist::SORT_MODES] = {
 	"Output",
 	"Produktion",
 	"Rating",
-	"Power"
+	"Power",
+	"Factory Type"
 };
 
 class playername_const_scroll_item_t : public gui_scrolled_list_t::const_text_scrollitem_t {

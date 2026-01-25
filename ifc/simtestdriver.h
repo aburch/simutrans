@@ -22,9 +22,10 @@ class test_driver_t
 {
 public:
 	virtual ~test_driver_t() {}
-	
+
 	virtual bool check_next_tile(const grund_t*) const = 0;
-	virtual bool check_next_tile(const grund_t* bd, bool) const { return check_next_tile(bd); }
+	virtual bool check_next_tile(const grund_t* bd, const bool need_electric) const { return check_next_tile(bd); }
+	virtual bool check_next_tile(const grund_t* bd, const bool need_electric, bool, bool) const { return check_next_tile(bd,need_electric); }
 
 	/**
 	 * Determine the direction bits (ribi) for the applicable vehicle,
@@ -46,6 +47,7 @@ public:
 	// returns true for the way search to an unknown target.
 	// first is current ground, second is starting ground
 	virtual bool is_target(const grund_t *,const grund_t *) const = 0;
+	virtual bool is_target(const grund_t *gr, const grund_t *prev_gr, const bool need_electric) const {return is_target(gr, prev_gr);}
 	
 	virtual bool is_coupling_target(const grund_t *, const grund_t *) const { return 0; }
 

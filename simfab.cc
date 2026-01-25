@@ -12,6 +12,7 @@
 #include "simdebug.h"
 #include "display/simimg.h"
 #include "simcolor.h"
+#include "simmesg.h"
 #include "boden/grund.h"
 #include "boden/boden.h"
 #include "boden/fundament.h"
@@ -20,6 +21,7 @@
 #include "simhalt.h"
 #include "simware.h"
 #include "simworld.h"
+#include "simmenu.h"
 #include "descriptor/building_desc.h"
 #include "descriptor/goods_desc.h"
 #include "descriptor/sound_desc.h"
@@ -227,6 +229,19 @@ void fabrik_t::arrival_statistics_t::init()
 	active_slots = 0;
 	aggregate_arrival = 0;
 	scaled_demand = 0;
+}
+
+void fabrik_t::call_factory_tool( const char function, const char *extra ) const 
+{
+	tool_t *tmp_tool = create_tool( TOOL_CHANGE_FACTORY | SIMPLE_TOOL );
+	cbuffer_t param;
+	param.printf("%c,%u,%u", function, get_pos().x, get_pos().y);
+	if(  extra  &&  *extra  ) {
+		param.printf(",%s", extra);
+	}
+	tmp_tool->set_default_param(param);
+	welt->set_tool( tmp_tool, welt->get_active_player() );
+	delete tmp_tool;
 }
 
 
@@ -610,22 +625,27 @@ void fabrik_t::recalc_storage_capacities()
 		const uint32 unit_size = (uint32)(((sint64)output[out].max * (sint64)prod_factor) >> ( precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS ));
 
 		// Determine the number of units to ship. Prefer 10 units although in future a more dynamic choice may be appropiate.
-		uint32 shipment_size;
+		uint32 shipment_unit_size;
+		// Set shipment size
+		//dbg->message("fabrik_t::recalc_storage_capacities()","unit size:%i,shipment size:%i",unit_size,shipment_size);
+		if( unit_size >= shipment_size * SHIPMENT_NUM_MIN ) {
+			shipment_unit_size = shipment_size;
+		}
 		// Maximum shipment size.
-		if( unit_size >= SHIPMENT_MAX_SIZE * SHIPMENT_NUM_MIN ) {
-			shipment_size = SHIPMENT_MAX_SIZE;
+		else if( unit_size >= SHIPMENT_MAX_SIZE * SHIPMENT_NUM_MIN ) {
+			shipment_unit_size = SHIPMENT_MAX_SIZE;
 		}
 		// Dynamic shipment size.
 		else if( unit_size > SHIPMENT_NUM_MIN ) {
-			shipment_size = unit_size / SHIPMENT_NUM_MIN;
+			shipment_unit_size = unit_size / SHIPMENT_NUM_MIN;
 		}
 		// Minimum shipment size.
 		else {
-			shipment_size = 1;
+			shipment_unit_size = 1;
 		}
 
 		// Now convert it into the prefered shipment size. Always round up to prevent "off by 1" error.
-		output[out].min_shipment = (sint32)((((sint64)shipment_size << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
+		output[out].min_shipment = (sint32)((((sint64)shipment_unit_size << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
 	}
 
 	if(  welt->get_settings().get_just_in_time() >= 2  ) {
@@ -864,6 +884,9 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* owner, const factory_desc_t* factory_
 	update_scaled_electric_demand();
 	update_scaled_pax_demand();
 	update_scaled_mail_demand();
+
+	no_close_factory = false;
+	shipment_size = SHIPMENT_MAX_SIZE;
 }
 
 
@@ -1560,6 +1583,16 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	}
 	else if(  file->is_loading()  ) {
 		activity_count = 0;
+	}
+	if(  file->get_OTRP_version()>=48  ) {
+		file->rdwr_bool(no_close_factory);
+	} else {
+		no_close_factory = false;
+	}
+	if(  file->get_OTRP_version()>=49  ) {
+		file->rdwr_long(shipment_size);
+	} else {
+		shipment_size = SHIPMENT_MAX_SIZE;
 	}
 
 	// save name
@@ -2765,6 +2798,27 @@ void fabrik_t::new_month()
 
 	// since target cities' population may be increased -> re-apportion pax/mail demand
 	recalc_demands_at_target_cities();
+	
+	// Check to see whether factory is obsolete.
+	// If it is, give it a distribution_weight of being closed down.
+
+	const uint16 timeline_month = welt->get_timeline_year_month(); // This will be 0 if timeline is disabled.
+	const uint16 retire_month = desc->get_building()->get_retire_year_month();
+	const uint32 latest_retire_month = retire_month + (12 * welt->get_settings().get_factory_max_years_obsolete());//welt->get_settings().get_factory_max_years_obsolete());
+	if(welt->get_settings().is_close_old_factory() && !no_close_factory && !no_close_factory && timeline_month > retire_month)
+	{
+		if(latest_retire_month <= timeline_month || simrand(latest_retire_month - timeline_month) == 0)
+		{
+			welt->closed_factories_this_month.append(this);
+			cbuffer_t buf;
+			buf.printf( translator::translate("Factory %s has closed."), get_name());
+			welt->get_message()->add_message( (const char *)buf, get_pos().get_2d(), message_t::warnings, CITY_KI, get_desc()->get_building()->get_tile(0)->get_background(0, 0, 0));
+		} else {
+			cbuffer_t buf;
+			buf.printf( translator::translate("Factory %s is retired! Close soon!"), get_name());
+			welt->get_message()->add_message( (const char *)buf, get_pos().get_2d(), message_t::industry, CITY_KI, get_desc()->get_building()->get_tile(0)->get_background(0, 0, 0));
+		}
+	}
 }
 
 
@@ -3022,6 +3076,11 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 				);
 			}
 		}
+	}
+	
+	if ( welt->get_settings().is_close_old_factory() && !no_close_factory && welt->get_timeline_year_month()>desc->get_building()->get_retire_year_month() ) {
+		buf.append("\n\n");
+		buf.append("** This Factory Will Close Soon! **");
 	}
 }
 

@@ -1835,11 +1835,11 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	setsimrand(0xFFFFFFFF, settings.get_map_number());
 	clear_random_mode( 0xFFFF );
 	set_random_mode( MAP_CREATE_RANDOM );
-
-	if(  old_x == 0  &&  !settings.heightfield.empty()  ) {
+	dbg->message("karte_t::enlarge_map()","heightfield name is %s",settings.heightfield.c_str());
+	if(  !settings.heightfield.empty()  ) {
 		// init from file
-		for(int y=0; y<cached_grid_size.y; y++) {
-			for(int x=0; x<cached_grid_size.x; x++) {
+		for(  sint16 y = 0;  y<=new_size_y;  y++  ) {
+			for(  sint16 x = (y>old_y) ? 0 : old_x+1;  x<=new_size_x;  x++  ) {
 				grid_hgts[x + y*(cached_grid_size.x+1)] = h_field[x+(y*(sint32)cached_grid_size.x)]+1;
 			}
 			grid_hgts[cached_grid_size.x + y*(cached_grid_size.x+1)] = grid_hgts[cached_grid_size.x-1 + y*(cached_grid_size.x+1)];
@@ -3672,14 +3672,33 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 				// auto underground to follow convois
 				if( env_t::follow_convoi_underground ) {
 					grund_t *gr = lookup_kartenboden( new_pos.get_2d() );
+					
 					bool redraw = false;
 					if( new_pos.z < gr->get_hoehe() ) {
+						// in tunnel, set is_underground=true and update underground mode.
+						grund_t::is_underground = true;
 						redraw = grund_t::underground_mode == grund_t::ugm_none ? grund_t::underground_level != new_pos.z : true;
 						grund_t::set_underground_mode( env_t::follow_convoi_underground, new_pos.z );
 					}
 					else {
+						// convoi runs outside
+						// if we follow with ugm_level, we set unvisible the way crossing above.
+						uint8 cut_height = new_pos.z + settings.get_way_height_clearance() - 1;
+						if (  gr->ist_karten_boden()  &&  gr->ist_bruecke()  ){
+							// on slope with bridge (ground is slope but way is flat),
+							// we must reset height as the top of this slope.
+							const slope_t::type slope = gr->get_grund_hang();
+							cut_height += slope_t::max_diff(slope);
+						}
 						redraw = grund_t::underground_mode != grund_t::ugm_none;
-						grund_t::set_underground_mode( grund_t::ugm_none, 0 );
+						if(  !grund_t::is_underground  &&  grund_t::underground_mode  !=  grund_t::underground_mode_outside  ) {
+							// have been on ground. we must keep underground mode
+							grund_t::underground_mode_outside = grund_t::underground_mode;
+						}
+						// reset underground flag
+						grund_t::is_underground = false;
+						grund_t::set_underground_mode( grund_t::underground_mode_outside, cut_height );
+						
 					}
 					if(  redraw  ) {
 						// recalc all images on map
@@ -3871,8 +3890,41 @@ void karte_t::new_month()
 	INT_CHECK( "simworld 1701" );
 
 //	DBG_MESSAGE("karte_t::new_month()","factories");
-	FOR(slist_tpl<fabrik_t*>, const fab, fab_list) {
-		fab->new_month();
+	uint32 total_electric_demand = 1;
+	uint32 electric_productivity = 0;
+	closed_factories_this_month.clear();
+	uint32 closed_factories_count = 0;
+	FOR(slist_tpl<fabrik_t*>, const fab, fab_list)
+	{
+		if(!closed_factories_this_month.is_contained(fab))
+		{
+			fab->new_month();
+			// Check to see whether the factory has closed down - if so, the pointer will be dud.
+			if(closed_factories_count == closed_factories_this_month.get_count())
+			{
+				if(fab->get_desc()->is_electricity_producer())
+				{
+					electric_productivity += fab->get_scaled_electric_demand();
+				}
+				else
+				{
+					total_electric_demand += fab->get_scaled_electric_demand();
+				}
+			}
+			else
+			{
+				closed_factories_count = closed_factories_this_month.get_count();
+			}
+		}
+	}
+
+	FOR(vector_tpl<fabrik_t*>, const fab, closed_factories_this_month)
+	{
+		if(fab_list.is_contained(fab))
+		{
+			gebaeude_t* gb = lookup_kartenboden( fab->get_pos().get_2d() )->find<gebaeude_t>();
+			hausbauer_t::remove(get_public_player(), gb);
+		}
 	}
 	INT_CHECK("simworld 1278");
 
@@ -5414,7 +5466,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	// adding lines and other stuff for convois
 	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
 		convoihandle_t cnv = convoi_array[i];
-		cnv->finish_rd();
+		cnv->finish_rd( file->get_OTRP_version() );
 		// was deleted during loading => use same position again
 		if(!cnv.is_bound()) {
 			i--;
@@ -6701,7 +6753,7 @@ uint8 karte_t::sp2num(player_t *player)
 }
 
 
-void karte_t::load_heightfield(settings_t* const sets)
+void karte_t::load_heightfield(settings_t* const sets, bool is_new_map)
 {
 	sint16 w, h;
 	sint8 *h_field = NULL;
@@ -6712,9 +6764,24 @@ void karte_t::load_heightfield(settings_t* const sets)
 
 	if(hml.get_height_data_from_file(sets->heightfield.c_str(), (sint8)(sets->get_groundwater()), h_field, w, h, false )) {
 		sets->set_size(w,h);
-		// create map
-		init(sets,h_field);
-		free(h_field);
+		// create new map or enlarge this map
+		if(  is_new_map  ) {
+			// create map
+			init(sets,h_field);
+			free(h_field);
+		} else {
+			if (cached_grid_size.x>w || cached_grid_size.y>h) {
+				// the loaded data is too small
+				dbg->error("karte_t::load_heightfield()","The size of heightfield file '%s' is too small! The size must be larger than (%i,%i).", sets->heightfield.c_str(),cached_grid_size.x,cached_grid_size.y);
+				create_win( new news_img("\nThe size of heightfield file is wrong.\n"), w_info, magic_none );
+				return;
+			}
+			dbg->message("karte_t::load_heightfield()","enlarge with heightfield file '%s'",sets->heightfield.c_str());
+			// enlarge map from this data
+			settings = *sets;
+			enlarge_map(&settings, h_field);
+			free(h_field);
+		}
 	}
 	else {
 		dbg->error("karte_t::load_heightfield()","Cant open file '%s'", sets->heightfield.c_str());

@@ -182,8 +182,11 @@ void convoi_info_t::init(convoihandle_t cnv)
 		reversed_button.add_listener(this);
 		add_component(&reversed_button);
 
-		new_component<gui_fill_t>();
-		new_component<gui_fill_t>();
+		route_show_button.init(button_t::roundbox | button_t::flexible, "show route");
+		route_show_button.set_tooltip("show route of this convoy.");
+		route_show_button.add_listener(this);
+		is_route_show=false;
+		add_component(&route_show_button);
 	}
 	end_table();
 
@@ -240,6 +243,12 @@ void convoi_info_t::init(convoihandle_t cnv)
 	stops_list = container_stops.new_component<convoi_stops_list_t>(cnv);
 	stops_list->add_listener(this);
 
+	// line memo in tab
+	switch_mode.add_tab(&container_line_memo, translator::translate("line memo"));
+	container_line_memo.set_table_layout(1,0);
+	memo_area = container_line_memo.new_component<gui_fixedwidth_textarea_t>(&buf_line_memo,container_top->get_size().w);
+	
+
 	// indicator bars
 	filled_bar.add_color_value(&cnv->get_loading_limit(), color_idx_to_rgb(COL_YELLOW));
 	filled_bar.add_color_value(&cnv->get_loading_level(), color_idx_to_rgb(COL_GREEN));
@@ -268,6 +277,8 @@ void convoi_info_t::init(convoihandle_t cnv)
 convoi_info_t::~convoi_info_t()
 {
 	button_to_chart.clear();
+	show_route(false);
+	buf_line_memo.clear();
 	// rename if necessary
 	rename_cnv();
 }
@@ -341,6 +352,8 @@ void convoi_info_t::update_labels()
 
 	// realign container - necessary if strings changed length
 	container_top->set_size( container_top->get_size() );
+
+	memo_area->set_width(size.w-12*D_H_SPACE);
 }
 
 
@@ -414,8 +427,8 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		}else{
 			next_stop_button.enable();
 		}
-		const bool reversable_waytype = cnv->get_schedule()->get_waytype()!=road_wt  &&  cnv->get_schedule()->get_waytype()!=air_wt  &&  cnv->get_schedule()->get_waytype()!=water_wt;
-		if (reversable_waytype) {
+		const bool reversible_waytype = env_t::reversible_waytype(cnv->front()->get_waytype());
+		if (reversible_waytype) {
 			reversed_button.pressed = cnv->is_reversed();
 			reversed_button.enable();
 		}
@@ -444,6 +457,13 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		next_stop_button.disable();
 		reversed_button.disable();
 	}
+	buf_line_memo.clear();
+	if (cnv->get_line().is_bound()) {
+		container_line_memo.set_visible(true);
+		buf_line_memo.printf(cnv->get_line()->get_memo());
+	} else {
+		container_line_memo.set_visible(false);
+	}
 
 	// update button & labels
 	follow_button.pressed = (welt->get_viewport()->get_follow_convoi()==cnv);
@@ -452,8 +472,14 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 	route_bar.set_base(cnv->get_route()->get_count()-1);
 	cnv_route_index = cnv->front()->get_route_index() - 1;
 
+	// show route update
+	show_route(is_route_show);
+	route_show_button.pressed = is_route_show;
+	route_show_button.enable();
+
 	// all gui stuff set => display it
 	gui_frame_t::draw(pos, size);
+	set_windowsize(size);
 }
 
 
@@ -479,6 +505,44 @@ koord3d convoi_info_t::get_weltpos( bool set )
 	}
 }
 
+void convoi_info_t::show_route(bool const yesno)
+{
+	if(!cnv_route.empty()) {
+		for( uint32 i=0; i<cnv_route.get_count(); i++) {
+			if (grund_t* const gr = welt->lookup(cnv_route.at(i))) {
+				for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
+					obj_t *obj = gr->obj_bei(idx);
+					obj->clear_flag( obj_t::convoy_way );
+				}
+				gr->set_flag( grund_t::dirty );
+			}
+		}
+		cnv_route.clear();
+	}
+	if(!cnv.is_bound() || route_search_in_progress || cnv->get_state()==convoi_t::EDIT_SCHEDULE || cnv->get_route()->get_count()<1) {
+		return;
+	}
+	// draw route
+	if(yesno) {
+		for( uint32 i=0; i<cnv->get_route()->get_count(); i++) {
+			cnv_route.append(cnv->get_route()->at(i));
+		}
+		if(!cnv_route.empty()) {
+			for( uint32 i=0; i<cnv_route.get_count(); i++) {
+				if (grund_t* const gr = welt->lookup(cnv_route.at(i))) {
+					for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
+						obj_t *obj = gr->obj_bei(idx);
+						if(  !obj->is_moving()  ) {
+							obj->set_flag( obj_t::convoy_way );
+						}
+					}
+					gr->set_flag( grund_t::dirty );
+				}
+			}
+		}
+	}
+}
+
 
 /**
  * This method is called if an action is triggered
@@ -494,6 +558,10 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		else {
 			welt->get_viewport()->set_follow_convoi(cnv);
 		}
+		return true;
+	}
+	if(comp == &route_show_button) {
+		is_route_show = !is_route_show;
 		return true;
 	}
 

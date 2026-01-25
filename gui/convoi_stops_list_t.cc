@@ -45,14 +45,16 @@ class convoi_stops_list_item_t : public gui_aligned_container_t, public gui_acti
 	player_t* player;
 	gui_image_t arrow;
 	gui_label_buf_t stop;
+	convoihandle_t cnv;
 
 public:
-	convoi_stops_list_item_t(player_t* pl, schedule_entry_t e, uint n, waytype_t const wt)
+	convoi_stops_list_item_t(player_t* pl, schedule_entry_t e, uint n, convoihandle_t c)
 	{
 		player = pl;
 		entry  = e;
 		number = n;
-		waytype = wt;
+		cnv = c;
+		waytype = cnv->get_schedule()->get_waytype();
 		is_current = false;
 		set_table_layout(2,1);
 		add_component(&arrow);
@@ -60,9 +62,64 @@ public:
 		add_component(&stop);
 		update_label();
 	}
+
+	uint32 const halt_length_in_vehicle_step()
+	{
+		const koord3d start_pos = entry.pos; // ref. koord which to avoid loop
+		grund_t* gr = world()->lookup(entry.pos);
+		const halthandle_t halt = gr ? gr->get_halt() : halthandle_t();
+		if(  !halt.is_bound()  ) {
+			// not a platform tile
+			return 0;
+		}
+		// find the edge of the platform.
+		koord3d pos = start_pos;
+		weg_t* weg = gr->get_weg(waytype==tram_wt?track_wt:waytype);
+		if(  cnv->get_use_electric() && !weg->is_electrified()  ) {
+			// non-electric!
+			return 0;
+		}
+		ribi_t::ribi dir = 0;
+		// find the initial direction to search.
+		for(uint8 i=0; i<4; i++) {
+			if(  weg->get_ribi_unmasked()&ribi_t::nesw[i]  ) {
+				dir = ribi_t::nesw[i];
+				break;
+			}
+		}
+		if(  dir==0  ) {
+			// no connected way!?
+			return 1;
+		}
+		// proceed to the edge
+		while(true) {
+			gr->get_neighbour(gr, weg->get_waytype(), dir);
+			if(  !gr  ) { break; }
+			const weg_t* w = gr->get_weg(weg->get_waytype());
+			if(  cnv->get_use_electric() && !w->is_electrified()  ) {
+				// non-electric! this car can not enter any more!
+				break;
+			}
+			const halthandle_t h = gr->get_halt();
+			if(  !w  ||  !h.is_bound()  ||  h.get_id()!=halt.get_id()   ||  gr->get_pos()==start_pos ) { break; }
+			// now, the halt and the way exist on the new tile.
+			pos = gr->get_pos();
+			const ribi_t::ribi new_dir = w->get_ribi_unmasked() & ~(ribi_t::backward(dir));
+			if(  new_dir==0  ) {
+				break; // probably the edge of the way.
+			}
+			dir = new_dir;
+		}
+		return cnv->calc_available_halt_length_in_vehicle_steps(pos, dir, weg->get_waytype(), cnv->get_use_electric());
+	}
+
 	void update_label()
 	{
 		stop.buf().printf("%i) ", number+1);
+		if(  waytype!=water_wt && !cnv->is_waypoint(entry)  ) {
+			// ships do not use halt length, so we do not write
+			stop.buf().printf("[%.2f] ", (double) halt_length_in_vehicle_step()/VEHICLE_STEPS_PER_TILE);
+		}
 		schedule_t::gimme_stop_name(stop.buf(), welt, player, entry, -1, waytype);
 		stop.set_color(is_current ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT);
 		stop.update();
@@ -70,6 +127,7 @@ public:
 
 	void draw(scr_coord offset) OVERRIDE
 	{
+		update_label();
 		if (is_current) {
 			display_fillbox_wh_clip_rgb(pos.x + offset.x, pos.y + offset.y, size.w, size.h, SYSCOL_LIST_BACKGROUND_SELECTED_F, false);
 		}
@@ -105,7 +163,7 @@ public:
 				create_win(new halt_info_t(h), w_info, magic_halt_info);		
 			}
 			else {
-				call_listeners(number);
+				view_stop();
 			}
 		}
 		return true;
@@ -143,7 +201,7 @@ void convoi_stops_list_t::update_schedule()
 	}
 	else {
 		for(uint i=0; i<gui_schedule->get_count(); i++) {
-			entries.append( new_component<convoi_stops_list_item_t>(player, gui_schedule->at(i), i, gui_schedule->get_waytype()));
+			entries.append( new_component<convoi_stops_list_item_t>(player, gui_schedule->at(i), i, cnv));
 			entries.back()->add_listener( this );
 		}
 		entries[ gui_schedule->get_current_stop() ]->set_active(true);

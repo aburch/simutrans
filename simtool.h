@@ -83,6 +83,8 @@ protected:
 	bool is_dragging;
 	sint16 drag_height;
 	bool is_area_process;
+	// avoid raise or lower same position many times at one dragging
+	vector_tpl<koord> dragged_pos;
 
 	const char* drag(player_t*, koord k, sint16 h, int &n);
 	virtual sint16 get_drag_height(koord k) = 0;
@@ -305,10 +307,10 @@ protected:
 	overtaking_mode_t overtaking_mode;
 	bool look_toolbar = false;
 	uint8 street_flag;
-	uint8 height_offset;
+	sint8 height_offset;
 
 	virtual way_desc_t const* get_desc(uint16 timeline_year_month) const;
-	void calc_route( way_builder_t &bauigel, const koord3d &, const koord3d & );
+	bool calc_route( way_builder_t &bauigel, const koord3d &, const koord3d & );
 	void start_at( koord3d &new_start ) OVERRIDE;
 
 public:
@@ -334,8 +336,11 @@ public:
 	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode; }
 	void set_street_flag (uint8 a) { street_flag = a; }
 	uint8 get_street_flag() const { return street_flag; }
-	void set_height_offset (uint8 a) { height_offset = a; }
-	uint8 get_height_offset() const { return height_offset; }
+	void set_height_offset (sint8 a) { 
+		const sint8 min_offset = 1 - welt->get_settings().get_way_height_clearance();
+		height_offset = a<min_offset?0:a;
+	}
+	sint8 get_height_offset() const { return height_offset; }
 	static void set_mode_str(char* str, overtaking_mode_t overtaking_mode);
 	void set_look_toolbar() { look_toolbar = true; }
 	static uint8 get_flag_color(uint8 flag);
@@ -788,6 +793,23 @@ public:
 	bool init(player_t*) OVERRIDE { return true; }
 	bool is_init_network_safe() const OVERRIDE { return true; }
 	char const* work(player_t*, koord3d) OVERRIDE { return default_param ? default_param : ""; }
+};
+
+
+// Copies item under cursor into cursor
+class tool_pipette_t : public tool_t
+{
+public:
+	tool_pipette_t() : tool_t(TOOL_PIPETTE | GENERAL_TOOL) {}
+
+public:
+	const char *get_tooltip(const player_t *) const OVERRIDE { return translator::translate("Pipette"); }
+	const char *work(player_t *, koord3d) OVERRIDE;
+	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_work_network_safe() const OVERRIDE { return true; }
+
+private:
+	const char* allow_tool_check(const obj_t* obj, const obj_desc_timelined_t* desc, const player_t* pl) const;
 };
 
 
@@ -1377,6 +1399,14 @@ public:
 	tool_merge_player_t() : tool_t(TOOL_MERGE_PLAYER | SIMPLE_TOOL) {}
 	bool init(player_t * ) OVERRIDE;
 	bool is_init_network_safe() const OVERRIDE { return false; }
+};
+
+class tool_change_factory_t : public tool_t {
+public:
+	tool_change_factory_t() : tool_t(TOOL_CHANGE_FACTORY | SIMPLE_TOOL) {}
+	bool init(player_t * )OVERRIDE;
+	bool is_init_network_safe() const OVERRIDE {return false;}
+	bool is_work_network_safe() const OVERRIDE {return false;}
 };
 
 #endif

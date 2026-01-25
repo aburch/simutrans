@@ -21,6 +21,7 @@
 #include "curiosity_edit.h"
 #include "components/gui_label.h"
 
+char curiosity_edit_frame_t::name_filter_value[64] = "";
 
 // new tool definition
 tool_build_house_t* curiosity_edit_frame_t::haus_tool=new tool_build_house_t();
@@ -110,6 +111,11 @@ curiosity_edit_frame_t::curiosity_edit_frame_t(player_t* player_) :
 	bt_monuments.add_listener(this);
 	cont_filter.add_component(&bt_monuments);
 
+	// name filter
+	name_filter_input.set_text(name_filter_value, 60);
+	cont_filter.add_component(&name_filter_input);
+	name_filter_input.add_listener(this);
+
 	// add to sorting selection
 	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_LEVEL_PAX);
 	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_LEVEL_MAIL);
@@ -162,19 +168,25 @@ void curiosity_edit_frame_t::fill_list()
 
 	if(bt_city_attraction.pressed) {
 		FOR(vector_tpl<building_desc_t const*>, const desc, *hausbauer_t::get_list(building_desc_t::attraction_city)) {
-			put_item_in_list(desc);
+			if( name_filter_value[0]==0 || (utf8caseutf8(desc->get_name(), name_filter_value) || utf8caseutf8(translator::translate(desc->get_name()), name_filter_value)) ) {
+				put_item_in_list(desc);
+			}
 		}
 	}
 
 	if(bt_land_attraction.pressed) {
 		FOR(vector_tpl<building_desc_t const*>, const desc, *hausbauer_t::get_list(building_desc_t::attraction_land)) {
-			put_item_in_list(desc);
+			if( name_filter_value[0]==0 || (utf8caseutf8(desc->get_name(), name_filter_value) || utf8caseutf8(translator::translate(desc->get_name()), name_filter_value)) ) {
+				put_item_in_list(desc);
+			}
 		}
 	}
 
 	if(bt_monuments.pressed) {
 		FOR(vector_tpl<building_desc_t const*>, const desc, *hausbauer_t::get_list(building_desc_t::monument)) {
-			put_item_in_list(desc);
+			if( name_filter_value[0]==0 || (utf8caseutf8(desc->get_name(), name_filter_value) || utf8caseutf8(translator::translate(desc->get_name()), name_filter_value)) ) {
+				put_item_in_list(desc);
+			}
 		}
 	}
 
@@ -214,6 +226,9 @@ bool curiosity_edit_frame_t::action_triggered( gui_action_creator_t *comp,value_
 	}
 	else if(  comp==&bt_monuments  ) {
 		bt_monuments.pressed ^= 1;
+		fill_list();
+	}
+	else if(  comp==&name_filter_input  ) {
 		fill_list();
 	}
 	else if( comp == &cb_rotation) {

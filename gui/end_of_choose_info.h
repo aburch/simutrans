@@ -1,24 +1,24 @@
-#ifndef signal_info_t_h
-#define signal_info_t_h
+#ifndef end_of_choose_info_t_h
+#define end_of_choose_info_t_h
 
 #include "obj_info.h"
 #include "components/action_listener.h"
 #include "components/gui_button.h"
 #include "components/gui_container.h"
 
-class signal_t;
+class roadsign_t;
 
 /**
  * Info window for railway signals
  */
-class signal_info_t : public obj_infowin_t, public action_listener_t
+class end_of_choose_info_t : public obj_infowin_t, public action_listener_t
 {
 	private:
-		signal_t* signal;
-		button_t bt_require_parent, bt_remove_signal, bt_advance_to_end, bt_choose_signal;
+		roadsign_t* signal;
+		button_t bt_end_of_choose, bt_end_of_guide;
 
 	public:
-		signal_info_t(signal_t*);
+		end_of_choose_info_t(roadsign_t*);
 
 		/**
 		 * Set the window associated helptext

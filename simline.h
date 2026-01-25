@@ -60,6 +60,7 @@ protected:
 private:
 	static karte_ptr_t welt;
 	plainstring name;
+	plainstring memo;
 
 	/**
 	 * Handle for ourselves. Can be used like the 'this' pointer
@@ -144,6 +145,12 @@ public:
 	 */
 	char const* get_name() const { return name; }
 	void set_name(const char *str);
+
+	/**
+	 * get memo of line
+	 */
+	char const* get_memo() const { return memo; }
+	void set_memo(const char *memo);
 
 	/*
 	 * load or save the line

@@ -290,7 +290,7 @@ void weg_t::info(cbuffer_t & buf) const
 	obj_t::info(buf);
 
 	buf.printf("%s %u%s", translator::translate("Max. speed:"), max_speed, translator::translate("km/h\n"));
-	if( get_waytype() == track_wt && max_wayobj_speed ){
+	if( (get_waytype() != water_wt && get_waytype() != air_wt) && max_wayobj_speed ){
 		buf.printf("%s %u%s", translator::translate("Max. wayobj speed:"), max_wayobj_speed, translator::translate("km/h\n"));
 	}
 	buf.printf("%s%u",    translator::translate("\nRibi (unmasked)"), get_ribi_unmasked());
@@ -333,6 +333,15 @@ void weg_t::info(cbuffer_t & buf) const
 
 		if(  str->get_citycar_no_entry()  ) {
 			buf.printf("%s\n", translator::translate("Citycars are excluded."));
+		}
+
+
+		if(  str->get_allow_branch_cityroad()  ) {
+			buf.printf("%s\n", translator::translate("Cityroad allow branch from this road"));
+		}
+		if(  str->get_no_building()  ) {
+			buf.printf("%s\n", translator::translate("No buildings along roadside."));
+
 		}
 	}
 
@@ -390,10 +399,10 @@ void weg_t::count_sign()
 	flags &= ~(HAS_SIGN|HAS_SIGNAL|HAS_CROSSING);
 	const grund_t *gr=welt->lookup(get_pos());
 	if(gr) {
-		max_speed = desc->get_topspeed(); // reset max_speed
 		uint8 i = 1;
 		// if there is a crossing, the start index is at least three ...
 		if(  const crossing_t* cr = gr->get_crossing()  ) {
+			max_speed = desc->get_topspeed(); // reset max_speed
 			flags |= HAS_CROSSING;
 			i = 3;
 			uint32 top_speed = cr->get_desc()->get_maxspeed( cr->get_desc()->get_waytype(0)==get_waytype() ? 0 : 1);
