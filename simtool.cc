@@ -7102,7 +7102,7 @@ uint8 tool_stop_mover_t::is_valid_pos(  player_t *player, const koord3d &pos, co
 	}
 	// check halt ownership
 	halthandle_t h = haltestelle_t::get_stoppable_halt(pos,player,waytype_t::any_wt);
-	if(  h.is_bound()  &&  !player_t::check_owner( player, h->get_owner() )  ) {
+	if(  h.is_bound()  &&  !(  player_t::check_owner( player, h->get_owner() )  ||  h->is_other_player_connection_allowed()  )  ) {
 		error = "Das Feld gehoert\neinem anderen Spieler\n";
 		return 0;
 	}
