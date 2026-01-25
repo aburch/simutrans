@@ -131,7 +131,6 @@ void export_settings(HSQUIRRELVM vm)
 	 * other values == sliced view at the given value
 	 */
 	register_method(vm, &get_underground_view_level, "get_underground_view_level", true);
-	end_class(vm);
 
 	/**
 	 * Months after which public player can take over ways/bridges/tunnels
