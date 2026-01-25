@@ -3778,6 +3778,11 @@ uint32 convoi_t::calc_available_halt_length_in_vehicle_steps(koord3d front_vehic
 		// When the last tile is diagonal, we can use only half of its length as a stop.
 		halt_length += half_diagonal_tile_length - diagonal_tile_length;
 	}
+
+	if(  halt_length==half_diagonal_tile_length  ) {
+		// this stop is only one diagonal stop. this tile shoulf be full diagonal tile length
+		halt_length = diagonal_tile_length;
+	}
 	return halt_length >> 1;
 }
 
