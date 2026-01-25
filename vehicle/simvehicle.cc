@@ -3486,7 +3486,7 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const weg_t *w, const sint32 max
 
 
 // this routine is called by find_route, to determined if we reached a destination
-bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr, const bool need_electric) const
+bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr, const bool need_electric, const uint8 choose_margin) const
 {
 	const schiene_t * sch1 = (const schiene_t *) gr->get_weg(get_waytype());
 	// first check blocks, if we can go there
@@ -3524,7 +3524,7 @@ bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr, const b
 	}
 	// end of stop: Is it long enough?
 	const uint32 available_halt_length = cnv->calc_available_halt_length_in_vehicle_steps(gr->get_pos(), ribi); // 256 units per a straight tile
-	return available_halt_length >= ((uint32)cnv->get_entire_convoy_length()) << 4;
+	return available_halt_length >= (((uint32)cnv->get_entire_convoy_length()) << 4)+(uint32)choose_margin*VEHICLE_STEPS_PER_TILE;
 }
 
 // this routine is called by find_route, to determined if we reached a coupling point
@@ -3856,11 +3856,22 @@ skip_choose:
 			if(  !try_coupling  &&  !welt->get_settings().get_advance_to_end()  &&  target_rt.get_count()>2  &&  !sig->is_advance_to_end()  ) {
 				uint32 stop_length = convoi_t::calc_available_halt_length_in_vehicle_steps(target_rt.at(target_rt.get_count()-1),ribi_type(target_rt.at(target_rt.get_count()-1)-target_rt.at(target_rt.get_count()-2)),get_waytype());
 				stop_length -= ribi_t::is_bend(welt->lookup(target_rt.at(target_rt.get_count()-1))->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile/2: VEHICLE_STEPS_PER_TILE;
-				while(  stop_length>=cnv->get_entire_convoy_length()*VEHICLE_STEPS_PER_CARUNIT  ) {
+				while(  stop_length>=cnv->get_entire_convoy_length()*VEHICLE_STEPS_PER_CARUNIT+sig->get_margin_length()*VEHICLE_STEPS_PER_TILE  ) {
 					target_rt.remove_koord_from(max(0,target_rt.get_count()-2));
 					stop_length -= ribi_t::is_bend(welt->lookup(target_rt.at(target_rt.get_count()-1))->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile: VEHICLE_STEPS_PER_TILE;
 				}
 			} 
+			else if(  !try_coupling  &&  !welt->get_settings().get_advance_to_end()  &&  target_rt.get_count()>2  &&  sig->get_margin_length()>0  ) {
+				// advance to end but with margin.
+				uint32 margin_length=sig->get_margin_length()*VEHICLE_STEPS_PER_TILE;
+				// this calculation is with margin length>0, so remove end tile first.
+				target_rt.remove_koord_from(max(0,target_rt.get_count()-2));
+				margin_length -= ribi_t::is_bend(welt->lookup(target_rt.at(target_rt.get_count()-1))->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile/2: VEHICLE_STEPS_PER_TILE;
+				while(  margin_length>0  ) {
+					target_rt.remove_koord_from(max(0,target_rt.get_count()-2));
+					margin_length -= ribi_t::is_bend(welt->lookup(target_rt.at(target_rt.get_count()-1))->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile: VEHICLE_STEPS_PER_TILE;
+				}
+			}
 			// broadcast new route
 			convoihandle_t c = cnv->self;
 			while(  c.is_bound()  ) {

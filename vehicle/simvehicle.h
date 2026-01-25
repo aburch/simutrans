@@ -587,8 +587,8 @@ public:
 	uint32 get_cost_upslope() const OVERRIDE { return 25; }
 
 	// returns true for the way search to an unknown target.
-	bool is_target(const grund_t*, const grund_t*, const bool) const OVERRIDE;
-	bool is_target(const grund_t *gr,const grund_t *prev_gr) const OVERRIDE {return is_target(gr,prev_gr);}
+	bool is_target(const grund_t*, const grund_t*, const bool, const uint8) const OVERRIDE;
+	bool is_target(const grund_t *gr,const grund_t *prev_gr) const OVERRIDE {return is_target(gr,prev_gr,false,0);}
 	bool is_coupling_target(const grund_t *, const grund_t *) const OVERRIDE;
 
 	// handles all block stuff and route choosing ...

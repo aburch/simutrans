@@ -5,6 +5,8 @@
 #include "components/action_listener.h"
 #include "components/gui_button.h"
 #include "components/gui_container.h"
+#include "components/gui_numberinput.h"
+#include "components/gui_label.h"
 
 class signal_t;
 
@@ -16,6 +18,8 @@ class signal_info_t : public obj_infowin_t, public action_listener_t
 	private:
 		signal_t* signal;
 		button_t bt_require_parent, bt_remove_signal, bt_advance_to_end, bt_choose_signal;
+		gui_numberinput_t numinp_tiles_margin;	
+		gui_label_t lb_tiles_margin;
 
 	public:
 		signal_info_t(signal_t*);

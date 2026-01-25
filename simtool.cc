@@ -9368,6 +9368,7 @@ bool tool_change_traffic_light_t::init( player_t *player )
  * a:set advance to end state for signal
  * c:set end of choose signal
  * g:set end of guide signal
+ * m:set margin of the stoplength of choose signal
  * 
  */
 bool tool_change_roadsign_t::init( player_t* )
@@ -9450,6 +9451,20 @@ bool tool_change_roadsign_t::init( player_t* )
 			if( roadsign_t *rs = gr->find<roadsign_t>()  ) {
 				if(  rs->get_waytype()!=road_wt && rs->get_waytype()!=water_wt && rs->get_waytype()!=air_wt  ) {
 					rs->set_end_of_guide(inst);
+					end_of_choose_info_t* signal_info_win = (end_of_choose_info_t*)win_get_magic((ptrdiff_t)rs);
+					if(  signal_info_win  ) {
+						signal_info_win->update_data();
+					}
+				}
+			}
+		}
+		break;
+
+		case 'm':
+		if(  grund_t *gr = welt->lookup(pos)  ) {
+			if( roadsign_t *rs = gr->find<signal_t>()  ) {
+				if(  rs->get_waytype()!=road_wt && rs->get_waytype()!=water_wt && rs->get_waytype()!=air_wt  ) {
+					rs->set_margin_length((uint8)inst);
 					end_of_choose_info_t* signal_info_win = (end_of_choose_info_t*)win_get_magic((ptrdiff_t)rs);
 					if(  signal_info_win  ) {
 						signal_info_win->update_data();
