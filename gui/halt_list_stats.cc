@@ -87,7 +87,7 @@ halt_list_stats_t::halt_list_stats_t(halthandle_t h)
 		img_enabled[2].set_rigid(true);
 
 		add_component(&label_cargo);
-		set_buffer_to_cargoinfo(label_cargo.buf());
+		set_buffer_to_cargoinfo(label_cargo.buf(), halt_list_frame_t::get_sortierung());
 		label_cargo.update();
 	}
 	end_table();
@@ -113,7 +113,7 @@ void halt_list_stats_t::draw(scr_coord offset)
 	label_name.set_color(halt->get_status_farbe());
 	label_name.set_shadow(SYSCOL_TEXT,true);
 
-	set_buffer_to_cargoinfo(label_cargo.buf());
+	set_buffer_to_cargoinfo(label_cargo.buf(), halt_list_frame_t::get_sortierung());
 	label_cargo.update();
 
 	set_size(get_size());
@@ -121,12 +121,12 @@ void halt_list_stats_t::draw(scr_coord offset)
 }
 
 
-void halt_list_stats_t::set_buffer_to_cargoinfo( cbuffer_t& buffer) const {
-	if (halt_list_frame_t::get_sortierung() == halt_list_frame_t::sort_mode_t::nach_throughput) {
-		halt->get_throughput_info( buffer );
-	} else if (halt_list_frame_t::get_sortierung() == halt_list_frame_t::sort_mode_t::nach_wartend_percent) {
-		halt->get_waiting_occupancy_info( buffer );
+void halt_list_stats_t::set_buffer_to_cargoinfo( cbuffer_t& buffer, uint8 sorting_mode, const char* end) const {
+	if (sorting_mode == halt_list_frame_t::sort_mode_t::nach_throughput) {
+		halt->get_throughput_info( buffer, end );
+	} else if (sorting_mode == halt_list_frame_t::sort_mode_t::nach_wartend_percent) {
+		halt->get_waiting_occupancy_info( buffer, end );
 	} else {
-		halt->get_short_freight_info( buffer );
+		halt->get_short_freight_info( buffer, end );
 	}
 }

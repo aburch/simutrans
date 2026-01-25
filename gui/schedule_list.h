@@ -20,6 +20,7 @@
 #include "../tpl/vector_tpl.h"
 #include "../tpl/minivec_tpl.h"
 #include "halt_list_stats.h"
+#include "halt_list_frame.h"
 #include "../simline.h"
 #include "../descriptor/goods_desc.h"
 

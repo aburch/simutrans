@@ -4,6 +4,7 @@
  */
 
 #include <stdio.h>
+#include <bits/stdc++.h>
 
 #include "messagebox.h"
 #include "schedule_list.h"
@@ -101,6 +102,16 @@ static uint8 statistic_type[MAX_LINE_COST] = {
 	STANDARD,
 	STANDARD,
 	MONEY
+};
+
+// static std::map<int, uint8> copy_labels = {
+// 	{}
+// };
+
+static uint8 copy_labels[3] = {
+	halt_list_frame_t::sort_mode_t::nach_wartend,
+	halt_list_frame_t::sort_mode_t::nach_throughput,
+	halt_list_frame_t::sort_mode_t::nach_wartend_percent
 };
 
 #define MAX_SORT_IDX (4)
@@ -940,14 +951,23 @@ void schedule_list_gui_t::copy_csv_format() {
 	cbuffer_t clipboard;
 	
 	// append header
-	clipboard.append("halt\tlabel\n");
+	clipboard.append("halt");
+
+	for (uint8 sort_index: copy_labels) {
+		clipboard.printf("\t%s", halt_list_frame_t::sort_text[sort_index]);
+	}
+
+	clipboard.append("\n");
 	
 	// loop over the halts of the schedule and add the name/cargo label
 	if (  line.is_bound()  ) {
 		for (int i = 0; i < scrolly_haltestellen.get_count(); i++) {
 			const halt_list_stats_t* element = dynamic_cast<const halt_list_stats_t*>(scrolly_haltestellen.get_element(i));
 			clipboard.printf( "%s\t", element->get_text());
-			element->set_buffer_to_cargoinfo(clipboard);
+			for (uint8 sort_index: copy_labels) {
+				element->set_buffer_to_cargoinfo(clipboard, sort_index, "\t");
+			}
+			clipboard.append("\n");
 		}
 	}
 	

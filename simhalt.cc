@@ -3002,7 +3002,7 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 
 
 
-void haltestelle_t::get_short_freight_info(cbuffer_t & buf) const
+void haltestelle_t::get_short_freight_info(cbuffer_t & buf, const char* end) const
 {
 	bool got_one = false;
 
@@ -3029,16 +3029,16 @@ void haltestelle_t::get_short_freight_info(cbuffer_t & buf) const
 	if(got_one) {
 		buf.append(" ");
 		buf.append(translator::translate("waiting"));
-		buf.append("\n");
+		buf.append(end);
 	}
 	else {
 		buf.append(translator::translate("no goods waiting"));
-		buf.append("\n");
+		buf.append(end);
 	}
 }
 
 
-void haltestelle_t::get_throughput_info(cbuffer_t& buf) const
+void haltestelle_t::get_throughput_info(cbuffer_t& buf, const char* end) const
 {
 	// check if more than 1 month of history
 	int month = get_finance_history( 1, HALT_ARRIVED) == 0 ||
@@ -3053,10 +3053,10 @@ void haltestelle_t::get_throughput_info(cbuffer_t& buf) const
 	// add info to buffer
 	buf.printf("%d ", throughput);
 	buf.append(translator::translate("transfers"));
-	buf.append("\n");
+	buf.append(end);
 }
 
-void haltestelle_t::get_waiting_occupancy_info(cbuffer_t& buf) const
+void haltestelle_t::get_waiting_occupancy_info(cbuffer_t& buf, const char* end) const
 {
 	// set the waiting values to 0
 	bool got_one = false;
@@ -3110,11 +3110,11 @@ void haltestelle_t::get_waiting_occupancy_info(cbuffer_t& buf) const
 	if(got_one) {
 		buf.append(" ");
 		buf.append(translator::translate("waiting"));
-		buf.append("\n");
+		buf.append(end);
 	}
 	else {
 		buf.append(translator::translate("no goods waiting"));
-		buf.append("\n");
+		buf.append(end);
 	}
 }
 

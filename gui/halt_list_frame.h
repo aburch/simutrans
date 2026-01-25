@@ -46,10 +46,10 @@ public:
 		include_public_filter  = 1 << 6,
 	};
 
+	static const char *sort_text[SORT_MODES];
+
 private:
 	player_t *m_player;
-
-	static const char *sort_text[SORT_MODES];
 
 	uint32 last_world_stops;
 
