@@ -183,7 +183,12 @@ void convoi_detail_t::init(convoihandle_t cnv)
 	}
 	end_table();
 
-	add_component(&label_odometer);
+	add_table(2,1);
+	{
+		add_component(&label_odometer);
+		add_component(&label_balance_speed_kmh);
+	}
+	end_table();
 
 	add_component(&label_length);
 
@@ -287,6 +292,18 @@ void convoi_detail_t::update_labels()
 	number_to_string( number, (double)cnv->get_total_distance_traveled(), 0 );
 	label_odometer.buf().printf(translator::translate("Odometer: %s km"), number );
 	label_odometer.update();
+	convoihandle_t c=cnv->get_most_parent_convoi();
+	uint64 total_power=0;
+	uint64 total_weight=0;
+	const uint32 test_balance_kmh=999;
+	while(  c.is_bound()  ) {
+		total_power+=c->get_sum_gear_and_power();
+		total_weight+=c->get_sum_gesamtweight();
+		c = c->get_coupling_convoi();
+	}
+	uint32 balance_kmh = speed_to_kmh(convoi_t::calc_max_speed(total_power,total_weight,kmh_to_speed(test_balance_kmh)));
+	label_balance_speed_kmh.buf().printf(translator::translate("%s %d km/h"), translator::translate("terminal speed:"), balance_kmh);
+	label_balance_speed_kmh.update();
 	label_power.buf().printf( translator::translate("Leistung: %d kW"), cnv->get_sum_power() );
 	label_power.update();
 	if( cnv->get_vehicle_count()>0  &&  cnv->get_vehikel( 0 )->get_desc()->get_waytype()==water_wt ) {
