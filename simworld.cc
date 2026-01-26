@@ -1940,8 +1940,8 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	}
 
 	// so at least some rivers end or start in lakes
-	if(  env_t::river_types > 0  &&  settings.get_river_number() > 0  ) {
-		create_rivers( settings.get_river_number() );
+	if(  env_t::river_types > 0  &&  sets->get_river_number() > 0  ) {
+		create_rivers( sets->get_river_number() );
 	}
 
 	if (  old_x == 0  &&  old_y == 0  ) {
