@@ -176,7 +176,7 @@ void minimap_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints )
 		return;
 	}
 	schedule_t *schedule = cnv->get_schedule();
-	if(  !show_network_load_factor  ) {
+	if(  network_color_mode==ORIGINAL  ) {
 		colore_idx += 8;
 		if(  colore_idx >= 208  ) {
 			colore_idx = (colore_idx % 8) + 1;
@@ -185,7 +185,7 @@ void minimap_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints )
 			}
 		}
 	}
-	else {
+	else if(  network_color_mode==LOAD_FACTOR  ) {
 		//TODO: extract common part from with schedule_list_gui_t::display()
 		int capacity = 0, load = 0; // total capacity and load of line (=sum of all conv's cap/load)
 
@@ -221,6 +221,9 @@ void minimap_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints )
 		else {
 			colore_idx = severity_color[MAX_SEVERITY_COLORS-1];
 		}
+	}
+	else if(  network_color_mode==PLAYER_COLOR  ) {
+		colore_idx = cnv->get_owner()->get_player_color1();
 	}
 
 	// ok, add this schedule to map
@@ -1043,7 +1046,7 @@ minimap_t::minimap_t()
 	zoom_in = 1;
 	zoom_out = 1;
 	isometric = false;
-	show_network_load_factor = false;
+	network_color_mode = ORIGINAL;
 	mode = MAP_TOWN;
 	selected_city = NULL;
 	cur_off = new_off = scr_coord(0,0);
