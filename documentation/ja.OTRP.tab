@@ -434,6 +434,16 @@ generate script
 Load tool script
 スクリプトを読み込み
 #------マップ表示機能関連------
+All players
+全会社を表示
+All goods
+全貨物を表示
+All waytypes
+全属性を表示
+Individual color
+個別の色
+Player color
+プレイヤーカラー
 Citizens
 人口
 CityGrowth
