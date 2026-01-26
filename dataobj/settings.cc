@@ -331,6 +331,7 @@ settings_t::settings_t() :
 	base_waiting_ticks_for_air_convoi = 200000;
 
 	default_reverse=false;
+	allow_higher_flight = true;
 }
 
 
