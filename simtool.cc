@@ -8084,6 +8084,44 @@ const char* tool_extinguish_waiting_goods_t::work(player_t* player, koord3d pos)
 	return NULL;
 }
 
+// rename selected halt tool
+const char* tool_rename_halt_t::work(player_t* player, koord3d pos) {
+	const grund_t *gr = welt->lookup(pos);
+	if (!gr) {
+		return "No stop found!";
+	}
+
+	const halthandle_t halt = gr->get_halt();
+	if(  !halt.is_bound()  ) {
+		return "No stop found!";
+	} 
+	
+	if (  player != halt->get_owner()  &&  halt->get_owner() != welt->get_public_player()  ) {
+		return "Different player's stop!";
+	}
+
+	const waytype_t wt = gr->get_weg_nr(0)->get_desc()->get_wtyp();
+	const char *type;
+
+	if(wt==air_wt) {
+		type = "Airport";
+	}
+	else if(wt==water_wt) {
+		type = "Dock";
+	}
+	else if(wt==track_wt||wt==monorail_wt||wt==maglev_wt||wt==narrowgauge_wt) {
+		type = "BF";
+	}
+	else {
+		type = "H";
+	}
+
+	const char *name;
+	name = halt->create_name( pos.get_2d(), type );
+	
+	halt->set_name( name );
+	return NULL;
+}
 
 bool tool_show_trees_t::init( player_t * )
 {
