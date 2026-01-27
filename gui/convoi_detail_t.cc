@@ -223,7 +223,7 @@ void convoi_detail_t::init(convoihandle_t cnv)
 	end_table();
 
 	set_table_layout(1,0);
-	add_table(4,1);
+	add_table(3,1);
 	{
 		add_component(&label_speed);
 
