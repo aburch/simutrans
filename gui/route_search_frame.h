@@ -29,6 +29,7 @@ class route_search_frame_t : public gui_frame_t, public action_listener_t
 
  public:
 	route_search_frame_t();
+	~route_search_frame_t();
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

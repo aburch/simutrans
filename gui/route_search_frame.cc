@@ -3,6 +3,7 @@
 #include "../dataobj/translator.h"
 #include "components/gui_divider.h"
 #include "components/gui_image.h"
+#include "minimap.h"
 #include "../simconvoi.h"
 #include "../simhalt.h"
 #include "../simline.h"
@@ -100,6 +101,12 @@ result_container(1, 0)
     reset_min_windowsize();
 }
 
+route_search_frame_t::~route_search_frame_t()
+{
+    minimap_t::get_instance()->set_selected_cnv( convoihandle_t(), true );
+    result_container.remove_all();
+}
+
 bool route_search_frame_t::action_triggered(gui_action_creator_t* comp, value_t) {
     if(  comp==&search_button  ) {
         search_route();
@@ -149,10 +156,13 @@ void route_search_frame_t::append_connection_row(haltestelle_t::connection_t con
     auto label_with_buf = result_container.new_component<gui_label_buf_t>();
     label_with_buf->buf().append(text);
 
+    linehandle_t result_line = std::holds_alternative<linehandle_t>(connection.best_weight_traveler) ? 
+        std::get<linehandle_t>(connection.best_weight_traveler) : linehandle_t();
     result_container.new_component<gui_traveler_button_t>(
-        std::holds_alternative<linehandle_t>(connection.best_weight_traveler) ? 
-        std::get<linehandle_t>(connection.best_weight_traveler) : linehandle_t()
+        result_line
     );
+    convoihandle_t cnv = result_line.is_bound()?(  result_line->count_convoys()>0 ? result_line->get_convoy(0) : convoihandle_t()  ) : std::get<convoihandle_t>(connection.best_weight_traveler);
+    minimap_t::get_instance()->set_selected_cnv( cnv , false );
 
     // Set icon
     const waytype_t waytype = std::visit([&](const auto& t) {
@@ -195,6 +205,8 @@ void route_search_frame_t::append_halt_row(halthandle_t halt) {
 }
 
 void route_search_frame_t::search_route() {
+	// reset selection
+    minimap_t::get_instance()->set_selected_cnv( convoihandle_t(), true );
     result_container.remove_all();
     halthandle_t from_halt = find_halt(from_halt_input.get_text());
     if(  !from_halt.is_bound()  ) {

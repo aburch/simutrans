@@ -232,7 +232,7 @@ public:
 
 	void draw(scr_coord pos) OVERRIDE;
 
-	void set_selected_cnv( convoihandle_t c );
+	void set_selected_cnv( convoihandle_t c, bool const clear_cache = true );
 
 	void set_selected_city( const stadt_t* _city );
 
