@@ -1028,10 +1028,15 @@ bool vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_
 void vehicle_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const
 {
 	vehicle_base_t::get_screen_offset(xoff, yoff, raster_width);
-	if(  cnv==NULL  ||  cnv==(convoi_t *)1  ||  !cnv->is_reversed()  ) {
+	if(  cnv==NULL  ||  cnv==(convoi_t *)1 ) {
 		return;
 	}
 	const int dir = ribi_t::get_dir(get_direction());
+	xoff += tile_raster_scale_x( env_t::vehicle_base_offsets[dir][0][get_waytype()], raster_width );
+	yoff += tile_raster_scale_y( env_t::vehicle_base_offsets[dir][1][get_waytype()], raster_width );
+	if(  !cnv->is_reversed()  ) {
+		return;
+	}
 	// Add offset when the vehicle is reversed.
 	sint32 steps_delta;
 	steps_delta = raster_width*(VEHICLE_STEPS_PER_TILE / 2 - get_desc()->get_length_in_steps() + env_t::reverse_base_offsets[dir][2]);

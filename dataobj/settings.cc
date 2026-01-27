@@ -1175,6 +1175,24 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 			}
 		}
 	}
+	const char* waytype_list[17] = {"ignore","road","track","water","electric","monorail_track","maglev_track","tram_track","narrowgauge_track","none","none","none","none","none","none","none","air"};
+	for(uint8 wtp_idx = 0; wtp_idx < waytype_t::air_wt + 1; wtp_idx++) {
+		for(uint8 d_idx = 0; d_idx < 8; d_idx++) {
+			char buf[64];
+			sprintf(buf, "vehicle_base_offset_%s[%s]", directions[d_idx], waytype_list[wtp_idx]);
+			vector_tpl<int> temp_offset = contents.get_ints(buf);
+			if (temp_offset.get_count()>=2) {
+				for(uint8 i=0; i<2; i++) {
+					env_t::vehicle_base_offsets[d_idx][i][wtp_idx] = temp_offset[i];
+				}
+			} else {
+				// if not defined, it should be same as driveleft base offset.
+				for(uint8 i=0; i<2; i++) {
+					env_t::vehicle_base_offsets[d_idx][i][wtp_idx] = 0;
+				}
+			}
+		}
+	}	
 
 	// network stuff
 	env_t::server_frames_ahead              = contents.get_int_clamped( "server_frames_ahead",             env_t::server_frames_ahead,              0, INT_MAX );
