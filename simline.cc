@@ -45,7 +45,7 @@ simline_t::simline_t(player_t* player, linetype type)
 	sprintf(printname, "(%i) %s", self.get_id(), translator::translate("Line", welt->get_settings().get_name_language_id()));
 	name = printname;
 	memo = "";
-	colour = player->get_player_color2();
+	colour = player->get_player_color1();
 
 	init_financial_history();
 	this->type = type;

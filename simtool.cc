@@ -8686,7 +8686,6 @@ bool tool_change_line_t::init( player_t *player )
 {
 	uint16 line_id = 0;
 
-	dbg->warning( "tool_change_line_t::init()", "command recieved: \"%s\"", default_param );
 
 	// skip the rest of the command
 	const char *p = default_param;
@@ -8704,7 +8703,6 @@ bool tool_change_line_t::init( player_t *player )
 
 	line_id = atoi(p);
 
-	dbg->warning( "tool_change_line_t::init()", "line_id: %i", line_id);
 
 	while(  *p  &&  *p++!=','  ) {
 	}
@@ -8960,12 +8958,7 @@ bool tool_change_line_t::init( player_t *player )
 
 		case 'o': // change colour of line
 			{
-				//while(  *p  &&  *p++!=','  ) {
-				//}
-
-				dbg->message("tool_change_line_t::init","p at now : %s", p);
 				uint8 n_colour = atoi(p);
-				dbg->message("tool_change_line_t::init","n_colour : %i", n_colour);
 				line->set_colour(n_colour);
 			}
 			break;

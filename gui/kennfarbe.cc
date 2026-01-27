@@ -53,7 +53,6 @@ linefarbengui_t::linefarbengui_t(linehandle_t line_, player_t *player_) :
 	}
 	line_colour[line->get_colour()/8]->pressed = true;
 	end_table();
-	dbg->message("linefarbengui_t::linefarbengui_t()","built linefarbengui to change %s's colour.", line->get_name());
 	reset_min_windowsize();
 
 }
@@ -68,22 +67,14 @@ bool linefarbengui_t::action_triggered( gui_action_creator_t *comp, value_t /* *
 			line_colour[i]->pressed = true;
 
 			if (line.is_bound()) {
-				dbg->message("linefarbengui_t::action_triggered()","%s's colour was %i", line->get_name(), line->get_colour());
-				dbg->message("linefarbengui_t::action_triggered()","Selected colour is %i", i);
 				// re-colour the line
 				cbuffer_t buf;
 				buf.printf( "o,%i,%i", line.get_id(), i*8+4 );
-				dbg->message("linefarbengui_t::action_triggered()","buf: %s", buf.get_str());
 				tool_t* w = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
-				dbg->message("linefarbengui_t::action_triggered()","tool was created");
 				w->set_default_param(buf);
-				dbg->message("linefarbengui_t::action_triggered()","default_param has been set");
-				world()->set_tool( w, player ); //Program crashes HERE
-				dbg->message("linefarbengui_t::action_triggered()","world()->set_tool(w, player);");
+				world()->set_tool( w, player );
 
 				delete w;
-
-				dbg->message("linefarbengui_t::action_triggered()","%s's colour has been changed to %i", line->get_name(), line->get_colour());
 
 				return true;
 			}
