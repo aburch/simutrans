@@ -12,6 +12,7 @@
 #include "components/gui_label.h"
 #include "components/gui_image.h"
 #include "../simtool.h"
+#include "../simline.h"
 
 /**
  * Buttons forced to be square ...
@@ -30,6 +31,67 @@ public:
 	}
 };
 
+linefarbengui_t::linefarbengui_t(linehandle_t line_, player_t *player_) :
+	gui_frame_t( translator::translate("Line Colour"), player_ )
+{
+	line = line_;
+	player = player_;
+
+	set_table_layout(1, 0);
+
+	// Line's colour label
+	new_component<gui_label_t>("Line Colour:");
+
+	add_table(14,2);
+
+	//Line colour buttons
+	for(unsigned i=0;  i<28;  i++) {
+		line_colour[i] = new_component<choose_color_button_t>();
+		line_colour[i]->init( button_t::box_state, (" "));
+		line_colour[i]->background_color = color_idx_to_rgb(i*8+4);
+		line_colour[i]->add_listener(this);
+	}
+	line_colour[line->get_colour()/8]->pressed = true;
+	end_table();
+	dbg->message("linefarbengui_t::linefarbengui_t()","built linefarbengui to change %s's colour.", line->get_name());
+	reset_min_windowsize();
+
+}
+
+bool linefarbengui_t::action_triggered( gui_action_creator_t *comp, value_t /* */)
+{
+	for(unsigned i=0;  i<28;  i++){
+		if(comp==line_colour[i]) {
+			for(unsigned j=0;  j<28;  j++) {
+				line_colour[j]->pressed = false;
+			}
+			line_colour[i]->pressed = true;
+
+			if (line.is_bound()) {
+				dbg->message("linefarbengui_t::action_triggered()","%s's colour was %i", line->get_name(), line->get_colour());
+				dbg->message("linefarbengui_t::action_triggered()","Selected colour is %i", i);
+				// re-colour the line
+				cbuffer_t buf;
+				buf.printf( "o,%i,%i", line.get_id(), i*8+4 );
+				dbg->message("linefarbengui_t::action_triggered()","buf: %s", buf.get_str());
+				tool_t* w = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
+				dbg->message("linefarbengui_t::action_triggered()","tool was created");
+				w->set_default_param(buf);
+				dbg->message("linefarbengui_t::action_triggered()","default_param has been set");
+				world()->set_tool( w, player ); //Program crashes HERE
+				dbg->message("linefarbengui_t::action_triggered()","world()->set_tool(w, player);");
+
+				delete w;
+
+				dbg->message("linefarbengui_t::action_triggered()","%s's colour has been changed to %i", line->get_name(), line->get_colour());
+
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
 
 farbengui_t::farbengui_t(player_t *player_) :
 	gui_frame_t( translator::translate("Farbe"), player_ ),

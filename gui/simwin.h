@@ -49,6 +49,7 @@ enum magic_numbers {
 	magic_climate,
 	magic_reliefmap,
 	magic_farbengui_t,
+	magic_linefarbengui_t,
 	magic_color_gui_t,
 	magic_ki_kontroll_t,
 	magic_optionen_gui_t,

@@ -8524,6 +8524,7 @@ bool tool_change_convoi_t::init( player_t *player )
  * 'c' : create line
  * 'd' : delete line
  * 'g' : apply new schedule to line [schedule follows]
+ * 'o' : change colour of line
  * 't' : trims away convois on all lines of linetype with this default parameter
  * 'u' : unite all lineless convois with similar schedules
  * 'w' : change withdraw
@@ -8533,6 +8534,8 @@ bool tool_change_convoi_t::init( player_t *player )
 bool tool_change_line_t::init( player_t *player )
 {
 	uint16 line_id = 0;
+
+	dbg->warning( "tool_change_line_t::init()", "command recieved: \"%s\"", default_param );
 
 	// skip the rest of the command
 	const char *p = default_param;
@@ -8549,6 +8552,9 @@ bool tool_change_line_t::init( player_t *player )
 	}
 
 	line_id = atoi(p);
+
+	dbg->warning( "tool_change_line_t::init()", "line_id: %i", line_id);
+
 	while(  *p  &&  *p++!=','  ) {
 	}
 
@@ -8798,6 +8804,18 @@ bool tool_change_line_t::init( player_t *player )
 				if (line.is_bound()) {
 					line->set_memo(p);
 				}
+			}
+			break;
+
+		case 'o': // change colour of line
+			{
+				//while(  *p  &&  *p++!=','  ) {
+				//}
+
+				dbg->message("tool_change_line_t::init","p at now : %s", p);
+				uint8 n_colour = atoi(p);
+				dbg->message("tool_change_line_t::init","n_colour : %i", n_colour);
+				line->set_colour(n_colour);
 			}
 			break;
 	}

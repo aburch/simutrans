@@ -42,6 +42,8 @@
 #include "../boden/wege/schiene.h"
 #include "../boden/wege/strasse.h"
 
+#include "../gui/kennfarbe.h"
+
 #include "../unicode.h"
 
 
@@ -123,7 +125,8 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	scrolly_haltestellen(gui_scrolled_list_t::windowskin),
 	lbl_filter("Line Filter"),
 	lbl_memo("Line Memo:"),
-	lbl_name("Line Name:")
+	lbl_name("Line Name:"),
+	lbl_colour("Line Colour:")
 {
 	capacity = load = 0;
 	selection = -1;
@@ -196,7 +199,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	inp_filter.add_listener(this);
 	add_component(&inp_filter);
 
-	sint16 bt_y = D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT*2+D_V_SPACE*2+D_INDICATOR_HEIGHT+D_V_SPACE ;
+	sint16 bt_y = D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT*2+D_V_SPACE*2+D_INDICATOR_HEIGHT+D_V_SPACE+D_BUTTON_HEIGHT+D_V_SPACE ;
 
 	// sort by what
 	for( int i=0; i<MAX_SORT_IDX;  i++ ) {
@@ -301,9 +304,23 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	inp_memo.set_visible(false);
 	add_component(&inp_memo);
 
+	// line colour label
+	lbl_colour.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT*2+D_V_SPACE*2));
+	lbl_colour.set_visible(false);
+	add_component(&lbl_colour);
+
+	// line colour button
+	bt_colour_line.init(button_t::box, "",
+		scr_coord(RIGHT_COLUMN_OFFSET+D_BUTTON_WIDTH+D_H_SPACE, D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT*2+D_V_SPACE*2),
+		scr_size(D_BUTTON_WIDTH, D_EDIT_HEIGHT));
+	bt_colour_line.set_tooltip("Change colour of the line");
+	bt_colour_line.add_listener(this);
+	bt_colour_line.set_visible(false);
+	add_component(&bt_colour_line);
+
 	// load display
 	filled_bar.add_color_value(&loadfactor, color_idx_to_rgb(COL_GREEN));
-	filled_bar.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT*2+D_V_SPACE*2));
+	filled_bar.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT*2+D_V_SPACE*2+D_BUTTON_HEIGHT+D_V_SPACE));
 	filled_bar.set_visible(false);
 	add_component(&filled_bar);
 
@@ -548,6 +565,12 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 			delete tmp_tool;
 		}
 	}
+	else if(  comp == &bt_colour_line  ) {
+		if (line.is_bound() && (player == welt->get_active_player() || welt->get_active_player() == welt->get_player(1))) {
+			dbg->message("schedule_list_t::action_triggered()","change %s's colour", line->get_name());
+			create_win(new linefarbengui_t(line, player), w_info, magic_linefarbengui_t);
+		}
+	}
 	else {
 		if(  line.is_bound()  ) {
 			for(  int i=0;  i<MAX_LINE_COST;  i++  ) {
@@ -577,6 +600,7 @@ void schedule_list_gui_t::reset_line_name()
 		tstrncpy(old_line_name, line->get_name(), sizeof(old_line_name));
 		tstrncpy(line_name, line->get_name(), sizeof(line_name));
 		tstrncpy(line_memo, line->get_memo(), sizeof(line_memo));
+		line_colour = line->get_colour();
 		inp_name.set_text(line_name, sizeof(line_name));
 		inp_memo.set_text(line_memo, sizeof(line_memo));
 	}
@@ -633,6 +657,7 @@ void schedule_list_gui_t::draw(scr_coord pos, scr_size size)
 		if(  (!line->get_schedule()->empty()  &&  !line->get_schedule()->matches( welt, last_schedule ))  ||  last_vehicle_count != line->count_convoys()  ) {
 			update_lineinfo( line );
 		}
+		bt_colour_line.background_color = color_idx_to_rgb(line->get_colour());
 		PUSH_CLIP( pos.x + 1, pos.y + D_TITLEBAR_HEIGHT, size.w - 2, size.h - D_TITLEBAR_HEIGHT);
 		display(pos);
 		POP_CLIP();
@@ -719,6 +744,7 @@ void schedule_list_gui_t::set_windowsize(scr_size size)
 	inp_name.set_size(scr_size(rest_width-D_BUTTON_WIDTH - D_H_SPACE, D_EDIT_HEIGHT));
 	inp_memo.set_size(scr_size(rest_width-D_BUTTON_WIDTH - D_H_SPACE, D_EDIT_HEIGHT));
 	filled_bar.set_size(scr_size(rest_width, 4));
+	bt_colour_line.set_size(scr_size(rest_width-D_BUTTON_WIDTH - D_H_SPACE, D_EDIT_HEIGHT));
 
 	int y = D_MARGIN_TOP + SCL_HEIGHT-D_V_SPACE-(button_rows*(D_BUTTON_HEIGHT+D_V_SPACE));
 	for(  int i=0;  i<MAX_LINE_COST;  i++  ) {
@@ -772,6 +798,8 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		lbl_memo.set_visible(true);
 		inp_memo.set_visible(true);
 		filled_bar.set_visible(true);
+		lbl_colour.set_visible(true);
+		bt_colour_line.set_visible(true);
 
 		// fill container with info of line's convoys
 		// we do it here, since this list needs only to be
@@ -850,6 +878,8 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		inp_memo.set_visible(false);
 		lbl_memo.set_visible(false);
 		filled_bar.set_visible(false);
+		lbl_colour.set_visible(false);
+		bt_colour_line.set_visible(false);
 		scl.set_selection(-1);
 		bt_delete_line.disable();
 		bt_edit_line.disable();
