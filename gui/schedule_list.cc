@@ -4,7 +4,6 @@
  */
 
 #include <stdio.h>
-#include <bits/stdc++.h>
 
 #include "messagebox.h"
 #include "schedule_list.h"
@@ -103,10 +102,6 @@ static uint8 statistic_type[MAX_LINE_COST] = {
 	STANDARD,
 	MONEY
 };
-
-// static std::map<int, uint8> copy_labels = {
-// 	{}
-// };
 
 static uint8 copy_labels[3] = {
 	halt_list_frame_t::sort_mode_t::nach_wartend,
@@ -283,7 +278,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	bt_delete_line.disable();
 	add_component(&bt_delete_line);
 
-	bt_copy_data.init(button_t::roundbox, "Copy Haltdata",
+	bt_copy_data.init(button_t::roundbox, "Copy Halt Data",
 		scr_coord(D_MARGIN_LEFT, bt_y+2*(D_BUTTON_HEIGHT+D_V_SPACE)),
 		scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	bt_copy_data.set_tooltip("Copy the data of the halt labels.");
@@ -954,7 +949,7 @@ void schedule_list_gui_t::copy_csv_format() {
 	clipboard.append("halt");
 
 	for (uint8 sort_index: copy_labels) {
-		clipboard.printf("\t%s", halt_list_frame_t::sort_text[sort_index]);
+		clipboard.printf("\t%s", halt_list_frame_t::get_sort_text(sort_index));
 	}
 
 	clipboard.append("\n");

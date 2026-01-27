@@ -46,10 +46,10 @@ public:
 		include_public_filter  = 1 << 6,
 	};
 
-	static const char *sort_text[SORT_MODES];
-
 private:
 	player_t *m_player;
+
+	static const char *sort_text[SORT_MODES];
 
 	uint32 last_world_stops;
 
@@ -132,6 +132,8 @@ public:
 	static bool get_ware_filter_an(const goods_desc_t *ware) { return waren_filter_an.is_contained(ware); }
 	static void set_ware_filter_an(const goods_desc_t *ware, int mode);
 	static void set_alle_ware_filter_an(int mode);
+
+	static const char* get_sort_text(int index) { return index >= 0 && index < SORT_MODES ? sort_text[index] : ""; };
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
