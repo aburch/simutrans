@@ -417,8 +417,7 @@ bool way_builder_t::check_slope( const grund_t *from, const grund_t *to )
 	const koord to_pos=to->get_pos().get_2d();
 	const koord zv=to_pos-from_pos;
 
-	if(  !desc->has_double_slopes()
-		&&  (    (from->get_weg_hang()  &&  !is_one_high(from->get_weg_hang()))
+	if(  (    (from->get_weg_hang()  &&  !is_one_high(from->get_weg_hang()))
 		      ||   (to->get_weg_hang()  &&    !is_one_high(to->get_weg_hang()))  )  ) {
 		return false;
 	}
@@ -875,7 +874,7 @@ bool way_builder_t::check_terraforming( const grund_t *from, const grund_t *to, 
 	  &&  (to_slope == slope_t::flat  ||  to->get_hoehe() == welt->get_water_hgt( to->get_pos().get_2d() ))  ) {
 		return false;
 	}
-	else if(  abs( from_hgt - to_hgt ) <= (desc->has_double_slopes() ? 2 : 1)  ) {
+	else if(  abs( from_hgt - to_hgt ) <= 2  ) {
 		// extra check for double heights
 		if(  abs( from_hgt - to_hgt) == 2  &&  (welt->lookup( from->get_pos() - koord3d(0,0,2) ) != NULL  ||  welt->lookup( from->get_pos() + koord3d(0, 0, 2) ) != NULL
 		  ||  welt->lookup( to->get_pos() - koord3d(0, 0, 2) ) != NULL  ||  welt->lookup( to->get_pos() + koord3d(0, 0, 2) ) != NULL)  ) {
