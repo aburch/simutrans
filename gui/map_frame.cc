@@ -117,6 +117,8 @@ typedef struct {
 map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Towns", "Overlay town names", minimap_t::MAP_TOWN },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "CityLimit", "Overlay city limits", minimap_t::MAP_CITYLIMIT },
+	{ COL_LIGHT_TURQUOISE,  COL_DARK_TURQUOISE,  "Citizens", "Show city citizens as circles", minimap_t::MAP_CITIZENS },
+	{ COL_LIGHT_TURQUOISE,  COL_DARK_TURQUOISE,  "CityGrowth", "Show city growth as circles (red=growth, green=decline)", minimap_t::MAP_CITY_GROWTH },
 	{ COL_WHITE,        COL_GREY5,       "Buildings", "Show level of city buildings", minimap_t::MAP_LEVEL },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "PaxDest", "Overlay passenger destinations when a town window is open", minimap_t::MAP_PAX_DEST },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Tourists", "Highlite tourist attraction", minimap_t::MAP_TOURIST },
@@ -554,6 +556,10 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t v )
 					else if(  button_init[i].mode & minimap_t::MAP_MODE_HALT_FLAGS  ) {
 						// clear all other halt states
 						env_t::default_mapmode &= ~minimap_t::MAP_MODE_HALT_FLAGS;
+					}
+					else if(  button_init[i].mode & minimap_t::MAP_MODE_CITY_FLAGS  ) {
+						// clear all other city states
+						env_t::default_mapmode &= ~minimap_t::MAP_MODE_CITY_FLAGS;
 					}
 					env_t::default_mapmode |= button_init[i].mode;
 				}

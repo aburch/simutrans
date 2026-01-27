@@ -532,6 +532,12 @@ public:
 
 	static bool send_tax_public;
 
+	// drivelelft offset
+	static sint8 driveleft_base_offsets[8][2];
+
+	// overtaking offset
+	static sint8 overtaking_base_offsets[8][2];
+
 	// Graphical offsets for reverseing vehicles
 	// [directions][offsets]
 	// directions:{"south", "west", "southwest", "southeast", "north", "east", "northeast", "northwest"}

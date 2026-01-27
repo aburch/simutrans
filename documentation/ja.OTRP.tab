@@ -433,6 +433,15 @@ generate script
 スクリプトを生成
 Load tool script
 スクリプトを読み込み
+#------マップ表示機能関連------
+Citizens
+人口
+CityGrowth
+都市成長率
+Show city citizens as circles
+都市人口を円の大きさで表示します
+Show city growth as circles (red=growth, green=decline)
+都市の成長率を円の大きさで表示します(赤:成長、緑:衰退)
 #------その他の翻訳------
 Remove all waiting goods and pax
 この駅のすべての待機中の旅客と貨物を除去します
@@ -512,3 +521,5 @@ No stop found!
 停車場がありません!
 Different player's stop!
 他社の停車場です!
+Pipette
+ピペットツール

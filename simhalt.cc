@@ -1397,6 +1397,16 @@ void haltestelle_t::new_month()
 	}
 	// number of waiting should be constant ...
 	financial_history[0][HALT_WAITING] = financial_history[1][HALT_WAITING];
+
+	// update departure slot if ticks is updated (avoid overflow)
+	if(  welt->get_ticks()<welt->ticks_per_world_month  ) {
+		for (uint32 i = 0; i < DST_SIZE; ++i) {
+			for (departure_t &slot : departure_slot_table[i]) {
+				slot.dep_tick %= welt->ticks_per_world_month;
+				slot.exp_tick %= welt->ticks_per_world_month;
+			}
+		}
+	}
 }
 
 
@@ -4635,7 +4645,7 @@ bool unregistered_journey_time_exists(const schedule_t* schedule, player_t* play
 }
 
 
-void haltestelle_t::calc_destination_halt(inthashtable_tpl<uint8, vector_tpl<halthandle_t>> &destination_halts, const vector_tpl<reachable_halt_t> &reachable_halts, const minivec_tpl<uint8> &goods_category_indexes, convoihandle_t cnv) {
+void haltestelle_t::calc_destination_halt(inthashtable_tpl<uint8, vector_tpl<halthandle_t>> &destination_halts, const vector_tpl<reachable_halt_t> &reachable_halts, const vector_tpl<reachable_halt_t> &temp_stop_halts, const minivec_tpl<uint8> &goods_category_indexes, convoihandle_t cnv) {
 	// initialize destination_halts
 	destination_halts.clear();
 	FOR(const minivec_tpl<uint8>, const& i, goods_category_indexes) {
@@ -4656,6 +4666,10 @@ void haltestelle_t::calc_destination_halt(inthashtable_tpl<uint8, vector_tpl<hal
 		// Temporary schedule or route cost is used -> Accept all halts.
 		if(  accept_all_halts  ||  !welt->get_settings().get_time_based_routing_enabled(i)  ) {
 			FOR(const vector_tpl<reachable_halt_t>, const& rh, reachable_halts) {
+				destination_halts.access(i)->append(rh.halt);
+			}
+		} else {
+			FOR(const vector_tpl<reachable_halt_t>, const& rh, temp_stop_halts) {
 				destination_halts.access(i)->append(rh.halt);
 			}
 		}
