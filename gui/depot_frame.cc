@@ -1217,11 +1217,55 @@ void depot_frame_t::update_data()
 				empty_kmh = sel_kmh = max_kmh = min_kmh = speed_to_kmh( cnv->get_min_top_speed() );
 			}
 			else {
-				empty_kmh = speed_to_kmh(convoi_t::calc_max_speed(total_power, total_empty_weight, cnv->get_min_top_speed()));
-				sel_kmh =   speed_to_kmh(convoi_t::calc_max_speed(total_power, total_selected_weight, cnv->get_min_top_speed()));
+				uint64 coupled_total_power=total_power;
+				uint64 coupled_total_empty_weight=total_empty_weight;
+				uint64 coupled_total_selected_weight=total_selected_weight;
+				uint64 coupled_total_max_weight=total_max_weight;
+				if(!is_shown_convoy_coupled) {
+					convoihandle_t c = cnv->get_coupling_convoi();
+					while(c.is_bound()&&c!=cnv) {
+						coupled_total_power+=c->get_sum_gear_and_power();
+						for(uint8 i=0; i<c->get_vehicle_count(); i++) {
+							const vehicle_desc_t *desc = c->get_vehikel(i)->get_desc();
+							bool sel_found = false;
+							uint32 max_weight=0;
+							uint32 sel_weight=0;
+							for(  uint32 j=0;  j<goods_manager_t::get_count();  j++  ) {
+								const goods_desc_t *ware = goods_manager_t::get_info(j);
+
+								if(  desc->get_freight_type()->get_catg_index() == ware->get_catg_index()  ) {
+									max_weight = max(max_weight, (uint32)ware->get_weight_per_unit());
+
+									// find number of goods in in this category. TODO: gotta be a better way...
+									uint8 catg_count = 0;
+									FOR(vector_tpl<goods_desc_t const*>, const i, welt->get_goods_list()) {
+										if(  ware->get_catg_index() == i->get_catg_index()  ) {
+											catg_count++;
+										}
+									}
+
+									if(  ware->get_index() == selected_good_index  ||  catg_count < 2  ) {
+										sel_found = true;
+										sel_weight = ware->get_weight_per_unit();
+									}
+								}
+							}
+							if(  !sel_found  ) {
+								// vehicle carries more than one good, but not the selected one
+								use_sel_weight = false;
+							}
+							coupled_total_empty_weight += desc->get_weight();
+							coupled_total_selected_weight += desc->get_weight() + sel_weight * desc->get_capacity();
+							coupled_total_max_weight += desc->get_weight() + max_weight * desc->get_capacity();
+						}
+						c = c->get_coupling_convoi();
+					}
+				}
+				empty_kmh = speed_to_kmh(convoi_t::calc_max_speed(coupled_total_power, coupled_total_empty_weight, cnv->get_min_top_speed()));
+				sel_kmh =   speed_to_kmh(convoi_t::calc_max_speed(coupled_total_power, coupled_total_selected_weight, cnv->get_min_top_speed()));
 				max_kmh =   speed_to_kmh(cnv->get_min_top_speed());
-				min_kmh =   speed_to_kmh(convoi_t::calc_max_speed(total_power, total_max_weight,   cnv->get_min_top_speed()));
-				balance_kmh = speed_to_kmh(convoi_t::calc_max_speed(total_power, use_sel_weight? total_selected_weight: total_max_weight, kmh_to_speed(test_balance_kmh)));
+				min_kmh =   speed_to_kmh(convoi_t::calc_max_speed(coupled_total_power, coupled_total_max_weight,   cnv->get_min_top_speed()));
+				balance_kmh = speed_to_kmh(convoi_t::calc_max_speed(coupled_total_power, use_sel_weight? coupled_total_selected_weight: coupled_total_max_weight, kmh_to_speed(test_balance_kmh)));
 			}
 
 			const sint32 convoi_length = (cnv->get_vehicle_count()) * CARUNITS_PER_TILE / 2 - 1;

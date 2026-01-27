@@ -1262,7 +1262,7 @@ const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytyp
 				// needs checks, since this fails if it was the last tile
 				weg->set_desc( weg->get_desc() );
 				weg->set_ribi( ribi );
-				if(  slope_t::max_diff(gr->get_weg_hang())>=2  &&  !weg->get_desc()->has_double_slopes()  ) {
+				if(  slope_t::max_diff(gr->get_weg_hang())>=2  ) {
 					// remove the way totally, if is is on a double slope
 					gr->weg_entfernen( weg->get_waytype(), true );
 				}
