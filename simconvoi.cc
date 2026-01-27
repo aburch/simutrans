@@ -3795,7 +3795,7 @@ uint32 convoi_t::calc_available_halt_length_in_vehicle_steps(koord3d front_vehic
 // A sub routine of hat_gehalten()
 // Calculate the reachable halts from the current stop of the given convoy, considering the convoy state.
 // Results are stored in reachable_halts.
-void calc_reachable_halts(vector_tpl<haltestelle_t::reachable_halt_t>& reachable_halts, convoihandle_t cnv) {
+void calc_reachable_halts(vector_tpl<haltestelle_t::reachable_halt_t>& reachable_halts, vector_tpl<haltestelle_t::reachable_halt_t>& temp_stop_halts, convoihandle_t cnv) {
 	reachable_halts.clear();
 	const schedule_t* schedule = cnv->get_schedule();
 	const schedule_t* line_schedule = cnv->get_line().is_bound() ? cnv->get_line()->get_schedule() : schedule;
@@ -3804,6 +3804,7 @@ void calc_reachable_halts(vector_tpl<haltestelle_t::reachable_halt_t>& reachable
 		// Nothing is allowed to load here.
 		return;
 	}
+	const bool temporary_load = schedule->get_current_entry().is_temp_load();
 
 	const halthandle_t current_halt = haltestelle_t::get_stoppable_halt(schedule->get_current_entry().pos, owner, cnv->front()->get_waytype());
 	const uint8 schedule_count = schedule->get_count();
@@ -3866,6 +3867,9 @@ void calc_reachable_halts(vector_tpl<haltestelle_t::reachable_halt_t>& reachable
 		// when something irregular happens on a single convoy.
 		journey_time += line_schedule->get_median_journey_time(wrap_i, cnv->get_speedbonus_kmh());
 		reachable_halts.append(haltestelle_t::reachable_halt_t(plan_halt, (uint32)max(journey_time, 0)));
+		if(  temporary_load  ||  line_schedule->at(wrap_i).is_temp_unload()  ) {
+			temp_stop_halts.append(haltestelle_t::reachable_halt_t(plan_halt, 0));
+		}
 		if(  line_schedule->at(wrap_i).is_unload_all()  ) {
 			// passengers/cargos cannot keep boarding beyond this stop.
 			break;
@@ -3971,9 +3975,10 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 	}
 
 	vector_tpl<haltestelle_t::reachable_halt_t> reachable_halts;
-	calc_reachable_halts(reachable_halts, self);
+	vector_tpl<haltestelle_t::reachable_halt_t> temp_stop_halts;
+	calc_reachable_halts(reachable_halts, temp_stop_halts, self);
 	inthashtable_tpl<uint8, vector_tpl<halthandle_t>> destination_halts;
-	halt->calc_destination_halt(destination_halts, reachable_halts, goods_catg_index, self);
+	halt->calc_destination_halt(destination_halts, reachable_halts, temp_stop_halts, goods_catg_index, self);
 
 	// fetch fresh cargos.
 	if(  loading_needed  ) {
@@ -5479,9 +5484,10 @@ bool convoi_t::is_users_at_next_stop() const{
 	}
 	if(  !get_schedule()->get_current_entry().is_no_load()  ) {
 		vector_tpl<haltestelle_t::reachable_halt_t> reachable_halts;
-		calc_reachable_halts(reachable_halts, self);
+		vector_tpl<haltestelle_t::reachable_halt_t> temp_stop_halts;
+		calc_reachable_halts(reachable_halts, temp_stop_halts, self);
 		inthashtable_tpl<uint8, vector_tpl<halthandle_t>> destination_halts;
-		halt->calc_destination_halt(destination_halts, reachable_halts, goods_catg_index, self);
+		halt->calc_destination_halt(destination_halts, reachable_halts, temp_stop_halts, goods_catg_index, self);
 
 		// fetch fresh cargos.
 		FOR(minivec_tpl<uint8>, category_idx, goods_catg_index) {
