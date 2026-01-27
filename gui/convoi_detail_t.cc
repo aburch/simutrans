@@ -183,12 +183,7 @@ void convoi_detail_t::init(convoihandle_t cnv)
 	}
 	end_table();
 
-	add_table(2,1);
-	{
-		add_component(&label_odometer);
-		add_component(&label_balance_speed_kmh);
-	}
-	end_table();
+	add_component(&label_odometer);
 
 	add_component(&label_length);
 
@@ -228,11 +223,11 @@ void convoi_detail_t::init(convoihandle_t cnv)
 	end_table();
 
 	set_table_layout(1,0);
-	add_table(3,1);
+	add_table(4,1);
 	{
 		add_component(&label_speed);
 
-		new_component<gui_fill_t>();
+		add_component(&label_balance_speed_kmh);
 
 		add_table(2,1)->set_force_equal_columns(true);
 		{
