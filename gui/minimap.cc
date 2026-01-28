@@ -1632,7 +1632,7 @@ void minimap_t::draw(scr_coord pos)
 					max_tourist_ziele = pax;
 				}
 				PIXVAL color = calc_severity_color_log(gb->get_passagier_level(), max_tourist_ziele);
-				int radius = max( (number_to_radius( pax*4 )*zoom_in)/zoom_out, 1 );
+				int radius = number_to_radius( pax*4 ) + 5;
 				display_filled_circle_rgb( gb_pos.x, gb_pos.y, radius, color );
 				display_circle_rgb( gb_pos.x, gb_pos.y, radius, color_idx_to_rgb(COL_BLACK) );
 			}
@@ -1658,7 +1658,7 @@ void minimap_t::draw(scr_coord pos)
 			PIXVAL color = calc_severity_color_log( citizens, max_city_citizens );
 
 			// Calculate radius based on citizens with zoom correction
-			int radius = max( (number_to_radius( citizens )*zoom_in)/zoom_out, 1 );
+			int radius = number_to_radius( 5 * citizens ) + 10;
 
 			// Draw filled circle with black outline
 			display_filled_circle_rgb( city_pos.x, city_pos.y, radius, color );
@@ -1688,7 +1688,7 @@ void minimap_t::draw(scr_coord pos)
 			PIXVAL color = color_idx_to_rgb(growth > 0 ? COL_LIGHT_RED : growth < 0 ? COL_DARK_GREEN : COL_YELLOW);
 
 			// Calculate radius based on absolute growth with zoom correction
-			int radius = max( (number_to_radius( 5 * abs_growth )*zoom_in)/zoom_out, 5 );
+			int radius = number_to_radius( 5 * abs_growth ) + 10;
 
 			// Draw filled circle with black outline
 			display_filled_circle_rgb( city_pos.x, city_pos.y, radius, color );
