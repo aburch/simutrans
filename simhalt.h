@@ -779,7 +779,7 @@ public:
 	 * @param goods_category_indexes The list of goods category indexes.
 	 * @param cnv The convoy which is requesting the destination halts.
 	 */
-	void calc_destination_halt(inthashtable_tpl<uint8, vector_tpl<halthandle_t>> &destination_halts, const vector_tpl<reachable_halt_t> &reachable_halts, const minivec_tpl<uint8> &goods_category_indexes, convoihandle_t cnv);
+	void calc_destination_halt(inthashtable_tpl<uint8, vector_tpl<halthandle_t>> &destination_halts, const vector_tpl<reachable_halt_t> &reachable_halts, const vector_tpl<reachable_halt_t> &temp_stop_halts, const minivec_tpl<uint8> &goods_category_indexes, convoihandle_t cnv);
 
 	struct loadable_fresh_goods_t {
 		ware_t::goods_amount_t amount;

@@ -201,8 +201,9 @@ public:
 	}
 
 	bool has_double_slopes() const {
-		return get_child<image_list_t>(3)->get_count() > 4
-		||     get_child<image_list_t>(image_list_base_index(false, true) + 1)->get_count() > 4;
+		// return get_child<image_list_t>(3)->get_count() > 4
+		// ||     get_child<image_list_t>(image_list_base_index(false, true) + 1)->get_count() > 4;
+		return true;
 	}
 
 	bool has_diagonal_image() const {
