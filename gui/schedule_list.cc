@@ -969,7 +969,7 @@ void schedule_list_gui_t::copy_csv_format() {
 	// tell user if successfull or not
 	if(  clipboard.len()>0  ) {
 		dr_copy( clipboard, clipboard.len() );
-		create_win( new news_img("Halt data was copied to clipboard.\n"), w_time_delete, magic_none );
+		create_win( new news_img(translator::translate("Halt data was copied to clipboard.\n")), w_time_delete, magic_none );
 	} else {
 		dbg->error("schedule_list_gui_t::copy_csv_format()", "There is nothing to copy.\n");
 	}
