@@ -251,6 +251,7 @@ void settings_routing_stats_t::init(settings_t const* const sets)
 	INIT_BOOL( "reverse_by_default",sets->default_reverse );
 	INIT_BOOL( "first_come_first_serve", sets->first_come_first_serve );
 	INIT_NUM( "waiting_limit_for_first_come_first_serve", sets->get_waiting_limit_for_first_come_first_serve(), 100, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
+	INIT_BOOL( "allow_unload_longer_convoy", sets->allow_unload_longer_convoy );
 	SEPERATOR
 	INIT_NUM ( "base_waiting_ticks_for_rail_convoi", sets->base_waiting_ticks_for_rail_convoi, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
 	INIT_NUM ( "base_waiting_ticks_for_road_convoi", sets->base_waiting_ticks_for_road_convoi, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
@@ -296,6 +297,7 @@ void settings_routing_stats_t::read(settings_t* const sets)
 	READ_BOOL_VALUE( sets->default_reverse );
 	READ_BOOL_VALUE( sets->first_come_first_serve );
 	READ_NUM_VALUE( sets->waiting_limit_for_first_come_first_serve );
+	READ_BOOL_VALUE( sets->allow_unload_longer_convoy );
 
 	READ_NUM_VALUE( sets->base_waiting_ticks_for_rail_convoi );
 	READ_NUM_VALUE( sets->base_waiting_ticks_for_road_convoi );

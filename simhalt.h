@@ -965,7 +965,7 @@ public:
 	void extinguish_all_waiting_goods();
 
 	// allow unloading from longer convoy
-	bool const is_allow_unload_longer_convoy() { return (flags&HS_ALLOW_UNLOAD_LONGER_CONVOY)>0; }
+	bool const is_allow_unload_longer_convoy() { return (welt->get_settings().is_allow_unload_longer_convoy()&&(flags&HS_ALLOW_UNLOAD_LONGER_CONVOY)>0); }
 	void set_allow_unload_longer_convoy(const bool y) { y? flags|=HS_ALLOW_UNLOAD_LONGER_CONVOY: flags&=~HS_ALLOW_UNLOAD_LONGER_CONVOY; }
 };
 

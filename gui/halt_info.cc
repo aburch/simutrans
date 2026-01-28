@@ -554,6 +554,7 @@ void halt_info_t::update_components()
 	bt_no_handle_pax.disable();
 	bt_no_handle_post.disable();
 	bt_no_handle_ware.disable();
+	bt_allow_unload_longer_convoy.set_visible(welt->get_settings().is_allow_unload_longer_convoy());
 	bt_allow_unload_longer_convoy.disable();
 	if(halt->get_desc_pax_enable()) {
 		bt_no_handle_pax.enable(player_t::check_owner(halt->get_owner(), welt->get_active_player()));
