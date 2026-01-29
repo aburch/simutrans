@@ -83,7 +83,8 @@ public:
 		TEMPORARY              = 1U << 0, // This schedule is not used for goods routing.
 		SAME_DEP_TIME          = 1U << 1, // Use same departure time for all entries.
 		FULL_LOAD_ACCELERATION = 1U << 2, // Always use full load acceleration.
-		FULL_LOAD_TIME         = 1U << 3,
+		FULL_LOAD_TIME         = 1U << 3, // Always use full load time at stop.
+		REVERSE_DEFAULT		   = 1U << 4, // reverse when next direction is opposite
 	};
 
 	/**
@@ -156,6 +157,8 @@ public:
 	void set_same_dep_time(bool y) { y ? flags |= SAME_DEP_TIME : flags &= ~SAME_DEP_TIME; }
 	bool is_full_load_acceleration() const { return (flags&FULL_LOAD_ACCELERATION)>0; }
 	void set_full_load_acceleration(bool y) { y ? flags |= FULL_LOAD_ACCELERATION : flags &= ~FULL_LOAD_ACCELERATION; }
+	bool is_reverse_default() const { return (flags&REVERSE_DEFAULT)>0; }
+	void set_reverse_default(bool y) { y? flags |= REVERSE_DEFAULT : flags &= ~REVERSE_DEFAULT; }
 	uint16 get_max_speed() const { return max_speed; }
 	void set_max_speed(uint16 v) { max_speed = v; }
 	sint64 get_departure_slot_group_id() const { return departure_slot_group_id; }
