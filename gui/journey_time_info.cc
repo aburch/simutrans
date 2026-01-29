@@ -18,13 +18,15 @@ gui_journey_time_stat_t::gui_journey_time_stat_t(schedule_t*, player_t* pl) {
   player = pl;
 }
 
-void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& journey_times, vector_tpl<uint32*>& stopping_times, bool& empty_slot_exists) {
+void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& journey_times, vector_tpl<uint32*>& stopping_times, bool& empty_slot_exists, bool is_use_hhmmss) {
   schedule_t* schedule = line->get_schedule();
   scr_size size = get_size();
   remove_all();
   uint32 journey_time_sum = 0;
   set_table_layout(NUM_ARRIVAL_TIME_STORED+2,0);
   uint8 depot_entry_count = 0;
+  const uint16 divisor = world()->get_settings().get_spacing_shift_divisor();
+  const uint16 month_ratio_second = 86400/divisor;
   for(uint8 idx=0; idx<schedule->get_count(); idx++) {
     const schedule_entry_t& e = schedule->at(idx);
     const uint8 prev_idx = idx > 0 ? idx - 1 : schedule->get_count() - 1;
@@ -37,7 +39,17 @@ void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& jou
       if(  t==0  ) {
         lb->buf().printf("-");
       } else {
-        lb->buf().printf("%d", t - stopping_times[prev_idx][i]);
+        uint32 t_run = t - stopping_times[prev_idx][i];
+        if( is_use_hhmmss ) {
+          uint32 second = t_run*month_ratio_second;
+          uint8 day = second/86400;
+          uint8 hour = (second/3600)%24;
+          uint8 minute = (second/60)%60;
+          second = second % 60;         
+          lb->buf().printf("+%d %02d:%02d:%02d", day,hour,minute,second);
+        } else {
+          lb->buf().printf("%d", t_run);
+        }
         if(i == 0){
           journey_time_sum += t;
         }
@@ -75,7 +87,16 @@ void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& jou
       if(  t==0  ) {
         lb->buf().printf("-");
       } else {
-        lb->buf().printf("%d", t);
+        if( is_use_hhmmss ) {
+          uint32 second = t*month_ratio_second;
+          uint8 day = second/86400;
+          uint8 hour = (second/3600)%24;
+          uint8 minute = (second/60)%60;
+          second = second % 60;         
+          lb->buf().printf("+%d %02d:%02d:%02d", day,hour,minute,second);
+        } else {
+          lb->buf().printf("%d", t);
+        }
       }
       lb->update();
       if(  t>0  &&  (sint32)t-(sint32)stopping_times[idx][0]>4  ) {
@@ -91,7 +112,16 @@ void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& jou
   lb->buf().printf("Total");
   lb->update();
   lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
-  lb->buf().printf("%d", journey_time_sum); 
+  if( is_use_hhmmss ) {
+    uint32 second = journey_time_sum*month_ratio_second;
+    uint8 day = second/86400;
+    uint8 hour = (second/3600)%24;
+    uint8 minute = (second/60)%60;
+    second = second % 60;         
+    lb->buf().printf("+%d %02d:%02d:%02d", day,hour,minute,second);
+  } else {
+    lb->buf().printf("%d", journey_time_sum);
+  }
   lb->update();
   
   scr_size min_size = get_min_size();
@@ -156,7 +186,7 @@ gui_journey_time_info_t::gui_journey_time_info_t(linehandle_t line, player_t* pl
   schedule(line->get_schedule()),
   line(line)
 {
-  update();
+  is_unit_hhmmss_time = false;
   
   title_buf = new cbuffer_t();
   title_buf->printf(translator::translate("Journey time of %s"), line->get_name());
@@ -199,9 +229,13 @@ gui_journey_time_info_t::gui_journey_time_info_t(linehandle_t line, player_t* pl
     bt_copy_csv.add_listener(this);
     add_component(&bt_copy_csv);
     
-    new_component<gui_fill_t>();
+    bt_change_unit.init(button_t::roundbox | button_t::flexible, translator::translate("hh:mm:ss"));
+    bt_change_unit.set_tooltip("Change time unit to hh:mm:ss");
+    bt_change_unit.add_listener(this);
+    add_component(&bt_change_unit);
   }
   end_table();
+  update();
   
   set_resizemode(diagonal_resize);
 
@@ -218,6 +252,10 @@ bool gui_journey_time_info_t::action_triggered(gui_action_creator_t* comp, value
   }
   else if(  comp==&bt_copy_csv  ) {
     copy_csv_format(schedule, player,  journey_times);
+  }
+  else if(  comp==&bt_change_unit  ) {
+    is_unit_hhmmss_time^=1;
+    update();
   }
   return true;
 }
@@ -294,7 +332,17 @@ void gui_journey_time_info_t::update() {
   
   // update stat
   bool empty_slot_exists = false;
-  stat.update(line, journey_times, stopping_times, empty_slot_exists);
+  stat.update(line, journey_times, stopping_times, empty_slot_exists,is_unit_hhmmss_time);
   insufficient_cnv_label.set_visible(empty_slot_exists);
   reset_min_windowsize();
+}
+
+void gui_journey_time_info_t::draw(scr_coord pos, scr_size size)
+{
+  if(schedule->empty()) {
+    destroy_win(this);
+    return;
+  }
+  bt_change_unit.pressed=is_unit_hhmmss_time;
+	gui_frame_t::draw(pos, size);
 }

@@ -721,6 +721,11 @@ public:
 	 */
 	void announce_server(server_announce_type_t status);
 
+	/**
+	 * close factory because too old
+	 */
+	vector_tpl<fabrik_t*> closed_factories_this_month;
+
 	/// cache the current maximum and minimum height on the map
 	sint8 max_height, min_height;
 
@@ -1868,7 +1873,8 @@ private:
 
 // a helper function to compare two ticks considering ticks overflow
 inline bool is_first_ticks_bigger(uint32 v1, uint32 v2) {
-	return (v1 != v2) && ((v1 > v2) ^ ((v1&0x80000000) != (v2&0x80000000)));
+	// we treat inverse order if |v1-v2|>(1U<<31) because ticks value changes periodicaly
+	return (v1 != v2) && ((v1 > v2)? v1-v2<(uint32)(1U<<31): v2-v1>(uint32)(1U<<31));
 }
 
 #endif

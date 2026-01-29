@@ -78,6 +78,8 @@ uint8 grund_t::offsets[4]={0,1,2/*illegal!*/,2};
 
 sint8 grund_t::underground_level = 127;
 uint8 grund_t::underground_mode = ugm_none;
+uint8 grund_t::underground_mode_outside = ugm_none;
+bool grund_t::is_underground = false;
 
 
 // ---------------------- text handling from here ----------------------
@@ -2163,10 +2165,11 @@ bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t:
 							delete tunnel;
 						}
 					}
-					else {
-						// we must leave the way to prevent destroying the other one
-						add |= get_weg_nr(1)->get_ribi_unmasked();
-						weg->calc_image();
+					else if(weg_t* way2=get_weg(tram_wt)) {
+						if(remove_everything_from_way(player,tram_wt,way2->get_ribi_unmasked())) {
+							tunnel->cleanup(player);
+							delete tunnel;
+						}
 					}
 				}
 			}

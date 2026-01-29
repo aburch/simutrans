@@ -218,6 +218,10 @@ private:
 	/* crossconnect all factories (like OTTD and similar games) */
 	sint16 crossconnect_factor;
 
+	/* close old factory randomly (like extended)*/
+	bool close_old_factory;
+	uint16 factory_max_years_obsolete;
+
 	/**
 	* Generate random pedestrians in the cities?
 	*/
@@ -287,6 +291,14 @@ private:
 	/* if set, goods will not routed over overcrowded stations but rather try detours (if possible) */
 	bool no_routing_over_overcrowding;
 
+	/* if set, passagiere can load overcrowded cars*/
+	bool allow_overloading;
+
+	/* if set, overcrowded cars' revenue is reduced*/
+	bool overloading_revenue_reduced;
+	/* if set, overcrowded car's running cost is increase*/
+	bool overloading_runningcost_increase;
+
 	// lowest possible income with speedbonus (1000=1) default 125
 	sint32 bonus_basefactor;
 
@@ -351,6 +363,10 @@ private:
 	uint32 base_waiting_ticks_for_road_convoi;
 	uint32 base_waiting_ticks_for_ship_convoi;
 	uint32 base_waiting_ticks_for_air_convoi;
+
+	
+	// set default reversing or not, when the next direction is opposite.
+	bool default_reverse;
 
 public:
 	/* the big cost section */
@@ -535,6 +551,8 @@ public:
 	sint16 get_max_factory_spacing_percent() const { return max_factory_spacing_percentage; }
 	sint16 get_crossconnect_factor() const { return crossconnect_factor; }
 	bool is_crossconnect_factories() const { return crossconnect_factories; }
+	bool is_close_old_factory() const { return close_old_factory; }
+	uint16 get_factory_max_years_obsolete() const { return factory_max_years_obsolete; }
 
 	bool get_numbered_stations() const { return numbered_stations; }
 
@@ -573,6 +591,11 @@ public:
 
 	// do not allow routes over overcrowded destinations
 	bool is_no_routing_over_overcrowding() const { return no_routing_over_overcrowding; }
+
+	// allow overloading
+	bool is_allow_overloading() const {return allow_overloading;}
+	bool is_overloading_revenue_reduced() const {return overloading_revenue_reduced;}
+	bool is_overloading_runningcost_increase() const {return overloading_runningcost_increase;}
 
 	sint16 get_river_number() const { return river_number; }
 	sint16 get_min_river_length() const { return min_river_length; }
@@ -716,6 +739,8 @@ public:
 	void set_time_based_routing_enabled(uint8 goods_catg_index, bool is_on) {
 		is_time_based_routing_enabled[goods_catg_index] = is_on; 
 	}
+	// get default reverse
+	bool is_default_reverse() const {return default_reverse;}
 };
 
 #endif

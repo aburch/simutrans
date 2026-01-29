@@ -14,7 +14,7 @@
 
 #define L_DIALOG_WIDTH (200)
 
-simple_number_input_frame_t::simple_number_input_frame_t (const char* frame_title, const char* label_text, uint8 min_val, uint8 max_val, uint8 default_val) :
+simple_number_input_frame_t::simple_number_input_frame_t (const char* frame_title, const char* label_text, sint8 min_val, sint8 max_val, sint8 default_val) :
  	gui_frame_t( translator::translate(frame_title) ),
 	label(label_text)
 {
@@ -50,16 +50,16 @@ wayobj_spacing_frame_t::wayobj_spacing_frame_t(player_t* /*player_*/, tool_build
 	tool = tool_;
 }
 
-void wayobj_spacing_frame_t::register_val(uint8 v) {
+void wayobj_spacing_frame_t::register_val(sint8 v) {
 	tool->set_spacing(v);
 }
 
 height_offset_frame_t::height_offset_frame_t(player_t* /*player_*/, tool_build_way_t* tool_) :
-	simple_number_input_frame_t( translator::translate("set height offset"), translator::translate("height offset"), 0, 32, tool_->get_height_offset() )
+	simple_number_input_frame_t( translator::translate("set height offset"), translator::translate("height offset"), 1-world()->get_settings().get_way_height_clearance(), 32, tool_->get_height_offset() )
 {
 	tool = tool_;
 }
 
-void height_offset_frame_t::register_val(uint8 v) {
+void height_offset_frame_t::register_val(sint8 v) {
 	tool->set_height_offset(v);
 }
