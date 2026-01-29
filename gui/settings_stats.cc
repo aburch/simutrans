@@ -230,6 +230,8 @@ void settings_routing_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "max_hops", sets->get_max_hops(), 100, 65000, gui_numberinput_t::POWER2, false );
 	INIT_NUM( "max_transfers", sets->get_max_transfers(), 1, 100, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
+	INIT_BOOL( "use_old_friction", env_t::use_old_friction );
+	SEPERATOR
 	INIT_NUM( "way_straight", sets->way_count_straight, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "way_curve", sets->way_count_curve, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "way_double_curve", sets->way_count_double_curve, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
@@ -275,6 +277,8 @@ void settings_routing_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->max_choose_route_steps );
 	READ_NUM_VALUE( sets->max_hops );
 	READ_NUM_VALUE( sets->max_transfers );
+	// slope friction
+	READ_BOOL_VALUE( env_t::use_old_friction );
 	// routing on ways
 	READ_NUM_VALUE( sets->way_count_straight );
 	READ_NUM_VALUE( sets->way_count_curve );

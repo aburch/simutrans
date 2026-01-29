@@ -1340,11 +1340,19 @@ void vehicle_t::calc_friction(const grund_t *gr)
 		const uint slope_height = is_one_high(hang) ? 1 : 2;
 		if(  ribi_type(hang) == direction  ) {
 			// hill up, since height offsets are negative: heavy decelerate
-			current_friction += 15 * slope_height * slope_height * TILE_HEIGHT_STEP * TILE_HEIGHT_STEP / (16*16);
+			if(  env_t::use_old_friction  ) {
+				current_friction += 23 * slope_height * slope_height * TILE_HEIGHT_STEP * TILE_HEIGHT_STEP / (16*16);
+			} else {
+				current_friction += 15 * slope_height * slope_height;
+			}
 		}
 		else {
 			// hill down: accelerate
-			current_friction += -7 * slope_height * slope_height * TILE_HEIGHT_STEP * TILE_HEIGHT_STEP / (16*16);
+			if(  env_t::use_old_friction  ) {
+				current_friction += -13 * slope_height * slope_height * TILE_HEIGHT_STEP * TILE_HEIGHT_STEP / (16*16);
+			} else {
+				current_friction += -7 * slope_height * slope_height;
+			}
 		}
 	}
 }
