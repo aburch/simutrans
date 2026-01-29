@@ -151,6 +151,7 @@ void convoi_t::init(player_t *player)
 	freight_info_order = 0;
 	loading_level = 0;
 	loading_limit = 0;
+	loading_waiting_time = 0;
 
 	speed_limit = SPEED_UNLIMITED;
 	max_record_speed = 0;
@@ -4053,6 +4054,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 		calc_loading();
 	}
 	loading_limit = schedule->get_current_entry().minimum_loading;
+	loading_waiting_time = schedule->get_current_entry().waiting_time_shift>0? welt->ticks_per_world_month/schedule->get_current_entry().waiting_time_shift:0;
 
 	// update statistics of average speed
 	if(  distance_since_last_stop  ) {
@@ -4186,6 +4188,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 			schedule->advance();
 			state = ROUTING_1;
 			loading_limit = 0;
+			loading_waiting_time = 0;
 			coupling_done = false;
 			scheduled_departure_time = 0;
 			// Advance schedule of coupling convoy recursively.
@@ -4323,7 +4326,7 @@ void convoi_t::calc_loading()
 	}
 	loading_level = fracht_max > 0 ? (fracht_menge*100)/fracht_max : 100;
 	loading_limit = 0; // will be set correctly from hat_gehalten() routine
-
+	loading_waiting_time = 0;
 	// since weight has changed
 	recalc_data=true;
 }
