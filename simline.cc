@@ -333,7 +333,7 @@ void simline_t::rdwr(loadsave_t *file)
 		memo = "";
 	}
 
-	if (file->get_OTRP_version() >= 52) {
+	if (file->get_OTRP_version() >= 51) {
 		file->rdwr_enum(colour);
 		// read colour of the line
 	}

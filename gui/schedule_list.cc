@@ -600,7 +600,6 @@ void schedule_list_gui_t::reset_line_name()
 		tstrncpy(old_line_name, line->get_name(), sizeof(old_line_name));
 		tstrncpy(line_name, line->get_name(), sizeof(line_name));
 		tstrncpy(line_memo, line->get_memo(), sizeof(line_memo));
-		line_colour = line->get_colour();
 		inp_name.set_text(line_name, sizeof(line_name));
 		inp_memo.set_text(line_memo, sizeof(line_memo));
 	}
