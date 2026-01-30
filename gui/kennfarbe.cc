@@ -31,7 +31,7 @@ public:
 	}
 };
 
-linefarbengui_t::linefarbengui_t(linehandle_t line_, player_t *player_) :
+line_colour_gui_t::line_colour_gui_t(linehandle_t line_, player_t *player_) :
 	gui_frame_t( translator::translate("Line Colour"), player_ )
 {
 	line = line_;
@@ -57,7 +57,7 @@ linefarbengui_t::linefarbengui_t(linehandle_t line_, player_t *player_) :
 
 }
 
-bool linefarbengui_t::action_triggered( gui_action_creator_t *comp, value_t /* */)
+bool line_colour_gui_t::action_triggered( gui_action_creator_t *comp, value_t /* */)
 {
 	for(unsigned i=0;  i<28;  i++){
 		if(comp==line_colour[i]) {

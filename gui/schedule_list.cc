@@ -568,7 +568,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 	else if(  comp == &bt_colour_line  ) {
 		if (line.is_bound() && (player == welt->get_active_player() || welt->get_active_player() == welt->get_player(1))) {
 			dbg->message("schedule_list_t::action_triggered()","change %s's colour", line->get_name());
-			create_win(new linefarbengui_t(line, player), w_info, magic_linefarbengui_t);
+			create_win(new line_colour_gui_t(line, player), w_info, magic_line_colour_gui_t);
 		}
 	}
 	else {
