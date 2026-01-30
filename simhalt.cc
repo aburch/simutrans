@@ -4645,7 +4645,7 @@ bool unregistered_journey_time_exists(const schedule_t* schedule, player_t* play
 }
 
 
-void haltestelle_t::calc_destination_halt(inthashtable_tpl<uint8, vector_tpl<halthandle_t>> &destination_halts, const vector_tpl<reachable_halt_t> &reachable_halts, const minivec_tpl<uint8> &goods_category_indexes, convoihandle_t cnv) {
+void haltestelle_t::calc_destination_halt(inthashtable_tpl<uint8, vector_tpl<halthandle_t>> &destination_halts, const vector_tpl<reachable_halt_t> &reachable_halts, const vector_tpl<reachable_halt_t> &temp_stop_halts, const minivec_tpl<uint8> &goods_category_indexes, convoihandle_t cnv) {
 	// initialize destination_halts
 	destination_halts.clear();
 	FOR(const minivec_tpl<uint8>, const& i, goods_category_indexes) {
@@ -4666,6 +4666,10 @@ void haltestelle_t::calc_destination_halt(inthashtable_tpl<uint8, vector_tpl<hal
 		// Temporary schedule or route cost is used -> Accept all halts.
 		if(  accept_all_halts  ||  !welt->get_settings().get_time_based_routing_enabled(i)  ) {
 			FOR(const vector_tpl<reachable_halt_t>, const& rh, reachable_halts) {
+				destination_halts.access(i)->append(rh.halt);
+			}
+		} else {
+			FOR(const vector_tpl<reachable_halt_t>, const& rh, temp_stop_halts) {
 				destination_halts.access(i)->append(rh.halt);
 			}
 		}
