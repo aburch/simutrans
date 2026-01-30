@@ -8100,20 +8100,45 @@ const char* tool_rename_halt_t::work(player_t* player, koord3d pos) {
 		return "Different player's stop!";
 	}
 
-	const waytype_t wt = gr->get_weg_nr(0)->get_desc()->get_wtyp();
-	const char *type;
+		const char *type;
+		const gebaeude_t* gb = gr->find<gebaeude_t>();
 
-	if(wt==air_wt) {
-		type = "Airport";
-	}
-	else if(wt==water_wt) {
-		type = "Dock";
-	}
-	else if(wt==track_wt||wt==monorail_wt||wt==maglev_wt||wt==narrowgauge_wt) {
-		type = "BF";
+	if (  gr->is_water()  ) {
+		const building_desc_t::btype gt = gb->get_tile()->get_desc()->get_type();
+		if (  gt==building_desc_t::factory  ) {
+			return NULL;
+		}
+		else {
+			type = "Dock";
+		}
 	}
 	else {
-		type = "H";
+		waytype_t wt;
+		if(  !gr->get_weg_nr(0)==NULL  ) {
+			wt = gr->get_weg_nr(0)->get_desc()->get_wtyp();
+		}
+		else if(  gb->get_tile()->get_desc()->get_type()==building_desc_t::dock  ) {
+			wt = water_wt;
+		}
+		else {
+			wt = gb->get_waytype();
+		}
+
+		if(wt==air_wt) {
+			type = "Airport";
+		}
+		else if(wt==water_wt) {
+			type = "Dock";
+		}
+		else if(wt==track_wt||wt==monorail_wt||wt==maglev_wt||wt==narrowgauge_wt) {
+			type = "BF";
+		}
+		else if(wt==road_wt||wt==tram_wt) {
+			type = "H";
+		}
+		else {
+			return NULL;
+		}
 	}
 
 	const char *name;
