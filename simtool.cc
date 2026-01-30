@@ -8084,7 +8084,7 @@ const char* tool_rename_halt_t::work(player_t* player, koord3d pos) {
 		return "No stop found!";
 	} 
 	
-	if (  player != halt->get_owner()  &&  halt->get_owner() != welt->get_public_player()  ) {
+	if (  player != halt->get_owner()  ) {
 		return "Different player's stop!";
 	}
 
