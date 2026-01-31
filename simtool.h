@@ -822,9 +822,9 @@ public:
 };
 
 
-class tool_rename_halt_t : public tool_t {
+class tool_recreate_halt_name_t : public tool_t {
 public:
-	tool_rename_halt_t() : tool_t(TOOL_RENAME_HALT | GENERAL_TOOL) {}
+	tool_recreate_halt_name_t() : tool_t(TOOL_RECREATE_HALT_NAME | GENERAL_TOOL) {}
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_safe() const OVERRIDE { return true; }
 };

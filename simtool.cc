@@ -8072,8 +8072,8 @@ const char* tool_extinguish_waiting_goods_t::work(player_t* player, koord3d pos)
 	return NULL;
 }
 
-// rename selected halt tool
-const char* tool_rename_halt_t::work(player_t* player, koord3d pos) {
+// recreate selected halt name tool
+const char* tool_recreate_halt_name_t::work(player_t* player, koord3d pos) {
 	const grund_t *gr = welt->lookup(pos);
 	if (!gr) {
 		return "No stop found!";
