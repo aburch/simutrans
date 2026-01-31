@@ -935,6 +935,11 @@ void schedule_t::get_schedule_flag_text(cbuffer_t& buf, schedule_t* schedule)
 		str[cnt] = 'G';
 		cnt++;
 	}
+	if(  !world()->get_settings().is_default_reverse()  &&  (flag & schedule_t::REVERSE_DEFAULT)>0  ) {
+		// reverse by default, show only if map setting is not.
+		str[cnt] = 'D';
+		cnt++;
+	}
 	if(  cnt>1  ) {
 		str[cnt] = ']';
 		str[cnt+1] = ' ';
