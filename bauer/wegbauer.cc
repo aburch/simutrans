@@ -417,11 +417,6 @@ bool way_builder_t::check_slope( const grund_t *from, const grund_t *to )
 	const koord to_pos=to->get_pos().get_2d();
 	const koord zv=to_pos-from_pos;
 
-	if(  (    (from->get_weg_hang()  &&  !is_one_high(from->get_weg_hang()))
-		      ||   (to->get_weg_hang()  &&    !is_one_high(to->get_weg_hang()))  )  ) {
-		return false;
-	}
-
 	if(from==to) {
 		if(!slope_t::is_way(from->get_weg_hang())) {
 			return false;
