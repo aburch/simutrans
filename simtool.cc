@@ -8686,6 +8686,7 @@ bool tool_change_convoi_t::init( player_t *player )
  * 'c' : create line
  * 'd' : delete line
  * 'g' : apply new schedule to line [schedule follows]
+ * 'o' : change colour of line
  * 't' : trims away convois on all lines of linetype with this default parameter
  * 'u' : unite all lineless convois with similar schedules
  * 'w' : change withdraw
@@ -8695,6 +8696,7 @@ bool tool_change_convoi_t::init( player_t *player )
 bool tool_change_line_t::init( player_t *player )
 {
 	uint16 line_id = 0;
+
 
 	// skip the rest of the command
 	const char *p = default_param;
@@ -8711,6 +8713,8 @@ bool tool_change_line_t::init( player_t *player )
 	}
 
 	line_id = atoi(p);
+
+
 	while(  *p  &&  *p++!=','  ) {
 	}
 
@@ -8960,6 +8964,13 @@ bool tool_change_line_t::init( player_t *player )
 				if (line.is_bound()) {
 					line->set_memo(p);
 				}
+			}
+			break;
+
+		case 'o': // change colour of line
+			{
+				uint8 n_colour = atoi(p);
+				line->set_colour(n_colour);
 			}
 			break;
 	}
