@@ -5758,6 +5758,10 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 	file->rdwr_long(ticks);
 	file->rdwr_long(last_month);
 	file->rdwr_long(last_year);
+	if(file->get_OTRP_version()>=51&&env_t::networkmode) {
+		// game speed (only network mode)
+		file->rdwr_long(time_multiplier);
+	}
 
 	if (file->is_loading()) {
 		if(file->is_version_less(86, 6)) {
@@ -6889,7 +6893,7 @@ void karte_t::reset_timer()
 	else if(step_mode==FIX_RATIO) {
 		last_frame_idx = 0;
 		fix_ratio_frame_time = 1000 / clamp(settings.get_frames_per_second(), env_t::min_fps, env_t::max_fps);
-		next_step_time = last_tick_sync + fix_ratio_frame_time;
+		next_step_time = last_tick_sync + (3200/get_time_multiplier() );
 		set_frame_time( fix_ratio_frame_time );
 		intr_disable();
 		// other stuff needed to synchronize
@@ -7190,7 +7194,6 @@ void karte_t::stop(bool exit_game)
 void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
 {
 	if (env_t::networkmode) {
-		time_multiplier = 16; // reset to normal speed
 		sync_steps = syncsteps_;
 		sync_steps_barrier = sync_steps;
 		steps = sync_steps / settings.get_frames_per_step();
