@@ -127,12 +127,6 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	line_selector.set_wrapping(false);
 	add_component(&line_selector);
 
-	schedule_filter[0]=0;
-	line_filter_input.set_text(schedule_filter, lengthof(schedule_filter));
-	line_filter_input.add_listener(this);
-	add_component(&line_filter_input);
-	
-
 	// goto line button
 	line_button.set_typ(button_t::posbutton);
 	line_button.set_targetpos3d(koord3d::invalid);
@@ -1053,7 +1047,66 @@ void depot_frame_t::update_data()
 		}
 	}
 
-	init_line_selector();
+	// update the line selector
+	line_selector.clear_elements();
+
+	if(  !last_selected_line.is_bound()  ) {
+		// new line may have a valid line now
+		last_selected_line = selected_line;
+		// if still nothing, resort to line management dialoge
+		if(  !last_selected_line.is_bound()  ) {
+			// try last specific line
+			last_selected_line = schedule_list_gui_t::selected_line[ depot->get_owner()->get_player_nr() ][ depot->get_line_type() ];
+		}
+		if(  !last_selected_line.is_bound()  ) {
+			// try last general line
+			last_selected_line = schedule_list_gui_t::selected_line[ depot->get_owner()->get_player_nr() ][ 0 ];
+			if(  last_selected_line.is_bound()  &&  last_selected_line->get_linetype() != depot->get_line_type()  ) {
+				last_selected_line = linehandle_t();
+			}
+		}
+	}
+	if(  cnv.is_bound()  &&  cnv->get_schedule()  &&  !cnv->get_schedule()->empty()  ) {
+		if(  cnv->get_line().is_bound()  ) {
+			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( clear_schedule_text, SYSCOL_TEXT ) ;
+			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( new_line_text, SYSCOL_TEXT ) ;
+		}
+		else {
+			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( unique_schedule_text, SYSCOL_TEXT ) ;
+			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( promote_to_line_text, SYSCOL_TEXT ) ;
+		}
+	}
+	else {
+		line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( no_schedule_text, SYSCOL_TEXT ) ;
+		line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( new_line_text, SYSCOL_TEXT ) ;
+	}
+	if(  last_selected_line.is_bound()  ) {
+		line_selector.new_component<line_scrollitem_t>( last_selected_line ) ;
+	}
+	if(  !selected_line.is_bound()  ) {
+		// select "create new schedule"
+		line_selector.set_selection( 0 );
+	}
+	line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( line_seperator, SYSCOL_TEXT ) ;
+
+	// check all matching lines
+	if(  cnv.is_bound()  ) {
+		selected_line = cnv->get_line();
+	}
+	vector_tpl<linehandle_t> lines;
+	get_line_list(depot, &lines);
+	line_selector.set_selection( 0 );
+	FOR(  vector_tpl<linehandle_t>,  const line,  lines  ) {
+		line_selector.new_component<line_scrollitem_t>(line) ;
+		if(  selected_line.is_bound()  &&  selected_line == line  ) {
+			line_selector.set_selection( line_selector.count_elements() - 1 );
+		}
+	}
+	if(  line_selector.get_selection() == 0  ) {
+		// no line selected
+		selected_line = linehandle_t();
+	}
+	line_selector.sort( last_selected_line.is_bound()+3 );
 
 	// Update vehicle filter
 	vehicle_filter.clear_elements();
@@ -1336,72 +1389,6 @@ void depot_frame_t::update_data()
 	}
 }
 
-void depot_frame_t::init_line_selector()
-{
-	convoihandle_t cnv = depot->get_convoi( icnv );
-	// update the line selector
-	line_selector.clear_elements();
-
-	if(  !last_selected_line.is_bound()  ) {
-		// new line may have a valid line now
-		last_selected_line = selected_line;
-		// if still nothing, resort to line management dialoge
-		if(  !last_selected_line.is_bound()  ) {
-			// try last specific line
-			last_selected_line = schedule_list_gui_t::selected_line[ depot->get_owner()->get_player_nr() ][ depot->get_line_type() ];
-		}
-		if(  !last_selected_line.is_bound()  ) {
-			// try last general line
-			last_selected_line = schedule_list_gui_t::selected_line[ depot->get_owner()->get_player_nr() ][ 0 ];
-			if(  last_selected_line.is_bound()  &&  last_selected_line->get_linetype() != depot->get_line_type()  ) {
-				last_selected_line = linehandle_t();
-			}
-		}
-	}
-	if(  cnv.is_bound()  &&  cnv->get_schedule()  &&  !cnv->get_schedule()->empty()  ) {
-		if(  cnv->get_line().is_bound()  ) {
-			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( clear_schedule_text, SYSCOL_TEXT ) ;
-			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( new_line_text, SYSCOL_TEXT ) ;
-		}
-		else {
-			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( unique_schedule_text, SYSCOL_TEXT ) ;
-			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( promote_to_line_text, SYSCOL_TEXT ) ;
-		}
-	}
-	else {
-		line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( no_schedule_text, SYSCOL_TEXT ) ;
-		line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( new_line_text, SYSCOL_TEXT ) ;
-	}
-	if(  last_selected_line.is_bound()  ) {
-		line_selector.new_component<line_scrollitem_t>( last_selected_line ) ;
-	}
-	if(  !selected_line.is_bound()  ) {
-		// select "create new schedule"
-		line_selector.set_selection( 0 );
-	}
-	line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( line_seperator, SYSCOL_TEXT ) ;
-
-	// check all matching lines
-	if(  cnv.is_bound()  ) {
-		selected_line = cnv->get_line();
-	}
-	vector_tpl<linehandle_t> lines;
-	get_line_list(depot, &lines);
-	line_selector.set_selection( 0 );
-	FOR(  vector_tpl<linehandle_t>,  const line,  lines  ) {
-		if(  !*schedule_filter  ||  utf8caseutf8(line->get_name(), schedule_filter)  ) {
-			line_selector.new_component<line_scrollitem_t>(line);
-		}
-		if(  selected_line.is_bound()  &&  selected_line == line  ) {
-			line_selector.set_selection( line_selector.count_elements() - 1 );
-		}
-	}
-	if(  line_selector.get_selection() == 0  ) {
-		// no line selected
-		selected_line = linehandle_t();
-	}
-	line_selector.sort( last_selected_line.is_bound()+3 );
-}
 
 sint64 depot_frame_t::calc_restwert(const vehicle_desc_t *veh_type)
 {
@@ -1559,9 +1546,6 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			depot_t::update_all_win();
 		}
 		else if(  comp == &name_filter_input  ) {
-			depot_t::update_all_win();
-		}
-		else if(  comp == &line_filter_input  ) {
 			depot_t::update_all_win();
 		}
 		else if(  comp == &bt_veh_action  ) {
@@ -2132,7 +2116,7 @@ void  depot_frame_t::rdwr( loadsave_t *file)
 	file->rdwr_byte(veh_action);
 	file->rdwr_long(icnv);
 	if(  file->get_OTRP_version()>=51  ) {
-		file->rdwr_str(name_filter_value,sizeof(name_filter_value));
+		file->rdwr_str(name_filter_value, sizeof(name_filter_value));
 	}
 	sort_by.rdwr(file);
 	simline_t::rdwr_linehandle_t(file, selected_line);
