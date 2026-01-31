@@ -1920,6 +1920,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 			return;
 		}
 		grund_t const* const gr = cnv->get_route()?welt->lookup(cnv->get_route()->back()):NULL;
+		const float conversion_ratio = (float)world()->get_settings().get_spacing_shift_divisor()/world()->ticks_per_world_month;
 
 		
 		// now find out what has happened
@@ -1942,7 +1943,6 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 				if(  cnv->get_departure_time()>0  ) {
 					// the convoy is waiting for departure time.
 					// we use floating operation just for display purpose.
-					const float conversion_ratio = (float)world()->get_settings().get_spacing_shift_divisor()/world()->ticks_per_world_month;
 					const sint32 time_remain = (cnv->get_departure_time() - world()->get_ticks())*conversion_ratio;
 					const sint32 time_remain_delay_coupling = (cnv->get_departure_time() + cnv->get_coupling_delay_tolerance() - world()->get_ticks())*conversion_ratio;
 
@@ -1972,15 +1972,22 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 					convoihandle_t c = cnv->self;
 					sint32 max_loading_limit = cnv->get_loading_limit();
 					sint32 max_loading_level = cnv->get_loading_level();
+					uint32 waiting_time = cnv->get_loading_waiting_time();
 					// search the waiting convoy
 					while(c.is_bound()) {
 						if( c->get_loading_limit() > max_loading_limit && c->get_loading_level() < c->get_loading_limit() ) {
 							max_loading_limit = c->get_loading_limit();
 							max_loading_level = c->get_loading_level();
+							waiting_time = c->get_loading_waiting_time()==0? 0: max(waiting_time,c->get_loading_waiting_time());
 						}
 						c = c->get_coupling_convoi();
 					} 
-					snprintf( states_text, states_text_size, translator::translate("Loading (%i->%i%%)!"), max_loading_level, max_loading_limit );
+					if(  waiting_time>0  ) {
+						const sint32 time_remain = (waiting_time - (world()->get_ticks() - cnv->get_arrived_time()))*conversion_ratio;
+						snprintf( states_text, states_text_size, translator::translate("Loading (%i->%i%%)! %i left!"), max_loading_level, max_loading_limit, time_remain);
+					} else {
+						snprintf( states_text, states_text_size, translator::translate("Loading (%i->%i%%)!"), max_loading_level, max_loading_limit );
+					}
 				}
 				break;
 
