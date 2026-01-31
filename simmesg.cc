@@ -29,7 +29,16 @@ void message_t::node::rdwr(loadsave_t *file)
 {
 	file->rdwr_str( msg, lengthof(msg) );
 	file->rdwr_long( type );
-	pos.rdwr( file );
+	if (file->is_version_less(123, 2)) {
+		pos.rdwr( file );
+	}
+	else {
+		// modern version: save as 3d coord
+		// it is only for loading
+		koord3d k;
+		k.rdwr( file );
+		pos = k.get_2d();
+	}
 	if (file->is_version_less(120, 5)) {
 		// color was 16bit, with 0x8000 indicating player colors
 		uint16 c = color & PLAYER_FLAG ? 0x8000 + (color&(~PLAYER_FLAG)) : MN_GREY0;

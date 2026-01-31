@@ -435,7 +435,10 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long(dummy );
 		}
 		file->rdwr_long(traffic_level );
-		file->rdwr_long(show_pax );
+		if (file->is_version_less(123, 2)) {
+			// modern version: it is in env_t
+			file->rdwr_long(show_pax);
+		}
 		sint32 dummy = groundwater;
 		file->rdwr_long(dummy );
 		if(file->is_version_less(99, 5)) {
@@ -601,7 +604,10 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_bool(crossconnect_factories );
 			file->rdwr_short(crossconnect_factor );
 
-			file->rdwr_bool(random_pedestrians );
+			if (file->is_version_less(123, 2)) {
+				// modern version: it is in env_t
+				file->rdwr_bool(random_pedestrians);
+			}
 			file->rdwr_long(stadtauto_duration );
 
 			file->rdwr_bool(numbered_stations );
@@ -781,7 +787,9 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 		if(file->is_version_atleast(102, 2)) {
 			file->rdwr_bool( no_routing_over_overcrowding );
-			file->rdwr_bool( with_private_paks );
+			if( file->is_version_less(123, 2) ) {
+				file->rdwr_bool( with_private_paks );
+			}
 		}
 		if(file->is_version_atleast(102, 3)) {
 			// network stuff
@@ -1009,6 +1017,9 @@ void settings_t::rdwr(loadsave_t *file)
  		if(  file->is_version_atleast(122, 1)  ) {
 			file->rdwr_enum(climate_generator);
 			file->rdwr_byte( wind_direction );
+			// this bool is dummy!
+			bool dummy = true;
+			file->rdwr_bool(dummy /*was departures_on_time */);
 		}
 		else if( file->is_loading() ) {
 			climate_generator = HEIGHT_BASED;
@@ -1020,6 +1031,31 @@ void settings_t::rdwr(loadsave_t *file)
 				case 2: wind_direction = ribi_t::east;  break;
 				case 3: wind_direction = ribi_t::south; break;
 			}
+		}
+		if(  file->is_version_atleast(122, 2)  ) {
+			bool stop_halt_as_scheduled=!advance_to_end;
+			file->rdwr_bool(stop_halt_as_scheduled);
+			advance_to_end = !stop_halt_as_scheduled;
+		}
+		// restoring the city speed limit vector
+		if (file->is_version_atleast(123, 2)) {
+			// TODO: city road speed limit
+			uint16 city_road_speed_limit_num;
+			file->rdwr_short(city_road_speed_limit_num);
+			for (uint16 i = 0;  i < city_road_speed_limit_num;  i++) {
+				uint16 temp_city_road_speed_limit;
+				file->rdwr_short(temp_city_road_speed_limit);
+			}
+		}
+
+		if (file->is_version_atleast(124, 2)) {
+			//TODO: no_way, avoid_crossings, maximum
+			uint32 way_count_no_way;
+			uint32 way_count_avoid_crossings;
+			uint32 way_count_maximum;
+			file->rdwr_long(way_count_no_way);
+			file->rdwr_long(way_count_avoid_crossings);
+			file->rdwr_long(way_count_maximum);
 		}
 		// otherwise the default values of the last one will be used
 	}
