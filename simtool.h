@@ -945,12 +945,28 @@ class tool_reset_game_speed_t : public tool_t {
 public:
 	tool_reset_game_speed_t() : tool_t(TOOL_RESET_GAME_SPEED | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE {
-		translator::translate("Reset game speed.");
 	}
 	bool init( player_t *player ) OVERRIDE {
 		if(  !env_t::networkmode  ||  player->is_public_service()  ) {
 			// in networkmode only for public player
 			welt->change_time_multiplier( 16-welt->get_time_multiplier() );
+		}
+		return false;
+	}
+};
+
+class tool_fix_game_speed_t : public tool_t {
+public:
+	tool_fix_game_speed_t() : tool_t(TOOL_FIX_GAME_SPEED | SIMPLE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE {
+		env_t::networkmode? translator::translate("Fix game speed."): translator::translate("deactivated in offline mode");
+	}
+	image_id get_icon(player_t*) const OVERRIDE { return env_t::networkmode ? icon : IMG_EMPTY; }
+	bool is_selected() const OVERRIDE { return welt->is_game_speed_fixed(); }
+	bool init( player_t *player ) OVERRIDE {
+		if(  env_t::networkmode  &&  player->is_public_service()  ) {
+			// only for networkmode, only for public player
+			welt->set_game_speed_fixed( welt->is_game_speed_fixed()^1 );
 		}
 		return false;
 	}

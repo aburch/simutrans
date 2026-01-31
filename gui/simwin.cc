@@ -1967,6 +1967,9 @@ void win_display_flush(double konto)
 	else if(  skinverwaltung_t::pausesymbol==NULL  ) {
 		info.printf( " %s", translator::translate("GAME PAUSED") );
 	}
+	if(env_t::networkmode&&wl->is_game_speed_fixed()) {
+		info.printf(" Locked");
+	}
 #ifdef DEBUG
 	if(  env_t::verbose_debug>3  ) {
 		if(  haltestelle_t::get_rerouting_status()==RECONNECTING  ) {

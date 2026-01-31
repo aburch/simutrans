@@ -1183,6 +1183,7 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 		}
 	}
 	step_mode  = PAUSE_FLAG;
+	fix_game_speed = false;
 	intr_disable();
 
 	if(plan) {
@@ -2106,6 +2107,7 @@ karte_t::karte_t() :
 	last_interaction = dr_time();
 	step_mode = PAUSE_FLAG;
 	time_multiplier = 16;
+	fix_game_speed = false;
 	next_midi_time = next_step_time = last_step_time = 0;
 	fix_ratio_frame_time = 200;
 	idle_time = 0;
@@ -5761,6 +5763,7 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 	if(file->get_OTRP_version()>=51&&env_t::networkmode) {
 		// game speed (only network mode)
 		file->rdwr_long(time_multiplier);
+		file->rdwr_bool(fix_game_speed);
 	}
 
 	if (file->is_loading()) {
@@ -6979,7 +6982,7 @@ void karte_t::change_time_multiplier(sint32 delta)
 			env_t::max_acceleration += delta;
 		}
 	}
-	else {
+	else if (  !env_t::networkmode  ||  !fix_game_speed  ) {
 		time_multiplier += delta;
 		if(time_multiplier<=0) {
 			time_multiplier = 1;
