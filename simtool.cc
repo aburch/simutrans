@@ -487,6 +487,17 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 	// check whether powerline related stuff should be removed, and if there is any to remove
 	if (  (type == obj_t::leitung  ||  type == obj_t::pumpe  ||  type == obj_t::senke  ||  type == obj_t::undefined)
 	       &&  lt != NULL  &&  lt->is_deletable(player) == NULL) {
+		if(gr->get_typ()==grund_t::monorailboden&&!gr->get_weg_nr(0)) {
+			lt->cleanup(player);
+			delete lt;
+			gr->obj_loesche_alle(player);
+			gr->mark_image_dirty();
+			if (!gr->get_flag(grund_t::is_kartenboden)) {
+				welt->access(gr->get_pos().get_2d())->boden_entfernen(gr);
+				delete gr;
+			}
+			return true;
+		}
 		if(  gr->ist_bruecke()  ) {
 			bruecke_t* br = gr->find<bruecke_t>();
 			if(  br == NULL  ) {
@@ -647,7 +658,7 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 
 		// remove town? (when removing townhall)
 		if(gb->is_townhall()) {
-			stadt_t *stadt = welt->find_nearest_city(k);
+			stadt_t *stadt = gb->get_stadt();
 			if(!welt->remove_city( stadt )) {
 				msg = "Das Feld gehoert\neinem anderen Spieler\n";
 				return false;
@@ -975,8 +986,13 @@ const char *tool_raise_lower_base_t::move( player_t *player, uint16 buttonstate,
 	const char *result = NULL;
 	if(  buttonstate==1  ) {
 		char buf[16];
-		if(!is_dragging && !is_area_process) {
+		if(!is_dragging) {
 			drag_height = get_drag_height(pos.get_2d());
+			dragged_pos.clear();
+		}
+		if(is_shift_pressed()&&!dragged_pos.is_contained(pos.get_2d())){
+			drag_height = get_drag_height(pos.get_2d());
+			dragged_pos.append(pos.get_2d());
 		}
 		is_dragging = true;
 		is_area_process = false;
@@ -1082,7 +1098,8 @@ const char *tool_raise_lower_base_t::do_work( player_t *player, const koord3d &s
 		}
 	}
 
-	is_area_process = true;
+	// if we press shift key, we only up or down 1 height from current height
+	is_area_process = !is_shift_pressed();
 
 	for(  k.x=start.x;  k.x!=(end.x+dx);  k.x+=dx  ) {
 		for(  k.y=start.y;  k.y!=(end.y+dy);  k.y+=dy  ) {
@@ -1092,7 +1109,7 @@ const char *tool_raise_lower_base_t::do_work( player_t *player, const koord3d &s
 		}
 	}
 
-	if(  !is_dragging  ) { default_param = NULL; }
+	default_param = NULL;
 
 	return NULL;
 }
@@ -1174,7 +1191,7 @@ const char *tool_raise_t::process(player_t* player, koord3d pos )
 
 			int n = 0; // tiles changed
 			if(  !strempty(default_param)  ) {
-				// called by dragging or by AI
+				// called by drag, by area process on flat or by AI
 				err = drag(player, k, atoi(default_param), n);
 			}
 			else {
@@ -1399,12 +1416,6 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 					new_slope = slope_type(ribis);
 				}
 				else if(  gr1->get_weg_hang() == slope_type(ribis)  ) {
-					// check that way_desc supports such steep slopes
-					if(  (gr1->get_weg_nr(0)  &&  !gr1->get_weg_nr(0)->get_desc()->has_double_slopes())
-					  ||  (gr1->get_weg_nr(1)  &&  !gr1->get_weg_nr(1)->get_desc()->has_double_slopes())
-					  ||  (gr1->get_leitung()  &&  !gr1->get_leitung()->get_desc()->has_double_slopes())  ) {
-						return NOTICE_TILE_FULL;
-					}
 					new_slope = slope_type(ribis) * 2;
 				}
 				else if(  gr1->get_weg_hang() == slope_type( ribi_t::backward(ribis) ) * 2  ) {
@@ -1439,12 +1450,6 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 					}
 				}
 				else if(  gr1->get_grund_hang() == slope_type( ribi_t::backward(ribis) )  ) {
-					// check that way_desc supports such steep slopes
-					if(  (gr1->get_weg_nr(0)  &&  !gr1->get_weg_nr(0)->get_desc()->has_double_slopes())
-					  ||  (gr1->get_weg_nr(1)  &&  !gr1->get_weg_nr(1)->get_desc()->has_double_slopes())
-					  ||  (gr1->get_leitung()  &&  !gr1->get_leitung()->get_desc()->has_double_slopes())  ) {
-						return NOTICE_TILE_FULL;
-					}
 					new_slope = slope_type( ribi_t::backward(ribis) ) * 2;
 					new_pos.z--;
 					if(  welt->lookup(new_pos)  ) {
@@ -2059,8 +2064,18 @@ bool tool_change_city_size_t::init( player_t * )
 
 const char *tool_change_city_size_t::work( player_t *, koord3d pos )
 {
-	stadt_t *city = welt->find_nearest_city(pos.get_2d());
-	if(city!=NULL) {
+	stadt_t *city=NULL;
+	// if there is a city building at this position, we change this city size.
+	if(  grund_t *gr = welt->lookup_kartenboden(pos.get_2d())  ) {
+		if(  gebaeude_t *gb = gr->find<gebaeude_t>()  ) {
+			city = gb->get_stadt();
+		}
+	}
+	if(  !city  ) {
+		// if no city building, we find nearest city.
+		city = welt->find_nearest_city(pos.get_2d());
+	}
+	if(  city  ) {
 		city->change_size( atoi(default_param) );
 		// update the links from other cities to this city
 		FOR(weighted_vector_tpl<stadt_t*>, const c, welt->get_cities()) {
@@ -3720,6 +3735,18 @@ class electron_t : public test_driver_t {
 	bool is_target(const grund_t *,const grund_t *) const OVERRIDE { return false; }
 };
 
+class way_checker_t : public test_driver_t {
+private:
+	waytype_t wt;
+public:
+	way_checker_t(waytype_t w) : wt(w) {}
+	bool check_next_tile(const grund_t* gr) const OVERRIDE { return gr->hat_weg(wt); }
+	ribi_t::ribi get_ribi(const grund_t* gr) const OVERRIDE { return gr->get_weg_ribi(wt); }
+	waytype_t get_waytype() const OVERRIDE { return wt; }
+	int get_cost(const grund_t*, const weg_t*, const sint32, ribi_t::ribi) const OVERRIDE { return 1; }
+	bool is_target(const grund_t*, const grund_t*) const OVERRIDE { return false; }
+};
+
 class scenario_checker_t : public test_driver_t {
 public:
 	test_driver_t *other;
@@ -3810,11 +3837,8 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 	else {
 		// get a default vehikel
 		test_driver_t* test_driver;
-		vehicle_desc_t remover_desc(wt, 500, vehicle_desc_t::diesel ); // must be here even if not needed for powerline
 		if(  wt!=powerline_wt  ) {
-			vehicle_t *driver = vehicle_builder_t::build(start, player, NULL, &remover_desc);
-			driver->set_flag( obj_t::not_on_map );
-			test_driver = driver;
+			test_driver = new way_checker_t(wt);
 		}
 		else {
 			test_driver = new electron_t();
@@ -3971,7 +3995,7 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 					lt->cleanup(player);
 					delete lt;
 					// delete tunnel ground too, if empty
-					if (gr->get_typ()==grund_t::tunnelboden) {
+					if (gr->get_typ()==grund_t::tunnelboden||(gr->get_typ()==grund_t::monorailboden&&!gr->get_weg_nr(0))) {
 						gr->obj_loesche_alle(player);
 						gr->mark_image_dirty();
 						if (!gr->get_flag(grund_t::is_kartenboden)) {
@@ -4116,24 +4140,13 @@ void tool_build_wayobj_t::draw_after(scr_coord k, bool dirty) const
 
 bool tool_build_wayobj_t::calc_route( route_t &verbindung, player_t *player, const koord3d& start, const koord3d& to )
 {
-	waytype_t waytype = wt;
+	waytype_t waytype = wt==tram_wt? track_wt: wt;
 	if(  waytype == any_wt  ) {
 		waytype = welt->lookup(start)->get_weg(wt)->get_waytype();
 	}
-	// special treatment for deports, since track electrication cannot "drive" into tram depot
-	if(  waytype == track_wt  ) {
-		if(  depot_t  *dp = welt->lookup(start)->get_depot()  ) {
-			waytype = dp->get_waytype();
-		}
-		else if(  depot_t  *dp = welt->lookup(to)->get_depot()  ) {
-			waytype = dp->get_waytype();
-		}
-	}
+	
 	// get a default vehikel
-	vehicle_desc_t remover_desc( waytype, 500, vehicle_desc_t::diesel );
-	vehicle_t* test_vehicle = vehicle_builder_t::build(start, player, NULL, &remover_desc);
-	test_vehicle->set_flag( obj_t::not_on_map );
-	test_driver_t* test_driver = scenario_checker_t::apply(test_vehicle, player, this);
+	test_driver_t *test_driver = new way_checker_t(waytype);
 
 	bool can_built;
 	if( start != to ) {
@@ -5768,10 +5781,8 @@ uint8 tool_build_roadsign_t::is_valid_pos( player_t *player, const koord3d &pos,
 bool tool_build_roadsign_t::calc_route( route_t &verbindung, player_t *player, const koord3d& start, const koord3d& to )
 {
 	// get a default vehikel
-	vehicle_desc_t rs_desc( desc->get_wtyp(), 500, vehicle_desc_t::diesel );
-	vehicle_t* test_vehicle = vehicle_builder_t::build(start, player, NULL, &rs_desc);
-	test_vehicle->set_flag(obj_t::not_on_map);
-	test_driver_t* test_driver = scenario_checker_t::apply(test_vehicle, player, this);
+	waytype_t waytype = desc->get_waytype()==tram_wt? track_wt: desc->get_waytype();
+	test_driver_t *test_driver = new way_checker_t(waytype);
 
 	bool can_built;
 	if( start != to ) {
@@ -7090,7 +7101,7 @@ uint8 tool_stop_mover_t::is_valid_pos(  player_t *player, const koord3d &pos, co
 	}
 	// check halt ownership
 	halthandle_t h = haltestelle_t::get_stoppable_halt(pos,player,waytype_t::any_wt);
-	if(  h.is_bound()  &&  !player_t::check_owner( player, h->get_owner() )  ) {
+	if(  h.is_bound()  &&  !(  player_t::check_owner( player, h->get_owner() )  ||  h->is_other_player_connection_allowed()  )  ) {
 		error = "Das Feld gehoert\neinem anderen Spieler\n";
 		return 0;
 	}
@@ -7901,6 +7912,157 @@ bool tool_remove_halt_t::remove_halt(player_t* player, koord3d const &pos)
 	return player_t::check_owner(owner, player) && haltestelle_t::remove(player, gr->get_pos());
 }
 
+// only public player can copy public objects
+const char* tool_pipette_t::allow_tool_check(const obj_t* obj, const obj_desc_timelined_t *desc, const player_t* pl) const
+{
+	if (!pl->is_public_service()) {
+		if (obj->get_owner() == NULL   ||  obj->get_owner() != pl) {
+			return "Not allowed to copy object.";
+		}
+		if (!desc->is_available(welt->get_timeline_year_month())) {
+			return "Not allowed to copy object.";
+		}
+	}
+	return NULL;
+}
+
+#define select_and_check(typ) \
+	if(typ *obj=gr->find<typ>()) {\
+		if (const char *err = allow_tool_check(obj, obj->get_desc(), pl)) {\
+			return err;\
+		}\
+		welt->set_tool(obj->get_desc()->get_builder(), pl);\
+		return NULL;\
+	}
+
+
+// create tool for object under the cursor
+const char *tool_pipette_t::work(player_t *pl, koord3d pos)
+{
+	static cbuffer_t param_str;
+
+	const grund_t *gr = welt->lookup(pos);
+	if (!gr) {
+		return NULL;
+	}
+
+	select_and_check(tunnel_t)
+	select_and_check(bruecke_t)
+
+	if (!gr->get_weg_nr(0)||!is_ctrl_pressed()) {
+		if (gebaeude_t* gb = gr->find<gebaeude_t>()) {
+			if (const char *err = allow_tool_check(gb, gb->get_tile()->get_desc(), pl)) {
+				return err;
+			}
+			const building_desc_t* desc = gb->get_tile()->get_desc();
+			if (!pl->is_public_service()) {
+				// since we are not allowed to create public infrastructure as normal player, we must forbid this too
+				if (desc->is_city_building()  ||  desc->is_attraction()  ||  desc->is_townhall()  ||  desc->is_monument()) {
+					return "Not allowed to copy object.";
+				}
+			}
+			else {
+				if (desc->is_depot()  ||  desc->is_headquarters()  ||  desc->is_townhall()) {
+					return "Not allowed to copy object.";
+				}
+			}
+			// here on factories, monuments, town halls, city buildings and more
+			if (gb->get_fabrik()) {
+				static tool_build_factory_t t = tool_build_factory_t();
+				param_str.clear();
+				param_str.printf("%i%i%i,%s",
+					1, // with climate
+					gb->get_tile()->get_layout(), /*rotation*/
+					gb->get_fabrik()->get_base_production(),
+					gb->get_fabrik()->get_desc()->get_name());
+				t.set_default_param(param_str);
+				t.cursor = tool_t::general_tool[TOOL_BUILD_FACTORY]->cursor;
+				welt->set_tool(&t, pl);
+				return NULL;
+			}
+			else if (desc->is_attraction()  ||  desc->is_city_building()) {
+				static tool_build_house_t t = tool_build_house_t();
+				t.cursor = tool_t::general_tool[TOOL_BUILD_HOUSE]->cursor;
+				param_str.clear();
+				param_str.printf("%d,%s",
+					gb->get_tile()->get_layout(), /*rotation*/
+					gb->get_tile()->get_desc()->get_name());
+				t.set_default_param(param_str);
+				welt->set_tool(&t, pl);
+				return NULL;
+			}
+			else if (tool_t* t = gb->get_tile()->get_desc()->get_builder()) {
+				welt->set_tool(t, pl);
+				return NULL;
+			}
+			return "Not allowed to copy object.";
+		}
+	}
+
+	if (!is_ctrl_pressed()) {
+		// we do not check depot if ctrl pressed(ctrl -> get way info directly)
+		if (depot_t *depot=gr->get_depot()) {
+			if (pl->is_public_service()) {
+				return "Not allowed to copy object.";
+			}
+			tool_t* t = depot->get_tile()->get_desc()->get_builder();
+			welt->set_tool(t, pl);
+			return NULL;
+		}
+	}
+
+	if (gr->get_weg_nr(0)) {
+		if(!is_ctrl_pressed()) {
+			// signals > wayobjs > ways
+			// if ctrl pressed, we only see way.
+			select_and_check(signal_t);
+			select_and_check(roadsign_t);
+			select_and_check(wayobj_t);
+		}
+		if (tool_t *way_builder = gr->get_weg_nr(0)->get_desc()->get_builder()) {
+			if (const char* err = allow_tool_check(gr->get_weg_nr(0), gr->get_weg_nr(0)->get_desc(), pl)) {
+				return err;
+			}
+			welt->set_tool(way_builder, pl);
+			return NULL;
+		}
+		return "Not allowed to copy object.";
+		// here on rivers and city roads
+	}
+
+	select_and_check(leitung_t);
+	if (gr->find<senke_t>()  ||  gr->find<pumpe_t>()) {
+		// missing: check for ownership
+		welt->set_tool(tool_t::general_tool[TOOL_TRANSFORMER], pl);
+		return NULL;
+	}
+
+	if (baum_t* b = gr->find<baum_t>()) {
+		static tool_plant_tree_t t;
+		param_str.clear();
+		param_str.printf("%i%i,%s", 1, 0, b->get_desc()->get_name());
+		t.set_default_param(param_str);
+		t.cursor = tool_t::general_tool[TOOL_PLANT_TREE]->cursor;
+		welt->set_tool(&t, pl);
+		return NULL;
+	}
+
+	if (groundobj_t* b = gr->find<groundobj_t>()) {
+		if (pl->is_public_service()) {
+			static tool_plant_groundobj_t t;
+			param_str.clear();
+			param_str.printf("%i%i,%s", 1, 0, b->get_desc()->get_name());
+			t.set_default_param(param_str);
+			t.cursor = tool_t::general_tool[TOOL_PLANT_GROUNDOBJ]->cursor;
+			welt->set_tool(&t, pl);
+			return NULL;
+		}
+	}
+
+	return gr->obj_count()>0 ? "Not allowed to copy object." : NULL;
+}
+#undef select_and_check
+
 
 const char* tool_extinguish_waiting_goods_t::work(player_t* player, koord3d pos) {
 	const grund_t *gr = welt->lookup(pos);
@@ -8524,6 +8686,7 @@ bool tool_change_convoi_t::init( player_t *player )
  * 'c' : create line
  * 'd' : delete line
  * 'g' : apply new schedule to line [schedule follows]
+ * 'o' : change colour of line
  * 't' : trims away convois on all lines of linetype with this default parameter
  * 'u' : unite all lineless convois with similar schedules
  * 'w' : change withdraw
@@ -8533,6 +8696,7 @@ bool tool_change_convoi_t::init( player_t *player )
 bool tool_change_line_t::init( player_t *player )
 {
 	uint16 line_id = 0;
+
 
 	// skip the rest of the command
 	const char *p = default_param;
@@ -8549,6 +8713,8 @@ bool tool_change_line_t::init( player_t *player )
 	}
 
 	line_id = atoi(p);
+
+
 	while(  *p  &&  *p++!=','  ) {
 	}
 
@@ -8798,6 +8964,13 @@ bool tool_change_line_t::init( player_t *player )
 				if (line.is_bound()) {
 					line->set_memo(p);
 				}
+			}
+			break;
+
+		case 'o': // change colour of line
+			{
+				uint8 n_colour = atoi(p);
+				line->set_colour(n_colour);
 			}
 			break;
 	}
@@ -9205,6 +9378,7 @@ bool tool_change_traffic_light_t::init( player_t *player )
  * a:set advance to end state for signal
  * c:set end of choose signal
  * g:set end of guide signal
+ * m:set margin of the stoplength of choose signal
  * 
  */
 bool tool_change_roadsign_t::init( player_t* )
@@ -9296,6 +9470,20 @@ bool tool_change_roadsign_t::init( player_t* )
 		}
 		break;
 
+		case 'm':
+		if(  grund_t *gr = welt->lookup(pos)  ) {
+			if( roadsign_t *rs = gr->find<signal_t>()  ) {
+				if(  rs->get_waytype()!=road_wt && rs->get_waytype()!=water_wt && rs->get_waytype()!=air_wt  ) {
+					rs->set_margin_length((uint8)inst);
+					end_of_choose_info_t* signal_info_win = (end_of_choose_info_t*)win_get_magic((ptrdiff_t)rs);
+					if(  signal_info_win  ) {
+						signal_info_win->update_data();
+					}
+				}
+			}
+		}
+		break;
+
 
 		default:
 		// do nothing
@@ -9343,6 +9531,7 @@ bool tool_change_city_t::init( player_t *player )
  * 'p' : no_handle_pax
  * 'm' : no_handle_post
  * 'w' : no_handle_ware
+ * 'l' : allow_unload_longer_convoy
  */
 bool tool_change_halt_t::init(player_t *player) {
 	char tool=0;
@@ -9379,6 +9568,9 @@ bool tool_change_halt_t::init(player_t *player) {
 			break;
 		case 'w':
 			halt->set_no_handle_ware(!halt->is_no_handle_ware());
+			break;
+		case 'l':
+			halt->set_allow_unload_longer_convoy(!halt->is_allow_unload_longer_convoy());
 			break;
 		
 		default:

@@ -532,6 +532,16 @@ public:
 
 	static bool send_tax_public;
 
+	// offset for all vehicles
+	// [car direction][x/y direction][waytype]
+	static sint8 vehicle_base_offsets[8][2][waytype_t::air_wt+1];
+
+	// drivelelft offset
+	static sint8 driveleft_base_offsets[8][2];
+
+	// overtaking offset
+	static sint8 overtaking_base_offsets[8][2];
+
 	// Graphical offsets for reverseing vehicles
 	// [directions][offsets]
 	// directions:{"south", "west", "southwest", "southeast", "north", "east", "northeast", "northwest"}

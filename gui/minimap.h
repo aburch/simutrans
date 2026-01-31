@@ -14,6 +14,7 @@
 #include "../dataobj/schedule.h"
 #include "../tpl/array2d_tpl.h"
 #include "../tpl/vector_tpl.h"
+#include "../dataobj/translator.h"
 
 
 class karte_ptr_t;
@@ -63,9 +64,20 @@ public:
 		MAP_WAITCHANGE   = 1 << 22,
 		MAP_HIDE_CONTOUR = 1 << 23,
 		MAP_CLIMATES     = 1 << 24,
+		MAP_CITIZENS     = 1 << 25,
+		MAP_CITY_GROWTH  = 1 << 26,
 
 		MAP_MODE_HALT_FLAGS = (MAP_STATUS|MAP_SERVICE|MAP_ORIGIN|MAP_TRANSFER|MAP_WAITING|MAP_WAITCHANGE),
-		MAP_MODE_FLAGS = (MAP_TOWN|MAP_CITYLIMIT|MAP_STATUS|MAP_SERVICE|MAP_WAITING|MAP_WAITCHANGE|MAP_TRANSFER|MAP_LINES|MAP_FACTORIES|MAP_ORIGIN|MAP_DEPOT|MAP_TOURIST|MAP_PAX_DEST)
+		MAP_MODE_CITY_FLAGS = (MAP_CITIZENS|MAP_CITY_GROWTH),
+		MAP_MODE_FLAGS = (MAP_TOWN|MAP_CITYLIMIT|MAP_STATUS|MAP_SERVICE|MAP_WAITING|MAP_WAITCHANGE|MAP_TRANSFER|MAP_LINES|MAP_FACTORIES|MAP_ORIGIN|MAP_DEPOT|MAP_TOURIST|MAP_PAX_DEST|MAP_CITIZENS|MAP_CITY_GROWTH)
+	};
+
+	enum NETWORK_COLOR_MODE {
+		ORIGINAL,
+		LOAD_FACTOR,
+		PLAYER_COLOR,
+		LINE_COLOR,
+		MAX_COLOR_MODE
 	};
 
 private:
@@ -170,7 +182,7 @@ public:
 
 	static bool is_visible;
 
-	bool show_network_load_factor;
+	uint8 network_color_mode;
 
 	int player_showed_on_map;
 	int transport_type_showed_on_map;
@@ -229,7 +241,7 @@ public:
 
 	void draw(scr_coord pos) OVERRIDE;
 
-	void set_selected_cnv( convoihandle_t c );
+	void set_selected_cnv( convoihandle_t c, bool const clear_cache = true );
 
 	void set_selected_city( const stadt_t* _city );
 
@@ -250,6 +262,12 @@ public:
 	scr_size get_min_size() const OVERRIDE;
 
 	scr_size get_max_size() const OVERRIDE;
+
+	static const char *get_color_mode_name(const minimap_t::NETWORK_COLOR_MODE i)
+	{
+		char *cm2name[MAX_COLOR_MODE] = {"Individual color","Free Capacity","Player color","Line color"};
+		return translator::translate(cm2name[i]);
+	}
 };
 
 #endif

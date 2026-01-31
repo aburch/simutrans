@@ -84,7 +84,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	INIT_BOOL( "numbered_stations", sets->get_numbered_stations() );
 	INIT_NUM( "show_names", env_t::show_names, 0, 3, gui_numberinput_t::AUTOLINEAR, true );
 	SEPERATOR
-	INIT_NUM( "bits_per_month", sets->get_bits_per_month(), 16, 24, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "bits_per_month", sets->get_bits_per_month(), 16, 28, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "use_timeline", sets->get_use_timeline(), 0, 3, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM_NEW( "starting_year", sets->get_starting_year(), 0, 2999, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM_NEW( "starting_month", sets->get_starting_month(), 0, 11, gui_numberinput_t::AUTOLINEAR, false );
@@ -251,11 +251,14 @@ void settings_routing_stats_t::init(settings_t const* const sets)
 	INIT_BOOL( "reverse_by_default",sets->default_reverse );
 	INIT_BOOL( "first_come_first_serve", sets->first_come_first_serve );
 	INIT_NUM( "waiting_limit_for_first_come_first_serve", sets->get_waiting_limit_for_first_come_first_serve(), 100, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
+	INIT_BOOL( "allow_unload_longer_convoy", sets->allow_unload_longer_convoy );
 	SEPERATOR
 	INIT_NUM ( "base_waiting_ticks_for_rail_convoi", sets->base_waiting_ticks_for_rail_convoi, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
 	INIT_NUM ( "base_waiting_ticks_for_road_convoi", sets->base_waiting_ticks_for_road_convoi, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
 	INIT_NUM ( "base_waiting_ticks_for_ship_convoi", sets->base_waiting_ticks_for_ship_convoi, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
 	INIT_NUM ( "base_waiting_ticks_for_air_convoi", sets->base_waiting_ticks_for_air_convoi, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
+	SEPERATOR
+	INIT_BOOL( "allow_higher_flight", sets->allow_higher_flight );
 	INIT_END
 }
 
@@ -296,11 +299,14 @@ void settings_routing_stats_t::read(settings_t* const sets)
 	READ_BOOL_VALUE( sets->default_reverse );
 	READ_BOOL_VALUE( sets->first_come_first_serve );
 	READ_NUM_VALUE( sets->waiting_limit_for_first_come_first_serve );
+	READ_BOOL_VALUE( sets->allow_unload_longer_convoy );
 
 	READ_NUM_VALUE( sets->base_waiting_ticks_for_rail_convoi );
 	READ_NUM_VALUE( sets->base_waiting_ticks_for_road_convoi );
 	READ_NUM_VALUE( sets->base_waiting_ticks_for_ship_convoi );
 	READ_NUM_VALUE( sets->base_waiting_ticks_for_air_convoi );
+
+	READ_BOOL_VALUE( sets->allow_higher_flight );
 }
 
 
@@ -344,6 +350,7 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "electric_promille", sets->get_electric_promille(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL( "allow_underground_transformers", sets->get_allow_underground_transformers() );
 	INIT_NUM( "way_height_clearance", sets->get_way_height_clearance(), 1, 2, gui_numberinput_t::AUTOLINEAR, true );
+	INIT_NUM( "credit_per_MWs", sets->get_credit_per_MWs(), 1, 10000, gui_numberinput_t::AUTOLINEAR, false);
 	SEPERATOR
 
 	INIT_NUM( "passenger_factor",  sets->get_passenger_factor(), 0, 16, gui_numberinput_t::AUTOLINEAR, false );
@@ -441,6 +448,7 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->electric_promille );
 	READ_BOOL_VALUE( sets->allow_underground_transformers );
 	READ_NUM_VALUE( sets->way_height_clearance );
+	READ_NUM_VALUE( sets->credit_per_MWs );
 
 	READ_NUM_VALUE( sets->passenger_factor );
 	READ_NUM_VALUE( sets->passenger_factor_float );
@@ -614,7 +622,7 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	INIT_NUM( "max_no_of_trees_on_square", sets->get_max_no_of_trees_on_square(), 1, 5, 1, true );
 	INIT_NUM_NEW( "tree_climates", sets->get_tree_climates(), 0, 255, 1, false );
 	INIT_NUM_NEW( "no_tree_climates", sets->get_no_tree_climates(), 0, 255, 1, false );
-
+	INIT_NUM( "winter_snowline", sets->get_winter_snowline(), sets->get_groundwater(), 127, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_END
 }
 
@@ -653,6 +661,7 @@ void settings_climates_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->max_no_of_trees_on_square );
 	READ_NUM_VALUE_NEW( sets->tree_climates );
 	READ_NUM_VALUE_NEW( sets->no_tree_climates );
+	READ_NUM_VALUE( sets->winter_snowline );
 
 	(void)booliter; // silence warning
 }
