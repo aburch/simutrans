@@ -1957,17 +1957,15 @@ void win_display_flush(double konto)
 	if(wl->show_distance!=koord3d::invalid  &&  wl->show_distance!=pos) {
 		info.printf("-(%d,%d)", wl->show_distance.x-pos.x, wl->show_distance.y-pos.y );
 	}
-	if(  !env_t::networkmode  ) {
-		// time multiplier text
-		if(wl->is_fast_forward()) {
-			info.printf(" %s(T~%1.2f)", skinverwaltung_t::fastforwardsymbol?"":">> ", wl->get_simloops()/50.0 );
-		}
-		else if(!wl->is_paused()) {
-			info.printf(" (T=%1.2f)", wl->get_time_multiplier()/16.0 );
-		}
-		else if(  skinverwaltung_t::pausesymbol==NULL  ) {
-			info.printf( " %s", translator::translate("GAME PAUSED") );
-		}
+	// time multiplier text
+	if(wl->is_fast_forward()) {
+		info.printf(" %s(T~%1.2f)", skinverwaltung_t::fastforwardsymbol?"":">> ", wl->get_simloops()/50.0 );
+	}
+	else if(!wl->is_paused()) {
+		info.printf(" (T=%1.2f)", wl->get_time_multiplier()/16.0 );
+	}
+	else if(  skinverwaltung_t::pausesymbol==NULL  ) {
+		info.printf( " %s", translator::translate("GAME PAUSED") );
 	}
 #ifdef DEBUG
 	if(  env_t::verbose_debug>3  ) {
