@@ -155,6 +155,21 @@ namespace script_api {
 		call_constructor();
 	}
 
+	template<class A1, class A2, class A3, class A4, class A5>
+	SQInteger push_instance(HSQUIRRELVM vm, const char* classname, const A1 & a1, const A2 & a2, const A3 & a3, const A4 & a4, const A5 & a5)
+	{
+		if (!SQ_SUCCEEDED(prepare_constructor(vm, classname)) ) {
+			return -1;
+		}
+		int nparam = 1;
+		push_param(A1, a1);
+		push_param(A2, a2);
+		push_param(A3, a3);
+		push_param(A4, a4);
+		push_param(A5, a5);
+		call_constructor();
+	}
+
 	/**
 	 * Implementation of quickstone_tpl specialization
 	 */

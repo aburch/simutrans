@@ -13,6 +13,7 @@
 #include "../api_class.h"
 #include "../api_function.h"
 #include "../../simhalt.h"
+#include "../../simworld.h"
 
 halthandle_t get_halt_from_koord3d(koord3d pos, const player_t *player ); // api_schedule.cc, interfaces haltestelle_t::get_halt
 
@@ -30,9 +31,46 @@ namespace script_api {
 
 	SQInteger param<haltestelle_t::connection_t>::push(HSQUIRRELVM vm, haltestelle_t::connection_t const& v)
 	{
-		return param<halthandle_t>::push(vm, v.halt);
+		sq_newtable(vm);
+
+		sq_pushstring(vm, "halt", -1);
+		param<halthandle_t>::push(vm, v.halt);
+		sq_newslot(vm, -3, false);
+
+		sq_pushstring(vm, "weight", -1);
+		sq_pushinteger(vm, world()->tick_to_divided_time(v.weight));
+		sq_newslot(vm, -3, false);
+
+		sq_pushstring(vm, "line", -1);
+		std::visit([&](const auto& t) {
+			param<decltype(t)>::push(vm, t); 
+		}, v.best_weight_traveler);
+		sq_newslot(vm, -3, false);
+
+		return 1;
 	}
 };
+
+#ifdef SQAPI_DOC
+	/**
+	 * Connectoin returned by @ref halt_x::get_connections
+	 */
+	class connection {
+		public:
+			/**
+			 * Halt to which the connection goes.
+			 */
+			halt_x halt;
+			/**
+			 * Weight of this connection.
+			 */
+			integer weight;
+			/**
+			 * Line that is used for this connection.
+			 */
+			line_x line;
+	};
+#endif
 
 
 using namespace script_api;

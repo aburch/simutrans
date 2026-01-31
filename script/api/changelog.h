@@ -168,4 +168,12 @@
  *
  * Initial release and minor changes.
  *
+ * @section api-OTRP-51
+ * - halt_x::get_connections() now returns a table with three properties: halt (halt_x), weight (integer), and line (line_x or convoy_x)
+ * - Added schedule_x::base_waiting_time property
+ * - Fixed schedule_entry_x to properly expose x, y, z coordinates
+ * 
+ * @attention Breaking change: halt_x::get_connections() return type changed.
+ * Previously returned halt_x directly, now returns table {halt, weight, line}.
+ * Update existing scripts: change `conn` to `conn.halt` to access the halt.
  */
