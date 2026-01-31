@@ -2122,8 +2122,7 @@ void  depot_frame_t::rdwr( loadsave_t *file)
 	simline_t::rdwr_linehandle_t(file, selected_line);
 
 	if(  depot  &&  file->is_loading()  ) {
-		update_data();
-		update_tabs();
+		build_vehicle_lists();
 		reset_min_windowsize();
 		set_windowsize(size);
 
