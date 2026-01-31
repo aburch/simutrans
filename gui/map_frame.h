@@ -75,7 +75,7 @@ private:
 	gui_combobox_t c_show_outlines;
 	button_t b_show_directory;
 	button_t b_overlay_networks;
-	button_t b_overlay_networks_load_factor;
+	gui_combobox_t overlay_networks_color_mode_c;
 	button_t b_filter_factory_list;
 
 	gui_label_buf_t zoom_value_label;
