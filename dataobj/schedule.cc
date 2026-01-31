@@ -270,8 +270,21 @@ void schedule_t::rdwr(loadsave_t *file)
 			}
 			entries[i].pos.rdwr(file);
 			file->rdwr_byte(entries[i].minimum_loading);
+			if(file->get_OTRP_version()==0&&file->is_version_atleast(123, 0)) {
+				if(entries[i].minimum_loading>100){
+					entries[i].spacing=entries[i].minimum_loading-100;
+					entries[i].minimum_loading=0;
+				}
+			}
 			if(file->get_OTRP_version()>=26) {
 				file->rdwr_short(entries[i].waiting_time_shift);
+			}
+			else if(file->is_version_atleast(122, 1)) {
+				uint32 departure_time = entries[i].spacing_shift*65536/world()->get_settings().get_spacing_shift_divisor();
+				uint16 waiting_time = (uint16) departure_time;
+				file->rdwr_short(waiting_time);
+				departure_time = waiting_time*world()->get_settings().get_spacing_shift_divisor()/65536;
+				entries[i].spacing_shift = (uint16)departure_time;
 			}
 			else if(file->is_version_atleast(99, 18)) {
 				sint8 n = 0;

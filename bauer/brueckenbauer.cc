@@ -290,6 +290,10 @@ bool bridge_builder_t::is_monorail_junction(koord3d pos, player_t *player, const
 	if(  grund_t *gr2 = welt->lookup( pos )  ) {
 		if(  gr2->get_typ() == grund_t::monorailboden  ) {
 			// now check if our way
+			if(  desc->get_waytype()==powerline_wt && gr2->get_leitung()  ) {
+				// powerline does not have waytype, we find them!
+				return true;
+			}
 			if(  weg_t *w = gr2->get_weg_nr(0)  ) {
 				if(  !player_t::check_owner(w->get_owner(),player)  ) {
 					// not our way
