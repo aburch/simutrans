@@ -1028,10 +1028,15 @@ bool vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_
 void vehicle_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const
 {
 	vehicle_base_t::get_screen_offset(xoff, yoff, raster_width);
-	if(  cnv==NULL  ||  cnv==(convoi_t *)1  ||  !cnv->is_reversed()  ) {
+	if(  cnv==NULL  ||  cnv==(convoi_t *)1 ) {
 		return;
 	}
 	const int dir = ribi_t::get_dir(get_direction());
+	xoff += tile_raster_scale_x( env_t::vehicle_base_offsets[dir][0][get_waytype()], raster_width );
+	yoff += tile_raster_scale_y( env_t::vehicle_base_offsets[dir][1][get_waytype()], raster_width );
+	if(  !cnv->is_reversed()  ) {
+		return;
+	}
 	// Add offset when the vehicle is reversed.
 	sint32 steps_delta;
 	steps_delta = raster_width*(VEHICLE_STEPS_PER_TILE / 2 - get_desc()->get_length_in_steps() + env_t::reverse_base_offsets[dir][2]);
@@ -1923,6 +1928,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 			return;
 		}
 		grund_t const* const gr = cnv->get_route()?welt->lookup(cnv->get_route()->back()):NULL;
+		const float conversion_ratio = (float)world()->get_settings().get_spacing_shift_divisor()/world()->ticks_per_world_month;
 
 		
 		// now find out what has happened
@@ -1945,7 +1951,6 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 				if(  cnv->get_departure_time()>0  ) {
 					// the convoy is waiting for departure time.
 					// we use floating operation just for display purpose.
-					const float conversion_ratio = (float)world()->get_settings().get_spacing_shift_divisor()/world()->ticks_per_world_month;
 					const sint32 time_remain = (cnv->get_departure_time() - world()->get_ticks())*conversion_ratio;
 					const sint32 time_remain_delay_coupling = (cnv->get_departure_time() + cnv->get_coupling_delay_tolerance() - world()->get_ticks())*conversion_ratio;
 
@@ -1975,15 +1980,22 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 					convoihandle_t c = cnv->self;
 					sint32 max_loading_limit = cnv->get_loading_limit();
 					sint32 max_loading_level = cnv->get_loading_level();
+					uint32 waiting_time = cnv->get_loading_waiting_time();
 					// search the waiting convoy
 					while(c.is_bound()) {
 						if( c->get_loading_limit() > max_loading_limit && c->get_loading_level() < c->get_loading_limit() ) {
 							max_loading_limit = c->get_loading_limit();
 							max_loading_level = c->get_loading_level();
+							waiting_time = c->get_loading_waiting_time()==0? 0: max(waiting_time,c->get_loading_waiting_time());
 						}
 						c = c->get_coupling_convoi();
 					} 
-					snprintf( states_text, states_text_size, translator::translate("Loading (%i->%i%%)!"), max_loading_level, max_loading_limit );
+					if(  waiting_time>0  ) {
+						const sint32 time_remain = (waiting_time - (world()->get_ticks() - cnv->get_arrived_time()))*conversion_ratio;
+						snprintf( states_text, states_text_size, translator::translate("Loading (%i->%i%%)! %i left!"), max_loading_level, max_loading_limit, time_remain);
+					} else {
+						snprintf( states_text, states_text_size, translator::translate("Loading (%i->%i%%)!"), max_loading_level, max_loading_limit );
+					}
 				}
 				break;
 
@@ -3494,7 +3506,7 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const weg_t *w, const sint32 max
 
 
 // this routine is called by find_route, to determined if we reached a destination
-bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr, const bool need_electric) const
+bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr, const bool need_electric, const uint8 choose_margin) const
 {
 	const schiene_t * sch1 = (const schiene_t *) gr->get_weg(get_waytype());
 	// first check blocks, if we can go there
@@ -3532,7 +3544,7 @@ bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr, const b
 	}
 	// end of stop: Is it long enough?
 	const uint32 available_halt_length = cnv->calc_available_halt_length_in_vehicle_steps(gr->get_pos(), ribi); // 256 units per a straight tile
-	return available_halt_length >= ((uint32)cnv->get_entire_convoy_length()) << 4;
+	return available_halt_length >= (((uint32)cnv->get_entire_convoy_length()) << 4)+(uint32)choose_margin*VEHICLE_STEPS_PER_TILE;
 }
 
 // this routine is called by find_route, to determined if we reached a coupling point
@@ -3832,20 +3844,21 @@ skip_choose:
 		const int richtung = ribi_type(cnv->get_route()->at(start_block),cnv->get_route()->at(start_block<cnv->get_route()->get_count()-1?start_block+1:start_block));	// to avoid confusion at diagonals
 		if(  try_coupling  ) {
 			// search for coupling point.
-			route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->is_electrification(), true );
+			route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->is_electrification(), true, 0 );
 			cnv->set_use_electric(cnv->is_electrification());
 			if (  !route_found  ) {
-				route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->needs_electrification(), true );
+				route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->needs_electrification(), true, 0 );
 				if(  route_found  ) {
 					cnv->set_use_electric(false);
 				}
 			}
 		}
 		if(  !route_found  &&  (!sig->is_guide_signal()  ||  !try_coupling)  ) {
-			route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->is_electrification(), false );
+			const uint8 margin_length=sig->get_margin_length();
+			route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->is_electrification(), false, margin_length );
 			cnv->set_use_electric(cnv->is_electrification());
 			if(  !route_found  ) {
-				route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->needs_electrification(), false );
+				route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->needs_electrification(), false, margin_length );
 				if(  route_found  ) {
 					cnv->set_use_electric(false);
 				}
@@ -3864,11 +3877,22 @@ skip_choose:
 			if(  !try_coupling  &&  !welt->get_settings().get_advance_to_end()  &&  target_rt.get_count()>2  &&  !sig->is_advance_to_end()  ) {
 				uint32 stop_length = convoi_t::calc_available_halt_length_in_vehicle_steps(target_rt.at(target_rt.get_count()-1),ribi_type(target_rt.at(target_rt.get_count()-1)-target_rt.at(target_rt.get_count()-2)),get_waytype());
 				stop_length -= ribi_t::is_bend(welt->lookup(target_rt.at(target_rt.get_count()-1))->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile/2: VEHICLE_STEPS_PER_TILE;
-				while(  stop_length>=cnv->get_entire_convoy_length()*VEHICLE_STEPS_PER_CARUNIT  ) {
+				while(  stop_length>=cnv->get_entire_convoy_length()*VEHICLE_STEPS_PER_CARUNIT+sig->get_margin_length()*VEHICLE_STEPS_PER_TILE  ) {
 					target_rt.remove_koord_from(max(0,target_rt.get_count()-2));
 					stop_length -= ribi_t::is_bend(welt->lookup(target_rt.at(target_rt.get_count()-1))->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile: VEHICLE_STEPS_PER_TILE;
 				}
 			} 
+			else if(  !try_coupling  &&  !welt->get_settings().get_advance_to_end()  &&  target_rt.get_count()>2  &&  sig->get_margin_length()>0  ) {
+				// advance to end but with margin.
+				sint32 margin_length=sig->get_margin_length()*VEHICLE_STEPS_PER_TILE;
+				// this calculation is with margin length>0, so remove end tile first.
+				margin_length -= ribi_t::is_bend(welt->lookup(target_rt.at(target_rt.get_count()-1))->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile/2: VEHICLE_STEPS_PER_TILE;
+				target_rt.remove_koord_from(max(0,target_rt.get_count()-2));
+				while(  margin_length>0  ) {
+					margin_length -= ribi_t::is_bend(welt->lookup(target_rt.at(target_rt.get_count()-1))->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile: VEHICLE_STEPS_PER_TILE;
+					target_rt.remove_koord_from(max(0,target_rt.get_count()-2));
+				}
+			}
 			// broadcast new route
 			convoihandle_t c = cnv->self;
 			while(  c.is_bound()  ) {
@@ -5807,6 +5831,19 @@ void air_vehicle_t::display_overlay(int xpos_org, int ypos_org) const
 #else
 		vehicle_t::display_after( xpos_org, ypos_org, is_global );
 #endif
+	}
+}
+
+void air_vehicle_t::calc_altitude_level(sint32 speed_limit_kmh)
+{
+	if(welt->get_settings().get_allow_higher_flight()) {
+		altitude_level = max(5, speed_limit_kmh/33);
+		altitude_level = min(altitude_level, 30);
+		// landing_distance = altitude_level - 1;
+		landing_distance = altitude_level - 2;
+	} else {
+		altitude_level = 3;
+		landing_distance = altitude_level;
 	}
 }
 

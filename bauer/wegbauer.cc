@@ -417,11 +417,6 @@ bool way_builder_t::check_slope( const grund_t *from, const grund_t *to )
 	const koord to_pos=to->get_pos().get_2d();
 	const koord zv=to_pos-from_pos;
 
-	if(  (    (from->get_weg_hang()  &&  !is_one_high(from->get_weg_hang()))
-		      ||   (to->get_weg_hang()  &&    !is_one_high(to->get_weg_hang()))  )  ) {
-		return false;
-	}
-
 	if(from==to) {
 		if(!slope_t::is_way(from->get_weg_hang())) {
 			return false;
@@ -558,7 +553,7 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 	// universal check for elevated things ...
 	if(bautyp&elevated_flag) {
 		if(  is_upperlayer  ) {
-			if(  (to->get_typ() != grund_t::monorailboden ||  to->get_weg_nr(0)->get_desc()->get_wtyp()!=desc->get_wtyp()  ||  !check_owner(to->obj_bei(0)->get_owner(),player_builder) )  ||  (from->get_typ() != grund_t::monorailboden ||  from->get_weg_nr(0)->get_desc()->get_wtyp()!=desc->get_wtyp()  ||  !check_owner(from->obj_bei(0)->get_owner(),player_builder) )  ) {
+			if(  (to->get_typ() != grund_t::monorailboden ||  to->obj_count()==0  ||  to->obj_bei(0)->get_waytype() != desc->get_wtyp()  ||  !check_owner(to->obj_bei(0)->get_owner(),player_builder) )  ||  (from->get_typ() != grund_t::monorailboden ||  from->obj_count()==0  ||  from->obj_bei(0)->get_waytype() != desc->get_wtyp()  ||  !check_owner(from->obj_bei(0)->get_owner(),player_builder) )  ) {
 				return false;
 			}
 		}

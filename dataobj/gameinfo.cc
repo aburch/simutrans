@@ -172,6 +172,14 @@ void gameinfo_t::rdwr(loadsave_t *file)
 	if(  file->is_loading()  ) {
 		pak_name = temp;
 	}
+	if (file->is_version_atleast(124, 4)) {
+		//TODO: get motd from server (to keep paket small, max message is truncated to 1024 bytes)
+		// tstrncpy(temp, motd.c_str(), lengthof(temp));
+		file->rdwr_str(temp, lengthof(temp)); // motd for server
+		// if (file->is_loading()) {
+		// 	motd = temp;
+		// }
+	}
 	file->rdwr_long( game_engine_revision );
 
 	for(  int i=0;  i<16;  i++  ) {

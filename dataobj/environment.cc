@@ -526,7 +526,7 @@ void env_t::rdwr(loadsave_t *file)
 		file->rdwr_bool( second_open_closes_win );
 		file->rdwr_bool( remember_window_positions );
 	}
-	if(  file->is_version_atleast(112, 8)  ) {
+	if(  file->is_version_atleast(112, 8)  &&  file->is_version_less(123,2)  ) {
 		file->rdwr_bool( show_delete_buttons );
 	}
 	if(  file->is_version_atleast(120, 1)  ) {
@@ -581,7 +581,7 @@ void env_t::rdwr(loadsave_t *file)
 		file->rdwr_byte( gui_player_color_dark );
 		file->rdwr_byte( gui_player_color_bright );
 	}
-	
+
 	if (file->get_OTRP_version()>=25) {
 		file->rdwr_str(otrp_statistics_log, PATH_MAX);
 	}
@@ -612,11 +612,16 @@ void env_t::rdwr(loadsave_t *file)
 		file->rdwr_short( fullscreen );
 	}
 	if (file->get_OTRP_version()>=33) {
+		// this value is also saved in 123.1, however, the node is different!
 		file->rdwr_bool(scroll_infinite);
 	}
 
 	if(  file->is_version_atleast(123, 1)  ||  file->get_OTRP_version()>=33  ) {
 		file->rdwr_short(display_scale_percent);
+	}
+	if( file->is_version_atleast(123, 1) && file->get_OTRP_version()<33 ) {
+		// this value is also saved in OTRP v33, however, the node is different!
+		file->rdwr_bool(scroll_infinite);
 	}
 
 	if(  file->get_OTRP_version()>=44  ) {
@@ -630,10 +635,56 @@ void env_t::rdwr(loadsave_t *file)
 		}
 	}
 
+
+	if( file->is_version_atleast(123, 2) ) {
+		//TODO: scroll_threshold
+		uint16 scroll_threshold;
+		file->rdwr_short(scroll_threshold);
+		//TODO: single toolbar mode
+		bool single_toolbar_mode;
+		file->rdwr_bool(single_toolbar_mode);
+		//TODO: dpi_scale
+		uint16 dpi_scale;
+		file->rdwr_short(dpi_scale);
+		// if( file->is_loading() ) {
+		// 	dr_set_screen_scale(dpi_scale);
+		// }
+		//TODO: pedestrian
+		bool random_pedestrians;
+		bool stop_pedestrians;
+		file->rdwr_bool(random_pedestrians);
+		file->rdwr_bool(stop_pedestrians);
+	}
+	if (file->is_version_atleast(124, 2)) {
+		//TODO: leftdrag_in_minipam
+		bool leftdrag_in_minimap;
+		file->rdwr_bool(leftdrag_in_minimap);
+	}
+	if (file->is_version_atleast(124, 3)) {
+		//TODO: currency
+		bool currency_left;
+		char currency_symbol[16];
+		file->rdwr_bool(currency_left);
+		file->rdwr_str(currency_symbol,lengthof(currency_symbol));
+	}
+
+	if (file->is_version_atleast(124, 4)) {
+		//TODO: show signle ways
+		bool show_single_ways;
+		file->rdwr_bool(show_single_ways);
+		//TODO: stack_toolbars
+		bool stack_toolbars;
+		file->rdwr_bool(stack_toolbars);
+	}
+	
+
 	// server settings are not saved, since they are server specific
 	// and could be different on different servers on the same computers
 }
 
+// Graphical offsets for all vehicles
+// the reading method is in setting_t, and these parameters are used in vehicle_t.
+sint8 env_t::vehicle_base_offsets[8][2][waytype_t::air_wt+1];
 // Graphical offsets for cars driving left
 // the reading method is in setting_t, and these parameters are used in vehicle_t.
 sint8 env_t::driveleft_base_offsets[8][2];

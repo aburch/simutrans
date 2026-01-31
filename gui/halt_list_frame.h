@@ -133,6 +133,8 @@ public:
 	static void set_ware_filter_an(const goods_desc_t *ware, int mode);
 	static void set_alle_ware_filter_an(int mode);
 
+	static const char* get_sort_text(int index) { return index >= 0 && index < SORT_MODES ? sort_text[index] : ""; };
+
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	bool has_min_sizer() const OVERRIDE {return true;}
