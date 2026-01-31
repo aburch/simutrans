@@ -1172,11 +1172,13 @@ const fabrik_t* minimap_t::draw_factory_connections(const fabrik_t* const fab, b
 
 
 // show the schedule on the minimap
-void minimap_t::set_selected_cnv( convoihandle_t c )
+void minimap_t::set_selected_cnv( convoihandle_t c, bool const clear_cache )
 {
 	current_cnv = c;
-	schedule_cache.clear();
-	stop_cache.clear();
+	if(clear_cache) {
+		schedule_cache.clear();
+		stop_cache.clear();
+	}
 	colore_idx = 0;
 	add_to_schedule_cache( current_cnv, true );
 	last_schedule_counter = world->get_schedule_counter()-1;
