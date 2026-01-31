@@ -3,6 +3,7 @@
 #include "../dataobj/translator.h"
 #include "components/gui_divider.h"
 #include "components/gui_image.h"
+#include "minimap.h"
 #include "../simconvoi.h"
 #include "../simhalt.h"
 #include "../simline.h"
@@ -66,6 +67,33 @@ result_container(1, 0)
     snprintf(dest_halt_input_text, lengthof(dest_halt_input_text), "");
 
     set_table_layout(1,0);
+    {
+		viewable_freight_types.append(goods_manager_t::passengers);
+		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Passagiere"), SYSCOL_TEXT) ;
+		viewable_freight_types.append(goods_manager_t::mail);
+		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Post"), SYSCOL_TEXT) ;
+		for(  int i = 0;  i < goods_manager_t::get_max_catg_index();  i++  ) {
+			const goods_desc_t *freight_type = goods_manager_t::get_info_catg(i);
+			const int index = freight_type->get_catg_index();
+			if(  index == goods_manager_t::INDEX_NONE  ||  freight_type->get_catg()==0  ) {
+				continue;
+			}
+			freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(freight_type->get_catg_name()), SYSCOL_TEXT);
+			viewable_freight_types.append(freight_type);
+		}
+		for(  int i=0;  i < goods_manager_t::get_count();  i++  ) {
+			const goods_desc_t *ware = goods_manager_t::get_info(i);
+			if(  ware->get_catg() == 0  &&  ware->get_index() > 2  ) {
+				// Special freight: Each good is special
+				viewable_freight_types.append(ware);
+				freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate(ware->get_name()), SYSCOL_TEXT) ;
+			}
+		}
+	}
+	freight_type_c.set_selection(0);
+    search_ware_index=0;
+	freight_type_c.set_focusable( true );
+	freight_type_c.add_listener( this );
 
     add_table(5, 1);
     {
@@ -78,7 +106,7 @@ result_container(1, 0)
     }
     end_table();
 
-    add_table(2, 1);
+    add_table(3, 1);
     {
         search_button.init(button_t::roundbox, "Search");
         search_button.add_listener(this);
@@ -87,6 +115,8 @@ result_container(1, 0)
         reverse_search_button.init(button_t::roundbox, "Swap");
         reverse_search_button.add_listener(this);
         add_component(&reverse_search_button);
+
+        add_component(&freight_type_c);
     }
     end_table();
 
@@ -100,13 +130,22 @@ result_container(1, 0)
     reset_min_windowsize();
 }
 
+route_search_frame_t::~route_search_frame_t()
+{
+    minimap_t::get_instance()->set_selected_cnv( convoihandle_t(), true );
+    result_container.remove_all();
+}
+
 bool route_search_frame_t::action_triggered(gui_action_creator_t* comp, value_t) {
     if(  comp==&search_button  ) {
         search_route();
     } else if(  comp==&reverse_search_button  ) {
         swap_halt_inputs();
         search_route();
-    }
+    } else if (  comp == &freight_type_c  ) {
+        const goods_desc_t *ware = viewable_freight_types[freight_type_c.get_selection()];
+        search_ware_index = ware->get_index();
+	}
     return true;
 }
 
@@ -119,8 +158,8 @@ halthandle_t find_halt(const char* name) {
     return halthandle_t();
 }
 
-haltestelle_t::connection_t find_connection(halthandle_t from, halthandle_t to) {
-    FOR(vector_tpl<haltestelle_t::connection_t>, const c, from->get_connections(0)) {
+haltestelle_t::connection_t find_connection(halthandle_t from, halthandle_t to, const uint8 ware_index) {
+    FOR(vector_tpl<haltestelle_t::connection_t>, const c, from->get_connections(ware_index)) {
         if(  c.halt.is_bound()  &&  c.halt==to  ) {
             return c;
         }
@@ -149,10 +188,11 @@ void route_search_frame_t::append_connection_row(haltestelle_t::connection_t con
     auto label_with_buf = result_container.new_component<gui_label_buf_t>();
     label_with_buf->buf().append(text);
 
-    result_container.new_component<gui_traveler_button_t>(
-        std::holds_alternative<linehandle_t>(connection.best_weight_traveler) ? 
-        std::get<linehandle_t>(connection.best_weight_traveler) : linehandle_t()
-    );
+    linehandle_t result_line = std::holds_alternative<linehandle_t>(connection.best_weight_traveler) ? 
+        std::get<linehandle_t>(connection.best_weight_traveler) : linehandle_t();
+    result_container.new_component<gui_traveler_button_t>(result_line);
+    convoihandle_t cnv = result_line.is_bound()?(  result_line->count_convoys()>0 ? result_line->get_convoy(0) : convoihandle_t()  ) : std::get<convoihandle_t>(connection.best_weight_traveler);
+    minimap_t::get_instance()->set_selected_cnv( cnv , false );
 
     // Set icon
     const waytype_t waytype = std::visit([&](const auto& t) {
@@ -195,6 +235,8 @@ void route_search_frame_t::append_halt_row(halthandle_t halt) {
 }
 
 void route_search_frame_t::search_route() {
+	// reset selection
+    minimap_t::get_instance()->set_selected_cnv( convoihandle_t(), true );
     result_container.remove_all();
     halthandle_t from_halt = find_halt(from_halt_input.get_text());
     if(  !from_halt.is_bound()  ) {
@@ -208,7 +250,7 @@ void route_search_frame_t::search_route() {
     }
     ware_t dummy_ware = ware_t();
     dummy_ware.menge = 100;
-    dummy_ware.index = 0;
+    dummy_ware.index = search_ware_index;
     dummy_ware.set_zielpos(dest_halt->get_init_pos());
     halthandle_t start_halt_array[1] = {from_halt};
     haltestelle_t::search_route(start_halt_array, 1, false, dummy_ware);
@@ -222,7 +264,7 @@ void route_search_frame_t::search_route() {
     halthandle_t transit_from = from_halt;
     FOR(vector_tpl<halthandle_t>, const h, dummy_ware.get_transit_halts()) {
         // Fetch the fastest traveler
-        auto connection = find_connection(transit_from, h);
+        auto connection = find_connection(transit_from, h, dummy_ware.get_desc()->get_catg_index());
         append_connection_row(connection);
         append_halt_row(h);
         transit_from = h;

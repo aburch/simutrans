@@ -46,7 +46,8 @@ private:
 
 	button_t
 		start_button,
-		load_map;
+		load_map,
+		open_climate_gui;
 	bool loaded_heightfield;
 
 	gui_label_buf_t

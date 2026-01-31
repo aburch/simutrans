@@ -1760,8 +1760,8 @@ void stadt_t::calc_growth()
 
 	// smaller towns should grow slower to have villages for a longer time
 	sint32 const weight_factor =
-		bev <  1000 ? welt->get_settings().get_growthfactor_small()  :
-		bev < 10000 ? welt->get_settings().get_growthfactor_medium() :
+		bev <  welt->get_settings().get_growthfactor_small_limit() ? welt->get_settings().get_growthfactor_small()  :
+		bev < welt->get_settings().get_growthfactor_medium_limit() ? welt->get_settings().get_growthfactor_medium() :
 		welt->get_settings().get_growthfactor_large();
 
 	// now compute the growth for this step
