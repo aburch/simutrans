@@ -20,6 +20,7 @@
 #include "../tpl/vector_tpl.h"
 #include "../tpl/minivec_tpl.h"
 #include "halt_list_stats.h"
+#include "halt_list_frame.h"
 #include "../simline.h"
 #include "../descriptor/goods_desc.h"
 
@@ -35,10 +36,12 @@ private:
 
 	button_t bt_new_line, bt_edit_line, bt_delete_line, bt_withdraw_line, bt_teleport_line_to_depot;
 	button_t bt_copy_line, bt_show_journey_time, bt_goods_waiting_time;
+	button_t bt_copy_data;
 	gui_scrolled_list_t scl, scrolly_convois, scrolly_haltestellen;
 	gui_speedbar_t filled_bar;
+	button_t bt_colour_line;
 	gui_textinput_t inp_name, inp_filter, inp_memo;
-	gui_label_t lbl_filter, lbl_memo, lbl_name;
+	gui_label_t lbl_filter, lbl_memo, lbl_name, lbl_colour;
 	gui_chart_t chart;
 	button_t filterButtons[MAX_LINE_COST];
 	gui_tab_panel_t tabs;
@@ -58,6 +61,8 @@ private:
 	char line_name[512], old_line_name[512];
 
 	char line_memo[1024];
+
+	uint8 line_colour;
 
 	// resets textinput to current line name
 	// necessary after line was renamed
@@ -80,6 +85,9 @@ private:
 
 	uint8 current_sort_mode;
 	void build_line_list(int filter);
+
+	// copy data as csv format	
+	void copy_csv_format();
 
 public:
 	/// last selected line per tab

@@ -117,6 +117,8 @@ typedef struct {
 map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Towns", "Overlay town names", minimap_t::MAP_TOWN },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "CityLimit", "Overlay city limits", minimap_t::MAP_CITYLIMIT },
+	{ COL_LIGHT_TURQUOISE,  COL_DARK_TURQUOISE,  "Citizens", "Show city citizens as circles", minimap_t::MAP_CITIZENS },
+	{ COL_LIGHT_TURQUOISE,  COL_DARK_TURQUOISE,  "CityGrowth", "Show city growth as circles (red=growth, green=decline)", minimap_t::MAP_CITY_GROWTH },
 	{ COL_WHITE,        COL_GREY5,       "Buildings", "Show level of city buildings", minimap_t::MAP_LEVEL },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "PaxDest", "Overlay passenger destinations when a town window is open", minimap_t::MAP_PAX_DEST },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Tourists", "Highlite tourist attraction", minimap_t::MAP_TOURIST },
@@ -261,7 +263,7 @@ map_frame_t::map_frame_t() :
 	filter_container.add_component( &b_overlay_networks );
 
 	// player combo for network overlay
-	viewed_player_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All"), SYSCOL_TEXT);
+	viewed_player_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All players"), SYSCOL_TEXT);
 	viewable_players[ 0 ] = -1;
 	for(  int np = 0, count = 1;  np < MAX_PLAYER_COUNT;  np++  ) {
 		if(  welt->get_player( np )  &&  welt->get_player( np )->get_finance()->has_convoi()) {
@@ -277,7 +279,7 @@ map_frame_t::map_frame_t() :
 	// freight combo for network overlay
 	{
 		viewable_freight_types.append(NULL);
-		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("All"), SYSCOL_TEXT) ;
+		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("All goods"), SYSCOL_TEXT) ;
 		viewable_freight_types.append(goods_manager_t::passengers);
 		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Passagiere"), SYSCOL_TEXT) ;
 		viewable_freight_types.append(goods_manager_t::mail);
@@ -318,12 +320,15 @@ map_frame_t::map_frame_t() :
 	transport_type_c.add_listener( this );
 	filter_container.add_component(&transport_type_c);
 
-	b_overlay_networks_load_factor.init(button_t::square_state, "Free Capacity");
-	b_overlay_networks_load_factor.set_tooltip("Color according to transport capacity left");
-	b_overlay_networks_load_factor.add_listener(this);
-	b_overlay_networks_load_factor.pressed = 0;
-	minimap_t::get_instance()->show_network_load_factor = 0;
-	filter_container.add_component( &b_overlay_networks_load_factor );
+	// color mode of networks
+	for (int i = 0; i < minimap_t::MAX_COLOR_MODE; i++) {
+		overlay_networks_color_mode_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(minimap_t::get_color_mode_name((minimap_t::NETWORK_COLOR_MODE)i), SYSCOL_TEXT);
+	}
+	overlay_networks_color_mode_c.set_selection(0);
+	minimap_t::get_instance()->network_color_mode = minimap_t::ORIGINAL;
+	overlay_networks_color_mode_c.set_focusable( true );
+	overlay_networks_color_mode_c.add_listener( this );
+	filter_container.add_component( &overlay_networks_color_mode_c );
 	filter_container.end_table();
 
 	filter_container.add_table(5,0)->set_force_equal_columns(true);
@@ -535,9 +540,8 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t v )
 		minimap_t::get_instance()->freight_type_group_index_showed_on_map = viewable_freight_types[freight_type_c.get_selection()];
 		minimap_t::get_instance()->invalidate_map_lines_cache();
 	}
-	else if (  comp == &b_overlay_networks_load_factor  ) {
-		minimap_t::get_instance()->show_network_load_factor = !minimap_t::get_instance()->show_network_load_factor;
-		b_overlay_networks_load_factor.pressed = !b_overlay_networks_load_factor.pressed;
+	else if (  comp == &overlay_networks_color_mode_c  ) {
+		minimap_t::get_instance()->network_color_mode = overlay_networks_color_mode_c.get_selection();
 		minimap_t::get_instance()->invalidate_map_lines_cache();
 	}
 	else {
@@ -554,6 +558,10 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t v )
 					else if(  button_init[i].mode & minimap_t::MAP_MODE_HALT_FLAGS  ) {
 						// clear all other halt states
 						env_t::default_mapmode &= ~minimap_t::MAP_MODE_HALT_FLAGS;
+					}
+					else if(  button_init[i].mode & minimap_t::MAP_MODE_CITY_FLAGS  ) {
+						// clear all other city states
+						env_t::default_mapmode &= ~minimap_t::MAP_MODE_CITY_FLAGS;
 					}
 					env_t::default_mapmode |= button_init[i].mode;
 				}
@@ -746,7 +754,12 @@ void map_frame_t::rdwr( loadsave_t *file )
 	file->rdwr_bool( directory_visible );
 	file->rdwr_long( env_t::default_mapmode );
 
-	file->rdwr_bool( b_overlay_networks_load_factor.pressed );
+	bool old_color_mode = false;
+	if(file->get_OTRP_version()<51) {
+		file->rdwr_bool( old_color_mode );
+	} else {
+		overlay_networks_color_mode_c.rdwr(file);
+	}
 
 	minimap_t::get_instance()->rdwr(file);
 
@@ -756,6 +769,12 @@ void map_frame_t::rdwr( loadsave_t *file )
 	viewed_player_c.rdwr(file);
 	transport_type_c.rdwr(file);
 	freight_type_c.rdwr(file);
+
+	if( file->is_version_atleast(123, 2) ) {
+		//TODO: network_option_visible
+		bool network_option_visible;
+		file->rdwr_bool( network_option_visible );
+	}
 
 	if(  file->is_loading()  ) {
 		set_windowsize( window_size );
@@ -775,7 +794,7 @@ void map_frame_t::rdwr( loadsave_t *file )
 		minimap_t::get_instance()->player_showed_on_map = viewable_players[viewed_player_c.get_selection()];
 		minimap_t::get_instance()->transport_type_showed_on_map = transport_type_c.get_selection();
 		minimap_t::get_instance()->freight_type_group_index_showed_on_map = viewable_freight_types[freight_type_c.get_selection()];
-		minimap_t::get_instance()->show_network_load_factor = b_overlay_networks_load_factor.pressed;
+		minimap_t::get_instance()->network_color_mode = old_color_mode?minimap_t::LOAD_FACTOR:overlay_networks_color_mode_c.get_selection();
 		minimap_t::get_instance()->invalidate_map_lines_cache();
 	}
 }

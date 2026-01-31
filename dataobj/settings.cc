@@ -331,6 +331,7 @@ settings_t::settings_t() :
 	base_waiting_ticks_for_air_convoi = 200000;
 
 	default_reverse=false;
+	allow_higher_flight = true;
 }
 
 
@@ -435,7 +436,10 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long(dummy );
 		}
 		file->rdwr_long(traffic_level );
-		file->rdwr_long(show_pax );
+		if (file->is_version_less(123, 2)) {
+			// modern version: it is in env_t
+			file->rdwr_long(show_pax);
+		}
 		sint32 dummy = groundwater;
 		file->rdwr_long(dummy );
 		if(file->is_version_less(99, 5)) {
@@ -601,7 +605,10 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_bool(crossconnect_factories );
 			file->rdwr_short(crossconnect_factor );
 
-			file->rdwr_bool(random_pedestrians );
+			if (file->is_version_less(123, 2)) {
+				// modern version: it is in env_t
+				file->rdwr_bool(random_pedestrians);
+			}
 			file->rdwr_long(stadtauto_duration );
 
 			file->rdwr_bool(numbered_stations );
@@ -781,7 +788,9 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 		if(file->is_version_atleast(102, 2)) {
 			file->rdwr_bool( no_routing_over_overcrowding );
-			file->rdwr_bool( with_private_paks );
+			if( file->is_version_less(123, 2) ) {
+				file->rdwr_bool( with_private_paks );
+			}
 		}
 		if(file->is_version_atleast(102, 3)) {
 			// network stuff
@@ -1006,9 +1015,17 @@ void settings_t::rdwr(loadsave_t *file)
 			overloading_runningcost_increase = true;
 			default_reverse = false;
 		}
+		if(  file->get_OTRP_version() >= 51  ) {
+			file->rdwr_bool(allow_higher_flight);
+		} else {
+			allow_higher_flight=true;
+		}
  		if(  file->is_version_atleast(122, 1)  ) {
 			file->rdwr_enum(climate_generator);
 			file->rdwr_byte( wind_direction );
+			// this bool is dummy!
+			bool dummy = true;
+			file->rdwr_bool(dummy /*was departures_on_time */);
 		}
 		else if( file->is_loading() ) {
 			climate_generator = HEIGHT_BASED;
@@ -1020,6 +1037,31 @@ void settings_t::rdwr(loadsave_t *file)
 				case 2: wind_direction = ribi_t::east;  break;
 				case 3: wind_direction = ribi_t::south; break;
 			}
+		}
+		if(  file->is_version_atleast(122, 2)  ) {
+			bool stop_halt_as_scheduled=!advance_to_end;
+			file->rdwr_bool(stop_halt_as_scheduled);
+			advance_to_end = !stop_halt_as_scheduled;
+		}
+		// restoring the city speed limit vector
+		if (file->is_version_atleast(123, 2)) {
+			// TODO: city road speed limit
+			uint16 city_road_speed_limit_num;
+			file->rdwr_short(city_road_speed_limit_num);
+			for (uint16 i = 0;  i < city_road_speed_limit_num;  i++) {
+				uint16 temp_city_road_speed_limit;
+				file->rdwr_short(temp_city_road_speed_limit);
+			}
+		}
+
+		if (file->is_version_atleast(124, 2)) {
+			//TODO: no_way, avoid_crossings, maximum
+			uint32 way_count_no_way;
+			uint32 way_count_avoid_crossings;
+			uint32 way_count_maximum;
+			file->rdwr_long(way_count_no_way);
+			file->rdwr_long(way_count_avoid_crossings);
+			file->rdwr_long(way_count_maximum);
 		}
 		// otherwise the default values of the last one will be used
 	}
@@ -1141,6 +1183,58 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	// setting default reverse or not when next direction is opposite
 	default_reverse = contents.get_int( "reverse_by_default", default_reverse )!=0;
 
+	// setting driving left and overtaking offsets
+	// a tile has the internal size of
+	const sint8 default_xoff = 12;
+	const sint8 default_yoff = 6;
+	const sint8 default_xoffs[8] = {1,-1,0,1,-1,1,0,-1};
+	const sint8 default_yoffs[8] = {1,1,1,0,-1,-1,-1,0};
+	for(uint8 d_idx = 0; d_idx < 8; d_idx++) {
+		char buf[64];
+		sprintf(buf, "driveleft_base_offset_%s", directions[d_idx]);
+		vector_tpl<int> temp_offset = contents.get_ints(buf);
+		if (temp_offset.get_count()>=2) {
+			for(uint8 i=0; i<2; i++) {
+				env_t::driveleft_base_offsets[d_idx][i] = temp_offset[i];
+			}
+		} else {
+			env_t::driveleft_base_offsets[d_idx][0] = default_xoff*default_xoffs[d_idx];
+			env_t::driveleft_base_offsets[d_idx][1] = default_yoff*default_yoffs[d_idx];
+		}
+	}
+	for(uint8 d_idx = 0; d_idx < 8; d_idx++) {
+		char buf[64];
+		sprintf(buf, "overtaking_base_offset_%s", directions[d_idx]);
+		vector_tpl<int> temp_offset = contents.get_ints(buf);
+		if (temp_offset.get_count()>=2) {
+			for(uint8 i=0; i<2; i++) {
+				env_t::overtaking_base_offsets[d_idx][i] = temp_offset[i];
+			}
+		} else {
+			// if not defined, it should be same as driveleft base offset.
+			for(uint8 i=0; i<2; i++) {
+				env_t::overtaking_base_offsets[d_idx][i] = env_t::driveleft_base_offsets[d_idx][i];
+			}
+		}
+	}
+	const char* waytype_list[17] = {"ignore","road","track","water","electric","monorail_track","maglev_track","tram_track","narrowgauge_track","none","none","none","none","none","none","none","air"};
+	for(uint8 wtp_idx = 0; wtp_idx < waytype_t::air_wt + 1; wtp_idx++) {
+		for(uint8 d_idx = 0; d_idx < 8; d_idx++) {
+			char buf[64];
+			sprintf(buf, "vehicle_base_offset_%s[%s]", directions[d_idx], waytype_list[wtp_idx]);
+			vector_tpl<int> temp_offset = contents.get_ints(buf);
+			if (temp_offset.get_count()>=2) {
+				for(uint8 i=0; i<2; i++) {
+					env_t::vehicle_base_offsets[d_idx][i][wtp_idx] = temp_offset[i];
+				}
+			} else {
+				// if not defined, it should be same as driveleft base offset.
+				for(uint8 i=0; i<2; i++) {
+					env_t::vehicle_base_offsets[d_idx][i][wtp_idx] = 0;
+				}
+			}
+		}
+	}	
 
 	// network stuff
 	env_t::server_frames_ahead              = contents.get_int_clamped( "server_frames_ahead",             env_t::server_frames_ahead,              0, INT_MAX );
@@ -1722,6 +1816,8 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	waiting_limit_for_first_come_first_serve 
 		= contents.get_int("waiting_limit_for_first_come_first_serve", waiting_limit_for_first_come_first_serve);
 	
+	allow_higher_flight = contents.get_int("allow_higher_flight", allow_higher_flight);
+
 	routecost_wait = contents.get_int("routecost_wait", routecost_wait);
 	routecost_halt = contents.get_int("routecost_halt", routecost_halt);
 	

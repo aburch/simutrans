@@ -38,7 +38,7 @@ private:
 	gui_aligned_container_t container;
 	gui_scrollpane_t scrolly;
 
-	gui_label_buf_t label_power, label_odometer, label_resale, label_length, label_speed, label_max_speed_kmh_of_convoi;
+	gui_label_buf_t label_power, label_odometer, label_resale, label_length, label_speed, label_max_speed_kmh_of_convoi, label_balance_speed_kmh;
 
 	convoihandle_t cnv;
 	button_t sale_button;

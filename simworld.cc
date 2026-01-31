@@ -1940,8 +1940,8 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	}
 
 	// so at least some rivers end or start in lakes
-	if(  env_t::river_types > 0  &&  settings.get_river_number() > 0  ) {
-		create_rivers( settings.get_river_number() );
+	if(  env_t::river_types > 0  &&  sets->get_river_number() > 0  ) {
+		create_rivers( sets->get_river_number() );
 	}
 
 	if (  old_x == 0  &&  old_y == 0  ) {
@@ -3672,14 +3672,33 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 				// auto underground to follow convois
 				if( env_t::follow_convoi_underground ) {
 					grund_t *gr = lookup_kartenboden( new_pos.get_2d() );
+					
 					bool redraw = false;
 					if( new_pos.z < gr->get_hoehe() ) {
+						// in tunnel, set is_underground=true and update underground mode.
+						grund_t::is_underground = true;
 						redraw = grund_t::underground_mode == grund_t::ugm_none ? grund_t::underground_level != new_pos.z : true;
 						grund_t::set_underground_mode( env_t::follow_convoi_underground, new_pos.z );
 					}
 					else {
+						// convoi runs outside
+						// if we follow with ugm_level, we set unvisible the way crossing above.
+						uint8 cut_height = new_pos.z + settings.get_way_height_clearance() - 1;
+						if (  gr->ist_karten_boden()  &&  gr->ist_bruecke()  ){
+							// on slope with bridge (ground is slope but way is flat),
+							// we must reset height as the top of this slope.
+							const slope_t::type slope = gr->get_grund_hang();
+							cut_height += slope_t::max_diff(slope);
+						}
 						redraw = grund_t::underground_mode != grund_t::ugm_none;
-						grund_t::set_underground_mode( grund_t::ugm_none, 0 );
+						if(  !grund_t::is_underground  &&  grund_t::underground_mode  !=  grund_t::underground_mode_outside  ) {
+							// have been on ground. we must keep underground mode
+							grund_t::underground_mode_outside = grund_t::underground_mode;
+						}
+						// reset underground flag
+						grund_t::is_underground = false;
+						grund_t::set_underground_mode( grund_t::underground_mode_outside, cut_height );
+						
 					}
 					if(  redraw  ) {
 						// recalc all images on map
@@ -5110,7 +5129,7 @@ bool karte_t::load(const char *filename)
 
 	if(file.rd_open(name) != loadsave_t::FILE_STATUS_OK) {
 
-		if(  file.get_version_int()==0  ||  file.get_version_int()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL ).version  ) {
+		if(  file.get_version_int()==0  ||  file.get_version_int()>loadsave_t::int_version(LOADGAME_VER_NR, NULL ).version  ) {
 			dbg->warning("karte_t::load()", translator::translate("WRONGSAVE") );
 			create_win( new news_img("WRONGSAVE"), w_info, magic_none );
 		}
@@ -5537,6 +5556,50 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 			help_frame_t *win = new help_frame_t();
 			win->set_text( msg );
 			create_win(win, w_info, magic_motd);
+		}
+	}
+	
+
+	if (file->is_version_atleast(124, 1)) {
+		//TODO: chat message
+		uint16 msg_count;
+		file->rdwr_short(msg_count);
+		while ((msg_count--) > 0) {
+			char msg[256];
+			file->rdwr_str(msg, lengthof(msg));
+			uint8 flags;
+			file->rdwr_byte(flags);
+			uint8 player_nr;
+			file->rdwr_byte(player_nr);
+			uint8 channel_nr;
+			file->rdwr_byte(channel_nr);
+			plainstring sender;
+			file->rdwr_str(sender);
+			plainstring destination;
+			file->rdwr_str(destination);
+			sint32 time;
+			file->rdwr_long(time);
+			sint64 tmp;
+			file->rdwr_longlong(tmp);
+			koord pos;
+			pos.rdwr(file);
+		}
+	}
+
+	if (file->is_version_atleast(124, 2)) {
+		//TODO: speed records
+		uint32 speed;
+		uint32 year_month;
+		koord3d speedrecord_pos;
+		uint8 speedrecord_player_nr;
+		char speedrecord_name[128];
+		for( uint8 i=0; i<7; i++  ) {
+			// the number of recorded waytype is 7
+			file->rdwr_long(speed);
+			file->rdwr_long(year_month);
+			speedrecord_pos.rdwr(file);
+			file->rdwr_byte(speedrecord_player_nr);
+			file->rdwr_str(speedrecord_name, lengthof(speedrecord_name));
 		}
 	}
 

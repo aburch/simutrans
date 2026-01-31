@@ -415,6 +415,12 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		next_line_selector.add_listener(this);
 		add_component(&next_line_selector);
 		add_component(&sp_schedule_settings);
+
+		bt_reverse_default.init(button_t::square_state, "Reverse by Default");
+		bt_reverse_default.set_tooltip(translator::translate("When the next destination is in the opposite direction, it will automatically reverse."));
+		bt_reverse_default.add_listener(this);
+		add_component(&bt_reverse_default);
+		add_component(&sp_schedule_reverse_settings);
 	}
 	end_table();
 
@@ -1225,6 +1231,10 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 		schedule->set_temporary(!bt_tmp_schedule.pressed);
 		bt_tmp_schedule.pressed = schedule->is_temporary();
 	}
+	else if(comp == &bt_reverse_default) {
+		schedule->set_reverse_default(!bt_reverse_default.pressed);
+		bt_reverse_default.pressed = schedule->is_reverse_default();
+	}
 	else if(comp == &bt_wait_for_time) {
 		if (!schedule->empty()) {
 			schedule->at(schedule->get_current_stop()).set_wait_for_time(!bt_wait_for_time.pressed);
@@ -1616,6 +1626,10 @@ void schedule_gui_t::extract_schedule_settings(bool yesno) {
 	lb_next_line.set_visible(yesno);
 	next_line_selector.set_visible(yesno);
 	sp_schedule_settings.set_visible(yesno);
+	const bool reversible_waytype = env_t::reversible_waytype(schedule->get_waytype());
+	const bool show_reverse_settings = reversible_waytype && schedule->get_waytype()!=water_wt && !welt->get_settings().is_default_reverse(); // water convoy does not reverse default!
+	bt_reverse_default.set_visible(show_reverse_settings&&yesno);
+	sp_schedule_reverse_settings.set_visible(show_reverse_settings&&yesno);
 }
 void schedule_gui_t::extract_loading_settings(bool yesno) {
 	bt_extract_loading_settings.set_typ(yesno? button_t::arrowup: button_t::arrowdown);

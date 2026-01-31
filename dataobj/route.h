@@ -136,7 +136,7 @@ public:
 	 * Finds route to a location, where @p tdriver->is_target becomes true.
 	 * @param max_depth is the maximum length of a route
 	 */
-	bool find_route(karte_t *w, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 max_depth, const bool need_electric, bool coupling = false);
+	bool find_route(karte_t *w, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 max_depth, const bool need_electric, bool coupling = false, const uint8 choose_margin=0 );
 
 	/**
 	 * Calculates the route from @p start to @p target
