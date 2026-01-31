@@ -604,10 +604,6 @@ void settings_t::rdwr(loadsave_t *file)
 				file->rdwr_short(tourist_percentage );
 				file->rdwr_short(factory_worker_radius );
 			}
-			if(file->get_OTRP_version()>=51) {
-				file->rdwr_long(growthfactor_small_limit);
-				file->rdwr_long(growthfactor_medium_limit);
-			}
 
 			file->rdwr_long(electric_promille );
 
@@ -1029,6 +1025,8 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long( credit_per_MWs );
 			file->rdwr_bool(allow_unload_longer_convoy);
 			file->rdwr_bool(allow_higher_flight);
+			file->rdwr_long(growthfactor_small_limit);
+			file->rdwr_long(growthfactor_medium_limit);
 		} else {
 			allow_unload_longer_convoy = false;
 			allow_higher_flight=true;
