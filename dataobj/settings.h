@@ -342,6 +342,9 @@ private:
 
 	bool first_come_first_serve;
 
+	// flying height calculation method
+	bool allow_higher_flight;
+
 	// The flag whether the time based goods routing is enabled for the goods.
 	// The array index is the goods category index.
 	bool is_time_based_routing_enabled[256];
@@ -728,6 +731,9 @@ public:
 	bool get_first_come_first_serve() const { return first_come_first_serve; }
 	uint32 get_waiting_limit_for_first_come_first_serve() const 
 		{ return waiting_limit_for_first_come_first_serve; }
+
+	bool get_allow_higher_flight() const { return allow_higher_flight; }
+	void set_allow_higher_flight(const bool y) { allow_higher_flight=y; }
 	
 	uint8 get_routecost_halt() const { return routecost_halt; }
 	uint8 get_routecost_wait() const { return routecost_wait; }
