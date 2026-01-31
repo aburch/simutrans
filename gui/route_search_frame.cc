@@ -177,7 +177,10 @@ void route_search_frame_t::append_connection_row(haltestelle_t::connection_t con
     // construct weight text
     char text[16];
     uint32 weight;
-    if(  world()->get_settings().get_time_based_routing_enabled(0)  ) {
+    ware_t dummy_ware = ware_t();
+    dummy_ware.menge = 100;
+    dummy_ware.index = search_ware_index;
+    if(  world()->get_settings().get_time_based_routing_enabled(dummy_ware.get_desc()->get_catg_index())  ) {
         // When TBGR is enabled for pax, weight is in ticks. We have to convert it to the OTRP departure time unit.
         weight = (uint64)connection.weight * world()->get_settings().get_spacing_shift_divisor() / world()->ticks_per_world_month;
     } else {
