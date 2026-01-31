@@ -214,7 +214,10 @@ void message_frame_t::rdwr(loadsave_t *file)
 
 	scrolly.rdwr(file);
 	tabs.rdwr(file);
-	file->rdwr_str( ibuf, lengthof(ibuf) );
+
+	if (file->is_version_less(124, 1)) {
+		file->rdwr_str( ibuf, lengthof(ibuf) );
+	}
 
 	if(  file->is_loading()  ) {
 		fill_list();

@@ -176,7 +176,7 @@ void minimap_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints )
 		return;
 	}
 	schedule_t *schedule = cnv->get_schedule();
-	if(  !show_network_load_factor  ) {
+	if(  network_color_mode==ORIGINAL  ) {
 		colore_idx += 8;
 		if(  colore_idx >= 208  ) {
 			colore_idx = (colore_idx % 8) + 1;
@@ -185,7 +185,7 @@ void minimap_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints )
 			}
 		}
 	}
-	else {
+	else if(  network_color_mode==LOAD_FACTOR  ) {
 		//TODO: extract common part from with schedule_list_gui_t::display()
 		int capacity = 0, load = 0; // total capacity and load of line (=sum of all conv's cap/load)
 
@@ -220,6 +220,18 @@ void minimap_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints )
 		}
 		else {
 			colore_idx = severity_color[MAX_SEVERITY_COLORS-1];
+		}
+	}
+	else if(  network_color_mode==PLAYER_COLOR  ) {
+		colore_idx = cnv->get_owner()->get_player_color1();
+	}
+	else if(  network_color_mode==LINE_COLOR  ) {
+		if(  cnv->get_line().is_bound()  ) {
+			// this convoy is belong to line, show line color
+			colore_idx = cnv->get_line()->get_colour();
+		} else {
+			// this convoy is not line's convoy. show player color
+			colore_idx = cnv->get_owner()->get_player_color1();
 		}
 	}
 
@@ -1043,7 +1055,7 @@ minimap_t::minimap_t()
 	zoom_in = 1;
 	zoom_out = 1;
 	isometric = false;
-	show_network_load_factor = false;
+	network_color_mode = ORIGINAL;
 	mode = MAP_TOWN;
 	selected_city = NULL;
 	cur_off = new_off = scr_coord(0,0);
@@ -1172,11 +1184,13 @@ const fabrik_t* minimap_t::draw_factory_connections(const fabrik_t* const fab, b
 
 
 // show the schedule on the minimap
-void minimap_t::set_selected_cnv( convoihandle_t c )
+void minimap_t::set_selected_cnv( convoihandle_t c, bool const clear_cache )
 {
 	current_cnv = c;
-	schedule_cache.clear();
-	stop_cache.clear();
+	if(clear_cache) {
+		schedule_cache.clear();
+		stop_cache.clear();
+	}
 	colore_idx = 0;
 	add_to_schedule_cache( current_cnv, true );
 	last_schedule_counter = world->get_schedule_counter()-1;
@@ -1592,21 +1606,6 @@ void minimap_t::draw(scr_coord pos)
 	}
 	max_waiting_change = new_max_waiting_change; // update waiting tendencies
 
-	// if we do not do this here, vehicles would erase the town names
-	// ADD: if CRTL key is pressed, temporary show the name
-	if(  mode & MAP_TOWN  ) {
-		const weighted_vector_tpl<stadt_t*>& staedte = world->get_cities();
-		const PIXVAL col = color_idx_to_rgb(showing_schedule ? COL_BLACK : COL_WHITE);
-
-		FOR( weighted_vector_tpl<stadt_t*>, const stadt, staedte ) {
-			const char * name = stadt->get_name();
-
-			scr_coord p = map_to_screen_coord( stadt->get_pos() );
-			p += pos;
-			display_proportional_clip_rgb( p.x, p.y, name, ALIGN_LEFT, col, true );
-		}
-	}
-
 	// draw city limit
 	if(  mode & MAP_CITYLIMIT  ) {
 
@@ -1647,12 +1646,70 @@ void minimap_t::draw(scr_coord pos)
 					max_tourist_ziele = pax;
 				}
 				PIXVAL color = calc_severity_color_log(gb->get_passagier_level(), max_tourist_ziele);
-				int radius = max( (number_to_radius( pax*4 )*zoom_in)/zoom_out, 1 );
+				int radius = number_to_radius( pax*4 ) + 5;
 				display_filled_circle_rgb( gb_pos.x, gb_pos.y, radius, color );
 				display_circle_rgb( gb_pos.x, gb_pos.y, radius, color_idx_to_rgb(COL_BLACK) );
 			}
 			// otherwise larger attraction will be shown more often ...
 		}
+	}
+
+	// draw city citizens as circles
+	if(  mode & MAP_CITIZENS  ) {
+		static uint32 max_city_citizens = 1;
+		uint32 new_max_city_citizens = 1;
+
+		FOR(  weighted_vector_tpl<stadt_t*>,  const stadt,  world->get_cities()  ) {
+			const uint32 citizens = stadt->get_einwohner();
+			if(  new_max_city_citizens < citizens  ) {
+				new_max_city_citizens = citizens;
+			}
+
+			scr_coord city_pos = map_to_screen_coord( stadt->get_pos() );
+			city_pos = city_pos + pos;
+
+			// Use log scale for color (green for small, red for large)
+			PIXVAL color = calc_severity_color_log( citizens, max_city_citizens );
+
+			// Calculate radius based on citizens with zoom correction
+			int radius = number_to_radius( 5 * citizens ) + 10;
+
+			// Draw filled circle with black outline
+			display_filled_circle_rgb( city_pos.x, city_pos.y, radius, color );
+			display_circle_rgb( city_pos.x, city_pos.y, radius, color_idx_to_rgb(COL_BLACK) );
+		}
+
+		max_city_citizens = new_max_city_citizens;
+	}
+
+	// draw city growth as circles
+	if(  mode & MAP_CITY_GROWTH  ) {
+		static sint32 max_city_growth = 1;
+		sint32 new_max_city_growth = 1;
+
+		FOR(  weighted_vector_tpl<stadt_t*>,  const stadt,  world->get_cities()  ) {
+			const sint32 growth = stadt->get_wachstum();
+			const sint32 abs_growth = abs(growth);
+
+			if(  new_max_city_growth < abs_growth  ) {
+				new_max_city_growth = abs_growth;
+			}
+
+			scr_coord city_pos = map_to_screen_coord( stadt->get_pos() );
+			city_pos = city_pos + pos;
+
+			// Green for growth, red for decline
+			PIXVAL color = color_idx_to_rgb(growth > 0 ? COL_LIGHT_RED : growth < 0 ? COL_DARK_GREEN : COL_YELLOW);
+
+			// Calculate radius based on absolute growth with zoom correction
+			int radius = number_to_radius( 5 * abs_growth ) + 10;
+
+			// Draw filled circle with black outline
+			display_filled_circle_rgb( city_pos.x, city_pos.y, radius, color );
+			display_circle_rgb( city_pos.x, city_pos.y, radius, color_idx_to_rgb(COL_BLACK) );
+		}
+
+		max_city_growth = new_max_city_growth;
 	}
 
 	if(  mode & MAP_FACTORIES  ) {
@@ -1751,6 +1808,21 @@ void minimap_t::draw(scr_coord pos)
 			}
 		}
 
+	}
+
+	// if we do not do this here, vehicles would erase the town names
+	// ADD: if CRTL key is pressed, temporary show the name
+	if(  mode & MAP_TOWN  ) {
+		const weighted_vector_tpl<stadt_t*>& staedte = world->get_cities();
+		const PIXVAL col = color_idx_to_rgb(showing_schedule ? COL_BLACK : COL_WHITE);
+
+		FOR( weighted_vector_tpl<stadt_t*>, const stadt, staedte ) {
+			const char * name = stadt->get_name();
+
+			scr_coord p = map_to_screen_coord( stadt->get_pos() );
+			p += pos;
+			display_proportional_clip_rgb( p.x, p.y, name, ALIGN_LEFT, col, true );
+		}
 	}
 }
 

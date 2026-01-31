@@ -290,6 +290,10 @@ bool bridge_builder_t::is_monorail_junction(koord3d pos, player_t *player, const
 	if(  grund_t *gr2 = welt->lookup( pos )  ) {
 		if(  gr2->get_typ() == grund_t::monorailboden  ) {
 			// now check if our way
+			if(  desc->get_waytype()==powerline_wt && gr2->get_leitung()  ) {
+				// powerline does not have waytype, we find them!
+				return true;
+			}
 			if(  weg_t *w = gr2->get_weg_nr(0)  ) {
 				if(  !player_t::check_owner(w->get_owner(),player)  ) {
 					// not our way
@@ -1262,7 +1266,7 @@ const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytyp
 				// needs checks, since this fails if it was the last tile
 				weg->set_desc( weg->get_desc() );
 				weg->set_ribi( ribi );
-				if(  slope_t::max_diff(gr->get_weg_hang())>=2  &&  !weg->get_desc()->has_double_slopes()  ) {
+				if(  slope_t::max_diff(gr->get_weg_hang())>=2  ) {
 					// remove the way totally, if is is on a double slope
 					gr->weg_entfernen( weg->get_waytype(), true );
 				}

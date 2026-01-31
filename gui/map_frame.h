@@ -21,7 +21,7 @@
 
 class karte_ptr_t;
 
-#define MAP_MAX_BUTTONS (22)
+#define MAP_MAX_BUTTONS (24)
 
 /**
  * Minimap window
@@ -75,7 +75,7 @@ private:
 	gui_combobox_t c_show_outlines;
 	button_t b_show_directory;
 	button_t b_overlay_networks;
-	button_t b_overlay_networks_load_factor;
+	gui_combobox_t overlay_networks_color_mode_c;
 	button_t b_filter_factory_list;
 
 	gui_label_buf_t zoom_value_label;

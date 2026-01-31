@@ -90,6 +90,11 @@ private:
 	sint64 financial_history[MAX_MONTHS][MAX_LINE_COST];
 
 	/**
+	 * colour of line
+	 */
+	uint8 colour;
+
+	/**
 	 * creates empty schedule with type depending on line-type
 	 */
 	void create_schedule();
@@ -151,6 +156,12 @@ public:
 	 */
 	char const* get_memo() const { return memo; }
 	void set_memo(const char *memo);
+
+	/**
+	 * get colour of line
+	 */
+	uint8 const get_colour() const { return colour; }
+	void set_colour(const uint8 colour);
 
 	/*
 	 * load or save the line

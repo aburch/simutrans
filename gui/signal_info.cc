@@ -33,6 +33,23 @@ signal(s)
 		add_component(&bt_choose_signal);
 	}
 
+	add_table(2,0);
+	{
+		lb_tiles_margin.set_text("Margin");
+		lb_tiles_margin.set_tooltip("tiles length of the margin to stop when choosing. Set this margin to the stop side(advance to end->end side)");
+		numinp_tiles_margin.set_width(50);
+		numinp_tiles_margin.set_height(5);
+		numinp_tiles_margin.set_limits(0,200);
+		numinp_tiles_margin.set_increment_mode(1);
+		numinp_tiles_margin.disable();
+		numinp_tiles_margin.add_listener(this);
+		if(signal->get_desc()->is_choose_sign()  &&  !welt->get_settings().get_advance_to_end()) {
+			add_component(&lb_tiles_margin);
+			add_component(&numinp_tiles_margin);
+		}
+	}
+	end_table();
+
 	bt_remove_signal.init( button_t::roundbox, translator::translate("remove signal"));
 	bt_remove_signal.enable( !signal->is_deletable( welt->get_active_player() ) );
 	bt_remove_signal.add_listener(this);
@@ -40,9 +57,10 @@ signal(s)
 	
 	reset_min_windowsize();
 	set_windowsize(get_min_windowsize() );
+	update_data();
 }
 
-bool signal_info_t::action_triggered( gui_action_creator_t* comp, value_t /* */)
+bool signal_info_t::action_triggered( gui_action_creator_t* comp, value_t p)
 {
 	if(  comp==&bt_remove_signal  ) {
 		bool suspended_execution=false;
@@ -79,6 +97,13 @@ bool signal_info_t::action_triggered( gui_action_creator_t* comp, value_t /* */)
 		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_ROADSIGN], welt->get_active_player() );
 		return true;
 	}
+	if(  comp==&numinp_tiles_margin  ) {
+		char param[256];
+		sprintf( param, "%s,%i,m,", signal->get_pos().get_str(), (uint8)p.i );
+		tool_t::simple_tool[TOOL_CHANGE_ROADSIGN]->set_default_param( param );
+		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_ROADSIGN], welt->get_active_player() );
+		return true;
+	}
 	return false;
 }
 
@@ -91,8 +116,11 @@ void signal_info_t::update_data()
 	bt_choose_signal.pressed = signal->is_choose_signal();
 	if(  signal->is_choose_signal()  ) {
 		bt_advance_to_end.enable();
+		numinp_tiles_margin.enable();
+		numinp_tiles_margin.set_value(signal->get_margin_length());
 	} else {
 		bt_advance_to_end.disable();
+		numinp_tiles_margin.disable();
 	}
 	bt_remove_signal.enable( !signal->is_deletable( welt->get_active_player() ) );
 }

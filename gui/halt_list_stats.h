@@ -18,6 +18,7 @@
 #include "../halthandle_t.h"
 
 class gui_halt_type_images_t;
+class halt_list_frame_t;
 
 
 class halt_list_stats_t : public gui_aligned_container_t, public gui_scrolled_list_t::scrollitem_t
@@ -57,6 +58,8 @@ public:
 	scr_size get_max_size() const OVERRIDE {
 		return get_min_size();
 	}
+
+	void set_buffer_to_cargoinfo ( cbuffer_t& buffer, uint8 sorting_mode, const char* end="\n") const;
 };
 
 #endif

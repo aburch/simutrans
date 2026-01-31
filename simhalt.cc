@@ -1397,6 +1397,16 @@ void haltestelle_t::new_month()
 	}
 	// number of waiting should be constant ...
 	financial_history[0][HALT_WAITING] = financial_history[1][HALT_WAITING];
+
+	// update departure slot if ticks is updated (avoid overflow)
+	if(  welt->get_ticks()<welt->ticks_per_world_month  ) {
+		for (uint32 i = 0; i < DST_SIZE; ++i) {
+			for (departure_t &slot : departure_slot_table[i]) {
+				slot.dep_tick %= welt->ticks_per_world_month;
+				slot.exp_tick %= welt->ticks_per_world_month;
+			}
+		}
+	}
 }
 
 
@@ -3002,7 +3012,7 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 
 
 
-void haltestelle_t::get_short_freight_info(cbuffer_t & buf) const
+void haltestelle_t::get_short_freight_info(cbuffer_t & buf, const char* end) const
 {
 	bool got_one = false;
 
@@ -3029,16 +3039,16 @@ void haltestelle_t::get_short_freight_info(cbuffer_t & buf) const
 	if(got_one) {
 		buf.append(" ");
 		buf.append(translator::translate("waiting"));
-		buf.append("\n");
+		buf.append(end);
 	}
 	else {
 		buf.append(translator::translate("no goods waiting"));
-		buf.append("\n");
+		buf.append(end);
 	}
 }
 
 
-void haltestelle_t::get_throughput_info(cbuffer_t& buf) const
+void haltestelle_t::get_throughput_info(cbuffer_t& buf, const char* end) const
 {
 	// check if more than 1 month of history
 	int month = get_finance_history( 1, HALT_ARRIVED) == 0 ||
@@ -3053,10 +3063,10 @@ void haltestelle_t::get_throughput_info(cbuffer_t& buf) const
 	// add info to buffer
 	buf.printf("%d ", throughput);
 	buf.append(translator::translate("transfers"));
-	buf.append("\n");
+	buf.append(end);
 }
 
-void haltestelle_t::get_waiting_occupancy_info(cbuffer_t& buf) const
+void haltestelle_t::get_waiting_occupancy_info(cbuffer_t& buf, const char* end) const
 {
 	// set the waiting values to 0
 	bool got_one = false;
@@ -3110,11 +3120,11 @@ void haltestelle_t::get_waiting_occupancy_info(cbuffer_t& buf) const
 	if(got_one) {
 		buf.append(" ");
 		buf.append(translator::translate("waiting"));
-		buf.append("\n");
+		buf.append(end);
 	}
 	else {
 		buf.append(translator::translate("no goods waiting"));
-		buf.append("\n");
+		buf.append(end);
 	}
 }
 
@@ -4635,7 +4645,7 @@ bool unregistered_journey_time_exists(const schedule_t* schedule, player_t* play
 }
 
 
-void haltestelle_t::calc_destination_halt(inthashtable_tpl<uint8, vector_tpl<halthandle_t>> &destination_halts, const vector_tpl<reachable_halt_t> &reachable_halts, const minivec_tpl<uint8> &goods_category_indexes, convoihandle_t cnv) {
+void haltestelle_t::calc_destination_halt(inthashtable_tpl<uint8, vector_tpl<halthandle_t>> &destination_halts, const vector_tpl<reachable_halt_t> &reachable_halts, const vector_tpl<reachable_halt_t> &temp_stop_halts, const minivec_tpl<uint8> &goods_category_indexes, convoihandle_t cnv) {
 	// initialize destination_halts
 	destination_halts.clear();
 	FOR(const minivec_tpl<uint8>, const& i, goods_category_indexes) {
@@ -4656,6 +4666,10 @@ void haltestelle_t::calc_destination_halt(inthashtable_tpl<uint8, vector_tpl<hal
 		// Temporary schedule or route cost is used -> Accept all halts.
 		if(  accept_all_halts  ||  !welt->get_settings().get_time_based_routing_enabled(i)  ) {
 			FOR(const vector_tpl<reachable_halt_t>, const& rh, reachable_halts) {
+				destination_halts.access(i)->append(rh.halt);
+			}
+		} else {
+			FOR(const vector_tpl<reachable_halt_t>, const& rh, temp_stop_halts) {
 				destination_halts.access(i)->append(rh.halt);
 			}
 		}
@@ -4783,4 +4797,9 @@ void haltestelle_t::toggle_other_player_connection_allowed() {
 			}
 		}
 	}
+}
+
+bool const haltestelle_t::is_allow_unload_longer_convoy()
+{
+	return world()->get_settings().is_allow_unload_longer_convoy()&&((flags&HS_ALLOW_UNLOAD_LONGER_CONVOY)>0);
 }
