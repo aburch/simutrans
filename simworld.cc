@@ -7194,7 +7194,6 @@ void karte_t::stop(bool exit_game)
 void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
 {
 	if (env_t::networkmode) {
-		//time_multiplier = 16; // reset to normal speed
 		sync_steps = syncsteps_;
 		sync_steps_barrier = sync_steps;
 		steps = sync_steps / settings.get_frames_per_step();
