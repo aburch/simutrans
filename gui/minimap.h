@@ -76,6 +76,7 @@ public:
 		ORIGINAL,
 		LOAD_FACTOR,
 		PLAYER_COLOR,
+		LINE_COLOR,
 		MAX_COLOR_MODE
 	};
 
@@ -264,7 +265,7 @@ public:
 
 	static const char *get_color_mode_name(const minimap_t::NETWORK_COLOR_MODE i)
 	{
-		char *cm2name[MAX_COLOR_MODE] = {"Individual color","Free Capacity","Player color"};
+		char *cm2name[MAX_COLOR_MODE] = {"Individual color","Free Capacity","Player color","Line color"};
 		return translator::translate(cm2name[i]);
 	}
 };

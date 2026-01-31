@@ -225,6 +225,15 @@ void minimap_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints )
 	else if(  network_color_mode==PLAYER_COLOR  ) {
 		colore_idx = cnv->get_owner()->get_player_color1();
 	}
+	else if(  network_color_mode==LINE_COLOR  ) {
+		if(  cnv->get_line().is_bound()  ) {
+			// this convoy is belong to line, show line color
+			colore_idx = cnv->get_line()->get_colour();
+		} else {
+			// this convoy is not line's convoy. show player color
+			colore_idx = cnv->get_owner()->get_player_color1();
+		}
+	}
 
 	// ok, add this schedule to map
 	// from here on we have a valid convoi
