@@ -156,6 +156,7 @@ loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve",false
 				if (!strempty(text)) {
 					sve_info_t *svei = new sve_info_t();
 					svei->rdwr(&file);
+					dbg->message("loadsave_frame_t::loadsave_frame_t()","save info %s %s",text,svei->pak.c_str());
 					cached_info.put(text, svei);
 					text = NULL; // it is used as key, do not delete it
 				}

@@ -45,6 +45,7 @@ simline_t::simline_t(player_t* player, linetype type)
 	sprintf(printname, "(%i) %s", self.get_id(), translator::translate("Line", welt->get_settings().get_name_language_id()));
 	name = printname;
 	memo = "";
+	colour = player->get_player_color1();
 
 	init_financial_history();
 	this->type = type;
@@ -106,7 +107,7 @@ simline_t::linetype simline_t::waytype_to_linetype(const waytype_t wt)
 
 const char *simline_t::get_linetype_name(const simline_t::linetype lt)
 {
-	static const char *lt2name[MAX_LINE_TYPE] = {"All", "Truck", "Train", "Ship", "Air", "Monorail", "Tram", "Maglev", "Narrowgauge" };
+	static const char *lt2name[MAX_LINE_TYPE] = {"All waytypes", "Truck", "Train", "Ship", "Air", "Monorail", "Tram", "Maglev", "Narrowgauge" };
 	return translator::translate( lt2name[lt] );
 }
 
@@ -143,6 +144,11 @@ void simline_t::set_name(const char *new_name)
 void simline_t::set_memo(const char* new_memo)
 {
 	memo = new_memo;
+}
+
+void simline_t::set_colour(const uint8 new_colour)
+{
+	colour = new_colour;
 }
 
 void simline_t::create_schedule()
@@ -325,6 +331,14 @@ void simline_t::rdwr(loadsave_t *file)
 	}
 	else {
 		memo = "";
+	}
+
+	if (file->get_OTRP_version() >= 51) {
+		file->rdwr_enum(colour);
+		// read colour of the line
+	}
+	else {
+		colour = player->get_player_color1();
 	}
 	// otherwise initialized to zero if loading ...
 	financial_history[0][LINE_CONVOIS] = count_convoys();

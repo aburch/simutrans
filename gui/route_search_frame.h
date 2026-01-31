@@ -8,6 +8,7 @@
 #include "components/gui_button.h"
 #include "components/gui_label.h"
 #include "components/gui_textinput.h"
+#include "components/gui_combobox.h"
 
 /**
  * Info window for factories
@@ -21,6 +22,11 @@ class route_search_frame_t : public gui_frame_t, public action_listener_t
 	gui_aligned_container_t result_container;
 	char from_halt_input_text[256];
 	char dest_halt_input_text[256];
+	
+	vector_tpl<const goods_desc_t *> viewable_freight_types;
+	gui_combobox_t freight_type_c;
+
+	uint8 search_ware_index;
 
 	void search_route();
 	void append_connection_row(haltestelle_t::connection_t connection);
@@ -29,6 +35,7 @@ class route_search_frame_t : public gui_frame_t, public action_listener_t
 
  public:
 	route_search_frame_t();
+	~route_search_frame_t();
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

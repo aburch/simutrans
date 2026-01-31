@@ -487,6 +487,17 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 	// check whether powerline related stuff should be removed, and if there is any to remove
 	if (  (type == obj_t::leitung  ||  type == obj_t::pumpe  ||  type == obj_t::senke  ||  type == obj_t::undefined)
 	       &&  lt != NULL  &&  lt->is_deletable(player) == NULL) {
+		if(gr->get_typ()==grund_t::monorailboden&&!gr->get_weg_nr(0)) {
+			lt->cleanup(player);
+			delete lt;
+			gr->obj_loesche_alle(player);
+			gr->mark_image_dirty();
+			if (!gr->get_flag(grund_t::is_kartenboden)) {
+				welt->access(gr->get_pos().get_2d())->boden_entfernen(gr);
+				delete gr;
+			}
+			return true;
+		}
 		if(  gr->ist_bruecke()  ) {
 			bruecke_t* br = gr->find<bruecke_t>();
 			if(  br == NULL  ) {
@@ -3984,7 +3995,7 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 					lt->cleanup(player);
 					delete lt;
 					// delete tunnel ground too, if empty
-					if (gr->get_typ()==grund_t::tunnelboden) {
+					if (gr->get_typ()==grund_t::tunnelboden||(gr->get_typ()==grund_t::monorailboden&&!gr->get_weg_nr(0))) {
 						gr->obj_loesche_alle(player);
 						gr->mark_image_dirty();
 						if (!gr->get_flag(grund_t::is_kartenboden)) {
@@ -8675,6 +8686,7 @@ bool tool_change_convoi_t::init( player_t *player )
  * 'c' : create line
  * 'd' : delete line
  * 'g' : apply new schedule to line [schedule follows]
+ * 'o' : change colour of line
  * 't' : trims away convois on all lines of linetype with this default parameter
  * 'u' : unite all lineless convois with similar schedules
  * 'w' : change withdraw
@@ -8684,6 +8696,7 @@ bool tool_change_convoi_t::init( player_t *player )
 bool tool_change_line_t::init( player_t *player )
 {
 	uint16 line_id = 0;
+
 
 	// skip the rest of the command
 	const char *p = default_param;
@@ -8700,6 +8713,8 @@ bool tool_change_line_t::init( player_t *player )
 	}
 
 	line_id = atoi(p);
+
+
 	while(  *p  &&  *p++!=','  ) {
 	}
 
@@ -8949,6 +8964,13 @@ bool tool_change_line_t::init( player_t *player )
 				if (line.is_bound()) {
 					line->set_memo(p);
 				}
+			}
+			break;
+
+		case 'o': // change colour of line
+			{
+				uint8 n_colour = atoi(p);
+				line->set_colour(n_colour);
 			}
 			break;
 	}
