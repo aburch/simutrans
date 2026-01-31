@@ -1022,12 +1022,14 @@ void settings_t::rdwr(loadsave_t *file)
 			default_reverse = false;
 		}
 		if(  file->get_OTRP_version() >= 51  ) {
+			file->rdwr_bool(env_t::use_old_friction);
 			file->rdwr_long( credit_per_MWs );
 			file->rdwr_bool(allow_unload_longer_convoy);
 			file->rdwr_bool(allow_higher_flight);
 			file->rdwr_long(growthfactor_small_limit);
 			file->rdwr_long(growthfactor_medium_limit);
 		} else {
+			env_t::use_old_friction = false;
 			allow_unload_longer_convoy = false;
 			allow_higher_flight=true;
 		}
@@ -1328,6 +1330,8 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	signals_on_left                = contents.get_int( "signals_on_left",                signals_on_left ) != 0;
 	allow_underground_transformers = contents.get_int( "allow_underground_transformers", allow_underground_transformers ) != 0;
 	disable_make_way_public        = contents.get_int( "disable_make_way_public",        disable_make_way_public ) != 0;
+
+	env_t::use_old_friction		   = contents.get_int( "use_old_friction",				 env_t::use_old_friction ) != 0;
 
 	// up to ten rivers are possible
 	for( int i = 0; i < 10; i++ ) {

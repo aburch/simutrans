@@ -464,6 +464,10 @@ public:
 	/// @author THLeaderH
 	static bool previous_OTRP_data;
 
+	/// friction parameter on gravity: 
+	/// old: same as 112.3 when TILE_HEIGHT_STEP=16, not old: same as 120
+	static bool use_old_friction;
+
 	/// To make the snapshot like a commandline tool
 	/// can be set by command-line switch '-snapshot'
 	/// @author shingoushori
