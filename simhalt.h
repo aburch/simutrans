@@ -778,7 +778,7 @@ public:
 	 * @param goods_category_indexes The list of goods category indexes.
 	 * @param cnv The convoy which is requesting the destination halts.
 	 */
-	void calc_destination_halt(inthashtable_tpl<uint8, vector_tpl<halthandle_t>> &destination_halts, const vector_tpl<reachable_halt_t> &reachable_halts, const minivec_tpl<uint8> &goods_category_indexes, convoihandle_t cnv);
+	void calc_destination_halt(inthashtable_tpl<uint8, vector_tpl<halthandle_t>> &destination_halts, const vector_tpl<reachable_halt_t> &reachable_halts, const vector_tpl<reachable_halt_t> &temp_stop_halts, const minivec_tpl<uint8> &goods_category_indexes, convoihandle_t cnv);
 
 	struct loadable_fresh_goods_t {
 		ware_t::goods_amount_t amount;
@@ -835,11 +835,11 @@ public:
 	/**
 	 * @param[out] buf short list of the waiting goods (i.e. 110 Wood, 15 Coal)
 	 */
-	void get_short_freight_info(cbuffer_t & buf) const;
+	void get_short_freight_info(cbuffer_t & buf, const char* end="\n") const;
 
-	void get_throughput_info(cbuffer_t& buf) const;
+	void get_throughput_info(cbuffer_t& buf, const char* end="\n") const;
 	
-	void get_waiting_occupancy_info(cbuffer_t& buf) const;
+	void get_waiting_occupancy_info(cbuffer_t& buf, const char* end="\n") const;
 
 	/**
 	 * Opens an information window for this station.

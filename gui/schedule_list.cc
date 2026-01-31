@@ -42,6 +42,9 @@
 #include "../boden/wege/schiene.h"
 #include "../boden/wege/strasse.h"
 
+#include "../sys/simsys.h"
+#include "../gui/kennfarbe.h"
+
 #include "../unicode.h"
 
 
@@ -101,6 +104,12 @@ static uint8 statistic_type[MAX_LINE_COST] = {
 	MONEY
 };
 
+static uint8 copy_labels[3] = {
+	halt_list_frame_t::sort_mode_t::nach_wartend,
+	halt_list_frame_t::sort_mode_t::nach_throughput,
+	halt_list_frame_t::sort_mode_t::nach_wartend_percent
+};
+
 #define MAX_SORT_IDX (4)
 static uint8 idx_to_sort_mode[MAX_SORT_IDX] = { line_scrollitem_t::SORT_BY_NAME, line_scrollitem_t::SORT_BY_PROFIT, line_scrollitem_t::SORT_BY_TRANSPORTED, line_scrollitem_t::SORT_BY_CONVOIS };
 static const char *idx_to_sort_text[MAX_SORT_IDX] = { "Name", "Revenue", "Transported", "Number of convois" };
@@ -123,7 +132,8 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	scrolly_haltestellen(gui_scrolled_list_t::windowskin),
 	lbl_filter("Line Filter"),
 	lbl_memo("Line Memo:"),
-	lbl_name("Line Name:")
+	lbl_name("Line Name:"),
+	lbl_colour("Line Colour:")
 {
 	capacity = load = 0;
 	selection = -1;
@@ -196,7 +206,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	inp_filter.add_listener(this);
 	add_component(&inp_filter);
 
-	sint16 bt_y = D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT*2+D_V_SPACE*2+D_INDICATOR_HEIGHT+D_V_SPACE ;
+	sint16 bt_y = D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT*2+D_V_SPACE*2+D_INDICATOR_HEIGHT+D_V_SPACE+D_BUTTON_HEIGHT+D_V_SPACE ;
 
 	// sort by what
 	for( int i=0; i<MAX_SORT_IDX;  i++ ) {
@@ -270,8 +280,16 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	bt_delete_line.disable();
 	add_component(&bt_delete_line);
 
+	bt_copy_data.init(button_t::roundbox, "Copy Halt Data",
+		scr_coord(D_MARGIN_LEFT, bt_y+2*(D_BUTTON_HEIGHT+D_V_SPACE)),
+		scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_copy_data.set_tooltip("Copy the data of the halt labels.");
+	bt_copy_data.add_listener(this);
+	bt_copy_data.disable();
+	add_component(&bt_copy_data);
+
 	// lower left corner: halt list of selected line
-	scrolly_haltestellen.set_pos(scr_coord(0, bt_y + D_BUTTON_HEIGHT*2+ D_V_SPACE*2));
+	scrolly_haltestellen.set_pos(scr_coord(0, bt_y + 3*(D_BUTTON_HEIGHT+ D_V_SPACE)));
 	scrolly_haltestellen.set_show_scroll_x(true);
 	scrolly_haltestellen.set_scroll_amount_y(28);
 	scrolly_haltestellen.set_visible(false);
@@ -301,9 +319,23 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	inp_memo.set_visible(false);
 	add_component(&inp_memo);
 
+	// line colour label
+	lbl_colour.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT*2+D_V_SPACE*2));
+	lbl_colour.set_visible(false);
+	add_component(&lbl_colour);
+
+	// line colour button
+	bt_colour_line.init(button_t::box, "",
+		scr_coord(RIGHT_COLUMN_OFFSET+D_BUTTON_WIDTH+D_H_SPACE, D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT*2+D_V_SPACE*2),
+		scr_size(D_BUTTON_WIDTH, D_EDIT_HEIGHT));
+	bt_colour_line.set_tooltip("Change colour of the line");
+	bt_colour_line.add_listener(this);
+	bt_colour_line.set_visible(false);
+	add_component(&bt_colour_line);
+
 	// load display
 	filled_bar.add_color_value(&loadfactor, color_idx_to_rgb(COL_GREEN));
-	filled_bar.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT*2+D_V_SPACE*2));
+	filled_bar.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT*2+D_V_SPACE*2+D_BUTTON_HEIGHT+D_V_SPACE));
 	filled_bar.set_visible(false);
 	add_component(&filled_bar);
 
@@ -471,6 +503,9 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 			depot_t::update_all_win();
 		}
 	}
+	else if (  comp == &bt_copy_data  ) {
+		copy_csv_format();
+	}
 	else if(  comp == &bt_withdraw_line  ) {
 		bt_withdraw_line.pressed ^= 1;
 		if (  line.is_bound()  ) {
@@ -546,6 +581,12 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 			welt->set_tool(tmp_tool, player);
 			// since init always returns false, it is safe to delete immediately
 			delete tmp_tool;
+		}
+	}
+	else if(  comp == &bt_colour_line  ) {
+		if (line.is_bound() && (player == welt->get_active_player() || welt->get_active_player() == welt->get_player(1))) {
+			dbg->message("schedule_list_t::action_triggered()","change %s's colour", line->get_name());
+			create_win(new line_colour_gui_t(line, player), w_info, magic_line_colour_gui_t);
 		}
 	}
 	else {
@@ -633,6 +674,7 @@ void schedule_list_gui_t::draw(scr_coord pos, scr_size size)
 		if(  (!line->get_schedule()->empty()  &&  !line->get_schedule()->matches( welt, last_schedule ))  ||  last_vehicle_count != line->count_convoys()  ) {
 			update_lineinfo( line );
 		}
+		bt_colour_line.background_color = color_idx_to_rgb(line->get_colour());
 		PUSH_CLIP( pos.x + 1, pos.y + D_TITLEBAR_HEIGHT, size.w - 2, size.h - D_TITLEBAR_HEIGHT);
 		display(pos);
 		POP_CLIP();
@@ -719,6 +761,7 @@ void schedule_list_gui_t::set_windowsize(scr_size size)
 	inp_name.set_size(scr_size(rest_width-D_BUTTON_WIDTH - D_H_SPACE, D_EDIT_HEIGHT));
 	inp_memo.set_size(scr_size(rest_width-D_BUTTON_WIDTH - D_H_SPACE, D_EDIT_HEIGHT));
 	filled_bar.set_size(scr_size(rest_width, 4));
+	bt_colour_line.set_size(scr_size(rest_width-D_BUTTON_WIDTH - D_H_SPACE, D_EDIT_HEIGHT));
 
 	int y = D_MARGIN_TOP + SCL_HEIGHT-D_V_SPACE-(button_rows*(D_BUTTON_HEIGHT+D_V_SPACE));
 	for(  int i=0;  i<MAX_LINE_COST;  i++  ) {
@@ -772,6 +815,8 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		lbl_memo.set_visible(true);
 		inp_memo.set_visible(true);
 		filled_bar.set_visible(true);
+		lbl_colour.set_visible(true);
+		bt_colour_line.set_visible(true);
 
 		// fill container with info of line's convoys
 		// we do it here, since this list needs only to be
@@ -786,6 +831,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		scrolly_convois.set_size(scrolly_convois.get_size());
 
 		bt_delete_line.disable();
+		bt_copy_data.enable();
 		add_component(&bt_withdraw_line);
 		add_component(&bt_teleport_line_to_depot);
 		bt_withdraw_line.disable();
@@ -850,10 +896,13 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		inp_memo.set_visible(false);
 		lbl_memo.set_visible(false);
 		filled_bar.set_visible(false);
+		lbl_colour.set_visible(false);
+		bt_colour_line.set_visible(false);
 		scl.set_selection(-1);
 		bt_delete_line.disable();
 		bt_edit_line.disable();
 		bt_copy_line.disable();
+		bt_copy_data.disable();
 		bt_show_journey_time.disable();
 		bt_goods_waiting_time.disable();
 		for(  int i=0; i<MAX_LINE_COST; i++  )  {
@@ -913,6 +962,44 @@ void schedule_list_gui_t::update_data(linehandle_t changed_line)
 		if(  changed_line.get_id() == line.get_id()  ) {
 			reset_line_name();
 		}
+	}
+}
+
+
+
+
+// copy halt names and respective labels to clipboard
+void schedule_list_gui_t::copy_csv_format() {
+	// copy in csv format. separator is \t.
+	cbuffer_t clipboard;
+	
+	// append header
+	clipboard.append("halt");
+
+	for (uint8 sort_index: copy_labels) {
+		clipboard.printf("\t%s", halt_list_frame_t::get_sort_text(sort_index));
+	}
+
+	clipboard.append("\n");
+	
+	// loop over the halts of the schedule and add the name/cargo label
+	if (  line.is_bound()  ) {
+		for (int i = 0; i < scrolly_haltestellen.get_count(); i++) {
+			const halt_list_stats_t* element = dynamic_cast<const halt_list_stats_t*>(scrolly_haltestellen.get_element(i));
+			clipboard.printf( "%s\t", element->get_text());
+			for (uint8 sort_index: copy_labels) {
+				element->set_buffer_to_cargoinfo(clipboard, sort_index, "\t");
+			}
+			clipboard.append("\n");
+		}
+	}
+	
+	// tell user if successfull or not
+	if(  clipboard.len()>0  ) {
+		dr_copy( clipboard, clipboard.len() );
+		create_win( new news_img(translator::translate("Halt data was copied to clipboard.\n")), w_time_delete, magic_none );
+	} else {
+		dbg->error("schedule_list_gui_t::copy_csv_format()", "There is nothing to copy.\n");
 	}
 }
 

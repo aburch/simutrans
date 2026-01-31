@@ -770,6 +770,12 @@ void map_frame_t::rdwr( loadsave_t *file )
 	transport_type_c.rdwr(file);
 	freight_type_c.rdwr(file);
 
+	if( file->is_version_atleast(123, 2) ) {
+		//TODO: network_option_visible
+		bool network_option_visible;
+		file->rdwr_bool( network_option_visible );
+	}
+
 	if(  file->is_loading()  ) {
 		set_windowsize( window_size );
 		// notify minimap of new settings

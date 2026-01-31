@@ -452,6 +452,19 @@ Show city citizens as circles
 都市人口を円の大きさで表示します
 Show city growth as circles (red=growth, green=decline)
 都市の成長率を円の大きさで表示します(赤:成長、緑:衰退)
+#------高度な設定------
+allow overloading
+旅客の過積載を許可(allow_overloading)
+overloading revenue reduced
+過積載時に収入を減額(overloading_revenue_reduced)
+overloading runningcost increase
+過積載時に走行費を増額(overloading_runningcost_increase)
+advance_to_end
+ホーム終端まで進む(advance_to_end)
+reverse_by_default
+折り返し時に車両を自動で反転(reverse_by_default)
+first_come_first_serve
+到着順に乗車する(first_come_first_serve)
 #------その他の翻訳------
 Remove all waiting goods and pax
 この駅のすべての待機中の旅客と貨物を除去します
@@ -533,3 +546,5 @@ Different player's stop!
 他社の停車場です!
 Pipette
 ピペットツール
+Readable by standard
+Standard用データに変換して保存(OTRP機能は失われます)
