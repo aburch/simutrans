@@ -2131,6 +2131,9 @@ void  depot_frame_t::rdwr( loadsave_t *file)
 	vehicle_filter.rdwr(file);
 	file->rdwr_byte(veh_action);
 	file->rdwr_long(icnv);
+	if(  file->get_OTRP_version()>=51  ) {
+		file->rdwr_str(name_filter_value,sizeof(name_filter_value));
+	}
 	sort_by.rdwr(file);
 	simline_t::rdwr_linehandle_t(file, selected_line);
 
