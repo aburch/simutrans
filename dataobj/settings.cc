@@ -331,6 +331,7 @@ settings_t::settings_t() :
 	base_waiting_ticks_for_air_convoi = 200000;
 
 	default_reverse=false;
+	allow_unload_longer_convoy=false;
 	allow_higher_flight = true;
 }
 
@@ -1016,8 +1017,10 @@ void settings_t::rdwr(loadsave_t *file)
 			default_reverse = false;
 		}
 		if(  file->get_OTRP_version() >= 51  ) {
+			file->rdwr_bool(allow_unload_longer_convoy);
 			file->rdwr_bool(allow_higher_flight);
 		} else {
+			allow_unload_longer_convoy = false;
 			allow_higher_flight=true;
 		}
  		if(  file->is_version_atleast(122, 1)  ) {
@@ -1182,6 +1185,9 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	}
 	// setting default reverse or not when next direction is opposite
 	default_reverse = contents.get_int( "reverse_by_default", default_reverse )!=0;
+
+	// allow unload even if stop length is too short
+	allow_unload_longer_convoy = contents.get_int( "allow_unload_longer_convoy", allow_unload_longer_convoy )!=0;
 
 	// setting driving left and overtaking offsets
 	// a tile has the internal size of

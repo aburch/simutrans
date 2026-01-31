@@ -371,6 +371,9 @@ private:
 	// set default reversing or not, when the next direction is opposite.
 	bool default_reverse;
 
+	// can unload cargo even if stop length is too short
+	bool allow_unload_longer_convoy;
+
 public:
 	/* the big cost section */
 	sint32 maint_building; // normal building
@@ -747,6 +750,8 @@ public:
 	}
 	// get default reverse
 	bool is_default_reverse() const {return default_reverse;}
+	// allow unload longer convoy
+	bool is_allow_unload_longer_convoy() const { return allow_unload_longer_convoy; }
 };
 
 #endif

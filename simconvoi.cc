@@ -3993,7 +3993,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 	}
 	
 
-	for(unsigned i=0; i<vehicles_loading; i++) {
+	for(unsigned i=0; i<(halt->is_allow_unload_longer_convoy()?anz_vehikel:vehicles_loading); i++) {
 		vehicle_t* v = fahr[i];
 
 		// we need not to call this on the same position
@@ -4016,7 +4016,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 		const uint16 max_load_percentage = allow_overload_car ? ( uint16)get_schedule()->get_current_entry().maximum_loading: (uint16)min(get_schedule()->get_current_entry().maximum_loading,100);
 		const uint16 capacity_left = (v->get_cargo_max()*max_load_percentage/100 > v->get_total_cargo())?v->get_cargo_max()*max_load_percentage/100 - v->get_total_cargo(): 0;
 
-		if(  loading_needed  &&  capacity_left > 0  &&  halt->gibt_ab(v->get_cargo_type())  ) {
+		if(  loading_needed  &&  capacity_left > 0  &&  halt->gibt_ab(v->get_cargo_type())  &&  vehicles_loading > i  ) {
 			// load if: unloaded something (might go back) or previous non-filled car requested different cargo type
 			if (amount>0  ||  cargo_type_prev==NULL  ||  !cargo_type_prev->is_interchangeable(v->get_cargo_type())) {
 				// load

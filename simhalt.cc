@@ -4798,3 +4798,8 @@ void haltestelle_t::toggle_other_player_connection_allowed() {
 		}
 	}
 }
+
+bool const haltestelle_t::is_allow_unload_longer_convoy()
+{
+	return world()->get_settings().is_allow_unload_longer_convoy()&&((flags&HS_ALLOW_UNLOAD_LONGER_CONVOY)>0);
+}
