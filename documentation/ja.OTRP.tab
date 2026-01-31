@@ -550,3 +550,5 @@ Pipette
 ピペットツール
 Readable by standard
 Standard用データに変換して保存(OTRP機能は失われます)
+Recreate halt name
+停車場名を再生成します

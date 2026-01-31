@@ -822,6 +822,14 @@ public:
 };
 
 
+class tool_recreate_halt_name_t : public tool_t {
+public:
+	tool_recreate_halt_name_t() : tool_t(TOOL_RECREATE_HALT_NAME | GENERAL_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Recreate halt name"); }
+	char const* work(player_t*, koord3d) OVERRIDE;
+	bool is_init_network_safe() const OVERRIDE { return true; }
+};
+
 /********************* one click tools ****************************/
 
 class tool_pause_t : public tool_t {
