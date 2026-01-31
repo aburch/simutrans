@@ -59,7 +59,7 @@ public:
 		return get_min_size();
 	}
 
-	void set_buffer_to_cargoinfo ( cbuffer_t& buffer, uint8 sorting_mode) const;
+	void set_buffer_to_cargoinfo ( cbuffer_t& buffer, uint8 sorting_mode, const char* end="\n") const;
 };
 
 #endif

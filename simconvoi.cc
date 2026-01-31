@@ -151,6 +151,7 @@ void convoi_t::init(player_t *player)
 	freight_info_order = 0;
 	loading_level = 0;
 	loading_limit = 0;
+	loading_waiting_time = 0;
 
 	speed_limit = SPEED_UNLIMITED;
 	max_record_speed = 0;
@@ -1272,7 +1273,7 @@ bool convoi_t::drive_to()
 			// if change direction at waypoint, we must reverse coupling here!
 			grund_t *gr=welt->lookup(start);
 			if(  env_t::reversible_waytype(front()->get_waytype())&&front()->get_waytype()!=water_wt&&!reverse_coupling_done&&state!=INITIAL&&!(gr  &&  gr->get_depot())  ) {
-				const bool reverse_here=world()->get_settings().is_default_reverse()&&((route.get_count()<2) ? false : ((ribi_type(route.at(0), route.at(1)) & front()->get_direction()) == 0 ? true : false));
+				const bool reverse_here=(world()->get_settings().is_default_reverse()||get_schedule()->is_reverse_default())&&((route.get_count()<2) ? false : ((ribi_type(route.at(0), route.at(1)) & front()->get_direction()) == 0 ? true : false));
 				if( reversing_coupling_needed^reverse_here )
 				{
 					// we need reverse here!
@@ -2530,7 +2531,7 @@ void convoi_t::vorfahren()
 	c = self;
 	while(  c.is_bound()  ) {
 		// the back vehicles position is set.
-		if (c->reversing_needed^(world()->get_settings().is_default_reverse()&&env_t::reversible_waytype(front()->get_waytype())&&front()->get_waytype()!=water_wt&&!go_same_direction)){
+		if (c->reversing_needed^((world()->get_settings().is_default_reverse()||get_schedule()->is_reverse_default())&&env_t::reversible_waytype(front()->get_waytype())&&front()->get_waytype()!=water_wt&&!go_same_direction)){
 			c->reverse_vehicles_at_halt_if_needed();
 		}
 		// reset uncouple done flag
@@ -4053,6 +4054,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 		calc_loading();
 	}
 	loading_limit = schedule->get_current_entry().minimum_loading;
+	loading_waiting_time = schedule->get_current_entry().waiting_time_shift>0? welt->ticks_per_world_month/schedule->get_current_entry().waiting_time_shift:0;
 
 	// update statistics of average speed
 	if(  distance_since_last_stop  ) {
@@ -4138,7 +4140,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 	if (  coupling_convoi.is_bound()  &&  !is_coupled()  &&  !is_waiting_for_coupling()  &&  !reverse_coupling_done  )
 	{
 		bool should_reverse_coupling_done = false;
-		if(world()->get_settings().is_default_reverse()) {
+		if(world()->get_settings().is_default_reverse()||get_schedule()->is_reverse_default()) {
 			// the direction of the waiting vehicle is same? opposite?
 			route_t r;
 			route_t::route_result_t res = r.calc_route(welt, front()->get_pos(), get_schedule()->get_next_entry().pos, front(), speed_to_kmh(min_top_speed), 8888);
@@ -4186,6 +4188,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 			schedule->advance();
 			state = ROUTING_1;
 			loading_limit = 0;
+			loading_waiting_time = 0;
 			coupling_done = false;
 			scheduled_departure_time = 0;
 			// Advance schedule of coupling convoy recursively.
@@ -4323,7 +4326,7 @@ void convoi_t::calc_loading()
 	}
 	loading_level = fracht_max > 0 ? (fracht_menge*100)/fracht_max : 100;
 	loading_limit = 0; // will be set correctly from hat_gehalten() routine
-
+	loading_waiting_time = 0;
 	// since weight has changed
 	recalc_data=true;
 }

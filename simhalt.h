@@ -836,11 +836,11 @@ public:
 	/**
 	 * @param[out] buf short list of the waiting goods (i.e. 110 Wood, 15 Coal)
 	 */
-	void get_short_freight_info(cbuffer_t & buf) const;
+	void get_short_freight_info(cbuffer_t & buf, const char* end="\n") const;
 
-	void get_throughput_info(cbuffer_t& buf) const;
+	void get_throughput_info(cbuffer_t& buf, const char* end="\n") const;
 	
-	void get_waiting_occupancy_info(cbuffer_t& buf) const;
+	void get_waiting_occupancy_info(cbuffer_t& buf, const char* end="\n") const;
 
 	/**
 	 * Opens an information window for this station.
