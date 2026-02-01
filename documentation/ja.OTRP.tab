@@ -65,6 +65,8 @@ height offset
 高度のオフセット
 Waiting for schedule. %i left!
 発車時刻待ち（残り %i）
+Loading (%i->%i%%)! %i left!
+(%i->%i%%)積載中 (残り %i)
 line name tooltips
 系統名を表示
 line name and states tooltips
@@ -99,6 +101,10 @@ Choose signal
 振分信号を有効化(空いているホームに進入を許可)
 end of choose signal
 振分信号による進入禁止
+Margin
+停車余白
+tiles length of the margin to stop when choosing. Set this margin to the stop side(advance to end->end side)
+振分使用時に、停車する際にこのタイル分の余裕を空けて停車します．「ホーム終端まで進む」がオンのときは奥側に，オフの時は手前側に停車余白をとります．
 try coupling convoy not enter here
 連結試行時の進入禁止
 remove signal
@@ -153,6 +159,12 @@ Copy station names and journey time to clipboard in csv format.
 クリップボードに駅名と所要時間をcsv形式でコピーします．
 The latest departure slots were not used.
 直近の発車枠が使われませんでした．
+Copy Halt Data
+駅の詳細をコピー
+Copy the data of the halt labels.
+クリップボードに駅名と駅のデータをコピーします．
+Halt data was copied to clipboard.\n
+駅のデータをクリップボードにコピーしました．\n
 #------Schedule window related stuff------
 #------スケジュールウィンドウ関連のエントリ------
 Please click on the map to add\nwaypoints or stops to this\nschedule.
@@ -249,6 +261,10 @@ If there are no users, this convoy will not go to this stop
 乗降客がいない場合、この駅を無視して次の駅に向かいます．
 reverse convoy
 編成を反転する(R)
+Reverse by Default
+折り返し時に自動で反転
+When the next destination is in the opposite direction, it will automatically reverse.
+折り返し運転する際、車両の向きを自動で反転します．
 Reverses the direction of convoy.
 編成の向きを反転します．
 reverse convoy coupling
@@ -446,6 +462,12 @@ Player color
 プレイヤーカラー
 Line color
 路線の色
+Line Colour
+路線の色
+Line Colour:
+路線の色
+Change colour of the line
+路線の色を変更
 Citizens
 人口
 CityGrowth
@@ -467,6 +489,18 @@ reverse_by_default
 折り返し時に車両を自動で反転(reverse_by_default)
 first_come_first_serve
 到着順に乗車する(first_come_first_serve)
+use_old_friction
+古い勾配の摩擦係数を使用(use_old_friction)
+allow_unload_longer_convoy
+有効長不足の車両からの下車を許可(allow_unload_longer_convoy)
+allow_higher_flight
+高高度の飛行を許可(allow_higher_flight)
+credit_per_MWs
+1MWあたりの収入(credit_per_MWs)
+maximum_village_size
+村の人口上限:これ以上の人口の町は「都市city」となります(maximum_village_size)
+maximum_city_size
+都市の人口上限:これ以上の人口の町は「首都capital」となります(maximum_city_size)
 #------その他の翻訳------
 Remove all waiting goods and pax
 この駅のすべての待機中の旅客と貨物を除去します
@@ -546,9 +580,15 @@ No stop found!
 停車場がありません!
 Different player's stop!
 他社の停車場です!
+Unload from longer convoy
+ホーム長が足りなくても下車可能
+Allow unloading when convoy length is longer than this station length
+ホーム長が編成長より短くても下車できるようになります(ホーム不足分の車両への乗車はできません)
 Pipette
 ピペットツール
 Readable by standard
 Standard用データに変換して保存(OTRP機能は失われます)
 Recreate halt name
 停車場名を再生成します
+ Locked
+ゲーム速度固定
