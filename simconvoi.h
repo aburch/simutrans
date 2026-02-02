@@ -405,6 +405,13 @@ private:
 	uint16 max_speed_kmh_of_convoi;
 
 	/**
+	 * The limitation of balance speed
+	 * This speed limit define the limited power of convoys
+	 * The actual power is the minimum of gear_and_power of desc vs. the value calculated by this speed limit.
+	 */
+	uint16 max_balance_speed_convoi;
+
+	/**
 	* Initialize all variables with default values.
 	* Each constructor must call this method first!
 	*/
@@ -1167,6 +1174,8 @@ public:
 
 	uint16 get_max_speed_kmh_of_convoi() const {return max_speed_kmh_of_convoi;}
 	void set_max_speed_kmh_of_convoi(uint16 n);
+	uint16 get_max_balance_speed_convoi() const {return max_balance_speed_convoi;}
+	void set_max_balance_speed_convoi(uint16 n) { max_balance_speed_convoi = n; }
 };
 
 #endif

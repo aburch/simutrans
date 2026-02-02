@@ -789,6 +789,11 @@ static inline sint32 res_power(sint64 speed, sint32 total_power, sint64 friction
 	return res;
 }
 
+static inline sint32 calc_limited_gear_and_power(sint64 speed, sint64 total_weight)
+{
+	return (sint32)( ( (sint64)speed * ( (total_weight * (sint64)speed ) / 3125ll + 1ll) ) / 2048ll + (total_weight * 64ll) / 1000ll);
+}
+
 /* Calculates (and sets) new akt_speed
  * needed for driving, entering and leaving a depot)
  */
@@ -925,6 +930,10 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 		while(c.is_bound()) {
 			gear_and_power += c->get_sum_gear_and_power();
 			c = c->get_coupling_convoi();
+		}
+		if(  max_balance_speed_convoi>0  ) {
+			const sint32 limited_gear_and_power = calc_limited_gear_and_power(kmh_to_speed(max_balance_speed_convoi), sum_gesamtweight);
+			gear_and_power = min(gear_and_power, limited_gear_and_power);
 		}
 
 		sint64 residual_power = res_power(akt_speed, akt_speed>akt_speed_soll? 0l : gear_and_power, sum_friction_weight, sum_gesamtweight);
