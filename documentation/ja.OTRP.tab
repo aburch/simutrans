@@ -430,6 +430,16 @@ Vehicle %s will couple with vehicle %s, but the next stop positions are differen
 %sと%sは連結して発車する予定ですが、次の駅の座標が異なるため連結できません!
 %s is not front convoy.
 %sは先頭の編成ではありません。
+Copy the selected convoi and its schedule or line (ctrl pressed: copy to clipboard)
+編成とスケジュール/所属路線を複製します(ctrlキーを押すと編成の情報のみをクリップボードにコピーしてほかの車庫に貼り付けられます)
+Uncouple
+連結解除
+uncouple child convoy
+後ろの編成を連結解除します
+remove all vehicles
+全ての車両を片付ける
+remove all vehicles.
+この編成の全ての車両を片付けます
 #------編成最高速度機能------
 Set Max Speed
 編成最高速度を設定

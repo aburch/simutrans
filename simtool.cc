@@ -9310,6 +9310,7 @@ bool tool_change_depot_t::init( player_t *player )
 		}
 		case 't': { // reverse convoy direction
 			cnv->set_reversing_needed(!cnv->is_reversing_needed());
+			break;
 		}
 	}
 	return false;
