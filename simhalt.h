@@ -853,6 +853,7 @@ public:
 	 */
 	stationtyp get_station_type() const { return station_type; }
 	void recalc_station_type();
+	stationtyp get_connected_station_type() const;
 
 	/**
 	 * fragt den namen der Haltestelle ab.
