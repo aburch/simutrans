@@ -318,7 +318,6 @@ void convoi_detail_t::update_labels()
 	const uint32 test_balance_kmh=999;
 	while(  c.is_bound()  ) {
 		total_power+=c->get_sum_gear_and_power();
-		// total_weight+=c->get_sum_gesamtweight();
 		c = c->get_coupling_convoi();
 	}
 	uint32 balance_kmh = speed_to_kmh(convoi_t::calc_max_speed(total_power,total_weight,kmh_to_speed(test_balance_kmh)));
