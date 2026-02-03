@@ -2061,7 +2061,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 			display_ddd_proportional_clip( xpos, ypos, color, color_idx_to_rgb(COL_BLACK), tooltip_text, true );
 			if(cnv->get_line().is_bound()) {
 				uint8 tooltip_width = proportional_string_width(tooltip_text);
-				display_fillbox_wh_clip_rgb( xpos, ypos-4, tooltip_width, D_WAITINGBAR_WIDTH, color_idx_to_rgb(cnv->get_line()->get_colour()), dirty );
+				display_fillbox_wh_clip_rgb( xpos, ypos-D_WAITINGBAR_WIDTH, tooltip_width+4, D_WAITINGBAR_WIDTH, color_idx_to_rgb(cnv->get_line()->get_colour()), dirty );
 			}
 		}
 	}
