@@ -566,7 +566,19 @@ namespace script_api {
 
 	SQInteger param<schedule_entry_t>::push(HSQUIRRELVM vm, schedule_entry_t const& v)
 	{
-		return push_instance(vm, "schedule_entry_x", v.pos, v.minimum_loading, v.waiting_time_shift);
+		if (&v) {
+			koord k = v.pos.get_2d();
+			// transform coordinates
+			coordinate_transform_t::koord_w2sq(k);
+			if (SQ_FAILED(push_instance(vm, "schedule_entry_x", k.x, k.y, v.pos.z))) {
+				return SQ_ERROR;
+			}
+		}
+
+		set_slot(vm, "load", (sint32)v.minimum_loading);
+		set_slot(vm, "wait", (sint32)v.waiting_time_shift);
+
+    return 1;
 	}
 
 
@@ -579,7 +591,7 @@ namespace script_api {
 	SQInteger param<const schedule_t*>::push(HSQUIRRELVM vm, const schedule_t* const& v)
 	{
 		if (v) {
-			return push_instance(vm, "schedule_x", v->get_waytype(), v->get_entries());
+			return push_instance(vm, "schedule_x", v->get_waytype(), v->get_entries(), v->get_additional_base_waiting_time());
 		}
 		else {
 			sq_pushnull(vm); return 1;

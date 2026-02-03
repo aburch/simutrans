@@ -1183,6 +1183,7 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 		}
 	}
 	step_mode  = PAUSE_FLAG;
+	fix_game_speed = false;
 	intr_disable();
 
 	if(plan) {
@@ -1940,8 +1941,8 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	}
 
 	// so at least some rivers end or start in lakes
-	if(  env_t::river_types > 0  &&  settings.get_river_number() > 0  ) {
-		create_rivers( settings.get_river_number() );
+	if(  env_t::river_types > 0  &&  sets->get_river_number() > 0  ) {
+		create_rivers( sets->get_river_number() );
 	}
 
 	if (  old_x == 0  &&  old_y == 0  ) {
@@ -2106,6 +2107,7 @@ karte_t::karte_t() :
 	last_interaction = dr_time();
 	step_mode = PAUSE_FLAG;
 	time_multiplier = 16;
+	fix_game_speed = false;
 	next_midi_time = next_step_time = last_step_time = 0;
 	fix_ratio_frame_time = 200;
 	idle_time = 0;
@@ -5129,7 +5131,7 @@ bool karte_t::load(const char *filename)
 
 	if(file.rd_open(name) != loadsave_t::FILE_STATUS_OK) {
 
-		if(  file.get_version_int()==0  ||  file.get_version_int()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL ).version  ) {
+		if(  file.get_version_int()==0  ||  file.get_version_int()>loadsave_t::int_version(LOADGAME_VER_NR, NULL ).version  ) {
 			dbg->warning("karte_t::load()", translator::translate("WRONGSAVE") );
 			create_win( new news_img("WRONGSAVE"), w_info, magic_none );
 		}
@@ -5558,6 +5560,50 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 			create_win(win, w_info, magic_motd);
 		}
 	}
+	
+
+	if (file->is_version_atleast(124, 1)) {
+		//TODO: chat message
+		uint16 msg_count;
+		file->rdwr_short(msg_count);
+		while ((msg_count--) > 0) {
+			char msg[256];
+			file->rdwr_str(msg, lengthof(msg));
+			uint8 flags;
+			file->rdwr_byte(flags);
+			uint8 player_nr;
+			file->rdwr_byte(player_nr);
+			uint8 channel_nr;
+			file->rdwr_byte(channel_nr);
+			plainstring sender;
+			file->rdwr_str(sender);
+			plainstring destination;
+			file->rdwr_str(destination);
+			sint32 time;
+			file->rdwr_long(time);
+			sint64 tmp;
+			file->rdwr_longlong(tmp);
+			koord pos;
+			pos.rdwr(file);
+		}
+	}
+
+	if (file->is_version_atleast(124, 2)) {
+		//TODO: speed records
+		uint32 speed;
+		uint32 year_month;
+		koord3d speedrecord_pos;
+		uint8 speedrecord_player_nr;
+		char speedrecord_name[128];
+		for( uint8 i=0; i<7; i++  ) {
+			// the number of recorded waytype is 7
+			file->rdwr_long(speed);
+			file->rdwr_long(year_month);
+			speedrecord_pos.rdwr(file);
+			file->rdwr_byte(speedrecord_player_nr);
+			file->rdwr_str(speedrecord_name, lengthof(speedrecord_name));
+		}
+	}
 
 	if(  file->is_version_atleast(102, 4)  ) {
 		if(  env_t::restore_UI  ) {
@@ -5714,6 +5760,11 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 	file->rdwr_long(ticks);
 	file->rdwr_long(last_month);
 	file->rdwr_long(last_year);
+	if(file->get_OTRP_version()>=51&&env_t::networkmode) {
+		// game speed (only network mode)
+		file->rdwr_long(time_multiplier);
+		file->rdwr_bool(fix_game_speed);
+	}
 
 	if (file->is_loading()) {
 		if(file->is_version_less(86, 6)) {
@@ -6845,7 +6896,7 @@ void karte_t::reset_timer()
 	else if(step_mode==FIX_RATIO) {
 		last_frame_idx = 0;
 		fix_ratio_frame_time = 1000 / clamp(settings.get_frames_per_second(), env_t::min_fps, env_t::max_fps);
-		next_step_time = last_tick_sync + fix_ratio_frame_time;
+		next_step_time = last_tick_sync + (3200/get_time_multiplier() );
 		set_frame_time( fix_ratio_frame_time );
 		intr_disable();
 		// other stuff needed to synchronize
@@ -6931,7 +6982,7 @@ void karte_t::change_time_multiplier(sint32 delta)
 			env_t::max_acceleration += delta;
 		}
 	}
-	else {
+	else if (  !env_t::networkmode  ||  !fix_game_speed  ) {
 		time_multiplier += delta;
 		if(time_multiplier<=0) {
 			time_multiplier = 1;
@@ -7146,7 +7197,6 @@ void karte_t::stop(bool exit_game)
 void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
 {
 	if (env_t::networkmode) {
-		time_multiplier = 16; // reset to normal speed
 		sync_steps = syncsteps_;
 		sync_steps_barrier = sync_steps;
 		steps = sync_steps / settings.get_frames_per_step();

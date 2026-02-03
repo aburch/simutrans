@@ -477,6 +477,12 @@ private:
 
 	uint8 step_mode;
 
+	/**
+	 *  fix game speed
+	 *  only for network mode!
+	 */
+	bool fix_game_speed;
+
 	/// @note variable used in interactive()
 	uint32 sync_steps;
 
@@ -872,6 +878,11 @@ public:
 	bool is_paused() const { return step_mode&PAUSE_FLAG; }
 	/// stops the game with interaction
 	void set_pause( bool );
+
+	/// fix game speed 
+	/// only for network mode
+	bool is_game_speed_fixed() const { return fix_game_speed; }
+	void set_game_speed_fixed( bool y ) { fix_game_speed = y; }
 
 	bool is_fast_forward() const { return step_mode == FAST_FORWARD; }
 	void set_fast_forward(bool ff);

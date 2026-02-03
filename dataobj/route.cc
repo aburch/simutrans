@@ -115,7 +115,7 @@ bool route_t::node_in_use=false;
 /**
  * find the route to an unknown location
  */
-bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 max_depth, bool need_electric, bool coupling )
+bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 max_depth, bool need_electric, bool coupling, const uint8 choose_margin )
 {
 	bool ok = false;
 
@@ -198,7 +198,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			already_there = tdriver->is_coupling_target( gr, tmp->parent==NULL ? NULL : tmp->parent->gr);
 		} else {
 			// normal routine.
-			already_there = tdriver->is_target( gr, tmp->parent==NULL ? NULL : tmp->parent->gr, need_electric );
+			already_there = tdriver->is_target( gr, tmp->parent==NULL ? NULL : tmp->parent->gr, need_electric, choose_margin );
 		}
 		if(  already_there  ) {
 			// we added a target to the closed list: check for length

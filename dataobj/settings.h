@@ -64,6 +64,8 @@ private:
 	sint32 electric_promille;
 	sint32 tourist_attractions;
 
+	uint32 credit_per_MWs;
+
 	sint32 city_count;
 	sint32 mean_citizen_count;
 
@@ -77,6 +79,9 @@ private:
 	sint32 growthfactor_small;
 	sint32 growthfactor_medium;
 	sint32 growthfactor_large;
+
+	sint32 growthfactor_small_limit;
+	sint32 growthfactor_medium_limit;
 
 	sint16 special_building_distance; // distance between attraction to factory or other special buildings
 	uint32 minimum_city_distance;
@@ -342,6 +347,9 @@ private:
 
 	bool first_come_first_serve;
 
+	// flying height calculation method
+	bool allow_higher_flight;
+
 	// The flag whether the time based goods routing is enabled for the goods.
 	// The array index is the goods category index.
 	bool is_time_based_routing_enabled[256];
@@ -367,6 +375,9 @@ private:
 	
 	// set default reversing or not, when the next direction is opposite.
 	bool default_reverse;
+
+	// can unload cargo even if stop length is too short
+	bool allow_unload_longer_convoy;
 
 public:
 	/* the big cost section */
@@ -465,6 +476,8 @@ public:
 	sint32 get_factory_count() const {return factory_count;}
 
 	sint32 get_electric_promille() const {return electric_promille;}
+
+	sint32 get_credit_per_MWs() const {return credit_per_MWs;}
 
 	void set_tourist_attractions( sint32 n ) { tourist_attractions = n; }
 	sint32 get_tourist_attractions() const {return tourist_attractions;}
@@ -620,6 +633,10 @@ public:
 	sint32 get_growthfactor_medium() const { return growthfactor_medium; }
 	sint32 get_growthfactor_large() const { return growthfactor_large; }
 
+	// the growthfactor threshold  
+	sint32 get_growthfactor_small_limit() const { return growthfactor_small_limit; }
+	sint32 get_growthfactor_medium_limit() const { return growthfactor_medium_limit; }
+
 	// percentage of passengers for different kinds of trips
 	sint16 get_factory_worker_percentage() const { return factory_worker_percentage; }
 	sint16 get_tourist_percentage() const { return tourist_percentage; }
@@ -728,6 +745,9 @@ public:
 	bool get_first_come_first_serve() const { return first_come_first_serve; }
 	uint32 get_waiting_limit_for_first_come_first_serve() const 
 		{ return waiting_limit_for_first_come_first_serve; }
+
+	bool get_allow_higher_flight() const { return allow_higher_flight; }
+	void set_allow_higher_flight(const bool y) { allow_higher_flight=y; }
 	
 	uint8 get_routecost_halt() const { return routecost_halt; }
 	uint8 get_routecost_wait() const { return routecost_wait; }
@@ -741,6 +761,8 @@ public:
 	}
 	// get default reverse
 	bool is_default_reverse() const {return default_reverse;}
+	// allow unload longer convoy
+	bool is_allow_unload_longer_convoy() const { return allow_unload_longer_convoy; }
 };
 
 #endif

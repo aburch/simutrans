@@ -93,6 +93,7 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 		set_end_of_choose(true);
 		set_end_of_guide(true);
 	}
+	choose_signal_margin_length=0;
 	ticks_yellow_ns = ticks_yellow_ow = 2;
 	set_owner( player );
 	if(  desc->is_private_way()  ) {
@@ -688,6 +689,11 @@ void roadsign_t::rdwr(loadsave_t *file)
 		set_advance_to_end(true);
 		set_end_of_choose(true);
 		set_end_of_guide(true);
+	}
+	if(file->get_OTRP_version()>=51) {
+		file->rdwr_byte(choose_signal_margin_length);
+	} else {
+		choose_signal_margin_length = 0;
 	}
 
 	if(file->is_saving()) {

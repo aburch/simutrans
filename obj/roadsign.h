@@ -50,6 +50,8 @@ protected:
 		end_of_guide   = 1U<<4 // end of guide signal (for searching coupling target)
 	};
 
+	uint8 choose_signal_margin_length;
+
 	sint8 after_yoffset, after_xoffset;
 
 	// 0 = not fixed, 1 = only fix left lane, 2 = only fix right lane, 3 = fix both lane, 4 = not applied
@@ -178,6 +180,8 @@ public:
 	bool is_flag_end_of_guide() const { return (choose_sign_flag&end_of_guide)>0; }
 	void set_end_of_guide(bool tf) { tf? choose_sign_flag|=end_of_guide:choose_sign_flag&=~end_of_guide; }
 	uint8 const get_choose_sign_flag() {return choose_sign_flag;}
+	uint8 const get_margin_length() {return choose_signal_margin_length;}
+	void set_margin_length(uint8 i) {choose_signal_margin_length=i;}
 	/**
 	* draw the part overlapping the vehicles
 	* (needed to get the right offset even on hills)
