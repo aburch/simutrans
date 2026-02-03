@@ -2538,6 +2538,9 @@ void convoi_t::vorfahren()
 		c->uncouple_done = false;
 		c->reverse_coupling_done = false;
 		c->reversing_coupling_needed = false;
+		// reset next stop index and coupling index
+		c->next_stop_index = 65535;
+		c->next_coupling_index = route_t::INVALID_INDEX;
 		c = c->get_coupling_convoi();
 	}
 	c = self;
