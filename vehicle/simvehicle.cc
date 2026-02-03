@@ -2039,7 +2039,20 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 		ypos += tile_raster_scale_y(get_yoff(), raster_width)+14;
 		if(ypos>LINESPACE+32  &&  ypos+LINESPACE<display_get_clip_wh().yy) {
 			display_ddd_proportional_clip( xpos, ypos, color, color_idx_to_rgb(COL_BLACK), tooltip_text, true );
+			if(cnv->get_line().is_bound()) {
+				convoihandle_t c = cnv->self;
+				linehandle_t L = c->get_line();
+				dbg->message("vehicle_t::display_after()","Drawing %s's tooltip.", c->get_name());
+				dbg->message("vehicle_t::display_after()","%s's Line-colour is %i.", c->get_name(), L->get_colour());
+				uint8 tooltip_width = proportional_string_width(tooltip_text);
+				dbg->message("vehicle_t::display_after()","%s's tooltip width will be %i.", c->get_name(), tooltip_width);
+
+				display_fillbox_wh_clip_rgb( xpos, ypos-4, tooltip_width+4, D_WAITINGBAR_WIDTH, color_idx_to_rgb(L->get_colour()), dirty );
+			}
 		}
+
+
+
 	}
 }
 
