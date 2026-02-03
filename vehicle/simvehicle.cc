@@ -2062,10 +2062,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 			if(cnv->get_line().is_bound()) {
 				convoihandle_t c = cnv->self;
 				linehandle_t L = c->get_line();
-				dbg->message("vehicle_t::display_after()","Drawing %s's tooltip.", c->get_name());
-				dbg->message("vehicle_t::display_after()","%s's Line-colour is %i.", c->get_name(), L->get_colour());
 				uint8 tooltip_width = proportional_string_width(tooltip_text);
-				dbg->message("vehicle_t::display_after()","%s's tooltip width will be %i.", c->get_name(), tooltip_width);
 
 				display_fillbox_wh_clip_rgb( xpos, ypos-4, tooltip_width+4, D_WAITINGBAR_WIDTH, color_idx_to_rgb(L->get_colour()), dirty );
 			}
