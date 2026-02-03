@@ -2059,6 +2059,10 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 		ypos += tile_raster_scale_y(get_yoff(), raster_width)+14;
 		if(ypos>LINESPACE+32  &&  ypos+LINESPACE<display_get_clip_wh().yy) {
 			display_ddd_proportional_clip( xpos, ypos, color, color_idx_to_rgb(COL_BLACK), tooltip_text, true );
+			if(cnv->get_line().is_bound()) {
+				uint8 tooltip_width = proportional_string_width(tooltip_text);
+				display_fillbox_wh_clip_rgb( xpos, ypos-4, tooltip_width, D_WAITINGBAR_WIDTH, color_idx_to_rgb(cnv->get_line()->get_colour()), dirty );
+			}
 		}
 	}
 }
