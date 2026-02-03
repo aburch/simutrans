@@ -2060,11 +2060,9 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 		if(ypos>LINESPACE+32  &&  ypos+LINESPACE<display_get_clip_wh().yy) {
 			display_ddd_proportional_clip( xpos, ypos, color, color_idx_to_rgb(COL_BLACK), tooltip_text, true );
 			if(cnv->get_line().is_bound()) {
-				convoihandle_t c = cnv->self;
-				linehandle_t L = c->get_line();
 				uint8 tooltip_width = proportional_string_width(tooltip_text);
-
-				display_fillbox_wh_clip_rgb( xpos, ypos-4, tooltip_width+4, D_WAITINGBAR_WIDTH, color_idx_to_rgb(L->get_colour()), dirty );
+				linehandle_t lh = cnv->get_line();
+				display_fillbox_wh_clip_rgb( xpos, ypos-D_WAITINGBAR_WIDTH, tooltip_width+4, D_WAITINGBAR_WIDTH, color_idx_to_rgb(lh->get_colour()), dirty );
 			}
 		}
 
