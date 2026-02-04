@@ -2058,7 +2058,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 		xpos += tile_raster_scale_x(get_xoff(), raster_width);
 		ypos += tile_raster_scale_y(get_yoff(), raster_width)+14;
 		if(ypos>LINESPACE+32  &&  ypos+LINESPACE<display_get_clip_wh().yy) {
-			if(  cnv->get_max_loading()>0  ) {
+			if(  cnv->get_max_loading()>0  &&  (state==env_t::LINE_NAME_TOOLTIPS || state==env_t::LINE_NAME_AND_STATES_TOOLTIPS)  ) {
 				// show loading level only for loadable convoy(not for locomotive, etc.)
 				// show loading capacity as gray background
 				display_fillbox_wh_clip_rgb( xpos, ypos+14, 100, D_WAITINGBAR_WIDTH, color_idx_to_rgb(COL_GREY4), dirty );
