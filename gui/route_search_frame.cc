@@ -133,6 +133,7 @@ result_container(1, 0)
 route_search_frame_t::~route_search_frame_t()
 {
     minimap_t::get_instance()->set_selected_cnv( convoihandle_t(), true );
+    minimap_t::get_instance()->set_circle_halts(false);
     result_container.remove_all();
 }
 
@@ -146,6 +147,7 @@ bool route_search_frame_t::action_triggered(gui_action_creator_t* comp, value_t)
         const goods_desc_t *ware = viewable_freight_types[freight_type_c.get_selection()];
         search_ware_index = ware->get_index();
 	}
+    minimap_t::get_instance()->set_circle_halts(true);
     return true;
 }
 

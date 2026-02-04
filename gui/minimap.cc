@@ -1086,6 +1086,7 @@ void minimap_t::init()
 	map_data = NULL;
 	needs_redraw = true;
 	is_visible = false;
+	circle_halts = false;
 
 	calc_map_size();
 	max_building_level = max_cargo = max_passed = 0;
@@ -1187,6 +1188,11 @@ const fabrik_t* minimap_t::draw_factory_connections(const fabrik_t* const fab, b
 void minimap_t::set_selected_cnv( convoihandle_t c, bool const clear_cache )
 {
 	current_cnv = c;
+	if (  c.is_bound() ) {
+		circle_halts = true;
+	} else {
+		circle_halts = false;
+	}
 	if(clear_cache) {
 		schedule_cache.clear();
 		stop_cache.clear();
@@ -1409,12 +1415,12 @@ void minimap_t::draw(scr_coord pos)
 		FOR(  vector_tpl<line_segment_t>, seg, schedule_cache  ) {
 
 			uint8 color = seg.colorcount;
-			if(  event_get_last_control_shift()==2  ||  current_cnv.is_bound()  ) {
+			if(  event_get_last_control_shift()==2  ||  current_cnv.is_bound() || circle_halts  ) {
 				// on control / single convoi use only player colors
 				static uint8 last_color = color;
 				color = seg.player->get_player_color1()+1;
 				// all lines same thickness if same color
-				if(  color == last_color  ) {
+				if(  color == last_color || circle_halts  ) {
 					offset = 0;
 				}
 				last_color = color;
@@ -1541,7 +1547,7 @@ void minimap_t::draw(scr_coord pos)
 				}
 			}
 			// with control, show only circles
-			if(  event_get_last_control_shift()!=2  ) {
+			if(  !circle_halts && event_get_last_control_shift()!=2  ) {
 				// else elongate them ...
 				const int key = station->get_basis_pos().x + station->get_basis_pos().y * world->get_size().x;
 				diagonal_dist = waypoint_hash.get( key ).get_count();

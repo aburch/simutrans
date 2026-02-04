@@ -169,6 +169,8 @@ private:
 	/// if true, draw the map with 45 degree rotation
 	bool isometric;
 
+	static bool circle_halts;
+
 	bool is_matching_freight_catg(const minivec_tpl<uint8> &goods_catg_index);
 
 	/// nonstatic, if we have someday many maps ...
@@ -181,6 +183,8 @@ public:
 	bool is_isometric() const { return isometric; }
 
 	static bool is_visible;
+
+	void set_circle_halts(bool val) { circle_halts = val; };
 
 	uint8 network_color_mode;
 
