@@ -544,6 +544,8 @@ private:
 	// total length is enough than this length->coupling cancel
 	bool cease_coupling_due_to_length_over;
 
+	bool map_highlighted = true;
+
 public:
 	bool is_reversed() const { return reversed; }
 	void set_reversed(bool yesno) { reversed = yesno; }
@@ -555,6 +557,9 @@ public:
 	void reverse_vehicles_on_user_request();
 
 	bool is_cease_coupling_due_to_length_over() const { return cease_coupling_due_to_length_over; }
+
+	void set_map_highlighted(bool val) { map_highlighted = val; };
+	bool is_map_highlighted() const { return map_highlighted; };
 
 	/**
 	* Convoi haelt an Haltestelle und setzt quote fuer Fracht
@@ -834,7 +839,7 @@ public:
 	/**
 	* Sets a schedule
 	*/
-	bool set_schedule(schedule_t *f);
+	bool set_schedule(schedule_t *f, bool check_overwrite = false);
 
 	schedule_t* get_schedule() const { return schedule; }
 

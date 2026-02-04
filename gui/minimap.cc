@@ -3,6 +3,8 @@
  * (see LICENSE.txt)
  */
 
+#include <iostream>
+
 #include "../simevent.h"
 #include "../simcolor.h"
 #include "../simconvoi.h"
@@ -58,6 +60,7 @@ karte_ptr_t minimap_t::world;
 minimap_t::MAP_DISPLAY_MODE minimap_t::mode = MAP_TOWN;
 minimap_t::MAP_DISPLAY_MODE minimap_t::last_mode = MAP_TOWN;
 bool minimap_t::is_visible = false;
+bool minimap_t::circle_halts = false;
 
 #define MAX_MAP_TYPE_LAND 31
 #define MAX_MAP_TYPE_WATER 5
@@ -169,13 +172,14 @@ static inthashtable_tpl< int, slist_tpl<schedule_t *> > waypoint_hash;
 
 
 // add the schedule to the map (if there is a valid one)
-void minimap_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints )
+void minimap_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints, schedule_t* override_sched = nullptr, bool is_highlighted = true )
 {
 	// make sure this is valid!
 	if(  !cnv.is_bound()  ) {
 		return;
 	}
-	schedule_t *schedule = cnv->get_schedule();
+	schedule_t *schedule = override_sched ? override_sched : cnv->get_schedule();
+	cnv->set_map_highlighted(is_highlighted);
 	if(  network_color_mode==ORIGINAL  ) {
 		colore_idx += 8;
 		if(  colore_idx >= 208  ) {
@@ -446,13 +450,18 @@ static void display_thick_line( scr_coord_val x1, scr_coord_val y1, scr_coord_va
 }
 
 
-static void line_segment_draw( waytype_t type, scr_coord start, const uint8 start_offset, scr_coord end, const uint8 end_offset, bool start_diagonal, const PIXVAL colore )
+static void line_segment_draw( waytype_t type, scr_coord start, const uint8 start_offset, scr_coord end, const uint8 end_offset, bool start_diagonal, const PIXVAL colore, bool is_highlighted = true )
 {
+	int draw = 5;
+	int dontDraw = 3;
+
 	// airplanes are different, so we must check for them first
 	if(  type ==  air_wt  ) {
+		scr_coord_val draw_bez = is_highlighted ? 5 : 3;
+		scr_coord_val dontDraw_bez = is_highlighted ? 5 : 10;
 		// ignore offset for airplanes
-		draw_bezier_rgb( start.x, start.y, end.x, end.y, 50, 50, 50, 50, colore, 5, 5 );
-		draw_bezier_rgb( start.x + 1, start.y + 1, end.x + 1, end.y + 1, 50, 50, 50, 50, colore, 5, 5 );
+		draw_bezier_rgb( start.x, start.y, end.x, end.y, 50, 50, 50, 50, colore, draw, dontDraw );
+		draw_bezier_rgb( start.x + 1, start.y + 1, end.x + 1, end.y + 1, 50, 50, 50, 50, colore, draw, dontDraw );
 	}
 	else {
 		// determine line style
@@ -476,6 +485,13 @@ static void line_segment_draw( waytype_t type, scr_coord start, const uint8 star
 			default:
 				thickness = 3;
 				dotted = true;
+		}
+
+		if (  !is_highlighted  ) {
+			dotted = true;
+			// thickness = 1;
+			draw = 3;
+			dontDraw = 10;
 		}
 
 		// move to the correct locations
@@ -512,10 +528,10 @@ static void line_segment_draw( waytype_t type, scr_coord start, const uint8 star
 		const scr_coord mid=end-diag;
 
 		if(start!=mid) {
-			display_thick_line(start.x, start.y, mid.x, mid.y, colore, dotted, 5, 3, thickness);
+			display_thick_line(start.x, start.y, mid.x, mid.y, colore, dotted, (short)draw, (short)dontDraw, thickness);
 		}
 		if(mid!=end) {
-			display_thick_line(mid.x, mid.y, end.x, end.y, colore, dotted, 5, 3, thickness);
+			display_thick_line(mid.x, mid.y, end.x, end.y, colore, dotted, (short)draw, (short)dontDraw, thickness);
 		}
 	}
 }
@@ -1185,7 +1201,7 @@ const fabrik_t* minimap_t::draw_factory_connections(const fabrik_t* const fab, b
 
 
 // show the schedule on the minimap
-void minimap_t::set_selected_cnv( convoihandle_t c, bool const clear_cache )
+void minimap_t::set_selected_cnv( convoihandle_t c, bool const clear_cache, schedule_t* override_sched, bool is_highlighted )
 {
 	current_cnv = c;
 	if (  c.is_bound() ) {
@@ -1198,7 +1214,7 @@ void minimap_t::set_selected_cnv( convoihandle_t c, bool const clear_cache )
 		stop_cache.clear();
 	}
 	colore_idx = 0;
-	add_to_schedule_cache( current_cnv, true );
+	add_to_schedule_cache( current_cnv, true, override_sched, is_highlighted );
 	last_schedule_counter = world->get_schedule_counter()-1;
 }
 
@@ -1436,7 +1452,11 @@ void minimap_t::draw(scr_coord pos)
 				diagonal = seg.start_diagonal;
 			}
 			// and finally draw ...
-			line_segment_draw( seg.waytype, k1, seg.start_offset*offset, k2, seg.end_offset*offset, diagonal, color_idx_to_rgb(color) );
+			if (  current_cnv.is_bound()  ) {
+				line_segment_draw( seg.waytype, k1, seg.start_offset*offset, k2, seg.end_offset*offset, diagonal, color_idx_to_rgb(color), current_cnv->is_map_highlighted() );
+			} else {
+				line_segment_draw( seg.waytype, k1, seg.start_offset*offset, k2, seg.end_offset*offset, diagonal, color_idx_to_rgb(color) );
+			}
 		}
 	}
 
@@ -1535,7 +1555,9 @@ void minimap_t::draw(scr_coord pos)
 			color = calc_severity_color_log( transfer, max_transfer );
 			radius = number_to_radius( transfer );
 		}
-		else {
+		else if (  current_cnv.is_bound() && !current_cnv->is_map_highlighted()  ) {
+			radius = 0;
+		} else {
 			const int stype = station->get_station_type();
 			color = color_idx_to_rgb(station->get_owner()->get_player_color1()+3);
 

@@ -27,9 +27,10 @@ class route_search_frame_t : public gui_frame_t, public action_listener_t
 	gui_combobox_t freight_type_c;
 
 	uint8 search_ware_index;
+	convoihandle_t cnv_dummy = convoihandle_t();
 
 	void search_route();
-	void append_connection_row(haltestelle_t::connection_t connection);
+	void append_connection_row(haltestelle_t::connection_t connection, halthandle_t from_halt);
 	void append_halt_row(halthandle_t halt);
 	void swap_halt_inputs();
 

@@ -11,6 +11,7 @@
 #include "../simware.h"
 #include "../simworld.h"
 #include <variant>
+#include <iostream>
 
 class gui_traveler_button_t : public button_t, public action_listener_t
 {
@@ -135,6 +136,7 @@ route_search_frame_t::~route_search_frame_t()
     minimap_t::get_instance()->set_selected_cnv( convoihandle_t(), true );
     minimap_t::get_instance()->set_circle_halts(false);
     result_container.remove_all();
+    cnv_dummy = convoihandle_t();
 }
 
 bool route_search_frame_t::action_triggered(gui_action_creator_t* comp, value_t) {
@@ -169,7 +171,7 @@ haltestelle_t::connection_t find_connection(halthandle_t from, halthandle_t to, 
     return haltestelle_t::connection_t();
 }
 
-void route_search_frame_t::append_connection_row(haltestelle_t::connection_t connection) {
+void route_search_frame_t::append_connection_row(haltestelle_t::connection_t connection, halthandle_t from_halt) {
     if(  connection.weight==0  ) {
         result_container.new_component<gui_label_t>("No connection found!");
         return;
@@ -194,7 +196,57 @@ void route_search_frame_t::append_connection_row(haltestelle_t::connection_t con
         std::get<linehandle_t>(connection.best_weight_traveler) : linehandle_t();
     result_container.new_component<gui_traveler_button_t>(result_line);
     convoihandle_t cnv = result_line.is_bound()?(  result_line->count_convoys()>0 ? result_line->get_convoy(0) : convoihandle_t()  ) : std::get<convoihandle_t>(connection.best_weight_traveler);
-    minimap_t::get_instance()->set_selected_cnv( cnv , false );
+
+    if (  cnv.is_bound()  ) {
+        auto original_sched = cnv->get_schedule();
+
+        schedule_t* spliced_sched = original_sched->copy();
+        spliced_sched->remove_all();
+        
+        bool recording = false;
+        bool is_end_halt = false;
+
+        int start_idx = -1;
+        int end_idx = -1;
+        uint8 count = original_sched->get_count();
+
+        for (uint8 i = 0; i < count; i++) {
+            halthandle_t halt = haltestelle_t::get_stoppable_halt(original_sched->at(i).pos, cnv->get_owner(), original_sched->get_waytype());
+            if (halt == from_halt && start_idx == -1) start_idx = i;
+            if (halt == connection.halt && end_idx == -1) end_idx = i;
+        }
+
+        if (end_idx < start_idx) {
+            auto dumm = start_idx;
+            start_idx = end_idx;
+            end_idx = dumm;
+        }
+
+        if (start_idx != -1 && end_idx != -1) {
+            int i = start_idx;
+            while (true) {
+                grund_t* gr = world()->lookup(original_sched->at(i).pos);
+                if (gr) {
+                    spliced_sched->append(gr);
+                }
+
+                if (i == end_idx) break;
+            
+                i = (i + 1) % count;
+                
+                if (i == start_idx) break;
+            }
+        }
+
+        spliced_sched->add_return_way();
+
+        convoi_t* dumm = new convoi_t(cnv->get_owner());
+        cnv_dummy = dumm->self;
+        cnv_dummy->set_schedule(spliced_sched, true);
+
+        minimap_t::get_instance()->set_selected_cnv( cnv_dummy, false, spliced_sched);
+        minimap_t::get_instance()->set_selected_cnv( cnv , false, nullptr, false );
+    }
 
     // Set icon
     const waytype_t waytype = std::visit([&](const auto& t) {
@@ -267,7 +319,7 @@ void route_search_frame_t::search_route() {
     FOR(vector_tpl<halthandle_t>, const h, dummy_ware.get_transit_halts()) {
         // Fetch the fastest traveler
         auto connection = find_connection(transit_from, h, dummy_ware.get_desc()->get_catg_index());
-        append_connection_row(connection);
+        append_connection_row(connection, transit_from);
         append_halt_row(h);
         transit_from = h;
     }

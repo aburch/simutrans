@@ -124,7 +124,7 @@ private:
 	vector_tpl<halthandle_t> stop_cache;
 
 	/// adds a schedule to cache
-	void add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints );
+	void add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints, schedule_t* override_sched, bool is_highlighted );
 
 	/**
 	 * 0: normal
@@ -245,7 +245,7 @@ public:
 
 	void draw(scr_coord pos) OVERRIDE;
 
-	void set_selected_cnv( convoihandle_t c, bool const clear_cache = true );
+	void set_selected_cnv( convoihandle_t c, bool const clear_cache = true, schedule_t* override_sched = nullptr, bool is_highlighted = true );
 
 	void set_selected_city( const stadt_t* _city );
 
