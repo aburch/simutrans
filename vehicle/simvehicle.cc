@@ -1889,10 +1889,10 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 	char states_text[states_text_size];
 	states_text[0] = 0;
 	uint8 state = env_t::show_vehicle_states;
+	linehandle_t lh = cnv->get_line();
 
 	if(  (  state==env_t::LINE_NAME_TOOLTIPS  ||  state==env_t::LINE_NAME_AND_STATES_TOOLTIPS )  &&  this == cnv->front()  ) {
 		// show the line name, including when the convoy is coupled.
-		linehandle_t lh = cnv->get_line();
 		if(  lh.is_bound()  ) {
 			// line name
 			tstrncpy( line_name, lh->get_name(), lengthof(line_name) );
@@ -2059,9 +2059,8 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 		ypos += tile_raster_scale_y(get_yoff(), raster_width)+14;
 		if(ypos>LINESPACE+32  &&  ypos+LINESPACE<display_get_clip_wh().yy) {
 			display_ddd_proportional_clip( xpos, ypos, color, color_idx_to_rgb(COL_BLACK), tooltip_text, true );
-			if(cnv->get_line().is_bound()) {
+			if( cnv->get_line().is_bound() && cnv->get_state() != convoi_t::EDIT_SCHEDULE-1 && cnv->get_state() != convoi_t::CAN_START_TWO_MONTHS-1 ) {
 				uint8 tooltip_width = proportional_string_width(tooltip_text);
-				linehandle_t lh = cnv->get_line();
 				display_fillbox_wh_clip_rgb( xpos, ypos-D_WAITINGBAR_WIDTH, tooltip_width+4, D_WAITINGBAR_WIDTH, color_idx_to_rgb(lh->get_colour()), dirty );
 			}
 		}
