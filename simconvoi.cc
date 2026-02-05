@@ -197,6 +197,8 @@ void convoi_t::init(player_t *player)
 	cease_coupling_due_to_length_over = false;
 
 	max_speed_kmh_of_convoi = 0;
+
+	unloading_done = false;
 }
 
 
@@ -2538,6 +2540,7 @@ void convoi_t::vorfahren()
 		c->uncouple_done = false;
 		c->reverse_coupling_done = false;
 		c->reversing_coupling_needed = false;
+		c->unloading_done = false;
 		c = c->get_coupling_convoi();
 	}
 	c = self;
@@ -3356,6 +3359,11 @@ void convoi_t::rdwr(loadsave_t *file)
 		reverse_coupling_done = false;
 		reversing_coupling_needed = false;
 	}
+	if(  file->get_OTRP_version()>=52  ) {
+		file->rdwr_bool(unloading_done);
+	} else {
+		unloading_done = false;
+	}
 
 	if(  file->is_loading()  ) {
 		reserve_route();
@@ -4008,7 +4016,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 		// The total amount of goods which are loaded and unloaded
 		uint16 amount;
 		if(  !schedule->get_current_entry().is_no_unload() ) {
-			amount = v->unload_cargo(halt, next_depot  ||  schedule->get_current_entry().is_unload_all()  );
+			amount = v->unload_cargo(halt, next_depot  ||  (schedule->get_current_entry().is_unload_all()  &&  !unloading_done)  );
 		} else {
 			amount = 0;
 		}
@@ -4044,6 +4052,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 			time = max( time, (max(v->get_cargo_max(),v->get_total_cargo())*2*v->get_desc()->get_loading_time()) / max(v->get_cargo_max(), 1) );
 		}
 	}
+	unloading_done = true;
 	freight_info_resort |= changed_loading_level;
 	if(  changed_loading_level  ) {
 		halt->recalc_status();

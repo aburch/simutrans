@@ -397,6 +397,8 @@ private:
 	bool reversing_coupling_needed;// Whether these convoys coupling reversing is needed or not. Only using waypoint!
 	bool reverse_coupling_done;// avoid reverse coupling loop in same stop
 
+	bool unloading_done;//unload once in stop
+
 	/**
 	 * The temporary speed limit for this convoy.
 	 * For example, as limited by a speed limit sign.
