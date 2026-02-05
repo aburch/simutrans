@@ -617,7 +617,7 @@ std::string dr_get_system_font()
 	return "/system/fonts/DroidSans.ttf";
 #endif
 #elif defined(USE_FONTCONFIG)
-	std::string fontFile = FONT_PATH_X "cyr.bdf";
+	std::string fontFile = FONT_PATH_X "prop.bdf";
 	FcInit();
 	FcConfig* config = FcInitLoadConfigAndFonts();
 	FcPattern* pat = FcNameParse((const FcChar8*)"Sans");
@@ -640,7 +640,7 @@ std::string dr_get_system_font()
 	FcFini();
 	return fontFile;
 #else
-	return FONT_PATH_X "cyr.bdf";
+	return FONT_PATH_X "prop.bdf";
 #endif
 #else
 	return "";
