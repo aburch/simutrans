@@ -4334,6 +4334,15 @@ void convoi_t::calc_loading()
 	recalc_data=true;
 }
 
+sint32 convoi_t::get_max_loading() const
+{
+	sint32 max_loading = 0;
+	for(unsigned i=0; i<anz_vehikel; i++) {
+		const vehicle_t* v = fahr[i];
+		max_loading += v->get_cargo_max();
+	}
+	return max_loading;
+}
 
 void convoi_t::calc_speedbonus_kmh()
 {
