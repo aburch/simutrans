@@ -2059,7 +2059,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 		ypos += tile_raster_scale_y(get_yoff(), raster_width)+14;
 		if(ypos>LINESPACE+32  &&  ypos+LINESPACE<display_get_clip_wh().yy) {
 			display_ddd_proportional_clip( xpos, ypos, color, color_idx_to_rgb(COL_BLACK), tooltip_text, true );
-			if( cnv->get_line().is_bound() && cnv->get_state() != convoi_t::EDIT_SCHEDULE-1 && cnv->get_state() != convoi_t::CAN_START_TWO_MONTHS-1 ) {
+			if( cnv->get_line().is_bound() && state != env_t::ALL_CONVOI_TOOLTIPS ) {
 				uint8 tooltip_width = proportional_string_width(tooltip_text);
 				display_fillbox_wh_clip_rgb( xpos, ypos-D_WAITINGBAR_WIDTH, tooltip_width+4, D_WAITINGBAR_WIDTH, color_idx_to_rgb(lh->get_colour()), dirty );
 			}
