@@ -5342,9 +5342,15 @@ bool simgraph_init(scr_size window_size, sint16 full_screen)
 	textur = dr_textur_init();
 
 	// init, load, and check fonts
-	if(  !display_load_font(env_t::fontname.c_str())  &&  !display_load_font(FONT_PATH_X "prop.fnt") ) {
-		dr_fatal_notify("No fonts found!");
-		return false;
+	if(  !display_load_font(env_t::fontname.c_str())  ) {
+		env_t::fontname = dr_get_system_font();
+		if(  !display_load_font(env_t::fontname.c_str())  ) {
+			env_t::fontname = FONT_PATH_X "prop.fnt";
+			if(  !display_load_font(env_t::fontname.c_str())  ) {
+				dr_fatal_notify("No fonts found!");
+				return false;
+			}
+		}
 	}
 
 	// allocate dirty tile flags
