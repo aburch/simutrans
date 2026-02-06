@@ -6125,24 +6125,39 @@ const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, co
 			ribi = bd->get_weg_ribi_unmasked(wegtype);
 		}
 
-		if(ribi_t::is_single(ribi)  &&  bd->get_weg_hang()==0) {
+		if(bd->get_weg_hang()!=0) {
+			// must build on flat ground!
+			return NOTICE_DEPOT_BAD_POS;
+		}
 
-			int layout = 0;
+		int layout = 0;
+
+		if(desc->get_all_layouts() == 4) {
+			if(!ribi_t::is_single(ribi)) {
+				return NOTICE_DEPOT_BAD_POS;
+			}
 			switch(ribi) {
 				//case ribi_t::south:layout = 0;  break;
 				case ribi_t::east:   layout = 1;    break;
 				case ribi_t::north:  layout = 2;    break;
 				case ribi_t::west:  layout = 3;    break;
 			}
-			hausbauer_t::build_station_extension_depot(player, bd->get_pos(), layout, desc );
-			player_t::book_construction_costs(player, -desc->get_price(welt), pos.get_2d(), desc->get_finance_waytype());
-			if(can_use_gui()  &&  player == welt->get_active_player()) {
-				welt->set_tool( general_tool[TOOL_QUERY], player );
+		} else if(desc->get_all_layouts() == 2) {
+			if(!ribi_t::is_straight(ribi)) {
+				return NOTICE_DEPOT_BAD_POS;
 			}
-
-			return NULL;
+			layout = ribi_t::is_straight_ew(ribi);
+		} else {
+			return NOTICE_DEPOT_BAD_POS;
 		}
-		return NOTICE_DEPOT_BAD_POS;
+
+		hausbauer_t::build_station_extension_depot(player, bd->get_pos(), layout, desc );
+		player_t::book_construction_costs(player, -desc->get_price(welt), pos.get_2d(), desc->get_finance_waytype());
+		if(can_use_gui()  &&  player == welt->get_active_player()) {
+			welt->set_tool( general_tool[TOOL_QUERY], player );
+		}
+
+		return NULL;
 	}
 	return "";
 }
