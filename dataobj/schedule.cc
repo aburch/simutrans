@@ -189,6 +189,63 @@ bool schedule_t::remove()
 }
 
 
+void schedule_t::move_entry_forward( uint8 cur )
+{
+	if( entries.get_count() <= 1 ) {
+		return;
+	}
+	// allow only not last entry
+	if( cur >= (next_line.is_bound()? entries.get_count()-2 : entries.get_count()-1) ) {
+		return;
+	}
+	// just append everything
+	entries.insert_at( cur+2, entries[ cur ] );
+	entries.remove_at( cur );
+
+	// if cur was not at end of list then cur and other changed places
+	uint8 other = (cur + entries.get_count() + 1 ) % entries.get_count();
+
+	if (cur == entries.get_count()-1) {
+		// all entries moved down one index
+		current_stop = (current_stop + 1 + entries.get_count()) % entries.get_count();
+	}
+	else if (current_stop == other) {
+		current_stop = cur;
+	}
+	else if (current_stop == cur) {
+		current_stop = other;
+	}
+}
+
+
+
+void schedule_t::move_entry_backward( uint8 cur )
+{
+	if( entries.get_count() <= 1 ) {
+		return;
+	}
+	// allow only non-zero or not next line's entry
+	if( cur==0 || (next_line.is_bound()&&cur==entries.get_count()-1) ) {
+		return;
+	}
+	entries.insert_at( cur-1, entries[ cur ] );
+	entries.remove_at( cur+1 );
+	// if cur was not at start of list then cur and other changed places
+	uint8 other = (cur + entries.get_count() - 1 ) % entries.get_count();
+
+	if (cur == 0) {
+		// all entries moved up one index
+		current_stop = (current_stop - 1 + entries.get_count()) % entries.get_count();
+	}
+	else if (current_stop == other) {
+		current_stop = cur;
+	}
+	else if (current_stop == cur) {
+		current_stop = other;
+	}
+}
+
+
 
 void schedule_t::rdwr(loadsave_t *file)
 {
