@@ -6147,7 +6147,10 @@ const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, co
 				return NOTICE_DEPOT_BAD_POS;
 			}
 			layout = ribi_t::is_straight_ew(ribi);
-		} else {
+		} else if(desc->get_all_layouts() == 1) {
+			layout = 0;
+		}
+		else {
 			return NOTICE_DEPOT_BAD_POS;
 		}
 
