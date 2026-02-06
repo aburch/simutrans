@@ -4505,7 +4505,22 @@ void rail_vehicle_t::leave_tile()
 		if(gr) {
 			schiene_t *sch0 = (schiene_t *) gr->get_weg(get_waytype());
 			if(sch0) {
+				// first, we check other vehicles on the same tile (e.g. uncoupling here)
+				convoihandle_t other_convoy;
+				for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
+					rail_vehicle_t* const v = dynamic_cast<rail_vehicle_t*>(gr->obj_bei(pos));
+					if(  !v || v->get_convoi()==get_convoi()  ) {
+						// no vehicle or same convoy, ok
+						continue;
+					}
+					// other convoy exist!
+					other_convoy = v->get_convoi()->self;
+				}
 				sch0->unreserve(this);
+				// we should not unreserve this tile if there are other vehicles on this tile.
+				if(  other_convoy.is_bound()  ) {
+					sch0->reserve(other_convoy,ribi_t::none);
+				}
 				if(  cnv  ) {
 					// If reservation is controlled by next_reservation_index, this does nothing.
 					cnv->get_most_parent_convoi()->unreserve_pos(get_pos());
