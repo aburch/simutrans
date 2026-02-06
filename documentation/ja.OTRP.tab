@@ -165,6 +165,10 @@ Copy the data of the halt labels.
 クリップボードに駅名と駅のデータをコピーします．
 Halt data was copied to clipboard.\n
 駅のデータをクリップボードにコピーしました．\n
+up this entry
+この駅を上へ移動
+down this entry
+この駅を下へ移動
 #------Schedule window related stuff------
 #------スケジュールウィンドウ関連のエントリ------
 Please click on the map to add\nwaypoints or stops to this\nschedule.
