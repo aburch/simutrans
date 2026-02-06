@@ -4525,19 +4525,27 @@ void rail_vehicle_t::leave_tile()
 					// If reservation is controlled by next_reservation_index, this does nothing.
 					cnv->get_most_parent_convoi()->unreserve_pos(get_pos());
 				}
+				if (gr->has_two_ways()) {
+					// we may need to reserve the other way as well
+					if (schiene_t* sch1 = dynamic_cast<schiene_t*>(gr->get_weg_nr(gr->get_weg_nr(0) == sch0))) {
+						// the other way is reservable too => unreserve it
+						sch1->unreserve(this);
+					}
+				}
+			}
+		}
+	}
+	if(leading) {
+		grund_t *gr = welt->lookup( get_pos() );
+		if(gr) {
+			schiene_t *sch0 = (schiene_t *) gr->get_weg(get_waytype());
+			if(sch0) {
 				// tell next signal?
 				// and switch to red
 				if(sch0->has_signal()) {
 					signal_t* sig = gr->find<signal_t>();
 					if(sig) {
 						sig->set_state(  roadsign_t::STATE_RED );
-					}
-				}
-				if (gr->has_two_ways()) {
-					// we may need to reserve the other way as well
-					if (schiene_t* sch1 = dynamic_cast<schiene_t*>(gr->get_weg_nr(gr->get_weg_nr(0) == sch0))) {
-						// the other way is reservable too => unreserve it
-						sch1->unreserve(this);
 					}
 				}
 			}
