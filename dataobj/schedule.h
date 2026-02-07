@@ -214,6 +214,9 @@ public:
 	 */
 	void remove_all() { entries.clear(); }
 
+	void move_entry_forward(uint8);
+	void move_entry_backward(uint8);
+
 	void rdwr(loadsave_t *file);
 
 	void rotate90( sint16 y_size );

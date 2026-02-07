@@ -5342,9 +5342,15 @@ bool simgraph_init(scr_size window_size, sint16 full_screen)
 	textur = dr_textur_init();
 
 	// init, load, and check fonts
-	if(  !display_load_font(env_t::fontname.c_str())  &&  !display_load_font(FONT_PATH_X "prop.fnt") ) {
-		dr_fatal_notify("No fonts found!");
-		return false;
+	if(  !display_load_font(env_t::fontname.c_str())  ) {
+		env_t::fontname = dr_get_system_font();
+		if(  !display_load_font(env_t::fontname.c_str())  ) {
+			env_t::fontname = FONT_PATH_X "prop.fnt";
+			if(  !display_load_font(env_t::fontname.c_str())  ) {
+				dr_fatal_notify("No fonts found!");
+				return false;
+			}
+		}
 	}
 
 	// allocate dirty tile flags
@@ -5514,11 +5520,11 @@ bool display_snapshot( const scr_rect &area )
 
 	raw_image_t img(clipped_area.w, clipped_area.h, raw_image_t::FMT_RGB888);
 
-	for (scr_coord_val y = clipped_area.y; y < clipped_area.y + clipped_area.h; ++y) {
+	for (scr_coord_val y = 0; y < clipped_area.h; ++y) {
 		uint8 *dst = img.access_pixel(0, y);
-		const PIXVAL *row = textur + 0 + y*disp_width;
+		const PIXVAL *row = textur + (clipped_area.x + 0) + (clipped_area.y + y) * disp_width;
 
-		for (scr_coord_val x = clipped_area.x; x < clipped_area.x + clipped_area.w; ++x) {
+		for (scr_coord_val x = 0; x < clipped_area.w; ++x) {
 			const PIXVAL pixel = *row++;
 
 #ifdef RGB555
