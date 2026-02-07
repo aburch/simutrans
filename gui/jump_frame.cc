@@ -79,7 +79,7 @@ bool jump_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		}
 		int h = welt->min_hgt( my_pos );
 		if(  *p  ) {
-			sscanf(p, "%hd" , &h);
+			sscanf(p, "%d" , &h);
 		}
 		if(welt->is_within_limits(my_pos)) {
 			koord3d k( my_pos, h );
