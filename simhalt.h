@@ -590,6 +590,9 @@ private:
 
 	void search_route_for_invalid_zwischenziel_goods(cargo_queue_t *wares);
 
+	bool map_highlighted = true;
+	bool transfer_halt = false;
+
 public:
 	enum routing_result_flags {
 		NO_ROUTE          = 0,
@@ -967,6 +970,12 @@ public:
 	// allow unloading from longer convoy
 	bool const is_allow_unload_longer_convoy();
 	void set_allow_unload_longer_convoy(const bool y) { y? flags|=HS_ALLOW_UNLOAD_LONGER_CONVOY: flags&=~HS_ALLOW_UNLOAD_LONGER_CONVOY; }
+
+	bool is_map_highlighted() { return map_highlighted; };
+	void set_map_highlighted(bool highlight) { map_highlighted = highlight; };
+	
+	bool is_transfer_halt() { return transfer_halt; };
+	void set_transfer_halt(bool transfer) { transfer_halt = transfer; };
 };
 
 ENUM_BITSET(haltestelle_t::stationtyp)
