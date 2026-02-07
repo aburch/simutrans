@@ -197,6 +197,7 @@ void convoi_t::init(player_t *player)
 	cease_coupling_due_to_length_over = false;
 
 	max_speed_kmh_of_convoi = 0;
+	max_balance_speed_convoi = 0;
 }
 
 
@@ -1931,6 +1932,9 @@ void convoi_t::ziel_erreicht()
 			c->set_max_speed_kmh_of_convoi(c->get_schedule()->get_current_entry().max_speed_kmh_of_convoi);
 			c->must_recalc_speed_limit();
 		}
+		if (  c->get_schedule()->get_current_entry().is_overwrite_balance_speed_kmh_of_convoi()  ) {
+			c->set_max_balance_speed_convoi(c->get_schedule()->get_current_entry().balance_speed_kmh_of_convoi);
+		}
 		c = c->get_coupling_convoi();
 	}
 
@@ -3367,6 +3371,11 @@ void convoi_t::rdwr(loadsave_t *file)
 	} else {
 		reverse_coupling_done = false;
 		reversing_coupling_needed = false;
+	}
+	if(  file->get_OTRP_version()>=52  ) {
+		file->rdwr_short( max_balance_speed_convoi );
+	} else {
+		max_balance_speed_convoi = 0;
 	}
 
 	if(  file->is_loading()  ) {
