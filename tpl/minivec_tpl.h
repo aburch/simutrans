@@ -145,6 +145,18 @@ public:
 		return data[i];
 	}
 
+	const bool operator ==( minivec_tpl const& other ) const {
+		if (count != other.count) return false;
+		bool same = true;
+		int i = 0;
+		while(same && i < count) {
+			same &= data[i] == other.data[i];
+			i++;
+		}
+
+		return same;
+	}
+
 	T& back() { return data[count - 1]; }
 	const T& back() const { return data[count - 1]; }
 

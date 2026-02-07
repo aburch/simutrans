@@ -104,9 +104,10 @@ private:
 		uint8 start_offset;
 		uint8 end_offset;
 		bool start_diagonal;
+		bool is_map_highlighted;
 
 		line_segment_t() {}
-		line_segment_t( koord s, uint8 so, koord e, uint8 eo, schedule_t *sched, player_t *p, uint8 cc, bool diagonal );
+		line_segment_t( koord s, uint8 so, koord e, uint8 eo, schedule_t *sched, player_t *p, uint8 cc, bool diagonal, bool is_highlighted = true );
 
 		bool operator==(const line_segment_t & other) const;
 	};

@@ -11,7 +11,6 @@
 #include "../simware.h"
 #include "../simworld.h"
 #include <variant>
-#include <iostream>
 
 class gui_traveler_button_t : public button_t, public action_listener_t
 {
@@ -171,7 +170,7 @@ haltestelle_t::connection_t find_connection(halthandle_t from, halthandle_t to, 
     return haltestelle_t::connection_t();
 }
 
-void route_search_frame_t::append_connection_row(haltestelle_t::connection_t connection, halthandle_t from_halt) {
+void route_search_frame_t::append_connection_row(haltestelle_t::connection_t connection, halthandle_t connection_from_halt) {
     if(  connection.weight==0  ) {
         result_container.new_component<gui_label_t>("No connection found!");
         return;
@@ -212,7 +211,7 @@ void route_search_frame_t::append_connection_row(haltestelle_t::connection_t con
 
         for (uint8 i = 0; i < count; i++) {
             halthandle_t halt = haltestelle_t::get_stoppable_halt(original_sched->at(i).pos, cnv->get_owner(), original_sched->get_waytype());
-            if (halt == from_halt && start_idx == -1) start_idx = i;
+            if (halt == connection_from_halt && start_idx == -1) start_idx = i;
             if (halt == connection.halt && end_idx == -1) end_idx = i;
         }
 
@@ -238,14 +237,24 @@ void route_search_frame_t::append_connection_row(haltestelle_t::connection_t con
             }
         }
 
+        halthandle_t halt_start = haltestelle_t::get_stoppable_halt(original_sched->at(start_idx).pos, cnv->get_owner(), original_sched->get_waytype());
+        halthandle_t halt_end = haltestelle_t::get_stoppable_halt(original_sched->at(end_idx).pos, cnv->get_owner(), original_sched->get_waytype());
+
+        if(  halt_start != from_halt && halt_start != dest_halt  ) halt_start->set_transfer_halt(true);
+        if(  halt_end != from_halt && halt_end != dest_halt  ) halt_end->set_transfer_halt(true);
+
         spliced_sched->add_return_way();
 
         convoi_t* dumm = new convoi_t(cnv->get_owner());
         cnv_dummy = dumm->self;
         cnv_dummy->set_schedule(spliced_sched, true);
 
-        minimap_t::get_instance()->set_selected_cnv( cnv_dummy, false, spliced_sched);
-        minimap_t::get_instance()->set_selected_cnv( cnv , false, nullptr, false );
+        if (original_sched->get_entries() == spliced_sched->get_entries()) {
+            minimap_t::get_instance()->set_selected_cnv( cnv, false, spliced_sched );
+        } else {
+            minimap_t::get_instance()->set_selected_cnv( cnv , false, nullptr, false );
+            minimap_t::get_instance()->set_selected_cnv( cnv_dummy, false, spliced_sched );
+        }
     }
 
     // Set icon
@@ -292,12 +301,12 @@ void route_search_frame_t::search_route() {
 	// reset selection
     minimap_t::get_instance()->set_selected_cnv( convoihandle_t(), true );
     result_container.remove_all();
-    halthandle_t from_halt = find_halt(from_halt_input.get_text());
+    from_halt = find_halt(from_halt_input.get_text());
     if(  !from_halt.is_bound()  ) {
         result_container.new_component<gui_label_t>("From halt not found.");
         return;
     }
-    halthandle_t dest_halt = find_halt(dest_halt_input.get_text());
+    dest_halt = find_halt(dest_halt_input.get_text());
     if(  !dest_halt.is_bound()  ) {
         result_container.new_component<gui_label_t>("To halt not found.");
         return;
