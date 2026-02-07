@@ -321,7 +321,7 @@ void convoi_detail_t::update_labels()
 		c = c->get_coupling_convoi();
 	}
 	uint32 balance_kmh = speed_to_kmh(convoi_t::calc_max_speed(total_power,total_weight,kmh_to_speed(test_balance_kmh)));
-	label_balance_speed_kmh.buf().printf(translator::translate("%s %d km/h (%d km/h)"), translator::translate("terminal speed:"), cnv->get_max_balance_speed_convoi()>0? cnv->get_max_speed_kmh_of_convoi() : balance_kmh, balance_kmh);
+	label_balance_speed_kmh.buf().printf(translator::translate("%s %d km/h (%d km/h)"), translator::translate("terminal speed:"), cnv->get_max_balance_speed_convoi()>0? cnv->get_max_balance_speed_convoi() : balance_kmh, balance_kmh);
 	label_balance_speed_kmh.update();
 	label_power.buf().printf( translator::translate("Leistung: %d kW"), cnv->get_sum_power() );
 	label_power.update();

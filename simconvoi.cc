@@ -933,7 +933,7 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 			c = c->get_coupling_convoi();
 		}
 		if(  max_balance_speed_convoi>0  ) {
-			const sint32 limited_gear_and_power = calc_limited_gear_and_power(kmh_to_speed(max_balance_speed_convoi), sum_gesamtweight);
+			const sint32 limited_gear_and_power = calc_limited_gear_and_power(kmh_to_speed((sint64)max_balance_speed_convoi), sum_gesamtweight);
 			gear_and_power = min(gear_and_power, limited_gear_and_power);
 		}
 
