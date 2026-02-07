@@ -157,7 +157,7 @@ public:
 /**
  * List of displayed schedule entries.
  */
-class schedule_gui_stats_t : public gui_aligned_container_t, public action_listener_t, public gui_action_creator_t
+class schedule_gui_stats_t : public gui_aligned_container_t, action_listener_t, public gui_action_creator_t
 {
 	static cbuffer_t buf;
 
