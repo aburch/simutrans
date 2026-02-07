@@ -4519,7 +4519,7 @@ void rail_vehicle_t::leave_tile()
 				convoihandle_t other_convoy;
 				for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
 					rail_vehicle_t* const v = dynamic_cast<rail_vehicle_t*>(gr->obj_bei(pos));
-					if(  !v || v->get_convoi()==get_convoi()  ) {
+					if(  !v || !v->get_convoi() || v->get_convoi()==get_convoi()  ) {
 						// no vehicle or same convoy, ok
 						continue;
 					}
@@ -4530,6 +4530,14 @@ void rail_vehicle_t::leave_tile()
 				// we should not unreserve this tile if there are other vehicles on this tile.
 				if(  other_convoy.is_bound()  ) {
 					sch0->reserve(other_convoy,ribi_t::none);
+				}
+				// tell next signal?
+				// and switch to red
+				if(sch0->has_signal()) {
+					signal_t* sig = gr->find<signal_t>();
+					if(sig) {
+						sig->set_state(  roadsign_t::STATE_RED );
+					}
 				}
 				if(  cnv  ) {
 					// If reservation is controlled by next_reservation_index, this does nothing.
