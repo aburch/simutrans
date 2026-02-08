@@ -71,18 +71,10 @@ bool jump_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		//---------------------------------------
 		koord my_pos;
 		const char *p = buf;
-		sscanf(p, "%hd,%hd", &my_pos.x, &my_pos.y);
-		for(  int z = 2;  *p  &&  z>0;  p++  ) {
-			if(  *p==','  ) {
-				z--;
-			}
-		}
-		int h = welt->min_hgt( my_pos );
-		if(  *p  ) {
-			sscanf(p, "%d" , &h);
-		}
+		sint16 h;
+		bool has_h = sscanf(p, "%hd,%hd,%hd", &my_pos.x, &my_pos.y, &h)>2;
 		if(welt->is_within_limits(my_pos)) {
-			koord3d k( my_pos, h );
+			koord3d k( my_pos, has_h ? h : welt->min_hgt(my_pos) );
 			welt->get_viewport()->change_world_position(k);
 			welt->get_zeiger()->change_pos( k );
 		}
