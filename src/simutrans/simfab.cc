@@ -2926,7 +2926,6 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 	buf.append( translator::translate("Durchsatz") );
 	buf.append(get_current_production(), 0);
 	buf.append( translator::translate("units/day") );
-	buf.append("\n");
 	buf.printf(translator::translate("Produces: %.1f units/minute"),
 		get_production_per_second() * 60.0
 	);

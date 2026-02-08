@@ -247,7 +247,7 @@ bool tool_selector_t::infowin_event(const event_t *ev)
 			assert( xy >= tool_icon_width );
 			tool_icon_disp_start += xy;
 			if(  tool_icon_disp_start + xy > (int)tools.get_count() ) {
-				tool_icon_disp_start = tools.get_count() - xy -1;
+				tool_icon_disp_start = tools.get_count() - xy;
 			}
 			offset = scr_coord( 0, 0 );
 		}

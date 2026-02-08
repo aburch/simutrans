@@ -49,9 +49,10 @@ bool jump_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		// OK- Button or Enter-Key pressed
 		//---------------------------------------
 		koord my_pos;
-		sscanf(buf, "%hd,%hd", &my_pos.x, &my_pos.y);
+		sint16 h;
+		bool has_h = sscanf(buf, "%hd,%hd,%hd", &my_pos.x, &my_pos.y, &h)>2;
 		if(welt->is_within_limits(my_pos)) {
-			koord3d k( my_pos, welt->min_hgt( my_pos ) );
+			koord3d k( my_pos, has_h ? h : welt->min_hgt( my_pos ) );
 			welt->get_viewport()->change_world_position(k);
 			welt->get_zeiger()->change_pos( k );
 		}
