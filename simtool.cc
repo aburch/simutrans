@@ -8033,6 +8033,32 @@ const char *tool_pipette_t::work(player_t *pl, koord3d pos)
 		}
 	}
 
+	if (gr->get_weg_nr(1)&&is_shift_pressed()) {
+		// we check weg_nr(1) only when shift pressed
+		if(!is_ctrl_pressed()) {
+			// signals > wayobjs > ways
+			// if ctrl pressed, we only see way.
+			select_and_check(signal_t);
+			select_and_check(roadsign_t);
+			if(tool_t *wayobj_builder = gr->get_wayobj(gr->get_weg_nr(1)->get_waytype())->get_desc()->get_builder()) {
+				if (const char* err = allow_tool_check(gr->get_wayobj(gr->get_weg_nr(1)->get_waytype()), gr->get_wayobj(gr->get_weg_nr(1)->get_waytype())->get_desc(), pl)) {
+					return err;
+				}
+				welt->set_tool(wayobj_builder, pl);
+				return NULL;
+			}
+		}
+		if (tool_t *way_builder = gr->get_weg_nr(1)->get_desc()->get_builder()) {
+			if (const char* err = allow_tool_check(gr->get_weg_nr(1), gr->get_weg_nr(1)->get_desc(), pl)) {
+				return err;
+			}
+			welt->set_tool(way_builder, pl);
+			return NULL;
+		}
+		return "Not allowed to copy object.";
+		// here on rivers and city roads
+	}
+
 	if (gr->get_weg_nr(0)) {
 		if(!is_ctrl_pressed()) {
 			// signals > wayobjs > ways
