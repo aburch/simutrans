@@ -11,6 +11,7 @@
 #include "../simware.h"
 #include "../simworld.h"
 #include <variant>
+#include <iostream>
 
 class gui_traveler_button_t : public button_t, public action_listener_t
 {
@@ -213,12 +214,6 @@ void route_search_frame_t::append_connection_row(haltestelle_t::connection_t con
             halthandle_t halt = haltestelle_t::get_stoppable_halt(original_sched->at(i).pos, cnv->get_owner(), original_sched->get_waytype());
             if (halt == connection_from_halt && start_idx == -1) start_idx = i;
             if (halt == connection.halt && end_idx == -1) end_idx = i;
-        }
-
-        if (end_idx < start_idx) {
-            auto dumm = start_idx;
-            start_idx = end_idx;
-            end_idx = dumm;
         }
 
         if (start_idx != -1 && end_idx != -1) {
