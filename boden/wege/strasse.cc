@@ -343,6 +343,8 @@ FLAGGED_PIXVAL strasse_t::get_outline_colour() const {
 			return TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_GREEN);
 		} else if(  get_citycar_no_entry()  ) {
 			return TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_MAGENTA);
+		} else if(  get_pedestrian_no_entry()  ) {
+			return TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_YELLOW);
 		}
 	}
 	return 0;

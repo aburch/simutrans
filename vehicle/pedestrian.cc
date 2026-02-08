@@ -13,6 +13,7 @@
 #include "../boden/grund.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
+#include "../boden/wege/strasse.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../descriptor/pedestrian_desc.h"
@@ -207,6 +208,11 @@ void pedestrian_t::generate_pedestrians_at(const koord3d k, int &count)
 
 		// we do not start on crossings (not overrunning pedestrians please
 		if (weg && ribi_t::is_twoway(weg->get_ribi_unmasked())) {
+			const strasse_t* str = (const strasse_t*)weg;
+			if(  str->get_pedestrian_no_entry()  ) {
+				// avoid create pedestrian here!
+				return;
+			}
 			// we create maximal 4 pedestrians here for performance reasons
 			for (int i = 0; i < 4 && count > 0; i++) {
 				pedestrian_t* fg = new pedestrian_t(bd);
@@ -262,6 +268,13 @@ grund_t* pedestrian_t::hop_check()
 		time_to_life = 0;
 		return NULL;
 	}
+
+	const strasse_t* str = (const strasse_t*) weg;
+	if( str->get_pedestrian_no_entry() ) {
+		time_to_life = 0;
+		return NULL;
+	}
+
 	return from;
 }
 
