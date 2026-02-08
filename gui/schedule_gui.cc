@@ -251,7 +251,6 @@ void schedule_gui_stats_t::update_schedule()
 			last_schedule = schedule->copy();
 		}
 		set_size(get_min_size());
-		call_listeners( schedule->get_current_stop() );
 	}
 	highlight_schedule(true);
 }
