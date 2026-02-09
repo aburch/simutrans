@@ -252,9 +252,10 @@ void route_search_frame_t::search_route() {
         return;
     }
     ware_t dummy_ware = ware_t();
-    dummy_ware.menge = 100;
+    dummy_ware.menge = 0;
     dummy_ware.index = search_ware_index;
     dummy_ware.set_zielpos(dest_halt->get_init_pos());
+    dummy_ware.set_ziel(dest_halt);
     halthandle_t start_halt_array[1] = {from_halt};
     haltestelle_t::search_route(start_halt_array, 1, false, dummy_ware);
 
