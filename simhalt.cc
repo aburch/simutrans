@@ -2044,6 +2044,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 	bool end_conn_comp_undefined = false;
 
 	if(  ware.menge>0  ||  !ware.get_ziel().is_bound()  ) {
+		// usual searching of target halt
 		for( uint32 h=0;  h<plan->get_haltlist_count();  ++h ) {
 			halthandle_t halt = halt_list[h];
 			if(  halt.is_bound()  &&  halt->is_enabled(ware_catg_idx)  ) {
