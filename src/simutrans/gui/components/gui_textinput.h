@@ -129,6 +129,12 @@ public:
 	// x position of the current cursor (for IME purposes)
 	scr_coord_val get_current_cursor_x() { return calc_cursor_pos(head_cursor_pos); }
 
+	// set currsen selection (not checks!)
+	void set_cursor(sint32 h, sint32 t) {
+		head_cursor_pos = h;
+		tail_cursor_pos = t;
+	}
+
 	/**
 	 * Detect change of focus state and determine whether cursor should be displayed,
 	 * and call the function that performs the actual display

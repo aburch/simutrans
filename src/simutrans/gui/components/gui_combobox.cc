@@ -28,12 +28,13 @@ gui_combobox_t::gui_combobox_t(gui_scrolled_list_t::item_compare_func cmp) :
 {
 	minimize = false;
 	bt_prev.set_typ(button_t::arrowleft);
-	bt_prev.set_pos( scr_coord(0,2) );
+	bt_prev.set_pos(scr_coord(0, 2));
 
 	bt_next.set_typ(button_t::arrowright);
 
-	set_focusable( true ); // needed, otherwise fails on closing when clicking elsewhere!
+	set_focusable(true); // needed, otherwise fails on closing when clicking elsewhere!
 
+	search_str[0] = 0;
 	editstr[0] = 0;
 	old_editstr[0] = 0;
 	textinp.add_listener(this);
@@ -41,6 +42,8 @@ gui_combobox_t::gui_combobox_t(gui_scrolled_list_t::item_compare_func cmp) :
 	first_call = true;
 	finish = false;
 	wrapping = true;
+	force_selection = false;
+	selection_when_open = -1;
 	droplist.set_visible(false);
 	droplist.add_listener(this);
 	closed_size = get_size();
@@ -99,17 +102,31 @@ DBG_MESSAGE("event","HOWDY!");
 	}
 
 	// goto next/previous choice
-	if(  IS_KEYDOWN(ev)  &&  (ev->ev_code == SIM_KEYCODE_UP  ||  ev->ev_code == SIM_KEYCODE_DOWN)  ) {
+	if(  IS_KEYDOWN(ev)  &&  (ev->ev_code == SIM_KEYCODE_UP  ||  ev->ev_code == SIM_KEYCODE_DOWN)  &&  droplist.get_count()>0) {
+		int delta = ev->ev_code == SIM_KEYCODE_UP ? -1 : 1;
 		int sel = droplist.get_selection();
-		if(  ev->ev_code == SIM_KEYCODE_UP  ) {
-			set_selection(  sel > 0 ? sel-1 : (wrapping ? droplist.get_count()-1 : 0) );
+		if (delta < 0 && sel < 0) {
+			// start at last
+			sel = 0;
 		}
-		else {
-			set_selection( sel < (sint32)droplist.get_count()-1 ? sel+1 : (wrapping ? 0 : droplist.get_count()-1) );
+		const int cnt = droplist.get_count();
+		bool found = false;
+		for (int i = 0; i < droplist.get_count(); i++) {
+			sel = (sel + delta + cnt) % cnt;
+			if (droplist.get_element(sel)->is_visible()) {
+				found = true;
+				break;
+			}
 		}
-		value_t p;
-		p.i = droplist.get_selection();
-		call_listeners( p );
+		if (sel != droplist.get_selection()) {
+			droplist.set_selection(sel);
+			if (!droplist.is_visible()) {
+				// update if we are not in the open list scrolling
+				value_t p;
+				p.i = droplist.get_selection();
+				call_listeners(p);
+			}
+		}
 		return true;
 	}
 
@@ -138,6 +155,7 @@ DBG_MESSAGE("event","HOWDY!");
 
 			// else prepare for selection (after a left mbutton release event!)
 			droplist.set_visible(true);
+			selection_when_open = droplist.get_selection();
 
 			// determine possible size of droplist and whether open below/above input field
 			scr_coord_val win_height = win_get_top()->get_windowsize().h - D_TITLEBAR_HEIGHT;
@@ -160,6 +178,9 @@ DBG_MESSAGE("event","HOWDY!");
 				sel = 0;
 			}
 			droplist.show_selection(sel);
+			search_str[0] = 0;
+			textinp.set_text(NULL, 0);
+			textinp.set_text(search_str, lengthof(search_str));
 		}
 		else if (droplist.is_visible()) {
 
@@ -169,16 +190,8 @@ DBG_MESSAGE("event","HOWDY!");
 				event_t ev2 = *ev;
 				ev2.move_origin(droplist.get_pos());
 				if(  droplist.infowin_event(&ev2)  ) {
-					if(  droplist.get_selection() !=  old_selection  ) {
-						// close box will anyway call
-						if( !IS_LEFTRELEASE( ev ) ) {
-							// in case of LEFTRELEASE, close_box will call it again
-							call_listeners( droplist.get_selection() );
-						}
-						finish = true;
-					}
-					// we selected something?
-					if(finish  &&  IS_LEFTRELEASE(ev)) {
+					finish = droplist.get_selection() != old_selection;
+					if(IS_LEFTRELEASE(ev)) {
 						close_box();
 					}
 				}
@@ -200,7 +213,27 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 	else {
 		// finally handle textinput
 		gui_scrolled_list_t::scrollitem_t *item = droplist.get_selected_item();
-		if(  item==NULL  ||  item->is_editable()  ) {
+		if (droplist.is_visible()) {
+			// we are searching, not renaming
+			int first_match = -1;
+			event_t ev2 = *ev;
+			ev2.move_origin(textinp.get_pos());
+			char same = search_str[0];
+			if (textinp.infowin_event(&ev2)) {
+				if (search_str[0]!=same) {
+					for (int i = 0; i < droplist.get_count(); i++) {
+						droplist.get_element(i)->set_visible(strstr(droplist.get_element(i)->get_text(), search_str));
+						if (droplist.get_element(i)->is_visible() && first_match <= droplist.get_selection()) {
+							first_match = i;
+						}
+					}
+					droplist.show_selection(first_match);
+					droplist.set_selection(first_match);
+				}
+				return true;
+			}
+		}
+		else if(  item==NULL  ||  item->is_editable()  ) {
 			event_t ev2 = *ev;
 			ev2.move_origin(textinp.get_pos());
 			return textinp.infowin_event(&ev2);
@@ -234,8 +267,11 @@ void gui_combobox_t::draw(scr_coord offset)
 	last_draw_offset = offset;
 	// text changed? Then update it
 	gui_scrolled_list_t::scrollitem_t *item = droplist.get_selected_item();
-	if(  item  &&  item->is_valid()  &&  item->is_editable()  &&  strncmp( item->get_text(), old_editstr, 127 )  ) {
-		reset_selected_item_name();
+	if (!droplist.is_visible()) {
+		// maybe rename item unless we are searching reight now
+		if (item && item->is_valid() && item->is_editable() && strncmp(item->get_text(), old_editstr, lengthof(old_editstr))) {
+			reset_selected_item_name();
+		}
 	}
 
 	offset += pos;
@@ -274,17 +310,21 @@ void gui_combobox_t::disable()
  */
 void gui_combobox_t::set_selection(int s)
 {
+	search_str[0] = 0;
+
 	// try to finish renaming first
 	rename_selected_item();
 
+	// just set it
+	if (force_selection  &&  s < 0  &&  droplist.get_count() > 0) {
+		// force always a valid selection unless empty
+		s = 0;
+	}
+	droplist.set_selection(s);
 	if (droplist.is_visible()  &&  !finish) {
 		// visible and not closing
 		// change also offset of scrollbar
 		droplist.show_selection( s );
-	}
-	else {
-		// just set it
-		droplist.set_selection(s);
 	}
 	// edit the text
 	reset_selected_item_name();
@@ -300,7 +340,7 @@ void gui_combobox_t::rename_selected_item()
 	// if name was not changed in the meantime, we can rename it
 	if(  item  &&  item->is_valid()  &&  item->is_editable()  ) {
 		const char *current_str = ((gui_scrolled_list_t::const_text_scrollitem_t *)item)->get_text();
-		if(  strncmp( current_str, old_editstr, 127 )==0  &&  strncmp( current_str, editstr, 127 )!=0  ) {
+		if(  strncmp( current_str, old_editstr, lengthof(old_editstr)-1) == 0  &&  strncmp( current_str, editstr, lengthof(old_editstr)-1) != 0  ) {
 			item->set_text(editstr);
 		}
 	}
@@ -312,14 +352,18 @@ void gui_combobox_t::reset_selected_item_name()
 	gui_scrolled_list_t::scrollitem_t *item = droplist.get_selected_item();
 	if(  item==NULL  ) {
 		editstr[0] = 0;
-		textinp.set_text( editstr, 0  );
+		if(!droplist.is_visible()) {
+			textinp.set_text( editstr, 0  );
+		}
 		droplist.set_selection(-1);
 	}
 	else if(  item->is_valid()  ) {
 		const char *current_str = ((gui_scrolled_list_t::const_text_scrollitem_t *)item)->get_text();
-		if(  strncmp( current_str, old_editstr, 127 )!=0  ) {
+		if(  strncmp( current_str, old_editstr, lengthof(old_editstr)-1 )!=0  ) {
 			tstrncpy( editstr, current_str, lengthof(editstr) );
-			textinp.set_text( editstr, lengthof(editstr) );
+			if (!droplist.is_visible()) {
+				textinp.set_text(editstr, lengthof(editstr));
+			}
 		}
 	}
 	tstrncpy( old_editstr, editstr, lengthof(old_editstr) );
@@ -331,11 +375,26 @@ void gui_combobox_t::reset_selected_item_name()
 */
 void gui_combobox_t::close_box()
 {
-	if(finish) {
+	bool selection_changed = selection_when_open != droplist.get_selection();
+	reset_selected_item_name();
+	if(finish  &&  selection_changed) {
 		value_t p;
 		p.i = droplist.get_selection();
 		call_listeners(p);
 		finish = false;
+	}
+	if (search_str[0] || selection_changed) {
+		// reset filter: set all visible again
+		search_str[0] = 0;
+		for (int i = 0; i < droplist.get_count(); i++) {
+			droplist.get_element(i)->set_visible(true);
+		}
+		textinp.set_text(NULL, 0);  // also to reset cursor position
+	}
+	textinp.set_text(editstr, lengthof(editstr) );
+	if (!selection_changed) {
+		sint32 len = strlen(editstr);
+		textinp.set_cursor(len, len);
 	}
 	droplist.set_visible(false);
 	first_call = true;
@@ -411,6 +470,7 @@ scr_size gui_combobox_t::get_max_size() const
 
 void gui_combobox_t::rdwr( loadsave_t *file )
 {
+	// todo: all pending edits and searches are lost/executed
 	sint32 i = get_selection();
 	file->rdwr_long(i);
 	set_selection(i);

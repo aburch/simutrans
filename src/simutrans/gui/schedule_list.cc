@@ -81,6 +81,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 		// freight type filter
 		new_component<gui_empty_t>();
+		freight_type_c.set_force_selection(true);
 		viewable_freight_types.append(NULL);
 		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All"), SYSCOL_TEXT);
 		viewable_freight_types.append(goods_manager_t::passengers);
@@ -115,6 +116,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 		// sort by what
 		new_component<gui_label_t>("hl_txt_sort");
+		sort_type_c.set_force_selection(true);
 		for( int i=0; i<MAX_SORT_IDX;  i++ ) {
 			sort_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate(idx_to_sort_text[i]), SYSCOL_TEXT) ;
 		}
@@ -380,7 +382,7 @@ void schedule_list_gui_t::rdwr( loadsave_t *file )
 // borrowed code from minimap
 bool schedule_list_gui_t::is_matching_freight_catg(const minivec_tpl<uint8> &goods_catg_index)
 {
-	const goods_desc_t *line_freight_type_group_index = viewable_freight_types[ freight_type_c.get_selection() ];
+	const goods_desc_t *line_freight_type_group_index = viewable_freight_types[freight_type_c.get_selection()];
 	// does this line/convoi has a matching freight
 	if(  line_freight_type_group_index == goods_manager_t::passengers  ) {
 		return goods_catg_index.is_contained(goods_manager_t::INDEX_PAS);

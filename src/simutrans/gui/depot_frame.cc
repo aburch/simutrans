@@ -330,6 +330,7 @@ void depot_frame_t::init(depot_t *dep)
 		cont_4cols->new_component<gui_label_t>("Filter:", SYSCOL_TEXT, gui_label_t::right);
 
 		vehicle_filter.add_listener(this);
+		vehicle_filter.set_force_selection(true);
 		cont_4cols->add_component(&vehicle_filter);
 
 		cont_4cols->new_component<gui_label_t>("Search:", SYSCOL_TEXT, gui_label_t::right);
