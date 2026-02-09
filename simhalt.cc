@@ -3550,6 +3550,41 @@ void haltestelle_t::recalc_station_type()
 	recalc_status();
 }
 
+haltestelle_t::stationtyp haltestelle_t::get_connected_station_type() const
+{
+	stationtyp typ = invalid;
+	for(uint32 i=registered_lines.get_count(); i-->0;) {
+		waytype_t wt = registered_lines[i]->get_schedule()->get_waytype();
+		switch (wt)
+		{
+			case road_wt:	 	 typ |= busstop; 		 break;
+			case water_wt:       typ |= dock;            break;
+			case air_wt:         typ |= airstop;         break;
+			case monorail_wt:    typ |= monorailstop;    break;
+			case tram_wt:
+			case track_wt:       typ |= railstation;     break;
+			case maglev_wt:      typ |= maglevstop;      break;
+			case narrowgauge_wt: typ |= narrowgaugestop; break;
+			default: ;
+		}
+	}
+	for(uint32 i=registered_convoys.get_count(); i-->0;) {
+		waytype_t wt = registered_convoys[i]->get_schedule()->get_waytype();
+		switch (wt)
+		{
+			case road_wt:	 	 typ |= busstop; 		 break;
+			case water_wt:       typ |= dock;            break;
+			case air_wt:         typ |= airstop;         break;
+			case monorail_wt:    typ |= monorailstop;    break;
+			case tram_wt:
+			case track_wt:       typ |= railstation;     break;
+			case maglev_wt:      typ |= maglevstop;      break;
+			case narrowgauge_wt: typ |= narrowgaugestop; break;
+			default: ;
+		}		
+	}
+	return typ&station_type;
+}
 
 
 int haltestelle_t::generate_pedestrians(koord3d pos, int count)

@@ -73,6 +73,7 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 		bt_load_before_departure, bt_reverse_convoy, bt_reverse_coupling, bt_wait_coupling_done, bt_uncouple_child, bt_max_speed_kmh_of_convoi, bt_no_overtake, bt_max_load_all_stops, bt_pass_stop,
 		bt_temp_load, bt_temp_unload, bt_temp_unload_all;
 	button_t bt_reverse_default;
+	button_t bt_up, bt_down;
 
 	gui_numberinput_t numimp_spacing, numimp_spacing_shift, 
 		numimp_delay_tolerance, numimp_max_speed, numimp_max_speed_kmh_of_convoi , numimp_tbgr_waiting_time, numimp_length_coupling_done;
