@@ -2079,6 +2079,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 		}
 	}
 	else {
+		// goods menge==0 and target halt is already set.
 		// we already set getoff stop (because this goods is dummy!)
 		// e.g. called by route_search_frame_t
 		halthandle_t halt = ware.get_ziel();
