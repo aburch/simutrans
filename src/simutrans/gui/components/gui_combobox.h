@@ -25,7 +25,7 @@ class gui_combobox_t :
 	public action_listener_t
 {
 private:
-	char editstr[256],old_editstr[256],search_str[256];
+	char editstr[256],old_editstr[256],old_searchstr[256],search_str[256];
 
 	// buttons for setting selection manually
 	gui_textinput_t textinp;
@@ -43,9 +43,6 @@ private:
 
 	// flag for first call
 	bool first_call:1;
-
-	// flag for finish selection
-	bool finish:1;
 
 	// true to allow buttons to wrap around selection
 	bool wrapping:1;

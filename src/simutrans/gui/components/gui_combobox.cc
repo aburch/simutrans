@@ -35,12 +35,12 @@ gui_combobox_t::gui_combobox_t(gui_scrolled_list_t::item_compare_func cmp) :
 	set_focusable(true); // needed, otherwise fails on closing when clicking elsewhere!
 
 	search_str[0] = 0;
+	old_searchstr[0] = 0;
 	editstr[0] = 0;
 	old_editstr[0] = 0;
 	textinp.add_listener(this);
 
 	first_call = true;
-	finish = false;
 	wrapping = true;
 	force_selection = false;
 	selection_when_open = -1;
@@ -124,7 +124,14 @@ DBG_MESSAGE("event","HOWDY!");
 				// update if we are not in the open list scrolling
 				value_t p;
 				p.i = droplist.get_selection();
-				call_listeners(p);
+				this->call_listeners(p);
+				textinp.set_text(NULL,0),
+				reset_selected_item_name();
+			}
+			else if (search_str[0] == 0) {
+				droplist.show_selection(sel);
+				droplist.set_selection(sel);
+				reset_selected_item_name();
 			}
 		}
 		return true;
@@ -179,8 +186,8 @@ DBG_MESSAGE("event","HOWDY!");
 			}
 			droplist.show_selection(sel);
 			search_str[0] = 0;
-			textinp.set_text(NULL, 0);
-			textinp.set_text(search_str, lengthof(search_str));
+			old_searchstr[0] = 0;
+			rename_selected_item();
 		}
 		else if (droplist.is_visible()) {
 
@@ -190,7 +197,6 @@ DBG_MESSAGE("event","HOWDY!");
 				event_t ev2 = *ev;
 				ev2.move_origin(droplist.get_pos());
 				if(  droplist.infowin_event(&ev2)  ) {
-					finish = droplist.get_selection() != old_selection;
 					if(IS_LEFTRELEASE(ev)) {
 						close_box();
 					}
@@ -214,21 +220,38 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 		// finally handle textinput
 		gui_scrolled_list_t::scrollitem_t *item = droplist.get_selected_item();
 		if (droplist.is_visible()) {
+			if (!IS_KEYBOARD(ev) || ev->ev_code == 0) {
+				return false;
+			}
 			// we are searching, not renaming
 			int first_match = -1;
 			event_t ev2 = *ev;
 			ev2.move_origin(textinp.get_pos());
-			char same = search_str[0];
+			if (search_str[0] == 0 && IS_KEYBOARD(&ev2) && ev2.ev_code) {
+				textinp.set_text(NULL, 0);
+				textinp.set_text(search_str, lengthof(search_str));
+				textinp.set_color(SYSCOL_TEXT_STRONG);
+			}
+			strcpy(old_searchstr, search_str);
 			if (textinp.infowin_event(&ev2)) {
-				if (search_str[0]!=same) {
+				if (strcmp(search_str,old_searchstr)!=0) {
 					for (int i = 0; i < droplist.get_count(); i++) {
-						droplist.get_element(i)->set_visible(strstr(droplist.get_element(i)->get_text(), search_str));
-						if (droplist.get_element(i)->is_visible() && first_match <= droplist.get_selection()) {
+						if (search_str[0] == 0) {
+							droplist.get_element(i)->set_visible(strstr(droplist.get_element(i)->get_text(), search_str));
+						}
+						else {
+							droplist.get_element(i)->set_visible(strstr(droplist.get_element(i)->get_text(), search_str));
+						}
+						if (droplist.get_element(i)->is_visible() &&  (first_match==-1  ||  first_match < droplist.get_selection()) ) {
 							first_match = i;
 						}
 					}
 					droplist.show_selection(first_match);
 					droplist.set_selection(first_match);
+					if (search_str[0] == 0  &&  first_match>=0) {
+						// show name of selection instead empty string
+						reset_selected_item_name();
+					}
 				}
 				return true;
 			}
@@ -249,7 +272,6 @@ bool gui_combobox_t::action_triggered( gui_action_creator_t *comp,value_t p)
 	if (  comp == &droplist  ) {
 		const int selection = (int)p.i;
 DBG_MESSAGE("gui_combobox_t::infowin_event()", "scroll selected %i", selection);
-		finish = true;
 		set_selection(selection);
 	}
 	else if (  comp == &textinp  ) {
@@ -321,11 +343,11 @@ void gui_combobox_t::set_selection(int s)
 		s = 0;
 	}
 	droplist.set_selection(s);
-	if (droplist.is_visible()  &&  !finish) {
-		// visible and not closing
+	if (droplist.is_visible()) {
 		// change also offset of scrollbar
 		droplist.show_selection( s );
 	}
+
 	// edit the text
 	reset_selected_item_name();
 }
@@ -366,6 +388,7 @@ void gui_combobox_t::reset_selected_item_name()
 			}
 		}
 	}
+	textinp.set_color(SYSCOL_EDIT_TEXT);
 	tstrncpy( old_editstr, editstr, lengthof(old_editstr) );
 }
 
@@ -376,21 +399,24 @@ void gui_combobox_t::reset_selected_item_name()
 void gui_combobox_t::close_box()
 {
 	bool selection_changed = selection_when_open != droplist.get_selection();
+	selection_when_open = droplist.get_selection();
+
 	reset_selected_item_name();
-	if(finish  &&  selection_changed) {
+	if(selection_changed) {
 		value_t p;
 		p.i = droplist.get_selection();
 		call_listeners(p);
-		finish = false;
 	}
-	if (search_str[0] || selection_changed) {
-		// reset filter: set all visible again
-		search_str[0] = 0;
-		for (int i = 0; i < droplist.get_count(); i++) {
-			droplist.get_element(i)->set_visible(true);
-		}
+
+	// reset filter: set all visible again
+	search_str[0] = 0;
+	for (int i = 0; i < droplist.get_count(); i++) {
+		droplist.get_element(i)->set_visible(true);
+	}
+	if (selection_changed) {
 		textinp.set_text(NULL, 0);  // also to reset cursor position
 	}
+
 	textinp.set_text(editstr, lengthof(editstr) );
 	if (!selection_changed) {
 		sint32 len = strlen(editstr);
