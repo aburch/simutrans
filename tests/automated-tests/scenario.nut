@@ -26,12 +26,14 @@ include("all_tests")
 local num_tests_done = 0
 local num_tests = all_tests.len()
 local error_msg = null
+local failed_tests = []
 
 
 function run_all_tests()
 {
 	num_tests_done = 0
 	error_msg = null
+	failed_tests = []
 
 	print("============================================================")
 	print("== Running tests ... =======================================")
@@ -40,11 +42,25 @@ function run_all_tests()
 	foreach (i,test_func in all_tests) {
 		local func_name = test_func.getinfos().name
 		print("[" + (num_tests_done+1) + "/" + num_tests + "] " + func_name)
-		test_func() // run the test
+		try {
+			test_func() // run the test
+		} catch(e) {
+			print("  FAILED: " + e)
+			failed_tests.append(func_name)
+		}
 		++num_tests_done
 	}
 
-	print("Tests completed successfully.")
+	print("============================================================")
+	print("Tests completed: " + num_tests_done + " total, " + failed_tests.len() + " failed")
+	if (failed_tests.len() > 0) {
+		print("Failed tests:")
+		foreach(test_name in failed_tests) {
+			print("  - " + test_name)
+		}
+	} else {
+		print("Tests completed successfully.")
+	}
 }
 
 
