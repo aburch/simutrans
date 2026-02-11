@@ -1141,11 +1141,13 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 	else if(comp == &bt_up) {
 		if(!schedule->empty()) {
 			schedule->move_entry_backward(schedule->get_current_stop());
+			update_selection();
 		}
 	}
 	else if(comp == &bt_down) {
 		if(!schedule->empty()) {
 			schedule->move_entry_forward(schedule->get_current_stop());
+			update_selection();
 		}
 	}
 	else if(comp == &bt_find_parent) {
