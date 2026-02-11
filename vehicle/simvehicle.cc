@@ -2069,7 +2069,8 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 				}
 				if(  lh.is_bound()  ) {
 					// show line colour
-					uint8 tooltip_width = proportional_string_width(tooltip_text);
+					uint16 tooltip_width = proportional_string_width(tooltip_text);
+					dbg->message("vehicle_t::display_after()","tooltip_width: %i", tooltip_width);
 					display_fillbox_wh_clip_rgb( xpos, ypos-D_WAITINGBAR_WIDTH, tooltip_width+4, D_WAITINGBAR_WIDTH, color_idx_to_rgb(lh->get_colour()), dirty );
 				}
 			}
