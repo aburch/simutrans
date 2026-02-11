@@ -9078,10 +9078,12 @@ bool tool_change_line_t::init( player_t *player )
  * 's' : sells a vehikel (+vehikel_name) uses the newest
  * 'r' : removes a vehikel (+number in convoi)
  * 'R' : removes all vehikels including (+number in convoi) to end
+ * 'D' : removes all convoys' all vehikels from start to end
  * 'e' : set replacement seed convoy
  * 'p' : paste convoy
  * 'u' : set coupling convoy
  * 'v' : sell convoi
+ * 'V' : sell all convoys
  * 't' : reverse convoy direction
  */
 bool tool_change_depot_t::init( player_t *player )
@@ -9165,6 +9167,13 @@ bool tool_change_depot_t::init( player_t *player )
 		case 'd':   // disassemble convoi
 		case 'v': { // sell convoi
 			depot->disassemble_convoi( cnv, tool=='v' );
+			break;
+		}
+		case 'D':
+		case 'V': { // sell all convoys
+			while(depot->convoi_count()>0) {
+				depot->disassemble_convoi( depot->get_convoi(depot->convoi_count()-1), tool=='V' );
+			}
 			break;
 		}
 		case 'c': { // copy this convoi
