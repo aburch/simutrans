@@ -71,7 +71,8 @@ all_tests <- [
 	test_good_speed_bonus,
 	test_slope_to_dir,
 	test_way_road_has_double_slopes,
-	test_label
+	test_label,
+	test_sign_signal_turns_red_on_leading_vehicle
 ]
 
 

@@ -9,6 +9,7 @@
 
 #include "../api_param.h"
 #include "../../obj/simobj.h"
+#include "../../obj/roadsign.h"
 #include "../../simmenu.h"
 #include "../../simunits.h"
 
@@ -291,6 +292,18 @@ void export_global_constants(HSQUIRRELVM vm)
 	enum_slot(vm, "cl_tundra", tundra_climate);
 	enum_slot(vm, "cl_rocky", rocky_climate);
 	enum_slot(vm, "cl_arctic", arctic_climate);
+	end_enum();
+
+	/**
+	 * Signal states.
+	 */
+	begin_enum("signal_states");
+	/// Signal shows red.
+	enum_slot(vm, "state_red",    (SQInteger)roadsign_t::STATE_RED);
+	/// Signal shows green.
+	enum_slot(vm, "state_green",  (SQInteger)roadsign_t::STATE_GREEN);
+	/// Signal shows yellow.
+	enum_slot(vm, "state_yellow", (SQInteger)roadsign_t::STATE_YELLOW);
 	end_enum();
 
 }
