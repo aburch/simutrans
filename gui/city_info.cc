@@ -15,6 +15,7 @@
 #include "../utils/simstring.h"
 #include "../tpl/array2d_tpl.h"
 #include "../player/simplay.h"
+#include "../simfab.h"
 
 #include "city_info.h"
 #include "minimap.h"
@@ -221,6 +222,7 @@ void city_info_t::init()
 	// tab (month/year)
 	year_month_tabs.add_tab(&container_year, translator::translate("Years"));
 	year_month_tabs.add_tab(&container_month, translator::translate("Months"));
+	year_month_tabs.add_tab(&container_factories, translator::translate("Factories"));
 	add_component(&year_month_tabs);
 	// .. put the same buttons in both containers
 	button_t* buttons[MAX_CITY_HISTORY-1];
@@ -267,6 +269,26 @@ void city_info_t::init()
 		button_to_chart.append(buttons[i], &mchart, curve);
 	}
 	container_month.end_table();
+
+	// factory list
+	container_factories.set_table_layout(1,0);
+	container_factories.add_table(2,0);
+	const vector_tpl<stadt_t::factory_entry_t> & fab_list = city->get_target_factories_for_pax().get_entries();
+	FOR(vector_tpl<stadt_t::factory_entry_t>, const& e, fab_list) {
+		const fabrik_t *factory = e.factory; 
+		const koord3d pos = factory->get_pos();
+
+		// target button ...
+		button_t *pb = container_factories.new_component<button_t>();
+		pb->init( button_t::posbutton_automatic, NULL);
+		pb->set_targetpos3d( pos );
+
+		// .. name
+		gui_label_buf_t *lb = container_factories.new_component<gui_label_buf_t>();
+		lb->buf().printf("%s (%d, %d)\n", translator::translate(factory->get_name()), pos.x, pos.y);
+		lb->update();
+	}
+	container_factories.end_table();
 
 	update_labels();
 	set_resizemode(diagonal_resize);
