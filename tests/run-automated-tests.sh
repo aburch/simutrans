@@ -63,6 +63,15 @@ while [ $elapsed -lt $timeout ]; do
 		break
 	fi
 
+	# Check for test failures (assertions failed but test runner completed)
+	if grep -q 'Failed tests:' "$TEMP_LOG" 2>/dev/null; then
+		echo ""
+		echo "✗ Test execution failed (test assertion failure detected)"
+		kill $pid 2>/dev/null || true
+		result=1
+		break
+	fi
+
 	# Check for errors
 	if grep -q 'error \[Call function failed\] calling' "$TEMP_LOG" 2>/dev/null || \
 	   grep -q 'error \[Reading / compiling script failed\] calling' "$TEMP_LOG" 2>/dev/null || \
