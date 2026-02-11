@@ -2059,9 +2059,19 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 		ypos += tile_raster_scale_y(get_yoff(), raster_width)+14;
 		if(ypos>LINESPACE+32  &&  ypos+LINESPACE<display_get_clip_wh().yy) {
 			display_ddd_proportional_clip( xpos, ypos, color, color_idx_to_rgb(COL_BLACK), tooltip_text, true );
-			if( lh.is_bound() && ( state == env_t::LINE_NAME_TOOLTIPS || state == env_t::LINE_NAME_AND_STATES_TOOLTIPS ) ) {
-				uint8 tooltip_width = proportional_string_width(tooltip_text);
-				display_fillbox_wh_clip_rgb( xpos, ypos-D_WAITINGBAR_WIDTH, tooltip_width+4, D_WAITINGBAR_WIDTH, color_idx_to_rgb(lh->get_colour()), dirty );
+			if(  state==env_t::LINE_NAME_TOOLTIPS  ||  state==env_t::LINE_NAME_AND_STATES_TOOLTIPS  ) {
+				if(  cnv->get_max_loading()>0  ) {
+					// show loading level only for loadable convoy(not for locomotive, etc.)
+					// show loading capacity as gray background
+					display_fillbox_wh_clip_rgb( xpos, ypos+14, 100, D_WAITINGBAR_WIDTH, color_idx_to_rgb(COL_GREY4), dirty );
+					// show loading level as green(if level<=100%), or orange(overloading).
+					display_fillbox_wh_clip_rgb( xpos, ypos+14, cnv->get_loading_level()>100?100:cnv->get_loading_level(), D_WAITINGBAR_WIDTH, color_idx_to_rgb(cnv->get_loading_level()>100?COL_RED:COL_LIGHT_GREEN), dirty );
+				}
+				if(  lh.is_bound()  ) {
+					// show line colour
+					uint8 tooltip_width = proportional_string_width(tooltip_text);
+					display_fillbox_wh_clip_rgb( xpos, ypos-D_WAITINGBAR_WIDTH, tooltip_width+4, D_WAITINGBAR_WIDTH, color_idx_to_rgb(lh->get_colour()), dirty );
+				}
 			}
 		}
 	}
@@ -2187,7 +2197,17 @@ bool road_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, r
 		}
 	}
 	target_halt = halthandle_t(); // no block reserved
-	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, pass_next?0:cnv->get_entire_convoy_length(), cnv->needs_electrification() );
+	route_t::route_result_t r;
+	if( r=route->calc_route(welt, start, ziel, this, max_speed, pass_next?0:cnv->get_entire_convoy_length(), cnv->is_electrification()) ) {
+		cnv->set_use_electric(cnv->is_electrification());
+	} else {
+		if( r=route->calc_route(welt, start, ziel, this, max_speed, pass_next?0:cnv->get_entire_convoy_length(), cnv->needs_electrification()) ) {
+			cnv->set_use_electric(false);
+		} else {
+			// no route
+			return false;
+		}
+	}
 	if(  r == route_t::valid_route_halt_too_short  ) {
 		cbuffer_t buf;
 		buf.printf( translator::translate("Vehicle %s cannot choose because stop too short!"), cnv->get_name());
@@ -4505,10 +4525,21 @@ void rail_vehicle_t::leave_tile()
 		if(gr) {
 			schiene_t *sch0 = (schiene_t *) gr->get_weg(get_waytype());
 			if(sch0) {
+				// first, we check other vehicles on the same tile (e.g. uncoupling here)
+				convoihandle_t other_convoy;
+				for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
+					rail_vehicle_t* const v = dynamic_cast<rail_vehicle_t*>(gr->obj_bei(pos));
+					if(  !v || !v->get_convoi() || v->get_convoi()==get_convoi()  ) {
+						// no vehicle or same convoy, ok
+						continue;
+					}
+					// other convoy exist!
+					other_convoy = v->get_convoi()->self;
+				}
 				sch0->unreserve(this);
-				if(  cnv  ) {
-					// If reservation is controlled by next_reservation_index, this does nothing.
-					cnv->get_most_parent_convoi()->unreserve_pos(get_pos());
+				// we should not unreserve this tile if there are other vehicles on this tile.
+				if(  other_convoy.is_bound()  ) {
+					sch0->reserve(other_convoy,ribi_t::none);
 				}
 				// tell next signal?
 				// and switch to red
@@ -4518,11 +4549,31 @@ void rail_vehicle_t::leave_tile()
 						sig->set_state(  roadsign_t::STATE_RED );
 					}
 				}
+				if(  cnv  ) {
+					// If reservation is controlled by next_reservation_index, this does nothing.
+					cnv->get_most_parent_convoi()->unreserve_pos(get_pos());
+				}
 				if (gr->has_two_ways()) {
 					// we may need to reserve the other way as well
 					if (schiene_t* sch1 = dynamic_cast<schiene_t*>(gr->get_weg_nr(gr->get_weg_nr(0) == sch0))) {
 						// the other way is reservable too => unreserve it
 						sch1->unreserve(this);
+					}
+				}
+			}
+		}
+	}
+	if(leading) {
+		grund_t *gr = welt->lookup( get_pos() );
+		if(gr) {
+			schiene_t *sch0 = (schiene_t *) gr->get_weg(get_waytype());
+			if(sch0) {
+				// tell next signal?
+				// and switch to red
+				if(sch0->has_signal()) {
+					signal_t* sig = gr->find<signal_t>();
+					if(sig) {
+						sig->set_state(  roadsign_t::STATE_RED );
 					}
 				}
 			}

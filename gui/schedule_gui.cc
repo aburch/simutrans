@@ -39,6 +39,8 @@
 #include "minimap.h"
 
 static karte_ptr_t welt;
+#define UP_FLAG (0x4000)
+#define DOWN_FLAG (0x2000)
 
 /**
  * One entry in the list of schedule entries.
@@ -51,21 +53,33 @@ class gui_schedule_entry_t : public gui_aligned_container_t, public gui_action_c
 	player_t* player;
 	waytype_t waytype;
 	gui_image_t arrow;
+	gui_image_t up_arrow;
+	gui_image_t down_arrow;
 	gui_label_buf_t stop;
+	bool is_allow_up;// allow up? (not 0 nor last (when next line is bound))
+	bool is_allow_down;// allow down? (not last nor last-1 (when next line is bound))
 
 public:
-	gui_schedule_entry_t(player_t* pl, schedule_entry_t e, uint n, waytype_t const wt)
+	gui_schedule_entry_t(player_t* pl, schedule_entry_t e, uint n, waytype_t const wt, const bool can_up, const bool can_down)
 	{
 		player = pl;
 		entry  = e;
 		number = n;
 		waytype = wt;
 		is_current = false;
-		set_table_layout(2,1);
+		is_allow_up = can_up;
+		is_allow_down = can_down;
+		set_table_layout(4,1);
 
+		// up & down arrow
+		add_component(&up_arrow);
+		up_arrow.set_image(gui_theme_t::arrow_button_up_img[0], true);
+		add_component(&down_arrow);
+		down_arrow.set_image(gui_theme_t::arrow_button_down_img[0], true);
+		// jump to this stop
 		add_component(&arrow);
 		arrow.set_image(gui_theme_t::pos_button_img[0], true);
-
+		// stop name and flags info
 		add_component(&stop);
 		update_label();
 	}
@@ -76,6 +90,8 @@ public:
 		schedule_t::gimme_stop_name(stop.buf(), welt, player, entry, -1, waytype);
 		stop.set_color(is_current ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT);
 		stop.update();
+		up_arrow.set_image(gui_theme_t::arrow_button_up_img[(player==welt->get_active_player()&&is_allow_up)?0:2], true);
+		down_arrow.set_image(gui_theme_t::arrow_button_down_img[(player==welt->get_active_player()&&is_allow_down)?0:2], true);
 	}
 
 	void draw(scr_coord offset) OVERRIDE
@@ -96,12 +112,30 @@ public:
 	bool infowin_event(const event_t *ev) OVERRIDE
 	{
 		if( ev->ev_class == EVENT_CLICK ) {
-			if(  IS_RIGHTCLICK(ev)  ||  ev->mx < stop.get_pos().x) {
+			if(  IS_RIGHTCLICK(ev)  ||  (  ev->mx < stop.get_pos().x  &&  ev->mx >= arrow.get_pos().x  )  ) {
 				// just center on it
 				welt->get_viewport()->change_world_position( entry.pos );
 			} else if( ev->ev_code == MOUSE_WHEELUP || ev->ev_code == MOUSE_WHEELDOWN ) {
 				return false;
-			} 
+			}
+			else if(  player!=welt->get_active_player()  ) {
+				// avoid change by other player
+				call_listeners(number);
+			}
+			else if(  ev->mx < down_arrow.get_pos().x  ) {
+				// up arrow, actioon triggered
+				if(  is_allow_up  ) {
+					call_listeners( UP_FLAG | number );
+					return false;
+				}
+			}
+			else if(  ev->mx < arrow.get_pos().x  ) {
+				// down arrow, actioon triggered
+				if(  is_allow_down  ) {
+					call_listeners( DOWN_FLAG | number );
+					return false;
+				}
+			}
 			else {
 				call_listeners(number);
 			}
@@ -202,8 +236,10 @@ void schedule_gui_stats_t::update_schedule()
 			new_component<gui_textarea_t>(&buf);
 		}
 		else {
-			for(uint i=0; i<schedule->get_count(); i++) {
-				entries.append( new_component<gui_schedule_entry_t>(player, schedule->at(i), i, schedule->get_waytype()));
+			for(uint8 i=0; i<schedule->get_count(); i++) {
+				const bool is_allow_up = (i!=0 && (!schedule->get_next_line().is_bound()||i!=schedule->get_count()-1));
+				const bool is_allow_down = (i!=schedule->get_count()-1 && (!schedule->get_next_line().is_bound()||i!=schedule->get_count()-2));
+				entries.append( new_component<gui_schedule_entry_t>(player, schedule->at(i), i, schedule->get_waytype(), is_allow_up, is_allow_down) );
 				entries.back()->add_listener( this );
 			}
 			entries[ schedule->get_current_stop() ]->set_active(true);
@@ -229,7 +265,21 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 bool schedule_gui_stats_t::action_triggered(gui_action_creator_t *, value_t v)
 {
 	// has to be one of the entries
-	call_listeners(v);
+	if( v.i & UP_FLAG ) {
+		dbg->message("schedule_gui_stats_t::action_triggered()","up button pressed!");
+		uint8 up_stop = v.i & 0x00FF;
+		schedule->move_entry_backward(  up_stop  );
+		call_listeners( schedule->get_current_stop() );
+	}
+	else if( v.i & DOWN_FLAG ) {
+		dbg->message("schedule_gui_stats_t::action_triggered()","down button pressed!");
+		uint8 down_stop = v.i & 0x00FF;
+		schedule->move_entry_forward( down_stop );
+		call_listeners( schedule->get_current_stop() );
+	}
+	else {
+		call_listeners(v);
+	}
 	return true;
 }
 
@@ -260,6 +310,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoih
 	if (schedule_) {
 		init(schedule_, player_, cnv_, cnv_line_name);
 	}
+	stats->add_listener(this);
 }
 
 schedule_gui_t::~schedule_gui_t()
@@ -452,7 +503,10 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS2 );
 		numimp_load.add_listener(this);
 		add_component(&numimp_load);
-		new_component<gui_fill_t>();
+		
+		bt_wait_full_load.init(button_t::roundbox, "wait for full load");
+		bt_wait_full_load.add_listener(this);
+		add_component(&bt_wait_full_load);
 
 		bt_wait_load.init(button_t::square_state, "month wait time");
 		bt_wait_load.add_listener(this);
@@ -711,7 +765,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	extract_driving_settings(false);
 
 
-	add_table(2,1);
+	add_table(6,1);
 	{
 		bt_revert.init(button_t::roundbox, "Revert schedule");
 		bt_revert.set_tooltip("Revert to original schedule");
@@ -729,6 +783,17 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		else {
 			new_component<gui_fill_t>();
 		}
+
+		bt_up.init(button_t::arrowup, "up");
+		bt_up.set_tooltip("up this entry");
+		bt_up.add_listener(this);
+		add_component(&bt_up);
+		new_component<gui_label_t>("up");
+		bt_down.init(button_t::arrowdown, "down");
+		bt_down.set_tooltip("down this entry");
+		bt_down.add_listener(this);
+		add_component(&bt_down);
+		new_component<gui_label_t>("down");
 	}
 	end_table();
 
@@ -759,6 +824,12 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 
 	mode = adding;
 	update_selection();
+
+	if (event_get_last_control_shift() == 2) {
+		extract_schedule_settings(true);
+		extract_loading_settings(true);
+		extract_driving_settings(true);
+	}
 
 	set_resizemode(diagonal_resize);
 
@@ -805,6 +876,7 @@ void schedule_gui_t::update_selection()
 	lb_load.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
 	numimp_load.disable();
 	numimp_load.set_value( 0 );
+	bt_wait_full_load.disable();
 	bt_find_parent.disable();
 	bt_wait_for_child.disable();
 	bt_uncouple_child.disable();
@@ -832,6 +904,8 @@ void schedule_gui_t::update_selection()
 	bt_temp_unload.disable();
 	bt_temp_unload_all.disable();
 	bt_pass_stop.disable();
+	bt_up.disable();
+	bt_down.disable();
 
 
 	if(  !schedule->empty()  ) {
@@ -846,6 +920,13 @@ void schedule_gui_t::update_selection()
     
 		bt_no_overtake.enable();
 		bt_no_overtake.pressed = schedule->at(current_stop).is_no_overtake();
+
+		if(  current_stop!=0  &&  (!schedule->get_next_line().is_bound()  ||  current_stop!=schedule->get_count()-1)  ) {
+			bt_up.enable();
+		}
+		if(  current_stop!=schedule->get_count()-1  &&  (!schedule->get_next_line().is_bound()  ||  current_stop!=schedule->get_count()-2)  ) {
+			bt_down.enable();
+		}
 
 		bt_max_speed_kmh_of_convoi.enable();
 		bt_max_speed_kmh_of_convoi.pressed = schedule->at(current_stop).is_overwrite_max_speed_kmh_of_convoi();
@@ -915,6 +996,15 @@ void schedule_gui_t::update_selection()
 			lb_load.set_color( SYSCOL_TEXT );
 			numimp_load.enable();
 			numimp_max_load.enable();
+			bt_wait_full_load.enable();
+			if(  schedule->at(current_stop).minimum_loading==0  ) {
+				bt_wait_full_load.set_text("wait for full load");
+				bt_wait_full_load.set_tooltip("wait for full load (100% or max loading value)");
+			} else {
+				// reset wait full load value
+				bt_wait_full_load.set_text("reset full load setting");
+				bt_wait_full_load.set_tooltip("reset full load (set 0%)");
+			}
 			bt_max_load_all_stops.enable();
 			if(  schedule->at(current_stop).minimum_loading>0  ||  schedule->at(current_stop).is_wait_for_coupling() ) {
 				bt_wait_load.enable();
@@ -1023,7 +1113,11 @@ bool schedule_gui_t::infowin_event(const event_t *ev)
 bool schedule_gui_t::action_triggered( gui_action_creator_t *comp, value_t p)
 {
 dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_selector);
-	// Always call update_tool for any actions to prevent an unexpected state
+	// Always call update_tool for any actions to prevent an unexpected stat
+	if(  player!=welt->get_active_player()  ) {
+		// different player! no action!
+		return true;
+	}
 	bool should_set_schedule_tool = true;
 	if(comp == &bt_add) {
 		mode = adding;
@@ -1043,6 +1137,16 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 		bt_insert.pressed = false;
 		bt_remove.pressed = true;
 		should_set_schedule_tool = false;
+	}
+	else if(comp == &bt_up) {
+		if(!schedule->empty()) {
+			schedule->move_entry_backward(schedule->get_current_stop());
+		}
+	}
+	else if(comp == &bt_down) {
+		if(!schedule->empty()) {
+			schedule->move_entry_forward(schedule->get_current_stop());
+		}
 	}
 	else if(comp == &bt_find_parent) {
 		if(!schedule->empty()) {
@@ -1104,6 +1208,14 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 	else if(comp == &numimp_load) {
 		if (!schedule->empty()) {
 			schedule->at(schedule->get_current_stop()).minimum_loading = (uint8)p.i;
+			update_selection();
+		}
+	}
+	else if(comp == &bt_wait_full_load) {
+		if (!schedule->empty()) {
+			uint8 val = schedule->at(schedule->get_current_stop()).maximum_loading;
+			bool reset = schedule->at(schedule->get_current_stop()).minimum_loading>0;
+			schedule->at(schedule->get_current_stop()).minimum_loading = reset?0:val;
 			update_selection();
 		}
 	}

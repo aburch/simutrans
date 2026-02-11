@@ -106,6 +106,8 @@ private:
 	button_t bt_sell;
 	button_t bt_replacement_seed;
 	button_t bt_reverse;
+	button_t bt_uncouple;
+	button_t bt_remove_all_vehicles;
 	const char* no_child_text;
 	gui_label_t lb_child_convoy;
 	// coupling convoy selector
