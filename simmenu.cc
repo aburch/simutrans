@@ -585,6 +585,10 @@ static utf32 str_to_key( const char *str, uint8 *modifier )
 		if (strstart(str, "END")) {
 			return SIM_KEY_END;
 		}
+		// SPACE
+		if (strstart(str, "SPACE")) {
+			return SIM_KEY_SPACE;
+		}
 		// END
 		if (strstart(str, "ESC")) {
 			// but currently fixed binding!
