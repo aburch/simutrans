@@ -15,9 +15,16 @@ This directory contains automated test scripts for Simutrans OTRP.
 ### macOS / Linux
 
 ```bash
-cd tests
-WORKDIR=/path/to/simutrans-test-base SIM_BINARY=../sim ./run-automated-tests.sh
+# Run all tests
+WORKDIR=/path/to/simutrans-test-base SIM_BINARY=./sim tests/run-automated-tests.sh
+
+# Run a single test function
+WORKDIR=/path/to/simutrans-test-base SIM_BINARY=./sim tests/run-automated-tests.sh test_label
+WORKDIR=/path/to/simutrans-test-base SIM_BINARY=./sim tests/run-automated-tests.sh test_building_build_house_random
 ```
+
+The script automatically copies the latest test files from `tests/automated-tests/`
+to the WORKDIR scenario directory before running.
 
 ### Environment Variables
 
@@ -30,9 +37,11 @@ WORKDIR=/path/to/simutrans-test-base SIM_BINARY=../sim ./run-automated-tests.sh
 # Extract test base to your home directory
 unzip simutrans-test-base.zip -d ~/
 
-# Run tests
-cd tests
-WORKDIR=~/simutrans-test-base ./run-automated-tests.sh
+# Run all tests
+WORKDIR=~/simutrans-test-base SIM_BINARY=./sim tests/run-automated-tests.sh
+
+# Run a single test function
+WORKDIR=~/simutrans-test-base SIM_BINARY=./sim tests/run-automated-tests.sh test_label
 ```
 
 ## Expected Output
@@ -60,6 +69,7 @@ Last 30 lines of output:
 ## CI/CD Integration
 
 Tests are automatically run on GitHub Actions for all pull requests.
+Each test function runs in its own game instance in parallel.
 See `.github/workflows/otrp-automated-tests.yml` for the workflow configuration.
 
 ## Test Structure
