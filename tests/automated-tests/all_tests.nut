@@ -70,7 +70,8 @@ all_tests <- [
 	test_good_is_interchangeable,
 	test_good_speed_bonus,
 	test_slope_to_dir,
-	test_way_road_has_double_slopes
+	test_way_road_has_double_slopes,
+	test_label
 ]
 
 
@@ -137,7 +138,6 @@ failing_tests <- [
 	test_halt_make_public_underground,
 	test_halt_move_stop_invalid_param,
 	test_headquarters_build_flat,
-	test_label,
 	test_player_cash,
 	test_player_isactive,
 	test_player_headquarters,
