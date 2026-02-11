@@ -822,6 +822,12 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	mode = adding;
 	update_selection();
 
+	if (event_get_last_control_shift() == 2) {
+		extract_schedule_settings(true);
+		extract_loading_settings(true);
+		extract_driving_settings(true);
+	}
+
 	set_resizemode(diagonal_resize);
 
 	reset_min_windowsize();
