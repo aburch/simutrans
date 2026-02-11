@@ -8037,6 +8037,32 @@ const char *tool_pipette_t::work(player_t *pl, koord3d pos)
 		}
 	}
 
+	if (gr->get_weg_nr(1)&&is_shift_pressed()) {
+		// we check weg_nr(1) only when shift pressed
+		if(!is_ctrl_pressed()) {
+			// signals > wayobjs > ways
+			// if ctrl pressed, we only see way.
+			select_and_check(signal_t);
+			select_and_check(roadsign_t);
+			if(tool_t *wayobj_builder = gr->get_wayobj(gr->get_weg_nr(1)->get_waytype())->get_desc()->get_builder()) {
+				if (const char* err = allow_tool_check(gr->get_wayobj(gr->get_weg_nr(1)->get_waytype()), gr->get_wayobj(gr->get_weg_nr(1)->get_waytype())->get_desc(), pl)) {
+					return err;
+				}
+				welt->set_tool(wayobj_builder, pl);
+				return NULL;
+			}
+		}
+		if (tool_t *way_builder = gr->get_weg_nr(1)->get_desc()->get_builder()) {
+			if (const char* err = allow_tool_check(gr->get_weg_nr(1), gr->get_weg_nr(1)->get_desc(), pl)) {
+				return err;
+			}
+			welt->set_tool(way_builder, pl);
+			return NULL;
+		}
+		return "Not allowed to copy object.";
+		// here on rivers and city roads
+	}
+
 	if (gr->get_weg_nr(0)) {
 		if(!is_ctrl_pressed()) {
 			// signals > wayobjs > ways
@@ -9082,10 +9108,12 @@ bool tool_change_line_t::init( player_t *player )
  * 's' : sells a vehikel (+vehikel_name) uses the newest
  * 'r' : removes a vehikel (+number in convoi)
  * 'R' : removes all vehikels including (+number in convoi) to end
+ * 'D' : removes all convoys' all vehikels from start to end
  * 'e' : set replacement seed convoy
  * 'p' : paste convoy
  * 'u' : set coupling convoy
  * 'v' : sell convoi
+ * 'V' : sell all convoys
  * 't' : reverse convoy direction
  */
 bool tool_change_depot_t::init( player_t *player )
@@ -9169,6 +9197,13 @@ bool tool_change_depot_t::init( player_t *player )
 		case 'd':   // disassemble convoi
 		case 'v': { // sell convoi
 			depot->disassemble_convoi( cnv, tool=='v' );
+			break;
+		}
+		case 'D':
+		case 'V': { // sell all convoys
+			while(depot->convoi_count()>0) {
+				depot->disassemble_convoi( depot->get_convoi(depot->convoi_count()-1), tool=='V' );
+			}
 			break;
 		}
 		case 'c': { // copy this convoi

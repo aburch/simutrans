@@ -20,6 +20,7 @@
 /simutrans/text
 *.bdf
 *.zip
+!tests/*.zip
 *.vcxproj
 *.vcxproj.*
 /ipch/*

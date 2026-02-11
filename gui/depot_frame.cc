@@ -1530,7 +1530,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			}
 		}
 		else if(  comp == &bt_sell  ) {
-			depot->call_depot_tool('v', cnv, NULL);
+			depot->call_depot_tool(event_get_last_control_shift()==2?'V':'v', cnv, NULL);
 		}
 		else if(  comp == &bt_replacement_seed  ) {
 			depot->call_depot_tool('e', cnv, NULL);
@@ -1557,7 +1557,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			image_from_storage_list(waggons_vec[p.i]);
 		}
 		else if(  comp == &bt_remove_all_vehicles  ) {
-			image_from_convoi_list(  0, true  );
+			depot->call_depot_tool(event_get_last_control_shift()==2?'D':'d', cnv, NULL);
 		}
 		// convoi filters
 		else if(  comp == &bt_obsolete  ) {
