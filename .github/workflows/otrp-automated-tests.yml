@@ -1,0 +1,68 @@
+name: OTRP Automated Tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get -y update
+        sudo apt-get -ym install libsdl2-dev
+        sudo apt-get -ym install libfreetype6-dev
+        sudo apt-get -ym install libminiupnpc-dev
+        sudo apt-get -ym install libbz2-dev
+        sudo apt-get -ym install pkg-config
+        sudo apt-get -ym install autoconf
+
+    - name: Install zstd 1.4.4
+      run: |
+        cd $HOME
+        wget https://github.com/facebook/zstd/releases/download/v1.4.4/zstd-1.4.4.tar.gz
+        tar -zxvf zstd-1.4.4.tar.gz
+        cd zstd-1.4.4
+        make -j
+        sudo make install
+        cd $GITHUB_WORKSPACE
+
+    - name: Extract test base
+      run: |
+        unzip tests/simutrans-test-base.zip -d $HOME
+        ls -la $HOME/simutrans-test-base
+
+    - name: Copy automated tests to pak
+      run: |
+        cp -r tests/automated-tests $HOME/simutrans-test-base/pak/scenario/
+        ls -la $HOME/simutrans-test-base/pak/scenario/automated-tests/
+
+    - name: Configure and build
+      run: |
+        autoconf
+        ./configure
+        echo "FLAGS = -DREVISION=$(svn info --show-item revision svn://servers.simutrans.org/simutrans) " >>config.default
+        echo "STATIC = 1" >>config.default
+        cat config.default
+        make -j
+
+    - name: Run automated tests
+      run: |
+        cd tests
+        chmod +x run-automated-tests.sh
+        WORKDIR=$HOME/simutrans-test-base SIM_BINARY=../sim ./run-automated-tests.sh
+
+    - name: Upload test artifacts on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-failure-logs
+        path: |
+          tests/*.log
+          $HOME/simutrans-test-base/*.log
+        if-no-files-found: ignore
