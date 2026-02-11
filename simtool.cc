@@ -3076,9 +3076,15 @@ uint8 tool_build_way_t::get_flag_color(uint8 flag) {
 		if (  flag&strasse_t::AVOID_CITYROAD  ) {
 			return COL_ORANGE;
 		}
+		if (  flag&strasse_t::PEDESTRIAN_NO_ENTRY  ) {
+			return COL_LIGHT_RED;
+		}
 		return COL_MAGENTA;
 	}
 	if (  flag&strasse_t::AVOID_CITYROAD  ) {
+		if (  flag&strasse_t::PEDESTRIAN_NO_ENTRY  ) {
+			return COL_LIGHT_GREEN;
+		}
 		return COL_GREEN;
 	}
 	if (  flag&strasse_t::PEDESTRIAN_NO_ENTRY  ) {
