@@ -68,19 +68,29 @@ jobs:
         funcs=$(sed -n '/^all_tests <- \[/,/^\]/p' tests/automated-tests/all_tests.nut \
           | grep -oE 'test_[a-z_]+')
 
+        # Verify we found at least one test function
+        if [ -z "$funcs" ]; then
+          echo "Error: No test functions found in all_tests array"
+          exit 1
+        fi
+
+        test_count=$(echo "$funcs" | wc -l | tr -d ' ')
+        echo "Found $test_count test functions"
+
         # Split into batches of 10 using awk
+        # Output format: [["test1","test2",...,"test10"],["test11",...],...]
         batches=$(echo "$funcs" | awk -v batch_size=10 '
           BEGIN { print "[" }
           {
             if (NR % batch_size == 1) {
-              if (NR > 1) printf "],"
-              printf "["
+              if (NR > 1) printf "],"  # Close previous batch
+              printf "["                # Start new batch
             } else {
-              printf ","
+              printf ","                # Separate tests within batch
             }
             printf "\"%s\"", $0
           }
-          END { print "]]" }
+          END { print "]]" }              # Close last batch and outer array
         ' | jq -c .)
 
         echo "test-batches=$batches" >> "$GITHUB_OUTPUT"

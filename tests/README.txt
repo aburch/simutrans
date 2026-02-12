@@ -69,7 +69,23 @@ Last 30 lines of output:
 ## CI/CD Integration
 
 Tests are automatically run on GitHub Actions for all pull requests.
-Each test function runs in its own game instance in parallel.
+
+### How CI Tests Work
+
+1. **Build Job**: Compiles the Simutrans binary and bundles dependencies
+2. **List Tests Job**: Discovers all test functions and groups them into batches of 10
+3. **Test Jobs**: Each batch runs in a separate parallel job
+   - Within each batch, tests run sequentially but in isolated game instances
+   - This reduces CI resource usage while maintaining test independence
+
+Example: If there are 35 tests, they are split into:
+- Batch 1: Tests 1-10
+- Batch 2: Tests 11-20
+- Batch 3: Tests 21-30
+- Batch 4: Tests 31-35
+
+This batching strategy balances parallel execution with GitHub Actions resource limits.
+
 See `.github/workflows/otrp-automated-tests.yml` for the workflow configuration.
 
 ## Test Structure

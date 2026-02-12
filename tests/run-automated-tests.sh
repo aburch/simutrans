@@ -48,7 +48,6 @@ EOF
 
 	# Use temporary file for monitoring
 	local temp_log=$(mktemp)
-	trap "rm -f $temp_log" EXIT
 
 	# Start sim in background and redirect output
 	$SIM_BINARY -set_workdir "$WORKDIR" -objects pak -scenario automated-tests -debug 2 -lang en -fps 100 > "$temp_log" 2>&1 &
@@ -76,6 +75,7 @@ EOF
 		# Check for successful completion
 		if grep -q 'Tests completed successfully.' "$temp_log" 2>/dev/null; then
 			kill $pid 2>/dev/null || true
+			wait $pid 2>/dev/null || true
 			result=0
 			break
 		fi
@@ -83,6 +83,7 @@ EOF
 		# Check for test failures (assertions failed but test runner completed)
 		if grep -q 'Failed tests:' "$temp_log" 2>/dev/null; then
 			kill $pid 2>/dev/null || true
+			wait $pid 2>/dev/null || true
 			result=1
 			break
 		fi
@@ -92,6 +93,7 @@ EOF
 		   grep -q 'error \[Reading / compiling script failed\] calling' "$temp_log" 2>/dev/null || \
 		   grep -q '</error>' "$temp_log" 2>/dev/null; then
 			kill $pid 2>/dev/null || true
+			wait $pid 2>/dev/null || true
 			result=1
 			break
 		fi
@@ -100,6 +102,7 @@ EOF
 	# Timeout check
 	if [ $elapsed -ge $timeout ]; then
 		kill $pid 2>/dev/null || true
+		wait $pid 2>/dev/null || true
 		result=1
 	fi
 
