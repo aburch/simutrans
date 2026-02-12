@@ -8,13 +8,6 @@
 // Tests for factories / factory links
 //
 
-function build_factory(pl, pos, ignore_climates, rotation, base_prod, name)
-{
-	local factory_builder = command_x(tool_build_factory)
-	return factory_builder.work(pl, pos, "" + ignore_climates.tointeger() + rotation + base_prod + "," + name)
-}
-
-
 function test_factory_build_pp()
 {
 	local pl = player_x(0)
