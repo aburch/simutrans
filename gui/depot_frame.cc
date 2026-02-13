@@ -59,7 +59,6 @@
 
 char depot_frame_t::name_filter_value[64] = "";
 
-
 static int sort_by_action;
 
 bool depot_frame_t::show_retired_vehicles = false;
@@ -283,6 +282,12 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	add_component(&name_filter_input);
 	name_filter_input.add_listener(this);
 
+	static char depot_name[128];
+	strncpy(depot_name, depot->get_indv_name(), lengthof(depot_name));
+	depot_name_input.set_text(depot_name, 60);
+	add_component(&depot_name_input);
+	depot_name_input.add_listener(this);
+
 	build_vehicle_lists();
 
 	// text will be translated by ourselves (after update data)!
@@ -469,23 +474,29 @@ void depot_frame_t::layout(scr_size *size)
 	 */
 
 	/*
+	 * [NAME OF DEPOT]:
+	 */
+	depot_name_input.set_pos(scr_coord(D_MARGIN_LEFT, SELECT_VSTART + 3));
+	depot_name_input.set_size(scr_size(win_size.w - D_MARGIN_RIGHT - D_MARGIN_LEFT, D_BUTTON_HEIGHT));
+
+	/*
 	 * [SELECT]:
 	 */
-	lb_convois.set_pos(scr_coord(D_MARGIN_LEFT, SELECT_VSTART + 3));
+	lb_convois.set_pos(scr_coord(D_MARGIN_LEFT, SELECT_VSTART + D_BUTTON_HEIGHT));
 	lb_convois.set_width(selector_x - D_H_SPACE);
 
-	convoy_selector.set_pos(scr_coord(D_MARGIN_LEFT + selector_x, SELECT_VSTART));
+	convoy_selector.set_pos(scr_coord(D_MARGIN_LEFT + selector_x, SELECT_VSTART + D_BUTTON_HEIGHT));
 	convoy_selector.set_size(scr_size(win_size.w - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, D_BUTTON_HEIGHT));
 	convoy_selector.set_max_size(scr_size(win_size.w - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, LINESPACE * 13 + 2 + 16));
 
 	/*
 	 * [SELECT ROUTE]:
 	 */
-	line_button.set_pos(scr_coord(D_MARGIN_LEFT, SELECT_VSTART + D_BUTTON_HEIGHT));
-	lb_convoi_line.set_pos(scr_coord(D_MARGIN_LEFT + line_button.get_size().w + 2, SELECT_VSTART + D_BUTTON_HEIGHT));
+	line_button.set_pos(scr_coord(D_MARGIN_LEFT, SELECT_VSTART + D_BUTTON_HEIGHT*2));
+	lb_convoi_line.set_pos(scr_coord(D_MARGIN_LEFT + line_button.get_size().w + 2, SELECT_VSTART + D_BUTTON_HEIGHT*2));
 	lb_convoi_line.set_width(selector_x - line_button.get_size().w - 2 - D_H_SPACE);
 
-	line_selector.set_pos(scr_coord(D_MARGIN_LEFT + selector_x, SELECT_VSTART + D_BUTTON_HEIGHT));
+	line_selector.set_pos(scr_coord(D_MARGIN_LEFT + selector_x, SELECT_VSTART + D_BUTTON_HEIGHT*2));
 	line_selector.set_size(scr_size(win_size.w - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, D_BUTTON_HEIGHT));
 	line_selector.set_max_size(scr_size(win_size.w - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, LINESPACE * 13 + 2 + 16));
 
@@ -1714,6 +1725,11 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			depot->call_depot_tool('u',cnv,"0");
 			update_data();
 			return true;
+		}
+		else if(  comp == &depot_name_input  ) {
+			char buf[128];
+			strncpy(buf, depot_name_input.get_text(), sizeof(buf));
+			depot->set_indv_name(buf);
 		}
 		else {
 			update_data();

@@ -59,6 +59,8 @@ public:
 	// Last selected vehicle sort
 	int selected_sort_by;
 
+	plainstring name;
+
 	// finds the next/previous depot relative to the current position
 	static depot_t *find_depot( koord3d start, const obj_t::typ depot_type, const player_t *player, bool next);
 
@@ -79,6 +81,9 @@ public:
 	virtual const char * get_passenger_name() { return "Pas_tab"; }
 	virtual const char * get_zieher_name() { return "Lokomotive_tab"; }
 	virtual const char * get_haenger_name() { return "Waggon_tab"; }
+
+	char const* get_indv_name() const { return name; }
+	void set_indv_name(const char *name);
 
 	vehicle_t* find_oldest_newest(const vehicle_desc_t* desc, bool old);
 
@@ -245,6 +250,7 @@ public:
 	bahndepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t) : depot_t(pos,player,t) {}
 
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::trainline; }
+	void rdwr_name(loadsave_t *file);
 
 	void rdwr_vehicles(loadsave_t *file);
 

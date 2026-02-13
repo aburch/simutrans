@@ -59,6 +59,7 @@ depot_t::depot_t(koord3d pos, player_t *player, const building_tile_desc_t *t) :
 	last_selected_line = linehandle_t();
 	command_pending = false;
 	replacement_seed = convoihandle_t();
+	name = "Somewhere Depot"; //kari no name
 }
 
 
@@ -68,6 +69,9 @@ depot_t::~depot_t()
 	all_depots.remove(this);
 }
 
+void depot_t::set_indv_name(const char* new_name){
+	name = new_name;
+}
 
 // finds the next/previous depot relative to the current position
 depot_t *depot_t::find_depot( koord3d start, const obj_t::typ depot_type, const player_t *player, bool forward)
@@ -634,8 +638,15 @@ void depot_t::remove_convoi( convoihandle_t cnv )
 // attention! this will not be used for loading railway depots! 
 // They will be loaded by hand ...
 void depot_t::rdwr(loadsave_t *file)
-{
+{	
 	gebaeude_t::rdwr(file);
+
+	if(  file->get_OTRP_version()>= 52  ) {
+		file->rdwr_str(name);
+	}
+	else {
+		name = "Depot";
+	}
 
 	rdwr_vehikel(vehicles, file);
 	if(  file->get_OTRP_version()>=24  ) {
@@ -647,6 +658,8 @@ void depot_t::rdwr(loadsave_t *file)
 		assert(file->is_loading());
 		rdwr_vehikel(vehicles, file);
 	}
+
+	
 }
 
 
@@ -779,6 +792,15 @@ void bahndepot_t::rdwr_vehicles(loadsave_t *file) {
 	depot_t::rdwr_vehikel(vehicles,file); 
 	if(  file->get_OTRP_version()>=24  ) {
 		convoi_t::rdwr_convoihandle_t(file, replacement_seed);
+	}
+}
+
+void bahndepot_t::rdwr_name(loadsave_t *file) {
+	if(  file->get_OTRP_version()>= 52  ) {
+		file->rdwr_str(name);
+	}
+	else {
+		name = "Depot";
 	}
 }
 
