@@ -273,6 +273,12 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 		add_component(&bt_obsolete);
 	}
 
+	bt_sell_all.set_typ(button_t::roundbox);
+	bt_sell_all.set_text("Sell all");
+	bt_sell_all.add_listener(this);
+	bt_sell_all.set_tooltip("Sell all vehicles");
+	add_component(&bt_sell_all);
+
 	sort_by.add_listener(this);
 	add_component(&sort_by);
 
@@ -644,6 +650,9 @@ void depot_frame_t::layout(scr_size *size)
 	*/
 
 	// 1st line
+	bt_sell_all.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT+D_H_SPACE)*2-proportional_string_width(translator::translate("Vehicels:"))-D_H_SPACE, INFO_VSTART));
+	bt_sell_all.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
+
 	bt_veh_action.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT+D_H_SPACE)*3, INFO_VSTART));
 	bt_veh_action.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
 	lb_veh_action.align_to(&bt_veh_action, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord(D_H_SPACE, 0));
@@ -1569,6 +1578,9 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			show_all = (show_all == 0);
 			bt_show_all.pressed = show_all;
 			depot_t::update_all_win();
+		}
+		else if(  comp == &bt_sell_all  ) {
+			depot->call_depot_tool('S', convoihandle_t(), NULL);
 		}
 		else if(  comp == &name_filter_input  ) {
 			depot_t::update_all_win();
