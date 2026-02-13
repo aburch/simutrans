@@ -72,16 +72,17 @@ all_tests <- [
 	test_slope_to_dir,
 	test_way_road_has_double_slopes,
 	test_label,
-	test_sign_signal_turns_red_on_leading_vehicle
+	test_sign_signal_turns_red_on_leading_vehicle,
+	test_climate_flat,
+	test_depot_build_invalid_params,
+	test_groundobj_build_invalid_param
 ]
 
 
 // Tests that are currently failing
 failing_tests <- [
 	test_city_change_size_to_minimum,
-	test_climate_flat,
 	test_climate_cliff,
-	test_depot_build_invalid_params,
 	test_depot_build_invalid_pos,
 	test_depot_build_road,
 	test_depot_build_road_on_tram_crossing,
@@ -98,7 +99,6 @@ failing_tests <- [
 	test_factory_build_with_fields,
 	test_factory_build_climate,
 	test_factory_link,
-	test_groundobj_build_invalid_param,
 	test_groundobj_build_invalid_pos,
 	test_groundobj_build_random,
 	test_groundobj_build_specific,
