@@ -59,7 +59,7 @@ depot_t::depot_t(koord3d pos, player_t *player, const building_tile_desc_t *t) :
 	last_selected_line = linehandle_t();
 	command_pending = false;
 	replacement_seed = convoihandle_t();
-	name = "Depot";
+	name = init_name();
 }
 
 
@@ -69,7 +69,7 @@ depot_t::~depot_t()
 	all_depots.remove(this);
 }
 
-void depot_t::set_indv_name(const char* new_name){
+void depot_t::set_name(const char* new_name){
 	name = new_name;
 }
 
@@ -645,7 +645,7 @@ void depot_t::rdwr(loadsave_t *file)
 		file->rdwr_str(name);
 	}
 	else {
-		name = "Depot";
+		name = init_name();
 	}
 
 	rdwr_vehikel(vehicles, file);
@@ -798,7 +798,7 @@ void bahndepot_t::rdwr_name(loadsave_t *file) {
 		file->rdwr_str(name);
 	}
 	else {
-		name = "Depot";
+		name = init_name();
 	}
 }
 
