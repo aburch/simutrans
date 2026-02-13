@@ -1079,3 +1079,103 @@ function test_sign_signal_when_player_removed()
 
 	RESET_ALL_PLAYER_FUNDS()
 }
+
+
+// Test that a signal turns red when the leading vehicle passes,
+// not when the trailing vehicle passes (PR #342 behavior).
+function test_sign_signal_turns_red_on_leading_vehicle()
+{
+	local pl = player_x(0)
+	local rail = way_desc_x.get_available_ways(wt_rail, st_flat)[0]
+	local signal_desc = sign_desc_x.get_available_signs(wt_rail).filter(@(idx, sign) sign.is_signal())[0]
+	local rail_depot = get_depot_by_wt(wt_rail)
+	local station_desc = building_desc_x.get_available_stations(building_desc_x.station, wt_rail, good_desc_x.passenger)[0]
+
+	ASSERT_TRUE(rail != null)
+	ASSERT_TRUE(signal_desc != null)
+	ASSERT_TRUE(rail_depot != null)
+	ASSERT_TRUE(station_desc != null)
+
+	// Build a long straight track: (4, 0) to (4, 14)
+	local r1 = command_x.build_way(pl, coord3d(4, 0, 0), coord3d(4, 14, 0), rail, true)
+	print("  build_way: " + r1)
+	ASSERT_EQUAL(r1, null)
+
+	// Place a bidirectional signal at (4, 7)
+	local r2 = command_x.build_sign_at(pl, coord3d(4, 7, 0), signal_desc)
+	print("  build_sign_at: " + r2)
+	ASSERT_EQUAL(r2, null)
+
+	// Build stations
+	local r3 = command_x.build_station(pl, coord3d(4, 2, 0), station_desc)
+	print("  build_station A: " + r3)
+	ASSERT_EQUAL(r3, null)
+	local r4 = command_x.build_station(pl, coord3d(4, 12, 0), station_desc)
+	print("  build_station B: " + r4)
+	ASSERT_EQUAL(r4, null)
+
+	// Build depot at dead-end
+	local r5 = command_x.build_depot(pl, coord3d(4, 0, 0), rail_depot)
+	print("  build_depot: " + r5)
+	ASSERT_EQUAL(r5, null)
+
+	local depot = depot_x(4, 0, 0)
+
+	// Create a 2-tile long convoy: Pantheress + 2x Tiger-Car + Pantheress-Back
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("H-Trans-Pantheress"))
+	local cnv = depot.get_convoy_list()[0]
+	depot.append_vehicle(pl, cnv, vehicle_desc_x("H-Trans-Tiger-Car"))
+	depot.append_vehicle(pl, cnv, vehicle_desc_x("H-Trans-Tiger-Car"))
+	depot.append_vehicle(pl, cnv, vehicle_desc_x("H-Trans-Pantheress-Back"))
+	print("  vehicles: " + cnv.get_vehicles().len())
+	ASSERT_EQUAL(cnv.get_vehicles().len(), 4)
+
+	// Set schedule: station A -> station B
+	local r6 = cnv.change_schedule(pl, schedule_x(wt_rail, [
+		schedule_entry_x(coord3d(4, 2, 0), 0, 0),
+		schedule_entry_x(coord3d(4, 12, 0), 0, 0)
+	]))
+	print("  change_schedule: " + r6)
+
+	// Start the convoy
+	depot.start_all_convoys(pl)
+	print("  convoy started")
+
+	// The signal at (4, 7) should initially be red (state_red = 0)
+	local sig = tile_x(4, 7, 0).find_object(mo_signal)
+	ASSERT_TRUE(sig != null)
+	ASSERT_EQUAL(sig.get_state(), state_red)
+
+	// Wait for the convoy to approach and pass the signal.
+	// When the head passes the signal, it should immediately turn red.
+	local head_passed_signal = false
+	local signal_was_green = false
+	local max_steps = 2000
+
+	for (local i = 0; i < max_steps; i++) {
+		sleep()
+
+		if (!cnv.is_valid()) break
+
+		local pos = cnv.get_pos()
+
+		// Track if signal ever became green (train is approaching/reserved)
+		if (sig.get_state() == state_green) {
+			signal_was_green = true
+		}
+
+		// Once the head of the convoy has moved past the signal tile (y > 7),
+		// the signal should already be red because the leading vehicle triggered
+		// the state change when it left the signal tile.
+		if (pos.y > 7 && signal_was_green) {
+			ASSERT_EQUAL(sig.get_state(), state_red)
+			head_passed_signal = true
+			break
+		}
+	}
+
+	print("  signal_was_green: " + signal_was_green)
+	print("  head_passed_signal: " + head_passed_signal)
+	ASSERT_TRUE(signal_was_green)
+	ASSERT_TRUE(head_passed_signal)
+}

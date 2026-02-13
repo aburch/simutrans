@@ -16,6 +16,7 @@
 #include "../../simline.h"
 #include "../../simworld.h"
 #include "../../vehicle/simvehicle.h"
+#include "../../dataobj/schedule.h"
 
 // for convoy tools
 #include "../../simmenu.h"
@@ -151,6 +152,25 @@ call_tool_init convoy_generic_tool(convoi_t *cnv, player_t *player, uint8 cnvtoo
 	buf.printf("%c,%u", c, cnv->self.get_id());
 
 	return call_tool_init(TOOL_CHANGE_CONVOI | SIMPLE_TOOL, buf, 0, player);
+}
+
+call_tool_init convoy_change_schedule(convoi_t *cnv, player_t *player, schedule_t *sched)
+{
+	if (sched) {
+		cbuffer_t buf;
+		schedule_t *copy = sched->copy();
+		if (copy->get_count() >= 2) {
+			buf.printf("g,%u,", cnv->self.get_id());
+			copy->sprintf_schedule(buf);
+		}
+		else {
+			delete copy;
+			return "Invalid schedule provided: less than two entries remained after removing doubles";
+		}
+		delete copy;
+		return call_tool_init(TOOL_CHANGE_CONVOI | SIMPLE_TOOL, buf, 0, player);
+	}
+	return "Invalid schedule provided";
 }
 
 bool convoy_is_schedule_editor_open(convoi_t *cnv)
@@ -348,6 +368,13 @@ void export_convoy(HSQUIRRELVM vm)
 	 * @ingroup game_cmd
 	 */
 	register_method_fv(vm, convoy_generic_tool, "destroy", freevariable<uint8>('x'), true);
+	/**
+	 * Change the schedule of the convoy.
+	 * @param pl player to pay for the change
+	 * @param sched new schedule
+	 * @ingroup game_cmd
+	 */
+	register_method(vm, convoy_change_schedule, "change_schedule", true);
 	/**
 	 * @returns returns true if the schedule of the convoy is currently being edited.
 	 */

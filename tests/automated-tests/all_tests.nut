@@ -72,6 +72,7 @@ all_tests <- [
 	test_slope_to_dir,
 	test_way_road_has_double_slopes,
 	test_label,
+	test_sign_signal_turns_red_on_leading_vehicle,
 	test_climate_flat,
 	test_depot_build_invalid_params,
 	test_groundobj_build_invalid_param
