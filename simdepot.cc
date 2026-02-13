@@ -59,7 +59,7 @@ depot_t::depot_t(koord3d pos, player_t *player, const building_tile_desc_t *t) :
 	last_selected_line = linehandle_t();
 	command_pending = false;
 	replacement_seed = convoihandle_t();
-	name = "Somewhere Depot"; //kari no name
+	name = "Depot";
 }
 
 
@@ -638,7 +638,7 @@ void depot_t::remove_convoi( convoihandle_t cnv )
 // attention! this will not be used for loading railway depots! 
 // They will be loaded by hand ...
 void depot_t::rdwr(loadsave_t *file)
-{	
+{
 	gebaeude_t::rdwr(file);
 
 	if(  file->get_OTRP_version()>= 52  ) {
@@ -658,8 +658,6 @@ void depot_t::rdwr(loadsave_t *file)
 		assert(file->is_loading());
 		rdwr_vehikel(vehicles, file);
 	}
-
-	
 }
 
 
@@ -803,7 +801,6 @@ void bahndepot_t::rdwr_name(loadsave_t *file) {
 		name = "Depot";
 	}
 }
-
 
 unsigned bahndepot_t::get_max_convoi_length() const
 {

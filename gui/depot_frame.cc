@@ -59,6 +59,7 @@
 
 char depot_frame_t::name_filter_value[64] = "";
 
+
 static int sort_by_action;
 
 bool depot_frame_t::show_retired_vehicles = false;
