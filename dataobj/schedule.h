@@ -271,7 +271,7 @@ public:
 	// Returns Euclid distance / max_speed if no journey time record is available.
 	uint32 get_median_journey_time(uint8 index, uint32 max_speed_kmh) const;
 
-	bool is_minimap_route_search_found() { return minimap_route_search_found; }
+	bool is_minimap_route_search_found() const { return minimap_route_search_found; }
 	void set_minimap_route_search_found( bool val ) { minimap_route_search_found = val; }
 };
 

@@ -145,7 +145,7 @@ public:
 		return data[i];
 	}
 
-	const bool operator ==( minivec_tpl const& other ) const {
+	bool operator ==( minivec_tpl const& other ) const {
 		if (count != other.count) return false;
 		bool same = true;
 		int i = 0;

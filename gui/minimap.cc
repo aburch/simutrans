@@ -325,18 +325,6 @@ void minimap_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints )
 void minimap_t::add_to_schedule_cache_without_cnv( schedule_t* schedule, player_t* owner, bool with_waypoints, bool is_highlighted )
 {
 	if (!schedule) return;
-	// if(  network_color_mode==PLAYER_COLOR  ) {
-	// 	colore_idx = cnv->get_owner()->get_player_color1();
-	// }
-	// else if(  network_color_mode==LINE_COLOR  ) {
-	// 	if(  cnv->get_line().is_bound()  ) {
-	// 		// this convoy is belong to line, show line color
-	// 		colore_idx = cnv->get_line()->get_colour();
-	// 	} else {
-	// 		// this convoy is not line's convoy. show player color
-	// 		colore_idx = cnv->get_owner()->get_player_color1();
-	// 	}
-	// }
 
 	// ok, add this schedule to map
 	int stops = 0;
@@ -1324,6 +1312,10 @@ void minimap_t::set_selected_route( schedule_t* schedule, player_t* owner, bool 
 	current_schedule = schedule;
 	circle_halts = schedule ? true : false;
 	if(clear_cache) {
+		FOR(  vector_tpl<halthandle_t>, station, stop_cache  ) {
+			if (station->is_minimap_route_transfer()) station->set_minimap_route_transfer(false);
+			if (station->is_minimap_route_visible()) station->set_minimap_route_visible(false);
+		}
 		schedule_cache.clear();
 		stop_cache.clear();
 	}

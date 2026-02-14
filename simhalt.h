@@ -971,10 +971,10 @@ public:
 	bool const is_allow_unload_longer_convoy();
 	void set_allow_unload_longer_convoy(const bool y) { y? flags|=HS_ALLOW_UNLOAD_LONGER_CONVOY: flags&=~HS_ALLOW_UNLOAD_LONGER_CONVOY; }
 
-	bool is_minimap_route_visible() { return minimap_route_visible; };
+	bool is_minimap_route_visible() const { return minimap_route_visible; };
 	void set_minimap_route_visible(bool highlight) { minimap_route_visible = highlight; };
 	
-	bool is_minimap_route_transfer() { return minimap_route_transfer; };
+	bool is_minimap_route_transfer() const { return minimap_route_transfer; };
 	void set_minimap_route_transfer(bool transfer) { minimap_route_transfer = transfer; };
 };
 
