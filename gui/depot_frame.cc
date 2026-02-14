@@ -274,9 +274,9 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	}
 
 	bt_sell_all.set_typ(button_t::roundbox);
-	bt_sell_all.set_text("Sell all");
+	bt_sell_all.set_text("Sell all vehicles");
 	bt_sell_all.add_listener(this);
-	bt_sell_all.set_tooltip("Sell all vehicles");
+	bt_sell_all.set_tooltip("Sell all vehicles stored here.");
 	add_component(&bt_sell_all);
 
 	sort_by.add_listener(this);
