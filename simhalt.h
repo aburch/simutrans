@@ -590,8 +590,8 @@ private:
 
 	void search_route_for_invalid_zwischenziel_goods(cargo_queue_t *wares);
 
-	bool map_highlighted = true;
-	bool transfer_halt = false;
+	bool minimap_route_visible = true;
+	bool minimap_route_transfer = false;
 
 public:
 	enum routing_result_flags {
@@ -971,11 +971,11 @@ public:
 	bool const is_allow_unload_longer_convoy();
 	void set_allow_unload_longer_convoy(const bool y) { y? flags|=HS_ALLOW_UNLOAD_LONGER_CONVOY: flags&=~HS_ALLOW_UNLOAD_LONGER_CONVOY; }
 
-	bool is_map_highlighted() { return map_highlighted; };
-	void set_map_highlighted(bool highlight) { map_highlighted = highlight; };
+	bool is_minimap_route_visible() { return minimap_route_visible; };
+	void set_minimap_route_visible(bool highlight) { minimap_route_visible = highlight; };
 	
-	bool is_transfer_halt() { return transfer_halt; };
-	void set_transfer_halt(bool transfer) { transfer_halt = transfer; };
+	bool is_minimap_route_transfer() { return minimap_route_transfer; };
+	void set_minimap_route_transfer(bool transfer) { minimap_route_transfer = transfer; };
 };
 
 ENUM_BITSET(haltestelle_t::stationtyp)

@@ -199,8 +199,8 @@ void route_search_frame_t::append_connection_row(haltestelle_t::connection_t con
     if (  cnv.is_bound()  ) {
         auto original_sched = cnv->get_schedule();
 
-        schedule_t* spliced_sched = original_sched->copy();
-        spliced_sched->remove_all();
+        schedule_t* spliced_schedule = original_sched->copy();
+        spliced_schedule->remove_all();
         
         bool recording = false;
         bool is_end_halt = false;
@@ -211,14 +211,25 @@ void route_search_frame_t::append_connection_row(haltestelle_t::connection_t con
 
         for (uint8 i = 0; i < count; i++) {
             halthandle_t halt = haltestelle_t::get_stoppable_halt(original_sched->at(i).pos, cnv->get_owner(), original_sched->get_waytype());
-            if (halt == connection_from_halt && start_idx == -1) start_idx = i;
-            if (halt == connection.halt && end_idx == -1) end_idx = i;
-        }
+            if (halt == connection_from_halt) {
+                if (start_idx == -1) {
+                    start_idx = i;
+                } else if (end_idx != -1) {
+                    uint8 current_dist = (end_idx - start_idx + count) % count;
+                    uint8 new_dist = (end_idx - i + count) % count;
+                    if (new_dist < current_dist) start_idx = i;
+                }
+            }
 
-        if (end_idx < start_idx) {
-            auto dumm = start_idx;
-            start_idx = end_idx;
-            end_idx = dumm;
+            if (halt == connection.halt) {
+                if (end_idx == -1) {
+                    end_idx = i;
+                } else if (start_idx != -1) {
+                    uint8 current_dist = (end_idx - start_idx + count) % count;
+                    uint8 new_dist = (i - start_idx + count) % count;
+                    if (new_dist < current_dist) end_idx = i;
+                }
+            }
         }
 
         if (start_idx != -1 && end_idx != -1) {
@@ -226,7 +237,7 @@ void route_search_frame_t::append_connection_row(haltestelle_t::connection_t con
             while (true) {
                 grund_t* gr = world()->lookup(original_sched->at(i).pos);
                 if (gr) {
-                    spliced_sched->append(gr);
+                    spliced_schedule->append(gr);
                 }
 
                 if (i == end_idx) break;
@@ -235,25 +246,30 @@ void route_search_frame_t::append_connection_row(haltestelle_t::connection_t con
                 
                 if (i == start_idx) break;
             }
+        } else {
+            return;
         }
 
         halthandle_t halt_start = haltestelle_t::get_stoppable_halt(original_sched->at(start_idx).pos, cnv->get_owner(), original_sched->get_waytype());
         halthandle_t halt_end = haltestelle_t::get_stoppable_halt(original_sched->at(end_idx).pos, cnv->get_owner(), original_sched->get_waytype());
 
-        if(  halt_start != from_halt && halt_start != dest_halt  ) halt_start->set_transfer_halt(true);
-        if(  halt_end != from_halt && halt_end != dest_halt  ) halt_end->set_transfer_halt(true);
+        if(  halt_start != from_halt && halt_start != dest_halt  ) halt_start->set_minimap_route_transfer(true);
+        if(  halt_end != from_halt && halt_end != dest_halt  ) halt_end->set_minimap_route_transfer(true);
 
-        spliced_sched->add_return_way();
+        spliced_schedule->add_return_way();
 
-        convoi_t* dumm = new convoi_t(cnv->get_owner());
-        cnv_dummy = dumm->self;
-        cnv_dummy->set_schedule(spliced_sched, true);
+        // convoi_t* dumm = new convoi_t(cnv->get_owner());
+        // cnv_dummy = dumm->self;
+        // cnv_dummy->set_schedule(spliced_schedule, true);
 
-        if (original_sched->get_entries() == spliced_sched->get_entries()) {
-            minimap_t::get_instance()->set_selected_cnv( cnv, false, spliced_sched );
+        spliced_schedule->set_minimap_route_search_found(true);
+        cnv->get_schedule()->set_minimap_route_search_found(true);
+
+        if (original_sched->get_entries() == spliced_schedule->get_entries()) {
+            minimap_t::get_instance()->set_selected_route( spliced_schedule, cnv->get_owner(), true, false );
         } else {
-            minimap_t::get_instance()->set_selected_cnv( cnv , false, nullptr, false );
-            minimap_t::get_instance()->set_selected_cnv( cnv_dummy, false, spliced_sched );
+            minimap_t::get_instance()->set_selected_route( cnv->get_schedule(), cnv->get_owner(), false, false );
+            minimap_t::get_instance()->set_selected_route( spliced_schedule, cnv->get_owner(), true, false );
         }
     }
 
