@@ -1146,6 +1146,9 @@ function test_sign_signal_turns_red_on_leading_vehicle()
 	ASSERT_TRUE(sig != null)
 	ASSERT_EQUAL(sig.get_state(), state_red)
 
+	// Speed up the game to 5x to make the test run faster.
+	debug.set_game_speed(5)
+
 	// Wait for the convoy to approach and pass the signal.
 	// When the head passes the signal, it should immediately turn red.
 	local head_passed_signal = false
