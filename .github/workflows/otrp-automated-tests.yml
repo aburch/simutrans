@@ -62,7 +62,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - id: list
-      name: List test batches (10 tests per batch)
+      name: List test batches (20 tests per batch)
       run: |
         # Extract test function names from all_tests array
         funcs=$(sed -n '/^all_tests <- \[/,/^\]/p' tests/automated-tests/all_tests.nut \
@@ -77,9 +77,9 @@ jobs:
         test_count=$(echo "$funcs" | wc -l | tr -d ' ')
         echo "Found $test_count test functions"
 
-        # Split into batches of 10 using awk
-        # Output format: [["test1","test2",...,"test10"],["test11",...],...]
-        batches=$(echo "$funcs" | awk -v batch_size=10 '
+        # Split into batches of 20 using awk
+        # Output format: [["test1","test2",...,"test20"],["test21",...],...]
+        batches=$(echo "$funcs" | awk -v batch_size=20 '
           BEGIN { print "[" }
           {
             if (NR % batch_size == 1) {
