@@ -179,6 +179,9 @@ private:
 	/// nonstatic, if we have someday many maps ...
 	void set_map_color(koord k, PIXVAL color);
 
+	vector_tpl<halthandle_t> route_search_highlighted_halts;
+	vector_tpl<halthandle_t> route_search_transfer_halts;
+
 public:
 	scr_coord map_to_screen_coord(const koord &k) const;
 
@@ -276,6 +279,14 @@ public:
 		char *cm2name[MAX_COLOR_MODE] = {"Individual color","Free Capacity","Player color","Line color"};
 		return translator::translate(cm2name[i]);
 	}
+
+	void clear_route_search_highlights() {
+		route_search_highlighted_halts.clear();
+		route_search_transfer_halts.clear();
+	}
+
+	void add_route_halt(halthandle_t halt) { route_search_highlighted_halts.append_unique(halt); }
+	void add_transfer_halt(halthandle_t halt) { route_search_transfer_halts.append_unique(halt); }
 };
 
 #endif

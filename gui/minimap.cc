@@ -339,7 +339,7 @@ void minimap_t::add_to_schedule_cache_without_cnv( schedule_t* schedule, player_
 		//try to read station's coordinates if there's a station at this schedule stop
 		halthandle_t station = haltestelle_t::get_stoppable_halt( cur.pos, owner, schedule->get_waytype() );
 		if(  station.is_bound()  ) {
-			station->set_minimap_route_visible(is_highlighted);
+			if (  is_highlighted  ) route_search_highlighted_halts.append_unique(station);
 			stop_cache.append_unique( station );
 			temp_stop = station->get_basis_pos();
 			stops ++;
@@ -1312,10 +1312,8 @@ void minimap_t::set_selected_route( schedule_t* schedule, player_t* owner, bool 
 	current_schedule = schedule;
 	circle_halts = schedule ? true : false;
 	if(clear_cache) {
-		FOR(  vector_tpl<halthandle_t>, station, stop_cache  ) {
-			if (station->is_minimap_route_transfer()) station->set_minimap_route_transfer(false);
-			if (station->is_minimap_route_visible()) station->set_minimap_route_visible(false);
-		}
+		route_search_highlighted_halts.clear();
+		route_search_transfer_halts.clear();
 		schedule_cache.clear();
 		stop_cache.clear();
 	}
@@ -1602,7 +1600,7 @@ void minimap_t::draw(scr_coord pos)
 			// maybe deleted in the meanwhile
 			continue;
 		}
-		if(  !station->is_minimap_route_visible() ) {
+		if(  current_schedule && !route_search_highlighted_halts.is_contained(station) ) {
 			continue;
 		}
 
@@ -1668,7 +1666,7 @@ void minimap_t::draw(scr_coord pos)
 			const int stype = station->get_station_type();
 			color = color_idx_to_rgb(station->get_owner()->get_player_color1()+3);
 
-			if (  station->is_minimap_route_transfer() && current_schedule && current_schedule->is_minimap_route_search_found()  ) {
+			if (  route_search_transfer_halts.is_contained(station) && current_schedule && current_schedule->is_minimap_route_search_found()  ) {
 				radius = 6;
 			}
 			// invalid=0, loadingbay=1, railstation = 2, dock = 4, busstop = 8, airstop = 16, monorailstop = 32, tramstop = 64, maglevstop=128, narrowgaugestop=256
@@ -1719,7 +1717,7 @@ void minimap_t::draw(scr_coord pos)
 		}
 
 		int out_radius = (radius == 0) ? 1 : radius;
-		if (  station->is_minimap_route_transfer() && current_schedule && current_schedule->is_minimap_route_search_found()  ) {
+		if (  route_search_transfer_halts.is_contained(station) && current_schedule && current_schedule->is_minimap_route_search_found()  ) {
 			display_filled_diamond_rgb( temp_stop.x, temp_stop.y, radius, color );
 			display_diamond_rgb( temp_stop.x, temp_stop.y, out_radius, color_idx_to_rgb(COL_BLACK) );
 		}

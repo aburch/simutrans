@@ -252,8 +252,8 @@ void route_search_frame_t::append_connection_row(haltestelle_t::connection_t con
         halthandle_t halt_start = haltestelle_t::get_stoppable_halt(original_sched->at(start_idx).pos, cnv->get_owner(), original_sched->get_waytype());
         halthandle_t halt_end = haltestelle_t::get_stoppable_halt(original_sched->at(end_idx).pos, cnv->get_owner(), original_sched->get_waytype());
 
-        if(  halt_start != from_halt && halt_start != dest_halt  ) halt_start->set_minimap_route_transfer(true);
-        if(  halt_end != from_halt && halt_end != dest_halt  ) halt_end->set_minimap_route_transfer(true);
+        if(  halt_start != from_halt && halt_start != dest_halt  ) minimap_t::get_instance()->add_transfer_halt(halt_start);
+        if(  halt_end != from_halt && halt_end != dest_halt  ) minimap_t::get_instance()->add_transfer_halt(halt_end);
 
         spliced_schedule->add_return_way();
 
