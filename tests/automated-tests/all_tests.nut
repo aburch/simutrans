@@ -65,7 +65,10 @@ all_tests <- [
 	test_depot_build_water,
 	test_depot_build_monorail,
 	test_depot_build_tram,
+	test_depot_build_road_on_tram_crossing,
+	test_depot_build_sloped,
 	test_depot_build_on_bridge_end,
+	test_depot_build_on_halt,
 	test_depot_convoy_add_normal,
 	test_depot_convoy_add_nonelectrified,
 	test_dir_is_single,
@@ -186,7 +189,13 @@ all_tests <- [
 	test_wayobj_build_straight,
 	test_wayobj_build_disconnected,
 	test_wayobj_upgrade_downgrade,
-	test_wayobj_electrify_depot
+	test_wayobj_electrify_depot,
+	test_transport_generate_pax_invalid_pos,
+	test_transport_generate_pax_walked,
+	test_transport_generate_pax_no_route,
+	test_transport_pax_valid_route,
+	test_transport_mail_valid_route,
+	test_transport_freight_valid_route
 ]
 
 
@@ -194,10 +203,7 @@ all_tests <- [
 failing_tests <- [
 	test_city_change_size_to_minimum,
 	test_depot_build_invalid_pos,
-	test_depot_build_road_on_tram_crossing,
-	test_depot_build_sloped,
 	test_depot_build_on_tunnel_entrance,
-	test_depot_build_on_halt,
 	test_halt_build_rail_single_tile,
 	test_halt_build_flat_dock_outside_map,
 	test_halt_build_flat_dock_on_bridge,
@@ -216,12 +222,6 @@ failing_tests <- [
 	test_terraform_raise_lower_land_at_water_edge,
 	test_terraform_raise_lower_land_below_way,
 	test_terraform_raise_lower_water_level,
-	test_transport_generate_pax_invalid_pos,
-	test_transport_generate_pax_walked,
-	test_transport_generate_pax_no_route,
-	test_transport_pax_valid_route,
-	test_transport_mail_valid_route,
-	test_transport_freight_valid_route,
 	test_trees_plant_single_invalid_param,
 	test_trees_plant_single_max_per_square,
 	test_way_bridge_build_ground,

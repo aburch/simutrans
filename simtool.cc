@@ -6095,29 +6095,30 @@ const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, co
 		if(wegtype==water_wt) {
 			bd = welt->lookup_kartenboden(pos.get_2d());
 			if(!bd->is_water()) {
+				if(!bd->hat_weg(water_wt)) {
+					return "Ship depots must be built on water!";
+				}
 				bd = NULL;
 			}
 		}
 		if(bd==NULL) {
 			bd = tool_intern_koord_to_weg_grund(player,welt,pos,wegtype);
 		}
-		if(!bd  ||  bd->has_two_ways()) {
-			return NOTICE_DEPOT_BAD_POS;
+		if(!bd) {
+			return "Depots must be built on flat dead-end way tiles!";
+		}
+		else if(bd->has_two_ways()  ||  bd->is_halt()  ||  bd->get_depot()!=NULL) {
+			return "Tile not empty.";
 		}
 
 		// no depots on runways!
 		if(desc->get_extra()==air_wt  &&  bd->get_weg(air_wt)->get_desc()->get_styp()!=type_flat) {
-			return NOTICE_DEPOT_BAD_POS;
+			return "Depots cannot be built on runways!";
 		}
 
 		const char *p=bd->kann_alle_obj_entfernen(player);
 		if(p) {
 			return p;
-		}
-
-		// avoid building over a stop
-		if(bd->is_halt()  ||  bd->get_depot()!=NULL) {
-			return NOTICE_DEPOT_BAD_POS;
 		}
 
 		ribi_t::ribi ribi;
@@ -6151,14 +6152,14 @@ const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, co
 
 		if(bd->get_weg_hang()!=0) {
 			// must build on flat ground!
-			return NOTICE_DEPOT_BAD_POS;
+			return "Depots must be built on flat dead-end way tiles!";
 		}
 
 		int layout = 0;
 
 		if(desc->get_all_layouts() == 4) {
 			if(!ribi_t::is_single(ribi)) {
-				return NOTICE_DEPOT_BAD_POS;
+				return "Depots must be built on flat dead-end way tiles!";
 			}
 			switch(ribi) {
 				//case ribi_t::south:layout = 0;  break;
@@ -6168,18 +6169,18 @@ const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, co
 			}
 		} else if(desc->get_all_layouts() == 2) {
 			if(!ribi_t::is_straight(ribi)) {
-				return NOTICE_DEPOT_BAD_POS;
+				return "Depots must be built on flat dead-end way tiles!";
 			}
 			layout = ribi_t::is_straight_ew(ribi);
 		} else if(desc->get_all_layouts() == 1) {
 			if(!ribi_t::is_straight(ribi)) {
-				return NOTICE_DEPOT_BAD_POS;
+				return "Depots must be built on flat dead-end way tiles!";
 			}
 			// water depot can be layout=1.
 			layout = 0;
 		}
 		else {
-			return NOTICE_DEPOT_BAD_POS;
+			return "Depots must be built on flat dead-end way tiles!";
 		}
 
 		hausbauer_t::build_station_extension_depot(player, bd->get_pos(), layout, desc );
