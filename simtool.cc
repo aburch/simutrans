@@ -8064,16 +8064,21 @@ const char *tool_pipette_t::work(player_t *pl, koord3d pos)
 			// if ctrl pressed, we only see way.
 			select_and_check(signal_t);
 			select_and_check(roadsign_t);
-			if(tool_t *wayobj_builder = gr->get_wayobj(gr->get_weg_nr(1)->get_waytype())->get_desc()->get_builder()) {
-				if (const char* err = allow_tool_check(gr->get_wayobj(gr->get_weg_nr(1)->get_waytype()), gr->get_wayobj(gr->get_weg_nr(1)->get_waytype())->get_desc(), pl)) {
-					return err;
+			if(gr->get_wayobj(gr->get_weg_nr(1)->get_waytype())){
+			  	if(tool_t *wayobj_builder = gr->get_wayobj(gr->get_weg_nr(1)->get_waytype())->get_desc()->get_builder()) {
+					if (const char* err = allow_tool_check(gr->get_wayobj(gr->get_weg_nr(1)->get_waytype()), gr->get_wayobj(gr->get_weg_nr(1)->get_waytype())->get_desc(), pl)) {
+						return err;
+					}
+					welt->set_tool(wayobj_builder, pl);
+					return NULL;
 				}
-				welt->set_tool(wayobj_builder, pl);
-				return NULL;
 			}
 		}
 		if (tool_t *way_builder = gr->get_weg_nr(1)->get_desc()->get_builder()) {
 			if (const char* err = allow_tool_check(gr->get_weg_nr(1), gr->get_weg_nr(1)->get_desc(), pl)) {
+				if(  gr->get_weg_nr(1)->get_owner()!=NULL  ) {
+					welt->switch_active_player(gr->get_weg_nr(1)->get_owner_nr(),false);
+				}
 				return err;
 			}
 			welt->set_tool(way_builder, pl);
@@ -8093,6 +8098,9 @@ const char *tool_pipette_t::work(player_t *pl, koord3d pos)
 		}
 		if (tool_t *way_builder = gr->get_weg_nr(0)->get_desc()->get_builder()) {
 			if (const char* err = allow_tool_check(gr->get_weg_nr(0), gr->get_weg_nr(0)->get_desc(), pl)) {
+				if(  gr->get_weg_nr(0)->get_owner()!=NULL  ) {
+					welt->switch_active_player(gr->get_weg_nr(0)->get_owner_nr(),false);
+				}
 				return err;
 			}
 			welt->set_tool(way_builder, pl);
