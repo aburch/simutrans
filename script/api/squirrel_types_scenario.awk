@@ -268,6 +268,8 @@ BEGIN {
 	export_types_scenario["field_x::is_deletable"] = "bool()"
 	export_types_scenario["field_x::get_factory"] = "factory_x()"
 	export_types_scenario["wayobj_x::get_desc"] = "wayobj_desc_x()"
+	export_types_scenario["bridge_x::get_desc"] = "bridge_desc_x()"
+	export_types_scenario["tunnel_x::get_desc"] = "tunnel_desc_x()"
 	export_types_scenario["player_x::is_valid"] = "bool()"
 	export_types_scenario["player_x::get_headquarter_level"] = "integer()"
 	export_types_scenario["player_x::get_headquarter_pos"] = "coord()"

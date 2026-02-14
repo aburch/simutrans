@@ -264,6 +264,8 @@ BEGIN {
 	export_types_ai["field_x::is_deletable"] = "bool()"
 	export_types_ai["field_x::get_factory"] = "factory_x()"
 	export_types_ai["wayobj_x::get_desc"] = "wayobj_desc_x()"
+	export_types_ai["bridge_x::get_desc"] = "bridge_desc_x()"
+	export_types_ai["tunnel_x::get_desc"] = "tunnel_desc_x()"
 	export_types_ai["player_x::is_valid"] = "bool()"
 	export_types_ai["player_x::get_headquarter_level"] = "integer()"
 	export_types_ai["player_x::get_headquarter_pos"] = "coord()"
