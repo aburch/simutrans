@@ -1187,7 +1187,6 @@ void minimap_t::init()
 	map_data = NULL;
 	needs_redraw = true;
 	is_visible = false;
-	circle_halts = false;
 
 	calc_map_size();
 	max_building_level = max_cargo = max_passed = 0;
@@ -1291,11 +1290,6 @@ void minimap_t::set_selected_cnv( convoihandle_t c, bool const clear_cache )
 {
 	current_schedule = nullptr;
 	current_cnv = c;
-	if (  c.is_bound() ) {
-		circle_halts = true;
-	} else {
-		circle_halts = false;
-	}
 	if(clear_cache) {
 		schedule_cache.clear();
 		stop_cache.clear();
@@ -1310,7 +1304,6 @@ void minimap_t::set_selected_route( schedule_t* schedule, player_t* owner, bool 
 {
 	current_cnv = convoihandle_t();
 	current_schedule = schedule;
-	circle_halts = schedule ? true : false;
 	if(clear_cache) {
 		route_search_highlighted_halts.clear();
 		route_search_transfer_halts.clear();
@@ -1535,12 +1528,12 @@ void minimap_t::draw(scr_coord pos)
 		FOR(  vector_tpl<line_segment_t>, seg, schedule_cache  ) {
 
 			uint8 color = seg.colorcount;
-			if(  event_get_last_control_shift()==2  ||  current_cnv.is_bound() || circle_halts  ) {
+			if(  event_get_last_control_shift()==2  ||  is_cnv_schedule_bound()  ) {
 				// on control / single convoi use only player colors
 				static uint8 last_color = color;
 				color = seg.player->get_player_color1()+1;
 				// all lines same thickness if same color
-				if(  color == last_color || circle_halts  ) {
+				if(  color == last_color || is_cnv_schedule_bound()  ) {
 					offset = 0;
 				}
 				last_color = color;
@@ -1677,7 +1670,7 @@ void minimap_t::draw(scr_coord pos)
 				}
 			}
 			// with control, show only circles
-			if(  !circle_halts && event_get_last_control_shift()!=2  ) {
+			if(  !is_cnv_schedule_bound() && event_get_last_control_shift()!=2  ) {
 				// else elongate them ...
 				const int key = station->get_basis_pos().x + station->get_basis_pos().y * world->get_size().x;
 				diagonal_dist = waypoint_hash.get( key ).get_count();

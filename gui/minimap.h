@@ -191,6 +191,7 @@ public:
 	static bool is_visible;
 
 	void set_circle_halts(bool val) { circle_halts = val; };
+	bool is_cnv_schedule_bound() { return current_cnv.is_bound() || current_schedule != nullptr; }
 
 	uint8 network_color_mode;
 
