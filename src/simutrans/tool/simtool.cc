@@ -2569,17 +2569,17 @@ const way_desc_t *tool_build_way_t::get_desc() const
 
 const way_desc_t* tool_build_way_t::get_default_desc(waytype_t wt)
 {
-	const sint8 idx = wt & 63;
-	if (desc==NULL  &&  (wt & 63) < lengthof(defaults)) {
+	const way_desc_t* desc;
+	if ((wt & 63) < lengthof(defaults)) {
 		desc = defaults[wt & 63];
 		if (desc == NULL || !desc->is_available(welt->get_timeline_year_month())) {
 			// search fastest way, may fail if not available (but ok)
 			desc = way_builder_t::weg_search(wt, 0xffffffff, welt->get_timeline_year_month(), type_flat);
 		}
+		return desc;
 	}
-	return desc;
+	return NULL;
 }
-
 
 image_id tool_build_way_t::get_icon(player_t *) const
 {
@@ -2645,7 +2645,7 @@ bool tool_build_way_t::is_selected() const
 		return false;
 	}
 	tool_build_way_t const* const selected = dynamic_cast<tool_build_way_t const*>(tool);
-	return selected  &&  selected->get_desc();
+	return selected  &&  selected->get_desc()==desc;
 }
 
 bool tool_build_way_t::init( player_t *player )
