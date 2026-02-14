@@ -283,7 +283,6 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	add_component(&name_filter_input);
 	name_filter_input.add_listener(this);
 
-	static char depot_name[128];
 	strncpy(depot_name, depot->get_name(), lengthof(depot_name));
 	depot_name_input.set_text(depot_name, 60);
 	add_component(&depot_name_input);

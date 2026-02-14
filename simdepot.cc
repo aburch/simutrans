@@ -641,18 +641,17 @@ void depot_t::rdwr(loadsave_t *file)
 {
 	gebaeude_t::rdwr(file);
 
+	
 	if(  file->get_OTRP_version()>= 52  ) {
 		file->rdwr_str(name);
 	}
 	else {
 		name = init_name();
 	}
-
 	rdwr_vehikel(vehicles, file);
 	if(  file->get_OTRP_version()>=24  ) {
 		convoi_t::rdwr_convoihandle_t(file, replacement_seed);
 	}
-	
 	if (file->is_version_less(81, 33)) {
 		// wagons are stored extra, just add them to vehicles
 		assert(file->is_loading());
@@ -786,10 +785,16 @@ void depot_t::update_all_win()
 	}
 }
 
-void bahndepot_t::rdwr_vehicles(loadsave_t *file) { 
+void bahndepot_t::rdwr_bahndepot(loadsave_t *file) { 
 	depot_t::rdwr_vehikel(vehicles,file); 
 	if(  file->get_OTRP_version()>=24  ) {
 		convoi_t::rdwr_convoihandle_t(file, replacement_seed);
+	}
+	if(  file->get_OTRP_version()>= 52  ) {
+		file->rdwr_str(name);
+	}
+	else {
+		name = init_name();
 	}
 }
 
