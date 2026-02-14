@@ -257,6 +257,7 @@ public:
 	void rdwr_name(loadsave_t *file);
 
 	void rdwr_bahndepot(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
 	/**
 	 * Parameters to determine layout and behaviour of the depot_frame_t.
@@ -278,6 +279,7 @@ public:
 class tramdepot_t : public bahndepot_t
 {
 public:
+	void rdwr(loadsave_t *file) OVERRIDE;
 	tramdepot_t(loadsave_t *file):bahndepot_t(file) {}
 	tramdepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t): bahndepot_t(pos,player,t) {
 		set_name( init_name() );
@@ -292,6 +294,7 @@ public:
 class monoraildepot_t : public bahndepot_t
 {
 public:
+	void rdwr(loadsave_t *file) OVERRIDE;
 	monoraildepot_t(loadsave_t *file):bahndepot_t(file) {}
 	monoraildepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t): bahndepot_t(pos,player,t) {
 		set_name( init_name() );
@@ -306,6 +309,7 @@ public:
 class maglevdepot_t : public bahndepot_t
 {
 public:
+	void rdwr(loadsave_t *file) OVERRIDE;
 	maglevdepot_t(loadsave_t *file):bahndepot_t(file) {}
 	maglevdepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t): bahndepot_t(pos,player,t) {
 		set_name( init_name() );
@@ -320,6 +324,7 @@ public:
 class narrowgaugedepot_t : public bahndepot_t
 {
 public:
+	void rdwr(loadsave_t *file) OVERRIDE;
 	narrowgaugedepot_t(loadsave_t *file):bahndepot_t(file) {}
 	narrowgaugedepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t): bahndepot_t(pos,player,t) {
 		set_name( init_name() );
@@ -345,6 +350,7 @@ protected:
 	const char * get_haenger_name() OVERRIDE { return "Anhaenger_tab"; }
 
 public:
+	void rdwr(loadsave_t *file) OVERRIDE;
 	strassendepot_t(loadsave_t *file) : depot_t(file) {}
 	strassendepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t) : depot_t(pos,player,t) {
 		set_name( init_name() );
@@ -382,6 +388,7 @@ protected:
 	const char * get_haenger_name() OVERRIDE { return "Schleppkahn_tab"; }
 
 public:
+	void rdwr(loadsave_t *file) OVERRIDE;
 	schiffdepot_t(loadsave_t *file) : depot_t(file) {}
 	schiffdepot_t(koord3d pos, player_t *player, const building_tile_desc_t *t) : depot_t(pos,player,t) {
 		set_name( init_name() );
@@ -416,6 +423,7 @@ protected:
 	const char * get_passenger_name() OVERRIDE { return "Flug_tab"; }
 
 public:
+	void rdwr(loadsave_t *file) OVERRIDE;
 	airdepot_t(loadsave_t *file) : depot_t(file) {}
 	airdepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t) : depot_t(pos,player,t) {
 		set_name( init_name() );
