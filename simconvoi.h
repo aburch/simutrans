@@ -544,7 +544,7 @@ private:
 	// total length is enough than this length->coupling cancel
 	bool cease_coupling_due_to_length_over;
 
-	bool map_highlighted = true;
+	bool minimap_route_visible = true;
 
 public:
 	bool is_reversed() const { return reversed; }
@@ -558,8 +558,8 @@ public:
 
 	bool is_cease_coupling_due_to_length_over() const { return cease_coupling_due_to_length_over; }
 
-	void set_map_highlighted(bool val) { map_highlighted = val; };
-	bool is_map_highlighted() const { return map_highlighted; };
+	void set_minimap_route_visible(bool val) { minimap_route_visible = val; };
+	bool is_minimap_route_visible() const { return minimap_route_visible; };
 
 	/**
 	* Convoi haelt an Haltestelle und setzt quote fuer Fracht
@@ -1173,5 +1173,28 @@ public:
 	uint16 get_max_speed_kmh_of_convoi() const {return max_speed_kmh_of_convoi;}
 	void set_max_speed_kmh_of_convoi(uint16 n);
 };
+
+
+// class mock_convoi_t : public convoi_t {
+//     public:
+// 		schedule_t* schedule;
+
+//         mock_convoi_t(player_t* owner, schedule_t* schedule) : convoi_t(owner) {
+// 			this->set_schedule(schedule);
+//         }
+
+// 		bool set_schedule(schedule_t * f) {
+// 			if (f) {
+// 				schedule = f;
+// 				return true;
+// 			}
+// 			return false;
+// 		}
+
+// 		void step() {};
+// 		void lade_an() {};
+			
+	
+// };
 
 #endif

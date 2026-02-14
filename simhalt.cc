@@ -800,7 +800,7 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 	markers[ self.get_id() ] = current_marker;
 
 	alle_haltestellen.append(self);
-	map_highlighted = true;
+	minimap_route_visible = true;
 }
 
 
@@ -836,7 +836,7 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 	last_bar_count = 0;
 
 	sortierung = freight_list_sorter_t::by_name;
-	map_highlighted = true;
+	minimap_route_visible = true;
 	init_financial_history();
 }
 

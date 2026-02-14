@@ -104,7 +104,7 @@ private:
 		uint8 start_offset;
 		uint8 end_offset;
 		bool start_diagonal;
-		bool is_map_highlighted;
+		bool is_minimap_route_visible;
 
 		line_segment_t() {}
 		line_segment_t( koord s, uint8 so, koord e, uint8 eo, schedule_t *sched, player_t *p, uint8 cc, bool diagonal, bool is_highlighted = true );
@@ -121,11 +121,13 @@ private:
 
 	vector_tpl<line_segment_t> schedule_cache;
 	convoihandle_t current_cnv;
+	schedule_t* current_schedule;
 	uint8 last_schedule_counter;
 	vector_tpl<halthandle_t> stop_cache;
 
 	/// adds a schedule to cache
-	void add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints, schedule_t* override_sched, bool is_highlighted );
+	void add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints, schedule_t* override_schedule = nullptr, bool is_highlighted = true );
+	void add_to_schedule_cache_without_cnv( schedule_t* schedule, player_t* owner, bool with_waypoints, bool is_highlighted = true );
 
 	/**
 	 * 0: normal
@@ -246,7 +248,8 @@ public:
 
 	void draw(scr_coord pos) OVERRIDE;
 
-	void set_selected_cnv( convoihandle_t c, bool const clear_cache = true, schedule_t* override_sched = nullptr, bool is_highlighted = true );
+	void set_selected_cnv( convoihandle_t c, bool const clear_cache = true, schedule_t* override_schedule = nullptr, bool is_highlighted = true );
+	void set_selected_route(schedule_t* schedule, player_t* owner, bool is_highlighted = true, bool const clear_cache = true);
 
 	void set_selected_city( const stadt_t* _city );
 
