@@ -135,7 +135,6 @@ route_search_frame_t::~route_search_frame_t()
     minimap_t::get_instance()->set_selected_cnv( convoihandle_t(), true );
     minimap_t::get_instance()->set_circle_halts(false);
     result_container.remove_all();
-    cnv_dummy = convoihandle_t();
 }
 
 bool route_search_frame_t::action_triggered(gui_action_creator_t* comp, value_t) {
@@ -257,10 +256,6 @@ void route_search_frame_t::append_connection_row(haltestelle_t::connection_t con
         if(  halt_end != from_halt && halt_end != dest_halt  ) halt_end->set_minimap_route_transfer(true);
 
         spliced_schedule->add_return_way();
-
-        // convoi_t* dumm = new convoi_t(cnv->get_owner());
-        // cnv_dummy = dumm->self;
-        // cnv_dummy->set_schedule(spliced_schedule, true);
 
         spliced_schedule->set_minimap_route_search_found(true);
         cnv->get_schedule()->set_minimap_route_search_found(true);

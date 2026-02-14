@@ -172,14 +172,13 @@ static inthashtable_tpl< int, slist_tpl<schedule_t *> > waypoint_hash;
 
 
 // add the schedule to the map (if there is a valid one)
-void minimap_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints, schedule_t* override_schedule, bool is_highlighted )
+void minimap_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints )
 {
 	// make sure this is valid!
 	if(  !cnv.is_bound()  ) {
 		return;
 	}
-	schedule_t *schedule = override_schedule ? override_schedule : cnv->get_schedule();
-	cnv->set_minimap_route_visible(is_highlighted);
+	schedule_t *schedule = cnv->get_schedule();
 	if(  network_color_mode==ORIGINAL  ) {
 		colore_idx += 8;
 		if(  colore_idx >= 208  ) {
@@ -253,7 +252,6 @@ void minimap_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints, 
 		//try to read station's coordinates if there's a station at this schedule stop
 		halthandle_t station = haltestelle_t::get_stoppable_halt( cur.pos, cnv->get_owner(), schedule->get_waytype() );
 		if(  station.is_bound()  ) {
-			station->set_minimap_route_visible(is_highlighted);
 			stop_cache.append_unique( station );
 			temp_stop = station->get_basis_pos();
 			stops ++;
@@ -290,7 +288,7 @@ void minimap_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints, 
 			if(  (temp_stop.x-old_stop.x)*(temp_stop.y-old_stop.y) == 0  ) {
 				last_diagonal = false;
 			}
-			if(  !schedule_cache.insert_unique_ordered( line_segment_t( temp_stop, temp_offset, old_stop, old_offset, schedule, cnv->get_owner(), colore_idx, last_diagonal, is_highlighted ), LineSegmentOrdering() )  &&  add_schedule  ) {
+			if(  !schedule_cache.insert_unique_ordered( line_segment_t( temp_stop, temp_offset, old_stop, old_offset, schedule, cnv->get_owner(), colore_idx, last_diagonal ), LineSegmentOrdering() )  &&  add_schedule  ) {
 				// append if added and not yet there
 				if(  !pt_list->is_contained( schedule )  ) {
 					pt_list->append( schedule );
@@ -319,7 +317,7 @@ void minimap_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints, 
 	if(  stops > 2  ) {
 		// connect to start
 		last_diagonal ^= true;
-		schedule_cache.insert_unique_ordered( line_segment_t( first_stop, first_offset, old_stop, old_offset, schedule, cnv->get_owner(), colore_idx, last_diagonal, is_highlighted ), LineSegmentOrdering() );
+		schedule_cache.insert_unique_ordered( line_segment_t( first_stop, first_offset, old_stop, old_offset, schedule, cnv->get_owner(), colore_idx, last_diagonal ), LineSegmentOrdering() );
 	}
 }
 
@@ -1301,7 +1299,7 @@ const fabrik_t* minimap_t::draw_factory_connections(const fabrik_t* const fab, b
 
 
 // show the schedule on the minimap
-void minimap_t::set_selected_cnv( convoihandle_t c, bool const clear_cache, schedule_t* override_schedule, bool is_highlighted )
+void minimap_t::set_selected_cnv( convoihandle_t c, bool const clear_cache )
 {
 	current_schedule = nullptr;
 	current_cnv = c;
@@ -1315,7 +1313,7 @@ void minimap_t::set_selected_cnv( convoihandle_t c, bool const clear_cache, sche
 		stop_cache.clear();
 	}
 	colore_idx = 0;
-	add_to_schedule_cache( current_cnv, true, override_schedule, is_highlighted );
+	add_to_schedule_cache( current_cnv, true );
 	last_schedule_counter = world->get_schedule_counter()-1;
 }
 

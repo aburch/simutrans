@@ -2293,13 +2293,8 @@ void convoi_t::check_freight()
 }
 
 
-bool convoi_t::set_schedule(schedule_t * f, bool check_overwrite)
+bool convoi_t::set_schedule(schedule_t * f)
 {
-	if (  f && check_overwrite  ) {
-		schedule = f;
-		return true;
-	}
-
 	if(  state==SELF_DESTRUCT  ) {
 		return false;
 	}
