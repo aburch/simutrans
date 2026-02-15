@@ -509,7 +509,7 @@ halthandle_t haltestelle_t::get_halt(const koord3d pos, const player_t *player )
 {
 	const grund_t *gr = welt->lookup(pos);
 	if(gr) {
-		if(gr->get_halt().is_bound()  &&  player_t::check_owner(player,gr->get_halt()->get_owner())  ) {
+		if(gr->get_halt().is_bound()  &&  (player_t::check_owner(player,gr->get_halt()->get_owner()) || gr->get_halt()->is_other_player_connection_allowed())  ) {
 			return gr->get_halt();
 		}
 		// no halt? => we do the water check
@@ -528,6 +528,13 @@ halthandle_t haltestelle_t::get_halt(const koord3d pos, const player_t *player )
 			for(  uint8 i=0;  i<cnt;  i++  ) {
 				halthandle_t halt = plan->get_haltlist()[i];
 				if(  halt->get_owner()==welt->get_public_player()  &&  halt->get_station_type()&dock  ) {
+					return halt;
+				}
+			}
+			// finally for other stop allow stop us
+			for(  uint8 i=0;  i<cnt;  i++  ) {
+				halthandle_t halt = plan->get_haltlist()[i];
+				if(  halt->get_station_type()&dock  &&  halt->is_other_player_connection_allowed()  ) {
 					return halt;
 				}
 			}
