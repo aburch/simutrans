@@ -1391,7 +1391,7 @@ void minimap_t::draw(scr_coord pos)
 	}
 	display_array_wh( cur_off.x+pos.x, new_off.y+pos.y, map_data->get_width(), map_data->get_height(), map_data->to_array());
 
-	if(  (!current_cnv.is_bound() && !current_schedule)  &&  mode & MAP_LINES    ) {
+	if(  !current_cnv.is_bound() && !current_schedule  &&  mode & MAP_LINES    ) {
 		vector_tpl<linehandle_t> linee;
 
 		if(  last_schedule_counter != world->get_schedule_counter()  ) {
@@ -1715,16 +1715,20 @@ void minimap_t::draw(scr_coord pos)
 		}
 
 		int out_radius = (radius == 0) ? 1 : radius;
+
+		// halt is a route search transfer halt draw as diamond		 
 		if (  route_search_transfer_halts.is_contained(station) && current_schedule && current_schedule->is_minimap_route_search_found()  ) {
 			display_filled_diamond_rgb( temp_stop.x, temp_stop.y, radius, color );
 			display_diamond_rgb( temp_stop.x, temp_stop.y, out_radius, color_idx_to_rgb(COL_BLACK) );
 		}
+		// halt is a route search from/dest halt draw as diamond with square over top
 		else if (  route_search_from_halt == station || route_search_dest_halt == station  ) {
 			display_filled_diamond_rgb( temp_stop.x, temp_stop.y, radius, color );
 			display_diamond_rgb( temp_stop.x, temp_stop.y, out_radius, color_idx_to_rgb(COL_BLACK) );
 			display_fillbox_wh_clip_rgb( temp_stop.x-1-radius_sq, temp_stop.y-1-radius_sq, 2*radius_sq+2, 2*radius_sq+2, color_idx_to_rgb(COL_BLACK), false );
 			display_fillbox_wh_clip_rgb( temp_stop.x-radius_sq, temp_stop.y-radius_sq, 2*radius_sq, 2*radius_sq, color, false );
 		}
+		// otherwise draw as circle
 		else {
 			display_filled_circle_rgb( temp_stop.x, temp_stop.y, radius, color );
 			display_circle_rgb( temp_stop.x, temp_stop.y, out_radius, color_idx_to_rgb(COL_BLACK) );
