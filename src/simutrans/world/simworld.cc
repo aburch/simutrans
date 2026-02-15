@@ -1665,17 +1665,20 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 {
 	const koord new_size(sets->get_size_x(), sets->get_size_y());
 
+	assert(new_size.x >= 0);
+	assert(new_size.y >= 0);
+
 	if(  cached_grid_size.y>0  &&  cached_grid_size.y!=new_size.y  ) {
 		// to keep the labels
 		grund_t::enlarge_map( new_size.x, new_size.y );
 	}
 
-	planquadrat_t *new_plan = new planquadrat_t[new_size.x*new_size.y];
-	sint8 *new_grid_hgts = new sint8[(new_size.x + 1) * (new_size.y + 1)];
-	sint8 *new_water_hgts = new sint8[new_size.x * new_size.y];
+	planquadrat_t *new_plan = new planquadrat_t[(uint32) new_size.x      * (uint32) new_size.y];
+	sint8 *new_grid_hgts    = new sint8        [(uint32)(new_size.x + 1) * (uint32)(new_size.y + 1)];
+	sint8 *new_water_hgts   = new sint8        [(uint32) new_size.x      * (uint32) new_size.y];
 
-	memset( new_grid_hgts, groundwater, sizeof(sint8) * (new_size.x + 1) * (new_size.y + 1) );
-	memset( new_water_hgts, groundwater, sizeof(sint8) * new_size.x * new_size.y );
+	memset( new_grid_hgts,  groundwater, sizeof(sint8) * (new_size.x + 1) * (new_size.y + 1) );
+	memset( new_water_hgts, groundwater, sizeof(sint8) *  new_size.x      *  new_size.y );
 
 	const koord old_size = get_size();
 	const bool new_world = old_size.x == 0 && old_size.y == 0;
@@ -2373,10 +2376,13 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 		s->release_factory_links();
 	}
 
-	//rotate plans in parallel posix thread ...
-	rotate90_new_plan = new planquadrat_t[cached_grid_size.y * cached_grid_size.x];
-	rotate90_new_water = new sint8[cached_grid_size.y * cached_grid_size.x];
+	assert(cached_grid_size.x >= 0);
+	assert(cached_grid_size.y >= 0);
 
+	rotate90_new_plan  = new planquadrat_t[(uint32_t)cached_grid_size.y * (uint32_t)cached_grid_size.x];
+	rotate90_new_water = new sint8        [(uint32_t)cached_grid_size.y * (uint32_t)cached_grid_size.x];
+
+	//rotate plans in parallel posix thread ...
 	world_xy_loop(&karte_t::rotate90_plans, 0);
 
 	grund_t::finish_rotate90();
