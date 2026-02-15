@@ -57,6 +57,7 @@
 	CHG: (poppo) jump tool now allows also for z coordinaate
 	FIX: (poppo) last tool not show when too many tools to fit
 	ADD: searchable comboboxes; for editing click twice
+	CHG: Stops that are not connected to any other stops now have a blue status colour
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):

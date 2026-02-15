@@ -3116,12 +3116,18 @@ void haltestelle_t::recalc_status()
 		}
 	}
 
-	// take the worst color for status
-	if(  status_bits  ) {
+	const bool has_any_activity = (financial_history[0][HALT_WAITING] + financial_history[0][HALT_DEPARTED] + financial_history[0][HALT_ARRIVED]) > 0;
+	const bool is_connected     = !registered_convoys.empty() || !registered_lines.empty();
+
+	if (!is_connected) {
+		status_color = color_idx_to_rgb(COL_NO_ROUTE);
+	}
+	else if (status_bits != 0) {
+		// take the worst color for status
 		status_color = color_idx_to_rgb(status_bits&2 ? COL_RED : COL_ORANGE);
 	}
 	else {
-		status_color = color_idx_to_rgb((financial_history[0][HALT_WAITING]+financial_history[0][HALT_DEPARTED] == 0) ? COL_YELLOW : COL_GREEN);
+		status_color = color_idx_to_rgb(has_any_activity ? COL_GREEN : COL_YELLOW);
 	}
 
 	financial_history[0][HALT_WAITING] = total_sum;
