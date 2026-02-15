@@ -1598,6 +1598,7 @@ void minimap_t::draw(scr_coord pos)
 		}
 
 		int radius = 0;
+		int radius_sq = 0;
 		PIXVAL color;
 		int diagonal_dist = 0;
 		scr_coord temp_stop = map_to_screen_coord( station->get_basis_pos() );
@@ -1662,6 +1663,10 @@ void minimap_t::draw(scr_coord pos)
 			if (  route_search_transfer_halts.is_contained(station) && current_schedule && current_schedule->is_minimap_route_search_found()  ) {
 				radius = 6;
 			}
+			else if (route_search_from_halt == station || route_search_dest_halt == station) {
+				radius = 6;
+				radius_sq = 3;
+			}
 			// invalid=0, loadingbay=1, railstation = 2, dock = 4, busstop = 8, airstop = 16, monorailstop = 32, tramstop = 64, maglevstop=128, narrowgaugestop=256
 			else if(  stype > 0  ) {
 				radius = 1;
@@ -1713,6 +1718,12 @@ void minimap_t::draw(scr_coord pos)
 		if (  route_search_transfer_halts.is_contained(station) && current_schedule && current_schedule->is_minimap_route_search_found()  ) {
 			display_filled_diamond_rgb( temp_stop.x, temp_stop.y, radius, color );
 			display_diamond_rgb( temp_stop.x, temp_stop.y, out_radius, color_idx_to_rgb(COL_BLACK) );
+		}
+		else if (  route_search_from_halt == station || route_search_dest_halt == station  ) {
+			display_filled_diamond_rgb( temp_stop.x, temp_stop.y, radius, color );
+			display_diamond_rgb( temp_stop.x, temp_stop.y, out_radius, color_idx_to_rgb(COL_BLACK) );
+			display_fillbox_wh_clip_rgb( temp_stop.x-1-radius_sq, temp_stop.y-1-radius_sq, 2*radius_sq+2, 2*radius_sq+2, color_idx_to_rgb(COL_BLACK), false );
+			display_fillbox_wh_clip_rgb( temp_stop.x-radius_sq, temp_stop.y-radius_sq, 2*radius_sq, 2*radius_sq, color, false );
 		}
 		else {
 			display_filled_circle_rgb( temp_stop.x, temp_stop.y, radius, color );

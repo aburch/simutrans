@@ -23,6 +23,7 @@ class route_search_frame_t : public gui_frame_t, public action_listener_t
 	char from_halt_input_text[256];
 	char dest_halt_input_text[256];
 	halthandle_t from_halt, dest_halt;
+	button_t bt_show_non_traveled;
 	
 	vector_tpl<const goods_desc_t *> viewable_freight_types;
 	gui_combobox_t freight_type_c;

@@ -106,7 +106,7 @@ result_container(1, 0)
     }
     end_table();
 
-    add_table(3, 1);
+    add_table(3, 2);
     {
         search_button.init(button_t::roundbox, "Search");
         search_button.add_listener(this);
@@ -117,6 +117,12 @@ result_container(1, 0)
         add_component(&reverse_search_button);
 
         add_component(&freight_type_c);
+
+        
+        bt_show_non_traveled.init(button_t::square_state, "Show Non-Traveled Section");
+        bt_show_non_traveled.pressed = true;
+        bt_show_non_traveled.add_listener(this);
+        add_component(&bt_show_non_traveled);
     }
     end_table();
 
@@ -145,7 +151,10 @@ bool route_search_frame_t::action_triggered(gui_action_creator_t* comp, value_t)
     } else if (  comp == &freight_type_c  ) {
         const goods_desc_t *ware = viewable_freight_types[freight_type_c.get_selection()];
         search_ware_index = ware->get_index();
-	}
+	} else if (  comp == &bt_show_non_traveled  ) {
+        bt_show_non_traveled.pressed ^= 1;
+        if (  from_halt.is_bound() && dest_halt.is_bound()  ) search_route();
+    }
     return true;
 }
 
@@ -261,7 +270,7 @@ void route_search_frame_t::append_connection_row(haltestelle_t::connection_t con
         if (original_sched->get_entries() == spliced_schedule->get_entries()) {
             minimap_t::get_instance()->set_selected_route( spliced_schedule, cnv->get_owner(), true, false );
         } else {
-            minimap_t::get_instance()->set_selected_route( cnv->get_schedule(), cnv->get_owner(), false, false );
+            if (  bt_show_non_traveled.pressed  ) minimap_t::get_instance()->set_selected_route( cnv->get_schedule(), cnv->get_owner(), false, false );
             minimap_t::get_instance()->set_selected_route( spliced_schedule, cnv->get_owner(), true, false );
         }
     }
@@ -309,6 +318,7 @@ void route_search_frame_t::append_halt_row(halthandle_t halt) {
 void route_search_frame_t::search_route() {
 	// reset selection
     minimap_t::get_instance()->set_selected_cnv( convoihandle_t(), true );
+    minimap_t::get_instance()->set_selected_route( nullptr, nullptr, true );
     result_container.remove_all();
     from_halt = find_halt(from_halt_input.get_text());
     if(  !from_halt.is_bound()  ) {
@@ -320,6 +330,7 @@ void route_search_frame_t::search_route() {
         result_container.new_component<gui_label_t>("To halt not found.");
         return;
     }
+    minimap_t::get_instance()->set_from_dest_halt(from_halt, dest_halt);
     ware_t dummy_ware = ware_t();
     dummy_ware.menge = 100;
     dummy_ware.index = search_ware_index;
