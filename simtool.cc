@@ -7571,7 +7571,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 
 			for (int j = 0; j < 2; j++) {
 				if (weg_t* w = gr->get_weg_nr(j)) {
-						// no public way with private signs
+					// no public way with private signs
 					if(  w->has_sign()  ) {
 						roadsign_t* sign = gr->find<roadsign_t>();
 						if(	 sign && sign->get_desc()->is_private_way()  ) {
@@ -7692,7 +7692,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 		FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt->get_tiles()) {
 			// make way public if any suitable
 			for(  int j=0;  j<2;  j++  ) {
-				if(  weg_t *w=i.grund->get_weg_nr(0)  ) {
+				if(  weg_t *w=i.grund->get_weg_nr(j)  ) {
 					if(  player_t::check_owner( player, w->get_owner() )  &&  w->get_owner()  ) {
 						// no public ways?
 						if(  welt->get_settings().get_disable_make_way_public()  ) {
