@@ -85,7 +85,7 @@ public:
 	char const *get_name() const { return name; }
 	void set_name(const char *name);
 
-	virtual const char *init_name() const { return name; }
+	virtual const char *init_name() const { return "Depot"; }
 
 	vehicle_t* find_oldest_newest(const vehicle_desc_t* desc, bool old);
 
