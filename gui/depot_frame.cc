@@ -2170,17 +2170,6 @@ void  depot_frame_t::rdwr( loadsave_t *file)
 	if(  file->get_OTRP_version()==51  ) {
 		file->rdwr_str(name_filter_value, sizeof(name_filter_value));
 		strncpy(name_filter_value,depot->get_name_filter(),sizeof(depot->get_name_filter()));
-	} else if(  file->get_OTRP_version()>=52  ) {
-		FOR(const slist_tpl<depot_t*>, d, depot_t::get_depot_list()) {
-			char filter[64];
-			if(file->is_saving()) {
-				strncpy(filter,d->get_name_filter(),sizeof(d->get_name_filter()));
-			}
-			file->rdwr_str(filter, sizeof(filter));
-			if(file->is_loading()) {
-				d->set_name_filter(filter);
-			}
-		}
 	}
 	sort_by.rdwr(file);
 	simline_t::rdwr_linehandle_t(file, selected_line);
@@ -2191,6 +2180,9 @@ void  depot_frame_t::rdwr( loadsave_t *file)
 		set_windowsize(size);
 
 		win_set_magic(this, (ptrdiff_t)depot);
+
+		strncpy(name_filter_value,depot->get_name_filter(),sizeof(depot->get_name_filter()));
+		name_filter_input.set_text(name_filter_value,sizeof(name_filter_value));
 	}
 
 	if (depot == NULL) {
