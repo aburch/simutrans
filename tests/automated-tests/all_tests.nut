@@ -196,7 +196,8 @@ all_tests <- [
 	test_transport_generate_pax_no_route,
 	test_transport_pax_valid_route,
 	test_transport_mail_valid_route,
-	test_transport_freight_valid_route
+	test_transport_freight_valid_route,
+	test_trees_plant_single_invalid_param
 ]
 
 
@@ -223,7 +224,6 @@ failing_tests <- [
 	test_terraform_raise_lower_land_at_water_edge,
 	test_terraform_raise_lower_land_below_way,
 	test_terraform_raise_lower_water_level,
-	test_trees_plant_single_invalid_param,
 	test_trees_plant_single_max_per_square,
 	test_way_bridge_build_at_slope,
 	test_way_bridge_build_at_slope_stacked,
