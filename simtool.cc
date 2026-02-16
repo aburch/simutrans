@@ -7571,9 +7571,12 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 
 			for (int j = 0; j < 2; j++) {
 				if (weg_t* w = gr->get_weg_nr(j)) {
-					// no public way with signs
-					if (w->has_sign()) {
-						return NOTICE_UNSUITABLE_GROUND;
+						// no public way with private signs
+					if(  w->has_sign()  ) {
+						roadsign_t* sign = gr->find<roadsign_t>();
+						if(	 sign && sign->get_desc()->is_private_way()  ) {
+							return NOTICE_UNSUITABLE_GROUND;
+						}
 					}
 				}
 			}
@@ -7695,9 +7698,12 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 						if(  welt->get_settings().get_disable_make_way_public()  ) {
 							return NOTICE_DISABLED_PUBLIC_WAY;
 						}
-						// no public way with signs
+						// no public way with private signs
 						if(  w->has_sign()  ) {
-							return NOTICE_UNSUITABLE_GROUND;
+							roadsign_t* sign = i.grund->find<roadsign_t>();
+							if(	 sign && sign->get_desc()->is_private_way()  ) {
+								return NOTICE_UNSUITABLE_GROUND;
+							}
 						}
 						// compute maintainance cost
 						sint64 cost = w->get_desc()->get_maintenance();
