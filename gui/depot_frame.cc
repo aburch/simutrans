@@ -425,8 +425,8 @@ void depot_frame_t::layout(scr_size *size)
 	 *  Calculate position of each element to tabs.
 	 */
 	const scr_coord_val SELECT_VSTART = D_MARGIN_TOP;
-	const scr_coord_val CONVOI_VSTART = SELECT_VSTART + SELECT_HEIGHT + LINESPACE + D_V_SPACE + D_BUTTON_HEIGHT + D_V_SPACE;
-	const scr_coord_val CINFO_VSTART = CONVOI_VSTART + CLIST_HEIGHT +  D_SCROLLBAR_HEIGHT*(CLIST_WIDTH >= win_size.w-D_MARGIN_LEFT-D_MARGIN_RIGHT);
+	const scr_coord_val CONVOI_VSTART = SELECT_VSTART + SELECT_HEIGHT + LINESPACE + D_V_SPACE;
+	const scr_coord_val CINFO_VSTART = CONVOI_VSTART + CLIST_HEIGHT +  D_SCROLLBAR_HEIGHT*(CLIST_WIDTH >= win_size.w-D_MARGIN_LEFT-D_MARGIN_RIGHT) + D_BUTTON_HEIGHT + D_V_SPACE;
 	const scr_coord_val ACTIONS_VSTART = CINFO_VSTART + CINFO_HEIGHT;
 	const scr_coord_val PANEL_VSTART = ACTIONS_VSTART + D_BUTTON_HEIGHT;
 
@@ -514,7 +514,7 @@ void depot_frame_t::layout(scr_size *size)
 	lb_convoi_number.set_width(30);
 	lb_convoi_number.set_color(COL_WHITE);
 
-	bt_remove_all_vehicles.set_pos(scr_size(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE)*3, SELECT_VSTART + SELECT_HEIGHT + LINESPACE + D_V_SPACE));
+	bt_remove_all_vehicles.set_pos(scr_size(D_MARGIN_LEFT, CONVOI_VSTART + cont_convoi.get_size().h + (3+D_SCROLLBAR_HEIGHT)*(CLIST_WIDTH >= win_size.w-D_MARGIN_LEFT-D_MARGIN_RIGHT) + D_V_SPACE));
 	bt_remove_all_vehicles.set_width(BUTTON_WIDTH_DEPOT);
 
 	// place for description text
