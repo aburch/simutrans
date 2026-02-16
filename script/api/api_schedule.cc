@@ -21,7 +21,7 @@ halthandle_t get_halt_from_koord3d(koord3d pos, const player_t *player )
 	if(  player == NULL  ) {
 		return halthandle_t();
 	}
-	return haltestelle_t::get_halt(pos, player);
+	return haltestelle_t::get_stoppable_halt(pos, player);
 }
 
 SQInteger schedule_constructor(HSQUIRRELVM vm) // instance, wt, entries
