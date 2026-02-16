@@ -2497,6 +2497,30 @@ const char *tool_plant_tree_t::work( player_t *player, koord3d pos )
 	return NULL;
 }
 
+bool tool_plant_groundobj_t::init(player_t*)
+{
+	// Check if there are any groundobjs available
+	if (groundobj_t::get_count() == 0) {
+		return false;
+	}
+
+	// Validate default_param format if provided
+	if (default_param != NULL && default_param[0] != '\0') {
+		// Parameter format: "Cxxname" where C is '0' or '1' (climate check flag)
+		// and name starts at position 3
+		// Minimum length is 4 characters
+		if (strlen(default_param) < 4) {
+			return false;
+		}
+		// First character must be '0' or '1'
+		if (default_param[0] != '0' && default_param[0] != '1') {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 char const* tool_plant_groundobj_t::move(player_t* const player, uint16 const b, koord3d const pos)
 {
 	if (b==0) {

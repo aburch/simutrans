@@ -348,6 +348,11 @@ bool roadsign_can_pass(const roadsign_t* rs, player_t* player)
 	return player  &&  rs->get_desc()->is_private_way()  ?  (rs->get_player_mask() & (1<<player->get_player_nr()))!=0 : true;
 }
 
+sint32 roadsign_get_state(roadsign_t* rs)
+{
+	return (sint32)rs->get_state();
+}
+
 // depot
 call_tool_init depot_append_vehicle(depot_t *depot, player_t *player, convoihandle_t cnv, const vehicle_desc_t *desc)
 {
@@ -723,6 +728,12 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @param player
 	 */
 	register_method(vm, &roadsign_can_pass, "can_pass", true);
+
+	/**
+	 * Get signal state.
+	 * @returns signal state: 0 = red, 1 = green, 2 = yellow
+	 */
+	register_method(vm, &roadsign_get_state, "get_state", true);
 	end_class(vm);
 
 	/**
