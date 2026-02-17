@@ -165,6 +165,7 @@ all_tests <- [
 	test_trees_plant_single_ignore_climate,
 	test_trees_plant_single_occupied,
 	test_trees_plant_forest,
+	test_trees_plant_single_max_per_square,
 	test_way_bridge_build_ground,
 	test_way_bridge_planner,
 	test_way_road_has_double_slopes,
@@ -196,7 +197,9 @@ all_tests <- [
 	test_transport_generate_pax_no_route,
 	test_transport_pax_valid_route,
 	test_transport_mail_valid_route,
-	test_transport_freight_valid_route
+	test_transport_freight_valid_route,
+	test_trees_plant_single_invalid_param,
+	test_way_tunnel_build_straight
 ]
 
 
@@ -223,8 +226,6 @@ failing_tests <- [
 	test_terraform_raise_lower_land_at_water_edge,
 	test_terraform_raise_lower_land_below_way,
 	test_terraform_raise_lower_water_level,
-	test_trees_plant_single_invalid_param,
-	test_trees_plant_single_max_per_square,
 	test_way_bridge_build_at_slope,
 	test_way_bridge_build_at_slope_stacked,
 	test_way_bridge_build_above_way,
@@ -236,6 +237,5 @@ failing_tests <- [
 	test_way_tram_build_across_road_bridge,
 	test_way_tram_build_in_tunel,
 	test_way_tram_has_double_slopes,
-	test_way_tunnel_build_straight,
 	test_way_tunnel_build_up_down
 ]

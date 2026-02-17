@@ -2451,6 +2451,28 @@ char const* tool_plant_tree_t::move(player_t* const player, uint16 const b, koor
 }
 
 
+bool tool_plant_tree_t::init(player_t*)
+{
+	if (!tree_builder_t::has_trees()) {
+		return false;
+	}
+
+	// Validate default_param format if provided
+	if (default_param != NULL && default_param[0] != '\0') {
+		// Parameter format: "bb,name" where bb are '0' or '1' flags
+		// Minimum length is 4 characters (two flags + comma + at least one char)
+		if (strlen(default_param) < 4) {
+			return false;
+		}
+		if (default_param[2] != ',') {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+
 const char *tool_plant_tree_t::work( player_t *player, koord3d pos )
 {
 	koord k(pos.get_2d());

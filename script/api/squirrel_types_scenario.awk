@@ -332,6 +332,7 @@ BEGIN {
 	export_types_scenario["settings::get_max_air_convoi_length"] = "integer()"
 	export_types_scenario["settings::get_drive_on_left"] = "bool()"
 	export_types_scenario["settings::get_pay_for_total_distance_mode"] = "integer()"
+	export_types_scenario["settings::get_max_no_of_trees_on_square"] = "integer()"
 	export_types_scenario["dir::is_single"] = "bool(dir)"
 	export_types_scenario["dir::is_twoway"] = "bool(dir)"
 	export_types_scenario["dir::is_threeway"] = "bool(dir)"
