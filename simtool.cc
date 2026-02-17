@@ -2749,12 +2749,7 @@ bool tool_build_way_t::init( player_t *player, bool called_from_move )
 	}
 
 	if (  !called_from_move  &&  is_ctrl_pressed()  &&  can_use_gui()  ) {
-		if(  desc->get_waytype()==road_wt  ) {
-			create_win(new overtaking_mode_frame_t(player, this, desc->get_styp()==0), w_info, (ptrdiff_t)this);
-		}
-		else if(  desc->get_styp()==type_elevated  ) {
-			create_win(new height_offset_frame_t(player, this), w_info, (ptrdiff_t)this);
-		}
+		create_win(new overtaking_mode_frame_t(player, this, desc->get_styp()==0||desc->get_styp()==type_tram), w_info, (ptrdiff_t)this);
 	}
 	return desc!=NULL;
 }
@@ -3170,7 +3165,7 @@ bool tool_build_bridge_t::init( player_t *player )
 	if(  desc  &&  !desc->is_available(welt->get_timeline_year_month())  &&  player!=NULL  &&  player!=welt->get_public_player()  ) {
 		return false;
 	}
-	if (is_ctrl_pressed()  &&  can_use_gui()  &&  desc->get_waytype()==road_wt  ) {
+	if (is_ctrl_pressed()  &&  can_use_gui()  ) {
 		create_win(new overtaking_mode_frame_t(player, this), w_info, (ptrdiff_t)this);
 	}
 	return desc!=NULL;
@@ -3462,7 +3457,7 @@ bool tool_build_tunnel_t::init( player_t *player )
 	if(  desc  &&  !desc->is_available(welt->get_timeline_year_month())  &&  player!=NULL  &&  player!=welt->get_public_player()  ) {
 		return false;
 	}
-	if (is_ctrl_pressed()  &&  can_use_gui()  &&  desc->get_waytype()==road_wt  ) {
+	if (is_ctrl_pressed()  &&  can_use_gui()  ) {
 		create_win(new overtaking_mode_frame_t(player, this), w_info, (ptrdiff_t)this);
 	}
 	return desc!=NULL;

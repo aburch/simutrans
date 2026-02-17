@@ -27,6 +27,8 @@ private:
 	tool_build_way_t* tool_w;
 	tool_build_bridge_t* tool_b;
 	tool_build_tunnel_t* tool_tu;
+	waytype_t waytype;
+	sint8 vehicle_offset_value;
 	uint8 tool_class; // 0:way, 1:bridge, 2:tunnel
 	button_t mode_button[6];
 	gui_divider_t divider[2];

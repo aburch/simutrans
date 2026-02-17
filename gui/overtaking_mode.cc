@@ -19,26 +19,32 @@ overtaking_mode_t overtaking_mode_frame_t::overtaking_mode = twoway_mode;
 char overtaking_mode_frame_t::mode_name[6][20] = {"halt mode", "oneway", "twoway", "only loading convoi", "prohibited", "inverted"};
 
 overtaking_mode_frame_t::overtaking_mode_frame_t(player_t *player_, tool_build_way_t* tool_, bool show_avoid_cityroad) :
-	gui_frame_t( translator::translate("Road Configuration") )
+	gui_frame_t( tool_->get_waytype()==road_wt? translator::translate("Road Configuration") : translator::translate("Way Configuration") )
 {
 	tool_class = 0;
 	tool_w = tool_;
+	waytype = tool_->get_waytype();
+	vehicle_offset_value = tool_->get_vehicle_offset();
 	init(player_, tool_w->get_overtaking_mode(), tool_w->get_street_flag(), show_avoid_cityroad);
 }
 
 overtaking_mode_frame_t::overtaking_mode_frame_t(player_t *player_, tool_build_bridge_t* tool_) :
-	gui_frame_t( translator::translate("Road Configuration") )
+	gui_frame_t( tool_->get_waytype()==road_wt? translator::translate("Road Configuration") : translator::translate("Way Configuration") )
 {
 	tool_class = 1;
 	tool_b = tool_;
+	waytype = tool_->get_waytype();
+	vehicle_offset_value = tool_->get_vehicle_offset();
 	init(player_, tool_b->get_overtaking_mode(), tool_b->get_street_flag(), false);
 }
 
 overtaking_mode_frame_t::overtaking_mode_frame_t(player_t *player_, tool_build_tunnel_t* tool_) :
-	gui_frame_t( translator::translate("Road Configuration") )
+	gui_frame_t( tool_->get_waytype()==road_wt? translator::translate("Road Configuration") : translator::translate("Way Configuration") )
 {
 	tool_class = 2;
 	tool_tu = tool_;
+	waytype = tool_->get_waytype();
+	vehicle_offset_value = tool_->get_vehicle_offset();
 	init(player_, tool_tu->get_overtaking_mode(), tool_tu->get_street_flag(), false);
 }
 
@@ -48,47 +54,50 @@ void overtaking_mode_frame_t::init( player_t* player_, overtaking_mode_t overtak
 
 	set_table_layout(1,0);
 
-	for(int i = 0 ; i < 6; i++){
-		mode_button[i].init( button_t::square_state, mode_name[i]);
-		mode_button[i].add_listener(this);
-		mode_button[i].pressed = false;
-		add_component( &mode_button[i] );
+	if(  waytype==road_wt  ) {
+
+		for(int i = 0 ; i < 6; i++){
+			mode_button[i].init( button_t::square_state, mode_name[i]);
+			mode_button[i].add_listener(this);
+			mode_button[i].pressed = false;
+			add_component( &mode_button[i] );
+		}
+
+		if(  overtaking_mode==halt_mode          ) mode_button[0].pressed = true;
+		if(  overtaking_mode==oneway_mode        ) mode_button[1].pressed = true;
+		if(  overtaking_mode==twoway_mode        ) mode_button[2].pressed = true;
+		if(  overtaking_mode==loading_only_mode  ) mode_button[3].pressed = true;
+		if(  overtaking_mode==prohibited_mode    ) mode_button[4].pressed = true;
+		if(  overtaking_mode==inverted_mode      ) mode_button[5].pressed = true;
+
+		add_component(&divider[0]);
+		
+		if(  tool_class==0  &&  show_avoid_cityroad  ) {
+			avoid_cityroad_button.init( button_t::square_state, "avoid becoming cityroad");
+			avoid_cityroad_button.add_listener(this);
+			avoid_cityroad_button.pressed = street_flag_&strasse_t::AVOID_CITYROAD;
+			add_component(&avoid_cityroad_button);
+		}
+		
+		citycar_no_entry_button.init( button_t::square_state, "citycars do not enter");
+		citycar_no_entry_button.add_listener(this);
+		citycar_no_entry_button.pressed = street_flag_&strasse_t::CITYCAR_NO_ENTRY;
+		add_component(&citycar_no_entry_button);
+		
+		no_building_button.init( button_t::square_state, "no building adjacent");
+		no_building_button.add_listener(this);
+		no_building_button.pressed = street_flag_&strasse_t::NO_BUILDING;
+		// NO_BUILDING is only meaningful when AVOID_CITYROAD is true
+		no_building_button.enable( street_flag_&strasse_t::AVOID_CITYROAD );
+		add_component(&no_building_button);
+
+		allow_branching_cityroad_button.init( button_t::square_state, "can branch cityroad");
+		allow_branching_cityroad_button.add_listener(this);
+		allow_branching_cityroad_button.pressed=street_flag_&strasse_t::ALLOW_BRANCH_CITYROAD;
+		allow_branching_cityroad_button.enable(street_flag_&strasse_t::AVOID_CITYROAD);
+		add_component(&allow_branching_cityroad_button);
+		add_component(&divider[1]);
 	}
-
-	if(  overtaking_mode==halt_mode          ) mode_button[0].pressed = true;
-	if(  overtaking_mode==oneway_mode        ) mode_button[1].pressed = true;
-	if(  overtaking_mode==twoway_mode        ) mode_button[2].pressed = true;
-	if(  overtaking_mode==loading_only_mode  ) mode_button[3].pressed = true;
-	if(  overtaking_mode==prohibited_mode    ) mode_button[4].pressed = true;
-	if(  overtaking_mode==inverted_mode      ) mode_button[5].pressed = true;
-
-	add_component(&divider[0]);
-	
-	if(  tool_class==0  &&  show_avoid_cityroad  ) {
-		avoid_cityroad_button.init( button_t::square_state, "avoid becoming cityroad");
-		avoid_cityroad_button.add_listener(this);
-		avoid_cityroad_button.pressed = street_flag_&strasse_t::AVOID_CITYROAD;
-		add_component(&avoid_cityroad_button);
-	}
-	
-	citycar_no_entry_button.init( button_t::square_state, "citycars do not enter");
-	citycar_no_entry_button.add_listener(this);
-	citycar_no_entry_button.pressed = street_flag_&strasse_t::CITYCAR_NO_ENTRY;
-	add_component(&citycar_no_entry_button);
-	
-	no_building_button.init( button_t::square_state, "no building adjacent");
-	no_building_button.add_listener(this);
-	no_building_button.pressed = street_flag_&strasse_t::NO_BUILDING;
-	// NO_BUILDING is only meaningful when AVOID_CITYROAD is true
-	no_building_button.enable( street_flag_&strasse_t::AVOID_CITYROAD );
-	add_component(&no_building_button);
-
-	allow_branching_cityroad_button.init( button_t::square_state, "can branch cityroad");
-	allow_branching_cityroad_button.add_listener(this);
-	allow_branching_cityroad_button.pressed=street_flag_&strasse_t::ALLOW_BRANCH_CITYROAD;
-	allow_branching_cityroad_button.enable(street_flag_&strasse_t::AVOID_CITYROAD);
-	add_component(&allow_branching_cityroad_button);
-	add_component(&divider[1]);
 	
 	if(  tool_class==0  &&  !show_avoid_cityroad  ) {
 		// the way is elevated. height offset setting is displayed.
@@ -111,7 +120,7 @@ void overtaking_mode_frame_t::init( player_t* player_, overtaking_mode_t overtak
 		add_component(&vehicle_offset_label);
 
 		vehicle_offset.set_limits(-16,16);
-		vehicle_offset.set_value(tool_w->get_vehicle_offset());
+		vehicle_offset.set_value(vehicle_offset_value);
 		vehicle_offset.wrap_mode(false);
 		vehicle_offset.add_listener(this);
 		add_component(&vehicle_offset);
@@ -171,12 +180,26 @@ bool overtaking_mode_frame_t::action_triggered( gui_action_creator_t *komp, valu
 		}
 	}
 	else if(  komp==&vehicle_offset  ) {
-		if(  tool_class==0  ) {
+		switch(  tool_class  ) {
+			case 0:
 			tool_w->set_vehicle_offset(vehicle_offset.get_value());
+			break;
+			case 1:
+			tool_b->set_vehicle_offset(vehicle_offset.get_value());
+			break;
+			case 2:
+			tool_tu->set_vehicle_offset(vehicle_offset.get_value());
+			break;
+			default:
+			dbg->fatal("overtaking_mode_frame_t::action_triggered()", "Illegal tool_class");
 		}
 	}
 	else{
 		return false;
+	}
+	if(  waytype!=road_wt  ) {
+		// we do not need update overtaking flag
+		return true;
 	}
 	if(num!=-1) {
 		for(int i = 0; i < 6; i++){

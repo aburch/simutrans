@@ -53,13 +53,3 @@ wayobj_spacing_frame_t::wayobj_spacing_frame_t(player_t* /*player_*/, tool_build
 void wayobj_spacing_frame_t::register_val(sint8 v) {
 	tool->set_spacing(v);
 }
-
-height_offset_frame_t::height_offset_frame_t(player_t* /*player_*/, tool_build_way_t* tool_) :
-	simple_number_input_frame_t( translator::translate("set height offset"), translator::translate("height offset"), 1-world()->get_settings().get_way_height_clearance(), 32, tool_->get_height_offset() )
-{
-	tool = tool_;
-}
-
-void height_offset_frame_t::register_val(sint8 v) {
-	tool->set_height_offset(v);
-}

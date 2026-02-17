@@ -2771,8 +2771,8 @@ void way_builder_t::build_track()
 					if (crossing_t* crossing = gr->get_crossing()) {
 						crossing->finish_rd();
 					}
-					weg->set_vehicle_offset(vehicle_offset);
 				}
+				weg->set_vehicle_offset(vehicle_offset);
 			}
 			else {
 				weg_t* const sch = weg_t::alloc(desc->get_wtyp());
