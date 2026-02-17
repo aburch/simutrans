@@ -310,7 +310,7 @@ koord3d tunnel_builder_t::find_end_pos(player_t *player, koord3d pos, koord zv, 
 }
 
 
-const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_desc_t *desc, bool full_tunnel, overtaking_mode_t overtaking_mode, uint8 street_flag )
+const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_desc_t *desc, bool full_tunnel, overtaking_mode_t overtaking_mode, uint8 street_flag, sint8 vehicle_offset )
 {
 	assert( desc );
 
@@ -422,14 +422,14 @@ const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_d
 		player_t::book_construction_costs(player, welt->get_settings().cst_alter_land * n, end.get_2d(), desc->get_waytype());
 	}
 
-	if(!build_tunnel(player, gr->get_pos(), end, zv, desc, overtaking_mode, street_flag)) {
+	if(!build_tunnel(player, gr->get_pos(), end, zv, desc, overtaking_mode, street_flag, vehicle_offset)) {
 		return "Ways not connected";
 	}
 	return NULL;
 }
 
 
-bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end, koord zv, const tunnel_desc_t *desc, overtaking_mode_t overtaking_mode, uint8 street_flag)
+bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end, koord zv, const tunnel_desc_t *desc, overtaking_mode_t overtaking_mode, uint8 street_flag, sint8 vehicle_offset)
 {
 	ribi_t::ribi ribi = 0;
 	weg_t *weg = NULL;
@@ -448,7 +448,7 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 		way_desc = way_builder_t::weg_search( wegtyp, desc->get_topspeed(), 0, type_flat );
 	}
 
-	build_tunnel_portal(player, pos, zv, desc, way_desc, cost, start != end, overtaking_mode, street_flag, true);
+	build_tunnel_portal(player, pos, zv, desc, way_desc, cost, start != end, overtaking_mode, street_flag, true, vehicle_offset);
 
 	ribi = ribi_type(-zv);
 
@@ -482,6 +482,7 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 				str->set_street_flag(street_flag);
 				str->set_ribi_mask_oneway(ribi_type(-zv));
 			}
+			weg->set_vehicle_offset(vehicle_offset);
 			tunnel->neuen_weg_bauen(weg, ribi_t::doubles(ribi), player);
 			player_t::add_maintenance( player, -weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype() );
 		}
@@ -508,7 +509,7 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 		}
 		else if (gr_end->ist_karten_boden()) {
 			// if end is above ground construct an exit
-			build_tunnel_portal(player, pos, -zv, desc, way_desc, cost, true, overtaking_mode, street_flag, false);
+			build_tunnel_portal(player, pos, -zv, desc, way_desc, cost, true, overtaking_mode, street_flag, false, vehicle_offset);
 			gr_end = NULL; // invalid - replaced by tunnel ground
 			// calc new back image for the ground
 			if (end!=start && grund_t::underground_mode) {
@@ -530,6 +531,7 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 			weg = weg_t::alloc(desc->get_waytype());
 			weg->set_desc(way_desc);
 			weg->set_max_speed(desc->get_topspeed());
+			weg->set_vehicle_offset(vehicle_offset);
 			tunnel->neuen_weg_bauen(weg, ribi, player);
 			player_t::add_maintenance( player,  -weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype() );
 		}
@@ -552,7 +554,7 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 }
 
 
-void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const way_desc_t *way_desc, sint64 &cost, bool connect_inside, overtaking_mode_t overtaking_mode, uint8 street_flag, bool beginning)
+void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const way_desc_t *way_desc, sint64 &cost, bool connect_inside, overtaking_mode_t overtaking_mode, uint8 street_flag, bool beginning, sint8 vehicle_offset)
 {
 	grund_t *alter_boden = welt->lookup(end);
 	ribi_t::ribi ribi = 0;
@@ -588,6 +590,7 @@ void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord 
 		}
 		player_t::add_maintenance( player, -weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype() );
 		weg->set_max_speed( desc->get_topspeed() );
+		weg->set_vehicle_offset(vehicle_offset);
 		if(  desc->get_waytype()==road_wt  ) {
 			strasse_t* str = (strasse_t*)weg;
 			assert(weg);

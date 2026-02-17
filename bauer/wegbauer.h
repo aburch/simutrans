@@ -127,6 +127,11 @@ private:
 	uint8 street_flag;
 
 	/**
+	 * set offset value for vehicle drawing
+	 */
+	sint8 vehicle_offset;
+
+	/**
 	 * Only for elevated way
 	 * @author THLeaderH
 	 */
@@ -217,6 +222,7 @@ public:
 	void set_maximum(uint32 n) { maximum = n; }
 
 	void set_overtaking_mode(overtaking_mode_t o) { overtaking_mode = o; }
+	void set_vehicle_offset(sint8 a) { vehicle_offset = a; }
 	void set_street_flag(uint8 a) { street_flag = a; }
 	void set_height_offset(sint8 a) { height_offset = a; }
 

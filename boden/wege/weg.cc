@@ -152,6 +152,7 @@ void weg_t::init()
 	image = IMG_EMPTY;
 	foreground_image = IMG_EMPTY;
 	max_wayobj_speed = 0;
+	vehicle_offset = 0;
 }
 
 
@@ -238,6 +239,10 @@ void weg_t::rdwr(loadsave_t *file)
 			// DBG_DEBUG("weg_t::rdwr()", "statistics[%d][%d]=%d", month, type, statistics[month][type]);
 		}
 	}
+
+	if(  file->get_OTRP_version()>=52  ) {
+		file->rdwr_byte(vehicle_offset);
+	}
 }
 
 
@@ -295,6 +300,8 @@ void weg_t::info(cbuffer_t & buf) const
 	}
 	buf.printf("%s%u",    translator::translate("\nRibi (unmasked)"), get_ribi_unmasked());
 	buf.printf("%s%u\n",  translator::translate("\nRibi (masked)"),   get_ribi());
+
+	buf.printf("%s%i\n",	translator::translate("\nVehicle offset: "), get_vehicle_offset());
 
 	if(  get_waytype() == road_wt  ) {
 		const strasse_t* str = (const strasse_t*) this;

@@ -97,6 +97,11 @@ private:
 	*/
 	uint16 max_speed;
 
+	/**
+	* set vehicle offset values for left and right in the direction of travel
+	*/
+	sint8 vehicle_offset;
+
 	image_id image;
 	image_id foreground_image;
 
@@ -162,6 +167,10 @@ public:
 
 	void set_max_speed(uint16 s) { max_speed = s; }
 	uint16 get_max_speed() const { return max_speed; }
+
+	// vehicle offset value for left/right
+	void set_vehicle_offset(sint8 s) { vehicle_offset = s; }
+	sint8 get_vehicle_offset() const { return vehicle_offset; }
 
 	/// @note Replaces max speed of the way by the max speed property of the descriptor.
 	void set_desc(const way_desc_t *b);

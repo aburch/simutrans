@@ -2940,6 +2940,7 @@ const char *tool_build_way_t::do_work( player_t *player, const koord3d &start, c
 	}
 	bauigel.set_overtaking_mode(mode);
 	bauigel.set_street_flag(flag);
+	bauigel.set_vehicle_offset(vehicle_offset);
 	if(  bauigel.get_route().get_count()>1  ) {
 		welt->mute_sound(true);
 		bauigel.build();
@@ -2967,6 +2968,7 @@ void tool_build_way_t::rdwr_custom_data(memory_rw_t *packet)
 	sint8 i = overtaking_mode;
 	uint8 a = street_flag;
 	sint8 b = height_offset;
+	sint8 c = vehicle_offset;
 	// If this tool is called from a shortcut key, overtaking_mode of the tool in a toolbar has to be used.
 	if(  packet->is_saving()  &&  look_toolbar  ) {
 		tool_build_way_t* toolbar_tool = get_build_way_tool_from_toolbar(desc);
@@ -2974,14 +2976,17 @@ void tool_build_way_t::rdwr_custom_data(memory_rw_t *packet)
 			i = toolbar_tool->get_overtaking_mode();
 			a = toolbar_tool->get_street_flag();
 			b = toolbar_tool->get_height_offset();
+			c = toolbar_tool->get_vehicle_offset();
 		}
 	}
 	packet->rdwr_byte(i);
 	packet->rdwr_byte(a);
 	packet->rdwr_byte(b);
+	packet->rdwr_byte(c);
 	overtaking_mode = (overtaking_mode_t)i;
 	street_flag = a;
 	height_offset = b;
+	vehicle_offset = c;
 }
 
 
@@ -3119,6 +3124,7 @@ const char *tool_build_cityroad::do_work( player_t *player, const koord3d &start
 	way_builder_t bauigel(player);
 	bauigel.set_build_sidewalk(true);
 	bauigel.set_overtaking_mode(overtaking_mode);
+	bauigel.set_vehicle_offset(vehicle_offset);
 	calc_route( bauigel, start, end );
 	if(  bauigel.get_route().get_count()>1  ) {
 		welt->mute_sound(true);
@@ -3197,7 +3203,7 @@ const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start
 {
 	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
 	if (end==koord3d::invalid) {
-		return bridge_builder_t::build( player, start, desc, overtaking_mode, street_flag );
+		return bridge_builder_t::build( player, start, desc, overtaking_mode, street_flag, vehicle_offset );
 	}
 	else {
 		const koord zv(ribi_type(end-start));
@@ -3207,7 +3213,7 @@ const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start
 		if (end2 != end) {
 			return "End position is not valid"; // could only happen for scripts
 		}
-		bridge_builder_t::build_bridge( player, start, end, zv, bridge_height, desc, way_builder_t::weg_search(desc->get_waytype(), desc->get_topspeed(), welt->get_timeline_year_month(), type_flat), overtaking_mode, street_flag);
+		bridge_builder_t::build_bridge( player, start, end, zv, bridge_height, desc, way_builder_t::weg_search(desc->get_waytype(), desc->get_topspeed(), welt->get_timeline_year_month(), type_flat), overtaking_mode, street_flag, vehicle_offset);
 		return NULL; // all checks are performed before building.
 	}
 }
@@ -3220,8 +3226,11 @@ void tool_build_bridge_t::rdwr_custom_data(memory_rw_t *packet)
 	ribi = (ribi_t::ribi)i;
 
 	sint8 j = overtaking_mode;
+	sint8 k = vehicle_offset;
 	packet->rdwr_byte(j);
+	packet->rdwr_byte(k);
 	overtaking_mode = (overtaking_mode_t)j;
+	vehicle_offset = k;
 	packet->rdwr_byte(street_flag);
 }
 
@@ -3575,7 +3584,7 @@ const char *tool_build_tunnel_t::do_work( player_t *player, const koord3d &start
 					}
 				}
 
-				return tunnel_builder_t::build( player, start.get_2d(), desc, !is_ctrl_pressed(), overtaking_mode, street_flag );
+				return tunnel_builder_t::build( player, start.get_2d(), desc, !is_ctrl_pressed(), overtaking_mode, street_flag, vehicle_offset );
 			}
 		}
 		return "Tunnel must start on single way!";
@@ -3587,6 +3596,7 @@ const char *tool_build_tunnel_t::do_work( player_t *player, const koord3d &start
 		welt->mute_sound(true);
 		bauigel.set_overtaking_mode(overtaking_mode);
 		bauigel.set_street_flag(street_flag);
+		bauigel.set_vehicle_offset(vehicle_offset);
 		bauigel.build();
 		welt->mute_sound(false);
 		welt->lookup_kartenboden(end.get_2d())->clear_flag(grund_t::marked);
@@ -3599,8 +3609,11 @@ void tool_build_tunnel_t::rdwr_custom_data(memory_rw_t *packet)
 {
 	two_click_tool_t::rdwr_custom_data(packet);
 	sint8 i = overtaking_mode;
+	sint8 j = vehicle_offset;
 	packet->rdwr_byte(i);
+	packet->rdwr_byte(j);
 	overtaking_mode = (overtaking_mode_t)i;
+	vehicle_offset = j;
 	packet->rdwr_byte(street_flag);
 }
 
