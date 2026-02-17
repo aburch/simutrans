@@ -198,7 +198,8 @@ all_tests <- [
 	test_transport_pax_valid_route,
 	test_transport_mail_valid_route,
 	test_transport_freight_valid_route,
-	test_trees_plant_single_invalid_param
+	test_trees_plant_single_invalid_param,
+	test_way_tunnel_build_straight
 ]
 
 
@@ -236,6 +237,5 @@ failing_tests <- [
 	test_way_tram_build_across_road_bridge,
 	test_way_tram_build_in_tunel,
 	test_way_tram_has_double_slopes,
-	test_way_tunnel_build_straight,
 	test_way_tunnel_build_up_down
 ]
