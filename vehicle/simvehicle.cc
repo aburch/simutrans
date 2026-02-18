@@ -968,34 +968,34 @@ void vehicle_t::initialise_journey(uint16 start_route_index, bool recalc)
 	}
 }
 
-sint8 vehicle_t::vehicle_offset_definied_by_way(ribi_t::dir d, const sint8 offset, const bool is_x)
+sint8 vehicle_t::vehicle_offset_definied_by_way(ribi_t::dir d, const sint8 offset, const bool is_x, const bool reverse)
 {
 	sint8 offset_value;
-	switch (d)
+	switch (d%(reverse?4:8))
 	{
 	case ribi_t::dir_south:
-		offset_value = is_x? -offset: -offset/2;
+		offset_value = is_x? -offset*2: -offset;
 		break;
 	case ribi_t::dir_west:
-		offset_value = is_x? offset: -offset/2;
+		offset_value = is_x? offset*2: -offset;
 		break;
 	case ribi_t::dir_southwest:
-		offset_value = is_x? 0: -offset/2;
+		offset_value = is_x? 0: -offset;
 		break;
 	case ribi_t::dir_southeast:
-		offset_value = is_x? -offset: 0;
+		offset_value = is_x? -offset*2: 0;
 		break;
 	case ribi_t::dir_north:
-		offset_value = is_x? offset: offset/2;
+		offset_value = is_x? offset*2: offset;
 		break;
 	case ribi_t::dir_east:
-		offset_value = is_x? -offset: offset/2;
+		offset_value = is_x? -offset*2: offset;
 		break;
 	case ribi_t::dir_northeast:
-		offset_value = is_x? 0: offset/2;
+		offset_value = is_x? 0: offset;
 		break;
 	case ribi_t::dir_northwest:
-		offset_value = is_x? offset: 0;
+		offset_value = is_x? offset*2: 0;
 		break;
 	default:
 		offset_value = 0;
@@ -1070,8 +1070,8 @@ void vehicle_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_wid
 	xoff += tile_raster_scale_x( env_t::vehicle_base_offsets[dir][0][get_waytype()], raster_width );
 	yoff += tile_raster_scale_y( env_t::vehicle_base_offsets[dir][1][get_waytype()], raster_width );
 	if(  welt->lookup(get_pos()) && welt->lookup(get_pos())->get_weg(get_waytype())  ) {
-		xoff += tile_raster_scale_x(  vehicle_offset_definied_by_way(dir,welt->lookup(get_pos())->get_weg(get_waytype())->get_vehicle_offset(),true), raster_width  );
-		yoff += tile_raster_scale_y(  vehicle_offset_definied_by_way(dir,welt->lookup(get_pos())->get_weg(get_waytype())->get_vehicle_offset(),false), raster_width  );
+		xoff += tile_raster_scale_x(  vehicle_offset_definied_by_way(dir,welt->lookup(get_pos())->get_weg(get_waytype())->get_vehicle_offset(),true,welt->lookup(get_pos())->get_weg(get_waytype())->get_vehicle_offset_mode()), raster_width  );
+		yoff += tile_raster_scale_y(  vehicle_offset_definied_by_way(dir,welt->lookup(get_pos())->get_weg(get_waytype())->get_vehicle_offset(),false,welt->lookup(get_pos())->get_weg(get_waytype())->get_vehicle_offset_mode()), raster_width  );
 	}
 	if(  !cnv->is_reversed()  ) {
 		return;
@@ -2376,8 +2376,8 @@ void road_vehicle_t::get_screen_offset( int &xoff, int &yoff, const sint16 raste
 	// eventually shift position to take care of overtaking
 	if(cnv) {
 		if(  welt->lookup(get_pos()) && welt->lookup(get_pos())->get_weg(get_waytype())  ) {
-			xoff += tile_raster_scale_x(  vehicle_offset_definied_by_way(dir,welt->lookup(get_pos())->get_weg(get_waytype())->get_vehicle_offset(),true), raster_width  );
-			yoff += tile_raster_scale_y(  vehicle_offset_definied_by_way(dir,welt->lookup(get_pos())->get_weg(get_waytype())->get_vehicle_offset(),false), raster_width  );
+			xoff += tile_raster_scale_x(  vehicle_offset_definied_by_way(dir,welt->lookup(get_pos())->get_weg(get_waytype())->get_vehicle_offset(),true,welt->lookup(get_pos())->get_weg(get_waytype())->get_vehicle_offset_mode()), raster_width  );
+			yoff += tile_raster_scale_y(  vehicle_offset_definied_by_way(dir,welt->lookup(get_pos())->get_weg(get_waytype())->get_vehicle_offset(),false,welt->lookup(get_pos())->get_weg(get_waytype())->get_vehicle_offset_mode()), raster_width  );
 		}
 		sint8 tiles_overtaking = prev_based ? cnv->get_prev_tiles_overtaking() : cnv->get_tiles_overtaking();
 		if(  tiles_overtaking>0  ) { /* This means the convoy is overtaking other vehicles. */

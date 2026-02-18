@@ -343,8 +343,10 @@ public:
 		height_offset = a<min_offset?0:a;
 	}
 	sint8 get_height_offset() const { return height_offset; }
-	void set_vehicle_offset(sint8 a) { vehicle_offset = a; }
-	sint8 get_vehicle_offset() const { return vehicle_offset; } 
+	void set_vehicle_offset(sint8 a) { vehicle_offset = a*2+(vehicle_offset&1); }
+	sint8 get_vehicle_offset() const { return vehicle_offset>>1; } 
+	void set_vehicle_offset_mode(bool a) { a? vehicle_offset |= a: vehicle_offset &= ~a; }
+	bool get_vehicle_offset_mode() const { return vehicle_offset&1; }
 	static void set_mode_str(char* str, overtaking_mode_t overtaking_mode);
 	void set_look_toolbar() { look_toolbar = true; }
 	static uint8 get_flag_color(uint8 flag);
@@ -390,8 +392,10 @@ public:
 	void draw_after(scr_coord, bool dirty) const OVERRIDE;
 	void set_overtaking_mode(overtaking_mode_t ov) { overtaking_mode = ov; }
 	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode; }
-	void set_vehicle_offset(sint8 a) { vehicle_offset = a; }
-	sint8 get_vehicle_offset() const { return vehicle_offset; } 
+	void set_vehicle_offset(sint8 a) { vehicle_offset = a*2+(vehicle_offset&1); }
+	sint8 get_vehicle_offset() const { return vehicle_offset>>1; } 
+	void set_vehicle_offset_mode(bool a) { a? vehicle_offset |= a: vehicle_offset &= ~a; }
+	bool get_vehicle_offset_mode() const { return vehicle_offset&1; }
 	void set_street_flag (uint8 a) { street_flag = a; }
 	uint8 get_street_flag() const { return street_flag; }
 };
@@ -424,8 +428,10 @@ public:
 	void draw_after(scr_coord, bool dirty) const OVERRIDE;
 	void set_overtaking_mode(overtaking_mode_t ov) { overtaking_mode = ov; }
 	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode; }
-	void set_vehicle_offset(sint8 a) { vehicle_offset = a; }
-	sint8 get_vehicle_offset() const { return vehicle_offset; } 
+	void set_vehicle_offset(sint8 a) { vehicle_offset = a*2+(vehicle_offset&1); }
+	sint8 get_vehicle_offset() const { return vehicle_offset>>1; } 
+	void set_vehicle_offset_mode(bool a) { a? vehicle_offset |= a: vehicle_offset &= ~a; }
+	bool get_vehicle_offset_mode() const { return vehicle_offset&1; }
 	void set_street_flag (uint8 a) { street_flag = a; }
 	uint8 get_street_flag() const { return street_flag; }
 };

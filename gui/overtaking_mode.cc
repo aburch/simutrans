@@ -25,6 +25,7 @@ overtaking_mode_frame_t::overtaking_mode_frame_t(player_t *player_, tool_build_w
 	tool_w = tool_;
 	waytype = tool_->get_waytype();
 	vehicle_offset_value = tool_->get_vehicle_offset();
+	vehicle_offset_mode_value = tool_->get_vehicle_offset_mode();
 	init(player_, tool_w->get_overtaking_mode(), tool_w->get_street_flag(), show_avoid_cityroad);
 }
 
@@ -35,6 +36,7 @@ overtaking_mode_frame_t::overtaking_mode_frame_t(player_t *player_, tool_build_b
 	tool_b = tool_;
 	waytype = tool_->get_waytype();
 	vehicle_offset_value = tool_->get_vehicle_offset();
+	vehicle_offset_mode_value = tool_->get_vehicle_offset_mode();
 	init(player_, tool_b->get_overtaking_mode(), tool_b->get_street_flag(), false);
 }
 
@@ -45,6 +47,7 @@ overtaking_mode_frame_t::overtaking_mode_frame_t(player_t *player_, tool_build_t
 	tool_tu = tool_;
 	waytype = tool_->get_waytype();
 	vehicle_offset_value = tool_->get_vehicle_offset();
+	vehicle_offset_mode_value = tool_->get_vehicle_offset_mode();
 	init(player_, tool_tu->get_overtaking_mode(), tool_tu->get_street_flag(), false);
 }
 
@@ -114,7 +117,7 @@ void overtaking_mode_frame_t::init( player_t* player_, overtaking_mode_t overtak
 		}
 		end_table();
 	}
-	add_table(2,1);
+	add_table(3,1);
 	{
 		vehicle_offset_label.set_text("vehicle offset");
 		add_component(&vehicle_offset_label);
@@ -124,6 +127,12 @@ void overtaking_mode_frame_t::init( player_t* player_, overtaking_mode_t overtak
 		vehicle_offset.wrap_mode(false);
 		vehicle_offset.add_listener(this);
 		add_component(&vehicle_offset);
+
+		vehicle_offset_mode.init(button_t::square_state, "Offset mode: Absolute");
+		vehicle_offset_mode.set_tooltip(translator::translate("set offset value and mode: On->Absolute(same offset for N&S),OFF->Direction(offset different based on Difference)"));
+		vehicle_offset_mode.add_listener(this);
+		vehicle_offset_mode.pressed=vehicle_offset_mode_value;
+		add_component(&vehicle_offset_mode);
 	}
 	end_table();
 	
@@ -189,6 +198,22 @@ bool overtaking_mode_frame_t::action_triggered( gui_action_creator_t *komp, valu
 			break;
 			case 2:
 			tool_tu->set_vehicle_offset(vehicle_offset.get_value());
+			break;
+			default:
+			dbg->fatal("overtaking_mode_frame_t::action_triggered()", "Illegal tool_class");
+		}
+	}
+	else if(  komp==&vehicle_offset_mode  ) {
+		vehicle_offset_mode.pressed ^= 1;
+		switch(  tool_class  ) {
+			case 0:
+			tool_w->set_vehicle_offset_mode(vehicle_offset_mode.pressed);
+			break;
+			case 1:
+			tool_b->set_vehicle_offset_mode(vehicle_offset_mode.pressed);
+			break;
+			case 2:
+			tool_tu->set_vehicle_offset_mode(vehicle_offset_mode.pressed);
 			break;
 			default:
 			dbg->fatal("overtaking_mode_frame_t::action_triggered()", "Illegal tool_class");

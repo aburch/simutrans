@@ -2971,7 +2971,7 @@ void tool_build_way_t::rdwr_custom_data(memory_rw_t *packet)
 			i = toolbar_tool->get_overtaking_mode();
 			a = toolbar_tool->get_street_flag();
 			b = toolbar_tool->get_height_offset();
-			c = toolbar_tool->get_vehicle_offset();
+			c = toolbar_tool->vehicle_offset;
 		}
 	}
 	packet->rdwr_byte(i);

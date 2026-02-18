@@ -170,7 +170,8 @@ public:
 
 	// vehicle offset value for left/right
 	void set_vehicle_offset(sint8 s) { vehicle_offset = s; }
-	sint8 get_vehicle_offset() const { return vehicle_offset; }
+	sint8 get_vehicle_offset() const { return vehicle_offset>>1; }
+	bool get_vehicle_offset_mode() const { return vehicle_offset&1; }
 
 	/// @note Replaces max speed of the way by the max speed property of the descriptor.
 	void set_desc(const way_desc_t *b);

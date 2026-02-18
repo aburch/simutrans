@@ -301,8 +301,8 @@ void weg_t::info(cbuffer_t & buf) const
 	buf.printf("%s%u",    translator::translate("\nRibi (unmasked)"), get_ribi_unmasked());
 	buf.printf("%s%u\n",  translator::translate("\nRibi (masked)"),   get_ribi());
 
-	buf.printf("%s%i\n",	translator::translate("\nVehicle offset: "), get_vehicle_offset());
-
+	buf.printf("%s%i (%s %s)\n",	translator::translate("\nVehicle offset: "), get_vehicle_offset(), translator::translate("Based on:"), get_vehicle_offset_mode()?translator::translate("Direction"):translator::translate("Absolute"));
+	
 	if(  get_waytype() == road_wt  ) {
 		const strasse_t* str = (const strasse_t*) this;
 		assert(str);
