@@ -352,3 +352,157 @@ function test_transport_freight_valid_route()
 	ASSERT_EQUAL(command_x(tool_remove_way).work(player_x(0), coord3d(5, 7, 0), coord3d(4, 7, 0), "" + wt_road), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
+
+
+function test_transport_pax_no_load()
+{
+	local pl = player_x(0)
+	local NO_LOAD = 4
+
+	// Speed up simulation
+	debug.set_game_speed(5)
+
+	// Build road A(4,2) -- B(4,5) -- C(4,8) -- depot(4,9)
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(4, 2, 0), coord3d(4, 9, 0), "cobblestone_road"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 2, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 5, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 8, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 9, 0), building_desc_x("CarDepot")), null)
+
+	local depot  = depot_x(4, 9, 0)
+	local halt_a = halt_x.get_halt(coord3d(4, 2, 0), pl)
+	local halt_b = halt_x.get_halt(coord3d(4, 5, 0), pl)
+	local halt_c = halt_x.get_halt(coord3d(4, 8, 0), pl)
+
+	// Create schedule: A -> B(NO_LOAD) -> C
+	local sched = schedule_x(wt_road, [
+		schedule_entry_x(coord3d(4, 2, 0), 0, 0),           // A: normal
+		schedule_entry_x(coord3d(4, 5, 0), 0, 0, NO_LOAD),  // B: no loading
+		schedule_entry_x(coord3d(4, 8, 0), 0, 0)            // C: normal
+	])
+
+	// Create and start bus
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("Buessig"))
+	local cnv = depot.get_convoy_list()[0]
+	cnv.change_schedule(pl, sched)
+	depot.start_all_convoys(pl)
+
+	// Wait for halt graph update
+	sleep()
+	sleep()
+
+	// Generate passengers A -> C: should succeed (route exists via A)
+	ASSERT_EQUAL(world.generate_goods(coord(3, 2), coord(3, 8), good_desc_x.passenger, 30), 1)
+	ASSERT_EQUAL(halt_a.waiting[0], 30)
+
+	// Generate passengers B -> C: should fail (no route, B has NO_LOAD)
+	ASSERT_EQUAL(world.generate_goods(coord(3, 5), coord(3, 8), good_desc_x.passenger, 20), 0)
+
+	// Wait for convoy to visit A and load
+	while (halt_a.convoys[0] == 0) {
+		sleep()
+	}
+	while (halt_a.waiting[0] > 0) {
+		sleep()
+	}
+
+	ASSERT_EQUAL(halt_a.departed[0], 30)
+
+	// Wait for convoy to arrive at C and unload
+	while (halt_c.arrived[0] < 30) {
+		sleep()
+	}
+
+	ASSERT_EQUAL(halt_c.arrived[0], 30)
+	// B should have had no departures (nothing loaded there)
+	ASSERT_EQUAL(halt_b.departed[0], 0)
+
+	// clean up
+	debug.set_game_speed(1)
+	cnv.destroy(pl)
+	sleep()
+	sleep()
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 2, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 5, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 8, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 9, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(4, 2, 0), coord3d(4, 9, 0), "" + wt_road), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_transport_pax_no_unload()
+{
+	local pl = player_x(0)
+	local NO_UNLOAD = 8
+
+	// Speed up simulation
+	debug.set_game_speed(5)
+
+	// Build road A(4,2) -- B(4,5) -- C(4,8) -- depot(4,9)
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(4, 2, 0), coord3d(4, 9, 0), "cobblestone_road"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 2, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 5, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 8, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 9, 0), building_desc_x("CarDepot")), null)
+
+	local depot  = depot_x(4, 9, 0)
+	local halt_a = halt_x.get_halt(coord3d(4, 2, 0), pl)
+	local halt_b = halt_x.get_halt(coord3d(4, 5, 0), pl)
+	local halt_c = halt_x.get_halt(coord3d(4, 8, 0), pl)
+
+	// Create schedule: A -> B(NO_UNLOAD) -> C
+	local sched = schedule_x(wt_road, [
+		schedule_entry_x(coord3d(4, 2, 0), 0, 0),             // A: normal
+		schedule_entry_x(coord3d(4, 5, 0), 0, 0, NO_UNLOAD),  // B: no unloading
+		schedule_entry_x(coord3d(4, 8, 0), 0, 0)              // C: normal
+	])
+
+	// Create and start bus
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("Buessig"))
+	local cnv = depot.get_convoy_list()[0]
+	cnv.change_schedule(pl, sched)
+	depot.start_all_convoys(pl)
+
+	// Wait for halt graph update
+	sleep()
+	sleep()
+
+	// Passengers A -> B: should fail (no route, B has NO_UNLOAD)
+	ASSERT_EQUAL(world.generate_goods(coord(3, 2), coord(3, 5), good_desc_x.passenger, 20), 0)
+
+	// Passengers A -> C: should succeed (C is normal, route exists)
+	ASSERT_EQUAL(world.generate_goods(coord(3, 2), coord(3, 8), good_desc_x.passenger, 30), 1)
+	ASSERT_EQUAL(halt_a.waiting[0], 30)
+
+	// Wait for convoy to visit A, load, then reach C
+	while (halt_a.convoys[0] == 0) {
+		sleep()
+	}
+	while (halt_a.waiting[0] > 0) {
+		sleep()
+	}
+
+	ASSERT_EQUAL(halt_a.departed[0], 30)
+
+	// Wait for arrival at C
+	while (halt_c.arrived[0] < 30) {
+		sleep()
+	}
+
+	ASSERT_EQUAL(halt_c.arrived[0], 30)
+	// B should have no arrivals (nothing was unloaded there)
+	ASSERT_EQUAL(halt_b.arrived[0], 0)
+
+	// clean up
+	debug.set_game_speed(1)
+	cnv.destroy(pl)
+	sleep()
+	sleep()
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 2, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 5, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 8, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 9, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(4, 2, 0), coord3d(4, 9, 0), "" + wt_road), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
