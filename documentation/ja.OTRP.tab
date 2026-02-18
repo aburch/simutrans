@@ -452,6 +452,10 @@ remove all vehicles
 全ての車両を片付ける
 remove all vehicles.
 この編成の全ての車両を片付けます
+Sell all vehicles
+車庫の全車両売却
+Sell all vehicles stored here.
+車庫に格納された全車両を売却します
 #------編成最高速度機能------
 Set Max Speed
 編成最高速度を設定

@@ -9149,6 +9149,7 @@ bool tool_change_line_t::init( player_t *player )
  * 'a' : appends a vehicle (+vehikel_name) uses the oldest
  * 'i' : inserts a vehicle in front (+vehikel_name) uses the oldest
  * 's' : sells a vehikel (+vehikel_name) uses the newest
+ * 'S' : sells all vehicles in this depot
  * 'r' : removes a vehikel (+number in convoi)
  * 'R' : removes all vehikels including (+number in convoi) to end
  * 'D' : removes all convoys' all vehikels from start to end
@@ -9279,6 +9280,7 @@ bool tool_change_depot_t::init( player_t *player )
 		case 'a':   // append a vehicle
 		case 'i':   // insert a vehicle in front
 		case 's':   // sells a vehicle
+		case 'S':	// sells all vehicles
 		case 'r':   // removes a vehicle (assumes a valid depot)
 		case 'R': { // removes all vehicles to end (assumes a valid depot)
 			if(  tool=='r'  ||  tool=='R'  ) {
@@ -9308,6 +9310,11 @@ bool tool_change_depot_t::init( player_t *player )
 							depot->remove_vehicle(cnv, start_nr);
 						}
 					}
+				}
+			}
+			if(  tool=='S'  ) {
+				while(  depot->get_vehicle_list().get_count()  ) {
+					depot->sell_vehicle(depot->get_vehicle_list().at(0));
 				}
 			}
 			else {
