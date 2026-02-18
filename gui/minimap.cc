@@ -1530,7 +1530,7 @@ void minimap_t::draw(scr_coord pos)
 			radius = number_to_radius( transfer );
 		}
 		else {
-			const int stype = station->get_station_type();
+			const int stype = station->get_connected_station_type();
 			color = color_idx_to_rgb(station->get_owner()->get_player_color1()+3);
 
 			// invalid=0, loadingbay=1, railstation = 2, dock = 4, busstop = 8, airstop = 16, monorailstop = 32, tramstop = 64, maglevstop=128, narrowgaugestop=256

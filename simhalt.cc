@@ -2043,35 +2043,58 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 	// if one target halt is undefined, we have to start search from all halts
 	bool end_conn_comp_undefined = false;
 
-	for( uint32 h=0;  h<plan->get_haltlist_count();  ++h ) {
-		halthandle_t halt = halt_list[h];
-		if(  halt.is_bound()  &&  halt->is_enabled(ware_catg_idx)  ) {
-			// check if this is present in the list of start halts
-			for(  uint16 s=0;  s<start_halt_count;  ++s  ) {
-				if(  halt==start_halts[s]  ) {
-					// destination halt is also a start halt -> within walking distance
-					ware.set_ziel( start_halts[s] );
-					ware.clear_transit_halts();
-					if(  return_ware  ) {
-						return_ware->set_ziel( start_halts[s] );
+	if(  ware.menge>0  ||  !ware.get_ziel().is_bound()  ) {
+		// usual searching of target halt
+		for( uint32 h=0;  h<plan->get_haltlist_count();  ++h ) {
+			halthandle_t halt = halt_list[h];
+			if(  halt.is_bound()  &&  halt->is_enabled(ware_catg_idx)  ) {
+				// check if this is present in the list of start halts
+				for(  uint16 s=0;  s<start_halt_count;  ++s  ) {
+					if(  halt==start_halts[s]  ) {
+						// destination halt is also a start halt -> within walking distance
+						ware.set_ziel( start_halts[s] );
 						ware.clear_transit_halts();
+						if(  return_ware  ) {
+							return_ware->set_ziel( start_halts[s] );
+							ware.clear_transit_halts();
+						}
+						return ROUTE_WALK;
 					}
-					return ROUTE_WALK;
 				}
-			}
-			end_halts.append(halt);
+				end_halts.append(halt);
 
-			// check connected component of target halt
-			uint16 endhalt_conn_comp = halt->all_links[ware_catg_idx].catg_connected_component;
-			if (endhalt_conn_comp == UNDECIDED_CONNECTED_COMPONENT) {
-				// undefined: all start halts are probably connected to this target
-				end_conn_comp_undefined = true;
-			}
-			else {
-				// store connected component
-				if (!end_conn_comp_undefined) {
-					end_conn_comp.append_unique( endhalt_conn_comp );
+				// check connected component of target halt
+				uint16 endhalt_conn_comp = halt->all_links[ware_catg_idx].catg_connected_component;
+				if (endhalt_conn_comp == UNDECIDED_CONNECTED_COMPONENT) {
+					// undefined: all start halts are probably connected to this target
+					end_conn_comp_undefined = true;
 				}
+				else {
+					// store connected component
+					if (!end_conn_comp_undefined) {
+						end_conn_comp.append_unique( endhalt_conn_comp );
+					}
+				}
+			}
+		}
+	}
+	else {
+		// goods menge==0 and target halt is already set.
+		// we already set getoff stop (because this goods is dummy!)
+		// e.g. called by route_search_frame_t
+		halthandle_t halt = ware.get_ziel();
+				end_halts.append(halt);
+
+		// check connected component of target halt
+		uint16 endhalt_conn_comp = halt->all_links[ware_catg_idx].catg_connected_component;
+		if (endhalt_conn_comp == UNDECIDED_CONNECTED_COMPONENT) {
+			// undefined: all start halts are probably connected to this target
+			end_conn_comp_undefined = true;
+		}
+		else {
+			// store connected component
+			if (!end_conn_comp_undefined) {
+				end_conn_comp.append_unique( endhalt_conn_comp );
 			}
 		}
 	}
@@ -3550,6 +3573,41 @@ void haltestelle_t::recalc_station_type()
 	recalc_status();
 }
 
+haltestelle_t::stationtyp haltestelle_t::get_connected_station_type() const
+{
+	stationtyp typ = invalid;
+	for(uint32 i=registered_lines.get_count(); i-->0;) {
+		waytype_t wt = registered_lines[i]->get_schedule()->get_waytype();
+		switch (wt)
+		{
+			case road_wt:	 	 typ |= busstop; 		 break;
+			case water_wt:       typ |= dock;            break;
+			case air_wt:         typ |= airstop;         break;
+			case monorail_wt:    typ |= monorailstop;    break;
+			case tram_wt:
+			case track_wt:       typ |= railstation;     break;
+			case maglev_wt:      typ |= maglevstop;      break;
+			case narrowgauge_wt: typ |= narrowgaugestop; break;
+			default: ;
+		}
+	}
+	for(uint32 i=registered_convoys.get_count(); i-->0;) {
+		waytype_t wt = registered_convoys[i]->get_schedule()->get_waytype();
+		switch (wt)
+		{
+			case road_wt:	 	 typ |= busstop; 		 break;
+			case water_wt:       typ |= dock;            break;
+			case air_wt:         typ |= airstop;         break;
+			case monorail_wt:    typ |= monorailstop;    break;
+			case tram_wt:
+			case track_wt:       typ |= railstation;     break;
+			case maglev_wt:      typ |= maglevstop;      break;
+			case narrowgauge_wt: typ |= narrowgaugestop; break;
+			default: ;
+		}		
+	}
+	return typ&station_type;
+}
 
 
 int haltestelle_t::generate_pedestrians(koord3d pos, int count)

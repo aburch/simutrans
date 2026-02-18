@@ -165,6 +165,10 @@ Copy the data of the halt labels.
 クリップボードに駅名と駅のデータをコピーします．
 Halt data was copied to clipboard.\n
 駅のデータをクリップボードにコピーしました．\n
+up this entry
+この駅を上へ移動
+down this entry
+この駅を下へ移動
 #------Schedule window related stuff------
 #------スケジュールウィンドウ関連のエントリ------
 Please click on the map to add\nwaypoints or stops to this\nschedule.
@@ -245,6 +249,14 @@ Max load
 最大乗車率
 set maximum loading ratio
 最大乗車率を設定します
+wait for full load
+全て積むまで待機
+wait for full load (100% or max loading value)
+積載可能な最大量まで積むまで待機します(通常は100%ですが、最大乗車率が設定されている場合はその値になります)
+reset full load setting
+積むまで待機を解除
+reset full load (set 0%)
+積むまで待機を解除します(値を0%にします)
 for all stops
 全駅に適用
 hlf_chk_include_public
@@ -430,6 +442,20 @@ Vehicle %s will couple with vehicle %s, but the next stop positions are differen
 %sと%sは連結して発車する予定ですが、次の駅の座標が異なるため連結できません!
 %s is not front convoy.
 %sは先頭の編成ではありません。
+Copy the selected convoi and its schedule or line (ctrl pressed: copy to clipboard)
+編成とスケジュール/所属路線を複製します(ctrlキーを押すと編成の情報のみをクリップボードにコピーしてほかの車庫に貼り付けられます)
+Uncouple
+連結解除
+uncouple child convoy
+後ろの編成を連結解除します
+remove all vehicles
+全ての車両を片付ける
+remove all vehicles.
+この編成の全ての車両を片付けます
+Sell all vehicles
+車庫の全車両売却
+Sell all vehicles stored here.
+車庫に格納された全車両を売却します
 #------編成最高速度機能------
 Set Max Speed
 編成最高速度を設定

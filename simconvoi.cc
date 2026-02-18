@@ -1285,6 +1285,7 @@ bool convoi_t::drive_to()
 					get_most_parent_convoi()->reversing_coupling_needed=reverse_here;
 					get_most_parent_convoi()->state=ROUTING_1;
 					get_most_parent_convoi()->alte_richtung=get_most_parent_convoi()->front()->get_direction();
+					get_most_parent_convoi()->check_electrification();
 					return false;
 				}
 			}
@@ -2541,6 +2542,9 @@ void convoi_t::vorfahren()
 		c->reverse_coupling_done = false;
 		c->reversing_coupling_needed = false;
 		c->unloading_done = false;
+		// reset next stop index and coupling index
+		c->next_stop_index = 65535;
+		c->next_coupling_index = route_t::INVALID_INDEX;
 		c = c->get_coupling_convoi();
 	}
 	c = self;
@@ -4340,6 +4344,15 @@ void convoi_t::calc_loading()
 	recalc_data=true;
 }
 
+sint32 convoi_t::get_max_loading() const
+{
+	sint32 max_loading = 0;
+	for(unsigned i=0; i<anz_vehikel; i++) {
+		const vehicle_t* v = fahr[i];
+		max_loading += v->get_cargo_max();
+	}
+	return max_loading;
+}
 
 void convoi_t::calc_speedbonus_kmh()
 {

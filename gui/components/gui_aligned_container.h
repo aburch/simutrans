@@ -124,6 +124,8 @@ public:
 	C* new_component(const A1& a1, const A2& a2, const A3& a3, const A4& a4) { C* comp = new C(a1, a2, a3, a4); take_component(comp); return comp; }
 	template<class C, class A1, class A2, class A3, class A4, class A5>
 	C* new_component(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5) { C* comp = new C(a1, a2, a3, a4, a5); take_component(comp); return comp; }
+	template<class C, class A1, class A2, class A3, class A4, class A5, class A6>
+	C* new_component(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6) { C* comp = new C(a1, a2, a3, a4, a5, a6); take_component(comp); return comp; }
 
 	/**
 	 * Creates and appends new component, takes ownership of pointer

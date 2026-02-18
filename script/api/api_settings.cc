@@ -107,6 +107,8 @@ void export_settings(HSQUIRRELVM vm)
 	 * 2 = pay for distance to destination
 	 */
 	register_method(vm, &settings_t::get_pay_for_total_distance_mode, "get_pay_for_total_distance_mode");
+	/// @returns max number of trees on a map square
+	register_method(vm, &settings_t::get_max_no_of_trees_on_square, "get_max_no_of_trees_on_square");
 
 	end_class(vm);
 }
