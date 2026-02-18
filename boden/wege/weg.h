@@ -99,6 +99,7 @@ private:
 
 	/**
 	* set vehicle offset values for left and right in the direction of travel
+	* value: offset value (&=0b11111110 : stored as sint7) and mode select (&=0b00000001)
 	*/
 	sint8 vehicle_offset;
 
