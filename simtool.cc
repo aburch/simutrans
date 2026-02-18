@@ -5164,8 +5164,11 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 
 	halthandle_t halt;
 
+	player_t *halt_player = player;
+
 	if(  old_halt.is_bound()  ) {
 		gebaeude_t* gb = bd->find<gebaeude_t>();
+		halt_player = gb->get_owner();
 		const building_desc_t *old_desc = gb->get_tile()->get_desc();
 		if(  old_desc == desc  ) {
 			// already has the same station
@@ -5196,10 +5199,10 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 		halt = haltestelle_t::create(k, player);
 	}
 	if(  desc->get_all_layouts()==48  &&  !ribi_t::is_straight(ribi)  ) {
-		hausbauer_t::build_station_on_diagonal_way(halt->get_owner(), bd->get_pos(), desc, ribi, halt);
+		hausbauer_t::build_station_on_diagonal_way(halt_player, bd->get_pos(), desc, ribi, halt);
 	}
 	else {
-		hausbauer_t::build_station_extension_depot(halt->get_owner(), bd->get_pos(), layout, desc, &halt);
+		hausbauer_t::build_station_extension_depot(halt_player, bd->get_pos(), layout, desc, &halt);
 	}
 	halt->recalc_station_type();
 
@@ -7591,9 +7594,12 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 
 			for (int j = 0; j < 2; j++) {
 				if (weg_t* w = gr->get_weg_nr(j)) {
-					// no public way with signs
-					if (w->has_sign()) {
-						return NOTICE_UNSUITABLE_GROUND;
+					// no public way with private signs
+					if(  w->has_sign()  ) {
+						roadsign_t* sign = gr->find<roadsign_t>();
+						if(	 sign && sign->get_desc()->is_private_way()  ) {
+							return NOTICE_UNSUITABLE_GROUND;
+						}
 					}
 				}
 			}
@@ -7704,26 +7710,32 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 	sint64 workcost = -welt->scale_with_month_length(halt->calc_maintenance() * welt->get_settings().cst_make_public_months);
 
 	// check waycost and some forbidden cases too
-	FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt->get_tiles()) {
-		// make way public if any suitable
-		for(  int j=0;  j<2;  j++  ) {
-			if(  weg_t *w=i.grund->get_weg_nr(0)  ) {
-				if(  player_t::check_owner( player, w->get_owner() )  &&  w->get_owner()  ) {
-					// no public ways?
-					if(  welt->get_settings().get_disable_make_way_public()  ) {
-						return NOTICE_DISABLED_PUBLIC_WAY;
+	// when ctrl pressed, we only change halt, no check way!
+	if(!is_ctrl_pressed()) {
+		FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt->get_tiles()) {
+			// make way public if any suitable
+			for(  int j=0;  j<2;  j++  ) {
+				if(  weg_t *w=i.grund->get_weg_nr(j)  ) {
+					if(  player_t::check_owner( player, w->get_owner() )  &&  w->get_owner()  ) {
+						// no public ways?
+						if(  welt->get_settings().get_disable_make_way_public()  ) {
+							return NOTICE_DISABLED_PUBLIC_WAY;
+						}
+						// no public way with private signs
+						if(  w->has_sign()  ) {
+							roadsign_t* sign = i.grund->find<roadsign_t>();
+							if(	 sign && sign->get_desc()->is_private_way()  ) {
+								return NOTICE_UNSUITABLE_GROUND;
+							}
+						}
+						// compute maintainance cost
+						sint64 cost = w->get_desc()->get_maintenance();
+						// tunnel cost overwrites way cost
+						if(  tunnel_t *t = i.grund->find<tunnel_t>()  ) {
+							cost = t->get_desc()->get_maintenance();
+						}
+						workcost -= welt->scale_with_month_length(cost * welt->get_settings().cst_make_public_months);
 					}
-					// no public way with signs
-					if(  w->has_sign()  ) {
-						return NOTICE_UNSUITABLE_GROUND;
-					}
-					// compute maintainance cost
-					sint64 cost = w->get_desc()->get_maintenance();
-					// tunnel cost overwrites way cost
-					if(  tunnel_t *t = i.grund->find<tunnel_t>()  ) {
-						cost = t->get_desc()->get_maintenance();
-					}
-					workcost -= welt->scale_with_month_length(cost * welt->get_settings().cst_make_public_months);
 				}
 			}
 		}
