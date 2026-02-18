@@ -1505,16 +1505,7 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 	}
 	// recheck lines
 	if(  cnv.is_bound()  ) {
-		// unequal to line => remove from line ...
-		if(  new_line.is_bound()  &&  !schedule->matches(welt,new_line->get_schedule())  ) {
-			new_line = linehandle_t();
-			line_selector.set_selection(0);
-		}
-		// only assign old line, when new_line is not equal
-		if(  !new_line.is_bound()  &&  old_line.is_bound()  &&   schedule->matches(welt,old_line->get_schedule())  ) {
-			new_line = old_line;
-			init_line_selector();
-		}
+		init_line_selector();
 	}
 	init_next_line_selector();
 	update_tool( should_set_schedule_tool );
@@ -1540,11 +1531,9 @@ void schedule_gui_t::init_line_selector()
 		}
 	}
 	int offset = 0;
-	if(  !new_line.is_bound()  ) {
-		selection = 0;
-		offset = 1;
-		line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("<no line>"), SYSCOL_TEXT ) ;
-	}
+	selection = 0;
+	offset = 1;
+	line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("<no line>"), SYSCOL_TEXT ) ;
 
 	FOR(  vector_tpl<linehandle_t>, const line,  lines  ) {
 		if(  !*schedule_filter  ||  utf8caseutf8(line->get_name(), schedule_filter)  ) {
