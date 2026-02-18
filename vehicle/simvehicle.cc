@@ -968,7 +968,7 @@ void vehicle_t::initialise_journey(uint16 start_route_index, bool recalc)
 	}
 }
 
-sint8 vehicle_offset_definied_by_way(ribi_t::dir d, const sint8 offset, const bool is_x)
+sint8 vehicle_t::vehicle_offset_definied_by_way(ribi_t::dir d, const sint8 offset, const bool is_x)
 {
 	sint8 offset_value;
 	switch (d)

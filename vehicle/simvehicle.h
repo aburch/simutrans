@@ -273,6 +273,7 @@ protected:
 public:
 	void calc_image() OVERRIDE;
 
+	static sint8 vehicle_offset_definied_by_way(ribi_t::dir d, const sint8 offset, const bool is_x);
 
 	// the coordinates, where the vehicle was loaded the last time
 	koord3d last_stop_pos;
