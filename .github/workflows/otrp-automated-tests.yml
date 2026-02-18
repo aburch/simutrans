@@ -127,6 +127,10 @@ jobs:
       run: |
         unzip tests/simutrans-test-base.zip -d $HOME
 
+    - name: Copy script files to test base
+      run: |
+        cp -r simutrans/script/. $HOME/simutrans-test-base/script/
+
     - name: Run test batch
       run: |
         set +e  # Don't exit on first failure
