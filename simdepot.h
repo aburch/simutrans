@@ -11,6 +11,7 @@
 #include "obj/gebaeude.h"
 #include "convoihandle_t.h"
 #include "simline.h"
+#include "dataobj/loadsave.h"
 
 #define VEHICLE_FILTER_RELEVANT 1
 #define VEHICLE_FILTER_GOODS_OFFSET 2
@@ -256,7 +257,7 @@ public:
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::trainline; }
 	void rdwr_name(loadsave_t *file);
 
-	void rdwr_bahndepot(loadsave_t *file);
+	virtual void rdwr_bahndepot(loadsave_t *file);
 	void rdwr(loadsave_t *file) OVERRIDE;
 
 	/**
@@ -280,6 +281,7 @@ class tramdepot_t : public bahndepot_t
 {
 public:
 	void rdwr(loadsave_t *file) OVERRIDE;
+	void rdwr_bahndepot(loadsave_t *file) OVERRIDE;
 	tramdepot_t(loadsave_t *file):bahndepot_t(file) {}
 	tramdepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t): bahndepot_t(pos,player,t) {
 		set_name( init_name() );
@@ -295,6 +297,7 @@ class monoraildepot_t : public bahndepot_t
 {
 public:
 	void rdwr(loadsave_t *file) OVERRIDE;
+	void rdwr_bahndepot(loadsave_t *file) OVERRIDE;
 	monoraildepot_t(loadsave_t *file):bahndepot_t(file) {}
 	monoraildepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t): bahndepot_t(pos,player,t) {
 		set_name( init_name() );
@@ -351,7 +354,11 @@ protected:
 
 public:
 	void rdwr(loadsave_t *file) OVERRIDE;
-	strassendepot_t(loadsave_t *file) : depot_t(file) {}
+	strassendepot_t(loadsave_t *file) : depot_t(file) {
+		if(file->get_OTRP_version()<52) {
+			name = init_name();
+		}
+	}
 	strassendepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t) : depot_t(pos,player,t) {
 		set_name( init_name() );
 	}

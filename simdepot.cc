@@ -1080,6 +1080,18 @@ void monoraildepot_t::rdwr(loadsave_t *file)
 		rdwr_vehikel(vehicles, file);
 	}
 }
+void monoraildepot_t::rdwr_bahndepot(loadsave_t *file) { 
+	if(  file->get_OTRP_version()>= 52  ) {
+		file->rdwr_str(name);
+	}
+	else {
+		name = init_name();
+	}
+	depot_t::rdwr_vehikel(vehicles,file); 
+	if(  file->get_OTRP_version()>=24  ) {
+		convoi_t::rdwr_convoihandle_t(file, replacement_seed);
+	}
+}
 
 //tram
 void tramdepot_t::rdwr(loadsave_t *file)
@@ -1101,5 +1113,17 @@ void tramdepot_t::rdwr(loadsave_t *file)
 		// wagons are stored extra, just add them to vehicles
 		assert(file->is_loading());
 		rdwr_vehikel(vehicles, file);
+	}
+}
+void tramdepot_t::rdwr_bahndepot(loadsave_t *file) { 
+	if(  file->get_OTRP_version()>= 52  ) {
+		file->rdwr_str(name);
+	}
+	else {
+		name = init_name();
+	}
+	depot_t::rdwr_vehikel(vehicles,file); 
+	if(  file->get_OTRP_version()>=24  ) {
+		convoi_t::rdwr_convoihandle_t(file, replacement_seed);
 	}
 }
