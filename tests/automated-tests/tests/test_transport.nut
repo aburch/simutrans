@@ -598,6 +598,332 @@ function test_transport_pax_unload_all()
 }
 
 
+function test_transport_pax_temp_load()
+{
+	local pl = player_x(0)
+	local TEMP_LOAD = 65536  // 1 << 16
+
+	// Speed up simulation
+	debug.set_game_speed(5)
+
+	// Build main road A(4,2) -- B(4,7) -- C(4,12) -- depot(4,13)
+	// Also build an L-shaped branch: (4,3)--(3,3)--(3,2) so that (3,2,0) is reachable
+	// and belongs to the same halt as (4,2,0).
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(4, 2, 0), coord3d(4, 13, 0), "cobblestone_road"), null)
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(4, 3, 0), coord3d(3,  3, 0), "cobblestone_road"), null)
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(3, 3, 0), coord3d(3,  2, 0), "cobblestone_road"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4,  2, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(3,  2, 0), "BusStop"), null)  // same halt as (4,2,0)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4,  7, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 12, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 13, 0), building_desc_x("CarDepot")), null)
+
+	local depot  = depot_x(4, 13, 0)
+	local halt_b = halt_x.get_halt(coord3d(4,  7, 0), pl)
+	local halt_c = halt_x.get_halt(coord3d(4, 12, 0), pl)
+
+	// Schedule for cnv_temp: A(4,2) -> B(TEMP_LOAD) -> C
+	// TEMP_LOAD means the convoy can physically load at B, but B is not registered
+	// as a loading point in the route graph (treated like NO_LOAD for routing).
+	local sched_temp = schedule_x(wt_road, [
+		schedule_entry_x(coord3d(4,  2, 0), 0, 0),             // A: normal
+		schedule_entry_x(coord3d(4,  7, 0), 0, 0, TEMP_LOAD),  // B: temp load
+		schedule_entry_x(coord3d(4, 12, 0), 0, 0)              // C: normal
+	])
+
+	// Create and start convoy with TEMP_LOAD at B
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("Buessig"))
+	local cnv_temp = depot.get_convoy_list()[0]
+	cnv_temp.change_schedule(pl, sched_temp)
+	depot.start_all_convoys(pl)
+
+	// Wait for halt graph update
+	sleep()
+	sleep()
+
+	// With only the TEMP_LOAD convoy, B has NO routing connection to C.
+	// Passengers at B cannot find a route to C.
+	ASSERT_EQUAL(world.generate_goods(coord(3, 7), coord(3, 12), good_desc_x.passenger, 20), 0)
+	ASSERT_EQUAL(halt_b.waiting[0], 0)
+
+	// Schedule for cnv_normal: A(3,2, min=100%) -> B -> C
+	// min_loading=100 means cnv_normal waits forever at (3,2,0) and never physically reaches B.
+	// But its schedule includes B, so halt_b registers cnv_normal and gains a B->C routing connection.
+	local sched_normal = schedule_x(wt_road, [
+		schedule_entry_x(coord3d(3,  2, 0), 100, 0),  // A: wait for 100% load (never departs)
+		schedule_entry_x(coord3d(4,  7, 0),   0, 0),  // B: normal
+		schedule_entry_x(coord3d(4, 12, 0),   0, 0)   // C: normal
+	])
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("Buessig"))
+	local cnv_normal = depot.get_convoy_list()[0]
+	cnv_normal.change_schedule(pl, sched_normal)
+	depot.start_all_convoys(pl)
+
+	// Wait for halt graph update
+	sleep()
+	sleep()
+
+	// B now has routing to C (via cnv_normal's schedule), so passengers can be generated.
+	ASSERT_EQUAL(world.generate_goods(coord(3, 7), coord(3, 12), good_desc_x.passenger, 20), 1)
+	ASSERT_EQUAL(halt_b.waiting[0], 20)
+
+	// cnv_normal is stuck at A, so only cnv_temp physically stops at B.
+	// TEMP_LOAD does not prevent physical loading: cnv_temp must load all 20 passengers.
+	while (halt_c.arrived[0] < 20) {
+		sleep()
+	}
+	ASSERT_EQUAL(halt_c.arrived[0], 20)
+	ASSERT_EQUAL(halt_b.departed[0], 20)  // proves cnv_temp loaded the passengers at B
+
+	// clean up
+	debug.set_game_speed(1)
+	cnv_temp.destroy(pl)
+	cnv_normal.destroy(pl)
+	sleep()
+	sleep()
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4,  2, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(3,  2, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4,  7, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 12, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 13, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(3, 2, 0), coord3d(3,  3, 0), "" + wt_road), null)
+	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(3, 3, 0), coord3d(4,  3, 0), "" + wt_road), null)
+	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(4, 2, 0), coord3d(4, 13, 0), "" + wt_road), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_transport_pax_temp_unload()
+{
+	local pl = player_x(0)
+	local TEMP_UNLOAD = 131072  // 1 << 17
+
+	// Speed up simulation
+	debug.set_game_speed(5)
+
+	// Build main road A(4,2) -- B(4,7) -- C(4,12) -- depot(4,13)
+	// Build L-shaped branch (4,3)->(3,3)->(3,2) so cnv_normal can stop at (3,2,0),
+	// which belongs to the same halt as (4,2,0).
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(4, 2, 0), coord3d(4, 13, 0), "cobblestone_road"), null)
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(4, 3, 0), coord3d(3,  3, 0), "cobblestone_road"), null)
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(3, 3, 0), coord3d(3,  2, 0), "cobblestone_road"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4,  2, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(3,  2, 0), "BusStop"), null)  // same halt as (4,2,0)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4,  7, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 12, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 13, 0), building_desc_x("CarDepot")), null)
+
+	local depot  = depot_x(4, 13, 0)
+	local halt_a = halt_x.get_halt(coord3d(4,  2, 0), pl)
+	local halt_b = halt_x.get_halt(coord3d(4,  7, 0), pl)
+	local halt_c = halt_x.get_halt(coord3d(4, 12, 0), pl)
+
+	// Schedule for cnv_temp: A -> B(TEMP_UNLOAD) -> C
+	// TEMP_UNLOAD means B is not registered as an unload destination in the route graph,
+	// but the convoy can physically unload passengers there.
+	local sched_temp = schedule_x(wt_road, [
+		schedule_entry_x(coord3d(4,  2, 0), 0, 0),               // A: normal
+		schedule_entry_x(coord3d(4,  7, 0), 0, 0, TEMP_UNLOAD),  // B: temp unload
+		schedule_entry_x(coord3d(4, 12, 0), 0, 0)                // C: normal
+	])
+
+	// Create and start convoy with TEMP_UNLOAD at B
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("Buessig"))
+	local cnv_temp = depot.get_convoy_list()[0]
+	cnv_temp.change_schedule(pl, sched_temp)
+	depot.start_all_convoys(pl)
+
+	// Wait for halt graph update
+	sleep()
+	sleep()
+
+	// With only TEMP_UNLOAD convoy, B is not a valid unload destination.
+	// Passengers at A cannot find a route to B.
+	ASSERT_EQUAL(world.generate_goods(coord(3, 2), coord(3, 7), good_desc_x.passenger, 20), 0)
+
+	// Passengers can still be routed to C (B is transparent for A->C routing).
+	ASSERT_EQUAL(world.generate_goods(coord(3, 2), coord(3, 12), good_desc_x.passenger, 30), 1)
+	ASSERT_EQUAL(halt_a.waiting[0], 30)
+
+	// Wait for passengers to depart A and arrive at C (convoy passes through B without unloading).
+	while (halt_a.waiting[0] > 0) {
+		sleep()
+	}
+	ASSERT_EQUAL(halt_a.departed[0], 30)
+	while (halt_c.arrived[0] < 30) {
+		sleep()
+	}
+	ASSERT_EQUAL(halt_c.arrived[0], 30)
+	ASSERT_EQUAL(halt_b.arrived[0], 0)  // no one alighted at B
+
+	// Now add a normal convoy A'(3,2, min=100%) -> B -> C.
+	// cnv_normal waits forever at (3,2,0) and never physically reaches B,
+	// but its schedule registers B as a normal unload destination, creating an A->B routing connection.
+	local sched_normal = schedule_x(wt_road, [
+		schedule_entry_x(coord3d(3,  2, 0), 100, 0),  // A': wait for 100% load (never departs)
+		schedule_entry_x(coord3d(4,  7, 0),   0, 0),  // B: normal
+		schedule_entry_x(coord3d(4, 12, 0),   0, 0)   // C: normal
+	])
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("Buessig"))
+	local cnv_normal = depot.get_convoy_list()[0]
+	cnv_normal.change_schedule(pl, sched_normal)
+	depot.start_all_convoys(pl)
+
+	sleep()
+	sleep()
+
+	// B is now a valid unload destination (via cnv_normal's schedule).
+	// Passengers at A can be routed to B.
+	ASSERT_EQUAL(world.generate_goods(coord(3, 2), coord(3, 7), good_desc_x.passenger, 20), 1)
+	ASSERT_EQUAL(halt_a.waiting[0], 20)
+
+	// cnv_normal is stuck at A, so only cnv_temp physically reaches B.
+	// TEMP_UNLOAD does not prevent physical unloading: cnv_temp unloads all 20 passengers at B.
+	while (halt_b.arrived[0] < 20) {
+		sleep()
+	}
+	ASSERT_EQUAL(halt_b.arrived[0], 20)  // proves cnv_temp physically unloaded at B
+
+	// clean up
+	debug.set_game_speed(1)
+	cnv_temp.destroy(pl)
+	cnv_normal.destroy(pl)
+	sleep()
+	sleep()
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4,  2, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(3,  2, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4,  7, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 12, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 13, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(3, 2, 0), coord3d(3,  3, 0), "" + wt_road), null)
+	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(3, 3, 0), coord3d(4,  3, 0), "" + wt_road), null)
+	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(4, 2, 0), coord3d(4, 13, 0), "" + wt_road), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_transport_pax_temp_unload_all()
+{
+	local pl = player_x(0)
+	local TEMP_UNLOAD_ALL = 262144  // 1 << 18
+
+	// Speed up simulation
+	debug.set_game_speed(5)
+
+	// Build main road A(4,3) -- B(4,8) -- C(4,13) -- depot(4,14)
+	// Stops are spaced 5 tiles apart so catchment areas do not overlap.
+	// Build L-shaped branch (4,4)->(3,4)->(3,2) so cnv_normal can stop at (3,3,0).
+	// (3,3,0) is through (connected to (3,4) south and (3,2) north) and belongs to
+	// the same halt as (4,3,0).
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(4, 2, 0), coord3d(4, 14, 0), "cobblestone_road"), null)
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(4, 4, 0), coord3d(3,  4, 0), "cobblestone_road"), null)
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(3, 4, 0), coord3d(3,  2, 0), "cobblestone_road"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4,  3, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(3,  3, 0), "BusStop"), null)  // same halt as (4,3,0)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4,  8, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 13, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 14, 0), building_desc_x("CarDepot")), null)
+
+	local depot  = depot_x(4, 14, 0)
+	local halt_a = halt_x.get_halt(coord3d(4,  3, 0), pl)
+	local halt_b = halt_x.get_halt(coord3d(4,  8, 0), pl)
+	local halt_c = halt_x.get_halt(coord3d(4, 13, 0), pl)
+
+	// Schedule for cnv_temp: A -> B(TEMP_UNLOAD_ALL) -> C
+	// TEMP_UNLOAD_ALL cuts the routing graph at B (like UNLOAD_ALL), so passengers
+	// must transfer at B to reach C.  Unlike UNLOAD_ALL, it does not physically
+	// force-unload passengers at B, so through-passengers (routed directly A->C
+	// by another convoy) stay on board.
+	local sched_temp = schedule_x(wt_road, [
+		schedule_entry_x(coord3d(4,  3, 0), 0, 0),                  // A: normal
+		schedule_entry_x(coord3d(4,  8, 0), 0, 0, TEMP_UNLOAD_ALL), // B: routing cut point
+		schedule_entry_x(coord3d(4, 13, 0), 0, 0)                   // C: normal
+	])
+
+	// Create and start convoy with TEMP_UNLOAD_ALL at B
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("Buessig"))
+	local cnv_temp = depot.get_convoy_list()[0]
+	cnv_temp.change_schedule(pl, sched_temp)
+	depot.start_all_convoys(pl)
+
+	// Wait for halt graph update
+	sleep()
+	sleep()
+
+	// A->B: B is directly reachable from A.
+	ASSERT_EQUAL(world.generate_goods(coord(3, 2), coord(3, 8), good_desc_x.passenger, 20), 1)
+	ASSERT_EQUAL(halt_a.waiting[0], 20)
+
+	// A->C: TEMP_UNLOAD_ALL makes B a transfer halt, so C is reachable from A via transfer at B.
+	ASSERT_EQUAL(world.generate_goods(coord(3, 2), coord(3, 14), good_desc_x.passenger, 10), 1)
+	ASSERT_EQUAL(halt_a.waiting[0], 30)
+
+	// Wait for all 30 passengers to depart A.
+	while (halt_a.waiting[0] > 0) {
+		sleep()
+	}
+	ASSERT_EQUAL(halt_a.departed[0], 30)
+
+	// 20 A->B passengers arrive at B directly.
+	// 10 A->C passengers transfer at B (alight and re-board for B->C leg).
+	while (halt_b.arrived[0] < 30) {
+		sleep()
+	}
+	ASSERT_EQUAL(halt_b.arrived[0], 30)
+
+	// The 10 transfer passengers eventually arrive at C.
+	while (halt_c.arrived[0] < 10) {
+		sleep()
+	}
+	ASSERT_EQUAL(halt_c.arrived[0], 10)
+
+	// Now add a normal convoy A'(3,3, min=100%) -> B -> C.
+	// cnv_normal waits forever at (3,3,0) and never physically reaches B,
+	// but its schedule registers a direct A->C routing connection (no cut at B).
+	local sched_normal = schedule_x(wt_road, [
+		schedule_entry_x(coord3d(3,  3, 0), 100, 0),  // A': wait for 100% load (never departs)
+		schedule_entry_x(coord3d(4,  8, 0),   0, 0),  // B: normal (no routing cut)
+		schedule_entry_x(coord3d(4, 13, 0),   0, 0)   // C: normal
+	])
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("Buessig"))
+	local cnv_normal = depot.get_convoy_list()[0]
+	cnv_normal.change_schedule(pl, sched_normal)
+	depot.start_all_convoys(pl)
+
+	sleep()
+	sleep()
+
+	// Generate 20 more A->C passengers.  cnv_normal's direct A->C connection means they
+	// are routed without a transfer at B.  cnv_temp physically carries them straight
+	// through B to C (TEMP_UNLOAD_ALL does not physically force-unload).
+	ASSERT_EQUAL(world.generate_goods(coord(3, 2), coord(3, 14), good_desc_x.passenger, 20), 1)
+	ASSERT_EQUAL(halt_a.waiting[0], 20)
+
+	while (halt_c.arrived[0] < 30) {
+		sleep()
+	}
+	ASSERT_EQUAL(halt_c.arrived[0], 30)
+	// halt_b.arrived stays at 30: the Phase 2 passengers rode through B without alighting.
+	ASSERT_EQUAL(halt_b.arrived[0], 30)
+
+	// clean up
+	debug.set_game_speed(1)
+	cnv_temp.destroy(pl)
+	cnv_normal.destroy(pl)
+	sleep()
+	sleep()
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4,  3, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(3,  3, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4,  8, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 13, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 14, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(3, 2, 0), coord3d(3,  4, 0), "" + wt_road), null)
+	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(3, 4, 0), coord3d(4,  4, 0), "" + wt_road), null)
+	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(4, 2, 0), coord3d(4, 14, 0), "" + wt_road), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
 function test_transport_pax_transfer_interval()
 {
 	local pl = player_x(0)

@@ -201,6 +201,9 @@ all_tests <- [
 	test_transport_pax_no_load,
 	test_transport_pax_no_unload,
 	test_transport_pax_unload_all,
+	test_transport_pax_temp_load,
+	test_transport_pax_temp_unload,
+	test_transport_pax_temp_unload_all,
 	test_transport_pax_transfer_interval,
 	test_trees_plant_single_invalid_param,
 	test_way_tunnel_build_straight
