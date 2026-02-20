@@ -165,7 +165,7 @@ void replace_cars(convoihandle_t cnv, depot_t* depot) {
  * first a convoy reaches the depot during its journey
  * second during loading a convoi is stored in a depot => only store it again
  */
-void depot_t::convoi_arrived(convoihandle_t acnv, bool schedule_adjust)
+void depot_t::convoi_arrived(convoihandle_t acnv, bool schedule_adjust, const bool coupled)
 {
 	for( uint32 i=0; i<convois.get_count(); i++ ) {
 		if (acnv==convois.at(i)) {
@@ -216,7 +216,7 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool schedule_adjust)
 		}
 	}
 	
-	if(  schedule_adjust  &&  replacement_seed.is_bound()  &&  replacement_seed!=acnv  ) {
+	if(  schedule_adjust  &&  replacement_seed.is_bound()  &&  replacement_seed!=acnv  &&  !coupled  ) {
 		// replace cars of the arrived convoy, then start it immediately.
 		replace_cars(acnv, this);
 		start_convoi(acnv, false);

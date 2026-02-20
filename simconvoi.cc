@@ -1791,6 +1791,7 @@ void convoi_t::betrete_depot(depot_t *dep, bool is_loading)
 	// remove vehicles from world data structure
 	convoihandle_t c = self;
 	convoihandle_t child = c->get_coupling_convoi();
+	const bool coupling_arrived_depot = child.is_bound();
 	while(c.is_bound()) {
 		c->uncouple_convoi();
 		if( c->reversed ) {
@@ -1818,7 +1819,7 @@ void convoi_t::betrete_depot(depot_t *dep, bool is_loading)
 
 		c->maxspeed_average_count = 0;
 		c->state = INITIAL;
-		dep->convoi_arrived(c, !is_loading  &&  get_schedule());
+		dep->convoi_arrived(c, !is_loading  &&  get_schedule(), coupling_arrived_depot);
 		if(child.is_bound()) {
 			c->coupling_convoi = child;
 			child = child->get_coupling_convoi();
