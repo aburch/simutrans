@@ -476,6 +476,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 		buf.clear();
 		buf.printf( translator::translate("Vehicle %s is coupled convoy, so it cannot depart alone!"), cnv->get_name() );
 		create_win( new news_img(buf), w_time_delete, magic_none);
+		return false;
 	}
 	// Check the start condition
 	if(  !can_start_convoi(cnv, local_execution)  ) {
