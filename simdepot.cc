@@ -158,8 +158,6 @@ void replace_cars(convoihandle_t cnv, depot_t* depot) {
 			}
 		}
 	}
-	// Finally, start the replaced convoy
-	cnv->set_state(convoi_t::states::WAITING_FOR_LEAVING_DEPOT);
 }
 
 
@@ -221,6 +219,7 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool schedule_adjust)
 	if(  schedule_adjust  &&  replacement_seed.is_bound()  &&  replacement_seed!=acnv  ) {
 		// replace cars of the arrived convoy, then start it immediately.
 		replace_cars(acnv, this);
+		start_convoi(acnv, false);
 	}
 }
 
