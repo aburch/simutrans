@@ -8066,7 +8066,7 @@ const char *tool_pipette_t::work(player_t *pl, koord3d pos)
 				t.cursor = tool_t::general_tool[TOOL_BUILD_HOUSE]->cursor;
 				param_str.clear();
 				param_str.printf("%d,%s",
-					gb->get_tile()->get_layout(), /*rotation*/
+					gb->get_tile()->get_layout()&8, /*rotation*/
 					gb->get_tile()->get_desc()->get_name());
 				t.set_default_param(param_str);
 				welt->set_tool(&t, pl);
