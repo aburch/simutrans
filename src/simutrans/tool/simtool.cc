@@ -7246,7 +7246,7 @@ const char *tool_pipette_t::work(player_t *pl, koord3d pos)
 			static tool_build_house_t t = tool_build_house_t();
 			t.cursor = tool_t::general_tool[TOOL_BUILD_HOUSE]->cursor;
 			param_str.clear();
-			param_str.printf("%d,%s",
+			param_str.printf("0%d%s",
 				gb->get_tile()->get_layout(), /*rotation*/
 				gb->get_tile()->get_desc()->get_name());
 			t.set_default_param(param_str);
