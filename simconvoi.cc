@@ -4168,7 +4168,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 		bool need_coupling_at_this_stop = false;
 		// departure judgement is done in a helper function.
 		departure_cond = can_depart(self, halt, arrived_time,
-			 time, need_coupling_at_this_stop, scheduled_departure_time);
+			 time, need_coupling_at_this_stop, scheduled_departure_time) && !is_coupling_in_progress;
 
 		if(  scheduled_departure_time>0  ){
 			// The convoy should depart in the next or later step
