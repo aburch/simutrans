@@ -3278,6 +3278,12 @@ void haltestelle_t::merge_halt( halthandle_t halt_merged )
 		return;
 	}
 
+	if(  owner!=halt_merged->get_owner()  ) {
+		// we merge different owner's stop
+		// we set allow other player access because other convoy can connect here!
+		flags|=HS_ALLOW_OTHER_PLAYER_CONNECTION;
+	}
+
 	halt_merged->change_owner( owner, false );
 
 	// add statistics
@@ -3373,6 +3379,10 @@ void haltestelle_t::make_private_and_join( player_t *player, bool public_underta
 			}
 		}
 	}
+
+	// set allow other player access.
+	// because this stop could be access other player before change owner.
+	flags |= HS_ALLOW_OTHER_PLAYER_CONNECTION;
 
 	// transfer ownership
 	owner = player;
