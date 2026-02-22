@@ -3098,21 +3098,24 @@ void tool_build_way_t::set_mode_str(char* str, overtaking_mode_t overtaking_mode
 uint8 tool_build_way_t::get_flag_color(uint8 flag) {
 	if (  flag&strasse_t::CITYCAR_NO_ENTRY  ) {
 		if (  flag&strasse_t::AVOID_CITYROAD  ) {
+			if (  flag&strasse_t::PEDESTRIAN_NO_ENTRY  ) {
+				return COL_DARK_ORANGE;
+			}
 			return COL_ORANGE;
 		}
 		if (  flag&strasse_t::PEDESTRIAN_NO_ENTRY  ) {
-			return COL_LIGHT_RED;
+			return COL_DARK_RED;
 		}
 		return COL_MAGENTA;
 	}
 	if (  flag&strasse_t::AVOID_CITYROAD  ) {
 		if (  flag&strasse_t::PEDESTRIAN_NO_ENTRY  ) {
-			return COL_LIGHT_GREEN;
+			return COL_DARK_GREEN;
 		}
 		return COL_GREEN;
 	}
 	if (  flag&strasse_t::PEDESTRIAN_NO_ENTRY  ) {
-		return COL_LIGHT_BLUE;
+		return COL_DARK_YELLOW;
 	}
 	// default
 	return COL_YELLOW;
