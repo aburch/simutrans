@@ -363,15 +363,17 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	end_table();
 
 
-
-	if(  cnv.is_bound()  ) {
-		add_table(3,2);
+	add_table(3,1);
+	{
 		new_component<gui_label_t>("Filter:");
 		name_filter_input.set_text(schedule_filter, lengthof(schedule_filter));
 		name_filter_input.add_listener(this);
 		add_component(&name_filter_input);
 		new_component<gui_fill_t>();
-		
+	}
+	end_table();
+	if(  cnv.is_bound()  ) {
+		add_table(3,1);	
 		// things, only relevant to convois, like creating/selecting lines
 		new_component<gui_label_t>("Serves Line:");
 		bt_promote_to_line.init( button_t::roundbox, "promote to line");
@@ -436,23 +438,20 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		add_component(&sp_schedule_settings);
 
 		// Additional waiting time on goods routing, when TBGR is enabled
-		add_component(&lb_tbgr_waiting_time);
+		add_component(&lb_tbgr_waiting_time,2);
 		numimp_tbgr_waiting_time.set_width( 60 );
 		numimp_tbgr_waiting_time.set_value( schedule->get_additional_base_waiting_time() );
 		numimp_tbgr_waiting_time.set_limits( 0, 999999 );
 		numimp_tbgr_waiting_time.set_increment_mode(1);
 		numimp_tbgr_waiting_time.add_listener(this);
 		add_component(&numimp_tbgr_waiting_time);
-		
-		add_component(&sp_schedule_settings);
 
 		if(  !cnv.is_bound()  ) {
 			lb_departure_slot_group.set_tooltip(translator::translate("Shares the departure time slot with the selected line here."));
 			add_component(&lb_departure_slot_group);
 			init_departure_slot_group_selector();
 			departure_slot_group_selector.add_listener(this);
-			add_component(&departure_slot_group_selector);
-			add_component(&sp_schedule_settings);
+			add_component(&departure_slot_group_selector,2);
 		}
 
 		// next_line setting
@@ -464,8 +463,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 
 		init_next_line_selector();
 		next_line_selector.add_listener(this);
-		add_component(&next_line_selector);
-		add_component(&sp_schedule_settings);
+		add_component(&next_line_selector,2);
 
 		bt_reverse_default.init(button_t::square_state, "Reverse by Default");
 		bt_reverse_default.set_tooltip(translator::translate("When the next destination is in the opposite direction, it will automatically reverse."));
@@ -1614,13 +1612,15 @@ void schedule_gui_t::init_departure_slot_group_selector()
 		vector_tpl<linehandle_t> lines;
 		player->simlinemgmt.get_lines(schedule->get_type(), &lines);
 		FOR(  vector_tpl<linehandle_t>, const line,  lines  ) {
-			if(  schedule->matches(world(), line->get_schedule())  ) {
-				this_schedule_index = departure_slot_group_selector.count_elements();
+			if(!*schedule_filter  ||  utf8caseutf8(line->get_name(), schedule_filter)) {
+				if(  schedule->matches(world(), line->get_schedule())  ) {
+					this_schedule_index = departure_slot_group_selector.count_elements();
+				}
+				else if(  line->get_schedule()->get_departure_slot_group_id()==schedule->get_departure_slot_group_id()  &&  selection==0  ) {
+					selection = departure_slot_group_selector.count_elements();
+				}
+				departure_slot_group_selector.new_component<company_color_line_scroll_item_t>(line);
 			}
-			else if(  line->get_schedule()->get_departure_slot_group_id()==schedule->get_departure_slot_group_id()  &&  selection==0  ) {
-				selection = departure_slot_group_selector.count_elements();
-			}
-			departure_slot_group_selector.new_component<company_color_line_scroll_item_t>(line);
 		}
 	}
 
