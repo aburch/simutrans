@@ -5690,10 +5690,7 @@ const char *tool_rotate_building_t::work( player_t *player, koord3d pos )
 char const* tool_build_roadsign_t::get_tooltip(player_t const*) const
 {
 	const roadsign_desc_t * desc = roadsign_t::find_desc(default_param);
-	if(desc) {
-		return tooltip_with_price( desc->get_name(), -desc->get_price() );
-	}
-	return NULL;
+	return desc ? tooltip_with_price_maintenance(welt, desc->get_name(), -desc->get_price(), desc->get_maintenance()) : NULL;
 }
 
 void tool_build_roadsign_t::draw_after(scr_coord k, bool dirty) const
