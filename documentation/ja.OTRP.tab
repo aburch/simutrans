@@ -527,6 +527,10 @@ maximum_village_size
 村の人口上限:これ以上の人口の町は「都市city」となります(maximum_village_size)
 maximum_city_size
 都市の人口上限:これ以上の人口の町は「首都capital」となります(maximum_city_size)
+Show line colors
+路線の色を表示
+Show convoy loading level
+編成の乗車率を表示
 #------その他の翻訳------
 Remove all waiting goods and pax
 この駅のすべての待機中の旅客と貨物を除去します

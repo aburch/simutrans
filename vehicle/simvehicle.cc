@@ -2061,14 +2061,14 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 		if(ypos>LINESPACE+32  &&  ypos+LINESPACE<display_get_clip_wh().yy) {
 			display_ddd_proportional_clip( xpos, ypos, color, color_idx_to_rgb(COL_BLACK), tooltip_text, true );
 			if(  state==env_t::LINE_NAME_TOOLTIPS  ||  state==env_t::LINE_NAME_AND_STATES_TOOLTIPS  ) {
-				if(  cnv->get_max_loading()>0  ) {
+				if(  env_t::show_convoy_loadinglevel && cnv->get_max_loading()>0  ) {
 					// show loading level only for loadable convoy(not for locomotive, etc.)
 					// show loading capacity as gray background
 					display_fillbox_wh_clip_rgb( xpos, ypos+14, 100, D_WAITINGBAR_WIDTH, color_idx_to_rgb(COL_GREY4), dirty );
 					// show loading level as green(if level<=100%), or orange(overloading).
 					display_fillbox_wh_clip_rgb( xpos, ypos+14, cnv->get_loading_level()>100?100:cnv->get_loading_level(), D_WAITINGBAR_WIDTH, color_idx_to_rgb(cnv->get_loading_level()>100?COL_RED:COL_LIGHT_GREEN), dirty );
 				}
-				if(  lh.is_bound()  ) {
+				if(  env_t::show_line_colors && lh.is_bound()  ) {
 					// show line colour
 					uint16 tooltip_width = proportional_string_width(tooltip_text);
 					display_fillbox_wh_clip_rgb( xpos, ypos-D_WAITINGBAR_WIDTH, tooltip_width+4, D_WAITINGBAR_WIDTH, color_idx_to_rgb(lh->get_colour()), dirty );
