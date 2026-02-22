@@ -1,0 +1,180 @@
+name: OTRP Automated Tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get -y update
+        sudo apt-get -ym install libsdl2-dev libfreetype6-dev libminiupnpc-dev libbz2-dev pkg-config autoconf
+
+    - name: Install zstd 1.4.4
+      run: |
+        cd $HOME
+        wget https://github.com/facebook/zstd/releases/download/v1.4.4/zstd-1.4.4.tar.gz
+        tar -zxvf zstd-1.4.4.tar.gz
+        cd zstd-1.4.4
+        make -j
+        sudo make install
+        cd $GITHUB_WORKSPACE
+
+    - name: Configure and build
+      run: |
+        autoconf
+        ./configure
+        echo "FLAGS = -DREVISION=$(svn info --show-item revision svn://servers.simutrans.org/simutrans) " >>config.default
+        echo "STATIC = 1" >>config.default
+        cat config.default
+        make -j
+
+    - name: Collect binary and shared libraries
+      run: |
+        mkdir -p dist
+        cp sim dist/
+        # Bundle dynamically linked libs not available by default on runner
+        for lib in /usr/local/lib/libzstd.so*; do
+          [ -e "$lib" ] && cp "$lib" dist/
+        done
+        ldd sim || true
+
+    - name: Upload binary
+      uses: actions/upload-artifact@v4
+      with:
+        name: sim-binary
+        path: dist/
+
+  list-tests:
+    runs-on: ubuntu-latest
+
+    outputs:
+      test-batches: ${{ steps.list.outputs.test-batches }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - id: list
+      name: List test batches (20 tests per batch)
+      run: |
+        # Extract test function names from all_tests array
+        funcs=$(sed -n '/^all_tests <- \[/,/^\]/p' tests/automated-tests/all_tests.nut \
+          | grep -oE 'test_[a-z_]+')
+
+        # Verify we found at least one test function
+        if [ -z "$funcs" ]; then
+          echo "Error: No test functions found in all_tests array"
+          exit 1
+        fi
+
+        test_count=$(echo "$funcs" | wc -l | tr -d ' ')
+        echo "Found $test_count test functions"
+
+        # Split into batches of 20 using awk
+        # Output format: [["test1","test2",...,"test20"],["test21",...],...]
+        batches=$(echo "$funcs" | awk -v batch_size=20 '
+          BEGIN { print "[" }
+          {
+            if (NR % batch_size == 1) {
+              if (NR > 1) printf "],"  # Close previous batch
+              printf "["                # Start new batch
+            } else {
+              printf ","                # Separate tests within batch
+            }
+            printf "\"%s\"", $0
+          }
+          END { print "]]" }              # Close last batch and outer array
+        ' | jq -c .)
+
+        echo "test-batches=$batches" >> "$GITHUB_OUTPUT"
+        echo "Test batches: $batches"
+
+  test:
+    needs: [build, list-tests]
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        batch-id: ${{ fromJSON(needs.list-tests.outputs.test-batches) }}
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download binary
+      uses: actions/download-artifact@v4
+      with:
+        name: sim-binary
+        path: dist
+
+    - name: Install runtime dependencies
+      run: |
+        sudo apt-get -y update
+        sudo apt-get -ym install libsdl2-2.0-0 libminiupnpc-dev libfreetype6
+        # Install bundled shared libraries (e.g., zstd built from source)
+        sudo cp dist/libzstd.so* /usr/local/lib/ 2>/dev/null || true
+        sudo ldconfig
+        chmod +x dist/sim
+
+    - name: Extract test base
+      run: |
+        unzip tests/simutrans-test-base.zip -d $HOME
+
+    - name: Copy script files to test base
+      run: |
+        cp -r simutrans/script/. $HOME/simutrans-test-base/script/
+
+    - name: Run test batch
+      run: |
+        set +e  # Don't exit on first failure
+        chmod +x tests/run-automated-tests.sh
+        rm -f failed_tests.txt
+
+        # Get batch tests from matrix
+        batch_tests='${{ toJSON(matrix.batch-id) }}'
+
+        # Parse and run each test in the batch
+        echo "Running batch of tests..."
+        echo "========================================"
+
+        total_tests=$(echo "$batch_tests" | jq 'length')
+        current=0
+
+        # Use process substitution to avoid subshell issues
+        while IFS= read -r test_func; do
+          current=$((current + 1))
+          echo "[$current/$total_tests] Running test: $test_func"
+          if ! WORKDIR=$HOME/simutrans-test-base SIM_BINARY=./dist/sim tests/run-automated-tests.sh "$test_func"; then
+            echo "$test_func" >> failed_tests.txt
+          fi
+          echo ""
+        done < <(echo "$batch_tests" | jq -r '.[]')
+
+        echo "========================================"
+
+        # Check if any tests failed
+        if [ -f failed_tests.txt ]; then
+          echo "FAILURE: Some tests in this batch failed:"
+          cat failed_tests.txt
+          exit 1
+        else
+          echo "SUCCESS: All tests in this batch passed"
+          exit 0
+        fi
+
+    - name: Upload test artifacts on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-failure-batch-${{ strategy.job-index }}
+        path: |
+          tests/*.log
+          failed_tests.txt
+        if-no-files-found: ignore

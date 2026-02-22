@@ -503,7 +503,10 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS2 );
 		numimp_load.add_listener(this);
 		add_component(&numimp_load);
-		new_component<gui_fill_t>();
+		
+		bt_wait_full_load.init(button_t::roundbox, "wait for full load");
+		bt_wait_full_load.add_listener(this);
+		add_component(&bt_wait_full_load);
 
 		bt_wait_load.init(button_t::square_state, "month wait time");
 		bt_wait_load.add_listener(this);
@@ -837,6 +840,12 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	mode = adding;
 	update_selection();
 
+	if (event_get_last_control_shift() == 2) {
+		extract_schedule_settings(true);
+		extract_loading_settings(true);
+		extract_driving_settings(true);
+	}
+
 	set_resizemode(diagonal_resize);
 
 	reset_min_windowsize();
@@ -882,6 +891,7 @@ void schedule_gui_t::update_selection()
 	lb_load.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
 	numimp_load.disable();
 	numimp_load.set_value( 0 );
+	bt_wait_full_load.disable();
 	bt_find_parent.disable();
 	bt_wait_for_child.disable();
 	bt_uncouple_child.disable();
@@ -1009,6 +1019,15 @@ void schedule_gui_t::update_selection()
 			lb_load.set_color( SYSCOL_TEXT );
 			numimp_load.enable();
 			numimp_max_load.enable();
+			bt_wait_full_load.enable();
+			if(  schedule->at(current_stop).minimum_loading==0  ) {
+				bt_wait_full_load.set_text("wait for full load");
+				bt_wait_full_load.set_tooltip("wait for full load (100% or max loading value)");
+			} else {
+				// reset wait full load value
+				bt_wait_full_load.set_text("reset full load setting");
+				bt_wait_full_load.set_tooltip("reset full load (set 0%)");
+			}
 			bt_max_load_all_stops.enable();
 			if(  schedule->at(current_stop).minimum_loading>0  ||  schedule->at(current_stop).is_wait_for_coupling() ) {
 				bt_wait_load.enable();
@@ -1145,11 +1164,13 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 	else if(comp == &bt_up) {
 		if(!schedule->empty()) {
 			schedule->move_entry_backward(schedule->get_current_stop());
+			update_selection();
 		}
 	}
 	else if(comp == &bt_down) {
 		if(!schedule->empty()) {
 			schedule->move_entry_forward(schedule->get_current_stop());
+			update_selection();
 		}
 	}
 	else if(comp == &bt_find_parent) {
@@ -1212,6 +1233,14 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 	else if(comp == &numimp_load) {
 		if (!schedule->empty()) {
 			schedule->at(schedule->get_current_stop()).minimum_loading = (uint8)p.i;
+			update_selection();
+		}
+	}
+	else if(comp == &bt_wait_full_load) {
+		if (!schedule->empty()) {
+			uint8 val = schedule->at(schedule->get_current_stop()).maximum_loading;
+			bool reset = schedule->at(schedule->get_current_stop()).minimum_loading>0;
+			schedule->at(schedule->get_current_stop()).minimum_loading = reset?0:val;
 			update_selection();
 		}
 	}
@@ -1511,16 +1540,7 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 	}
 	// recheck lines
 	if(  cnv.is_bound()  ) {
-		// unequal to line => remove from line ...
-		if(  new_line.is_bound()  &&  !schedule->matches(welt,new_line->get_schedule())  ) {
-			new_line = linehandle_t();
-			line_selector.set_selection(0);
-		}
-		// only assign old line, when new_line is not equal
-		if(  !new_line.is_bound()  &&  old_line.is_bound()  &&   schedule->matches(welt,old_line->get_schedule())  ) {
-			new_line = old_line;
-			init_line_selector();
-		}
+		init_line_selector();
 	}
 	init_next_line_selector();
 	update_tool( should_set_schedule_tool );
@@ -1546,11 +1566,9 @@ void schedule_gui_t::init_line_selector()
 		}
 	}
 	int offset = 0;
-	if(  !new_line.is_bound()  ) {
-		selection = 0;
-		offset = 1;
-		line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("<no line>"), SYSCOL_TEXT ) ;
-	}
+	selection = 0;
+	offset = 1;
+	line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("<no line>"), SYSCOL_TEXT ) ;
 
 	FOR(  vector_tpl<linehandle_t>, const line,  lines  ) {
 		if(  !*schedule_filter  ||  utf8caseutf8(line->get_name(), schedule_filter)  ) {

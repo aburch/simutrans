@@ -198,6 +198,7 @@ void convoi_t::init(player_t *player)
 
 	max_speed_kmh_of_convoi = 0;
 	max_balance_speed_convoi = 0;
+	unloading_done = false;
 }
 
 
@@ -1293,6 +1294,7 @@ bool convoi_t::drive_to()
 					get_most_parent_convoi()->reversing_coupling_needed=reverse_here;
 					get_most_parent_convoi()->state=ROUTING_1;
 					get_most_parent_convoi()->alte_richtung=get_most_parent_convoi()->front()->get_direction();
+					get_most_parent_convoi()->check_electrification();
 					return false;
 				}
 			}
@@ -2551,6 +2553,7 @@ void convoi_t::vorfahren()
 		c->uncouple_done = false;
 		c->reverse_coupling_done = false;
 		c->reversing_coupling_needed = false;
+		c->unloading_done = false;
 		// reset next stop index and coupling index
 		c->next_stop_index = 65535;
 		c->next_coupling_index = route_t::INVALID_INDEX;
@@ -3373,9 +3376,11 @@ void convoi_t::rdwr(loadsave_t *file)
 		reversing_coupling_needed = false;
 	}
 	if(  file->get_OTRP_version()>=52  ) {
-		file->rdwr_short( max_balance_speed_convoi );
+		file->rdwr_short(max_balance_speed_convoi);
+		file->rdwr_bool(unloading_done);
 	} else {
 		max_balance_speed_convoi = 0;
+		unloading_done = false;
 	}
 
 	if(  file->is_loading()  ) {
@@ -3689,13 +3694,15 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 	while(  c.is_bound()  ) {
 		const schedule_entry_t e = c->get_schedule()->get_current_entry();
 		// First, check whether we have to wait for coupling at this stop.
-		coupling_cond |= (e.is_wait_for_coupling() &&  !c->is_coupling_done()  &&  !c->is_cease_coupling_due_to_length_over()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled()));
+		const bool coupling_waiting = (e.is_wait_for_coupling() &&  !c->is_coupling_done()  &&  !c->is_cease_coupling_due_to_length_over()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled()));
+		const bool waiting_time_cond = (e.waiting_time_shift > 0  &&  (world()->get_ticks() - arrived_time) > (world()->ticks_per_world_month / e.waiting_time_shift) ); // waiting time
+		coupling_cond |= (coupling_waiting && ~waiting_time_cond);
 		if (  c->is_coupling_done()  ||  !c->get_convoi_coupling_in_progress().is_bound()  ||  c->get_convoi_coupling_in_progress()->get_convoi_coupling_in_progress()!=c  ) {
 			// The convoi_coupling_in_progress flag blocks the departure.
 			// Reset the flag if it is outdated to avoid blocking the departure forever.
 			c->unset_convoi_coupling_in_progress();
 		}
-		coupling_done_cond &= !(e.is_wait_for_coupling()  &&  !c->is_coupling_done()  &&  !c->is_cease_coupling_due_to_length_over()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled())); // coupling condition
+		coupling_done_cond &= (!coupling_waiting || waiting_time_cond);
 		c = c->get_coupling_convoi();
 	}
 	c = cnv;
@@ -4029,7 +4036,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 		// The total amount of goods which are loaded and unloaded
 		uint16 amount;
 		if(  !schedule->get_current_entry().is_no_unload() ) {
-			amount = v->unload_cargo(halt, next_depot  ||  schedule->get_current_entry().is_unload_all()  );
+			amount = v->unload_cargo(halt, next_depot  ||  (schedule->get_current_entry().is_unload_all()  &&  !unloading_done)  );
 		} else {
 			amount = 0;
 		}
@@ -4065,6 +4072,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 			time = max( time, (max(v->get_cargo_max(),v->get_total_cargo())*2*v->get_desc()->get_loading_time()) / max(v->get_cargo_max(), 1) );
 		}
 	}
+	unloading_done = true;
 	freight_info_resort |= changed_loading_level;
 	if(  changed_loading_level  ) {
 		halt->recalc_status();
@@ -4183,7 +4191,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 		bool need_coupling_at_this_stop = false;
 		// departure judgement is done in a helper function.
 		departure_cond = can_depart(self, halt, arrived_time,
-			 time, need_coupling_at_this_stop, scheduled_departure_time);
+			 time, need_coupling_at_this_stop, scheduled_departure_time) && !is_coupling_in_progress;
 
 		if(  scheduled_departure_time>0  ){
 			// The convoy should depart in the next or later step

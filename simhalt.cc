@@ -1696,8 +1696,8 @@ sint32 haltestelle_t::rebuild_connections()
 		aggregate_weight_jt = estimated_waiting_ticks(schedule, start_index-1) - start_entry.get_median_convoy_stopping_time();
 		aggregate_weight_rc = WEIGHT_WAIT;
 
-		bool no_load_section = start_entry.is_no_load();
-		force_transfer_search |= (start_entry.is_unload_all()  ||  start_entry.is_no_load()  ||  start_entry.is_no_unload());
+		bool no_load_section = start_entry.is_no_load() || start_entry.is_temp_load();
+		force_transfer_search |= (start_entry.is_unload_all()  ||  start_entry.is_no_load()  ||  start_entry.is_no_unload()  ||  start_entry.is_temp_load()  ||  start_entry.is_temp_unload_all());
 		uint8 interval = 0;
 		for(  uint8 j=0;  j<schedule->get_count();  ++j  ) {
 			const uint8 current_entry_index = (start_index+j)%schedule->get_count();
@@ -1721,7 +1721,7 @@ sint32 haltestelle_t::rebuild_connections()
 				// reset aggregate weight
 				aggregate_weight_jt = estimated_waiting_ticks(schedule, current_entry_index) - current_entry.get_median_convoy_stopping_time();
 				aggregate_weight_rc = WEIGHT_WAIT;
-			 	force_transfer_search |= (current_entry.is_unload_all()  ||  current_entry.is_no_load()  ||  current_entry.is_no_unload());
+			 	force_transfer_search |= (current_entry.is_unload_all()  ||  current_entry.is_no_load()  ||  current_entry.is_no_unload()  ||  current_entry.is_temp_load()  ||  current_entry.is_temp_unload_all());
 				// If loading is allowed at somewhere by here, we still need to connect the further halts.
 				// Reset no_load_section to false in case that we can load here.
 				no_load_section &= (current_entry.is_no_load()||current_entry.is_temp_load());
@@ -2043,35 +2043,58 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 	// if one target halt is undefined, we have to start search from all halts
 	bool end_conn_comp_undefined = false;
 
-	for( uint32 h=0;  h<plan->get_haltlist_count();  ++h ) {
-		halthandle_t halt = halt_list[h];
-		if(  halt.is_bound()  &&  halt->is_enabled(ware_catg_idx)  ) {
-			// check if this is present in the list of start halts
-			for(  uint16 s=0;  s<start_halt_count;  ++s  ) {
-				if(  halt==start_halts[s]  ) {
-					// destination halt is also a start halt -> within walking distance
-					ware.set_ziel( start_halts[s] );
-					ware.clear_transit_halts();
-					if(  return_ware  ) {
-						return_ware->set_ziel( start_halts[s] );
+	if(  ware.menge>0  ||  !ware.get_ziel().is_bound()  ) {
+		// usual searching of target halt
+		for( uint32 h=0;  h<plan->get_haltlist_count();  ++h ) {
+			halthandle_t halt = halt_list[h];
+			if(  halt.is_bound()  &&  halt->is_enabled(ware_catg_idx)  ) {
+				// check if this is present in the list of start halts
+				for(  uint16 s=0;  s<start_halt_count;  ++s  ) {
+					if(  halt==start_halts[s]  ) {
+						// destination halt is also a start halt -> within walking distance
+						ware.set_ziel( start_halts[s] );
 						ware.clear_transit_halts();
+						if(  return_ware  ) {
+							return_ware->set_ziel( start_halts[s] );
+							ware.clear_transit_halts();
+						}
+						return ROUTE_WALK;
 					}
-					return ROUTE_WALK;
 				}
-			}
-			end_halts.append(halt);
+				end_halts.append(halt);
 
-			// check connected component of target halt
-			uint16 endhalt_conn_comp = halt->all_links[ware_catg_idx].catg_connected_component;
-			if (endhalt_conn_comp == UNDECIDED_CONNECTED_COMPONENT) {
-				// undefined: all start halts are probably connected to this target
-				end_conn_comp_undefined = true;
-			}
-			else {
-				// store connected component
-				if (!end_conn_comp_undefined) {
-					end_conn_comp.append_unique( endhalt_conn_comp );
+				// check connected component of target halt
+				uint16 endhalt_conn_comp = halt->all_links[ware_catg_idx].catg_connected_component;
+				if (endhalt_conn_comp == UNDECIDED_CONNECTED_COMPONENT) {
+					// undefined: all start halts are probably connected to this target
+					end_conn_comp_undefined = true;
 				}
+				else {
+					// store connected component
+					if (!end_conn_comp_undefined) {
+						end_conn_comp.append_unique( endhalt_conn_comp );
+					}
+				}
+			}
+		}
+	}
+	else {
+		// goods menge==0 and target halt is already set.
+		// we already set getoff stop (because this goods is dummy!)
+		// e.g. called by route_search_frame_t
+		halthandle_t halt = ware.get_ziel();
+				end_halts.append(halt);
+
+		// check connected component of target halt
+		uint16 endhalt_conn_comp = halt->all_links[ware_catg_idx].catg_connected_component;
+		if (endhalt_conn_comp == UNDECIDED_CONNECTED_COMPONENT) {
+			// undefined: all start halts are probably connected to this target
+			end_conn_comp_undefined = true;
+		}
+		else {
+			// store connected component
+			if (!end_conn_comp_undefined) {
+				end_conn_comp.append_unique( endhalt_conn_comp );
 			}
 		}
 	}

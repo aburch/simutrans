@@ -26,6 +26,8 @@
 #include "../../obj/roadsign.h"
 #include "../../obj/signal.h"
 #include "../../obj/wayobj.h"
+#include "../../obj/bruecke.h"
+#include "../../obj/tunnel.h"
 #include "../../player/simplay.h"
 
 // for depot tools
@@ -205,6 +207,10 @@ namespace script_api {
 	//  map all to one transformer class
 	declare_specialized_param(pumpe_t*,  "t|x|y", "transformer_x");
 	declare_specialized_param(senke_t*,  "t|x|y", "transformer_x");
+
+	// bridges and tunnels
+	declare_specialized_param(bruecke_t*, "t|x|y", "bridge_x");
+	declare_specialized_param(tunnel_t*,  "t|x|y", "tunnel_x");
 };
 
 // base depot class, use old_airdepot as identifier here
@@ -224,6 +230,9 @@ getpush_obj_pos(signal_t, obj_t::signal);
 //  powerlines
 getpush_obj_pos(pumpe_t, obj_t::pumpe);
 getpush_obj_pos(senke_t, obj_t::senke);
+// bridges and tunnels
+getpush_obj_pos(bruecke_t, obj_t::bruecke);
+getpush_obj_pos(tunnel_t, obj_t::tunnel);
 
 
 #define case_resolve_obj(D) \
@@ -261,6 +270,8 @@ SQInteger script_api::param<obj_t*>::push(HSQUIRRELVM vm, obj_t* const& obj)
 		case_resolve_obj(senke_t);
 
 		case_resolve_obj(wayobj_t);
+		case_resolve_obj(bruecke_t);
+		case_resolve_obj(tunnel_t);
 		default:
 			return access_objs<obj_t>::push_with_pos(vm, obj);
 	}
@@ -346,6 +357,11 @@ const char* label_get_text(label_t* l)
 bool roadsign_can_pass(const roadsign_t* rs, player_t* player)
 {
 	return player  &&  rs->get_desc()->is_private_way()  ?  (rs->get_player_mask() & (1<<player->get_player_nr()))!=0 : true;
+}
+
+sint32 roadsign_get_state(roadsign_t* rs)
+{
+	return (sint32)rs->get_state();
 }
 
 // depot
@@ -723,6 +739,12 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @param player
 	 */
 	register_method(vm, &roadsign_can_pass, "can_pass", true);
+
+	/**
+	 * Get signal state.
+	 * @returns signal state: 0 = red, 1 = green, 2 = yellow
+	 */
+	register_method(vm, &roadsign_get_state, "get_state", true);
 	end_class(vm);
 
 	/**
@@ -775,5 +797,25 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @returns object descriptor.
 	 */
 	register_method(vm, &wayobj_t::get_desc, "get_desc");
+	end_class(vm);
+
+	/**
+	 * Bridges: bridge objects of bridge ramps and tiles
+	 */
+	begin_obj_class<bruecke_t>(vm, "bridge_x", "map_object_x");
+	/**
+	 * @returns object descriptor.
+	 */
+	register_method(vm, &bruecke_t::get_desc, "get_desc");
+	end_class(vm);
+
+	/**
+	 * Tunnels
+	 */
+	begin_obj_class<tunnel_t>(vm, "tunnel_x", "map_object_x");
+	/**
+	 * @returns object descriptor.
+	 */
+	register_method(vm, &tunnel_t::get_desc, "get_desc");
 	end_class(vm);
 }

@@ -349,6 +349,8 @@ void display_direct_line_rgb(const scr_coord_val x, const scr_coord_val y, const
 void display_direct_line_dotted_rgb(const scr_coord_val x, const scr_coord_val y, const scr_coord_val xx, const scr_coord_val yy, const scr_coord_val draw, const scr_coord_val dontDraw, const PIXVAL color);
 void display_circle_rgb( scr_coord_val x0, scr_coord_val  y0, int radius, const PIXVAL color );
 void display_filled_circle_rgb( scr_coord_val x0, scr_coord_val  y0, int radius, const PIXVAL color );
+void display_diamond_rgb(scr_coord_val x0, scr_coord_val y0, int radius, const PIXVAL colval);
+void display_filled_diamond_rgb(scr_coord_val x0, scr_coord_val y0, int radius, const PIXVAL colval);
 void draw_bezier_rgb(scr_coord_val Ax, scr_coord_val Ay, scr_coord_val Bx, scr_coord_val By, scr_coord_val ADx, scr_coord_val ADy, scr_coord_val BDx, scr_coord_val BDy, const PIXVAL colore, scr_coord_val draw, scr_coord_val dontDraw);
 
 void display_right_triangle_rgb(scr_coord_val x, scr_coord_val y, scr_coord_val height, const PIXVAL colval, const bool dirty);

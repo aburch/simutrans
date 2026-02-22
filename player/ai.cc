@@ -72,7 +72,7 @@ bool ai_building_place_with_road_finder::is_area_ok(koord pos, sint16 w, sint16 
 halthandle_t ai_t::get_halt(const koord pos ) const
 {
 	if(  grund_t *gr = welt->lookup_kartenboden(pos)  ) {
-		return haltestelle_t::get_halt( gr->get_pos(), this );
+		return haltestelle_t::get_stoppable_halt( gr->get_pos(), this );
 	}
 	return halthandle_t();
 }

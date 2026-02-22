@@ -249,6 +249,14 @@ Max load
 最大乗車率
 set maximum loading ratio
 最大乗車率を設定します
+wait for full load
+全て積むまで待機
+wait for full load (100% or max loading value)
+積載可能な最大量まで積むまで待機します(通常は100%ですが、最大乗車率が設定されている場合はその値になります)
+reset full load setting
+積むまで待機を解除
+reset full load (set 0%)
+積むまで待機を解除します(値を0%にします)
 for all stops
 全駅に適用
 hlf_chk_include_public
@@ -444,6 +452,10 @@ remove all vehicles
 全ての車両を片付ける
 remove all vehicles.
 この編成の全ての車両を片付けます
+Sell all vehicles
+車庫の全車両売却
+Sell all vehicles stored here.
+車庫に格納された全車両を売却します
 #------編成最高速度機能------
 Set Max Speed
 編成最高速度を設定

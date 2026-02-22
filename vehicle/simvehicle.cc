@@ -1524,11 +1524,12 @@ void vehicle_t::calc_image()
 	image_id old_image=get_image();
 	// When loading savedata, vehicles do not have cnv information.
 	const bool is_reversed = (cnv==NULL  ||  cnv==(convoi_t *)1) ? false : cnv->is_reversed();
+	const bool is_no_electric = (cnv==NULL  ||  cnv==(convoi_t *)1) ? false : !cnv->get_use_electric();
 	if (fracht.empty()) {
-		set_image(desc->get_image_id(ribi_t::get_dir(get_image_direction()),NULL,is_reversed));
+		set_image(desc->get_image_id(ribi_t::get_dir(get_image_direction()),NULL,is_reversed,is_no_electric));
 	}
 	else {
-		set_image(desc->get_image_id(ribi_t::get_dir(get_image_direction()), fracht.front().get_desc(),is_reversed));
+		set_image(desc->get_image_id(ribi_t::get_dir(get_image_direction()), fracht.front().get_desc(),is_reversed,is_no_electric));
 	}
 	if(old_image!=get_image()) {
 		set_flag(obj_t::dirty);
@@ -2069,7 +2070,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 				}
 				if(  lh.is_bound()  ) {
 					// show line colour
-					uint8 tooltip_width = proportional_string_width(tooltip_text);
+					uint16 tooltip_width = proportional_string_width(tooltip_text);
 					display_fillbox_wh_clip_rgb( xpos, ypos-D_WAITINGBAR_WIDTH, tooltip_width+4, D_WAITINGBAR_WIDTH, color_idx_to_rgb(lh->get_colour()), dirty );
 				}
 			}
@@ -2197,7 +2198,17 @@ bool road_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, r
 		}
 	}
 	target_halt = halthandle_t(); // no block reserved
-	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, pass_next?0:cnv->get_entire_convoy_length(), cnv->needs_electrification() );
+	route_t::route_result_t r;
+	if( r=route->calc_route(welt, start, ziel, this, max_speed, pass_next?0:cnv->get_entire_convoy_length(), cnv->is_electrification()) ) {
+		cnv->set_use_electric(cnv->is_electrification());
+	} else {
+		if( r=route->calc_route(welt, start, ziel, this, max_speed, pass_next?0:cnv->get_entire_convoy_length(), cnv->needs_electrification()) ) {
+			cnv->set_use_electric(false);
+		} else {
+			// no route
+			return false;
+		}
+	}
 	if(  r == route_t::valid_route_halt_too_short  ) {
 		cbuffer_t buf;
 		buf.printf( translator::translate("Vehicle %s cannot choose because stop too short!"), cnv->get_name());
