@@ -282,7 +282,11 @@ class tramdepot_t : public bahndepot_t
 public:
 	void rdwr(loadsave_t *file) OVERRIDE;
 	void rdwr_bahndepot(loadsave_t *file) OVERRIDE;
-	tramdepot_t(loadsave_t *file):bahndepot_t(file) {}
+	tramdepot_t(loadsave_t *file):bahndepot_t(file) {
+		if(file->get_OTRP_version()<52) {
+			name = init_name();
+		}
+	}
 	tramdepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t): bahndepot_t(pos,player,t) {
 		set_name( init_name() );
 	}
@@ -298,7 +302,10 @@ class monoraildepot_t : public bahndepot_t
 public:
 	void rdwr(loadsave_t *file) OVERRIDE;
 	void rdwr_bahndepot(loadsave_t *file) OVERRIDE;
-	monoraildepot_t(loadsave_t *file):bahndepot_t(file) {}
+	monoraildepot_t(loadsave_t *file):bahndepot_t(file) {
+		if(file->get_OTRP_version()<52) {
+			name = init_name();
+		}}
 	monoraildepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t): bahndepot_t(pos,player,t) {
 		set_name( init_name() );
 	}
@@ -313,7 +320,10 @@ class maglevdepot_t : public bahndepot_t
 {
 public:
 	void rdwr(loadsave_t *file) OVERRIDE;
-	maglevdepot_t(loadsave_t *file):bahndepot_t(file) {}
+	maglevdepot_t(loadsave_t *file):bahndepot_t(file) {
+		if(file->get_OTRP_version()<52) {
+			name = init_name();
+		}}
 	maglevdepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t): bahndepot_t(pos,player,t) {
 		set_name( init_name() );
 	}
@@ -328,7 +338,10 @@ class narrowgaugedepot_t : public bahndepot_t
 {
 public:
 	void rdwr(loadsave_t *file) OVERRIDE;
-	narrowgaugedepot_t(loadsave_t *file):bahndepot_t(file) {}
+	narrowgaugedepot_t(loadsave_t *file):bahndepot_t(file) {
+		if(file->get_OTRP_version()<52) {
+			name = init_name();
+		}}
 	narrowgaugedepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t): bahndepot_t(pos,player,t) {
 		set_name( init_name() );
 	}
@@ -396,7 +409,10 @@ protected:
 
 public:
 	void rdwr(loadsave_t *file) OVERRIDE;
-	schiffdepot_t(loadsave_t *file) : depot_t(file) {}
+	schiffdepot_t(loadsave_t *file) : depot_t(file) {
+		if(file->get_OTRP_version()<52) {
+			name = init_name();
+		}}
 	schiffdepot_t(koord3d pos, player_t *player, const building_tile_desc_t *t) : depot_t(pos,player,t) {
 		set_name( init_name() );
 	}
@@ -431,7 +447,10 @@ protected:
 
 public:
 	void rdwr(loadsave_t *file) OVERRIDE;
-	airdepot_t(loadsave_t *file) : depot_t(file) {}
+	airdepot_t(loadsave_t *file) : depot_t(file) {
+		if(file->get_OTRP_version()<52) {
+			name = init_name();
+		}}
 	airdepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t) : depot_t(pos,player,t) {
 		set_name( init_name() );
 	}
