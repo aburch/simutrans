@@ -623,6 +623,21 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		add_component(&numimp_max_speed_kmh_of_convoi);
 		add_component(&sp_departure_settings);
 
+		// convoi balance speed setting
+		bt_balance_speed_kmh_of_convoi.init(button_t::square_state, "Overwrite balance speed of convoy");
+		bt_balance_speed_kmh_of_convoi.set_tooltip("Overwrite balance speed of convoy here. This value define acceleration. The actual acceleration is determined by whichever is lower: this value or the vehicle's performance limit.");
+		bt_balance_speed_kmh_of_convoi.add_listener(this);
+		bt_balance_speed_kmh_of_convoi.disable();
+		add_component(&bt_balance_speed_kmh_of_convoi);
+		numimp_balance_speed_kmh_of_convoi.set_width( 60 );
+		numimp_balance_speed_kmh_of_convoi.set_value( 0 );
+		numimp_balance_speed_kmh_of_convoi.set_limits( 0, 65535 );
+		numimp_balance_speed_kmh_of_convoi.set_increment_mode(1);
+		numimp_balance_speed_kmh_of_convoi.add_listener(this);
+		numimp_balance_speed_kmh_of_convoi.disable();
+		add_component(&numimp_balance_speed_kmh_of_convoi);
+		add_component(&sp_departure_settings);
+
 
 		// coupling related buttons
 		bt_wait_for_child.init(button_t::square_state, "Wait for coupling");
@@ -898,6 +913,8 @@ void schedule_gui_t::update_selection()
 	bt_max_speed_kmh_of_convoi.disable();
 	bt_no_go_no_users.disable();
 	numimp_max_speed_kmh_of_convoi.disable();
+	bt_balance_speed_kmh_of_convoi.disable();
+	numimp_balance_speed_kmh_of_convoi.disable();
 	bt_temp_load.disable();
 	bt_temp_unload.disable();
 	bt_temp_unload_all.disable();
@@ -932,6 +949,12 @@ void schedule_gui_t::update_selection()
 			numimp_max_speed_kmh_of_convoi.enable();
 		}
 		numimp_max_speed_kmh_of_convoi.set_value( schedule->at(current_stop).max_speed_kmh_of_convoi );
+		bt_balance_speed_kmh_of_convoi.enable();
+		bt_balance_speed_kmh_of_convoi.pressed = schedule->at(current_stop).is_overwrite_balance_speed_kmh_of_convoi();
+		if(  schedule->at(current_stop).is_overwrite_balance_speed_kmh_of_convoi()  ) {
+			numimp_balance_speed_kmh_of_convoi.enable();
+		}
+		numimp_balance_speed_kmh_of_convoi.set_value( schedule->at(current_stop).balance_speed_kmh_of_convoi );
 		bt_pass_stop.enable();
 		bt_pass_stop.pressed = schedule->at(current_stop).is_pass_stop();
 		// if the next_line is set, the last entry is same as the next_line->get_schedule()->at(0)
@@ -1440,6 +1463,18 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 			update_selection();
 		}
 	}
+	else if(comp == &bt_balance_speed_kmh_of_convoi) {
+		if(!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).set_overwrite_balance_speed_kmh_of_convoi(!bt_balance_speed_kmh_of_convoi.pressed);
+			update_selection();
+		}
+	}
+	else if(comp == &numimp_balance_speed_kmh_of_convoi) {
+		if(!schedule->empty()) {
+			schedule->at(schedule->get_current_stop()).balance_speed_kmh_of_convoi = (uint16)p.i;
+			update_selection();
+		}
+	}
 	else if(comp == &numimp_tbgr_waiting_time) {
 		schedule->set_additional_base_waiting_time((uint32)p.i);
 	}
@@ -1763,6 +1798,8 @@ void schedule_gui_t::extract_driving_settings(bool yesno) {
 	bt_load_before_departure.set_visible(yesno);
 	bt_max_speed_kmh_of_convoi.set_visible(yesno);
 	numimp_max_speed_kmh_of_convoi.set_visible(yesno);
+	bt_balance_speed_kmh_of_convoi.set_visible(yesno);
+	numimp_balance_speed_kmh_of_convoi.set_visible(yesno);
 	sp_departure_settings.set_visible(yesno);
 	bt_pass_stop.set_visible(yesno);
 	

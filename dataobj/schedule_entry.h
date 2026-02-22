@@ -24,14 +24,15 @@ public:
 		init_convoy_stopping_time();
 	}
 
-	schedule_entry_t(koord3d const& pos, uint8 const minimum_loading, uint16 const waiting_time_shift, uint32 const stop_flags, uint16 max_speed_kmh_of_convoi, uint16 const length_coupling_done, uint8 const maximum_loading) :
+	schedule_entry_t(koord3d const& pos, uint8 const minimum_loading, uint16 const waiting_time_shift, uint32 const stop_flags, uint16 max_speed_kmh_of_convoi, uint16 const length_coupling_done, uint8 const maximum_loading, uint16 const balance_speed_kmh_of_convoi) :
 		pos(pos),
 		minimum_loading(minimum_loading),
 		waiting_time_shift(waiting_time_shift),
 		stop_flags(stop_flags),
 		max_speed_kmh_of_convoi(max_speed_kmh_of_convoi),
 		length_coupling_done(length_coupling_done),
-		maximum_loading(maximum_loading)
+		maximum_loading(maximum_loading),
+		balance_speed_kmh_of_convoi(balance_speed_kmh_of_convoi)
 	{
 		spacing = 1;
 		spacing_shift = delay_tolerance = 0;
@@ -61,7 +62,8 @@ public:
 		NO_GO_NO_USERS	  = 1U << 15,// do not go to this stop if no users
 		TEMP_LOAD         = 1U << 16,// load temporary(not use for goods routing)
 		TEMP_UNLOAD       = 1U << 17,// unload temporary(not use for goods routing)
-		TEMP_UNLOAD_ALL   = 1U << 18 // unload all only for goods routing
+		TEMP_UNLOAD_ALL   = 1U << 18,// unload all only for goods routing
+		BALANCE_SPEED_KMH_OF_CONVOI= 1U<<19 // Overwrite balance speed of convoy here.
 	};
 
 	/**
@@ -95,6 +97,11 @@ public:
 	 * Overwrite max speed of convoy here.
 	 */
 	uint16 max_speed_kmh_of_convoi;
+
+	/**
+	 * Overwrite balance speed of convoy here.
+	 */
+	uint16 balance_speed_kmh_of_convoi;
 	
 	/*
 	 * store last 5 journey time of this stop.
@@ -186,6 +193,8 @@ public:
 	void set_temp_unload(bool y) {y? stop_flags|=TEMP_UNLOAD: stop_flags&= ~TEMP_UNLOAD;}
 	bool is_temp_unload_all() const {return (stop_flags&TEMP_UNLOAD_ALL)>0;}
 	void set_temp_unload_all(bool y) {y? stop_flags|=TEMP_UNLOAD_ALL: stop_flags&= ~TEMP_UNLOAD_ALL;}
+	bool is_overwrite_balance_speed_kmh_of_convoi() const {return (stop_flags&BALANCE_SPEED_KMH_OF_CONVOI)>0;}
+	void set_overwrite_balance_speed_kmh_of_convoi(bool y) { y? stop_flags |= BALANCE_SPEED_KMH_OF_CONVOI : stop_flags &= ~BALANCE_SPEED_KMH_OF_CONVOI;}
 
 
 	void set_spacing(uint16 a, uint16 b, uint16 c) {
@@ -216,7 +225,8 @@ public:
 			&&  a.delay_tolerance    == this->delay_tolerance
 			&&  a.max_speed_kmh_of_convoi== this->max_speed_kmh_of_convoi
 			&&  a.length_coupling_done == this->length_coupling_done
-			&&  a.maximum_loading    == this->maximum_loading;
+			&&  a.maximum_loading    == this->maximum_loading
+			&&	a.balance_speed_kmh_of_convoi == this->balance_speed_kmh_of_convoi;
 	}
 };
 

@@ -8628,6 +8628,7 @@ bool scenario_check_convoy(karte_t *welt, player_t *player, convoihandle_t cnv, 
  * 't' : go to next stop
  * 'v' : reversing convoi direction
  * 'm' : apply max speed of convoy
+ * 'b' : apply balance speed (limit power)
  */
 bool tool_change_convoi_t::init( player_t *player )
 {
@@ -8836,6 +8837,14 @@ bool tool_change_convoi_t::init( player_t *player )
 			uint16 max_speed_kmh_of_convoi=0;
 			int count=sscanf( p, "%hi", &max_speed_kmh_of_convoi);
 			cnv->set_max_speed_kmh_of_convoi(max_speed_kmh_of_convoi);
+		}
+		break;
+
+		case 'b':
+		{
+			uint16 max_balance_speed_convoi=0;
+			int count=sscanf( p, "%hi", &max_balance_speed_convoi);
+			cnv->set_max_balance_speed_convoi(max_balance_speed_convoi);
 		}
 		break;
 	}
