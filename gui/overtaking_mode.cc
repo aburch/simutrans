@@ -99,9 +99,14 @@ void overtaking_mode_frame_t::init( player_t* player_, overtaking_mode_t overtak
 		allow_branching_cityroad_button.pressed=street_flag_&strasse_t::ALLOW_BRANCH_CITYROAD;
 		allow_branching_cityroad_button.enable(street_flag_&strasse_t::AVOID_CITYROAD);
 		add_component(&allow_branching_cityroad_button);
+
+		pedestrian_no_entry_button.init( button_t::square_state, "pedestrians do not enter ");
+		pedestrian_no_entry_button.add_listener(this);
+		pedestrian_no_entry_button.pressed = street_flag_&strasse_t::PEDESTRIAN_NO_ENTRY;
+		add_component(&pedestrian_no_entry_button);
 		add_component(&divider[1]);
 	}
-	
+
 	if(  tool_class==0  &&  !show_avoid_cityroad  ) {
 		// the way is elevated. height offset setting is displayed.
 		add_table(2,1);
@@ -183,6 +188,9 @@ bool overtaking_mode_frame_t::action_triggered( gui_action_creator_t *komp, valu
 	else if(  komp==&no_building_button  ) {
 		no_building_button.pressed = !(no_building_button.pressed);
 	}
+	else if(  komp==&pedestrian_no_entry_button  ) {
+		pedestrian_no_entry_button.pressed = !(pedestrian_no_entry_button.pressed);
+	}
 	else if(  komp==&height_offset  ) {
 		if(  tool_class==0  ) {
 			tool_w->set_height_offset(height_offset.get_value());
@@ -240,6 +248,7 @@ bool overtaking_mode_frame_t::action_triggered( gui_action_creator_t *komp, valu
 	if(  citycar_no_entry_button.pressed  ) { flag |= strasse_t::CITYCAR_NO_ENTRY; }
 	if(  allow_branching_cityroad_button.pressed ) { flag |= strasse_t::ALLOW_BRANCH_CITYROAD; }
 	if(  no_building_button.pressed  ) { flag |= strasse_t::NO_BUILDING; }
+	if(  pedestrian_no_entry_button.pressed  ) { flag |= strasse_t::PEDESTRIAN_NO_ENTRY; }
 	switch(  tool_class  ) {
 		case 0:
 		tool_w->set_overtaking_mode(overtaking_mode);

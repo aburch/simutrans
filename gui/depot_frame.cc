@@ -95,7 +95,7 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 void depot_frame_t::init(depot_t *dep)
 {
 	depot = dep;
-	set_name(translator::translate(depot->get_name()));
+	set_name(depot->get_name());
 	set_owner(depot->get_owner());
 	icnv = depot->convoi_count()-1;
 
@@ -289,6 +289,11 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	add_component(&name_filter_input);
 	name_filter_input.add_listener(this);
 
+	strncpy(depot_name, depot->get_name(), lengthof(depot_name));
+	depot_name_input.set_text(depot_name, 60);
+	add_component(&depot_name_input);
+	depot_name_input.add_listener(this);
+
 	build_vehicle_lists();
 
 	// text will be translated by ourselves (after update data)!
@@ -475,23 +480,29 @@ void depot_frame_t::layout(scr_size *size)
 	 */
 
 	/*
+	 * [NAME OF DEPOT]:
+	 */
+	depot_name_input.set_pos(scr_coord(D_MARGIN_LEFT, SELECT_VSTART));
+	depot_name_input.set_size(scr_size(win_size.w - D_MARGIN_RIGHT - D_MARGIN_LEFT, D_BUTTON_HEIGHT));
+
+	/*
 	 * [SELECT]:
 	 */
-	lb_convois.set_pos(scr_coord(D_MARGIN_LEFT, SELECT_VSTART + 3));
+	lb_convois.set_pos(scr_coord(D_MARGIN_LEFT, SELECT_VSTART + D_BUTTON_HEIGHT));
 	lb_convois.set_width(selector_x - D_H_SPACE);
 
-	convoy_selector.set_pos(scr_coord(D_MARGIN_LEFT + selector_x, SELECT_VSTART));
+	convoy_selector.set_pos(scr_coord(D_MARGIN_LEFT + selector_x, SELECT_VSTART + D_BUTTON_HEIGHT));
 	convoy_selector.set_size(scr_size(win_size.w - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, D_BUTTON_HEIGHT));
 	convoy_selector.set_max_size(scr_size(win_size.w - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, LINESPACE * 13 + 2 + 16));
 
 	/*
 	 * [SELECT ROUTE]:
 	 */
-	line_button.set_pos(scr_coord(D_MARGIN_LEFT, SELECT_VSTART + D_BUTTON_HEIGHT));
-	lb_convoi_line.set_pos(scr_coord(D_MARGIN_LEFT + line_button.get_size().w + 2, SELECT_VSTART + D_BUTTON_HEIGHT));
+	line_button.set_pos(scr_coord(D_MARGIN_LEFT, SELECT_VSTART + D_BUTTON_HEIGHT*2));
+	lb_convoi_line.set_pos(scr_coord(D_MARGIN_LEFT + line_button.get_size().w + 2, SELECT_VSTART + D_BUTTON_HEIGHT*2));
 	lb_convoi_line.set_width(selector_x - line_button.get_size().w - 2 - D_H_SPACE);
 
-	line_selector.set_pos(scr_coord(D_MARGIN_LEFT + selector_x, SELECT_VSTART + D_BUTTON_HEIGHT));
+	line_selector.set_pos(scr_coord(D_MARGIN_LEFT + selector_x, SELECT_VSTART + D_BUTTON_HEIGHT*2));
 	line_selector.set_size(scr_size(win_size.w - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, D_BUTTON_HEIGHT));
 	line_selector.set_max_size(scr_size(win_size.w - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, LINESPACE * 13 + 2 + 16));
 
@@ -520,7 +531,7 @@ void depot_frame_t::layout(scr_size *size)
 	lb_convoi_number.set_width(30);
 	lb_convoi_number.set_color(COL_WHITE);
 
-	bt_remove_all_vehicles.set_pos(scr_size(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE)*3, SELECT_VSTART + SELECT_HEIGHT + LINESPACE + D_V_SPACE));
+	bt_remove_all_vehicles.set_pos(scr_size(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE)*3, SELECT_VSTART + SELECT_HEIGHT + LINESPACE + D_V_SPACE + D_BUTTON_HEIGHT));
 	bt_remove_all_vehicles.set_width(BUTTON_WIDTH_DEPOT);
 
 	// place for description text
@@ -1726,6 +1737,11 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			depot->call_depot_tool('u',cnv,"0");
 			update_data();
 			return true;
+		}
+		else if(  comp == &depot_name_input  ) {
+			char buf[128];
+			strncpy(buf, depot_name_input.get_text(), sizeof(buf));
+			depot->set_name(buf);
 		}
 		else {
 			update_data();
