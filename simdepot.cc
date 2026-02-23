@@ -47,6 +47,7 @@ depot_t::depot_t(loadsave_t *file) : gebaeude_t()
 	selected_sort_by = SORT_BY_DEFAULT;
 	last_selected_line = linehandle_t();
 	command_pending = false;
+	strcpy( depot_filter ,"");
 }
 
 
@@ -59,6 +60,7 @@ depot_t::depot_t(koord3d pos, player_t *player, const building_tile_desc_t *t) :
 	last_selected_line = linehandle_t();
 	command_pending = false;
 	replacement_seed = convoihandle_t();
+	strcpy( depot_filter ,"");
 	name = init_name();
 }
 

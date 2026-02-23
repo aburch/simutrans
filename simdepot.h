@@ -44,6 +44,7 @@ protected:
 	slist_tpl<vehicle_t *> vehicles;
 	slist_tpl<convoihandle_t> convois;
 	convoihandle_t replacement_seed;
+	char depot_filter[64];
 
 	void rdwr_vehikel(slist_tpl<vehicle_t*> &list, loadsave_t *file);
 
@@ -217,6 +218,12 @@ public:
 	 */
 	static void update_all_win();
 	static void new_month();
+
+	/**
+	 * vehicle name filter used in depot_frame_t
+	 */
+	const char *get_name_filter() {return depot_filter;}
+	void set_name_filter(const char* c) { strncpy(depot_filter,c,63); }
 
 	/**
 	 * Update the depot_frame_t.

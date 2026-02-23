@@ -126,7 +126,7 @@ private:
 	gui_combobox_t sort_by;
 
 	gui_label_t lb_name_filter_input;
-	static char name_filter_value[64];
+	char name_filter_value[64];
 	gui_textinput_t name_filter_input;
 	gui_textinput_t depot_name_input;
 	char depot_name[128];
