@@ -280,8 +280,6 @@ public:
 class tramdepot_t : public bahndepot_t
 {
 public:
-	void rdwr(loadsave_t *file) OVERRIDE;
-	void rdwr_bahndepot(loadsave_t *file) OVERRIDE;
 	tramdepot_t(loadsave_t *file):bahndepot_t(file) {
 		if(file->get_OTRP_version()<52) {
 			name = init_name();
@@ -300,8 +298,6 @@ public:
 class monoraildepot_t : public bahndepot_t
 {
 public:
-	void rdwr(loadsave_t *file) OVERRIDE;
-	void rdwr_bahndepot(loadsave_t *file) OVERRIDE;
 	monoraildepot_t(loadsave_t *file):bahndepot_t(file) {
 		if(file->get_OTRP_version()<52) {
 			name = init_name();
@@ -319,7 +315,6 @@ public:
 class maglevdepot_t : public bahndepot_t
 {
 public:
-	void rdwr(loadsave_t *file) OVERRIDE;
 	maglevdepot_t(loadsave_t *file):bahndepot_t(file) {
 		if(file->get_OTRP_version()<52) {
 			name = init_name();
@@ -337,7 +332,6 @@ public:
 class narrowgaugedepot_t : public bahndepot_t
 {
 public:
-	void rdwr(loadsave_t *file) OVERRIDE;
 	narrowgaugedepot_t(loadsave_t *file):bahndepot_t(file) {
 		if(file->get_OTRP_version()<52) {
 			name = init_name();
@@ -366,7 +360,6 @@ protected:
 	const char * get_haenger_name() OVERRIDE { return "Anhaenger_tab"; }
 
 public:
-	void rdwr(loadsave_t *file) OVERRIDE;
 	strassendepot_t(loadsave_t *file) : depot_t(file) {
 		if(file->get_OTRP_version()<52) {
 			name = init_name();
@@ -408,7 +401,6 @@ protected:
 	const char * get_haenger_name() OVERRIDE { return "Schleppkahn_tab"; }
 
 public:
-	void rdwr(loadsave_t *file) OVERRIDE;
 	schiffdepot_t(loadsave_t *file) : depot_t(file) {
 		if(file->get_OTRP_version()<52) {
 			name = init_name();
@@ -446,7 +438,6 @@ protected:
 	const char * get_passenger_name() OVERRIDE { return "Flug_tab"; }
 
 public:
-	void rdwr(loadsave_t *file) OVERRIDE;
 	airdepot_t(loadsave_t *file) : depot_t(file) {
 		if(file->get_OTRP_version()<52) {
 			name = init_name();

@@ -814,28 +814,6 @@ unsigned airdepot_t::get_max_convoi_length() const
 {
 	return welt->get_settings().get_max_air_convoi_length();
 }
-//strassen
-void strassendepot_t::rdwr(loadsave_t *file)
-{
-	gebaeude_t::rdwr(file);
-
-	
-	if(  file->get_OTRP_version()>= 52  ) {
-		file->rdwr_str(name);
-	}
-	else {
-		name = init_name();
-	}
-	rdwr_vehikel(vehicles, file);
-	if(  file->get_OTRP_version()>=24  ) {
-		convoi_t::rdwr_convoihandle_t(file, replacement_seed);
-	}
-	if (file->is_version_less(81, 33)) {
-		// wagons are stored extra, just add them to vehicles
-		assert(file->is_loading());
-		rdwr_vehikel(vehicles, file);
-	}
-}
 
 // train
 void bahndepot_t::rdwr(loadsave_t *file)
@@ -896,27 +874,6 @@ sint8 bahndepot_t::get_placement_dx() const
 }
 
 // ship
-void schiffdepot_t::rdwr(loadsave_t *file)
-{
-	gebaeude_t::rdwr(file);
-
-	
-	if(  file->get_OTRP_version()>= 52  ) {
-		file->rdwr_str(name);
-	}
-	else {
-		name = init_name();
-	}
-	rdwr_vehikel(vehicles, file);
-	if(  file->get_OTRP_version()>=24  ) {
-		convoi_t::rdwr_convoihandle_t(file, replacement_seed);
-	}
-	if (file->is_version_less(81, 33)) {
-		// wagons are stored extra, just add them to vehicles
-		assert(file->is_loading());
-		rdwr_vehikel(vehicles, file);
-	}
-}
 sint8 schiffdepot_t::get_x_placement() const
 {
 	const sint8 x_placement = atoi(translator::translate("schiffdepot_x_placement"));
@@ -955,27 +912,6 @@ sint8 schiffdepot_t::get_placement_dx() const
 
 
 // airplane
-void airdepot_t::rdwr(loadsave_t *file)
-{
-	gebaeude_t::rdwr(file);
-
-	
-	if(  file->get_OTRP_version()>= 52  ) {
-		file->rdwr_str(name);
-	}
-	else {
-		name = init_name();
-	}
-	rdwr_vehikel(vehicles, file);
-	if(  file->get_OTRP_version()>=24  ) {
-		convoi_t::rdwr_convoihandle_t(file, replacement_seed);
-	}
-	if (file->is_version_less(81, 33)) {
-		// wagons are stored extra, just add them to vehicles
-		assert(file->is_loading());
-		rdwr_vehikel(vehicles, file);
-	}
-}
 sint8 airdepot_t::get_x_placement() const
 {
 	const sint8 x_placement = atoi(translator::translate("airdepot_x_placement"));
@@ -1010,120 +946,4 @@ sint8 airdepot_t::get_placement_dx() const
 {
 	const sint8 placement_dx = atoi(translator::translate("airdepot_placement_dx"));
 	return placement_dx!=0 ? placement_dx : 36;
-}
-
-//narrowgauge
-void narrowgaugedepot_t::rdwr(loadsave_t *file)
-{
-	gebaeude_t::rdwr(file);
-
-	
-	if(  file->get_OTRP_version()>= 52  ) {
-		file->rdwr_str(name);
-	}
-	else {
-		name = init_name();
-	}
-	rdwr_vehikel(vehicles, file);
-	if(  file->get_OTRP_version()>=24  ) {
-		convoi_t::rdwr_convoihandle_t(file, replacement_seed);
-	}
-	if (file->is_version_less(81, 33)) {
-		// wagons are stored extra, just add them to vehicles
-		assert(file->is_loading());
-		rdwr_vehikel(vehicles, file);
-	}
-}
-
-//maglev
-void maglevdepot_t::rdwr(loadsave_t *file)
-{
-	gebaeude_t::rdwr(file);
-
-	
-	if(  file->get_OTRP_version()>= 52  ) {
-		file->rdwr_str(name);
-	}
-	else {
-		name = init_name();
-	}
-	rdwr_vehikel(vehicles, file);
-	if(  file->get_OTRP_version()>=24  ) {
-		convoi_t::rdwr_convoihandle_t(file, replacement_seed);
-	}
-	if (file->is_version_less(81, 33)) {
-		// wagons are stored extra, just add them to vehicles
-		assert(file->is_loading());
-		rdwr_vehikel(vehicles, file);
-	}
-}
-
-//monorail
-void monoraildepot_t::rdwr(loadsave_t *file)
-{
-	gebaeude_t::rdwr(file);
-
-	
-	if(  file->get_OTRP_version()>= 52  ) {
-		file->rdwr_str(name);
-	}
-	else {
-		name = init_name();
-	}
-	rdwr_vehikel(vehicles, file);
-	if(  file->get_OTRP_version()>=24  ) {
-		convoi_t::rdwr_convoihandle_t(file, replacement_seed);
-	}
-	if (file->is_version_less(81, 33)) {
-		// wagons are stored extra, just add them to vehicles
-		assert(file->is_loading());
-		rdwr_vehikel(vehicles, file);
-	}
-}
-void monoraildepot_t::rdwr_bahndepot(loadsave_t *file) { 
-	if(  file->get_OTRP_version()>= 52  ) {
-		file->rdwr_str(name);
-	}
-	else {
-		name = init_name();
-	}
-	depot_t::rdwr_vehikel(vehicles,file); 
-	if(  file->get_OTRP_version()>=24  ) {
-		convoi_t::rdwr_convoihandle_t(file, replacement_seed);
-	}
-}
-
-//tram
-void tramdepot_t::rdwr(loadsave_t *file)
-{
-	gebaeude_t::rdwr(file);
-
-	
-	if(  file->get_OTRP_version()>= 52  ) {
-		file->rdwr_str(name);
-	}
-	else {
-		name = init_name();
-	}
-	rdwr_vehikel(vehicles, file);
-	if(  file->get_OTRP_version()>=24  ) {
-		convoi_t::rdwr_convoihandle_t(file, replacement_seed);
-	}
-	if (file->is_version_less(81, 33)) {
-		// wagons are stored extra, just add them to vehicles
-		assert(file->is_loading());
-		rdwr_vehikel(vehicles, file);
-	}
-}
-void tramdepot_t::rdwr_bahndepot(loadsave_t *file) { 
-	if(  file->get_OTRP_version()>= 52  ) {
-		file->rdwr_str(name);
-	}
-	else {
-		name = init_name();
-	}
-	depot_t::rdwr_vehikel(vehicles,file); 
-	if(  file->get_OTRP_version()>=24  ) {
-		convoi_t::rdwr_convoihandle_t(file, replacement_seed);
-	}
 }
