@@ -352,7 +352,7 @@ Show finances for transport type
 輸送タイプごとに表示する
 #------乗車区間------
 transfer interval
-乗車区間を区切る(I)
+乗車区間を区切る(V)
 Passengers who boarded outside the section get off at this stop.
 区間外からの乗客はこの停留所で降車します
 #------編成情報ウィンドウ------
