@@ -816,27 +816,6 @@ unsigned airdepot_t::get_max_convoi_length() const
 }
 
 // train
-void bahndepot_t::rdwr(loadsave_t *file)
-{
-	gebaeude_t::rdwr(file);
-
-	
-	if(  file->get_OTRP_version()>= 52  ) {
-		file->rdwr_str(name);
-	}
-	else {
-		name = init_name();
-	}
-	rdwr_vehikel(vehicles, file);
-	if(  file->get_OTRP_version()>=24  ) {
-		convoi_t::rdwr_convoihandle_t(file, replacement_seed);
-	}
-	if (file->is_version_less(81, 33)) {
-		// wagons are stored extra, just add them to vehicles
-		assert(file->is_loading());
-		rdwr_vehikel(vehicles, file);
-	}
-}
 sint8 bahndepot_t::get_x_placement() const
 {
 	const sint8 x_placement = atoi(translator::translate("bahndepot_x_placement"));

@@ -258,7 +258,6 @@ public:
 	void rdwr_name(loadsave_t *file);
 
 	virtual void rdwr_bahndepot(loadsave_t *file);
-	void rdwr(loadsave_t *file) OVERRIDE;
 
 	/**
 	 * Parameters to determine layout and behaviour of the depot_frame_t.
