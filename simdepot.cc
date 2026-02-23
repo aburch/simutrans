@@ -59,6 +59,7 @@ depot_t::depot_t(koord3d pos, player_t *player, const building_tile_desc_t *t) :
 	last_selected_line = linehandle_t();
 	command_pending = false;
 	replacement_seed = convoihandle_t();
+	name = init_name();
 }
 
 
@@ -68,6 +69,9 @@ depot_t::~depot_t()
 	all_depots.remove(this);
 }
 
+void depot_t::set_name(const char* new_name){
+	name = new_name;
+}
 
 // finds the next/previous depot relative to the current position
 depot_t *depot_t::find_depot( koord3d start, const obj_t::typ depot_type, const player_t *player, bool forward)
@@ -637,11 +641,17 @@ void depot_t::rdwr(loadsave_t *file)
 {
 	gebaeude_t::rdwr(file);
 
+	
+	if(  file->get_OTRP_version()>= 52  ) {
+		file->rdwr_str(name);
+	}
+	else {
+		name = init_name();
+	}
 	rdwr_vehikel(vehicles, file);
 	if(  file->get_OTRP_version()>=24  ) {
 		convoi_t::rdwr_convoihandle_t(file, replacement_seed);
 	}
-	
 	if (file->is_version_less(81, 33)) {
 		// wagons are stored extra, just add them to vehicles
 		assert(file->is_loading());
@@ -775,13 +785,18 @@ void depot_t::update_all_win()
 	}
 }
 
-void bahndepot_t::rdwr_vehicles(loadsave_t *file) { 
+void bahndepot_t::rdwr_bahndepot(loadsave_t *file) { 
+	if(  file->get_OTRP_version()>= 52  ) {
+		file->rdwr_str(name);
+	}
+	else {
+		name = init_name();
+	}
 	depot_t::rdwr_vehikel(vehicles,file); 
 	if(  file->get_OTRP_version()>=24  ) {
 		convoi_t::rdwr_convoihandle_t(file, replacement_seed);
 	}
 }
-
 
 unsigned bahndepot_t::get_max_convoi_length() const
 {
