@@ -285,6 +285,9 @@ public:
 		MAX_SHOW_VEHICLE_STATES
 	};
 
+	static bool show_line_colors;
+	static bool show_convoy_loadinglevel;
+
 	/// show station coverage indicators
 	static uint8 station_coverage_show;
 

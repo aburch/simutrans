@@ -15,10 +15,12 @@
 #include "../utils/simstring.h"
 #include "../tpl/array2d_tpl.h"
 #include "../player/simplay.h"
+#include "../simfab.h"
 
 #include "city_info.h"
 #include "minimap.h"
 #include "components/gui_button_to_chart.h"
+#include "components/gui_image.h"
 
 #include "../display/simgraph.h"
 
@@ -221,6 +223,7 @@ void city_info_t::init()
 	// tab (month/year)
 	year_month_tabs.add_tab(&container_year, translator::translate("Years"));
 	year_month_tabs.add_tab(&container_month, translator::translate("Months"));
+	year_month_tabs.add_tab(&container_factories, translator::translate("Factories"));
 	add_component(&year_month_tabs);
 	// .. put the same buttons in both containers
 	button_t* buttons[MAX_CITY_HISTORY-1];
@@ -267,6 +270,51 @@ void city_info_t::init()
 		button_to_chart.append(buttons[i], &mchart, curve);
 	}
 	container_month.end_table();
+
+	// factory list
+	container_factories.set_table_layout(1,0);
+	gui_label_buf_t *lb_pax = container_factories.new_component<gui_label_buf_t>();
+	lb_pax->buf().printf(translator::translate("Connected Factories"));
+	lb_pax->update();
+	container_factories.add_component(&all_factories);
+	all_factories.set_table_layout(7,0);
+	all_factories.set_margin(scr_size(0,0), scr_size(0,D_V_SPACE));
+	const vector_tpl<stadt_t::factory_entry_t> & fab_list = city->get_target_factories_for_pax().get_entries();
+	if(!fab_list.empty()){
+		FOR(vector_tpl<stadt_t::factory_entry_t>, const& e, fab_list) {
+			const fabrik_t *factory = e.factory; 
+			const koord3d pos = factory->get_pos();
+
+			// target button ...
+			button_t *pb = all_factories.new_component<button_t>();
+			pb->init( button_t::posbutton_automatic, NULL);
+			pb->set_targetpos3d( pos );
+
+			// .. name
+			gui_label_buf_t *lb = all_factories.new_component<gui_label_buf_t>();
+			lb->buf().printf("(%d,%d)", pos.x, pos.y);
+			lb->update();
+			lb = all_factories.new_component<gui_label_buf_t>();
+			lb->buf().printf("%s", translator::translate(factory->get_name()));
+			lb->update();
+			lb = all_factories.new_component<gui_label_buf_t>();
+			lb->buf().printf("%i",e.supply);
+			lb->update();
+			lb->set_align(gui_label_t::right);
+			all_factories.new_component<gui_image_t>(skinverwaltung_t::passengers->get_image_id(0))->enable_offset_removal(true);
+			lb = all_factories.new_component<gui_label_buf_t>();
+			stadt_t::factory_entry_t const* const mail_entry = city->get_target_factories_for_mail().get_entry(factory);
+			lb->buf().printf("%i",mail_entry->supply);
+			lb->update();
+			lb->set_align(gui_label_t::right);
+			all_factories.new_component<gui_image_t>(skinverwaltung_t::mail->get_image_id(0))->enable_offset_removal(true);
+
+		}
+	} else {
+		gui_label_buf_t *lb = all_factories.new_component<gui_label_buf_t>();
+		lb->buf().printf(translator::translate("keine"));
+		lb->update();
+	}
 
 	update_labels();
 	set_resizemode(diagonal_resize);

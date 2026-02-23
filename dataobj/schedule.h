@@ -49,6 +49,8 @@ class schedule_t
 
 	minivec_tpl<schedule_entry_t> entries;
 
+	bool minimap_route_search_found;
+
 	/**
 	 * Fix up current_stop value, which we may have made out of range
 	 */
@@ -63,7 +65,7 @@ class schedule_t
 	}
 
 protected:
-	schedule_t() : editing_finished(false), current_stop(0), flags(0), max_speed(0), departure_slot_group_id(0), additional_base_waiting_time(0) {}
+	schedule_t() : editing_finished(false), current_stop(0), flags(0), max_speed(0), departure_slot_group_id(0), additional_base_waiting_time(0), minimap_route_search_found(false) {}
 
 public:
 	enum schedule_type {
@@ -189,13 +191,13 @@ public:
 	/**
 	 * Inserts a coordinate at current_stop into the schedule.
 	 */
-	bool insert(const grund_t* gr, uint8 minimum_loading = 0, uint16 waiting_time_shift = 0, uint32 stop_flags = 0, uint16 max_speed_kmh_of_convoi = 0, uint16 length_coupling_done = 0, uint8 maximum_loading = 100);
+	bool insert(const grund_t* gr, uint8 minimum_loading = 0, uint16 waiting_time_shift = 0, uint32 stop_flags = 0, uint16 max_speed_kmh_of_convoi = 0, uint16 length_coupling_done = 0, uint8 maximum_loading = 100, uint16 balance_speed_kmh_of_convoi = 0);
 
 
 	/**
 	 * Appends a coordinate to the schedule.
 	 */
-	bool append(const grund_t* gr, uint8 minimum_loading = 0, uint16 waiting_time_shift = 0, uint32 stop_flags = 0, uint16 max_speed_kmh_of_convoi = 0, uint16 length_coupling_done = 0, uint8 maximum_loading = 100);
+	bool append(const grund_t* gr, uint8 minimum_loading = 0, uint16 waiting_time_shift = 0, uint32 stop_flags = 0, uint16 max_speed_kmh_of_convoi = 0, uint16 length_coupling_done = 0, uint8 maximum_loading = 100, uint16 balance_speed_kmh_of_convoi = 0);
 
 
 
@@ -271,6 +273,9 @@ public:
 	// Returns the median journey time ticks between the given index halt and the previous halt (or waypoint).
 	// Returns Euclid distance / max_speed if no journey time record is available.
 	uint32 get_median_journey_time(uint8 index, uint32 max_speed_kmh) const;
+
+	bool is_minimap_route_search_found() const { return minimap_route_search_found; }
+	void set_minimap_route_search_found( bool val ) { minimap_route_search_found = val; }
 };
 
 

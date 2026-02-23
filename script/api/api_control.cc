@@ -12,6 +12,7 @@
 #include "../script.h"
 #include "../../squirrel/sq_extensions.h"
 #include "../../simtool.h"
+#include "../../simworld.h"
 
 namespace script_api {
 
@@ -28,6 +29,15 @@ namespace script_api {
 	{
 		tool_pause_t t;
 		return t.is_selected();
+	}
+
+	// Sets the game speed multiplier (1 = normal, 5 = 5x speed).
+	// Internally the time_multiplier is speed*16.
+	void_t set_game_speed(sint32 speed)
+	{
+		sint32 new_multiplier = speed * 16;
+		welt->change_time_multiplier(new_multiplier - welt->get_time_multiplier());
+		return void_t();
 	}
 };
 
@@ -95,6 +105,13 @@ void export_control(HSQUIRRELVM vm)
 	 * @param p true if script should make the game pause in case of error
 	 */
 	STATIC register_function<void_t(*)(bool)>(vm, set_pause_on_error, "set_pause_on_error", true);
+
+	/**
+	 * Sets game speed multiplier. 1 = normal speed, 5 = 5x speed.
+	 * Does not work in network games. Use with care.
+	 * @param speed integer speed multiplier (1 = normal, 5 = five times normal speed)
+	 */
+	STATIC register_method(vm, &set_game_speed, "set_game_speed", false, true);
 
 	end_class(vm);
 }

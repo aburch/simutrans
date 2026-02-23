@@ -11,6 +11,7 @@
 #include "obj/gebaeude.h"
 #include "convoihandle_t.h"
 #include "simline.h"
+#include "dataobj/loadsave.h"
 
 #define VEHICLE_FILTER_RELEVANT 1
 #define VEHICLE_FILTER_GOODS_OFFSET 2
@@ -60,6 +61,8 @@ public:
 	// Last selected vehicle sort
 	int selected_sort_by;
 
+	plainstring name;
+
 	// finds the next/previous depot relative to the current position
 	static depot_t *find_depot( koord3d start, const obj_t::typ depot_type, const player_t *player, bool next);
 
@@ -80,6 +83,11 @@ public:
 	virtual const char * get_passenger_name() { return "Pas_tab"; }
 	virtual const char * get_zieher_name() { return "Lokomotive_tab"; }
 	virtual const char * get_haenger_name() { return "Waggon_tab"; }
+
+	char const *get_name() const { return name; }
+	void set_name(const char *name);
+
+	virtual const char *init_name() const { return "Depot"; }
 
 	vehicle_t* find_oldest_newest(const vehicle_desc_t* desc, bool old);
 
@@ -249,11 +257,14 @@ class bahndepot_t : public depot_t
 {
 public:
 	bahndepot_t(loadsave_t *file) : depot_t(file) {}
-	bahndepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t) : depot_t(pos,player,t) {}
+	bahndepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t) : depot_t(pos,player,t) {
+		set_name( init_name() );
+	}
 
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::trainline; }
+	void rdwr_name(loadsave_t *file);
 
-	void rdwr_vehicles(loadsave_t *file);
+	void rdwr_bahndepot(loadsave_t *file);
 
 	/**
 	 * Parameters to determine layout and behaviour of the depot_frame_t.
@@ -268,56 +279,77 @@ public:
 	unsigned get_max_convoi_length() const OVERRIDE;
 
 	obj_t::typ get_typ() const OVERRIDE { return bahndepot; }
-	const char *get_name() const OVERRIDE {return "Bahndepot"; }
+	const char *init_name() const OVERRIDE {return "Bahndepot"; }
 };
 
 
 class tramdepot_t : public bahndepot_t
 {
 public:
-	tramdepot_t(loadsave_t *file):bahndepot_t(file) {}
-	tramdepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t): bahndepot_t(pos,player,t) {}
+	tramdepot_t(loadsave_t *file):bahndepot_t(file) {
+		if(file->get_OTRP_version()<52) {
+			name = init_name();
+		}
+	}
+	tramdepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t): bahndepot_t(pos,player,t) {
+		set_name( init_name() );
+	}
 
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::tramline; }
 
 	obj_t::typ get_typ() const OVERRIDE { return tramdepot; }
-	const char *get_name() const OVERRIDE {return "Tramdepot"; }
+	const char *init_name() const OVERRIDE {return "Tramdepot"; }
 };
 
 class monoraildepot_t : public bahndepot_t
 {
 public:
-	monoraildepot_t(loadsave_t *file):bahndepot_t(file) {}
-	monoraildepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t): bahndepot_t(pos,player,t) {}
+	monoraildepot_t(loadsave_t *file):bahndepot_t(file) {
+		if(file->get_OTRP_version()<52) {
+			name = init_name();
+		}}
+	monoraildepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t): bahndepot_t(pos,player,t) {
+		set_name( init_name() );
+	}
 
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::monorailline; }
 
 	obj_t::typ get_typ() const OVERRIDE { return monoraildepot; }
-	const char *get_name() const OVERRIDE {return "Monoraildepot"; }
+	const char *init_name() const OVERRIDE {return "Monoraildepot"; }
 };
 
 class maglevdepot_t : public bahndepot_t
 {
 public:
-	maglevdepot_t(loadsave_t *file):bahndepot_t(file) {}
-	maglevdepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t): bahndepot_t(pos,player,t) {}
+	maglevdepot_t(loadsave_t *file):bahndepot_t(file) {
+		if(file->get_OTRP_version()<52) {
+			name = init_name();
+		}}
+	maglevdepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t): bahndepot_t(pos,player,t) {
+		set_name( init_name() );
+	}
 
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::maglevline; }
 
 	obj_t::typ get_typ() const OVERRIDE { return maglevdepot; }
-	const char *get_name() const OVERRIDE {return "Maglevdepot"; }
+	const char *init_name() const OVERRIDE {return "Maglevdepot"; }
 };
 
 class narrowgaugedepot_t : public bahndepot_t
 {
 public:
-	narrowgaugedepot_t(loadsave_t *file):bahndepot_t(file) {}
-	narrowgaugedepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t): bahndepot_t(pos,player,t) {}
+	narrowgaugedepot_t(loadsave_t *file):bahndepot_t(file) {
+		if(file->get_OTRP_version()<52) {
+			name = init_name();
+		}}
+	narrowgaugedepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t): bahndepot_t(pos,player,t) {
+		set_name( init_name() );
+	}
 
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::narrowgaugeline; }
 
 	obj_t::typ get_typ() const OVERRIDE { return narrowgaugedepot; }
-	const char *get_name() const OVERRIDE {return "Narrowgaugedepot"; }
+	const char *init_name() const OVERRIDE {return "Narrowgaugedepot"; }
 };
 
 /**
@@ -334,8 +366,14 @@ protected:
 	const char * get_haenger_name() OVERRIDE { return "Anhaenger_tab"; }
 
 public:
-	strassendepot_t(loadsave_t *file) : depot_t(file) {}
-	strassendepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t) : depot_t(pos,player,t) {}
+	strassendepot_t(loadsave_t *file) : depot_t(file) {
+		if(file->get_OTRP_version()<52) {
+			name = init_name();
+		}
+	}
+	strassendepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t) : depot_t(pos,player,t) {
+		set_name( init_name() );
+	}
 
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::truckline; }
 
@@ -352,7 +390,7 @@ public:
 	unsigned get_max_convoi_length() const OVERRIDE;
 
 	obj_t::typ get_typ() const OVERRIDE { return strassendepot; }
-	const char *get_name() const OVERRIDE {return "Strassendepot";}
+	const char *init_name() const OVERRIDE {return "Strassendepot";}
 };
 
 
@@ -369,8 +407,13 @@ protected:
 	const char * get_haenger_name() OVERRIDE { return "Schleppkahn_tab"; }
 
 public:
-	schiffdepot_t(loadsave_t *file) : depot_t(file) {}
-	schiffdepot_t(koord3d pos, player_t *player, const building_tile_desc_t *t) : depot_t(pos,player,t) {}
+	schiffdepot_t(loadsave_t *file) : depot_t(file) {
+		if(file->get_OTRP_version()<52) {
+			name = init_name();
+		}}
+	schiffdepot_t(koord3d pos, player_t *player, const building_tile_desc_t *t) : depot_t(pos,player,t) {
+		set_name( init_name() );
+	}
 
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::shipline; }
 
@@ -387,7 +430,7 @@ public:
 	
 	unsigned get_max_convoi_length() const OVERRIDE;
 	obj_t::typ get_typ() const OVERRIDE { return schiffdepot; }
-	const char *get_name() const OVERRIDE {return "Schiffdepot";}
+	const char *init_name() const OVERRIDE {return "Schiffdepot";}
 };
 
 
@@ -401,8 +444,13 @@ protected:
 	const char * get_passenger_name() OVERRIDE { return "Flug_tab"; }
 
 public:
-	airdepot_t(loadsave_t *file) : depot_t(file) {}
-	airdepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t) : depot_t(pos,player,t) {}
+	airdepot_t(loadsave_t *file) : depot_t(file) {
+		if(file->get_OTRP_version()<52) {
+			name = init_name();
+		}}
+	airdepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t) : depot_t(pos,player,t) {
+		set_name( init_name() );
+	}
 
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::airline; }
 
@@ -419,7 +467,7 @@ public:
 	unsigned get_max_convoi_length() const OVERRIDE;
 
 	obj_t::typ get_typ() const OVERRIDE { return airdepot; }
-	const char *get_name() const OVERRIDE {return "Hangar";}
+	const char *init_name() const OVERRIDE {return "Hangar";}
 };
 
 #endif

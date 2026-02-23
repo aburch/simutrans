@@ -23,7 +23,7 @@ void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& jou
   scr_size size = get_size();
   remove_all();
   uint32 journey_time_sum = 0;
-  set_table_layout(NUM_ARRIVAL_TIME_STORED+2,0);
+  set_table_layout(NUM_ARRIVAL_TIME_STORED+3,0);
   uint8 depot_entry_count = 0;
   const uint16 divisor = world()->get_settings().get_spacing_shift_divisor();
   const uint16 month_ratio_second = 86400/divisor;
@@ -33,13 +33,16 @@ void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& jou
 
     // journey time between the previous halt
     gui_label_buf_t *lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::left); // empty
-    for(uint8 i=0; i<NUM_ARRIVAL_TIME_STORED+1; i++) {
+    for(uint8 i=0; i<NUM_ARRIVAL_TIME_STORED+2; i++) {
       lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
-      uint32 t = journey_times[idx][i];
+      uint32 t = journey_times[idx][max(i-1,0)];
       if(  t==0  ) {
         lb->buf().printf("-");
       } else {
-        uint32 t_run = t - stopping_times[prev_idx][i];
+        if(i == 0){
+          journey_time_sum += t;
+        }
+        uint32 t_run = (i==0? journey_time_sum : t) - stopping_times[prev_idx][max(i-1,0)];
         if( is_use_hhmmss ) {
           uint32 second = t_run*month_ratio_second;
           uint8 day = second/86400;
@@ -49,9 +52,6 @@ void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& jou
           lb->buf().printf("+%d %02d:%02d:%02d", day,hour,minute,second);
         } else {
           lb->buf().printf("%d", t_run);
-        }
-        if(i == 0){
-          journey_time_sum += t;
         }
       }
       lb->update();
@@ -81,9 +81,9 @@ void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& jou
       depot_entry_count += (gr  &&  gr->get_depot());
     }
     lb->update();
-    for(uint8 i=0; i<NUM_STOPPING_TIME_STORED+1; i++) {
+    for(uint8 i=0; i<NUM_STOPPING_TIME_STORED+2; i++) {
       lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
-      uint32 t = stopping_times[idx][i];
+      uint32 t = i==0? journey_time_sum - stopping_times[prev_idx][max(i-1,0)] + stopping_times[idx][max(i-1,0)] : stopping_times[idx][max(i-1,0)];
       if(  t==0  ) {
         lb->buf().printf("-");
       } else {
@@ -99,9 +99,9 @@ void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& jou
         }
       }
       lb->update();
-      if(  t>0  &&  (sint32)t-(sint32)stopping_times[idx][0]>4  ) {
+      if(  t>0  &&  i>0  &&  (sint32)t-(sint32)stopping_times[idx][0]>4  ) {
         lb->set_color(color_idx_to_rgb(COL_RED));
-      } else if(  t>0  &&  (sint32)stopping_times[idx][0]-(sint32)t>4  ) {
+      } else if(  t>0  &&  i>0  &&  (sint32)stopping_times[idx][0]-(sint32)t>4  ) {
         lb->set_color(color_idx_to_rgb(COL_BLUE));
       } else {
         lb->set_color(SYSCOL_TEXT);
@@ -197,11 +197,11 @@ gui_journey_time_info_t::gui_journey_time_info_t(linehandle_t line, player_t* pl
   insufficient_cnv_label.set_text("The latest departure slots were not used.");
   add_component(&insufficient_cnv_label);
   
-  gui_aligned_container_t* container = add_table(NUM_ARRIVAL_TIME_STORED+2,1);
+  gui_aligned_container_t* container = add_table(NUM_ARRIVAL_TIME_STORED+3,1);
   new_component<gui_label_t>("Halt name");
-  const char* texts[NUM_ARRIVAL_TIME_STORED+1] = {"Average", "1st", "2nd", "3rd", "4th", "5th"};
+  const char* texts[NUM_ARRIVAL_TIME_STORED+2] = {"Total","Average", "1st", "2nd", "3rd", "4th", "5th"};
   gui_label_buf_t* lb;
-  for(uint8 i=0; i<NUM_ARRIVAL_TIME_STORED+1; i++) {
+  for(uint8 i=0; i<NUM_ARRIVAL_TIME_STORED+2; i++) {
     lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
     lb->buf().printf("%s", texts[i]);
     lb->update();

@@ -388,6 +388,14 @@ void display_filled_circle_rgb( scr_coord_val, scr_coord_val, int, const PIXVAL 
 {
 }
 
+void display_diamond_rgb(scr_coord_val x0, scr_coord_val y0, int radius, const PIXVAL colval)
+{
+}
+
+void display_filled_diamond_rgb(scr_coord_val x0, scr_coord_val y0, int radius, const PIXVAL colval)
+{
+}
+
 void draw_bezier_rgb(scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, const PIXVAL, scr_coord_val, scr_coord_val )
 {
 }

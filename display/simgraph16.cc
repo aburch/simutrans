@@ -4965,6 +4965,27 @@ void display_filled_circle_rgb( scr_coord_val x0, scr_coord_val  y0, int radius,
 //	mark_rect_dirty_wc( x0-radius, y0-radius, x0+radius+1, y0+radius+1 );
 }
 
+void display_diamond_rgb(scr_coord_val x0, scr_coord_val y0, int radius, const PIXVAL colval)
+{
+    for (int dy = -radius; dy <= radius; dy++) {
+        int dx = radius - abs(dy);
+
+        display_pixel(x0 - dx, y0 + dy, colval);
+        if (dx > 0) {
+            display_pixel(x0 + dx, y0 + dy, colval);
+        }
+    }
+}
+
+
+void display_filled_diamond_rgb(scr_coord_val x0, scr_coord_val y0, int radius, const PIXVAL colval)
+{
+    for (int dy = -radius; dy <= radius; dy++) {
+        int dx = radius - abs(dy);
+        
+        display_fb_internal(x0 - dx, y0 + dy, dx + dx + 1, 1, colval, false, CR0.clip_rect.x, CR0.clip_rect.xx, CR0.clip_rect.y, CR0.clip_rect.yy);
+    }
+}
 
 
 void display_signal_direction_rgb(scr_coord_val x, scr_coord_val y, uint8 way_dir, uint8 sig_dir, PIXVAL col1, PIXVAL col1_dark, bool is_diagonal, uint8 slope )

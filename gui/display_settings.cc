@@ -52,6 +52,8 @@ enum {
 	IDBTN_INFINITE_SCROLL,
 	IDBTN_RIBI_ARROW,
 	IDBTN_ONEWAY_RIBI_ONLY,
+	IDBTN_SHOW_LINE_COLOR,
+	IDBTN_SHOW_CONVOY_LOADINGLEVEL,
 	COLORS_MAX_BUTTONS, 
 };
 
@@ -462,6 +464,11 @@ traffic_settings_t::traffic_settings_t()
 	add_component(&convoy_tooltip, 2);
 	convoy_tooltip.add_listener(this);
 
+	buttons[IDBTN_SHOW_LINE_COLOR].init(button_t::square_state, "Show line colors");
+	add_component(buttons+IDBTN_SHOW_LINE_COLOR,2);
+	buttons[IDBTN_SHOW_CONVOY_LOADINGLEVEL].init(button_t::square_state, "Show convoy loading level");
+	add_component(buttons+IDBTN_SHOW_CONVOY_LOADINGLEVEL,2);
+
 	// Convoy follow mode
 	new_component<gui_label_t>("Convoi following mode");
 
@@ -717,6 +724,12 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t p)
 	case IDBTN_ONEWAY_RIBI_ONLY:
 		env_t::show_oneway_ribi_only ^= 1;
 		break;
+	case IDBTN_SHOW_LINE_COLOR:
+		env_t::show_line_colors ^= 1;
+		break;
+	case IDBTN_SHOW_CONVOY_LOADINGLEVEL:
+		env_t::show_convoy_loadinglevel ^= 1;
+		break;
 	default:
 		assert( 0 );
 	}
@@ -749,6 +762,10 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	buttons[IDBTN_UNDERGROUND_VIEW].pressed = grund_t::underground_mode == grund_t::ugm_all;
 	buttons[IDBTN_TRANSPARENT_STATION_COVERAGE].pressed = env_t::use_transparency_station_coverage;
 	buttons[IDBTN_TRANSPARENT_INSTEAD_OF_HIDDEN].pressed = env_t::hide_with_transparency;
+	buttons[IDBTN_SHOW_LINE_COLOR].pressed = env_t::show_line_colors;
+	buttons[IDBTN_SHOW_LINE_COLOR].enable(env_t::show_vehicle_states==env_t::LINE_NAME_TOOLTIPS||env_t::show_vehicle_states==env_t::LINE_NAME_AND_STATES_TOOLTIPS);
+	buttons[IDBTN_SHOW_CONVOY_LOADINGLEVEL].pressed = env_t::show_convoy_loadinglevel;
+	buttons[IDBTN_SHOW_CONVOY_LOADINGLEVEL].enable(env_t::show_vehicle_states==env_t::LINE_NAME_TOOLTIPS||env_t::show_vehicle_states==env_t::LINE_NAME_AND_STATES_TOOLTIPS);
 	buttons[IDBTN_RIBI_ARROW].pressed = strasse_t::show_masked_ribi;
 	buttons[IDBTN_RIBI_ARROW].enable(skinverwaltung_t::ribi_arrow!=NULL);
 	buttons[IDBTN_ONEWAY_RIBI_ONLY].pressed = env_t::show_oneway_ribi_only;

@@ -162,8 +162,24 @@ function test_way_tunnel_build_straight()
 				"........"
 			])
 
-		remover.set_flags(2) // activate ctrl
-		ASSERT_EQUAL(remover.work(pl, coord3d(3, 3, 0)), null)
+		// In OTRP, ctrl+click on remover enters area-removal mode
+		// instead of removing connected tunnel tiles.
+		// Use tool_remove_way to remove the branching tunnel.
+		ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(2, 2, 0), coord3d(3, 2, 0), "" + wt_road), null)
+
+		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
+			[
+				"........",
+				"...4....",
+				"...5....",
+				"...1....",
+				"........",
+				"........",
+				"........",
+				"........"
+			])
+
+		ASSERT_EQUAL(remover.work(pl, coord3d(3, 1, 0)), null)
 
 		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
 			[
@@ -176,8 +192,6 @@ function test_way_tunnel_build_straight()
 				"........",
 				"........"
 			])
-
-		remover.set_flags(0) // deactivate ctrl
 	}
 
 	// clean up

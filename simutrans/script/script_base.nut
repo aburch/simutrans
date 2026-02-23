@@ -460,14 +460,17 @@ class schedule_entry_x {
 	load = 0
 	/// waiting
 	wait = 0
+	/// stop flags (NO_LOAD=4, NO_UNLOAD=8, etc.)
+	flags = 0
 
-	constructor(pos, l, w)
+	constructor(pos, l, w, f = 0)
 	{
 		x = pos.x
 		y = pos.y
 		z = pos.z
 		load = l
 		wait = w
+		flags = f
 	}
 }
 
