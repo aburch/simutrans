@@ -57,7 +57,6 @@
 
 #include "../unicode.h"
 
-char depot_frame_t::name_filter_value[64] = "";
 
 
 static int sort_by_action;
@@ -285,6 +284,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	vehicle_filter.add_listener(this);
 	add_component(&vehicle_filter);
 
+	strncpy(name_filter_value,depot->get_name_filter(),sizeof(depot->get_name_filter()));
 	name_filter_input.set_text(name_filter_value, 60);
 	add_component(&name_filter_input);
 	name_filter_input.add_listener(this);
@@ -334,7 +334,6 @@ depot_frame_t::~depot_frame_t()
 	clear_ptr_vector(electrics_vec);
 	clear_ptr_vector(loks_vec);
 	clear_ptr_vector(waggons_vec);
-	strcpy(name_filter_value,"");
 }
 
 
@@ -864,7 +863,7 @@ void depot_frame_t::build_vehicle_lists()
 				}
 				if(append) {
 					// name filter. Try to check both object name and translation name (case sensitive though!)
-					if(  name_filter_value[0]==0  ||  (utf8caseutf8(info->get_name(), name_filter_value)  ||  utf8caseutf8(translator::translate(info->get_name()), name_filter_value))  ) {
+					if(  depot->get_name_filter()[0]==0  ||  (utf8caseutf8(info->get_name(), name_filter_value)  ||  utf8caseutf8(translator::translate(info->get_name()), name_filter_value))  ) {
 						add_to_vehicle_list( info );
 					}
 				}
@@ -1594,6 +1593,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			depot->call_depot_tool('S', convoihandle_t(), NULL);
 		}
 		else if(  comp == &name_filter_input  ) {
+			depot->set_name_filter(name_filter_input.get_text());
 			depot_t::update_all_win();
 		}
 		else if(  comp == &bt_veh_action  ) {
@@ -2195,8 +2195,9 @@ void  depot_frame_t::rdwr( loadsave_t *file)
 	vehicle_filter.rdwr(file);
 	file->rdwr_byte(veh_action);
 	file->rdwr_long(icnv);
-	if(  file->get_OTRP_version()>=51  ) {
+	if(  file->get_OTRP_version()==51  ) {
 		file->rdwr_str(name_filter_value, sizeof(name_filter_value));
+		strncpy(name_filter_value,depot->get_name_filter(),sizeof(depot->get_name_filter()));
 	}
 	sort_by.rdwr(file);
 	simline_t::rdwr_linehandle_t(file, selected_line);
@@ -2207,6 +2208,9 @@ void  depot_frame_t::rdwr( loadsave_t *file)
 		set_windowsize(size);
 
 		win_set_magic(this, (ptrdiff_t)depot);
+
+		strncpy(name_filter_value,depot->get_name_filter(),sizeof(depot->get_name_filter()));
+		name_filter_input.set_text(name_filter_value,sizeof(name_filter_value));
 	}
 
 	if (depot == NULL) {

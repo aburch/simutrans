@@ -19,6 +19,7 @@
 #include "../simintr.h"
 #include "../simhalt.h"
 #include "../simworld.h"
+#include "../simdepot.h"
 
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
@@ -574,6 +575,21 @@ bool win_is_top(const gui_frame_t *ig)
 void rdwr_all_win(loadsave_t *file)
 {
 	if(  file->is_version_atleast(120, 8)  ) {
+		// we store depot filter for each depots.
+		// this filter is only for you!(not share with server/clients)
+		// not write it in .sve and rdwr only one time.
+		if(  file->get_OTRP_version()>=52  ) {
+			FOR(const slist_tpl<depot_t*>, d, depot_t::get_depot_list()) {
+				char filter[64];
+				if(file->is_saving()) {
+					strncpy(filter,d->get_name_filter(),sizeof(d->get_name_filter()));
+				}
+				file->rdwr_str(filter, sizeof(filter));
+				if(file->is_loading()) {
+					d->set_name_filter(filter);
+				}
+			}
+		}
 		if(  file->is_saving()  ) {
 			FOR(vector_tpl<simwin_t>, & i, wins) {
 				uint32 id = i.gui->get_rdwr_id();
