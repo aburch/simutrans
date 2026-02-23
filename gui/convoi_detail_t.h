@@ -47,9 +47,11 @@ private:
 	button_t copy_convoi_button;
 	button_t trade_convoi_button;
 	button_t max_speed_kmh_of_convoi_button;
+	button_t max_balance_speed_kmh_of_convoi_button;
 	uint8 viewable_players[MAX_PLAYER_COUNT];
 	gui_combobox_t trade_player_num;
 	gui_numberinput_t max_speed_kmh_of_convoi_numberinput;
+	gui_numberinput_t max_balance_speed_kmh_of_convoi_numberinput;
 
 	static karte_ptr_t welt;
 public:

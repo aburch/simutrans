@@ -18,6 +18,11 @@
 #include "../../obj/label.h"
 #include "../../boden/grund.h"
 #include "../../descriptor/ground_desc.h"
+#include "../../simware.h"
+#include "../../bauer/goods_manager.h"
+#include "../../simhalt.h"
+#include "../../simfab.h"
+#include "api_obj_desc_base.h"
 
 using namespace script_api;
 
@@ -60,6 +65,74 @@ bool world_remove_player(karte_t *welt, player_t *player)
 	// now call - will not have immediate effect in network games
 	welt->call_change_player_tool(karte_t::delete_player, player->get_player_nr(), 0, true /*scripted*/);
 	return true;
+}
+
+
+uint32 world_generate_goods(karte_t *welt, koord from, koord to, const goods_desc_t *desc, uint32 count)
+{
+	if (count == 0 || count >= 1<<23) {
+		return 0;
+	}
+
+	planquadrat_t *fromplan = welt->access(from);
+	planquadrat_t *toplan = welt->access(to);
+
+	if (!fromplan || !toplan) {
+		return haltestelle_t::NO_ROUTE;
+	}
+	else if (fromplan->get_haltlist_count() == 0) {
+		// not reachable
+		return haltestelle_t::NO_ROUTE;
+	}
+
+	ware_t good(desc);
+	good.set_zielpos(to);
+	good.menge = count;
+	good.to_factory = fabrik_t::get_fab(to) != NULL;
+
+	ware_t return_good(desc);
+
+	const halthandle_t *haltlist = fromplan->get_haltlist();
+	const uint8 hl_count = fromplan->get_haltlist_count();
+	const bool no_route_over_overcrowded = welt->get_settings().is_no_routing_over_overcrowding();
+
+	assert(hl_count > 0);
+	const int route_result = haltestelle_t::search_route(haltlist, hl_count, no_route_over_overcrowded, good, &return_good);
+
+	switch (route_result) {
+	case haltestelle_t::ROUTE_WALK:
+		if (good.get_desc() == goods_manager_t::passengers) {
+			haltlist[0]->add_pax_walked(count);
+		}
+		break;
+
+	case haltestelle_t::ROUTE_OVERCROWDED:
+		if (good.get_desc() == goods_manager_t::passengers) {
+			haltlist[0]->add_pax_unhappy(count);
+		}
+		break;
+
+	case haltestelle_t::NO_ROUTE:
+		if (good.get_desc() == goods_manager_t::passengers) {
+			haltlist[0]->add_pax_no_route(count);
+		}
+		break;
+
+	case haltestelle_t::ROUTE_OK: {
+		assert(route_result == haltestelle_t::ROUTE_OK);
+		const halthandle_t start_halt = return_good.get_ziel();
+		start_halt->starte_mit_route(good);
+		if (good.get_desc() == goods_manager_t::passengers) {
+			start_halt->add_pax_happy(good.menge);
+		}
+		else {
+			start_halt->recalc_status();
+		}
+		}
+		break;
+	}
+
+	return route_result;
 }
 
 
@@ -211,6 +284,20 @@ void export_world(HSQUIRRELVM vm, bool scenario)
 		* @returns whether operation was successful
 		*/
 		STATIC register_method(vm, &world_remove_player, "remove_player", true);
+
+		/**
+		 * Generates goods packet and sends it on its way.
+		 * @param from origin position
+		 * @param to destination position
+		 * @param desc type of goods
+		 * @param count number of goods
+		 * @retval 0 No route found
+		 * @retval 1 Passengers/mail/freight successfully generated
+		 * @retval 2 Destination is within station catchment area
+		 * @retval 8 Route is overcrowded (if no_routing_over_overcrowded is enabled)
+		 * @ingroup scen_only
+		 */
+		STATIC register_method(vm, &world_generate_goods, "generate_goods", true);
 	}
 	/**
 	 * Returns player number @p pl. If player does not exist, returns null.

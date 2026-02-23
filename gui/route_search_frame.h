@@ -22,6 +22,8 @@ class route_search_frame_t : public gui_frame_t, public action_listener_t
 	gui_aligned_container_t result_container;
 	char from_halt_input_text[256];
 	char dest_halt_input_text[256];
+	halthandle_t from_halt, dest_halt;
+	button_t bt_show_non_traveled;
 	
 	vector_tpl<const goods_desc_t *> viewable_freight_types;
 	gui_combobox_t freight_type_c;
@@ -29,7 +31,7 @@ class route_search_frame_t : public gui_frame_t, public action_listener_t
 	uint8 search_ware_index;
 
 	void search_route();
-	void append_connection_row(haltestelle_t::connection_t connection);
+	void append_connection_row(haltestelle_t::connection_t connection, halthandle_t from_halt);
 	void append_halt_row(halthandle_t halt);
 	void swap_halt_inputs();
 

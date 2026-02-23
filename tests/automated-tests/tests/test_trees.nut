@@ -220,13 +220,13 @@ function test_trees_plant_single_max_per_square()
 	local public_pl = player_x(1)
 	local tree_desc = tree_desc_x("Ahorn-1")
 
-	ASSERT_EQUAL(build_tree(public_pl, coord3d(4, 3, 0), tree_desc), null)
-	ASSERT_EQUAL(build_tree(public_pl, coord3d(4, 3, 0), tree_desc), null)
-	ASSERT_EQUAL(build_tree(public_pl, coord3d(4, 3, 0), tree_desc), null)
-	ASSERT_EQUAL(build_tree(public_pl, coord3d(4, 3, 0), tree_desc), null)
-	ASSERT_EQUAL(build_tree(public_pl, coord3d(4, 3, 0), tree_desc), null)
+	// Plant trees up to the max_no_of_trees_on_square limit
+	local max_trees = settings.get_max_no_of_trees_on_square()
+	for (local i = 0; i < max_trees; i++) {
+		ASSERT_EQUAL(build_tree(public_pl, coord3d(4, 3, 0), tree_desc), null)
+	}
 
-	// Check building over max_no_of_trees_on_square limit (= 5)
+	// Check building over the limit
 	{
 		ASSERT_EQUAL(build_tree(public_pl, coord3d(4, 3, 0), tree_desc), "")
 	}

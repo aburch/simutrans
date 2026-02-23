@@ -313,6 +313,10 @@ Overwrite max speed of convoy
 編成最高速度を上書きする
 Overwrite max speed of convoy here.
 この地点に到達した編成の最高速度を設定した値で上書きします．
+Overwrite balance speed of convoy
+加速度設定を上書きする
+Overwrite balance speed of convoy here. This value define acceleration. The actual acceleration is determined by whichever is lower: this value or the vehicle's performance limit.
+この地点に到達した編成の最大加速度を上書きします．終端速度で加速度を定義します．実際の加速度は車両性能とこの値の遅いほうに基づきます．
 No overtake
 追い越し禁止
 Do not overtake other cars until this stop.
@@ -454,6 +458,10 @@ remove all vehicles
 全ての車両を片付ける
 remove all vehicles.
 この編成の全ての車両を片付けます
+Sell all vehicles
+車庫の全車両売却
+Sell all vehicles stored here.
+車庫に格納された全車両を売却します
 #------編成最高速度機能------
 Set Max Speed
 編成最高速度を設定
@@ -463,6 +471,10 @@ Max speed of convoi: UNLIMIT
 編成最高速度：UNLIMIT(制限無し)
 Max speed of convoi: %i km/h
 編成最高速度： %i km/h
+Set Balance Speed
+加速度を設定
+Set acceleratable speed of this convoi
+加速度を設定します。入力値は終端速度です。
 #------ルート計算方法------
 route by route cost
 ルートコスト法で計算
@@ -525,6 +537,10 @@ maximum_village_size
 村の人口上限:これ以上の人口の町は「都市city」となります(maximum_village_size)
 maximum_city_size
 都市の人口上限:これ以上の人口の町は「首都capital」となります(maximum_city_size)
+Show line colors
+路線の色を表示
+Show convoy loading level
+編成の乗車率を表示
 #------車両オフセット機能------
 \nVehicle offset: 
 車両オフセット量: 
