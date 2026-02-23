@@ -337,12 +337,20 @@ FLAGGED_PIXVAL strasse_t::get_outline_colour() const {
 	if(  reserved  ) {
 		return TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_RED);
 	}else if(  show_masked_ribi  ) {
-		if(  get_avoid_cityroad()  &&  get_citycar_no_entry()  ) {
+		if(  get_avoid_cityroad()  &&  get_citycar_no_entry()  &&  get_pedestrian_no_entry()  ) {
+			return TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_DARK_ORANGE);
+		} else if(  get_avoid_cityroad()  &&  get_citycar_no_entry()  ) {
 			return TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_ORANGE);
+		} else if(  get_avoid_cityroad()  &&  get_pedestrian_no_entry()  ) {
+			return TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_DARK_GREEN);
 		} else if(  get_avoid_cityroad()  ) {
 			return TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_GREEN);
+		} else if(  get_citycar_no_entry()  &&  get_pedestrian_no_entry()  ) {
+			return TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_DARK_RED);
 		} else if(  get_citycar_no_entry()  ) {
 			return TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_MAGENTA);
+		} else if(  get_pedestrian_no_entry()  ) {
+			return TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_YELLOW);
 		}
 	}
 	return 0;
