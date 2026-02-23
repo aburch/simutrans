@@ -743,7 +743,7 @@ void construct_schedule_entry_attributes(cbuffer_t& buf, schedule_entry_t const&
 		cnt++;
 	}
 	if(  flag&schedule_entry_t::TRANSFER_INTERVAL  ) {
-		str[cnt] = 'I';
+		str[cnt] = 'K';
 		cnt++;
 	}
 	if(  flag&schedule_entry_t::UNCOUPLE_CHILD  ) {
