@@ -12,6 +12,7 @@
 #include "convoihandle_t.h"
 #include "simline.h"
 #include "dataobj/loadsave.h"
+#include "dataobj/translator.h"
 
 #define VEHICLE_FILTER_RELEVANT 1
 #define VEHICLE_FILTER_GOODS_OFFSET 2
@@ -272,7 +273,7 @@ public:
 	unsigned get_max_convoi_length() const OVERRIDE;
 
 	obj_t::typ get_typ() const OVERRIDE { return bahndepot; }
-	const char *init_name() const OVERRIDE {return "Bahndepot"; }
+	const char *init_name() const OVERRIDE {return translator::translate("Bahndepot"); }
 };
 
 
@@ -291,7 +292,7 @@ public:
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::tramline; }
 
 	obj_t::typ get_typ() const OVERRIDE { return tramdepot; }
-	const char *init_name() const OVERRIDE {return "Tramdepot"; }
+	const char *init_name() const OVERRIDE {return translator::translate("Tramdepot"); }
 };
 
 class monoraildepot_t : public bahndepot_t
@@ -308,7 +309,7 @@ public:
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::monorailline; }
 
 	obj_t::typ get_typ() const OVERRIDE { return monoraildepot; }
-	const char *init_name() const OVERRIDE {return "Monoraildepot"; }
+	const char *init_name() const OVERRIDE {return translator::translate("Monoraildepot"); }
 };
 
 class maglevdepot_t : public bahndepot_t
@@ -325,7 +326,7 @@ public:
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::maglevline; }
 
 	obj_t::typ get_typ() const OVERRIDE { return maglevdepot; }
-	const char *init_name() const OVERRIDE {return "Maglevdepot"; }
+	const char *init_name() const OVERRIDE {return translator::translate("Maglevdepot"); }
 };
 
 class narrowgaugedepot_t : public bahndepot_t
@@ -342,7 +343,7 @@ public:
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::narrowgaugeline; }
 
 	obj_t::typ get_typ() const OVERRIDE { return narrowgaugedepot; }
-	const char *init_name() const OVERRIDE {return "Narrowgaugedepot"; }
+	const char *init_name() const OVERRIDE {return translator::translate("Narrowgaugedepot"); }
 };
 
 /**
@@ -383,7 +384,7 @@ public:
 	unsigned get_max_convoi_length() const OVERRIDE;
 
 	obj_t::typ get_typ() const OVERRIDE { return strassendepot; }
-	const char *init_name() const OVERRIDE {return "Strassendepot";}
+	const char *init_name() const OVERRIDE {return translator::translate("Strassendepot");}
 };
 
 
@@ -423,7 +424,7 @@ public:
 	
 	unsigned get_max_convoi_length() const OVERRIDE;
 	obj_t::typ get_typ() const OVERRIDE { return schiffdepot; }
-	const char *init_name() const OVERRIDE {return "Schiffdepot";}
+	const char *init_name() const OVERRIDE {return translator::translate("Schiffdepot");}
 };
 
 
@@ -460,7 +461,7 @@ public:
 	unsigned get_max_convoi_length() const OVERRIDE;
 
 	obj_t::typ get_typ() const OVERRIDE { return airdepot; }
-	const char *init_name() const OVERRIDE {return "Hangar";}
+	const char *init_name() const OVERRIDE {return translator::translate("Hangar");}
 };
 
 #endif
