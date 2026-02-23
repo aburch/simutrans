@@ -257,7 +257,7 @@ public:
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::trainline; }
 	void rdwr_name(loadsave_t *file);
 
-	virtual void rdwr_bahndepot(loadsave_t *file);
+	void rdwr_bahndepot(loadsave_t *file);
 
 	/**
 	 * Parameters to determine layout and behaviour of the depot_frame_t.
