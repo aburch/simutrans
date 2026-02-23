@@ -162,8 +162,6 @@ void replace_cars(convoihandle_t cnv, depot_t* depot) {
 			}
 		}
 	}
-	// Finally, start the replaced convoy
-	cnv->set_state(convoi_t::states::WAITING_FOR_LEAVING_DEPOT);
 }
 
 
@@ -171,7 +169,7 @@ void replace_cars(convoihandle_t cnv, depot_t* depot) {
  * first a convoy reaches the depot during its journey
  * second during loading a convoi is stored in a depot => only store it again
  */
-void depot_t::convoi_arrived(convoihandle_t acnv, bool schedule_adjust)
+void depot_t::convoi_arrived(convoihandle_t acnv, bool schedule_adjust, const bool coupled)
 {
 	for( uint32 i=0; i<convois.get_count(); i++ ) {
 		if (acnv==convois.at(i)) {
@@ -222,9 +220,10 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool schedule_adjust)
 		}
 	}
 	
-	if(  schedule_adjust  &&  replacement_seed.is_bound()  &&  replacement_seed!=acnv  ) {
+	if(  schedule_adjust  &&  replacement_seed.is_bound()  &&  replacement_seed!=acnv  &&  !coupled  ) {
 		// replace cars of the arrived convoy, then start it immediately.
 		replace_cars(acnv, this);
+		start_convoi(acnv, false);
 	}
 }
 
@@ -481,6 +480,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 		buf.clear();
 		buf.printf( translator::translate("Vehicle %s is coupled convoy, so it cannot depart alone!"), cnv->get_name() );
 		create_win( new news_img(buf), w_time_delete, magic_none);
+		return false;
 	}
 	// Check the start condition
 	if(  !can_start_convoi(cnv, local_execution)  ) {
