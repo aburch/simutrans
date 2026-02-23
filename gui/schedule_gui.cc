@@ -1072,9 +1072,6 @@ bool schedule_gui_t::infowin_event(const event_t *ev)
 		if(  !line_selector.getroffen(ev->cx, ev->cy-D_TITLEBAR_HEIGHT)  ) {
 			line_selector.close_box();
 		}
-		if(  !departure_slot_group_selector.getroffen(ev->cx, ev->cy-D_TITLEBAR_HEIGHT)  ) {
-			departure_slot_group_selector.close_box();
-		}
 	}
 	else if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  &&  schedule!=NULL  ) {
 
