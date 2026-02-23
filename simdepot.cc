@@ -47,6 +47,7 @@ depot_t::depot_t(loadsave_t *file) : gebaeude_t()
 	selected_sort_by = SORT_BY_DEFAULT;
 	last_selected_line = linehandle_t();
 	command_pending = false;
+	strcpy( depot_filter ,"");
 }
 
 
