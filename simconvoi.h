@@ -397,12 +397,21 @@ private:
 	bool reversing_coupling_needed;// Whether these convoys coupling reversing is needed or not. Only using waypoint!
 	bool reverse_coupling_done;// avoid reverse coupling loop in same stop
 
+	bool unloading_done;//unload once in stop
+
 	/**
 	 * The temporary speed limit for this convoy.
 	 * For example, as limited by a speed limit sign.
 	 * This value is set from schedule_entry_t, and can be edited from convoy detail window by user anytime.
 	 */
 	uint16 max_speed_kmh_of_convoi;
+
+	/**
+	 * The limitation of balance speed
+	 * This speed limit define the limited power of convoys
+	 * The actual power is the minimum of gear_and_power of desc vs. the value calculated by this speed limit.
+	 */
+	uint16 max_balance_speed_convoi;
 
 	/**
 	* Initialize all variables with default values.
@@ -1168,6 +1177,8 @@ public:
 
 	uint16 get_max_speed_kmh_of_convoi() const {return max_speed_kmh_of_convoi;}
 	void set_max_speed_kmh_of_convoi(uint16 n);
+	uint16 get_max_balance_speed_convoi() const {return max_balance_speed_convoi;}
+	void set_max_balance_speed_convoi(uint16 n) { max_balance_speed_convoi = n; }
 };
 
 #endif

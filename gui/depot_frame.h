@@ -120,6 +120,7 @@ private:
 
 	button_t bt_obsolete;
 	button_t bt_show_all;
+	button_t bt_sell_all;
 
 	gui_label_t lb_sort_by;
 	gui_combobox_t sort_by;
@@ -127,6 +128,8 @@ private:
 	gui_label_t lb_name_filter_input;
 	static char name_filter_value[64];
 	gui_textinput_t name_filter_input;
+	gui_textinput_t depot_name_input;
+	char depot_name[128];
 
 	gui_tab_panel_t tabs;
 	gui_divider_t div_tabbottom;

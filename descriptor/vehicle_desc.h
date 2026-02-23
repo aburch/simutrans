@@ -116,33 +116,44 @@ public:
 	// vehicles with and without freight images, and vehicles with different freight images
 	// they can have 4 or 8 directions ...
 	// "is_reverse" is the flag of using freightimagetype[n]="Reverse".
-	image_id get_image_id(ribi_t::dir dir, const goods_desc_t *ware, const bool is_reversed=false) const
+	image_id get_image_id(ribi_t::dir dir, const goods_desc_t *ware, const bool is_reversed=false, bool is_no_electric=false) const
 	{
 		const image_t *image=0;
 		const image_list_t *list=0;
 
-		if(freight_image_type>0  &&  (ware!=NULL||is_reversed)) {
+		is_no_electric &= engine_type==electric;
+
+		if(freight_image_type>0  &&  (ware!=NULL||is_reversed||is_no_electric)) {
 			// more freight images and a freight: find the right one
 
 			sint8 goods_index=-1; // freight images: if not found use first freight
-			sint8 reverse_index=-1; // reversed images. if reverse_index<0, this vehicle do not have freightimagetype="Reverse".
-
+			// special images. this is for reversed image or electric-train image without catenary.
+			// if special_image_index<0, this vehicle do not have freightimagetype="Reverse", "No_Electric" or "Reverse_No_Electric".
+			sint8 special_image_index=-1; 
 			for( sint8 i=0;  i<freight_image_type;  i++  ) {
 				if (ware == get_child<goods_desc_t>(6 + trailer_count + leader_count + i)) {
 					// searching freight image
 					goods_index = i;
 				}
-				if (is_reversed && get_child<goods_desc_t>(6 + trailer_count + leader_count + i)==goods_manager_t::get_info("Reverse")) {
+				if (is_reversed && special_image_index<0 && get_child<goods_desc_t>(6 + trailer_count + leader_count + i)==goods_manager_t::get_info("Reverse")) {
 					// searching reversed image (e.g. front car with taillight)
-					reverse_index = i;
+					special_image_index = i;
+				}
+				if (is_no_electric && special_image_index<0 && get_child<goods_desc_t>(6 + trailer_count + leader_count + i)==goods_manager_t::get_info("No_Electric")) {
+					// searching no-electric image (e.g. front car with taillight)
+					special_image_index = i;
+				}
+				if (is_reversed && is_no_electric && get_child<goods_desc_t>(6 + trailer_count + leader_count + i)==goods_manager_t::get_info("Reverse_No_Electric")) {
+					// searching reversed no-electric image (e.g. front car with taillight)
+					special_image_index = i;
 				}
 			}
 
 			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
 			image_array_t const* const list2d = get_child<image_array_t>(5);
 			// no freight and non reversed->use EmptyImage
-			if(reverse_index>-1) {
-				goods_index = reverse_index;//find the reverse images, we use reversed one.
+			if(special_image_index>-1) {
+				goods_index = special_image_index;//find the reverse images, we use reversed one.
 			}
 			if(goods_index==-1 && ware!=NULL) {
 				goods_index = 0;

@@ -70,7 +70,7 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 	button_t bt_no_go_no_users;
 	button_t bt_wait_full_load;
 	button_t bt_no_load, bt_no_unload, bt_tmp_schedule, bt_wait_for_time, 
-		bt_same_dep_time, bt_full_load_acceleration, bt_full_load_time,bt_unload_all,bt_transfer_interval,
+		bt_same_dep_time, bt_full_load_acceleration, bt_full_load_time,bt_unload_all,bt_transfer_interval, bt_balance_speed_kmh_of_convoi,
 		bt_load_before_departure, bt_reverse_convoy, bt_reverse_coupling, bt_wait_coupling_done, bt_uncouple_child, bt_max_speed_kmh_of_convoi, bt_no_overtake, bt_max_load_all_stops, bt_pass_stop,
 		bt_temp_load, bt_temp_unload, bt_temp_unload_all;
 	button_t bt_reverse_default;
@@ -78,6 +78,7 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 
 	gui_numberinput_t numimp_spacing, numimp_spacing_shift, 
 		numimp_delay_tolerance, numimp_max_speed, numimp_max_speed_kmh_of_convoi , numimp_tbgr_waiting_time, numimp_length_coupling_done;
+	gui_numberinput_t numimp_balance_speed_kmh_of_convoi;
 	gui_label_t lb_spacing, lb_spacing_shift, lb_title1, lb_title2, lb_max_speed, lb_tbgr_waiting_time, lb_next_line, lb_length_coupling_done;
 	gui_label_t lb_wait_load_time;
 

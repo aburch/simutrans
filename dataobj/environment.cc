@@ -154,6 +154,8 @@ PIXVAL env_t::background_color;
 bool env_t::draw_earth_border;
 bool env_t::draw_outside_tile;
 uint8 env_t::show_vehicle_states;
+bool env_t::show_line_colors;
+bool env_t::show_convoy_loadinglevel;
 bool env_t::visualize_schedule;
 sint8 env_t::daynight_level;
 bool env_t::left_to_right_graphs;
@@ -308,6 +310,8 @@ void env_t::init()
 	draw_outside_tile = false;
 
 	show_vehicle_states = 1;
+	show_line_colors = true;
+	show_convoy_loadinglevel = true;
 
 	daynight_level = 0;
 
@@ -634,6 +638,10 @@ void env_t::rdwr(loadsave_t *file)
 			// TODO: copy the buf string into newserver_name after resolving the UI blocking issue on server_frame_t.
 			// strncpy(new_server_name, buf, 2048);
 		}
+	}
+	if(  file->get_OTRP_version()>=52  ) {
+		file->rdwr_bool(show_line_colors);
+		file->rdwr_bool(show_convoy_loadinglevel);
 	}
 
 

@@ -7324,7 +7324,7 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 			const sint32 time_to_next = (sint32)next_step_time - (sint32)timems; // +'ve - still waiting for next,  -'ve - lagging
 			const sint64 frame_timediff = ((sint64)server_sync_step - sync_steps - settings.get_server_frames_ahead() - env_t::additional_client_frames_behind) * fix_ratio_frame_time; // +'ve - server is ahead,  -'ve - client is ahead
 			const sint64 timediff = time_to_next + frame_timediff;
-			dbg->warning("NWC_CHECK", "time difference to server %lli", frame_timediff );
+			dbg->debug("NWC_CHECK", "time difference to server %lli", frame_timediff );
 
 			if(  frame_timediff < (0 - (sint64)settings.get_server_frames_ahead() - (sint64)env_t::additional_client_frames_behind) * (sint64)fix_ratio_frame_time / 2  ) {
 				// running way ahead - more than half margin, simply set next_step_time ahead to where it should be
@@ -7431,9 +7431,9 @@ void karte_t::do_network_world_command(network_world_command_t *nwc)
 		char buf[256];
 		const int offset = server_checklist.print(buf, "server");
 		LCHKLST(server_sync_step).print(buf + offset, "client");
-		dbg->warning("karte_t:::do_network_world_command", "sync_step=%u  %s", server_sync_step, buf);
+		dbg->message("karte_t:::do_network_world_command", "sync_step=%u  %s", server_sync_step, buf);
 		if(  LCHKLST(server_sync_step)!=server_checklist  ) {
-			dbg->warning("karte_t:::do_network_world_command", "disconnecting due to checklist mismatch" );
+			dbg->error("karte_t:::do_network_world_command", "disconnecting due to checklist mismatch. sync_step=%u  %s", server_sync_step, buf);
 			network_disconnect();
 		}
 	}
