@@ -1405,10 +1405,14 @@ void private_car_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster
 {
 	vehicle_base_t::get_screen_offset( xoff, yoff, raster_width );
 
+	const int dir = ribi_t::get_dir(get_direction());
 	if(  welt->get_settings().is_drive_left()  ) {
-		const int drive_left_dir = ribi_t::get_dir(get_direction());
-		xoff += tile_raster_scale_x( env_t::driveleft_base_offsets[drive_left_dir][0], raster_width );
-		yoff += tile_raster_scale_y( env_t::driveleft_base_offsets[drive_left_dir][1], raster_width );
+		xoff += tile_raster_scale_x( env_t::driveleft_base_offsets[dir][0], raster_width );
+		yoff += tile_raster_scale_y( env_t::driveleft_base_offsets[dir][1], raster_width );
+	}
+	if(  welt->lookup(get_pos()) && welt->lookup(get_pos())->get_weg(get_waytype())  ) {
+		xoff += vehicle_t::vehicle_offset_defined_by_way(dir,welt->lookup(get_pos())->get_weg(get_waytype())->get_vehicle_offset(),true,welt->lookup(get_pos())->get_weg(get_waytype())->get_vehicle_offset_mode(), raster_width);
+		yoff += vehicle_t::vehicle_offset_defined_by_way(dir,welt->lookup(get_pos())->get_weg(get_waytype())->get_vehicle_offset(),false,welt->lookup(get_pos())->get_weg(get_waytype())->get_vehicle_offset_mode(), raster_width);
 	}
 
 	// eventually shift position to take care of overtaking

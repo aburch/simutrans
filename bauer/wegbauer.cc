@@ -1165,6 +1165,8 @@ way_builder_t::way_builder_t(player_t* player) : next_gr(32)
 	keep_existing_city_roads = false;
 	keep_existing_faster_ways = false;
 	build_sidewalk = false;
+
+	vehicle_offset = 0;
 }
 
 
@@ -2273,12 +2275,12 @@ void way_builder_t::build_tunnel_and_bridges()
 
 				koord3d end = bridge_builder_t::find_end_pos(player_builder, route[i], zv, bridge_desc, error, bridge_height, false, koord_distance(route[i], route[i+1]), false);
 				if (end == route[i+1]) {
-					bridge_builder_t::build_bridge( player_builder, route[i], route[i+1], zv, bridge_height, bridge_desc, way_builder_t::weg_search(bridge_desc->get_waytype(), bridge_desc->get_topspeed(), welt->get_timeline_year_month(), type_flat), overtaking_mode, street_flag);
+					bridge_builder_t::build_bridge( player_builder, route[i], route[i+1], zv, bridge_height, bridge_desc, way_builder_t::weg_search(bridge_desc->get_waytype(), bridge_desc->get_topspeed(), welt->get_timeline_year_month(), type_flat), overtaking_mode, street_flag, vehicle_offset);
 				}
 			}
 			else {
 				// tunnel
-				tunnel_builder_t::build( player_builder, route[i].get_2d(), tunnel_desc, true, overtaking_mode, street_flag );
+				tunnel_builder_t::build( player_builder, route[i].get_2d(), tunnel_desc, true, overtaking_mode, street_flag, vehicle_offset );
 			}
 			INT_CHECK( "wegbauer 1584" );
 		}
@@ -2304,14 +2306,14 @@ void way_builder_t::build_tunnel_and_bridges()
 						if( bridge_desc ) {
 							wi->set_ribi(ribi_type(h));
 							wi1->set_ribi(ribi_type(slope_t::opposite(h)));
-							bridge_builder_t::build( player_builder, route[i], bridge_desc, overtaking_mode, street_flag );
+							bridge_builder_t::build( player_builder, route[i], bridge_desc, overtaking_mode, street_flag, vehicle_offset );
 						}
 					}
 					else if( tunnel_desc ) {
 						// make a short tunnel
 						wi->set_ribi(ribi_type(slope_t::opposite(h)));
 						wi1->set_ribi(ribi_type(h));
-						tunnel_builder_t::build( player_builder, route[i].get_2d(), tunnel_desc, true, overtaking_mode, street_flag );
+						tunnel_builder_t::build( player_builder, route[i].get_2d(), tunnel_desc, true, overtaking_mode, street_flag, vehicle_offset );
 					}
 					INT_CHECK( "wegbauer 1584" );
 				}
@@ -2487,6 +2489,7 @@ bool way_builder_t::build_tunnel_tile()
 					update_ribi_mask_oneway(str,i);
 					str->set_street_flag(street_flag);
 				}
+				weg->set_vehicle_offset(vehicle_offset);
 				player_t::add_maintenance( player_builder, -weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype());
 			}
 			else {
@@ -2522,6 +2525,7 @@ bool way_builder_t::build_tunnel_tile()
 						str->set_overtaking_mode(overtaking_mode);
 						str->set_street_flag(street_flag);
 					}
+					weg->set_vehicle_offset(vehicle_offset);
 					// respect max speed of catenary
 					waytype_t waytype = tunnel_desc->get_waytype();
 					wayobj_t const* const wo = gr->get_wayobj(waytype);
@@ -2613,6 +2617,7 @@ void way_builder_t::build_road()
 			update_ribi_mask_oneway(str,i);
 			str->set_street_flag(street_flag);
 			str->set_way_building(false);// show ribi
+			str->set_vehicle_offset(vehicle_offset);
 			continue;
 		}
 
@@ -2661,6 +2666,7 @@ void way_builder_t::build_road()
 					crossing->finish_rd();
 				}
 			}
+			str->set_vehicle_offset(vehicle_offset);
 		}
 		else {
 			// make new way
@@ -2670,6 +2676,7 @@ void way_builder_t::build_road()
 			str->set_overtaking_mode(overtaking_mode);
 			str->set_street_flag(street_flag);
 			str->set_gehweg(add_sidewalk);
+			str->set_vehicle_offset(vehicle_offset);
 			cost = -gr->neuen_weg_bauen(str, route.get_short_ribi(i), player_builder)-desc->get_price();
 
 			// into UNDO-list, so we can remove it later
@@ -2765,12 +2772,14 @@ void way_builder_t::build_track()
 						crossing->finish_rd();
 					}
 				}
+				weg->set_vehicle_offset(vehicle_offset);
 			}
 			else {
 				weg_t* const sch = weg_t::alloc(desc->get_wtyp());
 				sch->set_desc(desc);
 
 				cost = -gr->neuen_weg_bauen(sch, ribi, player_builder)-desc->get_price();
+				sch->set_vehicle_offset(vehicle_offset);
 
 				// connect canals to sea
 				if(  desc->get_wtyp() == water_wt  ) {

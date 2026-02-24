@@ -53,6 +53,8 @@ Citycars are excluded.
 自家用車進入禁止
 Road Configuration
 道路の設定
+Way Configuration
+敷設時の設定
 citycars do not enter
 自家用車進入禁止
 set wayobj spacing
@@ -539,6 +541,21 @@ Show line colors
 路線の色を表示
 Show convoy loading level
 編成の乗車率を表示
+#------車両オフセット機能------
+\nVehicle offset: 
+車両オフセット量: 
+Offset mode:
+モード:
+Direction
+進行方向
+Absolute
+絶対値
+vehicle offset
+車両オフセット量
+Offset mode: Absolute
+モード:絶対値
+set offset value and mode: On->Absolute(same offset for N&S),OFF->Direction(offset different based on Difference)
+車両のオフセット量とモードの設定: ONなら対向車も同じ向きにオフセットされます．OFFなら対向車は進行方向に応じてオフセットされます．
 #------その他の翻訳------
 Remove all waiting goods and pax
 この駅のすべての待機中の旅客と貨物を除去します

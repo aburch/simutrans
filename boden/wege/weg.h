@@ -97,6 +97,14 @@ private:
 	*/
 	uint16 max_speed;
 
+	/**
+	* set vehicle offset values for left and right in the direction of travel
+	* value: offset value ((value&0b11111110)>>1 : stored as sint7) and mode select (&=0b00000001)
+	* mode==1: Absolute(same offset for N&S), mode==0: Direction(offset different based on Difference)
+	* offset value: value/64 tiles (range: -63 to 63).
+	*/
+	sint8 vehicle_offset;
+
 	image_id image;
 	image_id foreground_image;
 
@@ -162,6 +170,14 @@ public:
 
 	void set_max_speed(uint16 s) { max_speed = s; }
 	uint16 get_max_speed() const { return max_speed; }
+
+	// vehicle offset value for left/right
+	// Must call this value by wegbauer_t (not call by gui)!
+	void set_vehicle_offset(sint8 s) { vehicle_offset = s; }
+	// Return offset value only. For info().
+	sint8 get_vehicle_offset() const { return vehicle_offset>>1; }
+	// Return offset mode only. For info().
+	bool get_vehicle_offset_mode() const { return vehicle_offset&1; }
 
 	/// @note Replaces max speed of the way by the max speed property of the descriptor.
 	void set_desc(const way_desc_t *b);
