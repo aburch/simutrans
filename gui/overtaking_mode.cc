@@ -127,7 +127,7 @@ void overtaking_mode_frame_t::init( player_t* player_, overtaking_mode_t overtak
 		vehicle_offset_label.set_text("vehicle offset");
 		add_component(&vehicle_offset_label);
 
-		vehicle_offset.set_limits(-16,16);
+		vehicle_offset.set_limits(-63,63);
 		vehicle_offset.set_value(vehicle_offset_value);
 		vehicle_offset.wrap_mode(false);
 		vehicle_offset.add_listener(this);
