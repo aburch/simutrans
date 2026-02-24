@@ -1739,9 +1739,11 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			return true;
 		}
 		else if(  comp == &depot_name_input  ) {
-			char buf[128];
-			strncpy(buf, depot_name_input.get_text(), sizeof(buf));
-			depot->set_name(buf);
+			cbuffer_t buf;
+			buf.printf(depot_name_input.get_text());
+			depot->call_depot_tool('N',convoihandle_t(),buf);
+			update_data();
+			return true;
 		}
 		else {
 			update_data();

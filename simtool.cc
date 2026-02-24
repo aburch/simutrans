@@ -9198,6 +9198,7 @@ bool tool_change_line_t::init( player_t *player )
  * 'v' : sell convoi
  * 'V' : sell all convoys
  * 't' : reverse convoy direction
+ * 'N' : change depot name
  */
 bool tool_change_depot_t::init( player_t *player )
 {
@@ -9460,6 +9461,10 @@ bool tool_change_depot_t::init( player_t *player )
 		}
 		case 't': { // reverse convoy direction
 			cnv->set_reversing_needed(!cnv->is_reversing_needed());
+			break;
+		}
+		case 'N': { // change depot name
+			depot->set_name(p);
 			break;
 		}
 	}
