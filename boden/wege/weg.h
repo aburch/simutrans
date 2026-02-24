@@ -172,8 +172,11 @@ public:
 	uint16 get_max_speed() const { return max_speed; }
 
 	// vehicle offset value for left/right
+	// Must call this value by wegbauer_t (not call by gui)!
 	void set_vehicle_offset(sint8 s) { vehicle_offset = s; }
+	// Return offset value only. For info().
 	sint8 get_vehicle_offset() const { return vehicle_offset>>1; }
+	// Return offset mode only. For info().
 	bool get_vehicle_offset_mode() const { return vehicle_offset&1; }
 
 	/// @note Replaces max speed of the way by the max speed property of the descriptor.
