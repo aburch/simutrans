@@ -99,7 +99,9 @@ private:
 
 	/**
 	* set vehicle offset values for left and right in the direction of travel
-	* value: offset value (&=0b11111110 : stored as sint7) and mode select (&=0b00000001)
+	* value: offset value ((value&0b11111110)>>1 : stored as sint7) and mode select (&=0b00000001)
+	* mode==1: Absolute(same offset for N&S), mode==0: Direction(offset different based on Difference)
+	* offset value: value/64 tiles (range: -63 to 63).
 	*/
 	sint8 vehicle_offset;
 
