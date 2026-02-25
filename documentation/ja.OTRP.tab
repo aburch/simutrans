@@ -651,3 +651,7 @@ Recreate halt name
 停車場名を再生成します
  Locked
 ゲーム速度固定
+Connected Factories
+接続産業
+Depots must be build on flat dead-end way tiles!
+この車庫は平坦な終端にしか建設できません!
