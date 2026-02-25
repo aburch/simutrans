@@ -437,6 +437,8 @@ To halt not found.
 到着停留所が見つかりません。
 No route found!
 経路が見つかりません！
+Show Non-Traveled Section
+乗車路線の乗車しない区間も地図に表示
 #------車庫内連結機能------
 Child convoy:
 後ろに連結する編成:
