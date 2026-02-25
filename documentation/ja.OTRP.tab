@@ -31,6 +31,8 @@ can branch cityroad
 市道の分岐を許可
 Cityroad allow branch from this road
 この道路からの市道の分岐を許可する
+pedestrians do not enter 
+歩行者通行禁止
 Overtaking:
 追越設定:
 Can be cityroad:
@@ -51,6 +53,8 @@ intersection
 交差点
 Citycars are excluded.
 自家用車進入禁止
+Pedestrias are excluded.
+歩行者通行禁止
 Road Configuration
 道路の設定
 Way Configuration
