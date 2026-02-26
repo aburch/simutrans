@@ -213,8 +213,9 @@ public:
 
 	/**
 	 * Remove all entries from the schedule.
+	 * Attention! We unset next line (because the last entry is same as next_line->get_schedule()->at(0), and we clear all entries including it)!
 	 */
-	void remove_all() { entries.clear(); }
+	void remove_all() { unset_next_line(); entries.clear(); }
 
 	void move_entry_forward(uint8);
 	void move_entry_backward(uint8);
