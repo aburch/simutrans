@@ -468,6 +468,7 @@ allow_merge_distant_halt=2
 #cost_remove_tree=100
 #cost_multiply_remove_haus=1000
 #cost_multiply_remove_field=5000
+#cost_kw_per_credit=512
 #cost_transformer=2500
 #cost_maintain_transformer=20
 

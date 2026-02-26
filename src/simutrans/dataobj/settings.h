@@ -352,6 +352,8 @@ public:
 	// maintainance cost in months to make something public
 	sint64 cst_make_public_months = 60;
 
+	sint32 cst_kw_per_credit = 512; // default
+
 	// costs for the way searcher
 	sint32 way_count_straight        =    1; // cost on existing way
 	sint32 way_count_curve           =    5; // diagonal curve

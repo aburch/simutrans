@@ -668,7 +668,7 @@ senke_t::~senke_t()
 void senke_t::pay_revenue()
 {
 	// megajoules (megawatt seconds) per cent
-	const uint64 mjpc = (1 << POWER_TO_MW) / CREDIT_PER_MWS; // should be tied to game setting
+	const uint64 mjpc = (1 << (POWER_TO_MW-10)) * welt->get_settings().cst_kw_per_credit;
 
 	// calculate payment in cent
 	const sint64 payment = (sint64)(energy_acc / mjpc);

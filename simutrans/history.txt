@@ -60,6 +60,7 @@
 	CHG: Stops that are not connected to any other stops now have a blue status colour
 	FIX: Fatal error message when building a city house that was copied using the pipette tool
 	CHG: (poppo) extended selection of way resp. their obj with CNTRL and SHIFT and pipette tool
+	ADD: new settings cost_kw_per_credit (default was 512) to chaneg revenue from power. Smaller numbers more income
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):

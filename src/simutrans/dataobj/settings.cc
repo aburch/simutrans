@@ -83,6 +83,7 @@ settings_t::settings_t()
 	default_ai_construction_speed = env_t::default_ai_construction_speed;
 
 	/* the big cost section */
+	cst_kw_per_credit = 512;
 
 	for(  int i=0; i<10; i++  ) {
 		startingmoneyperyear[i].year = 0;
@@ -746,6 +747,13 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long(way_count_avoid_crossings);
 			file->rdwr_long(way_count_maximum);
 		}
+
+		if (file->is_version_atleast(124, 4)) {
+			file->rdwr_long(cst_kw_per_credit);
+		}
+		else {
+			cst_kw_per_credit = 512;
+		}
 	}
 
 	// sometimes broken savegames could have no legal direction for take off ...
@@ -1343,6 +1351,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	cst_multiply_remove_field   = contents.get_int64("cost_multiply_remove_field",   cst_multiply_remove_field  /(-100) ) * -100;
 
 	// powerlines
+	cst_kw_per_credit        = contents.get_int64("cost_kw_per_credit",        cst_kw_per_credit);
 	cst_transformer          = contents.get_int64("cost_transformer",          cst_transformer         /(-100) ) * -100;
 	cst_maintain_transformer = contents.get_int64("cost_maintain_transformer", cst_maintain_transformer/(-100) ) * -100;
 
