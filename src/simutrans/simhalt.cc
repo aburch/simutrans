@@ -163,6 +163,10 @@ void haltestelle_t::end_load_game()
 {
 	delete all_koords;
 	all_koords = NULL;
+
+	for (halthandle_t h : alle_haltestellen) {
+		h->recalc_status();
+	}
 }
 
 /**
@@ -3036,8 +3040,11 @@ void haltestelle_t::finish_rd()
 			all_names.set( current_name, self );
 		}
 	}
-	recalc_status();
+
+	// no need to recalc status here, as this is done in haltestelle_t::end_load_game
+	// (after convois have been loaded)
 	recalc_basis_pos();
+
 	reconnect_counter = welt->get_schedule_counter()-1;
 	last_search_origin = halthandle_t();
 }
