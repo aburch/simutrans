@@ -1713,14 +1713,16 @@ const char *tool_clear_reservation_t::work( player_t *, koord3d pos )
 const char* tool_transformer_t::get_tooltip(const player_t *) const
 {
 	settings_t const& s = welt->get_settings();
-	sprintf(toolstr, "%s, %ld$ (%ld$)", translator::translate("Build drain"), (long)(s.cst_transformer / -100), (long)(welt->scale_with_month_length(s.cst_maintain_transformer)) / -100);
-	return toolstr;
+
+	return tooltip_with_price_maintenance(welt, "Build drain", s.cst_transformer, -s.cst_maintain_transformer);
 }
+
 
 image_id tool_transformer_t::get_icon(player_t*) const
 {
 	return way_builder_t::waytype_available( powerline_wt, welt->get_timeline_year_month() ) ? icon : IMG_EMPTY;
 }
+
 
 bool tool_transformer_t::init( player_t *)
 {
