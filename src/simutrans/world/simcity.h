@@ -481,7 +481,14 @@ public:
 	/**
 	 * ermittelt die Einwohnerzahl der City
 	 */
-	sint32 get_einwohner() const {return (buildings.get_sum_weight()*6)+((2*bev-arb-won)>>1);}
+	sint32 get_einwohner() const
+	{
+		const sint32 pop_from_buildings = 6 * (sint32)buildings.get_sum_weight();
+		const sint32 pop_from_citizens  = (2 * bev - arb - won) / 2;
+		const sint32 pop = pop_from_buildings + pop_from_citizens;
+
+		return std::max(pop, 0);
+	}
 
 	uint32 get_buildings()  const { return buildings.get_count(); }
 	sint32 get_unemployed() const { return bev - arb; }
