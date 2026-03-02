@@ -603,6 +603,12 @@ scr_size gui_flowtext_intern_t::output(scr_coord offset, bool doit, bool return_
 					}
 
 					if ( doit ) {
+						// display_base_img calls display_color_img if zoom level is 1:1;
+						// this will display the scaled tool image, not the original one
+						// and therefore causes graphical glitches when zooming in/out.
+						// Force displaying non-scaled tool image instead.
+						display_fit_img_to_width(image->id, xw);
+
 						display_base_img(image->id, offset.x + xpos + 1 - xoff + D_MARGIN_LEFT, offset.y + ypos + yoff, 0, false, false);
 					}
 					xpos += xw+2;

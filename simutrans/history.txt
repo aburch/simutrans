@@ -62,6 +62,7 @@
 	CHG: (poppo) extended selection of way resp. their obj with CNTRL and SHIFT and pipette tool
 	ADD: new settings cost_kw_per_credit (default was 512) to chaneg revenue from power. Smaller numbers more income
 	FIX: Corrected format of transformer tool icon tooltip
+	FIX: Inline tool icons change size when zooming in or out and scaled tool icons are enabled
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):
