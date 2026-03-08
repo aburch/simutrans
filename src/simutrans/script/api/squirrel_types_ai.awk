@@ -156,6 +156,7 @@ BEGIN {
 	export_types_ai["way_desc_x::has_double_slopes"] = "bool()"
 	export_types_ai["way_desc_x::get_system_type"] = "way_system_types()"
 	export_types_ai["way_desc_x::get_available_ways"] = "array<way_desc_x>(way_types, way_system_types)"
+	export_types_ai["way_desc_x::get_default_way_desc"] = "way_desc_x(integer)"
 	export_types_ai["tunnel_desc_x::get_available_tunnels"] = "array<tunnel_desc_x>(way_types)"
 	export_types_ai["bridge_desc_x::has_double_ramp"] = "bool()"
 	export_types_ai["bridge_desc_x::has_double_start"] = "bool()"
