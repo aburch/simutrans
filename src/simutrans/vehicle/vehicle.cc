@@ -1229,7 +1229,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 				break;
 		}
 
-		if(  env_t::show_vehicle_states == 2  &&  !tooltip_text[ 0 ]  ) {
+		if (env_t::show_vehicle_states >= 2 && !tooltip_text[0]) {
 			// show line name or simply convoi name
 			color = color_idx_to_rgb( cnv->get_owner()->get_player_color1() + 7 );
 			if(  cnv->get_line().is_bound()  ) {
