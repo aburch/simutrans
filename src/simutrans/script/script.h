@@ -35,7 +35,7 @@ public:
 	 * loads file, calls script
 	 * @returns error msg (or NULL if succeeded)
 	 */
-	const char* call_script(const char* filename);
+	const char* call_script(const char* filename, uint32 ops=100000);
 
 	/**
 	 * compiles and executes given string

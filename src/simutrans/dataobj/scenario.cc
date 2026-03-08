@@ -174,7 +174,7 @@ bool scenario_t::load_script(const char* filename)
 	}
 
 	// load scenario definition
-	if (const char* err = script->call_script(filename)) {
+	if (const char* err = script->call_script(filename,2000000)) {
 		dbg->error("scenario_t::load_script", "error [%s] calling %s", err, filename);
 		return false;
 	}

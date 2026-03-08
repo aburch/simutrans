@@ -165,7 +165,7 @@ script_vm_t::~script_vm_t()
 	delete log;
 }
 
-const char* script_vm_t::call_script(const char* filename)
+const char* script_vm_t::call_script(const char* filename, uint32 ops)
 {
 	// load script
 	if (!SQ_SUCCEEDED(sqstd_loadfile(vm, filename, true))) {
@@ -173,7 +173,7 @@ const char* script_vm_t::call_script(const char* filename)
 	}
 	// call it
 	sq_pushroottable(vm);
-	if (!SQ_SUCCEEDED(sq_call_restricted(vm, 1, SQFalse, SQTrue, 100000))) {
+	if (!SQ_SUCCEEDED(sq_call_restricted(vm, 1, SQFalse, SQTrue, ops))) {
 		sq_pop(vm, 1); // pop script
 		return "Call script failed";
 	}
