@@ -16,6 +16,7 @@
 #include "../../utils/simstring.h"
 
 #include "../../simintr.h"
+#include "../../simevent.h"
 
 using namespace script_api;
 
@@ -54,6 +55,93 @@ static plainstring koord_to_string_intern(koord k)
 static plainstring koord3d_to_string_intern(koord3d k)
 {
 	return k.get_str();
+}
+
+static plainstring get_tool_key_intern(uint16 tool_id)
+{
+	vector_tpl<tool_t *> *tool_list;
+	uint16 category = tool_id & 0xF000;
+	uint16 local_id = tool_id & 0x0FFF;
+
+	switch (category) {
+		case GENERAL_TOOL:
+			tool_list = &tool_t::general_tool;
+			break;
+		case SIMPLE_TOOL:
+			tool_list = &tool_t::simple_tool;
+			break;
+		case DIALOGE_TOOL:
+			tool_list = &tool_t::dialog_tool;
+			break;
+		case TOOLBAR_TOOL:
+			return "";
+		default:
+			return "";
+	}
+	if (!tool_list || local_id >= tool_list->get_count()) {
+		return "";
+	}
+
+	tool_t *tool = (*tool_list)[local_id];
+	if (!tool) {
+		return "";
+	}
+
+	// just to save some typing ...
+	const uint16 key = tool->command_key;
+
+	// no binding => finish
+	if (key == 0 || key == 0xFFFF) {
+		return "";
+	}
+
+	char mod[2];
+	mod[0] = tool->command_flags == 2 ? '+' : (tool->command_flags == 1 ? '^' : 0);
+	mod[1] = 0;
+
+	// keypad
+	if (key >= SIM_KEYCODE_NUMPAD_BASE && key < SIM_KEYCODE_NUMPAD_BASE + 10) {
+		char str[8];
+		sprintf(str, "%sNUM_%d", mod, key - SIM_KEYCODE_NUMPAD_BASE);
+		return str;
+	}
+
+	// function keys
+	if (key >= SIM_KEYCODE_F1 && key <= SIM_KEYCODE_F15) {
+		char str[8];
+		sprintf(str, "%sF%d", mod, key - SIM_KEYCODE_F1 + 1);
+		return str;
+	}
+
+	// speacial keys
+	switch (key) {
+	case ',': return "COMMA";
+		//		case SIM_KEYCODE_SCROLLLOCK: return "SCROLLLOCK";
+	case SIM_KEYCODE_PAUSE: return "PAUSE";
+	case SIM_KEYCODE_HOME: return "HOME";
+	case SIM_KEYCODE_END: return "END";
+	case SIM_KEYCODE_SPACE: return "SPACE";
+	case SIM_KEYCODE_ESCAPE: return "ESC";
+	case SIM_KEYCODE_DELETE: return "DELETE";
+	case SIM_KEYCODE_BACKSPACE: return "BACKSPACE";
+	}
+
+	if (key < 32) {
+		char str[6];
+		sprintf(str, "^%c", key + 64);
+		return str;
+	}
+
+	if (key < 127) {
+		char str[2];
+		str[0] = key;
+		str[1] = 0;
+		return str;
+	}
+
+	char str[10];
+	sprintf(str, "%s#%d", mod, key);
+	return str;
 }
 
 void export_string_methods(HSQUIRRELVM vm)
@@ -114,6 +202,16 @@ void export_string_methods(HSQUIRRELVM vm)
 	 * @returns time difference using the current local setting
 	 */
 	register_method(vm, &difftick_to_string_intern, "difftick_to_string");
+
+	/**
+	* Gets the tool_key (shortcut key) associated with a general tool by its ID.
+	* The ID corresponds to the index used in menuconf.tab (e.g. 0 = query tool, 1 = remover, etc.).
+	* Returns the hotkey as a string (e.g. "r", "M", "COMMA, "^s, "+F10", "#1234") without quotation marks
+	* or an empty string if there is no hotkey or invalid ID.
+	* @param tool_id the numeric ID of the general tool (as defined in menuconf.tab)
+	* @returns a string representing the hotkey, or empty if none or invalid
+	*/
+	register_method(vm, &get_tool_key_intern, "get_tool_key");
 }
 
 
