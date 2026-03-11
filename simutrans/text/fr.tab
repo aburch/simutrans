@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: fr Francais                            #
 #                                Encoding: UTF-8                               #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 3.04 2025                           #
+#                           Date Created: 11.03 2026                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -47,6 +47,8 @@ clf_btn_keine
 rien
 climate area percentage
 Taille d'une région climatique
+Continue Game
+Continuer Partie
 Find matching convois
 Trouver les convois correspondants
 gl_btn_sort_bonus
@@ -93,6 +95,8 @@ Queueing
 Tendance d'attente
 Reselect closes tools
 Re-sélection d'un outil le ferme
+Return to menu
+Retour au menu
 Road toll
 Péages routiers
 Scenario
@@ -199,6 +203,8 @@ Un arrêt de train\npeut seulement\nêtre placé\nsur un rail !\n
 <title>Aide</title><h1>Contenu</h1><p>*n'existe qu'en version anglaise</p><p><it>Simutrans en général</it></p>%1$s<p><it>Aide à la manipulation</it></p>%2$s<p><it>Engager un jeu</it></p>%4$s<p><it>Comment ça se passe ?</it></p>%5$s<p><it>Outils de gestion</it></p>%3$s<p><it>Dialogues supplémentaires</it></p>%6$s
 <title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n
 <title>Commandes au clavier</title>\n<h1><strong>Configuration :</strong></h1><p>\n<em>9</em> - Déplacer la carte vers le nord-est<br>\n<em>1</em> - Déplacer la carte vers le sud-ouest<br>\n<em>7</em> - Déplacer la carte vers le nord-ouest<br>\n<em>3</em> - Déplacer la carte vers le sud-est<br>\n<em>6</em> - Déplacer la carte vers l'est<br>\n<em>2</em> - Déplacer la carte vers le sud<br>\n<em>8</em> - Déplacer la carte vers le nord<br>\n<em>4</em> - Déplacer la carte vers l'ouest<br>\n<em>Delete</em> - Fermer l'écran actuel<br>\n<em>Backspace</em> - Fermer tous les écrans<br>\n<p>
+Color-coded terrain according to altitude.
+Change la couleur du terrain en fonction de l'altitude
 Decrease water height
 Baisser le niveau d'eau du bassin de 1
 Highlight railroad tracks
@@ -995,6 +1001,8 @@ Hier warten/lagern:
 En attente de chargement:
 Higher transport fees, crossconnect all factories
 Pour plus de rentrée d'argent, désactiver le "just in time" (arrêt de production en cas de saturation)
+highlight single ways
+Afficher les fins/interruptions des itinéraires de circulation.
 Highlite schedule
 Montrer les arrêts de la ligne
 hl_title
@@ -1486,7 +1494,7 @@ Problèmes
 Produced
 Produit
 Produces: %.1f units/minute
-Produit %.1f unités/minute
+actuellement %.1f/minute
 Production of %s has been stopped:\n%s\n
 La production de %s a été arrêtée:\n%s\n
 Production/Boost
@@ -1860,7 +1868,7 @@ Chômeurs
 Unhappy
 Fâché
 units/day
- unités par mois
+ par mois\n
 Update Line
 MAJ. ligne
 upgrade HQ

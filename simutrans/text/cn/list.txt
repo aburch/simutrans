@@ -1,0 +1,35 @@
+<title>列表</title>
+
+<h1><strong>列表</strong></h1>
+
+<p>
+<strong>列表</strong> 提供了打开控件以查看游戏当前状态信息的选项（以及调整运输不同<a href="goods_filter.txt">货物、乘客和邮件</a>所获得的相对收入的控件）。
+</p>
+<p>
+玩家可以在以下列表中获取信息: <a href="station.txt">站点</a>；<a href="convoiinfo.txt">编队</a>；<a href="citywindow.txt">城市区域</a>；从不同<a href="goods_filter.txt">货物</a>、乘客和邮件中获得的收入；<a href="industry_info.txt">产业</a>；以及旅游景点。
+</p>
+<p>
+点击游戏视图顶部的列表图标打开<strong>列表</strong>。<br>
+打开或点击工具栏后，将鼠标光标悬停在列表工具选项上即可查看名称。
+</p>
+<p>
+点击工具选项打开信息控件，从左到右依次为:
+</p>
+<p>
+<a href="haltlist.txt"><em>站点列表</em></a>: <a href="station.txt">站点</a>, 载具在此上下客和接送货物（但不包括仅供水上运输工具停靠的站点）。
+</p>
+<p>
+<a href="convoi.txt"><em>载具列表</em></a>: 公路和铁路<a href="convoiinfo.txt">车辆</a>、飞机和船舶。
+</p>
+<p>
+<a href="citylist_filter.txt"><em>所有城镇列表</em></a>: <a href="citywindow.txt"城市区域</a> (村庄、城镇和城市)。
+</p>
+<p>
+<a href="goods_filter.txt"><em>所有对象物列表</em></a>: 从不同货物、乘客和邮件中获得的收入（包括调整相对收入）。
+</p>
+<p>
+<a href="factorylist_filter.txt"><em>工厂列表</em></a>: <a href="industry_info.txt">产业</a> (商品消费者和供应商)。
+</p>
+<p>
+<a href="curiositylist_filter.txt"><em>景点列表</em></a>: 旅游景点。
+</p>

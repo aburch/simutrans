@@ -6,6 +6,7 @@
 209CATrus
 Ampersand
 An_dz                                         note: Verified where all texts are shown
+Aureus          - Aureus
 BJ99
 BarthVader      - Bartlomiej Weclewski
 Citarofahrer
@@ -29,6 +30,7 @@ MRBK                                          note: KHOMKRIT BUTSARAKHAM (พี
 Makie           - Martin                      note: Maintainer PAK128.german & Translator
 Matthew
 NNW             - Daniel
+Nazalassa       - Nazalassa
 Pestr           - Mikhail Pestrechikhin
 Phystam         - T. Tomai                    note: Simutrans Extended player
 pak256-Ex developer

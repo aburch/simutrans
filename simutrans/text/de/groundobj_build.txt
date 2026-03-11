@@ -1,0 +1,29 @@
+<title>Landschaftsobjekte platzieren</title>
+
+<h1>Landschaftsobjekte platzieren</h1>
+<p>
+Mit dem Dialog "Landschaftsobjekte platzieren" kannst verschieden Objekte zur Verschönerung der Karte platzieren. Er ist über den <a href="edittools.txt">Karteneditor</a> zu öffnen. Diese Landschaftsobjekte sind für das Spiel nicht notwendig, Sie dienen nur der Optik und behindern eine Bebauung nicht. Landschaftsobjekte sind Felsen die die Eiszeit hinterlassen hat, kleine Teiche mit Enten, Blumen, Büsche, Kakteen, Landmarken, oder ähnliches.<br>
+</p>
+<p>
+Oben befinden sich die <em>Auswahl</em> für eine bestimmte <em>Klimazone</em>.<br>
+· <em>Alle</em> bedeutet alle zur Verfügung stehenden Landschaftsobjekte werden aufgelistet, unabhängig von den Klimazonen, aber nur Landschaftsobjekte die zur Klimazone des Bodens passende können platziert werden. Will man die Prüfung auf Klimazonen ignorieren dann kann man die Option <em>alle Klimazonen</em> daneben aktivieren. Dann findet keine Prüfung auf die Klimazone beim Platzieren mehr statt.<br>
+Wählt man eine Klimazone entsprechend dem vorgesehenen Boden aus, so werden nur noch die dafür passenden Landschaftsobjekte angezeigt.<br>
+<br>
+Darunter kann man die Anzeige des Namens und die Sortierung in der Liste ändern.<br>
+· <em>Übersetzung:</em> Zeigt die Namen so an, wie diese im Spiel verwendet werden. Dies ist abhängig von der eingestellten Sprache. Wenn keine Übersetzung für die eingestellte Sprache vorhanden ist, wird der Objektname angezeigt.<br>
+· <em>Objekt:</em> Zeigt die Programm internen Objektnamen an.<br>
+· <em>Kosten für Entfernung</em> Danach wird nur sortiert, es werden die Übersetzungsnamen angezeigt.<br>
+Der Button daneben dreht die Sortierung auf absteigend um.<br>
+</p>
+<h1>Auswahlliste</h1>
+<p>
+· links befindet sich die Auswahlliste mit den Landschaftsobjekten<br>
+· rechts werden die Informationen des ausgewählten Landschaftsobjekts angezeigt<br>
+Der Name, ein eventueller Erläuterungstext, alle passenden Klimazonen, ob es eine Grafik für Schnee gibt, für welche Jahreszeiten Grafiken vorhanden sind, was es kostet diese Objekt abzureißen, und von wem die Grafik gemalt wurde.<br>
+<em>4 Jahreszeiten</em> bedeutet Frühling, Sommer, Herbst Winter.<br>
+· unten rechts wird das Bild des ausgewählten Objekts angezeigt<br>
+</p>
+<h1>Optionen</h1>
+<p>
+· <em>alle Klimazonen:</em> Diese Option deaktiviert die Klimazonenzuordnung beim platzieren des Landschaftsobjekts.<br>
+</p>

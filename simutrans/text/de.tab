@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: de Deutsch                             #
 #                                Encoding: UTF-8                               #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.04 2025                           #
+#                           Date Created: 11.03 2026                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -505,6 +505,8 @@ Keine Einfahrt!
 %d Fahrzeuge
 %d Einzelfahrzeuge im Depot
 %d Einheiten im Depot
+%d more convois
+%d weitere Fahrzeuge
 %i car(s),
 %i Wagen, 
 %i years %i months old.
@@ -923,6 +925,8 @@ Connected stops
 Haltestelle (mit dieser Fabrik verbunden):
 Connected with server
 Mit Server verbunden
+connection
+Verbindung
 Connections
 Verbindungen
 Constructed by
@@ -1247,6 +1251,8 @@ Hier warten/lagern:
 Wartende Passagiere/Güter:
 Higher transport fees, crossconnect all factories
 höhere Transportgewinne, keine Produktionsstopps wenn überfüllt
+highlight single ways
+Enden / Unterbrechungen von Verkehrswegen anzeigen.
 Highlite schedule
 Fahrplanhalte hervorheben
 hl_title
@@ -1458,7 +1464,7 @@ eigene Skins laden ...
 Loading time:
 Voll Beladen in: 
 Lock Control key
-Steurungstaste einrasten
+Strg-Taste aktivieren/deaktivieren
 Lock game
 Karte gegen weiteren Spielerwechsel schützen.
 Lokomotive_tab
@@ -1800,7 +1806,7 @@ Warnungen
 Produced
 Erzeugt
 Produces: %.1f units/minute
-Produziert %.1f Einheiten pro Minute
+aktuell %.1f pro Minute
 Production of %s has been stopped:\n%s\n
 %s '%s'\nwird nicht mehr hergestellt.
 Production/Boost
@@ -1903,6 +1909,8 @@ sail
 Wind
 Save
 Spiel speichern
+Save generated script
+Speichere erzeugtes Script
 Saving map ...
 Speichere Karte ...
 Scenario complete: %i%%
@@ -2148,7 +2156,7 @@ Lieferanten
 The following graphics are unmaintained:
 Die folgenden Grafiksets werden nicht mehr betreut:
 The generated script was saved!\n
-Makro erfogreich gespeichert.\nKann jetzt mit Skriptwerkezug gebaut werden.
+Makro erfolgreich gespeichert.\nJetzt kann mit dem Skriptwerkzeug gebaut werden.
 The gradient does not fit a tunnel
 Die Steigung passt nicht für einen Tunnel.
 The script cannot be saved!\n
@@ -2244,7 +2252,7 @@ Der Tunnel muss an\n einem Gleis oder\ einer Straße beginnen
 Tunnelboden
 Tunnel
 under the Artistic License
-OS unter der Artisitc License
+unter der Artisitc License
 underground mode
 Untergrundansicht
 UNDO failed!
@@ -2256,7 +2264,7 @@ Arbeitslos
 Unhappy
 Unzufrieden
 units/day
- Einheiten pro Monat
+ pro Monat\n
 Unloading (%i%%)!
 Entladen (%i%%)
 Update Line

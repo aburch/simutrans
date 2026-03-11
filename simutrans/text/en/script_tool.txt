@@ -1,0 +1,6 @@
+<title>Load Script Tools</title>
+<p>
+This window lists tools written with Squirrel that extend Simutrans functionality.
+<br />
+The tools are located in subdirectories in the <em>simutrans/</em>[Graphics Set]<em>/tool/</em> or <em>simutrans/addons/</em>[Graphics Set]<em>/tool/</em> directory.
+</p>

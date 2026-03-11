@@ -12,11 +12,17 @@ Prop-Latin1.bdf
 #                              Language: fi Suomi                              #
 #                                Encoding: UTF-8                               #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 3.04 2025                           #
+#                           Date Created: 11.03 2026                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
 #__________________________________button_text__________________________________
+Absolute times
+Esitä ajat päivä:tunti:kk kuukaudessa
+AMBIENT_SOUND
+ympäristöäänet
+CASH_SOUND
+rahantuloääni
 cl_btn_filter_disable
 pois päältä
 cl_btn_filter_enable
@@ -24,9 +30,9 @@ päällä
 cl_btn_filter_settings
 Asetukset
 cl_btn_sort_asc
-nouseva
+Nouseva
 cl_btn_sort_desc
-laskeva
+Laskeva
 cl_btn_sort_id
 sisäinen tunniste
 cl_btn_sort_income
@@ -41,6 +47,12 @@ clf_btn_invers
 päinv.
 clf_btn_keine
 ei mitään
+Continue Game
+Jatka peliä
+FACTORY_SOUND
+tehtaiden äänet
+Find matching convois
+Etsi yhteensopivia ajoneuvoja
 gl_btn_sort_bonus
 bonus
 gl_btn_sort_name
@@ -48,7 +60,9 @@ nimi
 gl_btn_sort_revenue
 tuotto
 gl_btn_unsort
-ei mikään
+Lajittelematon
+height based
+Ilmasto korkeuden perusteella
 hl_btn_filter_disable
 pois päältä
 hl_btn_filter_enable
@@ -71,6 +85,34 @@ hlf_btn_invers
 päinv.
 hlf_btn_keine
 ei mitään
+humidities
+kosteuksien rajat
+Install
+Asenna
+Lake
+Järvi
+Lake height
+maksimi järvenkorkeus
+Maximize height levels
+Lisää korkeustasoja
+Networks
+Verkkokaavio
+Open Sea
+Avomeri
+rainfall
+kosteus
+Return to menu
+takaisin valikkoon
+Road toll
+Tiemaksu
+Scenario
+Skenaario
+sea
+meri
+Start this as a server
+Aloita serveri tällä pelillä
+Tutorial
+Alkuopas
 #_________________________________climates_text_________________________________
 #_________________________________climates_text_________________________________
 arctic
@@ -89,6 +131,12 @@ tundra
 tundrailmasto
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
+Bridge blocked by way below or above.
+Silta estynyt alhaalta tai ylhäältä
+Can't buy obsolete vehicles!
+Et pysty ostamaan vanhentunutta kulkuneuvoa!
+Cannot build on a double slope!
+Et pysty rakentamaan tuplarinteeseen!
 Cannot built depot here!
 Et voi rakentaa tallia tähän.
 Cannot built this station/building\nin underground mode here.
@@ -97,20 +145,38 @@ Cannot create generic line!\nSelect line type by\nusing filter tabs.
 Et voi luoda yleisreittiä!\nValitse ensin reitin tyyppi\n
 Cannot create socket
 Yhteyden muodostaminen ei onnistu!
+Cannot rotate this building!
+Ei pysty kääntämään tätä rakennusta!
 Convoi handles exhausted!
 Saavutettiin kuljetusvälineiden\nenimmäismäärä.
+Convoy already deleted!
+Saattue jo poistettu!
+Corrupt file
+Tiedosto korruptoitunut tai liian lyhyt.
+Could not open file
+Ei pysty käsittelemään tiedostoa. Tarkista oikeudet?
 Das Feld gehoert\neinem anderen Spieler\n
 Maa on toisen\npelaajan omistuksessa.\n 
+Depots cannot be built on runways!
+Varikkoa ei pysty rakentamaan kiitoteille!
 Der Besitzer erlaubt das Entfernen nicht
 Omistaja ei salli\ntehdä tätä.\n
 Diese Zusammenstellung kann nicht fahren!\n
 Tämä yhdistelmä\nei toimi.\n
+Failed to write file
+Ei pysty kirjoittamaan tiedostoa. (Oikeudet?)
 Flugzeughalt muss auf\nRunway liegen!\n
 Pysäkin pitää olla rullausalueella!
+Forbidden by scenario
+Kielletty tässä tilanteessa
 Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 Tätä lentokenttärakennusta\n\nei voi rakentaa tähän!
 Hier kann kein\nSignal aufge-\nstellt werden!\n
 Rautatieopastinta\nei voi rakentaa\ntähän.\n
+In order to lock the game, you have to protect the public player by password!
+Pelin lukitsemiseksi sinun täytyy suojata julkinen pelaaja salasanalla!
+Loading a new game will end the current server session!
+Uuden pelin lataaminen lopettaa nykyisen serveri-istunnon!
 Lost connection\nto server!
 Palvelin ei vastaa!
 Lost synchronisation\nwith server.
@@ -121,24 +187,70 @@ Monorailhalt muss auf\nMonorail liegen!\n
 Monorail-asema täytyy\nasettaa Monorail-radalle!
 Monorails are not available yet!
 Monorailit eivät ole vielä käytössä!
+More than one possibility to build this dock found.
+Useampi mahdollisuus rakentaa tämä telakka löytyy.
 Narrowgaugehalt muss auf\nNarrowgauge liegen!\n
 Kapearaidepysäkin oltava kapeariteisella raiteella.
+No bridges over runways!
+Ei siltoja yli kiitoteiden!
+No curves on runways
+Ei mutkia kiitoteillä
+No suitable crossing
+Ei sopivaa ylitystä! (liian nopea maksiminopeus?)
 No through station here!
 Et voi rakentaa asemaa tähän!
+Not allowed to copy object.
+Et pysty rakentamaan esinettä!\n(Syy: Väärä pelaaja tai vanhentunut)
+Not enough bytes transferred
+Ei tarpeeksi tavuja siirretty
+Not enough clearance.
+Polkujen välillä täytyy olla vähintään kahden tason korkeusero.
+Not enough empty space
+Riittämätön määrä vapaata tilaa jäljellä.
 Not enough money!
 Sinulla ei ole tarpeeksi varoja tämän rakentamiseen!
+Not initialized
+Kirjastoa ei voinut alustaa. 
 On narrowgauge track only!\n
 Tämä onnistuu vain kapearaideradalla!\n
+Only public player can lock games!
+Vain julkinen pelaaja voi lukita pelejä!
+Only up and down movement in the underground!
+Maanalaista laattaa voi nostaa ja laskea vain käyttämällä kaikkia ylös/alas -työkaluja!
+Out of funds
+Sinulla ei ole tarpeeksi rahaa tätä varten!
 Post muss neben\nHaltestelle\nliegen!\n
 Postitoimisto pitää\nrakentaa aseman tai\npysäkin lähelle.\n
 Protocoll error (expecting game)
 Protokollavirhe (odotetaan peliä)
 Schiffhalt muss im\nWasser liegen!\n
 Laivan pysähdyspaikan\nvoi asettaa vain\nveteen lähelle\nlaituria.\n
+Server busy
+Palvelin kiireinen
+Server version too new
+Palvelin käyttää uudempaa ohjelmaversiota.
+Ship depots must be built on water!
+Laivatelakat täytyy rakentaa veden päälle!
+Show all revenue messages
+Näytä kaikki tuloviestit
+Show no revenue messages
+Älä näytä tuloviestejä
+Show only player's revenue
+Näytä vain pelaajan tulot
 Terraforming not possible\nhere in underground view
 Maata ei voi muokata\nmaanalaisessa näkymässä.
+This tunnel branches. You can try Control+Click to remove.
+Tämä tunneli haarautuu. Voit kokeilla Control+Click poistaaksesi sen.
+Too far away to merge stations!
+Liian kaukana yhdistääksesi asemat!
+Unknown error
+Tuntematon virhe
 Upgrade must have\na higher level
 Päivityksen täytyy olla korkeampaa tasoa
+Vehicle %s cannot choose because stop too short!
+Ajoneuvo %s ei voi valita, koska pysäkki liian lyhyt!
+Watertable reached
+Pohjavesialue saavutettu
 Zughalt muss auf\nSchiene liegen!\n
 Rautatieaseman\nvoi rakentaa\nvain rautatielle.\n
 #___________________________________help_text___________________________________
@@ -1534,7 +1646,7 @@ Työttömiä
 Unhappy
 Pettyneitä
 units/day
- yksikköä/kk
+ yksikköä/kk\n
 Update Line
 Päivitä linja
 upgrade HQ

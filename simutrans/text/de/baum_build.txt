@@ -1,25 +1,38 @@
 <title>Bäume pflanzen</title>
 
-<h1><strong>Bäume pflanzen</strong></h1>
-
+<h1>Bäume pflanzen</h1>
 <p>
-Der Dialog ist in vier Bereiche aufgeteilt.
+Mit dem Dialog "Bäume pflanzen" kannst du gezielt einzelne Bäume pflanzen. Er lässt sich über den <a href="edittools.txt">Karteneditor</a> zu öffnen.<br>
+TIPP: Diese Leiste enthält auch die Schaltfläche <em>Wald aufforsten</em>, mit der du ganze Wälder mit unzähligen Bäumen hinzufügen kannst.
+</p>
+<p>
+Oben befinden sich die <em>Auswahl</em> für eine bestimmte <em>Klimazone</em>.<br>
+· <em>Alle</em> bedeutet alle zur Verfügung stehenden Bäume werden aufgelistet, unabhängig von den Klimazonen, aber nur Bäume die zur Klimazone des Bodens passende können gepflanzt werden. Will man die Prüfung auf Klimazonen ignorieren dann kann man die Option <em>alle Klimazonen</em> daneben aktivieren. Dann findet keine Prüfung auf die Klimazone beim Pflanzen des Baum mehr statt.<br>
+Wählt man eine Klimazone entsprechend dem vorgesehenen Boden aus, so werden nur noch die dafür passenden Bäume angezeigt.<br>
 <br>
-· oben links befindet sich die Auswahlliste mit den Bäumen<br>
-· unten links wird das Bild des ausgewählten Baums angezeigt<br>
-· oben rechts befinden sich einige Optionen<br>
-· unten rechts werden die Informationen des ausgewählten Baums angezeigt<br>
+Darunter kann man die Anzeige des Namens und die Sortierung in der Liste ändern.<br>
+· <em>Übersetzung:</em> Zeigt die Namen so an, wie diese im Spiel verwendet werden. Dies ist abhängig von der eingestellten Sprache. Wenn keine Übersetzung für die eingestellte Sprache vorhanden ist, wird der Objektname angezeigt.<br>
+· <em>Objekt:</em> Zeigt die Programm internen Objektnamen an und sortiert danach.<br>
+Der Button daneben kehrt die Sortierung auf absteigend um.<br>
 </p>
 <h1>Auswahlliste</h1>
 <p>
-In der Auswahlliste werden alle zur Verfügung stehenden Bäume angezeigt.
-Oben befinden sich zwei Reiter, die die Anzeige umschalten.<br>
-· <em>Übersetzung:</em> Zeigt die Namen so an, wie diese im Spiel verwendet werden. Dies ist abhängig von der eingestellten Sprache. Wenn keine Übersetzung für die eingestellte Sprache vorhanden ist, wird der Objektname angezeigt.<br>
-· <em>Objekt:</em> Zeigt die internen Objektnamen an.<br>
-<br>
+· links befindet sich die Auswahlliste mit den Bäumen. Klicken Sie auf einen Baum, um weitere Informationen zu diesem Baum anzuzeigen.<br>
+· Rechts werden die Informationen zum ausgewählten Baum angezeigt.<br>
+· <em>Name:</em> Name des Baums.<br>
+· ein eventueller <em>erläuternder Text</em><br>
+· passenden <em>Klimazonen:</em> Alle für den Baum geeigneten Klimazonen.<br>
+· <em>Jahreszeiten:</em> Anzahl der Jahreszeiten, für die Grafiken verfügbar sind.<br>
+-- <em>2</em> bedeutet es gibt nur Grafiken mit und ohne Schnee. Das passt für Nadelbäume.<br>
+-- <em>4</em> bedeutet Frühling, Sommer, Herbst und nur eine Grafik für den Winter.<br>
+-- <em>5</em> bedeutet Frühling, Sommer, Herbst und Winter mit Schnee sowie auch ohne Schnee.<br>
+· <em>Gemalt von:</em> Der Name des Autors der Grafik.<br>
+· <em>Bild des Baums.</em><br>
+Um den Baum zu pflanzen, klicke im der Karte auf die gewünschte Stelle, nachdem du den Baum aus der Liste ausgewählt hast.<br>
 </p>
-<h1>Optionen</h1>
+<h1>Platzierungsoptionen</h1>
 <p>
-· <em>alle Klimazonen:</em> Diese Option deaktiviert die Klimazonenzuordnung beim Pflanzen des Baums.<br>
-· <em>Zufallsjahr:</em> Es wird beim Pflanzen des Baums ein zufälliges Baumalter gewählt.<br>
+· <em>alle Klimazonen:</em> Diese Option deaktiviert die Prüfung, ob geeignet für diese Klimazone, beim Pflanzen des Baums.<br>
+· <em>Zufallsjahr:</em> Es wird beim Pflanzen des Baums ein zufälliges Baumalter gewählt. Normalerweise werden sie als junge kleine Bäume gepflanzt, wachsen im Laufe vieler Jahre bis ins hohe Alter und sterben schließlich ab. Dann es dauert nicht lange und ein junger Baum wächst an gleicher Stelle.<br>
+Achtung: Viele im gleichen Alter gepflanzte Bäume werden zu gleich verkahlen und sterben. Das sieht dann nach Waldsterben aus.<br>
 </p>

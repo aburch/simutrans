@@ -1,0 +1,12 @@
+<title>Save as Script Tool</title>
+<h1>Save as Script Tool</h1>
+<p>
+Here, all the structures the buildings und objects you previously selected with the dragged area are saved as a script. When you run the script later, it will attempt to build all of these structures and objects. Before you can save the script, you must assign a name. Alternatively, you can click on one of the existing scripts listed below and overwrite it.<br>
+You can delete scripts you no longer need by placing an <em>X</em> in front of it.<br>
+<br>
+Click <em>OK</em> to save the new script tool.<br>
+<br>
+You can find the saved tool in the personal <em>simutrans</em> directory, which also contains the saved game states in the <em>save</em> subdirectory. On Windows, this is located in "My Documents." On Linux, it can be found (possibly hidden) as "/home/[user]/.simutrans".<br>
+Within this personal directory, it is stored in <em>simutrans/addons/</em>[Grafikset]<em>/tool/</em>.<br>
+The script can be viewed and edited using a standard editor. The structure is quite easy to understand.<br>
+</p>

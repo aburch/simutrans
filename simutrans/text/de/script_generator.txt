@@ -1,0 +1,12 @@
+<title>Als Script Werkzeug speichern</title>
+<h1>Als Script Werkzeug speichern</h1>
+<p>
+Hier werden alle Bauwerke, die du zuvor mit der aufgezogenen Fläche ausgewählt hast, als Script abgespeichert. Wenn du das Script später ausführst dann wird versucht alle diese Bauwerke und Objekte zu bauen. Bevor du das Script abspeichern kannst musst du einen Namen vergeben. Alternativ kannst du eines der vorhanden und unten aufgelisteten Scripte anklicken und damit überschreiben.<br>
+Mit <em>X</em> davor kannst du nicht mehr benötigte Scripte löschen.<br>
+<br>
+Mit <em>OK</em> wird das neue Script Werkzeug gespeichert.<br>
+<br>
+Das abgespeicherte Werkzeug findest du im persönlichen Verzeichnissen <em>simutrans</em> in dem auch die gespeicherten Spielstände im Unterverzeichnis <em>save</em> zu finden sind. Bei Windows ist das in den "Eigene Dateien" zu finden. Bei Linux ist es (eventual versteckt) als "/home/[user]/.simutrans" zu finden.<br>
+Innerhalb diesem persönlichen Verzeichnis ist es in <em>simutrans/addons/</em>[Grafikset]<em>/tool/</em> gespeichert.<br>
+Das Script kann mit einem normalen Editor angeschaut und geändert werden. Der Aufbau ist recht einfach zu verstehen.<br>
+</p>

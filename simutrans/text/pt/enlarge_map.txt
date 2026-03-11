@@ -1,6 +1,6 @@
 <title>Expandir mapa</title>
 
-<h1><strong>Expandir mapa</strong></h1>
+<h1>Expandir mapa</h1>
 
 <p>Aqui, o jogador pode expandir o mapa à direita e para baixo. Se o jogador quiser estender à esquerda e para cima, é necessário girar o mapa antes, então expande-se o mapa, e gira-se de volta.
 <br>

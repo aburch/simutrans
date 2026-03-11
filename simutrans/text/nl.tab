@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                            Language: nl Nederlands                           #
 #                                Encoding: UTF-8                               #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 3.04 2025                           #
+#                           Date Created: 11.03 2026                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -1838,7 +1838,7 @@ Werkeloos
 Unhappy
 Ontevreden
 units/day
- eenh./dag
+/dag, 
 Update Line
 Lijn veranderen
 upgrade HQ

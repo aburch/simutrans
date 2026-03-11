@@ -1,0 +1,105 @@
+<title>模拟交通帮助</title>
+
+<h1><strong>通用帮助</strong></h1>
+<p>
+- <a href="simutrans.txt">欢迎</a>
+<br>
+- <a href="window.txt">游戏界面</a><br>
+- <a href="mouse.txt">鼠标帮助</a> (待写)<br>
+- <a href="keys.txt">键盘帮助</a>
+<br>
+<a href="options.txt">
+<strong>游戏选项</strong></a>
+<br>
+- <a href="language.txt">语言</a><br>
+- <a href="color.txt">玩家颜色</a>
+<br>
+- <a href="display.txt">显示设置</a><br>
+- <a href="sound.txt">声音和音乐</a>
+<br>
+- <a href="players.txt">玩家</a>
+<br>
+- <a href="load.txt">载入游戏</a>
+<br>
+- <a href="save.txt">保存游戏</a>
+<br>
+- <a href="new_world.txt">新游戏</a><br>
+- - <a href="climates.txt">气候控制</a><br>
+- - <a href="load_relief.txt">载入高度图</a>
+</p>
+
+<p>
+<a href="window.txt"><strong>主菜单</strong></a><br>
+- <a href="options.txt">
+游戏选项</a><br>
+- <a href="map.txt">地图</a>
+<br>
+- <a href="inspection_tool.txt">检查工具</a><br>
+- <a href="slopetools.txt">地形设计工具</a><br>
+- <a href="railtools.txt">铁路/火车工具</a>
+<br>
+- <a href="monorailtools.txt">单轨工具</a><br>
+- <a href="tramtools.txt">电车工具</a>
+<br>
+- <a href="roadtools.txt">公路工具</a><br>
+- <a href="shiptools.txt">港口工具</a>
+<br>
+- <a href="airtools.txt">机场工具</a>
+<br>
+- <a href="special.txt">专用建筑工具</a><br>
+- <a href="edittools.txt">游戏编辑工具</a><br>
+- <a href="removal_tool.txt">摧毁/移除</a>
+</p>
+<p>
+<a href="window.txt"><strong>管理菜单</strong></a><br>
+- <a href="linemanagement.txt">线路管理</a>
+<br>
+- <a href="list.txt">Lists</a>
+<br>
+- - <a href="haltlist.txt">停靠站/车站列表</a><br>
+- - - <a href="haltlist_filter.txt">停靠站/车站列表筛选器</a><br>
+- - <a href="convoi.txt">载具列表</a><br>
+- - - <a href="convoi_filter.txt">载具列表筛选器</a>
+<br>
+- - <a href="citylist_filter.txt">城市列表</a><br>
+- - <a href="goods_filter.txt">对象物列表</a>
+<br>
+- - <a href="factorylist_filter.txt">产业列表</a>
+<br>
+- - <a href="curiositylist_filter.txt">景点列表</a>
+<br>
+- <a href="mailbox.txt">信息中心</a>
+<br>
+- <a href="finances.txt">财务</a>
+</p>
+<p>
+<a href="window.txt"><strong>其他选项</strong></a><br>
+- <a href="window.txt">保存截图
+</a><br>
+- <a href="window.txt">暂停</a>
+<br>
+- <a href="window.txt">快进</a><br>
+- <a href="window.txt">帮助</a>
+</p>
+
+<p>
+<a href="inspection_tool.txt"><strong>其他对话框</strong></a><br>
+-<a href="depot.txt">仓库控件</a>
+<br>
+-<a href="schedule.txt">行程控件</a>
+<br>
+- <a href="station.txt">站点信息</a><br>
+- - <a href="station_details.txt">站点详情</a><br>
+- <a href="convoiinfo.txt">编队/载具信息</a><br>
+- - <a href="convoidetail.txt">编队/载具详情</a><br>
+- <a href="citywindow.txt">城市信息</a><br>
+- <a href="industry_info.txt">产业信息</a>
+</p>
+
+<p>
+如果这里找不到帮助，请尝试:<br>
+<em>http://guide.simutrans.com</em>, 或<br>
+<em>http://wiki.simutrans.com</em>, 或<br>
+<em>http://simutrans-tips.com</em>, 或<br>
+<em>http://forum.simutrans.com</em>。
+</p>

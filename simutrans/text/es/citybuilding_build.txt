@@ -41,7 +41,7 @@ En la lista de selección se muestran todos los edificios que están disponibles
 El color del texto tiene el siguiente significado:<br>
 · <em>Texto azul</em> indica que es un edificio residencial.<br>
 · <em>Texto verde</em> indica que es un edificio comercial.<br>
-· <em>Texto negro/em> indica que es un edificio industrial.<br>
+· <em>Texto negro</em> indica que es un edificio industrial.<br>
 </p> 
 
 <h1>3 - Opciones de colocación</h1>

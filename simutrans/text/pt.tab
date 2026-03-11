@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                            Language: pt Portugues                            #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 3.04 2025                           #
+#                           Date Created: 11.03 2026                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -1870,7 +1870,7 @@ Desempregados
 Unhappy
 Descontentes
 units/day
-/dia
+/dia, 
 Update Line
 Modificar
 upgrade HQ

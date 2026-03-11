@@ -12,7 +12,7 @@ wenquanyi_9pt.bdf
 #                            Language: zh T. Chinese                           #
 #                                Encoding: UTF-8                               #
 #                            Font: wenquanyi_9pt.bdf                           #
-#                            Date Created: 3.04 2025                           #
+#                           Date Created: 11.03 2026                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -1644,7 +1644,7 @@ Unemployed
 Unhappy
 不高興
 units/day
-件/月
+件/月、　
 Update Line
 更新路綫
 upgrade HQ
@@ -1878,8 +1878,6 @@ Asuburb
 Bcenter
 不存在
 Bextern
-不存在
-Bsuburb
 不存在
 Ccenter
 不存在

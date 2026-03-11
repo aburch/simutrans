@@ -12,7 +12,7 @@ cyr.bdf
 #                            Language: lt Lithuanian                           #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                            Date Created: 3.04 2025                           #
+#                           Date Created: 11.03 2026                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -1792,7 +1792,7 @@ Bedarbiai
 Unhappy
 Nepatenkinti
 units/day
- vienetai/mėnesį
+/mėnesį, 
 Update Line
 Atnaujinti liniją
 upgrade HQ

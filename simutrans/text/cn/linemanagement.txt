@@ -1,0 +1,41 @@
+<title>线路列表</title>
+
+<h1><strong>线路列表</strong></h1>
+
+<p>
+<strong>线路列表</strong>管理线路（一组共享同一<a href="schedule.txt">路线</a>的<a href="convoiinfo.txt">编队</a>）</p>
+<p>
+Lines consist of <a href="station.txt">Stops</a> where vehicles pick-up and drop-off goods & passengers (water-transport vehicles may use any square of water in the catchment area of a dock) and waypoints (used to direct vehicles if more than one option is possible or provide interim destination points).线路由<a href="station.txt">站点</a>——载具在此停靠，上下客（水上运输工具可用码头集水区内的任何水域）——，以及途经点（用于在有多个选项时引导车辆或提供中间目的地）组成。
+</p>
+<p>
+点击游戏视图顶部的网络图标或按 <a href="keys.txt">[w]</a> 打开<strong>线路管理</strong>，可以<a href="mouse.txt">调整</a>尺寸（点击标题栏中的向下箭头可恢复原大小）。
+</p>
+<p>
+<strong>线路列表</strong>列出了现有线路（要滚动列表：使用列表右侧的滑块），可以按名称或运输类型进行筛选（单击列表上方的索引标签进行选择）:<br>
+<em>全部</em>: 列出所有载具的线路。<br>
+<em>火车</em>: 列出所有铁路车辆的线路。<br>
+<em>单轨列车</em>: 列出所有单轨/磁悬浮车辆的线路。<br>
+<em>电车</em>: 列出所有电车的线路<br>
+<em>卡车</em>: 列出所有道路车辆的线路。<br>
+<em>船</em>: 列出所有水上运输工具的航线。<br>
+<em>飞行器</em>: 列出所有飞机的航线。
+</p>
+<p>
+列表中出现的线路名称的颜色表示以下含义：:<br>
+<it>白</it> - 没有载具分配给线路<br>
+<it>黄</it> - 未运营，未产生利润或亏损<br>
+<it>黑</it> - 盈利<br>
+<it>蓝</it> - 拥有过时的车辆<br>
+<it>红</it> - 线路亏损<br>
+</p>
+<p>
+将鼠标悬停在某条线路上，即可显示更多信息。点击列表中的线路，即可打开 <a href="linedetail.txt">线路</a>，查看该线路的<a href="station.txt">停靠站</a>、收入和编队信息，或更改行程表。</p>
+<p>
+有两种管理方案可供选择:
+</p>
+<p>
+<em>新线路</em>: 创建一个新的线路窗口。这需要先选择一种运输类型。<br>
+<em>删除线路</em>: 从游戏中移除当前线路。属于该线路的所有编队将按照与该线路类似的单独的行程表行驶。<br>
+<br>
+<em>单一GUI</em>: 如激活并单击某条线路，则所选线路窗口将替换最上面的线路。
+</p>

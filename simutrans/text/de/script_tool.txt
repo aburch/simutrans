@@ -1,0 +1,6 @@
+<title>Lade Script Tools</title>
+<p>
+Dieses Fenster listet Tools auf, die mit Squirrel geschrieben wurden und Simutrans um Funktionen erweitern.
+<br />
+Die Tools befinden sich in Unterverzeichnissen im Verzeichnis <em>simutrans/</em>[Grafikset]<em>/tool/</em> oder <em>simutrans/addons/</em>[Grafikset]<em>/tool/</em>.
+</p>

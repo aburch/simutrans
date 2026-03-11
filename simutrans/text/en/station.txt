@@ -60,6 +60,7 @@ Option-button (changes name with selection) sorts of items within groups:<br>
  - <em>via (detail):</em> sorts items, alphanumerically within ASCII-code order (capital letters before lower case letters), by assigned name of first transfer Stop.<br>
  - <em>via (amount):</em> sorts items by quantity headed to first transfer Stop.<br>
  - <em>via (owner):</em> sorts items carried by quantity by the owner of the next <a href="station.txt">stop</a>.<br>
+ - <em>connection:</em> sorts items by their next connection, either line(s) or lineless convois. Most waiting passengers first.<br>
 {Tips: goods-colour-bars above a Stop in game-view (use [!] to toggle) indicate quantity of items that wait for transport and are the same colour as <a href="goods_filter.txt">colour-squares</a> in Goods List.}
 </p>
 <p>

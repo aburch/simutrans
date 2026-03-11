@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                              Language: no Norsk                              #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.07 2024                           #
+#                           Date Created: 11.03 2026                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -564,7 +564,7 @@ gjennomsiktig dekningsomraade
 Unemployed
 Arbeidsloes
 units/day
-enheter/mnd
+/mnd, 
 upgrade HQ
 Oppgradere HK
 Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n

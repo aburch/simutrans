@@ -1,5 +1,5 @@
 <title>Details zu Stadtwachstum</title>
-<h1><strong>Stadtwachstum</strong></h1>
+<h1>Stadtwachstum</h1>
 <p>Dieser Text erläutert wie es zum Stadtwachstum kommt. Wie es berechnet wird. Welche Gebäude entstehen und warum. Und wie man über die diversen Parameter Einfluss auf die Stadtentwicklung nehmen kann. 
 </p>
 <p>Eine Stadt wächst dann wenn Personen und Post an ihr Ziel befördert werden.<br>

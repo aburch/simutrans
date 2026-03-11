@@ -1,9 +1,21 @@
-<p><h1><strong>玩家颜色</strong></h1></p>
-<p><strong>玩家颜色</strong> 设置公司的颜色</p>
-<p>交通工具，建筑物和其他项目显示公司的颜色</p>
-<p><strong>玩家颜色</strong> 使用<a href="file.txt">游戏选项</a>打开</p>
-<p>点击颜色条来修改公司的颜色</p>
-<p><strong>玩家颜色</strong>的名称条的改变（新的公司的名称条的颜色不会改变）意味着新的颜色被选出</p>
-<p>默认的人类玩家的颜色是淡蓝色</p>
-<p>一些项目没有为颜色编码&这些项目不需要选择颜色</p>
-<p>（提示：使用<a href="file.txt">玩家列表</a>或者<a href="file.txt">P+ Change Player</a>改变电脑玩家的颜色之前先选择电脑玩家 ）。</p>
+<title>玩家颜色</title>
+
+<h1><strong>玩家颜色</strong></h1>
+
+<p>
+<strong>玩家颜色</strong>选项可设置公司的颜色。<br>
+载具、建筑物和其他物品都采用公司颜色。
+</p>
+<p>
+<strong>玩家颜色</strong>选项位于<a href="options.txt">游戏选项</a>中。
+</p>
+<p>点击颜色条以修改公司颜色。<br>
+<strong>玩家颜色</strong>名称条的改变（新公司名称条的颜色不会改变）即表示选中了新颜色。
+</p>
+<p>
+默认的人类玩家的颜色是淡蓝色。<br>
+部分对象没有颜色编码，不能显示所选颜色。
+</p>
+<p>
+{提示：要更改AI玩家颜色，请使用<a href="players.txt">玩家列表</a>或<a href="special.txt">P+更改玩家</a>，在修改前，首先选中AI玩家。}
+</p>

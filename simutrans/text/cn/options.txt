@@ -1,0 +1,46 @@
+<title>游戏选项</title>
+
+<h1><strong>游戏选项</strong></h1>
+
+<p>
+<strong>游戏选项</strong>打开游戏的操作和显示控件；从<strong>游戏选项</strong>退出模拟交通。
+</p>
+<p>
+点击游戏视图顶部的软盘图标，打开<strong>游戏选项</strong>。
+</p>
+<p>
+点击按钮以打开新控件:
+</p>
+<p>
+<a href="language.txt"><em>语言</em></a>: 设置游戏中显示的语言。
+</p>
+<p>
+<a href="players.txt"><em>玩家</em></a>: 打开不同玩家的公司列表。
+</p>
+<p>
+<a href="color.txt"><em>玩家颜色</em></a>: 设置玩家公司的颜色。
+</p>
+<p>
+<a href="display.txt"><em>显示</em></a>: 模拟交通中游戏显示效果的设置。
+</p>
+<p>
+<a href="sound.txt"><em>声音</em></a>: 游戏中声音和音乐的设置。
+</p>
+<p>
+<a href="new_world.txt"><em>新游戏</em></a>: 打开控件以开始新游戏（会同时关闭当前游戏中的其他工具栏、文本和选项）。
+</p>
+<p>
+<a href="load.txt"><em>加载游戏</em></a>: 打开控件以重新开始已保存的游戏。
+</p>
+<p>
+<a href="save.txt"><em>保存</em></a>: 打开控件以保存当前游戏，便于稍后继续游戏。
+</p>
+<p>
+<a href="scenario.txt"><em>加载场景</em></a>: 打开控件以开始玩某个场景，即必须完成某个特定目标的游戏。
+</p>
+<p>
+<em>场景信息</em>: 通常情况下此功能处于禁用状态，加载场景时会显示当前场景的详细信息。
+</p>
+<p>
+<em>退出</em>: 退出模拟交通，当前游戏未保存！
+</p>

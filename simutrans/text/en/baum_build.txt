@@ -1,49 +1,38 @@
-<title>Plant trees</title>
+<title>Plant Trees</title>
 
-<h1><strong>Plant trees</strong></h1>
-
+<h1>Plant Trees</h1>
 <p>
-The <strong>Plant trees</strong> window allows planting of individual trees. It is a map customisation option, available if you switch to public service player and then open the <a href="edittools.txt">Map Editing Tools</a>.<br>
-TIP: There is also an <em>Add forest</em> button available on this bar, used to add forests at once.
-</p> 
-
-<p>
-The dialogue is divided into four sections:<br>
-1) Top left: Filter and sort options.<br>
-2) Bottom left: A selection list of available trees.<br>
-3) Top right: Placement options.<br>
-4) Bottom right: Information and picture of the chosen tree.<br>
-</p> 
-
-<h1>1 - Filter and sort options</h1>
-
-<p>
-· <em>Climate:</em> Filter by allowed climates.<br>
-· <em>Sort by:</em> Sort the list by any of the following parameters:<br>
-·· <em>Translation:</em> Show and sort by names in the given language as defined in the pakset. If there is no translation available, the object name will be used.<br>
-·· <em>Object:</em> Show and sort by Simutrans internal object name.<br>
+With the "Plant Trees" dialog, you can plant individual trees. It can be opened via the <a href="edittools.txt">Map Editor</a>.<br>
+TIP: This bar also contains the <em>Add Forest</em> button, which allows you to add entire forests with countless trees.
 </p>
-
-<h1>2 - Selection list</h1>
-
 <p>
-In the selection list are shown all urban buildings that are available with the options specified. Click on a tree in the list to see more information about that particular tree. To plant the tree, click in the game-world window on the desired location after selecting it from the list.<br>
+At the top are the <em>selection</em> for a specific <em>climate zone</em>.<br>
+· <em>All</em> means all available trees are listed, regardless of the climate zone, but only trees that match the soil's climate zone can be planted. If you want to ignore the climate zone check, you can activate the <em>Ignore climates:</em> option next to it. Then, the climate zone will no longer be checked when planting the tree.<br>
+If you select a climate zone based on the intended soil, only the trees that match that zone will be displayed.<br>
+<br>
+Below, you can change the display of the name and the sorting in the list.<br>
+· <em>Translation:</em> Show and sort by names as they are used in the game. This depends on the selected language. If no translation is available for the selected language, the object name is displayed.<br>
+· <em>Object:</em> Show and sort by program internal object names.<br>
+The button next to it reverses the sorting to descending.<br>
 </p>
-
-<h1>3 - Placement options</h1>
-
+<h1>Selection list</h1>
+<p>
+· On the left is the selection list with the trees. Click on one to see more information about that  tree.<br>
+· On the right, the information of the selected tree is displayed.<br>
+· <em>Name:</em> Name of the tree.<br>
+· any <em>explanatory text</em><br>
+· <em>Allowed climates:</em> All suitable climate zones.<br>
+· <em>Seasons:</em> Numbers of seasons for which graphics available.<br>
+ -- <em> 2</em> means there are only graphics with and without snow. This is suitable for conifers.<br>
+ -- <em> 4</em> means spring, summer, autumn, and only one graphic for winter.<br>
+ -- <em> 5 </em> means spring, summer, autumn, and winter with and without snow.<br>
+· <em>Painted by:</em> The name of the author of the graphics.<br>
+· <em>Image of the tree.</em><br>
+To plant the tree, click in the game-world window on the desired location after selecting it from the list.<br>
+</p>
+<h1>Placement options</h1>
 <p>
 · <em>Ignore climates:</em> This option deactivates the climate restrictions, allowing you to plant the tree on non-allowed climates.<br>
-· <em>Random age:</em> If active, the age of the tree to be planted will be randomized. Normally, they are planted at the youngest age, they will grow to maturity and then die over the course of many years.<br>
-</p>
-
-<h1>4 - Information</h1>
-
-<p>
-Information about trees contains:<br>
-· <em>Name:</em> Name of the tree.<br>
-· <em>Allowed climates:</em> Climates where the tree is allowed to be planted (if "Ignore climates" option is not set).<br>
-· <em>Seasons:</em> Number of seasons.<br>
-· <em>Author:</em> The name of the author who painted the object (if available).<br>
-· <em>Image:</em> Image of the tree.<br>
+· <em>Random age:</em> If active, a random tree age is selected. Normally, they are planted as small trees at a young age, grow to old age over the course of many years, and finally die. Then it's not long before another young tree grows in the same spot.<br>
+Caution: Many trees planted at the same age will become bald and die at the same time. This then resembles forest dieback.<br>
 </p>

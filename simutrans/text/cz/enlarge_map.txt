@@ -1,5 +1,5 @@
 <title>Nápověda - Změnit velikost mapy</title>
-<h1><strong>Změnit velikost mapy</strong></h1>
+<h1>>Změnit velikost mapy</h1>
 <p>Dialog slouží k rozšíření již vytvořené mapy. </p>
 <p>Mapu lze rozšířit směrem vpravo a směrem dolu. Pokud chcete mapu rozšířit jiným směrem, otočte ji, zvětšete ji a otočte zpět.<br>
 Tip: K otočení použijte klávesu <a href="keys.txt">R</a>.</p>

@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: en English                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.04 2025                           #
+#                           Date Created: 11.03 2026                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -819,6 +819,8 @@ Gross Profit
 Cash Flow
 Groundobj
 Object
+groundobj builder
+Place Landscape Objects
 Growth
 City Growth
 GUI settings
@@ -843,6 +845,8 @@ Hier warten/lagern:
 Goods and passengers waiting:
 Higher transport fees, crossconnect all factories
 Higher transport fees, disable Just-in-time.
+highlight single ways
+Indicates the end/interruption of traffic ways.
 Highlite schedule
 Highlight stops in schedule
 hl_title
@@ -1193,6 +1197,8 @@ Postrate
 Mail level
 Problems_msg
 Problems
+Produces: %.1f units/minute
+currently %.1f/minute
 Production of %s has been stopped:\n%s\n
 Production of %s has been discontinued:\n%s\n
 Produktion
@@ -1466,7 +1472,7 @@ Underground view
 UNDO failed!
 Undo is not possible anymore.\nYou can undo a route \nconstruction only as long as \nno signals/stations/stops or \nanything else was built on \nthe way.
 units/day
- units/month
+/month, 
 Update Line
 Edit line
 upgrade HQ

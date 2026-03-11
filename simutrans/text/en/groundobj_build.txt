@@ -1,0 +1,29 @@
+<title>Place Landscape Objects</title>
+
+<h1>Place Landscape Objects</h1>
+<p>
+With the "Place Landscape Objects" dialog, you can place various objects to enhance the map. It can be opened via the <a href="edittools.txt">Map Editor</a>. These landscape objects are not necessary for the game; they are purely visual and do not hinder development. Landscape objects include rocks left behind by the Ice Age, small ponds with ducks, flowers, bushes, cacti, landmarks, or similar.<br>
+</p>
+<p>
+At the top are the <em>selection</em> for a specific <em>climate zone</em>.<br>
+· <em>All</em> means all available landscape objects are listed, regardless of the climate zone, but only landscape objects that match the climate zone of the soil can be placed. If you want to ignore the climate zone check, you can activate the <em>Ignore climates</em> option next to it. This will prevent the climate zone from being checked when placing the object.<br>
+If you select a climate zone based on the intended soil, only the matching landscape objects will be displayed.<br>
+<br>
+Below, you can change the display of the name and the sorting in the list.<br>
+· <em>Translation</em> Displays the names as they are used in the game. This depends on the selected language. If no translation is available for the selected language, the object name is displayed.<br>
+· <em>Object</em> Displays the program's internal object names.<br>
+· <em>Cost to remove</em> Only sorting, the translation names are displayed.<br>
+The button next to it switches the sorting to descending.<br>
+</p>
+<h1>Selection list</h1>
+<p>
+· On the left is the selection list with the landscape objects.<br>
+· On the right, the information for the selected landscape object is displayed.<br>
+The name, any explanatory text, all suitable climate zones, whether there is a graphic for snow, which seasons have graphics, what it costs to demolish this object, and who painted the graphic.<br>
+<em>4 seasons</em> means spring, summer, autumn, and winter.<br>
+· The image of the selected object is displayed at the bottom right.<br>
+</p>
+<h1>Options</h1>
+<p>
+· <em>Ignore climates:</em> This option deactivates the climate zone assignment when placing the object. Landscape object.<br>
+</p>

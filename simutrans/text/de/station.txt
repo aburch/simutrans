@@ -54,7 +54,9 @@ Die Liste wird nach den ersten Transferhaltestellen alphabetisch sortiert.<br>
 <em>via Menge</em>:<br>
 Die Listensortierung erfolgt nach der ersten Transferhaltestelle. Die Liste wird nach der Menge sortiert.<br>
 <em>via Spieler</em>:<br>
-Die Listensortierung erfolgt nach dem Besitzer des nächsten Umstieges oder Ziel. Die Liste wird nach der Menge sortiert.<br>
+Gruppeirt wird nach dem Besitzer des nächsten Umstieges oder Ziel. Die Liste wird nach der Menge sortiert.<br>
+<em>Verbindung</em>:<br>
+Gruppiert wird nach der Linie oder dem Fahrzeug des nächsten Umstieges oder Ziel. Die Liste wird nach der Menge sortiert.<br>
 </p>
 <p>
 Die Schaltfläche <em>Details</em> öffnet das Fenster <a href="station_details.txt">Haltestellendetails</a>. Dort findest Du zusätzliche Informationen über die Haltestelle.

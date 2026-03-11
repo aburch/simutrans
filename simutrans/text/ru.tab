@@ -12,7 +12,7 @@ cyr.bdf
 #                             Language: ru Russian                             #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 20.04 2025                           #
+#                           Date Created: 11.03 2026                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -771,6 +771,8 @@ cars.\nstate
 машин\n
 Cash
 На счету
+Change label style
+Изменить стиль надписи
 Change player
 Сменить игрока
 Chart
@@ -1000,7 +1002,7 @@ Direkt erreichbare Haltestellen
 disable midi
 Выключить музыку
 Display settings
-Настройки графики
+Настройка графики
 Distance
 Расстояние
 distributing cities
@@ -1178,7 +1180,7 @@ Grow city
 Growth
 Рост города
 GUI settings
-Настройка графики
+Графика
 H
 остановка
 Hangar
@@ -1197,6 +1199,8 @@ hide all building
 Скрыть все здания
 hide city building
 Скрыть городские здания
+Hide labels
+Скрывать надписи
 hide objects under cursor
 Скрыть объекты вокруг курсора радиусом:
 hide station names
@@ -1257,6 +1261,8 @@ Homeless
 Бездомные
 hydrogene
 водородный привод
+Icon size:
+Размер иконок:
 Idle:
 Простой:
 ignore climates
@@ -1271,6 +1277,8 @@ increase underground view level
 увеличить уровень в подземном режиме
 industrial building
 Промышленное строение
+Industry overlay
+Названия предприятий
 Infinite mouse scrolling
 Бесконечная прокрутка мышью
 Init map ...
@@ -1426,7 +1434,7 @@ Manufactured:
 Map roughness
 Неровность рельефа:
 map view
-Вид карты
+Карта
 map zoom
 Масштаб
 March
@@ -1595,6 +1603,8 @@ Oktober
 Октябрь
 On loan since %i month(s)
 Кредит в течении %i месяца(-ев)
+On mouseover
+При наведении мыши
 On this map, you are not\nallowed to change player!\n
 Эта игра заблокирована!\nСмена игрока невозможна!\n\n\n
 Only city chains
@@ -1885,6 +1895,8 @@ SEP_THOUSAND_EXPONENT
 3
 September
 Сентябрь
+Served by me
+Обслуживаются мной
 Server did not respond!
 Сервер не отвечает
 Serves Line:
@@ -1907,6 +1919,8 @@ Show also vehicles no longer in production.
 Показать также т/с, которые больше не производятся.
 Show also vehicles that do not match for current action.
 Показывать также т/с, которые не могут быть использованы для выбранного действия
+Show always
+Показывать всегда
 Show even servers with wrong version or pakset
 Также отображать сервера с иной версией или наборами.
 show grid
@@ -2021,6 +2035,8 @@ Start the selected vehicle(s)
 Отправить на линию выбранные т/с
 Starte Spiel
 Начать игру
+station labels
+Станции
 Station tiles:
 Секции cтанции:
 Station_msg
@@ -2081,6 +2097,8 @@ Toggle vehicle tooltips
 Вкл/выкл подсказки по т/с
 tonnen
 т
+Toolbar position:
+Положение иконок:
 Total inhabitants:
 Общее население: 
 Tourist attractions
@@ -2099,6 +2117,8 @@ Tracks
 Ж/д пути
 Traffic
 Движение
+traffic settings
+Трафик
 Train
 Поезд
 Trains are not available yet!
@@ -2119,6 +2139,8 @@ Transformer only next to factory!
 Трансформаторная подстанция должна быть около предприятия
 Translation
 Перевод
+transparencies
+Прозрачность
 transparent station coverage
 Прозрачная зона покрытия
 Transported
@@ -2148,7 +2170,7 @@ Unemployed
 Unhappy
 Несчастны
 units/day
- ед./месяц
+/месяц, 
 Update Line
 Изменить
 upgrade HQ

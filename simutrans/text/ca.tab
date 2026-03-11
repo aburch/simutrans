@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                              Language: ca Catala                             #
 #                                Encoding: UTF-8                               #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 3.04 2025                           #
+#                           Date Created: 11.03 2026                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -1822,7 +1822,7 @@ Aturats
 Unhappy
 Descontents
 units/day
- unitats/dia
+/dia,
 Update Line
 Modificar itinerari
 upgrade HQ

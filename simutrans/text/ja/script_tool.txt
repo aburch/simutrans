@@ -1,0 +1,6 @@
+<title>スクリプトツールのロード</title>
+<p>
+このウィンドウには、Simutransの機能を拡張するSquirrelで作成されたツールが一覧表示されます。
+<br />
+ツールは、<em>simutrans/</em>[Graphics Set]<em>/tool/</em>または<em>simutrans/addons/</em>[Graphics Set]<em>/tool/</em>ディレクトリのサブディレクトリにあります。
+</p>

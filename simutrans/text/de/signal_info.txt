@@ -1,0 +1,23 @@
+<title>Signal Infofenster</title>
+
+<h1>Signal Infofenster</h1>
+
+<p>
+Informationen zum Signal.<br>
+· <em>Name des Signals</em><br>
+· <em>Beschreibung</em> Nicht immer vorhanden<br>
+· <em>Besitzer</em> Welchem Spieler gehört das Signal<br>
+· <em>Richtungen</em> Gültigkeit in welche Richtung gültig, für andere Richtung ist die Strecke gesperrt. <br>
+ - <em>1</em> = Süd auch diagonal nach Westen<br>
+ - <em>2</em> = West auch diagonal nach Norden<br>
+ - <em>3</em> = diagonal nach norden und Süden<br>
+ - <em>4</em> = Nord auch diagonal nach Norden<br>
+ - <em>5</em> = Nord und Süd<br>
+ - <em>8</em> = Ost auch diagonal nach Osten oder Süden<br>
+ - <em>9</em> = diagonal nach Osten und Westen<br>
+ - <em>10</em> =Ost und West<br>
+ - <em>12</em> = diagonal nach Norden und Süden<br>
+· <em>Signal entfernen</em> diese Signal wird entfernt
+· <em>Gemalt von</em> Name vom Ersteller der Grafik
+
+</p>

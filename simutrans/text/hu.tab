@@ -12,7 +12,7 @@ cyr.bdf
 #                              Language: hu Magyar                             #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                            Date Created: 2.06 2024                           #
+#                           Date Created: 11.03 2026                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -1796,7 +1796,7 @@ Munkanélküli
 Unhappy
 Elégedetlen
 units/day
- egység/nap
+/nap, 
 Update Line
 Szerkesztés
 upgrade HQ

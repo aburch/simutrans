@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: it Italiano                            #
 #                                Encoding: UTF-8                               #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 3.04 2025                           #
+#                           Date Created: 11.03 2026                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -1580,7 +1580,7 @@ Problemi
 Produced
 Prodotti
 Produces: %.1f units/minute
-Produce: %.1f unità/minuto
+Produce: %.1f/minuto
 Production of %s has been stopped:\n%s\n
 Produzione di %s è stata interrotta:\n%s\n
 Production/Boost
@@ -1984,7 +1984,7 @@ Disoccupati
 Unhappy
 Infelici
 units/day
- unità/mese
+/mese, 
 Unloading (%i%%)!
 Scaricando (%i%%)!
 Update Line

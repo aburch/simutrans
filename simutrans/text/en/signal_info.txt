@@ -1,0 +1,23 @@
+<title>Signal Info Window</title>
+
+<h1>Signal info window</h1>
+
+<p>
+Information about the signal.<br>
+· <em>Name of the signal</em><br>
+· <em>Description</em> Not always available<br>
+· <em>Owner</em> Which player owns the signal<br>
+· <em>Directions</em> Validity: Valid in which direction; for other directions the route is closed. <br>
+- <em>1</em> = South also diagonally to the west<br>
+- <em>2</em> = West also diagonally to the north<br>
+- <em>3</em> = diagonally to the north and south<br>
+- <em>4</em> = North also diagonally to the north<br>
+- <em>5</em> = North and south<br>
+- <em>8</em> = East also diagonally to the east or south<br>
+- <em>9</em> = diagonally to the east and west<br>
+- <em>10</em> = East and west<br>
+- <em>12</em> = diagonally to the north and south<br>
+· <em>Remove signal</em> this signal will be removed<br>
+· <em>Painted by</em> Name of the graphic creator<br>
+
+</p>

@@ -1,0 +1,55 @@
+<title>消息中心和消息中心选项</title>
+
+<h1><strong>消息中心</strong></h1>
+
+<p>
+<strong>消息中心</strong> 列出游戏中的消息，并打开控件以选择消息在游戏中的显示方式。
+</p>
+<p>
+点击游戏画面顶部的邮箱图标，或按 <a href="keys.txt">[B]</a> 键打开<strong>消息中心</strong>，其中列出了游戏中的消息。<br>
+点击一条消息即可将游戏视图移动到关联位置。
+</p>
+<p>
+点击<em>选项</em>按钮（点击以使用）打开<strong>消息中心选项</strong>，其中包含用于决定消息显示方式的控件。
+</p>
+<br>
+<p>
+<strong>消息中心选项</strong>
+</p>
+<p>
+<strong>消息中心选项</strong>有三列方形按钮，用于选择消息的显示方式。
+</p>
+<p>
+从左到右，各列分别选择消息的显示方式：游戏视图底部的滚动文本；临时消息；或永久消息。<br>
+{提示: 点击消息左上角的 x 或使用键盘关闭永久消息。}
+</p>
+<p>
+点击方形按钮选择以下消息的选项（选中后按钮会缩进）:
+</p>
+<p>
+<em>新年</em>: 新的一年开始。
+</p>
+<p>
+<em>AI新闻</em>: <a href="players.txt">AI玩家</a>已开通新线路。
+</p>
+<p>
+<em>城市新闻</em>: 一个<a href="citywindow.txt">城市区域</a>正在建造一个更大的市政厅。
+</p>
+<p>
+<em>无路线</em>: 一个载具找不到前往下一个<a href="schedule.txt">目的地</a>（<a href="station.txt">站点</a>或途经点）的路线。
+</p>
+<p>
+<em>新产业</em>: 由于<a href="citywindow.txt">城镇</a>的发展，一个新的<a href="industryinfo.txt">产业</a>链（包括终端消费者和所有必要的供应商）已经建立。
+</p>
+<p>
+<em>游客</em>: 已建成一座城市<a href="curiositylist_filter.txt">景点</a>或纪念碑。
+</p>
+<p>
+<em>新载具</em>: 新载具投入使用，或一个载具退役（如使用<a href="new_world.txt">时间线</a>模式）。
+</p>
+<p>
+<em>站点已满</em>: <a href="station.txt">站点</a>拥挤不堪。
+</p>
+<p>
+<em>问题</em>: 玩家公司负债累累，以及其他重要信息。
+</p>

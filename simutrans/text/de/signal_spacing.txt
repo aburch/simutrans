@@ -5,7 +5,7 @@
 <p>
 Strg+Mausklick auf ein <a href="signale.txt">Signal</a>werkzeug öffnet dieses Fenster.</p>
 
-<p>Ähnlich wie beim Bauen von <a href="railtools.txt">Schienen</a> oder <a href="roadtoools.txt">Straßen</a> wird mit Klick-und-Ziehen auf der Strecke eine Vorschau der Signale gezeigt, ung gebaut, sobald die Maustaste losgelassen wird.</p>
+<p>Ähnlich wie beim Bauen von <a href="railtools.txt">Schienen</a> oder <a href="roadtoools.txt">Straßen</a> wird mit Klick-und-Ziehen auf der Strecke eine Vorschau der Signale gezeigt, und gebaut, sobald die Maustaste losgelassen wird.</p>
 
 <p>Die Durchfahrtsrichtung der Signale wird durch die Richtung vorgegeben, in die die Maus gezogen wurde. Stehen schon Signale in entgegengesetzter Richtung, dann wird gar kein Signal gebaut.</p>
 

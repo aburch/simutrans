@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: es Espanol                             #
 #                                Encoding: UTF-8                               #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 3.04 2025                           #
+#                           Date Created: 11.03 2026                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -531,8 +531,16 @@ Antigüedad: %i años y %i meses.
 %s cayó en bancarrota y\n ha sido liquidado.\nSe interrumpieron todas su operaciones,\n y todos sus activos han sido vendidos.
 %u Client(s)\n
 %u Cliente(s)\n
+%u days ago
+hace %u dias
+%u hours ago
+hace %u horas
+%u minutes ago
+hace %u minutos
 %u Player (%u locked)\n
 %u Jugadores (%u con contraseña)\n
+%u years ago
+hace %u años
 <clear schedule>
 <Limpiar itinerario>
 <create new line>
@@ -2324,7 +2332,7 @@ Desempleados
 Unhappy
 Descontentos
 units/day
- Unidades/mes
+/mes, 
 Unloading (%i%%)!
 Descargando (%i%%)
 Update Line

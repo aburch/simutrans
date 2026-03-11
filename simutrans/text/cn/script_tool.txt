@@ -1,0 +1,6 @@
+<title>加载脚本工具</title>
+<p>
+此窗口列出了用 Squirrel 编写的、可扩展模拟交通游戏功能的工具。
+<br />
+这些工具位于 <em>simutrans/</em>[Graphics Set]<em>/tool/</em> 目录的子目录或 <em>simutrans/addons/</em>[Graphics Set]<em>/tool/</em> 目录。
+</p>
