@@ -901,6 +901,12 @@ const building_desc_t* hausbauer_t::get_desc(const char *name)
 }
 
 
+const stringhashtable_tpl<const building_desc_t *>& hausbauer_t::get_desc_table()
+{
+	return desc_table;
+}
+
+
 const building_desc_t* hausbauer_t::get_random_station(const building_desc_t::btype type, const waytype_t wt, const uint16 time, const uint8 enables)
 {
 	weighted_vector_tpl<const building_desc_t*> stops;

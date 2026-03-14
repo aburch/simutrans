@@ -70,6 +70,12 @@ const bridge_desc_t *bridge_builder_t::get_desc(const char *name)
 }
 
 
+const stringhashtable_tpl<const bridge_desc_t *>& bridge_builder_t::get_desc_table()
+{
+	return desc_table;
+}
+
+
 const bridge_desc_t *bridge_builder_t::find_bridge(const waytype_t wtyp, const sint32 min_speed, const uint16 time)
 {
 	const bridge_desc_t *find_desc=NULL;

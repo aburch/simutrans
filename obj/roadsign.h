@@ -224,6 +224,8 @@ public:
 
 	static const roadsign_desc_t *find_desc(const char *name) { return table.get(name); }
 
+	static const stringhashtable_tpl<const roadsign_desc_t *>& get_desc_table() { return table; }
+
 	static const vector_tpl<const roadsign_desc_t*>& get_available_signs(const waytype_t wt);
 };
 

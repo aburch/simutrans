@@ -10,6 +10,7 @@
 #include "../simtypes.h"
 #include "../dataobj/koord.h"
 #include "../dataobj/koord3d.h"
+#include "../tpl/stringhashtable_tpl.h"
 
 class bridge_desc_t;
 class grund_t;
@@ -113,6 +114,9 @@ public:
 	 * @return bridge descriptor or NULL if not found
 	 */
 	static const bridge_desc_t *get_desc(const char *name);
+
+	/// @returns the full descriptor table (for iterating all registered bridges)
+	static const stringhashtable_tpl<const bridge_desc_t *>& get_desc_table();
 
 	/**
 	 * Builds the bridge and performs all checks.

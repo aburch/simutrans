@@ -10,6 +10,7 @@
 #include "../simtypes.h"
 #include "../dataobj/koord.h"
 #include "../dataobj/koord3d.h"
+#include "../tpl/stringhashtable_tpl.h"
 
 class karte_ptr_t;
 class player_t;
@@ -38,6 +39,9 @@ public:
 	static void register_desc(tunnel_desc_t *desc);
 
 	static const tunnel_desc_t *get_desc(const char *);
+
+	/// @returns the full descriptor table (for iterating all registered tunnels)
+	static const stringhashtable_tpl<tunnel_desc_t *>& get_desc_table();
 
 	static const tunnel_desc_t *get_tunnel_desc(const waytype_t wtyp, const sint32 min_speed,const uint16 time);
 

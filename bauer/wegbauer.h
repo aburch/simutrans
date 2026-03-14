@@ -10,6 +10,7 @@
 #include "../simtypes.h"
 #include "../dataobj/koord3d.h"
 #include "../tpl/vector_tpl.h"
+#include "../tpl/stringhashtable_tpl.h"
 
 
 class way_desc_t;
@@ -51,6 +52,9 @@ public:
 	static bool waytype_available( const waytype_t wtyp, uint16 time );
 
 	static const vector_tpl<const way_desc_t *>&  get_way_list(waytype_t, systemtype_t system_type);
+
+	/// @returns the full descriptor table (for iterating all registered ways)
+	static const stringhashtable_tpl<const way_desc_t *>& get_desc_table();
 
 
 	/**

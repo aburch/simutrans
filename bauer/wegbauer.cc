@@ -246,6 +246,12 @@ const way_desc_t * way_builder_t::get_desc(const char * way_name, const uint16 t
 
 
 
+const stringhashtable_tpl<const way_desc_t *>& way_builder_t::get_desc_table()
+{
+	return desc_table;
+}
+
+
 // generates timeline message
 void way_builder_t::new_month()
 {

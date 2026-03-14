@@ -35,6 +35,7 @@ private:
 	button_t easy_server; // only active on loading savegames
 	button_t previous_OTRP; // only active on loading savegames
 	button_t save_as_standard; // only active on saving savegames
+	button_t show_unused_addons; // show unused pak descriptors in current map
 
 	static stringhashtable_tpl<sve_info_t *> cached_info;
 

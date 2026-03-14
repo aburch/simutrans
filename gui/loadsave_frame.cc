@@ -8,6 +8,8 @@
 #include <sys/stat.h>
 
 #include "loadsave_frame.h"
+#include "unused_addons_frame.h"
+#include "simwin.h"
 
 #include "../sys/simsys.h"
 #include "../simworld.h"
@@ -71,8 +73,13 @@ bool loadsave_frame_t::item_action(const char *filename)
 		if(  !welt->load(filename)  ) {
 			welt->switch_server( false, true );
 		}
-		else if(  env_t::server  ) {
-			welt->announce_server(karte_t::SERVER_ANNOUNCE_HELLO);
+		else {
+			if(  env_t::server  ) {
+				welt->announce_server(karte_t::SERVER_ANNOUNCE_HELLO);
+			}
+			if(  show_unused_addons.pressed  ) {
+				create_win( new unused_addons_frame_t(), w_info, magic_none );
+			}
 		}
 		DBG_MESSAGE( "loadsave_frame_t::item_action", "load world %li ms", dr_time() - start_load );
 	}
@@ -127,6 +134,8 @@ loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve",false
 		bottom_left_frame.add_component(&easy_server);
 		previous_OTRP.init( button_t::square_automatic, "This is a data of OTRP v12 or v13.");
 		bottom_left_frame.add_component(&previous_OTRP);
+		show_unused_addons.init( button_t::square_automatic, "Show unused addons list");
+		bottom_left_frame.add_component(&show_unused_addons);
 	}
 	else {
 		save_as_standard.init( button_t::square_automatic, "Readable by standard.");
@@ -238,6 +247,7 @@ const char *loadsave_frame_t::get_info(const char *fname)
 	date[lengthof(date)-1] = 0;
 	return date;
 }
+
 
 
 loadsave_frame_t::~loadsave_frame_t()

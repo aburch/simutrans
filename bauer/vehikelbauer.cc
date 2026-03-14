@@ -383,6 +383,12 @@ const vehicle_desc_t *vehicle_builder_t::get_info(const char *name)
 }
 
 
+const stringhashtable_tpl<const vehicle_desc_t *>& vehicle_builder_t::get_desc_table()
+{
+	return name_fahrzeuge;
+}
+
+
 slist_tpl<vehicle_desc_t const*> const & vehicle_builder_t::get_info(waytype_t const typ, uint8 sortkey)
 {
 	return typ_fahrzeuge[sortkey][GET_WAYTYPE_INDEX(typ)];

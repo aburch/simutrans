@@ -12,6 +12,7 @@
 #include "../halthandle_t.h"
 #include "../simtypes.h"
 #include "../tpl/vector_tpl.h"
+#include "../tpl/stringhashtable_tpl.h"
 
 class gebaeude_t;
 class karte_ptr_t;
@@ -65,6 +66,9 @@ public:
 
 	/// @returns the house description with name @p name
 	static const building_desc_t* get_desc(const char *name);
+
+	/// @returns the full descriptor table (for iterating all registered buildings)
+	static const stringhashtable_tpl<const building_desc_t *>& get_desc_table();
 
 	/**
 	 * Registers the house description so the house can be built in-game.

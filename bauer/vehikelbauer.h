@@ -9,6 +9,7 @@
 
 #include "../dataobj/koord3d.h"
 #include "../simtypes.h"
+#include "../tpl/stringhashtable_tpl.h"
 #include <string>
 
 class vehicle_t;
@@ -59,6 +60,9 @@ public:
 
 	static const vehicle_desc_t * get_info(const char *name);
 	static slist_tpl<vehicle_desc_t const*> const& get_info(waytype_t, uint8 sortkey = vehicle_builder_t::sb_name);
+
+	/// @returns the full descriptor table (for iterating all registered vehicles)
+	static const stringhashtable_tpl<const vehicle_desc_t *>& get_desc_table();
 
 	/** extended search for vehicles for AI
 	*/

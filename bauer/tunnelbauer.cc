@@ -67,6 +67,12 @@ const tunnel_desc_t *tunnel_builder_t::get_desc(const char *name)
 }
 
 
+const stringhashtable_tpl<tunnel_desc_t *>& tunnel_builder_t::get_desc_table()
+{
+	return tunnel_by_name;
+}
+
+
 /**
  * Find a matching tunnel
  */
