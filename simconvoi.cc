@@ -1229,6 +1229,18 @@ vehicle_t* find_convoy_on_tile(grund_t* const gr, convoihandle_t cnv) {
 bool convoi_t::drive_to()
 {
 	if(  anz_vehikel>0  ) {
+		convoihandle_t c = self;
+		bool stop_next=true;
+		while(  c.is_bound()  ) {
+			stop_next&=c->is_users_at_next_stop();
+			c=c->get_coupling_convoi();
+		}
+		if(  !stop_next  ) {
+			// skip next stop!
+			next_stop_button_pressed();
+			set_state(ROUTING_1);
+			return false;
+		}
 
 		// unreserve all tiles that are covered by the train but do not contain one of the wagons,
 		// otherwise repositioning of the train drive_to may lead to stray reserved tiles
@@ -2771,16 +2783,6 @@ void convoi_t::vorfahren()
 	wait_lock = 0;
 	INT_CHECK("simconvoi 711");
 	reversing_needed = false;
-	c = self;
-	bool stop_next=true;
-	while(  c.is_bound()  ) {
-		stop_next&=c->is_users_at_next_stop();
-		c=c->get_coupling_convoi();
-	}
-	if(  !stop_next  ) {
-		// skip next stop!
-		next_stop_button_pressed();
-	}
 }
 
 // a helper function for convoi_t::vorfahren()
