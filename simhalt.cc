@@ -13,6 +13,7 @@
 #include "simcolor.h"
 #include "simconvoi.h"
 #include "simdebug.h"
+#include "simdepot.h"
 #include "simfab.h"
 #include "simhalt.h"
 #include "simintr.h"
@@ -1110,7 +1111,20 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 				grund_t *gr = welt->lookup_kartenboden( next_building[i] + k);
 				if(gr==NULL  ||  gr->get_typ()!=grund_t::fundament) {
 					// no building here
-					continue;
+					if (gr->get_depot()!=NULL) {
+						// we find depot, we set depot name
+						const char *building_name = NULL;
+						building_name = gr->get_depot()->get_name();
+						// now we have a name: try it
+						buf.printf( building_base, city_name, building_name, stop );
+						if(  !all_names.get(buf).is_bound()  ) {
+							return strdup(buf);
+						}
+						buf.clear();
+					}
+					else {
+						continue;
+					}
 				}
 				// since closes coordinates are tested first, we do not need to not sort this
 				const char *building_name = NULL;

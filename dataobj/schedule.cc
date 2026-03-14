@@ -833,7 +833,8 @@ void schedule_t::gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* 
 			p = translator::translate("Invalid coordinate");
 		}
 		else if(gr->get_depot() != NULL) {
-			p = translator::translate("Depot");
+			buf.printf("%s ",translator::translate("Depot"));
+			p = gr->get_depot()->get_name();
 		}
 		else {
 			construct_schedule_entry_attributes(buf, entry);
