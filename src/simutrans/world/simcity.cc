@@ -3240,7 +3240,7 @@ gebaeude_t* stadt_t::build_city_house(koord3d base_pos, const building_desc_t* h
 			else {
 				// nature here
 				if (gr->hat_wege()) {
-					dbg->error("stadt_t::build_city_house", "Has way on tile (%)", gr->get_pos().get_str());
+					dbg->error("stadt_t::build_city_house", "Has way on tile (%s)", gr->get_pos().get_str());
 				}
 				koord3d new_pos = base_pos + koord(x, y);
 				recalc_foundations = new_pos.z != gr->get_pos().z;
