@@ -1156,6 +1156,9 @@ public:
 	// if this bool value is true, reversing done, this convoy is no longer the leading (most parent) convoy.
 	bool reverse_convoy_coupling_at_waypoint();
 
+	// Reverse convoy coupling by user request
+	void reverse_convoy_coupling_by_user_request();
+
 	// coupling during running.
 	// Only for during leaving a depot
 	bool couple_convoi_during_running(convoihandle_t coupled);

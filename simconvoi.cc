@@ -6040,6 +6040,19 @@ bool convoi_t::couple_convoi_during_running(convoihandle_t coupled) {
 	return true;
 }
 
+void convoi_t::reverse_convoy_coupling_by_user_request()
+{
+	// reverse convoy coupling by user request
+	// this must be most parent convoy!
+	if(  is_coupled()  ) {
+		return;
+	}
+	// firse we release the reservation
+	unreserve_route();
+	// then reverse convoy coupling
+	reverse_convoy_coupling();
+}
+
 uint16 convoi_t::get_length_coupling_done() const {
 	convoihandle_t c = self;
 	if( c->is_coupled() ) {

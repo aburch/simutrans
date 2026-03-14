@@ -384,9 +384,9 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			button.set_text("release back");
 			button.enable();
 		} else if(  cnv->is_coupled()  ) {
-			button.set_tooltip("Please decouple the other convoy to edit the schedule.");
-			button.set_text("Fahrplan");
-			button.disable();
+			button.set_tooltip("Reverse coupling order");
+			button.set_text("Reverse coupling");
+			button.enable();
 		} else {
 			button.set_tooltip("Alters a schedule.");
 			button.set_text("Fahrplan");
@@ -591,9 +591,13 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 				cnv->call_convoi_tool('r', NULL);
 				return true;
 			}
+			else if(  cnv->is_coupled()  ) {
+				cnv->call_convoi_tool('c', NULL);
+				return true;
+			}
 			else {
-			cnv->call_convoi_tool( 'f', NULL );
-			return true;
+				cnv->call_convoi_tool( 'f', NULL );
+				return true;
 			}
 		}
 
