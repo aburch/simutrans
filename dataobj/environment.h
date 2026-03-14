@@ -350,6 +350,9 @@ public:
 	/// Show factory storage bar
 	static uint8 show_factory_storage_bar;
 
+	/// Show vehicle offset label on ways (format: "+3A" / "-2D")
+	static bool show_way_offset_label;
+
 	/// if a schedule is open, show tiles which are used by it
 	static bool visualize_schedule;
 

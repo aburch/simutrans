@@ -122,6 +122,7 @@ bool env_t::road_user_info;
 bool env_t::tree_info;
 bool env_t::ground_info;
 uint8 env_t::show_factory_storage_bar;
+bool env_t::show_way_offset_label = false;
 bool env_t::townhall_info;
 bool env_t::single_info;
 bool env_t::window_buttons_right;

@@ -54,7 +54,8 @@ enum {
 	IDBTN_ONEWAY_RIBI_ONLY,
 	IDBTN_SHOW_LINE_COLOR,
 	IDBTN_SHOW_CONVOY_LOADINGLEVEL,
-	COLORS_MAX_BUTTONS, 
+	IDBTN_SHOW_WAY_OFFSET_LABEL,
+	COLORS_MAX_BUTTONS,
 };
 
 static button_t buttons[COLORS_MAX_BUTTONS];
@@ -500,6 +501,11 @@ traffic_settings_t::traffic_settings_t()
 	buttons[IDBTN_ONEWAY_RIBI_ONLY].init(button_t::square_state, "show directions only for oneway roads");
 	buttons[IDBTN_ONEWAY_RIBI_ONLY].pressed = env_t::show_oneway_ribi_only;
 	add_component(buttons+IDBTN_ONEWAY_RIBI_ONLY, 2);
+
+	// Show way offset label checkbox
+	buttons[ IDBTN_SHOW_WAY_OFFSET_LABEL ].init( button_t::square_state, "show way offset label" );
+	buttons[ IDBTN_SHOW_WAY_OFFSET_LABEL ].pressed = env_t::show_way_offset_label;
+	add_component( buttons + IDBTN_SHOW_WAY_OFFSET_LABEL, 2 );
 }
 
 bool traffic_settings_t::action_triggered( gui_action_creator_t *comp, value_t v )
@@ -688,6 +694,11 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t p)
 		break;
 	case IDBTN_SHOW_WAITING_BARS:
 		env_t::show_names ^= 2;
+		break;
+	case IDBTN_SHOW_WAY_OFFSET_LABEL:
+		env_t::show_way_offset_label = !env_t::show_way_offset_label;
+		buttons[ IDBTN_SHOW_WAY_OFFSET_LABEL ].pressed = env_t::show_way_offset_label;
+		welt->set_dirty();
 		break;
 	case IDBTN_SHOW_SLICE_MAP_VIEW:
 		// see simtool.cc::tool_show_underground_t::init

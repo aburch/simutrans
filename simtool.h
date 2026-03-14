@@ -1245,6 +1245,20 @@ public:
 	bool is_work_network_safe() const OVERRIDE { return true; }
 };
 
+class tool_show_way_offset_label_t : public tool_t {
+public:
+	tool_show_way_offset_label_t() : tool_t(TOOL_SHOW_WAY_OFFSET_LABEL | SIMPLE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("show/hide way offset labels"); }
+	bool is_selected() const OVERRIDE { return env_t::show_way_offset_label; }
+	bool init( player_t * ) OVERRIDE {
+		env_t::show_way_offset_label = !env_t::show_way_offset_label;
+		welt->set_dirty();
+		return false;
+	}
+	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_work_network_safe() const OVERRIDE { return true; }
+};
+
 class tool_show_ribi_t : public tool_t {
 public:
 	tool_show_ribi_t() : tool_t(TOOL_SHOW_RIBI| SIMPLE_TOOL) {}

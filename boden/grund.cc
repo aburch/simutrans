@@ -1757,6 +1757,33 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 		}
 	}
 
+	if( env_t::show_way_offset_label  &&  hat_wege() ) {
+		if( weg_t* w = get_weg_nr( 0 ) ) {
+			const sint8 offset = w->get_vehicle_offset();
+			if( offset != 0 ) {
+				char buf[8];
+				sprintf( buf, "%+d%c", offset, w->get_vehicle_offset_mode() ? 'A' : 'D' );
+				const sint16 raster_tile_width = get_tile_raster_width();
+				const int width = proportional_string_width( buf ) + 7;
+				int new_xpos = xpos + (raster_tile_width-width)/2;
+				int new_ypos = ypos + raster_tile_width/2;
+				display_text_label( new_xpos, new_ypos, buf, w->get_owner(), dirty );
+			}
+		}
+		if( weg_t* w = get_weg_nr( 1 ) ) {
+			const sint8 offset = w->get_vehicle_offset();
+			if( offset != 0 ) {
+				char buf[8];
+				sprintf( buf, "%+d%c", offset, w->get_vehicle_offset_mode() ? 'A' : 'D' );
+				const sint16 raster_tile_width = get_tile_raster_width();
+				const int width = proportional_string_width( buf ) + 7;
+				int new_xpos = xpos + (raster_tile_width-width)/2;
+				int new_ypos = ypos + raster_tile_width/2 + D_LABEL_HEIGHT + D_V_SPACE;
+				display_text_label( new_xpos, new_ypos, buf, w->get_owner(), dirty );
+			}
+		}
+	}
+
 	if( schiene_t::show_reservations &&  hat_wege()  ) {
 		if( weg_t* w = get_weg_nr( 0 ) ) {
 			if( w->has_signal() ) {
