@@ -67,6 +67,7 @@ private:
 	button_t next_stop_button;
 	button_t reversed_button;
 	button_t route_show_button;
+	button_t bt_promote_to_line;
 	bool is_route_show;
 	route_t cnv_route;
 	void show_route(const bool);

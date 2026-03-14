@@ -8637,6 +8637,7 @@ bool scenario_check_convoy(karte_t *welt, player_t *player, convoihandle_t cnv, 
  * 'w' : toggle withdraw
  * 's' : change state to [number] (and maybe set open schedule flag)
  * 'l' : apply new line [number]
+ * 'L' : create new line
  * 'd' : go to nearest depot
  * 'y' : move to depoot immediately
  * 'r' : release the child convoy
@@ -8759,6 +8760,28 @@ bool tool_change_convoi_t::init( player_t *player )
 					cnv->get_schedule()->set_current_stop((uint8)current_stop);
 					cnv->get_schedule()->finish_editing();
 				}
+			}
+			break;
+		
+		case 'L': // create new line
+			{
+				schedule_t* schedule=cnv->get_schedule();
+				int ltype = schedule->get_type();
+				if(ltype < simline_t::truckline  ||  ltype > simline_t::narrowgaugeline) {
+					// invalid line type
+					break;
+				}
+				linehandle_t line = player->simlinemgmt.create_line( ltype, player, schedule );
+
+				// check scenario conditions
+				if (!no_check()  &&  !scenario_check_schedule(welt, player, line->get_schedule(), can_use_gui())) {
+					player->simlinemgmt.delete_line(line);
+					break;
+				}
+
+				line->get_schedule()->finish_editing();
+				
+				cnv->set_line(line);
 			}
 			break;
 
