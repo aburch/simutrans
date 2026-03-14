@@ -735,6 +735,11 @@ uint32 convoi_t::get_entire_convoy_length() const
  */
 void convoi_t::add_running_cost( const weg_t *weg )
 {
+	if(!get_most_parent_convoi()->front()->is_leading()) {
+		// if the most parent convoy's front vehicle is not leading, do not consider running cost
+		// e.g. start from station (reset vehicles)
+		return;
+	}
 	jahresgewinn += base_sum_running_costs;
 
 	if(  weg  &&  weg->get_owner()!=get_owner()  &&  weg->get_owner()!=NULL  ) {
