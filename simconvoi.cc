@@ -5842,16 +5842,36 @@ void convoi_t::trade_convoi() {
 	}
 	sint64 value = calc_restwert();
 	owner->book_new_vehicle(value, get_pos().get_2d(), fahr[0] ? fahr[0]->get_desc()->get_waytype() : ignore_wt);
-	if(  line.is_bound()  ) {
+	const bool need_new_line = line.is_bound();
+	if(  need_new_line  ) {
 		unset_line();
 	} else {
 		unregister_stops();
 	}
+	// because next line's owner is invalid, unset it.
+	schedule->unset_next_line();
 	set_owner(welt->get_player(get_accept_player_nr()));
 	register_stops();
 	owner->book_new_vehicle(-value, get_pos().get_2d(), fahr[0] ? fahr[0]->get_desc()->get_waytype() : ignore_wt);
 	set_permit_trade(false);
 	set_accept_player_nr(owner->get_player_nr());
+	if(  need_new_line  ) {
+		// reset line for new owner.
+		// search line of my schedule.
+		vector_tpl<linehandle_t> lines;
+		owner->simlinemgmt.get_lines(schedule->get_type(), &lines);
+		FOR(  vector_tpl<linehandle_t>, const line, lines  ) {
+			if(  schedule->matches(  welt, line->get_schedule()  )  ) {
+				set_line(line);
+				return;
+			}
+		}
+		dbg->message("convoi_t::trade_convoi()","%s do not find match line",get_name());
+		// not find match line -> create new one!
+		linehandle_t new_line = owner->simlinemgmt.create_line(schedule->get_type(), owner, schedule);
+		new_line->get_schedule()->finish_editing();
+		set_line(new_line);
+	}
 }
 
 
