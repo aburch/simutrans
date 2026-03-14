@@ -3036,7 +3036,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			continue;
 		}
 
-		const uint32_t ms_for_full_load = v->get_desc()->get_loading_time();
+		const uint32 ms_for_full_load = v->get_desc()->get_loading_time();
 
 		uint32 min_loading_step_time = ms_for_full_load / v->get_cargo_max() + 1;
 		time = max(time, min_loading_step_time);

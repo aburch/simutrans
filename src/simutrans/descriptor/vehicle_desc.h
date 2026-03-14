@@ -238,7 +238,7 @@ public:
 	bool can_follow_any() const { return trailer_count==0; }
 
 	uint16 get_capacity() const { return capacity; }
-	uint16 get_loading_time() const { return loading_time; } // ms per full loading/unloading
+	uint32 get_loading_time() const { return loading_time; } // ms per full loading/unloading
 	uint32 get_weight() const { return weight; }
 	uint32 get_power() const { return power; }
 	sint64 get_running_cost() const { return running_cost; }
