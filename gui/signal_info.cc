@@ -36,7 +36,7 @@ signal(s)
 	add_table(2,0);
 	{
 		lb_tiles_margin.set_text("Margin");
-		lb_tiles_margin.set_tooltip("tiles length of the margin to stop when choosing. Set this margin to the stop side(advance to end->end side)");
+		lb_tiles_margin.set_tooltip(translator::translate("tiles length of the margin to stop when choosing. Set this margin to the stop side(advance to end->end side)"));
 		numinp_tiles_margin.set_width(50);
 		numinp_tiles_margin.set_height(5);
 		numinp_tiles_margin.set_limits(0,200);
