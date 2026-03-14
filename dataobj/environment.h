@@ -33,9 +33,16 @@ enum { MENU_LEFT, MENU_TOP, MENU_RIGHT, MENU_BOTTOM };
 class env_t
 {
 public:
+	/// Points to a global writable directory, where downloaded content content is stored
+	/// This directory is writable to all users to store global content (like paksets)
+	static char install_dir[PATH_MAX];
+
 	/// Points to the current simutrans data directory. Usually this is the same directory
 	/// where the executable is located, unless -use_workdir is specified.
 	static char data_dir[PATH_MAX];
+
+	/// the selected pak (whole path, can be write protected)
+	static std::string pak_dir;
 
 	static sint16 menupos;
 

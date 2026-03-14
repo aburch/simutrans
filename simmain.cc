@@ -271,7 +271,7 @@ static void install_objfilename()
 /**
 * Show pak selector
 */
-static void ask_objfilename()
+static sint16 ask_objfilename()
 {
 	pakselector_t* sel = new pakselector_t();
 	// notify gui to load list of paksets
@@ -279,6 +279,7 @@ static void ask_objfilename()
 	ev.ev_class = INFOWIN;
 	ev.ev_code  = WIN_OPEN;
 	sel->infowin_event(&ev);
+	sint16 entries = sel->get_entries_count();
 
 	if(sel->has_pak()) {
 		destroy_all_win(true); // since eventually the successful load message is still there ....
@@ -287,6 +288,8 @@ static void ask_objfilename()
 	else {
 		delete sel;
 	}
+
+	return entries;
 }
 #endif
 
@@ -386,6 +389,7 @@ void print_help()
 		" -nomidi             turns off background music\n"
 		" -nosound            turns off ambient sounds\n"
 		" -objects DIR_NAME/  load the pakset in specified directory\n"
+		" -set_pakdir DIR     loads the pakset in specified directory\n"
 		" -pause              starts game with paused after loading\n"
 		"                     a server will pause if there are no clients\n"
 		" -res N              starts in specified resolution: \n"
@@ -485,6 +489,50 @@ void setup_logging(const args_t &args)
 }
 
 
+// search for this in all possible pakset locations for the directory chkdir and take the first match
+bool set_pakdir( const char *chkdir )
+{
+	if(  !chkdir  ||  !*chkdir  ) {
+		return false;
+	}
+
+	char tmp[PATH_MAX];
+	dr_chdir( env_t::data_dir );
+	if( !dr_chdir( chkdir ) ) {
+		dr_getcwd(tmp, lengthof(tmp));
+		env_t::pak_dir = tmp;
+		env_t::pak_dir += PATH_SEPARATOR;
+		const char* new_name = strrchr(tmp, *PATH_SEPARATOR);
+		env_t::objfilename = new_name+1;
+		env_t::objfilename += PATH_SEPARATOR;
+		return true;
+	}
+	dr_chdir( env_t::install_dir );
+	if( !dr_chdir( chkdir ) ) {
+		dr_getcwd(tmp, lengthof(tmp));
+		env_t::pak_dir = tmp;
+		env_t::pak_dir += PATH_SEPARATOR;
+		const char* new_name = strrchr(tmp, *PATH_SEPARATOR);
+		env_t::objfilename = new_name+1;
+		env_t::objfilename += PATH_SEPARATOR;
+		return true;
+	}
+	dr_chdir( env_t::user_dir );
+	if(!dr_chdir( USER_PAK_PATH ) ) {
+		if( !dr_chdir( chkdir ) ) {
+			dr_getcwd(tmp, lengthof(tmp));
+			env_t::pak_dir = tmp;
+			env_t::pak_dir += PATH_SEPARATOR;
+			const char* new_name = strrchr(tmp, *PATH_SEPARATOR);
+			env_t::objfilename = new_name+1;
+			env_t::objfilename += PATH_SEPARATOR;
+			return true;
+		}
+	}
+	return false;
+}
+
+
 int simu_main(int argc, char** argv)
 {
 	std::set_new_handler(sim_new_handler);
@@ -570,6 +618,27 @@ int simu_main(int argc, char** argv)
 		found_simuconf = true;
 		simuconf.close();
 	}
+
+	if( !check_and_set_dir( args.gimme_arg( "-set_installdir", 1 ), "-set_installdir", env_t::install_dir ) ) {
+		if( !check_and_set_dir( getenv( "SIMUTRANS_INSTALLDIR" ), "SIMUTRANS_INSTALLDIR", env_t::install_dir ) ) {
+			if( !multiuser ) {
+				// portable installation
+				strcpy( env_t::install_dir, env_t::data_dir );
+			}
+			else {
+				strcpy( env_t::install_dir, dr_query_installdir() );
+			}
+		}
+	}
+
+	if( !check_and_set_dir( args.gimme_arg( "-set_userdir", 1 ), "-set_userdir", env_t::data_dir ) ) {
+		if( !check_and_set_dir( getenv( "SIMUTRANS_USERDIR" ), "SIMUTRANS_USERDIR", env_t::data_dir ) ) {
+			if( multiuser ) {
+				strcpy( env_t::data_dir, env_t::data_dir );
+			}
+		}
+	}
+
 
 	// init dirs now
 	if(multiuser) {
@@ -658,35 +727,56 @@ int simu_main(int argc, char** argv)
 #endif
 
 	// now set the desired objectfilename (override all previous settings)
-	if(  const char *fn = args.gimme_arg("-objects", 1)  ) {
-		env_t::objfilename = fn;
-		// append slash / replace trailing backslash if necessary
-		size_t len = env_t::objfilename.length();
-		if (len > 0) {
-			if (env_t::objfilename[len-1]=='\\') {
-				env_t::objfilename.erase(len-1);
-				env_t::objfilename += "/";
+	if(  const char *fn = args.gimme_arg("-set_pakdir", 1)  ) {
+		if(!set_pakdir(fn)) {
+			// try as absolute path
+			char tmp[PATH_MAX];
+			if( check_and_set_dir( fn, "-set_pakdir", tmp, "config/menuconf.tab" ) ) {
+				env_t::pak_dir = tmp;
+				// to be done => extrat pak name!!!
+				const char *last_pathsep=0;
+				for( char *c=tmp; c[0]>0; c++ ) {
+					if( *c==*PATH_SEPARATOR ) {
+						if( c[1]==0 ) {
+							c[0] = 0;
+							break;
+						}
+						last_pathsep = c+1;
+					}
+				}
+				set_pakdir(last_pathsep);
 			}
-			else if (env_t::objfilename[len-1]!='/') {
-				env_t::objfilename += "/";
+		}
+		else {
+			set_pakdir(fn);
+		}
+	}
+
+	if(  env_t::pak_dir.empty()  ) {
+		// old style (deprecated)
+		if( const char* pak = args.gimme_arg( "-objects", 1 ) ) {
+			set_pakdir(pak);
+		}
+	}
+
+	if(  env_t::objfilename.empty()  ) {
+		if(  const char *filename = args.gimme_arg("-load", 1)  ) {
+			// try to get a pak file path from a savegame file
+			// read pak_extension from file
+			loadsave_t test;
+			std::string fn = env_t::user_dir;
+			fn += "save/";
+			fn += filename;
+			if(  test.rd_open(fn.c_str()) == loadsave_t::FILE_STATUS_OK  ) {
+				// add pak extension
+				const char *pak = test.get_pak_extension();
+				if(  strcmp(pak,"(unknown)")!=0  ) {
+					set_pakdir(pak);
+				}
 			}
 		}
 	}
-	else if(  const char *filename = args.gimme_arg("-load", 1)  ) {
-		// try to get a pak file path from a savegame file
-		// read pak_extension from file
-		loadsave_t test;
-		std::string fn = env_t::user_dir;
-		fn += "save/";
-		fn += filename;
-		if(  test.rd_open(fn.c_str()) == loadsave_t::FILE_STATUS_OK  ) {
-			// add pak extension
-			std::string pak_extension = test.get_pak_extension();
-			if(  pak_extension!="(unknown)"  ) {
-				env_t::objfilename = pak_extension + "/";
-			}
-		}
-	}
+	dr_chdir( env_t::data_dir );
 
 	// starting a server?
 	if(  args.has_arg("-easyserver")  ) {
@@ -890,6 +980,8 @@ int simu_main(int argc, char** argv)
 	// next try the last used theme
 	if(  !themes_ok  &&  env_t::default_theme.c_str()!=NULL  ) {
 		dr_chdir( env_t::user_dir );
+		dr_remove("settings_old.xml");
+		dr_rename("settings.xml", "settings_old.xml"); // or we are stuck on a broken theme forever
 		dr_chdir( "themes" );
 		themes_ok = gui_theme_t::themes_init( env_t::default_theme, true, false );
 		if(  !themes_ok  ) {
@@ -897,6 +989,7 @@ int simu_main(int argc, char** argv)
 			dr_chdir( "themes" );
 			themes_ok = gui_theme_t::themes_init( env_t::default_theme, true, false );
 		}
+		dr_rename("settings_old.xml", "settings.xml"); // or we are stuck on a broken theme forever
 	}
 	// specified themes not found => try default themes
 #if COLOUR_DEPTH != 0
@@ -918,9 +1011,11 @@ int simu_main(int argc, char** argv)
 	display_show_pointer(1);
 
 	// if no object files given, we ask the user
-	for(  int retries=0;  env_t::objfilename.empty()  &&  retries < 2;  retries++  ) {
-		ask_objfilename();
-
+	int retries=0;
+	while(   env_t::objfilename.empty()  &&  retries < 2  ) {
+		if(  ask_objfilename() == 0  ) {
+			retries++;
+		}
 		if(  env_t::quit_simutrans  ) {
 			simgraph_exit();
 			return EXIT_SUCCESS;
@@ -947,8 +1042,8 @@ int simu_main(int argc, char** argv)
 	// check for valid pak path
 	{
 		cbuffer_t buf;
-		buf.append( env_t::data_dir );
-		buf.append( env_t::objfilename.c_str() );
+		buf.append( env_t::pak_dir.c_str() );
+		// buf.append( env_t::objfilename.c_str() );
 		buf.append("ground.Outside.pak");
 
 		FILE* const f = dr_fopen(buf, "r");
@@ -956,10 +1051,10 @@ int simu_main(int argc, char** argv)
 			cbuffer_t errmsg;
 			errmsg.printf(
 				"The file 'ground.Outside.pak' was not found in\n"
-				"'%s%s'.\n"
+				"'%s'.\n"
 				"This file is required for a valid pak set (graphics).\n"
 				"Please install and select a valid pak set.",
-				env_t::data_dir, env_t::objfilename.c_str());
+				env_t::pak_dir.c_str());
 
 			dr_fatal_notify(errmsg);
 			simgraph_exit();
@@ -969,7 +1064,7 @@ int simu_main(int argc, char** argv)
 	}
 
 	// now find the pak specific tab file ...
-	obj_conf = env_t::objfilename + path_to_simuconf;
+	obj_conf = env_t::pak_dir + path_to_simuconf;
 	if(  simuconf.open(obj_conf.c_str())  ) {
 		env_t::default_settings.set_way_height_clearance( 0 );
 
@@ -1000,7 +1095,7 @@ int simu_main(int argc, char** argv)
 	}
 	//parse reposition.tab
 	sprintf(path_to_simuconf, "config%creposition.tab", PATH_SEPARATOR[0]);
-	obj_conf = env_t::data_dir + env_t::objfilename + path_to_simuconf;
+	obj_conf = env_t::pak_dir + path_to_simuconf;
 	repositioning_t::get_instance().read_tabfile(obj_conf.c_str());
 
 	// load with private addons (now in addons/pak-name either in simutrans main dir or in userdir)
@@ -1070,7 +1165,7 @@ int simu_main(int argc, char** argv)
 	}
 
 	// Adam - Moved away loading from simu_main() and placed into translator for better modularization
-	if(  !translator::load(env_t::objfilename)  ) {
+	if(  !translator::load(env_t::pak_dir)  ) {
 		// installation error: likely only program started
 		dbg->fatal("simu_main()",
 			"Unable to load any language files\n"
@@ -1125,19 +1220,19 @@ int simu_main(int argc, char** argv)
 	stadt_t::cityrules_init(env_t::objfilename);
 
 	dbg->message("simu_main()","Reading speedbonus configuration ...");
-	vehicle_builder_t::speedbonus_init(env_t::objfilename);
+	vehicle_builder_t::speedbonus_init(env_t::pak_dir);
 
 	dbg->message("simu_main()","Reading menu configuration ...");
 	tool_t::init_menu();
 
 	// loading all objects in the pak
-	dbg->message("simu_main()","Reading object data from %s...", env_t::objfilename.c_str());
-	obj_reader_t::load( env_t::objfilename.c_str(), translator::translate("Loading paks ...") );
+	dbg->message("simu_main()","Reading object data from %s...", env_t::pak_dir.c_str());
+	obj_reader_t::load( env_t::pak_dir.c_str(), translator::translate("Loading paks ...") );
 	std::string overlaid_warning; // more prominent handling of double objects
 
 	if(  dbg->had_overlaid()  ) {
 		overlaid_warning = translator::translate("<h1>Error</h1><p><strong>");
-		overlaid_warning.append( env_t::objfilename + translator::translate("contains the following doubled objects:</strong><p>") + dbg->get_overlaid() + "<p>" );
+		overlaid_warning.append( env_t::pak_dir + translator::translate("contains the following doubled objects:</strong><p>") + dbg->get_overlaid() + "<p>" );
 		dbg->clear_overlaid();
 	}
 
@@ -1171,7 +1266,7 @@ int simu_main(int argc, char** argv)
 	// load tool scripts
 	dbg->message("simu_main()","Reading tool scripts ...");
 	dr_chdir( env_t::data_dir );
-	script_tool_manager_t::load_scripts((env_t::data_dir + env_t::objfilename + "tool/").c_str());
+	script_tool_manager_t::load_scripts((env_t::pak_dir + "tool/").c_str());
 	if(  env_t::default_settings.get_with_private_paks()  ) {
 		dr_chdir( env_t::user_dir );
 		script_tool_manager_t::load_scripts(("addons/" + env_t::objfilename + "tool/").c_str());
@@ -1179,13 +1274,13 @@ int simu_main(int argc, char** argv)
 
 	dbg->message("simu_main()","Reading menu configuration ...");
 	dr_chdir( env_t::data_dir );
-	if (!tool_t::read_menu(env_t::objfilename + "config/menuconf.tab")) {
+	if (!tool_t::read_menu(env_t::pak_dir + "config/menuconf.tab")) {
 		// Fatal error while reading menuconf.tab, we cannot continue!
 		dbg->fatal(
-			"Could not read %s%sconfig/menuconf.tab.\n"
+			"Could not read %sconfig/menuconf.tab.\n"
 			"This file is required for a valid pak set (graphics).\n"
 			"Please install and select a valid pak set.",
-			env_t::data_dir, env_t::objfilename.c_str());
+			env_t::pak_dir.c_str());
 	}
 
 #if COLOUR_DEPTH != 0
@@ -1303,7 +1398,7 @@ int simu_main(int argc, char** argv)
 	if(  new_world  ) {
 		dr_chdir( env_t::data_dir );
 
-		const std::string path = env_t::data_dir + env_t::objfilename + "demo.sve";
+		const std::string path = env_t::pak_dir + "demo.sve";
 
 		// access did not work!
 		if(  FILE *const f = dr_fopen(path.c_str(), "rb")  ) {
@@ -1480,7 +1575,7 @@ int simu_main(int argc, char** argv)
 		}
 		if (err) {
 			// no addon scenario, look in pakset
-			err = scen->init((env_t::data_dir + env_t::objfilename + "scenario/").c_str(), scen_name, welt);
+			err = scen->init((env_t::pak_dir + "scenario/").c_str(), scen_name, welt);
 		}
 		if(  err  ) {
 			dbg->error("simu_main()", "Could not load scenario %s%s: %s", env_t::objfilename.c_str(), scen_name, err);

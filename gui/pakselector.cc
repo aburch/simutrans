@@ -10,9 +10,10 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
 #include "../sys/simsys.h"
+#include "../pathes.h"
 
 pakselector_t::pakselector_t() :
-	savegame_frame_t( NULL, true, env_t::data_dir, true ),
+	savegame_frame_t( NULL, true, NULL, true ),
 	notice_label(&notice_buffer)
 {
 	// if true, we would call the installler afterwards
@@ -41,6 +42,28 @@ pakselector_t::pakselector_t() :
 	add_component(&installbutton);
 
 	resize(scr_coord(0,0));
+
+	dr_chdir(env_t::data_dir);
+	char bd[PATH_MAX], id[PATH_MAX];
+	dr_getcwd(bd, lengthof(bd)-2);
+	strcat(bd, PATH_SEPARATOR);
+	dr_chdir(env_t::install_dir);
+	dr_getcwd(id, lengthof(id)-2);
+	strcat(id, PATH_SEPARATOR);
+
+	add_path( bd );
+	if(  strcmp(bd,id)  ) {
+		add_path(id);
+	}
+	dr_chdir( env_t::user_dir );
+	if(  !dr_chdir(USER_PAK_PATH)  ) {
+		char ud[PATH_MAX];
+		dr_getcwd(ud, lengthof(ud)-2 );
+		strcat(ud, PATH_SEPARATOR);
+		if(  strcmp(id, ud)  &&  strcmp(bd, ud)  ) {
+			add_path(ud);
+		}
+	}
 }
 
 
@@ -49,7 +72,9 @@ pakselector_t::pakselector_t() :
  */
 bool pakselector_t::item_action(const char *fullpath)
 {
-	env_t::objfilename = get_filename(fullpath)+"/";
+	env_t::pak_dir = fullpath;
+	env_t::pak_dir += PATH_SEPARATOR;
+	env_t::objfilename = (get_filename(fullpath)+PATH_SEPARATOR);
 	env_t::default_settings.set_with_private_paks( false );
 
 	return true;
@@ -59,7 +84,9 @@ bool pakselector_t::item_action(const char *fullpath)
 bool pakselector_t::del_action(const char *fullpath)
 {
 	// cannot delete set => use this for selection
-	env_t::objfilename = get_filename(fullpath)+"/";
+	env_t::pak_dir = fullpath;
+	env_t::pak_dir += PATH_SEPARATOR;
+	env_t::objfilename = get_filename(fullpath)+PATH_SEPARATOR;
 	env_t::default_settings.set_with_private_paks( true );
 	return true;
 }
@@ -98,9 +125,10 @@ void pakselector_t::fill_list()
 	// do the search ...
 	savegame_frame_t::fill_list();
 
-	entries.sort(dir_entry_t::compare);
+	// do not sort or the path names are in the wrong positions
+//	entries.sort(dir_entry_t::compare);
 
-	FOR(slist_tpl<dir_entry_t>, &i, entries) {
+	for(dir_entry_t &i : entries) {
 
 		if (i.type == LI_HEADER) {
 			continue;
@@ -122,15 +150,17 @@ void pakselector_t::fill_list()
 
 			// if list contains only one header, one pakset entry without addons
 			// store path to pakset temporary, reset later if more choices available
-			// if env_t::objfilename is non-empty then simmain.cc will close the window immediately
-			env_t::objfilename = (std::string)i.button->get_text() + "/";
+			// if env_t::pak_dir is non-empty then simmain.cc will close the window immediately
+			env_t::objfilename = (std::string)i.button->get_text() + PATH_SEPARATOR;
+			env_t::pak_dir = (std::string)i.info + PATH_SEPARATOR;
 		}
 	}
 	dr_chdir( env_t::data_dir );
 
 	if(entries.get_count() > this->num_sections+1) {
 		// empty path as more than one pakset is present, user has to choose
-		env_t::objfilename = "";
+		env_t::pak_dir.clear();
+		env_t::objfilename.clear();
 	}
 }
 

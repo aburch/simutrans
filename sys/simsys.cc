@@ -362,6 +362,111 @@ int dr_stat(const char *path, struct stat *buf)
 #endif
 }
 
+bool check_and_set_dir( const char *path, const char *info, char *result, const char *testfile)
+{
+	if(  path  &&  *path  ) {
+		bool ok = !dr_chdir(path);
+		// Attempt to create it (if we aren't testing for an existing directory containing a file).
+		if(!ok && !testfile) {
+			dr_mkdir(path);
+			ok = !dr_chdir(path);
+		}
+		else if(testfile) {
+			FILE* testf = fopen(testfile,"r");
+			ok = ok && testf;
+			if(testf) {
+				fclose(testf);
+			}
+		}
+		if(!ok) {
+			printf("WARNING: Objects not found in %s \"%s\"!\n",  info, path);
+		}
+		else {
+			dr_getcwd( result, PATH_MAX-1 );
+			strcat( result, PATH_SEPARATOR );
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+* Simutrans has three directories:
+* data_dir: directory with default data (may be write protected)
+* install_dir: global writable directory where paksets are installed
+* user_dir: a user writable directory
+*
+* The directory will be determined in the following order
+* -set_XXXdir Path (command line option)
+* SIMUTRANS_XXXDIR (environment variable)
+* (in case of data_dir current path, then executable path)
+* (for user_dir and install_dir: machine dependent default directories)
+*
+* The pak_dir contains the complete path to the current pak, since it could be in different locations
+*
+*/
+bool dr_set_basedir(const char * data_dir_arg, char * executable_path)
+{
+	bool found_basedir = false;
+#ifdef __ANDROID__
+	found_basedir = check_and_set_dir( SDL_AndroidGetInternalStoragePath(), "Android Internal Storage", env_t::data_dir, "config/simuconf.tab");
+#else
+	found_basedir = check_and_set_dir( data_dir_arg, "-set_basedir", env_t::data_dir, "config/simuconf.tab");
+	if( !found_basedir ) {
+		found_basedir = check_and_set_dir( getenv("SIMUTRANS_BASEDIR"), "SIMUTRANS_BASEDIR", env_t::data_dir, "config/simuconf.tab");
+		if( !found_basedir ) {
+			dr_getcwd(env_t::data_dir, lengthof(env_t::data_dir));
+			strcat( env_t::data_dir, PATH_SEPARATOR );
+			// test if base installation
+			if (FILE* f = dr_fopen("config/simuconf.tab", "r")) {
+				fclose(f);
+				found_basedir = true;
+			}
+			else {
+				char testpath[PATH_MAX];
+				tstrncpy(testpath, executable_path, lengthof(testpath));
+				char* c = strrchr(testpath, *PATH_SEPARATOR);
+				if(c) {
+					*c = 0; // remove program name
+					found_basedir = check_and_set_dir(testpath, "program dir", env_t::data_dir, "config/simuconf.tab");
+					if(!found_basedir) {
+#ifdef __APPLE__
+						// Detect if the binary is started inside an application bundle
+						// Change working dir from MacOS to Resources dir
+						strcpy(env_t::data_dir, testpath);
+						if( strstr(env_t::data_dir, ".app/Contents/MacOS") != NULL ) {
+							while (env_t::data_dir[strlen(env_t::data_dir) - 1] != 's') {
+								env_t::data_dir[strlen(env_t::data_dir) - 1] = 0;
+							}
+							strcat(env_t::data_dir, "/Resources/simutrans/");
+							found_basedir = true;
+						}
+#else
+						// Detect if simutrans has been installed by the system and try to locate the installation relative to the binary location
+						char *c = strrchr(testpath, *PATH_SEPARATOR);
+						if(  c  &&  strcmp(c+1,"bin")==0  ) {
+							// replace bin with other paths
+							strcpy( c+1, "share/simutrans/" );
+							found_basedir = check_and_set_dir(testpath, "program dir", env_t::data_dir, "config/simuconf.tab");
+							if (!found_basedir) {
+								strcpy( c+1 , "share/games/simutrans/" );
+								found_basedir = check_and_set_dir(testpath, "share/games/simutrans", env_t::data_dir, "config/simuconf.tab");
+							}
+						}
+#endif
+					}
+				}
+			}
+		}
+	}
+#endif
+	if (!found_basedir) {
+		// try the installer dir next
+		found_basedir = check_and_set_dir(dr_query_installdir(), "install_dir", env_t::data_dir, "config/simuconf.tab");
+	}
+	return found_basedir;
+}
+
 char const *dr_query_homedir()
 {
 	static char buffer[PATH_MAX + 24];
@@ -411,6 +516,60 @@ char const *dr_query_homedir()
 #ifndef __ANDROID__
 	strcat(buffer, PATH_SEPARATOR);
 #endif
+	return buffer;
+}
+
+
+char const *dr_query_installdir()
+{
+	static char buffer[PATH_MAX + 24];
+
+#if defined _WIN32
+	WCHAR whomedir[MAX_PATH];
+	if(FAILED(SHGetFolderPathW(NULL, CSIDL_COMMON_APPDATA|CSIDL_FLAG_CREATE, NULL, SHGFP_TYPE_CURRENT, whomedir))) {
+		return NULL;
+	}
+
+	// Convert UTF-16 to UTF-8.
+	int const convert_size = WideCharToMultiByte(CP_UTF8, 0, whomedir, -1, buffer, sizeof(buffer), NULL, NULL);
+	if(convert_size == 0) {
+		return NULL;
+	}
+
+	// Append Simutrans folder.
+	char const foldername[] = "Simutrans";
+	if(lengthof(buffer) < strlen(buffer) + strlen(foldername) + 2 * strlen(PATH_SEPARATOR) + 1){
+		return NULL;
+	}
+	strcat(buffer, PATH_SEPARATOR);
+	strcat(buffer, foldername);
+#elif defined __APPLE__
+	int maxlen = PATH_MAX + 22;
+	unsigned n = snprintf(buffer, maxlen, "%s/Library/Simutrans/paksets", getenv("HOME"));
+	if (n >= maxlen) {
+		return NULL;
+	}
+#elif defined __HAIKU__
+	BPath userDir;
+	find_directory(B_USER_DIRECTORY, &userDir);
+	sprintf(buffer, "%s/simutrans/paksets", userDir.Path());
+#elif defined __ANDROID__
+	tstrncpy(buffer,SDL_AndroidGetExternalStoragePath(),lengthof(buffer));
+#else
+	int maxlen = PATH_MAX + 22;
+	int n;
+	if( getenv("XDG_DATA_HOME") == NULL ) {
+		n = snprintf(buffer, maxlen, "%s/simutrans/paksets", getenv("HOME"));
+	}
+	else {
+		n = snprintf(buffer, maxlen, "%s/simutrans/paksets", getenv("XDG_DATA_HOME"));
+	}
+	if (n >= maxlen) {
+		return NULL;
+	}
+#endif
+
+	strcat(buffer, PATH_SEPARATOR);
 	return buffer;
 }
 
