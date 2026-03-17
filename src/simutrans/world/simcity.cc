@@ -3594,7 +3594,7 @@ void stadt_t::generate_private_cars(koord pos, koord target)
 
 
 /**
- * built/extends a road and maybe changes the neighbouring tile to continue it as further as possible
+ * built/extends a road and maybe changes the neighbouring tile to continue it as far as possible
  * @param k Bauposition
  */
 bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
@@ -3627,7 +3627,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 			return false;
 		}
 
-		// try articicial slope. For this, we need to know the height of the tile with the connecting road
+		// try artificial slope. For this, we need to know the height of the tile with the connecting road
 		for (sint8 r = 0; r < 4; r++) {
 			if (grund_t* gr = welt->lookup_kartenboden(k + koord::nesw[r])) {
 				if (gr->hat_weg(road_wt)) {
@@ -3652,6 +3652,17 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 						continue;
 					}
 
+					if (terraform_allowed  &&  !bd->get_weg_hang()  &&  gr->get_hoehe() != bd->get_hoehe()) {
+						sint8 dir = bd->get_hoehe() < gr->get_hoehe() ? +1 : -1;
+						// check height clearance (no bridges or tunnels would be blocked by this when becoming a slope)
+						// (This is only possible near articial sloes, but the check is not expensive)
+						if (welt->lookup(koord3d(k + koord::nesw[r], bd->get_hoehe() + dir))) {
+							continue;
+						}
+						if (welt->get_settings().get_way_height_clearance() == 2  &&  welt->lookup(koord3d(k + koord::nesw[r], bd->get_hoehe() + 2*dir))) {
+							continue;
+						}
+					}
 
 					// try to connect: check if other tile on slope
 					if (gr->get_weg_hang()  &&  ribi_t::doubles(ribi_type(gr->get_weg_hang())) != ribi_t::doubles(ribi_t::nesw[r])) {
