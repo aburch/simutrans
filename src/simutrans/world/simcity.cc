@@ -1866,13 +1866,13 @@ void stadt_t::step_passagiere()
 	}
 
 	// track number of generated passengers.
-	city_history_year[0][history_type + HIST_OFFSET_GENERATED] += num_pax;
+	city_history_year [0][history_type + HIST_OFFSET_GENERATED] += num_pax;
 	city_history_month[0][history_type + HIST_OFFSET_GENERATED] += num_pax;
 
 	// only continue, if this is a good start halt
 	if(  !start_halts.empty()  ) {
 		// Find passenger destination
-		for(  uint pax_routed=0, pax_left_to_do=0;  pax_routed < num_pax;  pax_routed += pax_left_to_do  ) {
+		for(  uint32 pax_routed=0, pax_left_to_do=0;  pax_routed < num_pax;  pax_routed += pax_left_to_do  ) {
 			// number of passengers that want to travel
 			// for efficiency we try to route not every single pax, but packets.
 			// If possible, we do 7 passengers at a time
@@ -1883,7 +1883,9 @@ void stadt_t::step_passagiere()
 			pax_return_type will_return;
 			factory_entry_t *factory_entry = NULL;
 			stadt_t *dest_city = NULL;
+
 			const koord dest_pos = find_destination(target_factories, city_history_month[0][history_type + HIST_OFFSET_GENERATED], &will_return, factory_entry, dest_city);
+
 			if(  factory_entry  ) {
 				if (welt->get_settings().get_factory_enforce_demand()) {
 					// ensure no more than remaining amount
@@ -1905,6 +1907,7 @@ void stadt_t::step_passagiere()
 			// now, finally search a route; this consumes most of the time
 			int const route_result = haltestelle_t::search_route( &start_halts[0], start_halts.get_count(), welt->get_settings().is_no_routing_over_overcrowding(), pax, &return_pax);
 			halthandle_t start_halt = return_pax.get_target_halt();
+
 			if(  route_result==haltestelle_t::ROUTE_OK  ) {
 				// so we have happy traveling passengers
 				start_halt->starte_mit_route(pax);
@@ -1941,8 +1944,8 @@ void stadt_t::step_passagiere()
 				}
 				else {
 					// all routes to goal are overcrowded -> register at first stop (closest)
-					for(halthandle_t const s : start_halts) {
-						s->add_pax_unhappy(pax_left_to_do);
+					if (!start_halts.empty()) {
+						start_halts[0]->add_pax_unhappy(pax_left_to_do);
 						break;
 					}
 				}
@@ -1952,9 +1955,8 @@ void stadt_t::step_passagiere()
 			}
 			else if (  route_result == haltestelle_t::NO_ROUTE  ) {
 				// since there is no route from any start halt -> register no route at first halts (closest)
-				for(halthandle_t const s : start_halts) {
-					s->add_pax_no_route(pax_left_to_do);
-					break;
+				if (!start_halts.empty()) {
+					start_halts[0]->add_pax_no_route(pax_left_to_do);
 				}
 				merke_passagier_ziel(dest_pos, PAX_DEST_STATUS_NO_ROUTE);
 #ifdef DESTINATION_CITYCARS
@@ -2065,14 +2067,14 @@ void stadt_t::step_passagiere()
 	}
 	else {
 		// assume no free stop to start at all
-		bool is_there_any_stop = false;
+		halthandle_t src_halt;
 
 		// the unhappy passengers will be added to the first stop if any
 		for(  uint h=0;  h<plan->get_haltlist_count(); h++  ) {
 			halthandle_t halt = plan->get_haltlist()[h];
 			if(  halt->is_enabled(wtyp)  ) {
 				halt->add_pax_unhappy(num_pax);
-				is_there_any_stop = true; // only overcrowded
+				src_halt = halt; // only overcrowded
 				break;
 			}
 		}
@@ -2083,6 +2085,7 @@ void stadt_t::step_passagiere()
 		factory_entry_t *factory_entry = NULL;
 		stadt_t *dest_city = NULL;
 		const koord ziel = find_destination(target_factories, city_history_month[0][history_type + HIST_OFFSET_GENERATED], &will_return, factory_entry, dest_city);
+
 		if(  factory_entry  ) {
 			// consider at most 1 packet's amount as factory-going
 			sint32 amount = min(PACKET_SIZE, num_pax);
@@ -2119,16 +2122,23 @@ void stadt_t::step_passagiere()
 			// passengers with no route will be added to the first stops near destination (might be none)
 			const planquadrat_t *const dest_plan = welt->access(ziel);
 			const halthandle_t *const dest_halt_list = dest_plan->get_haltlist();
+
 			for (uint h = 0; h < dest_plan->get_haltlist_count(); h++) {
-				halthandle_t halt = dest_halt_list[h];
-				if (  halt->is_enabled(wtyp)  ) {
-					if(  is_there_any_stop  ) {
-						// "just" overcrowded
-						halt->add_pax_unhappy(pax_return);
+				halthandle_t dst_halt = dest_halt_list[h];
+				if (  dst_halt->is_enabled(wtyp)  ) {
+
+					// Check if the two networks are actually connected.
+					// If we have 2 networks:
+					//  [N1] with halts A,B (both overcrowded)
+					//  [N2] with halts C,D (none overcrowded)
+					// and a route is calculated from A to D,
+					// the return pax (from D to A) must not be logged as unhappy
+					// because no halts in N2 are overcrowded.
+					if(  src_halt.is_bound() && dst_halt->is_connected(src_halt, wtyp->get_catg_index())==1  ) {
+						dst_halt->add_pax_unhappy(pax_return); // "just" overcrowded
 					}
 					else {
-						// no stops at all
-						halt->add_pax_no_route(pax_return);
+						dst_halt->add_pax_no_route(pax_return); // no connection at all
 					}
 					break;
 				}

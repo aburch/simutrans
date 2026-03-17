@@ -65,6 +65,7 @@
 	FIX: Inline tool icons change size when zooming in or out and scaled tool icons are enabled
 	FIX: show convoi (and line) name when permanent tooltips are enabled for convois
 	FIX: not connection to tunnels, bridges and elevated ways when extending city streets
+	FIX: Overcrowded stops can cause unhappy return passengers in unconnected networks
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):
