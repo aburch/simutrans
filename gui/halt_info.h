@@ -75,9 +75,7 @@ private:
 	gui_textinput_t input;
 	gui_chart_t chart;
 	location_view_t view;
-	button_t sort_button, other_players_connection_button;
-	button_t bt_no_handle_pax, bt_no_handle_post, bt_no_handle_ware;
-	button_t bt_allow_unload_longer_convoy;
+	button_t sort_button;
 	button_t bt_change_to_owner;
 
 	gui_button_to_chart_array_t button_to_chart;

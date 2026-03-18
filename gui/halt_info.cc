@@ -85,7 +85,7 @@ public:
 };
 
 // all connections
-class gui_halt_detail_t : public gui_aligned_container_t
+class gui_halt_detail_t : public gui_aligned_container_t, private action_listener_t
 {
 	/**
 	 * Button to open line window
@@ -154,6 +154,15 @@ private:
 	uint32 cached_line_count;
 	uint32 cached_convoy_count;
 
+	halthandle_t halt;
+	button_t other_players_connection_button;
+	button_t bt_no_handle_pax, bt_no_handle_post, bt_no_handle_ware;
+	button_t bt_allow_unload_longer_convoy;
+
+	void update_button_states();
+
+	bool action_triggered(gui_action_creator_t *comp, value_t) OVERRIDE;
+
 	void insert_empty_row() {
 		new_component<gui_label_t>("     ");
 		new_component<gui_empty_t>();
@@ -175,11 +184,31 @@ public:
 		last_connection_update_counter = 0xFF;
 		cached_line_count = 0xFFFFFFFFul;
 		cached_convoy_count = 0xFFFFFFFFul;
+		halt = h;
+		other_players_connection_button.init(button_t::square, "Allow other players to connect");
+		other_players_connection_button.add_listener(this);
+		bt_no_handle_pax.init(button_t::square, "Passagiere");
+		bt_no_handle_pax.add_listener(this);
+		bt_no_handle_post.init(button_t::square, "Post");
+		bt_no_handle_post.add_listener(this);
+		bt_no_handle_ware.init(button_t::square, "Fracht");
+		bt_no_handle_ware.add_listener(this);
+		bt_allow_unload_longer_convoy.init(button_t::square, "Unload from longer convoy");
+		bt_allow_unload_longer_convoy.set_tooltip("Allow unloading when convoy length is longer than this station length");
+		bt_allow_unload_longer_convoy.add_listener(this);
 		update_connections(h);
 	}
 
 	// will update if schedule or connection changed
 	void update_connections(halthandle_t h);
+
+	void draw(scr_coord offset) OVERRIDE
+	{
+		if (halt.is_bound()) {
+			update_button_states();
+		}
+		gui_aligned_container_t::draw(offset);
+	}
 
 	scr_size get_max_size() const OVERRIDE { return get_min_size(); }
 };
@@ -356,37 +385,12 @@ void halt_info_t::init(halthandle_t halt)
 				}
 			}
 			end_table();
-			add_table(2,1);
+			add_table(1,1);
 			{
-				other_players_connection_button.init(button_t::square, "Allow other players to connect");
-				other_players_connection_button.add_listener(this);
-				add_component(&other_players_connection_button);
 				bt_change_to_owner.init(button_t::box_state | button_t::flexible, halt->get_owner()->get_name());
 				bt_change_to_owner.background_color = color_idx_to_rgb(halt->get_owner()->get_player_color1());
 				bt_change_to_owner.add_listener(this);
 				add_component(&bt_change_to_owner);
-			}	
-			end_table();
-			add_table(4,1);
-			{
-				new_component<gui_label_t>(translator::translate("No handle:"));
-				bt_no_handle_pax.init(button_t::square, "Passagiere");
-				bt_no_handle_pax.add_listener(this);
-				add_component(&bt_no_handle_pax);
-				bt_no_handle_post.init(button_t::square, "Post");
-				bt_no_handle_post.add_listener(this);
-				add_component(&bt_no_handle_post);
-				bt_no_handle_ware.init(button_t::square, "Fracht");
-				bt_no_handle_ware.add_listener(this);
-				add_component(&bt_no_handle_ware);
-			}
-			end_table();
-			add_table(1,1);
-			{
-				bt_allow_unload_longer_convoy.init(button_t::square, "Unload from longer convoy");
-				bt_allow_unload_longer_convoy.set_tooltip("Allow unloading when convoy length is longer than this station length");
-				bt_allow_unload_longer_convoy.add_listener(this);
-				add_component(&bt_allow_unload_longer_convoy);
 			}
 			end_table();
 		}
@@ -553,34 +557,9 @@ void halt_info_t::update_components()
 		halt_detail->update_connections(halt);
 	}
 
-	other_players_connection_button.set_visible(!halt->get_owner()->is_public_service());
-	other_players_connection_button.enable(player_t::check_owner(halt->get_owner(), welt->get_active_player()));
-	other_players_connection_button.pressed = halt->is_other_player_connection_allowed();
 	bt_change_to_owner.set_visible(true);
 	bt_change_to_owner.enable(true);
 	bt_change_to_owner.pressed = halt->get_owner()==welt->get_active_player();
-	bt_no_handle_pax.set_visible(true);
-	bt_no_handle_post.set_visible(true);
-	bt_no_handle_ware.set_visible(true);
-	bt_no_handle_pax.disable();
-	bt_no_handle_post.disable();
-	bt_no_handle_ware.disable();
-	bt_allow_unload_longer_convoy.set_visible(welt->get_settings().is_allow_unload_longer_convoy());
-	bt_allow_unload_longer_convoy.disable();
-	if(halt->get_desc_pax_enable()) {
-		bt_no_handle_pax.enable(player_t::check_owner(halt->get_owner(), welt->get_active_player()));
-	}
-	if(halt->get_desc_post_enable()) {
-		bt_no_handle_post.enable(player_t::check_owner(halt->get_owner(), welt->get_active_player()));
-	}
-	if(halt->get_desc_ware_enable()) {
-		bt_no_handle_ware.enable(player_t::check_owner(halt->get_owner(), welt->get_active_player()));
-	}
-	bt_allow_unload_longer_convoy.enable(player_t::check_owner(halt->get_owner(), welt->get_active_player()));
-	bt_no_handle_pax.pressed = halt->is_no_handle_pax();
-	bt_no_handle_post.pressed = halt->is_no_handle_post();
-	bt_no_handle_ware.pressed = halt->is_no_handle_ware();
-	bt_allow_unload_longer_convoy.pressed = halt->is_allow_unload_longer_convoy();
 	set_dirty();
 }
 
@@ -600,15 +579,82 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 }
 
 
-void gui_halt_detail_t::update_connections( halthandle_t halt )
+void gui_halt_detail_t::update_button_states()
 {
+	other_players_connection_button.set_visible(!halt->get_owner()->is_public_service());
+	other_players_connection_button.enable(player_t::check_owner(halt->get_owner(), world()->get_active_player()));
+	other_players_connection_button.pressed = halt->is_other_player_connection_allowed();
+	bt_no_handle_pax.set_visible(true);
+	bt_no_handle_post.set_visible(true);
+	bt_no_handle_ware.set_visible(true);
+	bt_no_handle_pax.disable();
+	bt_no_handle_post.disable();
+	bt_no_handle_ware.disable();
+	bt_allow_unload_longer_convoy.set_visible(world()->get_settings().is_allow_unload_longer_convoy());
+	bt_allow_unload_longer_convoy.disable();
+	if(halt->get_desc_pax_enable()) {
+		bt_no_handle_pax.enable(player_t::check_owner(halt->get_owner(), world()->get_active_player()));
+	}
+	if(halt->get_desc_post_enable()) {
+		bt_no_handle_post.enable(player_t::check_owner(halt->get_owner(), world()->get_active_player()));
+	}
+	if(halt->get_desc_ware_enable()) {
+		bt_no_handle_ware.enable(player_t::check_owner(halt->get_owner(), world()->get_active_player()));
+	}
+	bt_allow_unload_longer_convoy.enable(player_t::check_owner(halt->get_owner(), world()->get_active_player()));
+	bt_no_handle_pax.pressed = halt->is_no_handle_pax();
+	bt_no_handle_post.pressed = halt->is_no_handle_post();
+	bt_no_handle_ware.pressed = halt->is_no_handle_ware();
+	bt_allow_unload_longer_convoy.pressed = halt->is_allow_unload_longer_convoy();
+}
+
+
+bool gui_halt_detail_t::action_triggered(gui_action_creator_t *comp, value_t)
+{
+	if(comp == &other_players_connection_button) {
+		cbuffer_t buf;
+		buf.printf("c,%hu", halt.get_id());
+		tool_t::simple_tool[TOOL_CHANGE_HALT]->set_default_param(buf);
+		world()->set_tool(tool_t::simple_tool[TOOL_CHANGE_HALT], world()->get_active_player());
+	}
+	else if(comp == &bt_no_handle_pax) {
+		cbuffer_t buf;
+		buf.printf("p,%hu", halt.get_id());
+		tool_t::simple_tool[TOOL_CHANGE_HALT]->set_default_param(buf);
+		world()->set_tool(tool_t::simple_tool[TOOL_CHANGE_HALT], world()->get_active_player());
+	}
+	else if(comp == &bt_no_handle_post) {
+		cbuffer_t buf;
+		buf.printf("m,%hu", halt.get_id());
+		tool_t::simple_tool[TOOL_CHANGE_HALT]->set_default_param(buf);
+		world()->set_tool(tool_t::simple_tool[TOOL_CHANGE_HALT], world()->get_active_player());
+	}
+	else if(comp == &bt_no_handle_ware) {
+		cbuffer_t buf;
+		buf.printf("w,%hu", halt.get_id());
+		tool_t::simple_tool[TOOL_CHANGE_HALT]->set_default_param(buf);
+		world()->set_tool(tool_t::simple_tool[TOOL_CHANGE_HALT], world()->get_active_player());
+	}
+	else if(comp == &bt_allow_unload_longer_convoy) {
+		cbuffer_t buf;
+		buf.printf("l,%hu", halt.get_id());
+		tool_t::simple_tool[TOOL_CHANGE_HALT]->set_default_param(buf);
+		world()->set_tool(tool_t::simple_tool[TOOL_CHANGE_HALT], world()->get_active_player());
+	}
+	return true;
+}
+
+
+void gui_halt_detail_t::update_connections( halthandle_t h )
+{
+	halt = h;
 	if(  !halt.is_bound()  ) {
 		// first call, or invalid handle
 		remove_all();
 		return;
 	}
 
-	if(  halt->get_reconnect_counter()==destination_counter  &&  
+	if(  halt->get_reconnect_counter()==destination_counter  &&
 		 halt->get_connection_update_counter()==last_connection_update_counter  &&
 		 halt->registered_lines.get_count()==cached_line_count  &&  halt->registered_convoys.get_count()==cached_convoy_count  ) {
 		// all current, so do nothing
@@ -618,10 +664,31 @@ void gui_halt_detail_t::update_connections( halthandle_t halt )
 	// update connections from here
 	remove_all();
 
+	set_table_layout(2,0);
+
+	// settings buttons spanning both columns
+	{
+		gui_aligned_container_t *row = new_component_span<gui_aligned_container_t>(2);
+		row->set_table_layout(1, 0);
+		row->add_component(&other_players_connection_button);
+	}
+	{
+		gui_aligned_container_t *row = new_component_span<gui_aligned_container_t>(2);
+		row->set_table_layout(4, 1);
+		row->new_component<gui_label_t>(translator::translate("No handle:"));
+		row->add_component(&bt_no_handle_pax);
+		row->add_component(&bt_no_handle_post);
+		row->add_component(&bt_no_handle_ware);
+	}
+	{
+		gui_aligned_container_t *row = new_component_span<gui_aligned_container_t>(2);
+		row->set_table_layout(1, 1);
+		row->add_component(&bt_allow_unload_longer_convoy);
+	}
+
 	const slist_tpl<fabrik_t *> & fab_list = halt->get_fab_list();
 	slist_tpl<const goods_desc_t *> nimmt_an;
 
-	set_table_layout(2,0);
 	new_component_span<gui_label_t>("Fabrikanschluss", 2);
 
 	if (!fab_list.empty()) {
@@ -1045,40 +1112,6 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	}
 	else if (comp == &switch_mode) {
 		departure_board->next_refresh = -1;
-	}
-	else if(comp == &other_players_connection_button) {
-		cbuffer_t buf;
-		buf.printf("c,%hu", halt.get_id());
-		tool_t::simple_tool[TOOL_CHANGE_HALT]->set_default_param(buf);
-		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_HALT], welt->get_active_player() );
-	}
-	else if(comp == &bt_no_handle_pax) {
-		cbuffer_t buf;
-		buf.printf("p,%hu", halt.get_id());
-		tool_t::simple_tool[TOOL_CHANGE_HALT]->set_default_param(buf);
-		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_HALT], welt->get_active_player() );
-
-	}
-	else if(comp == &bt_no_handle_post) {
-		cbuffer_t buf;
-		buf.printf("m,%hu", halt.get_id());
-		tool_t::simple_tool[TOOL_CHANGE_HALT]->set_default_param(buf);
-		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_HALT], welt->get_active_player() );
-
-	}
-	else if(comp == &bt_no_handle_ware) {
-		cbuffer_t buf;
-		buf.printf("w,%hu", halt.get_id());
-		tool_t::simple_tool[TOOL_CHANGE_HALT]->set_default_param(buf);
-		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_HALT], welt->get_active_player() );
-
-	}
-	else if(comp == &bt_allow_unload_longer_convoy) {
-		cbuffer_t buf;
-		buf.printf("l,%hu", halt.get_id());
-		tool_t::simple_tool[TOOL_CHANGE_HALT]->set_default_param(buf);
-		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_HALT], welt->get_active_player() );
-
 	}
 	else if(comp == &bt_change_to_owner) {
 		welt->switch_active_player(halt->get_owner()->get_player_nr(),false);
