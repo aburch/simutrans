@@ -28,6 +28,7 @@
 #include "obj/gebaeude.h"
 
 #include "bauer/vehikelbauer.h"
+#include "simcity.h"
 
 #include "descriptor/building_desc.h"
 
@@ -70,6 +71,20 @@ depot_t::~depot_t()
 	destroy_win((ptrdiff_t)this);
 	all_depots.remove(this);
 }
+
+const char *depot_t::make_depot_name(const char *type_name) const
+{
+	static char buf[256];
+	if (get_pos() != koord3d::invalid) {
+		if (stadt_t *city = welt->find_nearest_city(get_pos().get_2d())) {
+			snprintf(buf, sizeof(buf), "%s %s", city->get_name(), type_name);
+			return buf;
+		}
+	}
+	snprintf(buf, sizeof(buf), "%s", type_name);
+	return buf;
+}
+
 
 void depot_t::set_name(const char* new_name){
 	name = new_name;
