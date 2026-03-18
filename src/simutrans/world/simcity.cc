@@ -1946,7 +1946,6 @@ void stadt_t::step_passagiere()
 					// all routes to goal are overcrowded -> register at first stop (closest)
 					if (!start_halts.empty()) {
 						start_halts[0]->add_pax_unhappy(pax_left_to_do);
-						break;
 					}
 				}
 
