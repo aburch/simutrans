@@ -1224,7 +1224,7 @@ void vehicle_t::hop(grund_t* gr)
 		route_index ++;
 		check_for_finish = true;
 		// estimate pos_next if possible
-		const koord3d estimated_pos_next = cnv->get_route()->opposite_pos_of_route_ending(get_waytype());
+		const koord3d estimated_pos_next = route_index<cnv->get_route()->get_count()? cnv->get_route()->at(route_index) : cnv->get_route()->opposite_pos_of_route_ending(get_waytype());
 		if(  estimated_pos_next != koord3d::invalid  ) {
 			pos_next = estimated_pos_next;
 		}
