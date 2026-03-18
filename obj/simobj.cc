@@ -207,8 +207,8 @@ void obj_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 		if(  vehicle_t const* const vt = obj_cast<vehicle_t>(this)  ) {
 			// vehicles may need extra offset.
 			koord offset = repositioning_t::get_instance().get_offset(vt->get_desc()->get_name());
-			xpos += offset.x;
-			ypos += offset.y;
+			xpos += tile_raster_scale_x(offset.x, raster_width);
+			ypos += tile_raster_scale_y(offset.y, raster_width);
 		}
 		xpos += tile_raster_scale_x(get_xoff(), raster_width);
 		ypos += tile_raster_scale_y(get_yoff(), raster_width);
