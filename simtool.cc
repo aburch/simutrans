@@ -8821,7 +8821,7 @@ bool tool_change_convoi_t::init( player_t *player )
 
 		case 'y': // move to depot immediately
 		{
-			const char* msg = cnv->send_to_depot_immediately(is_local_execution());
+			const char* msg = cnv->get_most_parent_convoi()->send_to_depot_immediately(is_local_execution());
 
 			if (is_local_execution()) {
 				create_win( new news_img(msg), w_time_delete, magic_none);

@@ -5253,13 +5253,19 @@ const char* convoi_t::send_to_depot(bool local)
 	if(  grund_t *gr=welt->lookup(front()->get_pos())  ) {
 		depot_t *dep=gr->get_depot();
 		// check the owner
-		if(  dep  &&  (dep->get_owner()==get_owner())  ) {
-			// check waytype
+		if(  dep  ) {
+			// check waytype and owner
 			convoihandle_t c=get_coupling_convoi();
-			bool valid_waytype = dep->get_waytype()==front()->get_waytype();
-			while(  valid_waytype && c.is_bound()  ) {
+			bool valid_waytype = dep->get_waytype()==front()->get_desc()->get_waytype();
+			bool valid_owner = dep->get_owner()==get_owner();
+			while(  valid_waytype && c.is_bound() && valid_owner  ) {
 				valid_waytype &= (dep->get_waytype()==c->front()->get_waytype());
+				valid_owner &= dep->get_owner()==c->get_owner();
 				c = c->get_coupling_convoi();
+			}
+			if(  !valid_owner  ) {
+				txt = "%s leads\ndifferent owner's or\ndifferent waytype convoy.\n",get_name();
+				return txt;
 			}
 			if(  valid_waytype  ) {
 				txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
