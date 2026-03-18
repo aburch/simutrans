@@ -117,6 +117,8 @@ private:
 	// When this flag is true, the currently shown convoy is someone's child convoy.
 	// if this flag is true, this convoy cannot depart alone.
 	bool is_shown_convoy_coupled;
+	// When this flag is true, this convoy will be teleported to another depot set in schedule.
+	bool is_teleport_to_another_depot;
 
 	button_t bt_obsolete;
 	button_t bt_show_all;

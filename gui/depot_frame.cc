@@ -211,6 +211,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	child_convoi_selector.set_wrapping(false);
 	add_component(&child_convoi_selector);
 	is_shown_convoy_coupled = false;
+	is_teleport_to_another_depot = false;
 
 	bt_uncouple.init(button_t::roundbox, "Uncouple");
 	bt_uncouple.add_listener(this);
@@ -580,11 +581,6 @@ void depot_frame_t::layout(scr_size *size)
 
 	bt_start.set_pos(scr_coord(D_MARGIN_LEFT, ACTIONS_VSTART));
 	bt_start.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
-	if (!is_shown_convoy_coupled){
-		bt_start.set_text("Start");
-	} else {
-		bt_start.set_text("Move to Parent Convoy");
-	}
 
 	bt_schedule.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE), ACTIONS_VSTART));
 	bt_schedule.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
@@ -931,6 +927,7 @@ void depot_frame_t::update_data()
 	child_convoi_selector.set_selection(0);
 	// This flag is to prohibit child convoy departures without parental permission
 	is_shown_convoy_coupled = false;
+	is_teleport_to_another_depot = false;
 
 	// check all matching convoys
 	FOR(slist_tpl<convoihandle_t>, const c, depot->get_convoy_list()) {
@@ -958,14 +955,29 @@ void depot_frame_t::update_data()
 			is_shown_convoy_coupled = true;
 		}
 	}
+	if( cnv.is_bound() && !is_shown_convoy_coupled && cnv->get_schedule() && cnv->get_schedule()->get_count()==1) {
+		if( grund_t *gr_depot = welt->lookup(cnv->get_schedule()->at(0).pos) ) {
+			if( depot_t *dep=gr_depot->get_depot() ) {
+				// this convoy will be teleported to another depot
+				is_teleport_to_another_depot = true;
+			}
+		}
+	}
 	
 	
 	// update the description of start/move_to_parent_convoy button
 	// if this convoy is child convoy, start button is changed to "move to parent convoy" button.
 	if(  !is_shown_convoy_coupled  ) {
-		bt_start.set_tooltip("Start the selected vehicle(s)");
+		if( is_teleport_to_another_depot ){
+			bt_start.set_text("Teleport to Depot");
+			bt_start.set_tooltip("Teleport this convoy to another depot(defined in schedule)");
+		} else {
+			bt_start.set_text("Start");
+			bt_start.set_tooltip("Start the selected vehicle(s)");
+		}
 	} else {
 		bt_start.set_tooltip("Move to Parent Convoy");
+		bt_start.set_text("Move to Parent Convoy");
 	}
 
 	const vehicle_desc_t *veh = NULL;

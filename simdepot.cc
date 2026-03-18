@@ -499,6 +499,22 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 		create_win( new news_img(buf), w_time_delete, magic_none);
 		return false;
 	}
+	// If this convoy has only 1 stop:another depot, teleport to there.
+	if(  cnv->get_schedule()->get_count()==1  ) {
+		if(grund_t *gr_depot = welt->lookup(cnv->get_schedule()->at(0).pos)) {
+			depot_t *dep = gr_depot->get_depot();
+			if(  dep && dep->get_owner()==get_owner() && dep->get_waytype()==get_waytype()  ) {
+				// find depot! move to there
+				convoihandle_t c = cnv;
+				while( c.is_bound() ){
+					remove_convoi(c);
+					c->betrete_depot(dep, true);
+					c=c->get_coupling_convoi();
+				}
+				return true;
+			}
+		}
+	}
 	// Check the start condition
 	if(  !can_start_convoi(cnv, local_execution)  ) {
 		return false;
