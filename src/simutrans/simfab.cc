@@ -1006,6 +1006,23 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 }
 
 
+bool fabrik_t::can_build_field_on_ground(const grund_t *gr, climate cl) const
+{
+	if (!gr)                                                       return false;
+	if (gr->get_typ() != grund_t::boden || !gr->ist_natur())       return false;
+	if (gr->get_grund_hang() != slope_t::flat)                     return false;
+	if (!this->get_desc()->get_building()->is_allowed_climate(cl)) return false;
+
+	// Do not remove transformers of solar farms etc.
+	if (gr->find<pumpe_t>() || gr->find<senke_t>()) return false;
+
+	// allow building fields below power lines
+	if (gr->kann_alle_obj_entfernen(NULL) != NULL && !gr->find<leitung_t>()) return false;
+
+	return true;
+}
+
+
 /* field generation code
  */
 bool fabrik_t::add_random_field(uint16 probability)
@@ -1024,18 +1041,15 @@ bool fabrik_t::add_random_field(uint16 probability)
 	uint8 radius = 1;
 
 	// pick a coordinate to use - create a list of valid locations and choose a random one
-	slist_tpl<grund_t *> build_locations;
+	vector_tpl<grund_t *> build_locations;
 	do {
 		for(sint32 xoff = -radius; xoff < radius + get_desc()->get_building()->get_size().x ; xoff++) {
 			for(sint32 yoff =-radius ; yoff < radius + get_desc()->get_building()->get_size().y; yoff++) {
 				// if we can build on this tile then add it to the list
-				grund_t *gr = welt->lookup_kartenboden(pos.get_2d()+koord(xoff,yoff));
-				if (gr != NULL &&
-						gr->get_typ()        == grund_t::boden &&
-						get_desc()->get_building()->is_allowed_climate(welt->get_climate(pos.get_2d()+koord(xoff,yoff))) &&
-						gr->get_grund_hang() == slope_t::flat &&
-						gr->ist_natur() &&
-						(gr->find<leitung_t>() || gr->kann_alle_obj_entfernen(NULL) == NULL)) {
+				const planquadrat_t *plan = welt->access(pos.get_2d() + koord(xoff, yoff));
+				grund_t *gr = plan->get_kartenboden();
+
+				if (this->can_build_field_on_ground(gr, plan->get_climate())) {
 					// only on same height => climate will match!
 					build_locations.append(gr);
 					assert(gr->find<field_t>() == NULL);
@@ -1050,14 +1064,17 @@ bool fabrik_t::add_random_field(uint16 probability)
 			radius++;
 		}
 	} while (radius < 10 && build_locations.empty());
-	// built on one of the positions
-	if (!build_locations.empty()) {
-		grund_t *gr = build_locations.at(simrand(build_locations.get_count()));
+
+	// build on one of the positions
+	while (!build_locations.empty()) {
+		grund_t *gr = build_locations[simrand(build_locations.get_count())];
 		leitung_t* lt = gr->find<leitung_t>();
+
 		if(lt) {
 			gr->obj_remove(lt);
 		}
 		gr->obj_loesche_alle(NULL);
+
 		// first make foundation below
 		const koord k = gr->get_pos().get_2d();
 		field_data_t new_field(k);

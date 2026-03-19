@@ -729,6 +729,9 @@ public:
 	 * returns: Work rate in fixed point form.
 	 */
 	static sint32 calculate_work_rate_ramp(sint32 const amount, sint32 const minimum, sint32 const maximum, uint32 const precision = WORK_BITS);
+
+private:
+	bool can_build_field_on_ground(const grund_t *gr, climate cl) const;
 };
 
 #endif
