@@ -174,7 +174,7 @@ void factory_edit_frame_t::fill_list()
 			// DistributionWeight=0 is obsoleted item, only for backward compatibility
 
 			if( (!use_timeline  ||  (!desc->get_building()->is_future(month_now)  &&  (!desc->get_building()->is_retired(month_now)  ||  allow_obsolete)))
-				&&  ( desc->get_building()->get_allowed_climate_bits() & get_climate()) ) {
+				&&  ( desc->get_building()->get_allowed_climate_bits() & get_climate()  ||  (get_climate()==1 && desc->get_placement()==factory_desc_t::Water) )) {
 				// timeline allows for this, and so does climates setting
 
 				if( ( city_chain  &&  (desc->get_placement() == factory_desc_t::City && desc->is_consumer_only() ) )
