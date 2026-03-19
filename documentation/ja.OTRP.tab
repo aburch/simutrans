@@ -99,6 +99,8 @@ It will uncouple the child convoy here.
 後ろの編成を駅到着時に切り離します．
 Waiting for coupling! (%i->%i%%)
 連結相手を待機中 (%i->%i%%)
+Waiting for coupling. %i left!
+連結相手を待機中 (発車まで%i)
 Require parent convoy to enter.
 連結相手がいる時のみ進入を許可
 Advance to end
@@ -562,7 +564,17 @@ Offset mode: Absolute
 モード:絶対値
 set offset value and mode: On->Absolute(same offset for N&S),OFF->Direction(offset different based on Difference)
 車両のオフセット量とモードの設定: ONなら対向車も同じ向きにオフセットされます．OFFなら対向車は進行方向に応じてオフセットされます．
+show/hide way offset labels
+車両オフセット量ラベルを表示/非表示
 #------その他の翻訳------
+Rotate Building
+建物を回転
+%s at (%i,%i) now private stop.
+%s (%i,%i) は私有駅になりました．
+(%s) now public way.
+(%s) は公共化されました．
+merge stop
+駅を統合
 Remove all waiting goods and pax
 この駅のすべての待機中の旅客と貨物を除去します
 Change to public player
@@ -625,6 +637,8 @@ Highlight
 町内の建物を表示
 Make building belong to
 建物をこの町の所属にする
+change city of citybuilding
+建物の所属都市を変更
 Station name already exists
 駅名が既に使用されています
 Line Memo:
