@@ -42,6 +42,7 @@
 
 #include "dataobj/schedule.h"
 #include "dataobj/route.h"
+#include "dataobj/route_cache.h"
 #include "dataobj/ribi.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/translator.h"
@@ -1273,6 +1274,26 @@ bool convoi_t::drive_to()
 		koord3d start = front()->get_pos();
 		koord3d ziel = schedule->get_current_entry().pos;
 
+		const sint32 max_speed_kmh = speed_to_kmh(min_top_speed);
+		const bool need_electric = needs_electrification();
+
+		// Cache-aware route calculation: tries cache first, falls back to A* on miss or passability failure.
+		auto cached_calc_route = [&](koord3d s, koord3d z, route_t* r, bool pass_stop) -> bool {
+			if (route_t *cached = welt->get_route_cache().find(s, z, max_speed_kmh, need_electric)) {
+				if (cached->is_passable(welt, fahr[0], need_electric)) {
+					*r = *cached;
+					return true;
+				} else {
+					welt->get_route_cache().remove(s, z, max_speed_kmh, need_electric);
+				}
+			}
+			const bool ok = fahr[0]->calc_route(s, z, max_speed_kmh, r, pass_stop);
+			if (ok) {
+				welt->get_route_cache().add(s, z, max_speed_kmh, need_electric, *r);
+			}
+			return ok;
+		};
+
 		// avoid stopping mid-halt
 		if(  start==ziel  ) {
 			halthandle_t halt = haltestelle_t::get_stoppable_halt(ziel,get_owner(),front()->get_waytype());
@@ -1289,7 +1310,7 @@ bool convoi_t::drive_to()
 			}
 		}
 
-		if(  !fahr[0]->calc_route( start, ziel, speed_to_kmh(min_top_speed), &route, schedule->get_current_entry().is_pass_stop() )  ) {
+		if(  !cached_calc_route( start, ziel, &route, schedule->get_current_entry().is_pass_stop() )  ) {
 			if(  state != NO_ROUTE  ) {
 				state = NO_ROUTE;
 				get_owner()->report_vehicle_problem( self, ziel );
@@ -1343,7 +1364,7 @@ bool convoi_t::drive_to()
 					}
 
 					route_t next_segment;
-					if(  !fahr[0]->calc_route( start, ziel, speed_to_kmh(min_top_speed), &next_segment, schedule->get_current_entry().is_pass_stop() )  ) {
+					if(  !cached_calc_route( start, ziel, &next_segment, schedule->get_current_entry().is_pass_stop() )  ) {
 						// do we still have a valid route to proceed => then go until there
 						if(  route.get_count()>1  ) {
 							break;

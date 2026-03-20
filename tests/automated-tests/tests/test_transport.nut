@@ -1035,81 +1035,206 @@ function test_transport_pax_transfer_interval()
 }
 
 
-function test_transport_route_cache_convoy_length()
+function test_transport_route_cache_invalidation()
 {
 	local pl = player_x(0)
 
 	// Layout:
-	//   halt_a: (4,2)-(4,3) [2 tiles], halt_b: (4,7)-(4,8) [2 tiles]
-	//   depot: (4,10)
-	//   Rail: (4,2)-(4,3)-(4,4)-(4,5)-(4,6)-(4,7)-(4,8)-(4,9)-(4,10)
+	//   (4,2) branch point (no stop), (4,3)=halt_a, (4,7)=halt_b, (4,8) branch point, (4,9)=depot
 	//
-	// Schedule: halt_b (4,7) -> halt_a (4,3).
-	// Convoy departs depot, goes to halt_b first (near depot), then to halt_a.
-	// We assert positions at halt_a (the 2nd schedule entry) so it is cache-aware.
-	// With advance_to_end=false:
-	//   cnv_short (1 loco, 1 tile): head stops at (4,3) — fits in 1 tile.
-	//   cnv_long (1 loco + 3 wagons, 2+ tiles): head advances to (4,2) to fit.
-	// Verifies that the route cache differentiates by convoy length.
+	//   Short road (direct):   (4,2)-(4,3)-...-(4,7)-(4,8)-(4,9)
+	//   Detour road (U-shape): (4,2)-(7,2)-(7,8)-(4,8)
+	//
+	// Stops at (4,3) and (4,7) — through-road tiles, NOT at intersection tiles (4,2)/(4,8).
+	// Convoy 1 caches the short route halt_a->halt_b.
+	// After convoy 1 reaches halt_b, the middle (4,4)-(4,6) is severed.
+	// Convoy 2 must detect the cached route is now impassable and find the detour.
 
 	debug.set_game_speed(5)
-	settings.set_advance_to_end(false)
 
-	local rail = way_desc_x.get_available_ways(wt_rail, st_flat)[0]
-	ASSERT_TRUE(rail != null)
+	// Build short road and detour
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(4, 2, 0), coord3d(4, 9, 0), "cobblestone_road"), null)
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(4, 2, 0), coord3d(7, 2, 0), "cobblestone_road"), null)
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(7, 2, 0), coord3d(7, 8, 0), "cobblestone_road"), null)
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(7, 8, 0), coord3d(4, 8, 0), "cobblestone_road"), null)
 
-	// Build track, 2-tile stops, and depot
-	ASSERT_EQUAL(command_x.build_way(pl, coord3d(4, 2, 0), coord3d(4, 10, 0), rail, false), null)
-	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 2, 0), "TrainStop"), null)
-	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 3, 0), "TrainStop"), null)
-	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 7, 0), "TrainStop"), null)
-	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 8, 0), "TrainStop"), null)
-	ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 10, 0), building_desc_x("TrainDepot")), null)
+	// Stops at through-road tiles (not at intersection branch points)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 3, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 7, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 9, 0), building_desc_x("CarDepot")), null)
 
 	local halt_a = halt_x.get_halt(coord3d(4, 3, 0), pl)
 	local halt_b = halt_x.get_halt(coord3d(4, 7, 0), pl)
-	local sched  = create_simple_schedule(wt_rail, [ coord3d(4, 7, 0), coord3d(4, 3, 0) ])
-	local depot  = depot_x(4, 10, 0)
+	local sched  = create_simple_schedule(wt_road, [ coord3d(4, 3, 0), coord3d(4, 7, 0) ])
+	local depot  = depot_x(4, 9, 0)
 
-	// Create line and assign schedule
-	ASSERT_EQUAL(pl.create_line(wt_rail), true)
-	local line_list = pl.get_line_list()
-	local line = line_list[line_list.get_count() - 1]
-	line.change_schedule(pl, sched)
-
-	// Short convoy: 1 diesel loco only (1 tile)
-	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("1Diesellokomotive"))
-	local cnv_short = depot.get_convoy_list()[0]
-	cnv_short.set_line(pl, line)
+	// Convoy 1: routes halt_a->halt_b via short road (populates cache)
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("Buessig"))
+	local cnv1 = depot.get_convoy_list()[0]
+	cnv1.change_schedule(pl, sched)
 	depot.start_all_convoys(pl)
 
-	// Wait for short convoy to reach halt_a, check head position,
-	// then sell it so it does not block the single-track line.
-	while (halt_a.convoys[0] < 1) {
+	// Wait until convoy 1 has arrived at halt_b (short route is now cached)
+	while (halt_b.convoys[0] < 1) {
 		sleep()
 	}
-	// Short convoy (1 tile) stops with head at schedule pos (4,3)
-	ASSERT_EQUAL(cnv_short.get_pos().tostring(), coord3d(4, 3, 0).tostring())
-	cnv_short.destroy(pl)
+
+	// Remove convoy 1 to prevent it from visiting halt_b again and skewing the count
+	cnv1.destroy(pl)
 	sleep()
 	sleep()
 
-	// Long convoy: 1 diesel loco + 3 passenger wagons (2+ tiles)
-	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("1Diesellokomotive"))
-	local cnv_long = depot.get_convoy_list()[0]
-	depot.append_vehicle(pl, cnv_long, vehicle_desc_x("AdlerPersonenwagen"))
-	depot.append_vehicle(pl, cnv_long, vehicle_desc_x("AdlerPersonenwagen"))
-	depot.append_vehicle(pl, cnv_long, vehicle_desc_x("AdlerPersonenwagen"))
-	cnv_long.set_line(pl, line)
+	// Sever the short road in the middle, invalidating the cached route
+	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(4, 4, 0), coord3d(4, 6, 0), "" + wt_road), null)
+
+	// Convoy 2: same schedule; is_passable() must reject the cached route and run A* again
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("Buessig"))
+	local cnv2 = depot.get_convoy_list()[0]
+	cnv2.change_schedule(pl, sched)
 	depot.start_all_convoys(pl)
 
-	// Wait for long convoy to reach halt_a
+	// Wait for convoy 2 to arrive at halt_b via the detour
+	while (halt_b.convoys[0] < 2) {
+		sleep()
+	}
+	ASSERT_TRUE(halt_b.convoys[0] >= 2)
+
+	debug.set_game_speed(1)
+}
+
+
+function test_transport_route_cache_need_electric()
+{
+	local pl = player_x(0)
+
+	// Layout:
+	//   (4,2) branch point, (4,3)=halt_a, (4,7)=halt_b, (4,8) branch point, (4,9)=depot
+	//
+	//   Direct rail:  (4,2)-(4,3)-(4,4)-(4,5)-(4,6)-(4,7)-(4,8)-(4,9)
+	//   Detour rail:  (4,2)-(7,2)-(7,8)-(4,8)   [all electrified]
+	//
+	//   Electrified:  (4,2),(4,3),(4,7),(4,8),(4,9) + full detour
+	//   NOT electrified: (4,4),(4,5),(4,6)  [middle of direct track]
+	//
+	// Diesel (need_electric=false) caches the short direct route.
+	// Electric (need_electric=true) must use the electrified detour.
+	// Verifies that the cache key differentiates electric vs non-electric routes.
+
+	debug.set_game_speed(5)
+
+	local rail     = way_desc_x.get_available_ways(wt_rail, st_flat)[0]
+	local overhead = wayobj_desc_x.get_available_wayobjs(wt_rail).filter(@(idx, w) w.is_overhead_line())[0]
+	ASSERT_TRUE(rail != null)
+	ASSERT_TRUE(overhead != null)
+
+	// Build direct track and detour
+	ASSERT_EQUAL(command_x.build_way(pl, coord3d(4, 2, 0), coord3d(4, 9, 0), rail, false), null)
+	ASSERT_EQUAL(command_x.build_way(pl, coord3d(4, 2, 0), coord3d(7, 2, 0), rail, false), null)
+	ASSERT_EQUAL(command_x.build_way(pl, coord3d(7, 2, 0), coord3d(7, 8, 0), rail, false), null)
+	ASSERT_EQUAL(command_x.build_way(pl, coord3d(7, 8, 0), coord3d(4, 8, 0), rail, false), null)
+
+	// Electrify detour + (4,2)-(4,3) and (4,7)-(4,9); leave (4,4)-(4,6) unelectrified
+	ASSERT_EQUAL(command_x.build_wayobj(pl, coord3d(4, 2, 0), coord3d(4, 3, 0), overhead), null)
+	ASSERT_EQUAL(command_x.build_wayobj(pl, coord3d(4, 7, 0), coord3d(4, 9, 0), overhead), null)
+	ASSERT_EQUAL(command_x.build_wayobj(pl, coord3d(4, 2, 0), coord3d(7, 2, 0), overhead), null)
+	ASSERT_EQUAL(command_x.build_wayobj(pl, coord3d(7, 2, 0), coord3d(7, 8, 0), overhead), null)
+	ASSERT_EQUAL(command_x.build_wayobj(pl, coord3d(7, 8, 0), coord3d(4, 8, 0), overhead), null)
+
+	// Stops and depot
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 3, 0), "TrainStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 7, 0), "TrainStop"), null)
+	ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 9, 0), building_desc_x("TrainDepot")), null)
+
+	local halt_a = halt_x.get_halt(coord3d(4, 3, 0), pl)
+	local halt_b = halt_x.get_halt(coord3d(4, 7, 0), pl)
+	local sched  = create_simple_schedule(wt_rail, [ coord3d(4, 3, 0), coord3d(4, 7, 0) ])
+	local depot  = depot_x(4, 9, 0)
+
+	// Diesel loco: routes via direct (non-electrified) track and caches that route
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("1Diesellokomotive"))
+	local cnv_diesel = depot.get_convoy_list()[0]
+	cnv_diesel.change_schedule(pl, sched)
+	depot.start_all_convoys(pl)
+
+	// Wait for diesel to reach halt_b (direct route cached with need_electric=false),
+	// then sell it immediately so it does not block the single-track direct route.
+	while (halt_b.convoys[0] < 1) {
+		sleep()
+	}
+	cnv_diesel.destroy(pl)
+	sleep()
+	sleep()
+
+	// Electric loco: must route via electrified detour
+	//   With need_electric in cache key → cache miss  → A* finds detour
+	//   Without                         → cache hit   → is_passable fails at (4,4)
+	//                                                  → cache cleared → A* finds detour
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("E44"))
+	local cnv_elec = depot.get_convoy_list()[0]
+	cnv_elec.change_schedule(pl, sched)
+	depot.start_all_convoys(pl)
+
+	// Wait for electric to also reach halt_b via the detour
+	while (halt_b.convoys[0] < 2) {
+		sleep()
+	}
+	ASSERT_TRUE(halt_b.convoys[0] >= 2)
+
+	debug.set_game_speed(1)
+}
+
+
+function test_transport_two_convoys_on_same_line()
+{
+	local pl = player_x(0)
+
+	// Speed up simulation
+	debug.set_game_speed(5)
+
+	// Build road, two stops and a depot
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(4, 2, 0), coord3d(4, 8, 0), "cobblestone_road"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 2, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 7, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 8, 0), building_desc_x("CarDepot")), null)
+
+	local halt_a = halt_x.get_halt(coord3d(4, 2, 0), pl)
+	local halt_b = halt_x.get_halt(coord3d(4, 7, 0), pl)
+	local sched  = create_simple_schedule(wt_road, [ coord3d(4, 7, 0), coord3d(4, 2, 0) ])
+
+	// First convoy: add, schedule, start
+	local depot = depot_x(4, 8, 0)
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("Buessig"))
+	local cnv1 = depot.get_convoy_list()[0]
+	cnv1.change_schedule(pl, sched)
+	depot.start_all_convoys(pl)  // cnv1 leaves the depot
+
+	// Second convoy: add, schedule, start
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("Buessig"))
+	local cnv2 = depot.get_convoy_list()[0]
+	cnv2.change_schedule(pl, sched)
+	depot.start_all_convoys(pl)  // cnv2 leaves the depot
+
+	// Wait until both convoys have visited halt_b at least once each
+	while (halt_b.convoys[0] < 2) {
+		sleep()
+	}
+	ASSERT_TRUE(halt_b.convoys[0] >= 2)
+
+	// Wait until both convoys have visited halt_a at least once each
 	while (halt_a.convoys[0] < 2) {
 		sleep()
 	}
-	// Long convoy (2+ tiles) advances further to fit: head at (4,2)
-	ASSERT_EQUAL(cnv_long.get_pos().tostring(), coord3d(4, 2, 0).tostring())
+	ASSERT_TRUE(halt_a.convoys[0] >= 2)
 
-	settings.set_advance_to_end(true)
+	// clean up
 	debug.set_game_speed(1)
+	cnv1.destroy(pl)
+	cnv2.destroy(pl)
+	sleep()
+	sleep()
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 2, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 7, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 8, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(4, 2, 0), coord3d(4, 8, 0), "" + wt_road), null)
+	RESET_ALL_PLAYER_FUNDS()
 }

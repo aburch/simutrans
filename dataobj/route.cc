@@ -775,6 +775,18 @@ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, c
 }
 
 
+bool route_t::is_passable(karte_t *welt, test_driver_t *tdriver, bool need_electric) const
+{
+	for (uint32 i = 0; i < route.get_count(); i++) {
+		const grund_t *gr = welt->lookup(route[i]);
+		if (!gr || !tdriver->check_next_tile(gr, need_electric)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+
 void route_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t r( file, "route_t" );

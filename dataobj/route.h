@@ -145,6 +145,40 @@ public:
 	route_result_t calc_route(karte_t *welt, koord3d start, koord3d target, test_driver_t *tdriver, const sint32 max_speed_kmh, sint32 max_len, const bool need_electric=false );
 
 	/**
+	 * Copy constructor.
+	 */
+	route_t(const route_t& other) {
+		for (uint32 i = 0; i < other.route.get_count(); i++) {
+			route.append(other.route[i]);
+		}
+	}
+
+	/// Default constructor.
+	route_t() {}
+
+	/**
+	 * Copy assignment: copies coordinates from other route.
+	 */
+	route_t& operator=(const route_t& other) {
+		if (this != &other) {
+			route.clear();
+			route.resize(other.route.get_count());
+			for (uint32 i = 0; i < other.route.get_count(); i++) {
+				route.append(other.route[i]);
+			}
+		}
+		return *this;
+	}
+
+	/**
+	 * Returns true if every tile in the route is accessible by tdriver.
+	 * need_electric must match convoi_t::needs_electrification() to mirror
+	 * the same check performed during A* route search.
+	 * Used to validate cached routes before use.
+	 */
+	bool is_passable(karte_t *welt, test_driver_t *tdriver, bool need_electric) const;
+
+	/**
 	 * Load/Save of the route.
 	 */
 	void rdwr(loadsave_t *file);

@@ -206,6 +206,9 @@ all_tests <- [
 	test_transport_pax_temp_unload_all,
 	test_transport_pax_transfer_interval,
 	test_transport_route_cache_convoy_length,
+	test_transport_route_cache_invalidation,
+	test_transport_route_cache_need_electric,
+	test_transport_two_convoys_on_same_line,
 	test_trees_plant_single_invalid_param,
 	test_way_tunnel_build_straight
 ]
