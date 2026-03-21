@@ -315,6 +315,7 @@ SOURCES += dataobj/rect.cc
 SOURCES += dataobj/repositioning.cc
 SOURCES += dataobj/ribi.cc
 SOURCES += dataobj/route.cc
+SOURCES += dataobj/route_cache.cc
 SOURCES += dataobj/scenario.cc
 SOURCES += dataobj/schedule.cc
 SOURCES += dataobj/schedule_entry.cc

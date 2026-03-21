@@ -1278,18 +1278,22 @@ bool convoi_t::drive_to()
 		const bool need_electric = needs_electrification();
 
 		// Cache-aware route calculation: tries cache first, falls back to A* on miss or passability failure.
+		// Only convoys assigned to a line use the cache.
 		auto cached_calc_route = [&](koord3d s, koord3d z, route_t* r, bool pass_stop) -> bool {
-			if (route_t *cached = welt->get_route_cache().find(s, z, max_speed_kmh, need_electric)) {
-				if (cached->is_passable(welt, fahr[0], need_electric)) {
+			if (line.is_bound()) {
+				route_t *cached = welt->get_route_cache().find(
+						line, s, z, max_speed_kmh, need_electric);
+				if (cached  &&  cached->is_passable(welt, fahr[0], need_electric)) {
 					*r = *cached;
 					return true;
-				} else {
-					welt->get_route_cache().remove(s, z, max_speed_kmh, need_electric);
+				}
+				if (cached) {
+					welt->get_route_cache().remove(line, s, z, max_speed_kmh, need_electric);
 				}
 			}
 			const bool ok = fahr[0]->calc_route(s, z, max_speed_kmh, r, pass_stop);
-			if (ok) {
-				welt->get_route_cache().add(s, z, max_speed_kmh, need_electric, *r);
+			if (ok  &&  line.is_bound()) {
+				welt->get_route_cache().add(line, s, z, max_speed_kmh, need_electric, *r);
 			}
 			return ok;
 		};

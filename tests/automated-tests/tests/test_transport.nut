@@ -1068,10 +1068,16 @@ function test_transport_route_cache_invalidation()
 	local sched  = create_simple_schedule(wt_road, [ coord3d(4, 3, 0), coord3d(4, 7, 0) ])
 	local depot  = depot_x(4, 9, 0)
 
+	// Create line and assign schedule
+	ASSERT_EQUAL(pl.create_line(wt_road), true)
+	local line_list = pl.get_line_list()
+	local line = line_list[line_list.get_count() - 1]
+	line.change_schedule(pl, sched)
+
 	// Convoy 1: routes halt_a->halt_b via short road (populates cache)
 	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("Buessig"))
 	local cnv1 = depot.get_convoy_list()[0]
-	cnv1.change_schedule(pl, sched)
+	cnv1.set_line(pl, line)
 	depot.start_all_convoys(pl)
 
 	// Wait until convoy 1 has arrived at halt_b (short route is now cached)
@@ -1087,10 +1093,10 @@ function test_transport_route_cache_invalidation()
 	// Sever the short road in the middle, invalidating the cached route
 	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(4, 4, 0), coord3d(4, 6, 0), "" + wt_road), null)
 
-	// Convoy 2: same schedule; is_passable() must reject the cached route and run A* again
+	// Convoy 2: same line; is_passable() must reject the cached route and run A* again
 	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("Buessig"))
 	local cnv2 = depot.get_convoy_list()[0]
-	cnv2.change_schedule(pl, sched)
+	cnv2.set_line(pl, line)
 	depot.start_all_convoys(pl)
 
 	// Wait for convoy 2 to arrive at halt_b via the detour
@@ -1150,10 +1156,16 @@ function test_transport_route_cache_need_electric()
 	local sched  = create_simple_schedule(wt_rail, [ coord3d(4, 3, 0), coord3d(4, 7, 0) ])
 	local depot  = depot_x(4, 9, 0)
 
+	// Create line and assign schedule
+	ASSERT_EQUAL(pl.create_line(wt_rail), true)
+	local line_list = pl.get_line_list()
+	local line = line_list[line_list.get_count() - 1]
+	line.change_schedule(pl, sched)
+
 	// Diesel loco: routes via direct (non-electrified) track and caches that route
 	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("1Diesellokomotive"))
 	local cnv_diesel = depot.get_convoy_list()[0]
-	cnv_diesel.change_schedule(pl, sched)
+	cnv_diesel.set_line(pl, line)
 	depot.start_all_convoys(pl)
 
 	// Wait for diesel to reach halt_b (direct route cached with need_electric=false),
@@ -1171,7 +1183,7 @@ function test_transport_route_cache_need_electric()
 	//                                                  → cache cleared → A* finds detour
 	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("E44"))
 	local cnv_elec = depot.get_convoy_list()[0]
-	cnv_elec.change_schedule(pl, sched)
+	cnv_elec.set_line(pl, line)
 	depot.start_all_convoys(pl)
 
 	// Wait for electric to also reach halt_b via the detour
@@ -1201,17 +1213,23 @@ function test_transport_two_convoys_on_same_line()
 	local halt_b = halt_x.get_halt(coord3d(4, 7, 0), pl)
 	local sched  = create_simple_schedule(wt_road, [ coord3d(4, 7, 0), coord3d(4, 2, 0) ])
 
-	// First convoy: add, schedule, start
+	// Create line and assign schedule
+	ASSERT_EQUAL(pl.create_line(wt_road), true)
+	local line_list = pl.get_line_list()
+	local line = line_list[line_list.get_count() - 1]
+	line.change_schedule(pl, sched)
+
+	// First convoy: add, assign line, start
 	local depot = depot_x(4, 8, 0)
 	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("Buessig"))
 	local cnv1 = depot.get_convoy_list()[0]
-	cnv1.change_schedule(pl, sched)
+	cnv1.set_line(pl, line)
 	depot.start_all_convoys(pl)  // cnv1 leaves the depot
 
-	// Second convoy: add, schedule, start
+	// Second convoy: add, assign line, start
 	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("Buessig"))
 	local cnv2 = depot.get_convoy_list()[0]
-	cnv2.change_schedule(pl, sched)
+	cnv2.set_line(pl, line)
 	depot.start_all_convoys(pl)  // cnv2 leaves the depot
 
 	// Wait until both convoys have visited halt_b at least once each

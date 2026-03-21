@@ -10,14 +10,13 @@
 #include "../dataobj/koord3d.h"
 #include "../simtypes.h"
 #include "../dataobj/route.h"
+#include "../linehandle_t.h"
 
 /**
- * Global route cache keyed by (start, ziel, max_speed_kmh, need_electric).
- * need_electric is part of the key because electric vehicles can only use
- * electrified track, so a diesel route and an electric route between the
- * same endpoints may differ.
+ * Global route cache keyed by (line, start, ziel, max_speed_kmh, need_electric).
+ * Only convoys assigned to a line use this cache.
+ * Entries expire after one game month (ticks_per_world_month).
  * Memory-only: not saved/loaded with the game.
- * Shared across all convoys to avoid redundant A* searches.
  */
 struct route_cache_t {
 	struct key_t {
@@ -40,18 +39,35 @@ struct route_cache_t {
 			return h;
 		}
 	};
-	std::unordered_map<key_t, route_t, key_hash> map;
 
-	route_t* find(koord3d start, koord3d ziel, sint32 max_speed_kmh, bool need_electric) {
-		auto it = map.find({start, ziel, max_speed_kmh, need_electric});
-		return (it != map.end()) ? &it->second : nullptr;
-	}
-	void add(koord3d start, koord3d ziel, sint32 max_speed_kmh, bool need_electric, const route_t &r) {
-		map[{start, ziel, max_speed_kmh, need_electric}] = r;
-	}
-	void remove(koord3d start, koord3d ziel, sint32 max_speed_kmh, bool need_electric) {
-		map.erase({start, ziel, max_speed_kmh, need_electric});
-	}
+	struct entry_t {
+		route_t route;
+		uint32  added_ticks;
+	};
+
+	struct line_hash {
+		size_t operator()(const linehandle_t &l) const {
+			return (size_t)l.get_id();
+		}
+	};
+
+	// Outer key: linehandle_t, Inner key: route key
+	std::unordered_map<linehandle_t,
+		std::unordered_map<key_t, entry_t, key_hash>,
+		line_hash> map;
+
+	route_t* find(linehandle_t line, koord3d start, koord3d ziel,
+	              sint32 max_speed_kmh, bool need_electric);
+
+	void add(linehandle_t line, koord3d start, koord3d ziel,
+	         sint32 max_speed_kmh, bool need_electric,
+	         const route_t &r);
+
+	void remove(linehandle_t line, koord3d start, koord3d ziel,
+	            sint32 max_speed_kmh, bool need_electric);
+
+	// Erase all cache entries for a given line
+	void remove_line(linehandle_t line);
 };
 
 #endif
