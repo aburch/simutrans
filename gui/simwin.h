@@ -128,6 +128,7 @@ enum magic_numbers {
 	magic_factory_edit,
 	magic_baum_edit,
 	magic_groundobj_edit,
+	magic_depot_picker,
 	magic_max
 };
 

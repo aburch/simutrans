@@ -307,10 +307,12 @@ Teleport to Depot
 車庫に転送
 Teleport All to Depot
 全編成を車庫に転送
-Convoys are teleported to depot immediately
-路線のすべての編成を車庫に即座に転送します
-Remove vehicle from here and send to the nearest depot.
-全ての車両を車庫に転送します。
+Convoys are teleported to depot immediately (Ctrl+click to choose depot)
+路線のすべての編成を車庫に即座に転送します(Ctrlキーを押しながらクリックすると転送先の車庫を選べます)
+Remove vehicle from here and send to the nearest depot. (Ctrl+click to choose depot.)
+車庫に転送します(Ctrlキーを押しながらクリックすると転送先の車庫を選べます)
+Sends the convoi to the nearest depot. Ctrl+click to choose depot.
+この編成を一番近い車庫に向かわせます。(Ctrlキーを押しながらクリックすると転送先の車庫を選べます)
 Max speed of line
 路線最高速度
 Limits the max speed of all convoys on this line.

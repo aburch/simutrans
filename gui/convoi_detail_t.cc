@@ -15,6 +15,8 @@
 #include "../simcolor.h"
 #include "../simworld.h"
 #include "../simware.h"
+#include "simwin.h"
+#include "depot_picker.h"
 
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
@@ -165,7 +167,7 @@ void convoi_detail_t::init(convoihandle_t cnv)
 		add_table(3,1)->set_force_equal_columns(true);
 		{
 			move_to_depot_button.init(button_t::roundbox| button_t::flexible, "Teleport to Depot");
-			move_to_depot_button.set_tooltip("Remove vehicle from here and send to the nearest depot.");
+			move_to_depot_button.set_tooltip(translator::translate("Remove vehicle from here and send to the nearest depot. (Ctrl+click to choose depot.)"));
 			move_to_depot_button.add_listener(this);
 			add_component(&move_to_depot_button);
 
@@ -404,7 +406,12 @@ bool convoi_detail_t::action_triggered(gui_action_creator_t *comp,value_t /* */)
 			return true;
 		}
 		else if(comp==&move_to_depot_button) {
-			cnv->call_convoi_tool( 'y', NULL );
+			if(  event_get_last_control_shift() & 2  ) {
+				// Ctrl+click: open depot picker to choose destination
+				create_win(new depot_picker_t(cnv, true), w_info, magic_depot_picker);
+			} else {
+				cnv->call_convoi_tool( 'y', NULL );
+			}
 			return true;
 		}
 		else if(comp==&withdraw_button) {

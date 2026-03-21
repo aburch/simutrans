@@ -8829,6 +8829,30 @@ bool tool_change_convoi_t::init( player_t *player )
 		}
 		break;
 
+		case 'D': // route to user-specified depot
+		{
+			sint16 x, y, z;
+			if (p && sscanf(p, "%hi,%hi,%hi", &x, &y, &z) == 3) {
+				const char* msg = cnv->send_to_specific_depot(koord3d(x, y, z), false, is_local_execution());
+				if (is_local_execution()) {
+					create_win(new news_img(msg), w_time_delete, magic_none);
+				}
+			}
+		}
+		break;
+
+		case 'Y': // teleport to user-specified depot
+		{
+			sint16 x, y, z;
+			if (p && sscanf(p, "%hi,%hi,%hi", &x, &y, &z) == 3) {
+				const char* msg = cnv->send_to_specific_depot(koord3d(x, y, z), true, is_local_execution());
+				if (is_local_execution()) {
+					create_win(new news_img(msg), w_time_delete, magic_none);
+				}
+			}
+		}
+		break;
+
 		case 'r': // release the child convoy
 		{
 			cnv->uncouple_convoi();

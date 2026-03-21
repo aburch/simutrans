@@ -5435,6 +5435,75 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 	return txt;
 }
 
+const char* convoi_t::send_to_specific_depot(koord3d depot_pos, bool immediate, bool local)
+{
+	// Validate the target depot
+	grund_t *gr = welt->lookup(depot_pos);
+	if (!gr) {
+		return "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
+	}
+	depot_t *dep = gr->get_depot();
+	if (!dep) {
+		return "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
+	}
+	vehicle_t *v = front();
+	if (dep->get_waytype() != v->get_waytype() || dep->get_owner() != get_owner()) {
+		return "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
+	}
+
+	if (immediate) {
+		// Teleport: same pre-conditions as send_to_depot_immediately
+		if (state == INITIAL) {
+			return "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
+		}
+		if (is_coupled()) {
+			return "Convoi is not front convoy.\n";
+		}
+		// Insert depot into schedule of all coupled convoys (to discard cargo)
+		bool already_in_schedule = false;
+		uint8 current_stop = schedule->get_current_stop();
+		for (uint8 i = 0; i < schedule->get_count(); i++) {
+			if (schedule->at((current_stop + i) % schedule->get_count()).pos == depot_pos) {
+				already_in_schedule = true;
+				break;
+			}
+		}
+		if (!already_in_schedule) {
+			convoihandle_t c = self;
+			while (c.is_bound()) {
+				schedule_t *sched = c->get_schedule();
+				sched->insert(gr);
+				sched->set_current_stop((sched->get_current_stop() + sched->get_count() - 1) % sched->get_count());
+				c = c->get_coupling_convoi();
+			}
+		}
+		betrete_depot(dep, false);
+	}
+	else {
+		// Route-based: insert the depot as the next schedule stop
+		route_t *route = new route_t();
+		if(  !v->calc_route(get_pos(), depot_pos, 50, route)  ) {
+			return "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
+		}
+		delete route;
+		convoihandle_t c = self;
+		while (c.is_bound()) {
+			schedule_t *sched = c->get_schedule();
+			sched->insert(gr);
+			sched->set_current_stop((sched->get_current_stop() + sched->get_count() - 1) % sched->get_count());
+			c = c->get_coupling_convoi();
+		}
+		set_schedule(get_schedule());
+		if (local) {
+			if (convoi_info_t *info = dynamic_cast<convoi_info_t*>(win_get_magic(magic_convoi_info + self.get_id()))) {
+				info->route_search_finished();
+			}
+		}
+	}
+	return "Convoi has been sent\nto the selected depot\nof appropriate type.\n";
+}
+
+
 /*
  * Functions to yield lane space to vehicles on passing lane.
  * More natural movement controll is desired!

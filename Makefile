@@ -411,6 +411,7 @@ SOURCES += gui/curiosity_edit.cc
 SOURCES += gui/curiositylist_frame_t.cc
 SOURCES += gui/curiositylist_stats_t.cc
 SOURCES += gui/depot_frame.cc
+SOURCES += gui/depot_picker.cc
 SOURCES += gui/depotlist_frame.cc
 SOURCES += gui/display_settings.cc
 SOURCES += gui/enlarge_map_frame_t.cc

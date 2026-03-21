@@ -996,6 +996,13 @@ public:
 	const char* send_to_depot_immediately(bool local);
 
 	/**
+	 * Sends convoi to a user-specified depot (by route or immediately).
+	 * @param depot_pos position of the target depot
+	 * @param immediate true = teleport (betrete_depot), false = route via schedule
+	 */
+	const char* send_to_specific_depot(koord3d depot_pos, bool immediate, bool local);
+
+	/**
 	 * this give the index of the next signal or the end of the route
 	 * convois will slow down before it, if this is not a waypoint or the cannot pass
 	 * The slowdown is done by the vehicle routines

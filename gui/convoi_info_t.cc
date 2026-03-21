@@ -27,6 +27,7 @@
 #include "../utils/simstring.h"
 #include "convoi_detail_t.h"
 #include "convoi_stops_list_t.h"
+#include "depot_picker.h"
 
 #define CHART_HEIGHT (100)
 
@@ -157,7 +158,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 		add_component(&button);
 
 		go_home_button.init(button_t::roundbox | button_t::flexible, "go home");
-		go_home_button.set_tooltip("Sends the convoi to the last depot it departed from!");
+		go_home_button.set_tooltip("Sends the convoi to the nearest depot. Ctrl+click to choose depot.");
 		go_home_button.add_listener(this);
 		add_component(&go_home_button);
 
@@ -619,6 +620,12 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			// limit update to certain states that are considered to be safe for schedule updates
 			int state = cnv->get_state();
 			if(state==convoi_t::EDIT_SCHEDULE) {
+				return true;
+			}
+
+			// Ctrl+click: open depot picker to choose destination
+			if(  event_get_last_control_shift() & 2  ) {
+				create_win(new depot_picker_t(cnv, false), w_info, magic_depot_picker);
 				return true;
 			}
 
