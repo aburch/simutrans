@@ -1100,6 +1100,7 @@ public:
 
 	void request_signal_check_in_step() {signal_check_in_step_request = true;}
 	void set_signal_check_in_step_request_invalid() { signal_check_in_step_request = false; };
+	const bool is_signal_check_in_step_needed() {return signal_check_in_step_request;}
 
 	void calc_crossing_reservation();
 	vector_tpl<std::pair< uint16, uint16> > get_crossing_reservation_index() const { return crossing_reservation_index; }
