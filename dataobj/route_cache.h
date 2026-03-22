@@ -51,19 +51,23 @@ struct route_cache_t {
 		}
 	};
 
-	// Outer key: linehandle_t, Inner key: route key
-	std::unordered_map<linehandle_t,
-		std::unordered_map<key_t, entry_t, key_hash>,
-		line_hash> map;
+	static const size_t MAX_ROUTES_PER_ENTRY = 4;
 
-	route_t* find(linehandle_t line, koord3d start, koord3d ziel,
+	typedef std::unordered_map<key_t, entry_t, key_hash> route_map_t;
+	typedef std::unordered_map<uint8, route_map_t> entry_map_t;
+	typedef std::unordered_map<linehandle_t, entry_map_t, line_hash> line_map_t;
+
+	// Outer key: linehandle_t, Middle key: schedule entry index, Inner key: route key
+	line_map_t map;
+
+	route_t* find(linehandle_t line, uint8 schedule_entry, koord3d start, koord3d ziel,
 	              sint32 max_speed_kmh, bool need_electric);
 
-	void add(linehandle_t line, koord3d start, koord3d ziel,
+	void add(linehandle_t line, uint8 schedule_entry, koord3d start, koord3d ziel,
 	         sint32 max_speed_kmh, bool need_electric,
 	         const route_t &r);
 
-	void remove(linehandle_t line, koord3d start, koord3d ziel,
+	void remove(linehandle_t line, uint8 schedule_entry, koord3d start, koord3d ziel,
 	            sint32 max_speed_kmh, bool need_electric);
 
 	// Erase all cache entries for a given line

@@ -7,38 +7,59 @@
 #include "../simworld.h"
 
 
-route_t* route_cache_t::find(linehandle_t line, koord3d start, koord3d ziel,
+route_t* route_cache_t::find(linehandle_t line, uint8 schedule_entry, koord3d start, koord3d ziel,
                              sint32 max_speed_kmh, bool need_electric)
 {
-	auto line_it = map.find(line);
+	line_map_t::iterator line_it = map.find(line);
 	if (line_it == map.end()) return nullptr;
-	auto it = line_it->second.find({start, ziel, max_speed_kmh, need_electric});
-	if (it == line_it->second.end()) return nullptr;
+	entry_map_t::iterator entry_it = line_it->second.find(schedule_entry);
+	if (entry_it == line_it->second.end()) return nullptr;
+	route_map_t::iterator it = entry_it->second.find({start, ziel, max_speed_kmh, need_electric});
+	if (it == entry_it->second.end()) return nullptr;
 	// Expiration check (unsigned subtraction handles wraparound)
 	karte_ptr_t welt;
 	if (welt->get_ticks() - it->second.added_ticks > welt->ticks_per_world_month) {
-		line_it->second.erase(it);
+		entry_it->second.erase(it);
 		return nullptr;
 	}
 	return &it->second.route;
 }
 
 
-void route_cache_t::add(linehandle_t line, koord3d start, koord3d ziel,
+void route_cache_t::add(linehandle_t line, uint8 schedule_entry, koord3d start, koord3d ziel,
                         sint32 max_speed_kmh, bool need_electric,
                         const route_t &r)
 {
 	karte_ptr_t welt;
-	map[line][{start, ziel, max_speed_kmh, need_electric}] = {r, welt->get_ticks()};
+	const key_t key = {start, ziel, max_speed_kmh, need_electric};
+	route_map_t &route_map = map[line][schedule_entry];
+	route_map[key] = {r, welt->get_ticks()};
+	if (route_map.size() > MAX_ROUTES_PER_ENTRY) {
+		// Evict the oldest entry
+		route_map_t::iterator oldest = route_map.end();
+		uint32 oldest_ticks = UINT32_MAX;
+		for (route_map_t::iterator it = route_map.begin(); it != route_map.end(); ++it) {
+			if (it->second.added_ticks < oldest_ticks) {
+				oldest_ticks = it->second.added_ticks;
+				oldest = it;
+			}
+		}
+		if (oldest != route_map.end()) {
+			route_map.erase(oldest);
+		}
+	}
 }
 
 
-void route_cache_t::remove(linehandle_t line, koord3d start, koord3d ziel,
+void route_cache_t::remove(linehandle_t line, uint8 schedule_entry, koord3d start, koord3d ziel,
                            sint32 max_speed_kmh, bool need_electric)
 {
-	auto line_it = map.find(line);
+	line_map_t::iterator line_it = map.find(line);
 	if (line_it != map.end()) {
-		line_it->second.erase({start, ziel, max_speed_kmh, need_electric});
+		entry_map_t::iterator entry_it = line_it->second.find(schedule_entry);
+		if (entry_it != line_it->second.end()) {
+			entry_it->second.erase({start, ziel, max_speed_kmh, need_electric});
+		}
 	}
 }
 

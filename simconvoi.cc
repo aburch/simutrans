@@ -1281,19 +1281,21 @@ bool convoi_t::drive_to()
 		// Only convoys assigned to a line use the cache.
 		auto cached_calc_route = [&](koord3d s, koord3d z, route_t* r, bool pass_stop) -> bool {
 			if (line.is_bound()) {
+				const uint8 entry_idx = schedule->get_current_stop();
 				route_t *cached = welt->get_route_cache().find(
-						line, s, z, max_speed_kmh, need_electric);
+						line, entry_idx, s, z, max_speed_kmh, need_electric);
 				if (cached  &&  cached->is_passable(welt, fahr[0], need_electric)) {
 					*r = *cached;
 					return true;
 				}
 				if (cached) {
-					welt->get_route_cache().remove(line, s, z, max_speed_kmh, need_electric);
+					welt->get_route_cache().remove(line, entry_idx, s, z, max_speed_kmh, need_electric);
 				}
 			}
 			const bool ok = fahr[0]->calc_route(s, z, max_speed_kmh, r, pass_stop);
 			if (ok  &&  line.is_bound()) {
-				welt->get_route_cache().add(line, s, z, max_speed_kmh, need_electric, *r);
+				const uint8 entry_idx = schedule->get_current_stop();
+				welt->get_route_cache().add(line, entry_idx, s, z, max_speed_kmh, need_electric, *r);
 			}
 			return ok;
 		};
