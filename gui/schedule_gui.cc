@@ -1260,8 +1260,8 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 		tool_t *tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
 		cbuffer_t buf;
 		buf.printf( "c,0,%i,%ld,", (int)schedule->get_type(), (long)(intptr_t)old_schedule );
-		// A line needs a unique departure_slot_group_id.
-		schedule->set_departure_slot_group_id(schedule_t::issue_new_departure_slot_group_id());
+		// departure_slot_group_id will be set to the new line's own handle in TOOL_CHANGE_LINE 'c' handler
+		schedule->set_departure_slot_group_id(linehandle_t());
 		schedule->sprintf_schedule( buf );
 		tool->set_default_param(buf);
 		welt->set_tool( tool, player );
@@ -1484,11 +1484,11 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 	else if(comp == &departure_slot_group_selector) {
 		uint32 selection = p.i;
 		if(  line_scrollitem_t *li = dynamic_cast<line_scrollitem_t*>(departure_slot_group_selector.get_element(selection))  ) {
-			const sint64 id = li->get_line()->get_schedule()->get_departure_slot_group_id();
-			schedule->set_departure_slot_group_id(id);
+			schedule->set_departure_slot_group_id(li->get_line()->get_schedule()->get_departure_slot_group_id());
 		}
 		else {
-			schedule->set_new_departure_slot_group_id();
+			// "<new departure slot group>": revert to own line's handle
+			schedule->set_departure_slot_group_id(old_line);
 		}
 	}
 	// recheck lines
@@ -1602,11 +1602,15 @@ void schedule_gui_t::init_departure_slot_group_selector()
 		vector_tpl<linehandle_t> lines;
 		player->simlinemgmt.get_lines(schedule->get_type(), &lines);
 		FOR(  vector_tpl<linehandle_t>, const line,  lines  ) {
+			// only show leader lines (lines that are their own departure slot group)
+			if(  line->get_schedule()->get_departure_slot_group_id() != line  ) {
+				continue;
+			}
 			if(!*schedule_filter  ||  utf8caseutf8(line->get_name(), schedule_filter)) {
-				if(  schedule->matches(world(), line->get_schedule())  ) {
+				if(  player == this->player &&  schedule->matches(world(), line->get_schedule())  ) {
 					this_schedule_index = departure_slot_group_selector.count_elements();
 				}
-				else if(  line->get_schedule()->get_departure_slot_group_id()==schedule->get_departure_slot_group_id()  &&  selection==0  ) {
+				if(  line->get_schedule()->get_departure_slot_group_id()==schedule->get_departure_slot_group_id()  &&  selection==0  ) {
 					selection = departure_slot_group_selector.count_elements();
 				}
 				departure_slot_group_selector.new_component<company_color_line_scroll_item_t>(line);

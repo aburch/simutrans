@@ -6,6 +6,7 @@
 #include <algorithm>
 #include "simlinemgmt.h"
 #include "simline.h"
+#include "tpl/inthashtable_tpl.h"
 #include "simconvoi.h"
 #include "gui/simwin.h"
 #include "simworld.h"
@@ -168,6 +169,29 @@ void simlinemgmt_t::finish_rd()
 		i->finish_rd();
 	}
 	sort_lines();
+
+	// Migrate departure_slot_group_id from old random sint64 (OTRP < 53) to linehandle_t.
+	// Build a mapping: old random id -> first line's handle seen for each group.
+	inthashtable_tpl<sint64, linehandle_t> legacy_to_new;
+	FOR(vector_tpl<linehandle_t>, const line, all_managed_lines) {
+		const sint64 legacy = line->get_schedule()->get_legacy_departure_slot_group_id();
+		if(  legacy != 0  &&  !legacy_to_new.access(legacy)  ) {
+			legacy_to_new.set(legacy, line);
+		}
+	}
+	FOR(vector_tpl<linehandle_t>, const line, all_managed_lines) {
+		const sint64 legacy = line->get_schedule()->get_legacy_departure_slot_group_id();
+		if(  legacy != 0  ) {
+			// Old format: resolve group from legacy mapping
+			line->get_schedule()->set_departure_slot_group_id(legacy_to_new.get(legacy));
+		}
+		else {
+			// New format: ensure departure_slot_group_id is bound (default to own line)
+			if(  !line->get_schedule()->get_departure_slot_group_id().is_bound()  ) {
+				line->get_schedule()->set_departure_slot_group_id(line);
+			}
+		}
+	}
 }
 
 

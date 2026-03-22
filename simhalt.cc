@@ -4637,8 +4637,8 @@ bool haltestelle_t::is_halt_covered(const halthandle_t &halt) const
 
 bool haltestelle_t::book_departure (uint32 arr_tick, uint32 dep_tick, uint32 exp_tick, convoihandle_t cnv) {
 	// check if departure_slot_group_id is properly initialized.
-	if(  cnv->get_line().is_bound()  &&  cnv->get_line()->get_schedule()->get_departure_slot_group_id()==0  ) {
-		dbg->error("haltestelle_t::book_departure", "departure_slot_group_id is zero for %s", cnv->get_name());
+	if(  cnv->get_line().is_bound()  &&  !cnv->get_line()->get_schedule()->get_departure_slot_group_id().is_bound()  ) {
+		dbg->error("haltestelle_t::book_departure", "departure_slot_group_id is unbound for %s", cnv->get_name());
 	}
 	const uint8 idx = dep_tick % DST_SIZE;
 	slist_tpl<departure_t>::iterator i = departure_slot_table[idx].begin();
