@@ -110,5 +110,14 @@ void export_settings(HSQUIRRELVM vm)
 	/// @returns max number of trees on a map square
 	register_method(vm, &settings_t::get_max_no_of_trees_on_square, "get_max_no_of_trees_on_square");
 
+	/// @returns true if trains should advance to the end of platform
+	register_method(vm, &settings_t::get_advance_to_end, "get_advance_to_end");
+
+	/**
+	 * Sets advance_to_end setting. When false, trains stop at the near end of platform.
+	 * @param b true if trains should advance to the end of platform
+	 */
+	register_method(vm, &settings_t::set_advance_to_end, "set_advance_to_end");
+
 	end_class(vm);
 }
