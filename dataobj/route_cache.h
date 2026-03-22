@@ -13,7 +13,7 @@
 #include "../linehandle_t.h"
 
 /**
- * Global route cache keyed by (line, start, ziel, max_speed_kmh, need_electric).
+ * Global route cache keyed by (line, schedule_entry, start, ziel, max_speed_kmh, convoy_length, need_electric).
  * Only convoys assigned to a line use this cache.
  * Entries expire after one game month (ticks_per_world_month).
  * Memory-only: not saved/loaded with the game.
@@ -23,10 +23,12 @@ struct route_cache_t {
 		koord3d start;
 		koord3d ziel;
 		sint32  max_speed_kmh;
+		uint16  convoy_length;
 		bool    need_electric;
 		bool operator==(const key_t &o) const {
 			return start == o.start && ziel == o.ziel
 			    && max_speed_kmh == o.max_speed_kmh
+			    && convoy_length == o.convoy_length
 			    && need_electric == o.need_electric;
 		}
 	};
@@ -35,6 +37,7 @@ struct route_cache_t {
 			size_t h = (size_t)(uint16)k.start.x ^ ((size_t)(uint16)k.start.y << 16) ^ ((size_t)(uint8)k.start.z << 24);
 			h ^= ((size_t)(uint16)k.ziel.x << 3) ^ ((size_t)(uint16)k.ziel.y << 19) ^ ((size_t)(uint8)k.ziel.z << 27);
 			h ^= (size_t)(uint32)k.max_speed_kmh;
+			h ^= (size_t)k.convoy_length << 7;
 			h ^= k.need_electric ? 0x80000000u : 0u;
 			return h;
 		}
@@ -61,14 +64,14 @@ struct route_cache_t {
 	line_map_t map;
 
 	route_t* find(linehandle_t line, uint8 schedule_entry, koord3d start, koord3d ziel,
-	              sint32 max_speed_kmh, bool need_electric);
+	              sint32 max_speed_kmh, uint16 convoy_length, bool need_electric);
 
 	void add(linehandle_t line, uint8 schedule_entry, koord3d start, koord3d ziel,
-	         sint32 max_speed_kmh, bool need_electric,
+	         sint32 max_speed_kmh, uint16 convoy_length, bool need_electric,
 	         const route_t &r);
 
 	void remove(linehandle_t line, uint8 schedule_entry, koord3d start, koord3d ziel,
-	            sint32 max_speed_kmh, bool need_electric);
+	            sint32 max_speed_kmh, uint16 convoy_length, bool need_electric);
 
 	// Erase all cache entries for a given line
 	void remove_line(linehandle_t line);
