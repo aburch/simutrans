@@ -1033,3 +1033,83 @@ function test_transport_pax_transfer_interval()
 	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(10, 2, 0), coord3d(10, 9, 0), "" + wt_road), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
+
+
+function test_transport_route_cache_convoy_length()
+{
+	local pl = player_x(0)
+
+	// Layout:
+	//   halt_a: (4,2)-(4,3) [2 tiles], halt_b: (4,7)-(4,8) [2 tiles]
+	//   depot: (4,10)
+	//   Rail: (4,2)-(4,3)-(4,4)-(4,5)-(4,6)-(4,7)-(4,8)-(4,9)-(4,10)
+	//
+	// Schedule: halt_b (4,7) -> halt_a (4,3).
+	// Convoy departs depot, goes to halt_b first (near depot), then to halt_a.
+	// We assert positions at halt_a (the 2nd schedule entry) so it is cache-aware.
+	// With advance_to_end=false:
+	//   cnv_short (1 loco, 1 tile): head stops at (4,3) — fits in 1 tile.
+	//   cnv_long (1 loco + 3 wagons, 2+ tiles): head advances to (4,2) to fit.
+	// Verifies that the route cache differentiates by convoy length.
+
+	debug.set_game_speed(5)
+	settings.set_advance_to_end(false)
+
+	local rail = way_desc_x.get_available_ways(wt_rail, st_flat)[0]
+	ASSERT_TRUE(rail != null)
+
+	// Build track, 2-tile stops, and depot
+	ASSERT_EQUAL(command_x.build_way(pl, coord3d(4, 2, 0), coord3d(4, 10, 0), rail, false), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 2, 0), "TrainStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 3, 0), "TrainStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 7, 0), "TrainStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 8, 0), "TrainStop"), null)
+	ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 10, 0), building_desc_x("TrainDepot")), null)
+
+	local halt_a = halt_x.get_halt(coord3d(4, 3, 0), pl)
+	local halt_b = halt_x.get_halt(coord3d(4, 7, 0), pl)
+	local sched  = create_simple_schedule(wt_rail, [ coord3d(4, 7, 0), coord3d(4, 3, 0) ])
+	local depot  = depot_x(4, 10, 0)
+
+	// Create line and assign schedule
+	ASSERT_EQUAL(pl.create_line(wt_rail), true)
+	local line_list = pl.get_line_list()
+	local line = line_list[line_list.get_count() - 1]
+	line.change_schedule(pl, sched)
+
+	// Short convoy: 1 diesel loco only (1 tile)
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("1Diesellokomotive"))
+	local cnv_short = depot.get_convoy_list()[0]
+	cnv_short.set_line(pl, line)
+	depot.start_all_convoys(pl)
+
+	// Wait for short convoy to reach halt_a, check head position,
+	// then sell it so it does not block the single-track line.
+	while (halt_a.convoys[0] < 1) {
+		sleep()
+	}
+	// Short convoy (1 tile) stops with head at schedule pos (4,3)
+	ASSERT_EQUAL(cnv_short.get_pos().tostring(), coord3d(4, 3, 0).tostring())
+	cnv_short.destroy(pl)
+	sleep()
+	sleep()
+
+	// Long convoy: 1 diesel loco + 3 passenger wagons (2+ tiles)
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("1Diesellokomotive"))
+	local cnv_long = depot.get_convoy_list()[0]
+	depot.append_vehicle(pl, cnv_long, vehicle_desc_x("AdlerPersonenwagen"))
+	depot.append_vehicle(pl, cnv_long, vehicle_desc_x("AdlerPersonenwagen"))
+	depot.append_vehicle(pl, cnv_long, vehicle_desc_x("AdlerPersonenwagen"))
+	cnv_long.set_line(pl, line)
+	depot.start_all_convoys(pl)
+
+	// Wait for long convoy to reach halt_a
+	while (halt_a.convoys[0] < 2) {
+		sleep()
+	}
+	// Long convoy (2+ tiles) advances further to fit: head at (4,2)
+	ASSERT_EQUAL(cnv_long.get_pos().tostring(), coord3d(4, 2, 0).tostring())
+
+	settings.set_advance_to_end(true)
+	debug.set_game_speed(1)
+}
