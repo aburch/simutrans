@@ -3846,7 +3846,7 @@ bool tool_build_wayobj_t::calc_route( route_t &verbindung, player_t *player, con
 		}
 	}
 	// get a default vehicle
-	test_driver_t * test_driver = new way_checker_t(waytype);
+	test_driver_t * test_driver = new way_checker_t(waytype == tram_wt ? track_wt : waytype);
 	test_driver = scenario_checker_t::apply(test_driver, player, this);
 
 	bool can_built;
