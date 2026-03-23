@@ -48,7 +48,7 @@ class line_colour_gui_t : public gui_frame_t, action_listener_t
 		linehandle_t line;
 		player_t *player;
 
-		choose_color_button_t* line_colour[28];
+		choose_color_button_t* line_colour[56];
 
 	public:
 		line_colour_gui_t(linehandle_t line_, player_t *player_);

@@ -42,16 +42,24 @@ line_colour_gui_t::line_colour_gui_t(linehandle_t line_, player_t *player_) :
 	// Line's colour label
 	new_component<gui_label_t>("Line Colour:");
 
-	add_table(14,2);
+	add_table(14,4);
 
 	//Line colour buttons
+	//same as player colours
 	for(unsigned i=0;  i<28;  i++) {
 		line_colour[i] = new_component<choose_color_button_t>();
 		line_colour[i]->init( button_t::box_state, (" "));
 		line_colour[i]->background_color = color_idx_to_rgb(i*8+4);
 		line_colour[i]->add_listener(this);
 	}
-	line_colour[line->get_colour()/8]->pressed = true;
+	//add some colours
+	for(unsigned i=0;  i<28;  i++) {
+		line_colour[i+28] = new_component<choose_color_button_t>();
+		line_colour[i+28]->init( button_t::box_state, (" "));
+		line_colour[i+28]->background_color = color_idx_to_rgb(i*8);
+		line_colour[i+28]->add_listener(this);
+	}
+	line_colour[line->get_colour()%8==4?line->get_colour()/8:line->get_colour()/8+28]->pressed = true;
 	end_table();
 	reset_min_windowsize();
 
@@ -59,9 +67,9 @@ line_colour_gui_t::line_colour_gui_t(linehandle_t line_, player_t *player_) :
 
 bool line_colour_gui_t::action_triggered( gui_action_creator_t *comp, value_t /* */)
 {
-	for(unsigned i=0;  i<28;  i++){
+	for(unsigned i=0;  i<56;  i++){
 		if(comp==line_colour[i]) {
-			for(unsigned j=0;  j<28;  j++) {
+			for(unsigned j=0;  j<56;  j++) {
 				line_colour[j]->pressed = false;
 			}
 			line_colour[i]->pressed = true;
@@ -69,7 +77,7 @@ bool line_colour_gui_t::action_triggered( gui_action_creator_t *comp, value_t /*
 			if (line.is_bound()) {
 				// re-colour the line
 				cbuffer_t buf;
-				buf.printf( "o,%i,%i", line.get_id(), i*8+4 );
+				buf.printf( "o,%i,%i", line.get_id(), i<28? i*8+4: (i-28)*8 );
 				tool_t* w = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
 				w->set_default_param(buf);
 				world()->set_tool( w, player );
