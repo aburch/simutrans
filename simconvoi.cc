@@ -1278,9 +1278,11 @@ bool convoi_t::drive_to()
 		const bool need_electric = needs_electrification();
 
 		// Cache-aware route calculation: tries cache first, falls back to A* on miss or passability failure.
-		// Only convoys assigned to a line use the cache.
+		// Only convoys assigned to a line use the cache, and only when the convoy's schedule
+		// exactly matches the line's schedule (no extra depot entries).
+		const bool use_route_cache = line.is_bound()  &&  schedule->get_count() == line->get_schedule()->get_count();
 		auto cached_calc_route = [&](koord3d s, koord3d z, route_t* r, bool pass_stop) -> bool {
-			if (line.is_bound()) {
+			if (use_route_cache) {
 				const uint8 entry_idx = schedule->get_current_stop();
 				const uint16 cnv_len = pass_stop ? 0 : get_entire_convoy_length();
 				route_t *cached = welt->get_route_cache().find(
@@ -1294,7 +1296,7 @@ bool convoi_t::drive_to()
 				}
 			}
 			const bool ok = fahr[0]->calc_route(s, z, max_speed_kmh, r, pass_stop);
-			if (ok  &&  line.is_bound()) {
+			if (ok  &&  use_route_cache) {
 				const uint8 entry_idx = schedule->get_current_stop();
 				const uint16 cnv_len = pass_stop ? 0 : get_entire_convoy_length();
 				welt->get_route_cache().add(line, entry_idx, s, z, max_speed_kmh, cnv_len, need_electric, *r);
