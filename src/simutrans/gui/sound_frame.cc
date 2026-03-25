@@ -209,7 +209,9 @@ bool sound_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 		sound_set_global_volume(p.i);
 	}
 	else if (comp == &music_volume_scrollbar) {
-		sound_set_midi_volume(p.i);
+		uint32 volume = p.i;
+		volume = (volume * volume * volume * volume) / 16581375ul; // (255 ^ 3) approximates a logarithmic sound, see https://www.dr-lex.be/info-stuff/volumecontrols.html
+		sound_set_midi_volume(volume);
 	}
 	else if (comp == &sound_range) {
 		env_t::sound_distance_scaling = p.i;
@@ -222,7 +224,9 @@ bool sound_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 	else {
 		for( int i = 0; i < MAX_SOUND_TYPES; i++ ) {
 			if( comp == specific_volume_scrollbar[ i ] ) {
-				sound_set_specific_volume( p.i, (sound_type_t)i );
+				uint32 volume = p.i;
+				volume = (volume * volume * volume * volume) / 16581375ul; // (255 ^ 3) approximates a logarithmic sound
+				sound_set_specific_volume( volume, (sound_type_t)i );
 			}
 		}
 	}
