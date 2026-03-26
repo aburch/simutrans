@@ -83,7 +83,11 @@ void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& jou
     lb->update();
     for(uint8 i=0; i<NUM_STOPPING_TIME_STORED+2; i++) {
       lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
-      uint32 t = i==0? journey_time_sum - stopping_times[prev_idx][max(i-1,0)] + stopping_times[idx][max(i-1,0)] : stopping_times[idx][max(i-1,0)];
+      uint32 t = stopping_times[idx][max(i-1,0)];
+      if(i==0) {
+        journey_time_sum += t;
+        t = journey_time_sum;
+      }
       if(  t==0  ) {
         lb->buf().printf("-");
       } else {
