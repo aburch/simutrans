@@ -394,36 +394,48 @@ int dr_stat(const char *path, struct stat *buf)
 #endif
 }
 
-static inline bool is_regular_file(const char *filename)
+static inline bool is_regular_file(FILE *f)
 {
 	struct stat s;
-	if (dr_stat(filename, &s) != 0) {
+#ifdef _WIN32
+	if (_fstat(_fileno(f), (struct _stat*)%s) != 0) {
 		return false;
 	}
+#else
+	if (fstat(fileno(f), (struct stat *)&s) != 0) {
+		return false;
+	}
+#endif
 
 	return S_ISREG(s.st_mode);
 }
 
 
-FILE *dr_fopen (const char *filename, const char *mode)
+FILE *dr_fopen(const char *filename, const char *mode)
 {
-	if (!is_regular_file(filename)) {
+#ifdef _WIN32
+	FILE *f = _wfopen(U16View(filename), U16View(mode));
+#else
+	FILE *f = fopen(filename, mode);
+#endif
+
+	if (!f) {
 		return NULL;
 	}
 
-#ifdef _WIN32
-	return _wfopen(U16View(filename), U16View(mode));
-#else
-	return fopen(filename, mode);
-#endif
+	// Try not to open a directory. POSIX does not specify what happens
+	// when trying to fopen a directory *for reading*. We disallow this explicitly.
+	if (!is_regular_file(f)) {
+		fclose(f);
+		return NULL;
+	}
+
+	return f;
 }
+
 
 gzFile dr_gzopen(const char *path, const char *mode)
 {
-	if (!is_regular_file(path)) {
-		return NULL;
-	}
-
 #ifdef _WIN32
 	return gzopen_w(U16View(path), mode);
 #else
