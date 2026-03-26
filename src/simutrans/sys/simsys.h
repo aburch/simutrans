@@ -138,15 +138,19 @@ int dr_chdir(const char *path);
 // Functions the same as getcwd except path must be UTF-8 encoded.
 char *dr_getcwd(char *buf, size_t size);
 
-// Functions the same as fopen except filename must be UTF-8 encoded.
+/// Opens a regular file specified by @p filename. The filename must be UTF-8 encoded.
+/// Returns NULL on failure (e.g. the path is a directory, or does not exist).
+/// @param mode How to open the file (reading, writing). Format is the same as for @ref fopen.
 FILE *dr_fopen(const char *filename, const char *mode);
 
 #ifndef NETTOOL
-// Functions the same as gzopen except path must be UTF-8 encoded.
+/// Opens a regular compressed file specified by @p filename. The filename must be UTF-8 encoded.
+/// Returns NULL on failure (e.g. the path is a directory, or does not exist).
+/// @param mode How to open the file (reading, writing). Format is the same as for @ref gzopen.
 gzFile dr_gzopen(const char *path, const char *mode);
 #endif
 
-// Functions the same as stat except path must be UTF-8 encoded.
+/// Functions the same as @ref stat except @p path must be UTF-8 encoded.
 int dr_stat(const char *path, struct stat *buf);
 
 /**

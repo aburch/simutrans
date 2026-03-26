@@ -69,6 +69,7 @@
 	FIX: Factory editor could not select water factories from climate selection
 	FIX: Transformers get removed by factory field expansion
 	CHG: sound loudness slider now follows a x^4 curve, approximates an exponential loudness control for finer adjustments
+	FIX: Crash when a scenario references a translation file which is actually a directory
 
 
 Release of 124.3.1 (r11671 on 5-Apr-2025):

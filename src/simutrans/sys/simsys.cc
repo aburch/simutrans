@@ -373,23 +373,6 @@ char *dr_getcwd(char *buf, size_t size)
 #endif
 }
 
-FILE *dr_fopen (const char *filename, const char *mode)
-{
-#ifdef _WIN32
-	return _wfopen(U16View(filename), U16View(mode));
-#else
-	return fopen(filename, mode);
-#endif
-}
-
-gzFile dr_gzopen(const char *path, const char *mode)
-{
-#ifdef _WIN32
-	return gzopen_w(U16View(path), mode);
-#else
-	return gzopen(path, mode);
-#endif
-}
 
 int dr_stat(const char *path, struct stat *buf)
 {
@@ -399,6 +382,44 @@ int dr_stat(const char *path, struct stat *buf)
 	return stat(path, buf);
 #endif
 }
+
+static inline bool is_regular_file(const char *filename)
+{
+	struct stat s;
+	if (dr_stat(filename, &s) != 0) {
+		return false;
+	}
+
+	return S_ISREG(s.st_mode);
+}
+
+
+FILE *dr_fopen (const char *filename, const char *mode)
+{
+	if (!is_regular_file(filename)) {
+		return NULL;
+	}
+
+#ifdef _WIN32
+	return _wfopen(U16View(filename), U16View(mode));
+#else
+	return fopen(filename, mode);
+#endif
+}
+
+gzFile dr_gzopen(const char *path, const char *mode)
+{
+	if (!is_regular_file(path)) {
+		return NULL;
+	}
+
+#ifdef _WIN32
+	return gzopen_w(U16View(path), mode);
+#else
+	return gzopen(path, mode);
+#endif
+}
+
 
 bool check_and_set_dir( const char *path, const char *info, char *result, const char *testfile)
 {
