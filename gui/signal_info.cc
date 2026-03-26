@@ -32,6 +32,13 @@ signal(s)
 	if(  signal->get_desc()->is_choose_sign()  ) {
 		add_component(&bt_choose_signal);
 	}
+		
+	bt_skip_default_route.init( button_t::square_state, translator::translate("Do not use default route") );
+	bt_skip_default_route.add_listener(this);
+	bt_skip_default_route.pressed = signal->is_skip_default_route();
+	if(  signal->get_desc()->is_choose_sign()  ) {
+		add_component(&bt_skip_default_route);
+	}
 
 	add_table(2,0);
 	{
@@ -104,6 +111,14 @@ bool signal_info_t::action_triggered( gui_action_creator_t* comp, value_t p)
 		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_ROADSIGN], welt->get_active_player() );
 		return true;
 	}
+	if(  comp==&bt_skip_default_route  ) {
+		char param[256];
+		bool v = signal->is_skip_default_route();
+		sprintf( param, "%s,%i,d", signal->get_pos().get_str(), !v );
+		tool_t::simple_tool[TOOL_CHANGE_ROADSIGN]->set_default_param( param );
+		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_ROADSIGN], welt->get_active_player() );
+		return true;
+	}
 	return false;
 }
 
@@ -114,6 +129,7 @@ void signal_info_t::update_data()
 	bt_require_parent.pressed = signal->is_guide_signal();
 	bt_advance_to_end.pressed = signal->is_advance_to_end();
 	bt_choose_signal.pressed = signal->is_choose_signal();
+	bt_skip_default_route.pressed = signal->is_skip_default_route();
 	if(  signal->is_choose_signal()  ) {
 		bt_advance_to_end.enable();
 		numinp_tiles_margin.enable();

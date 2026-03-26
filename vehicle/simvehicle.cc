@@ -3884,111 +3884,118 @@ skip_choose:
 	target_halt = target->get_halt();
 	bool route_found = false;
 
-	// note: any old reservations should be invalid after the block reserver call.
-	// => We can now start freshly all over
-
-	if(!cnv->is_waiting()&&!call_by_step) {
-		// we are in a sync_step->no calculate route, return
-		if(!try_coupling) {
-			// non coupling -> non stop(search new route to halt in step)
-			cnv->request_signal_check_in_step();
-		} // try_coupling -> must stop at signal
-		restart_speed = -1;
-		target_halt = halthandle_t();
-		return false;
-	}
-	// we are in a step. calculate route.
-	// reset request
-	cnv->set_signal_check_in_step_request_invalid();
-	// now we are in a step and can use the route search array
-
-	// now it we are in a step and can use the route search
-	route_t target_rt;
-	const int richtung = ribi_type(cnv->get_route()->at(start_block),cnv->get_route()->at(start_block<cnv->get_route()->get_count()-1?start_block+1:start_block));	// to avoid confusion at diagonals
-	if(  try_coupling  ) {
-		// search for coupling point.
-		route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->is_electrification(), true, 0 );
-		cnv->set_use_electric(cnv->is_electrification());
-		if (  !route_found  ) {
-			route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->needs_electrification(), true, 0 );
-			if(  route_found  ) {
-				cnv->set_use_electric(false);
-			}
-		}
-	}
-	if(  !route_found  &&  (!sig->is_guide_signal()  ||  !try_coupling)  ) {
-		const uint8 margin_length=sig->get_margin_length();
-		route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->is_electrification(), false, margin_length );
-		cnv->set_use_electric(cnv->is_electrification());
-		if(  !route_found  ) {
-			route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->needs_electrification(), false, margin_length );
-			if(  route_found  ) {
-				cnv->set_use_electric(false);
-			}
-		}
-		try_coupling = false;
-	}
+	if(  !try_coupling && !sig->is_skip_default_route()  ) {
+		// call block_reserver only when the next halt is not a coupling point.
+		route_found = block_reserver( cnv->get_route(), start_block+1, next_signal, next_crossing, 100000, true, false );
+	}	
 	if(  !route_found  ) {
-		// nothing empty or not route with less than get_max_choose_route_steps() tiles
-		target_halt = halthandle_t();
-		sig->set_state( roadsign_t::STATE_RED );
-		restart_speed = 0;
-		return false;
-	}
-	else {
-		// if do not advance to end in this signal, we remove some advance tiles from target_rt
-		if(  !try_coupling  &&  !welt->get_settings().get_advance_to_end()  &&  target_rt.get_count()>2  &&  !sig->is_advance_to_end()  ) {
-			uint32 stop_length = convoi_t::calc_available_halt_length_in_vehicle_steps(target_rt.at(target_rt.get_count()-1),ribi_type(target_rt.at(target_rt.get_count()-1)-target_rt.at(target_rt.get_count()-2)),get_waytype());
-			stop_length -= ribi_t::is_bend(welt->lookup(target_rt.at(target_rt.get_count()-1))->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile/2: VEHICLE_STEPS_PER_TILE;
-			while(  stop_length>=cnv->get_entire_convoy_length()*VEHICLE_STEPS_PER_CARUNIT+sig->get_margin_length()*VEHICLE_STEPS_PER_TILE  ) {
-				target_rt.remove_koord_from(max(0,target_rt.get_count()-2));
-				stop_length -= ribi_t::is_bend(welt->lookup(target_rt.at(target_rt.get_count()-1))->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile: VEHICLE_STEPS_PER_TILE;
-			}
-		} 
-		else if(  !try_coupling  &&  !welt->get_settings().get_advance_to_end()  &&  target_rt.get_count()>2  &&  sig->get_margin_length()>0  ) {
-			// advance to end but with margin.
-			sint32 margin_length=sig->get_margin_length()*VEHICLE_STEPS_PER_TILE;
-			// this calculation is with margin length>0, so remove end tile first.
-			margin_length -= ribi_t::is_bend(welt->lookup(target_rt.at(target_rt.get_count()-1))->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile/2: VEHICLE_STEPS_PER_TILE;
-			target_rt.remove_koord_from(max(0,target_rt.get_count()-2));
-			while(  margin_length>0  ) {
-				margin_length -= ribi_t::is_bend(welt->lookup(target_rt.at(target_rt.get_count()-1))->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile: VEHICLE_STEPS_PER_TILE;
-				target_rt.remove_koord_from(max(0,target_rt.get_count()-2));
-			}
+		// no free route to target!
+		// note: any old reservations should be invalid after the block reserver call.
+		// => We can now start freshly all over
+
+		if(!cnv->is_waiting()&&!call_by_step) {
+			// we are in a sync_step->no calculate route, return
+			if(!try_coupling) {
+				// non coupling -> non stop(search new route to halt in step)
+				cnv->request_signal_check_in_step();
+			} // try_coupling -> must stop at signal
+			restart_speed = -1;
+			target_halt = halthandle_t();
+			return false;
 		}
-		// broadcast new route
-		convoihandle_t c = cnv->self;
-		while(  c.is_bound()  ) {
-			c->access_route()->remove_koord_from(start_block);
-			c->access_route()->append( &target_rt );
-			c = c->get_coupling_convoi();
-		}
-		// try to alloc the whole route
-		const bool reserver_result = block_reserver( cnv->get_route(), start_block+1, next_signal, next_crossing, 100000, true, false );
+		// we are in a step. calculate route.
+		// reset request
+		cnv->set_signal_check_in_step_request_invalid();
+		// now we are in a step and can use the route search array
+
+		// now it we are in a step and can use the route search
+		route_t target_rt;
+		const int richtung = ribi_type(cnv->get_route()->at(start_block),cnv->get_route()->at(start_block<cnv->get_route()->get_count()-1?start_block+1:start_block));	// to avoid confusion at diagonals
 		if(  try_coupling  ) {
-			uint16 next_coupling;
-			uint8 next_c_steps;
-			if(  !can_couple(cnv->get_route(), route_index, next_coupling, next_c_steps, true)  ||  next_coupling==route_t::INVALID_INDEX  ) {
-				dbg->error( "rail_vehicle_t::is_choose_signal_clear()", "could not find coupling point after find_route!" );
-				target_halt = halthandle_t();
-				sig->set_state( roadsign_t::STATE_RED );
-				restart_speed = 0;
-				return false;
+			// search for coupling point.
+			route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->is_electrification(), true, 0 );
+			cnv->set_use_electric(cnv->is_electrification());
+			if (  !route_found  ) {
+				route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->needs_electrification(), true, 0 );
+				if(  route_found  ) {
+					cnv->set_use_electric(false);
+				}
 			}
-			cnv->set_next_coupling(next_coupling, next_c_steps);
-			cnv->set_next_stop_index( min(next_crossing, next_coupling) );
-			sig->set_state( roadsign_t::STATE_GREEN );
-			return true;
 		}
-		else if(  !reserver_result  ) {
-			dbg->error( "rail_vehicle_t::is_choose_signal_clear()", "could not reserved route after find_route!" );
+		if(  !route_found  &&  (!sig->is_guide_signal()  ||  !try_coupling)  ) {
+			const uint8 margin_length=sig->get_margin_length();
+			route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->is_electrification(), false, margin_length );
+			cnv->set_use_electric(cnv->is_electrification());
+			if(  !route_found  ) {
+				route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), cnv->needs_electrification(), false, margin_length );
+				if(  route_found  ) {
+					cnv->set_use_electric(false);
+				}
+			}
+			try_coupling = false;
+		}
+		if(  !route_found  ) {
+			// nothing empty or not route with less than get_max_choose_route_steps() tiles
 			target_halt = halthandle_t();
 			sig->set_state( roadsign_t::STATE_RED );
 			restart_speed = 0;
 			return false;
 		}
+		else {
+			// if do not advance to end in this signal, we remove some advance tiles from target_rt
+			if(  !try_coupling  &&  !welt->get_settings().get_advance_to_end()  &&  target_rt.get_count()>2  &&  !sig->is_advance_to_end()  ) {
+				uint32 stop_length = convoi_t::calc_available_halt_length_in_vehicle_steps(target_rt.at(target_rt.get_count()-1),ribi_type(target_rt.at(target_rt.get_count()-1)-target_rt.at(target_rt.get_count()-2)),get_waytype());
+				stop_length -= ribi_t::is_bend(welt->lookup(target_rt.at(target_rt.get_count()-1))->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile/2: VEHICLE_STEPS_PER_TILE;
+				while(  stop_length>=cnv->get_entire_convoy_length()*VEHICLE_STEPS_PER_CARUNIT+sig->get_margin_length()*VEHICLE_STEPS_PER_TILE  ) {
+					target_rt.remove_koord_from(max(0,target_rt.get_count()-2));
+					stop_length -= ribi_t::is_bend(welt->lookup(target_rt.at(target_rt.get_count()-1))->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile: VEHICLE_STEPS_PER_TILE;
+				}
+			} 
+			else if(  !try_coupling  &&  !welt->get_settings().get_advance_to_end()  &&  target_rt.get_count()>2  &&  sig->get_margin_length()>0  ) {
+				// advance to end but with margin.
+				sint32 margin_length=sig->get_margin_length()*VEHICLE_STEPS_PER_TILE;
+				// this calculation is with margin length>0, so remove end tile first.
+				margin_length -= ribi_t::is_bend(welt->lookup(target_rt.at(target_rt.get_count()-1))->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile/2: VEHICLE_STEPS_PER_TILE;
+				target_rt.remove_koord_from(max(0,target_rt.get_count()-2));
+				while(  margin_length>0  ) {
+					margin_length -= ribi_t::is_bend(welt->lookup(target_rt.at(target_rt.get_count()-1))->get_weg(get_waytype())->get_ribi_unmasked())? diagonal_vehicle_steps_per_tile: VEHICLE_STEPS_PER_TILE;
+					target_rt.remove_koord_from(max(0,target_rt.get_count()-2));
+				}
+			}
+			// broadcast new route
+			convoihandle_t c = cnv->self;
+			while(  c.is_bound()  ) {
+				c->access_route()->remove_koord_from(start_block);
+				c->access_route()->append( &target_rt );
+				c = c->get_coupling_convoi();
+			}
+			// try to alloc the whole route
+			const bool reserver_result = block_reserver( cnv->get_route(), start_block+1, next_signal, next_crossing, 100000, true, false );
+			if(  try_coupling  ) {
+				uint16 next_coupling;
+				uint8 next_c_steps;
+				if(  !can_couple(cnv->get_route(), route_index, next_coupling, next_c_steps, true)  ||  next_coupling==route_t::INVALID_INDEX  ) {
+					dbg->error( "rail_vehicle_t::is_choose_signal_clear()", "could not find coupling point after find_route!" );
+					target_halt = halthandle_t();
+					sig->set_state( roadsign_t::STATE_RED );
+					restart_speed = 0;
+					return false;
+				}
+				cnv->set_next_coupling(next_coupling, next_c_steps);
+				cnv->set_next_stop_index( min(next_crossing, next_coupling) );
+				sig->set_state( roadsign_t::STATE_GREEN );
+				return true;
+			}
+			else if(  !reserver_result  ) {
+				dbg->error( "rail_vehicle_t::is_choose_signal_clear()", "could not reserved route after find_route!" );
+				target_halt = halthandle_t();
+				sig->set_state( roadsign_t::STATE_RED );
+				restart_speed = 0;
+				return false;
+			}
+		}
+		// reserved route to target
 	}
-	// reserved route to target
 	cnv->set_signal_check_in_step_request_invalid();
 	sig->set_state( roadsign_t::STATE_GREEN );
 	cnv->set_next_stop_index( min( next_crossing, next_signal ) );
