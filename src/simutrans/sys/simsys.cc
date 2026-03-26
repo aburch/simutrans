@@ -398,7 +398,7 @@ static inline bool is_regular_file(FILE *f)
 {
 	struct stat s;
 #ifdef _WIN32
-	if (_fstat(_fileno(f), (struct _stat*)%s) != 0) {
+	if (_fstat(_fileno(f), (struct _stat*)&s) != 0) {
 		return false;
 	}
 #else
