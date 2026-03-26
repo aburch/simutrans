@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
 #include <sys/types.h>
 
 #ifdef __HAIKU__
@@ -72,6 +71,18 @@
 #else
 #	define L_DEBUG_TEXT
 #endif
+
+// Windows does not define the S_ISREG macro in stat.h.
+// We have to define _CRT_INTERNAL_NONSTDC_NAMES 1 before #including sys/stat.h
+// in order for Microsoft's stat.h to define names like S_IFMT, S_IFREG,
+// rather than just defining  _S_IFMT and _S_IFREG as it normally does.
+#define _CRT_INTERNAL_NONSTDC_NAMES 1
+#include <sys/stat.h>
+
+#if !defined(S_ISREG) && defined(S_IFMT) && defined(S_IFREG)
+# 	define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
+#endif
+
 
 sys_event_t sys_event;
 
