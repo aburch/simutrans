@@ -1186,6 +1186,19 @@ public:
 	bool is_work_network_safe() const OVERRIDE { return true; }
 };
 
+class tool_only_own_vehicle_states_t : public tool_t {
+public:
+	tool_only_own_vehicle_states_t() : tool_t(TOOL_SHOW_ONLY_OWN_VEHICLE_STATES | SIMPLE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("only own vehicle states"); }
+	bool init( player_t * ) OVERRIDE {
+		env_t::show_only_own_vehicle_states^=1;
+		welt->set_dirty();
+		return false;
+	}
+	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_work_network_safe() const OVERRIDE { return true; }
+};
+
 class tool_money_messages_t : public tool_t {
 public:
 	tool_money_messages_t() : tool_t(TOOL_TOGGLE_MESSAGE | SIMPLE_TOOL) {}

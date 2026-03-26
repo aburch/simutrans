@@ -2093,7 +2093,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 		}
 	}
 	// something to show?
-	if(  tooltip_text[0]  ) {
+	if(  tooltip_text[0] && (!env_t::show_only_own_vehicle_states||welt->get_active_player()==cnv->get_owner())  ) {
 		const int raster_width = get_current_tile_raster_width();
 		get_screen_offset( xpos, ypos, raster_width );
 		xpos += tile_raster_scale_x(get_xoff(), raster_width);

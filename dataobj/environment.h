@@ -292,6 +292,9 @@ public:
 		MAX_SHOW_VEHICLE_STATES
 	};
 
+	/// show only own vehicles states
+	static bool show_only_own_vehicle_states;
+
 	static bool show_line_colors;
 	static bool show_convoy_loadinglevel;
 
