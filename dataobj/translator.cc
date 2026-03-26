@@ -205,7 +205,7 @@ void translator::load_custom_list( int lang, vector_tpl<char *>&name_list, const
 	// first try in pakset
 	{
 		string local_file_name(env_t::user_dir);
-		local_file_name = local_file_name + "addons/" + pakset_path + "text/" + fileprefix + langs[lang].iso_base + ".txt";
+		local_file_name = local_file_name + "addons/" + env_t::objfilename + "text/" + fileprefix + langs[lang].iso_base + ".txt";
 		DBG_DEBUG("translator::load_custom_list()", "try to read city name list from '%s'", local_file_name.c_str());
 		file = dr_fopen(local_file_name.c_str(), "rb");
 	}
@@ -218,8 +218,8 @@ void translator::load_custom_list( int lang, vector_tpl<char *>&name_list, const
 	}
 	// not found => try pak location
 	if(  file==NULL  ) {
-		string local_file_name(env_t::data_dir);
-		local_file_name = local_file_name + pakset_path + "text/" + fileprefix + langs[lang].iso_base + ".txt";
+		string local_file_name(env_t::pak_dir);
+		local_file_name = local_file_name + "text/" + fileprefix + langs[lang].iso_base + ".txt";
 		DBG_DEBUG("translator::load_custom_list()", "try to read city name list from '%s'", local_file_name.c_str());
 		file = dr_fopen(local_file_name.c_str(), "rb");
 	}
@@ -489,7 +489,9 @@ bool translator::load(const string &path_to_pakset)
 		dr_chdir( env_t::user_dir );
 		// now read the pakset specific text
 		// there can be more than one file per language, provided it is name like iso_xyz.tab
-		const string folderName("addons/" + path_to_pakset + "text/");
+		// use objfilename (always relative, e.g. "pak128/") instead of path_to_pakset
+		// which may be an absolute path when the pakset is read from install_dir
+		const string folderName("addons/" + env_t::objfilename + "text/");
 		load_files_from_folder(folderName.c_str(), "pak addons");
 		dr_chdir( env_t::data_dir );
 	}
@@ -512,7 +514,7 @@ bool translator::load(const string &path_to_pakset)
 	// also addon compatibility ...
 	if(  env_t::default_settings.get_with_private_paks()  ) {
 		dr_chdir( env_t::user_dir );
-		if (FILE* const file = dr_fopen(string("addons/"+path_to_pakset + "compat.tab").c_str(), "rb")) {
+		if (FILE* const file = dr_fopen(string("addons/" + env_t::objfilename + "compat.tab").c_str(), "rb")) {
 			load_language_file_body(file, &compatibility, false, false, false );
 			DBG_MESSAGE("translator::load()", "pakset addon compatibility texts loaded.");
 			fclose(file);
