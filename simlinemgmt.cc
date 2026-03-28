@@ -15,6 +15,7 @@
 
 #include "dataobj/schedule.h"
 #include "dataobj/loadsave.h"
+#include "dataobj/route_cache.h"
 
 #include "gui/schedule_list.h"
 
@@ -54,6 +55,8 @@ void simlinemgmt_t::delete_line(linehandle_t line)
 
 void simlinemgmt_t::update_line(linehandle_t line)
 {
+	// invalidate cached routes for this line since the schedule changed
+	world()->get_route_cache().remove_line(line);
 	// when a line is updated, all managed convoys must get the new schedule!
 	const int count = line->count_convoys();
 	for(  int i = 0;  i<count;  i++  ) {

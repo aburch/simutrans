@@ -22,6 +22,7 @@
 #include "dataobj/settings.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/rect.h"
+#include "dataobj/route_cache.h"
 
 #include "utils/checklist.h"
 #include "utils/sha1_hash.h"
@@ -124,6 +125,9 @@ public:
 	};
 
 private:
+	/// Route cache: maps (start, ziel, max_speed_kmh, need_electric) to a cached route_t.
+	route_cache_t route_cache;
+
 	/**
 	 * @name Map properties
 	 * Basic map properties are stored in this variables.
@@ -1166,6 +1170,8 @@ public:
 
 	void set_copy_convoi(convoihandle_t cnv) { copy_convoi = cnv; };
 	convoihandle_t get_copy_convoi() { return copy_convoi; }
+
+	route_cache_t& get_route_cache() { return route_cache; }
 
 private:
 	/**
