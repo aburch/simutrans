@@ -62,7 +62,8 @@ public:
 		CONVOI_PROFIT,             // total profit of this convoi
 		CONVOI_DISTANCE,           // total distance traveled this month
 		CONVOI_MAXSPEED,           // average max. possible speed
-		CONVOI_WAYTOLL,
+		CONVOI_WAYTOLL,			   // waytoll
+		CONVOI_TONKILO,			   // the amount of transported ware integrated by transported distance.
 		MAX_CONVOI_COST            // Total number of cost items
 	};
 

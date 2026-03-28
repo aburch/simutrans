@@ -24,7 +24,7 @@
 
 
 uint8 convoi_to_line_catgory_[convoi_t::MAX_CONVOI_COST] = {
-	LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_DISTANCE, LINE_MAXSPEED, LINE_WAYTOLL
+	LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_DISTANCE, LINE_MAXSPEED, LINE_WAYTOLL, LINE_TONKILO
 };
 
 
@@ -286,6 +286,7 @@ void simline_t::rdwr(loadsave_t *file)
 			financial_history[k][LINE_DISTANCE] = 0;
 			financial_history[k][LINE_MAXSPEED] = 0;
 			financial_history[k][LINE_WAYTOLL] = 0;
+			financial_history[k][LINE_TONKILO] = 0;
 		}
 	}
 	else if(  file->is_version_less(111, 1)  ) {
@@ -297,6 +298,7 @@ void simline_t::rdwr(loadsave_t *file)
 		for (size_t k = MAX_MONTHS; k-- != 0;) {
 			financial_history[k][LINE_MAXSPEED] = 0;
 			financial_history[k][LINE_WAYTOLL] = 0;
+			financial_history[k][LINE_TONKILO] = 0;
 		}
 	}
 	else if(  file->is_version_less(112, 8)  ) {
@@ -307,6 +309,17 @@ void simline_t::rdwr(loadsave_t *file)
 		}
 		for (size_t k = MAX_MONTHS; k-- != 0;) {
 			financial_history[k][LINE_WAYTOLL] = 0;
+			financial_history[k][LINE_TONKILO] = 0;
+		}
+	}
+	else if(  file->get_OTRP_version()<53  ) {
+		for (int j = 0; j<LINE_TONKILO; j++) {
+			for (size_t k = MAX_MONTHS; k-- != 0;) {
+				file->rdwr_longlong(financial_history[k][j]);
+			}
+		}
+		for (size_t k = MAX_MONTHS; k-- != 0;) {
+			financial_history[k][LINE_TONKILO] = 0;
 		}
 	}
 	else {

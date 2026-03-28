@@ -62,7 +62,8 @@ static const char *cost_type[MAX_LINE_COST] =
 	"Convoys",
 	"Distance",
 	"Maxspeed",
-	"Road toll"
+	"Road toll",
+	"Freight ton-kilo"
 };
 
 const uint8 cost_type_color[MAX_LINE_COST] =
@@ -75,7 +76,8 @@ const uint8 cost_type_color[MAX_LINE_COST] =
 	COL_CONVOI_COUNT,
 	COL_DISTANCE,
 	COL_MAXSPEED,
-	COL_TOLL
+	COL_TOLL,
+	COL_TONKILO
 };
 
 static uint8 tabs_to_lineindex[9];
@@ -90,7 +92,8 @@ static uint8 statistic[MAX_LINE_COST] = {
 	LINE_CONVOIS,
 	LINE_DISTANCE,
 	LINE_MAXSPEED,
-	LINE_WAYTOLL
+	LINE_WAYTOLL,
+	LINE_TONKILO
 };
 
 static uint8 statistic_type[MAX_LINE_COST] = {
@@ -102,7 +105,8 @@ static uint8 statistic_type[MAX_LINE_COST] = {
 	STANDARD,
 	STANDARD,
 	STANDARD,
-	MONEY
+	MONEY,
+	STANDARD
 };
 
 static uint8 copy_labels[3] = {

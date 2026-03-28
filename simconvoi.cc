@@ -780,6 +780,9 @@ void convoi_t::add_running_cost( const weg_t *weg )
 
 	sum_speed_limit += speed_to_kmh( min( min_top_speed, speed_limit ));
 	book( 1, CONVOI_DISTANCE );
+	for (uint16 i=0; i<anz_vehikel; i++) {
+		book( fahr[i]->get_total_cargo(), CONVOI_TONKILO );
+	}
 }
 
 
@@ -3128,6 +3131,7 @@ void convoi_t::rdwr(loadsave_t *file)
 			financial_history[k][CONVOI_DISTANCE] = 0;
 			financial_history[k][CONVOI_MAXSPEED] = 0;
 			financial_history[k][CONVOI_WAYTOLL] = 0;
+			financial_history[k][CONVOI_TONKILO] = 0;
 		}
 	}
 	else if(  file->is_version_less(102, 3)  ){
@@ -3141,6 +3145,7 @@ void convoi_t::rdwr(loadsave_t *file)
 			financial_history[k][CONVOI_DISTANCE] = 0;
 			financial_history[k][CONVOI_MAXSPEED] = 0;
 			financial_history[k][CONVOI_WAYTOLL] = 0;
+			financial_history[k][CONVOI_TONKILO] = 0;
 		}
 	}
 	else if(  file->is_version_less(111, 1)  ){
@@ -3153,6 +3158,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		for (size_t k = MAX_MONTHS; k-- != 0;) {
 			financial_history[k][CONVOI_MAXSPEED] = 0;
 			financial_history[k][CONVOI_WAYTOLL] = 0;
+			financial_history[k][CONVOI_TONKILO] = 0;
 		}
 	}
 	else if(  file->is_version_less(112, 8)  ){
@@ -3164,6 +3170,19 @@ void convoi_t::rdwr(loadsave_t *file)
 		}
 		for (size_t k = MAX_MONTHS; k-- != 0;) {
 			financial_history[k][CONVOI_WAYTOLL] = 0;
+			financial_history[k][CONVOI_TONKILO] = 0;
+		}
+	}
+	else if (  file->get_OTRP_version()<53  ) 
+	{
+		// load statistics
+		for (int j = 0; j<CONVOI_TONKILO; j++) {
+			for (size_t k = MAX_MONTHS; k-- != 0;) {
+				file->rdwr_longlong(financial_history[k][j]);
+			}
+		}
+		for (size_t k = MAX_MONTHS; k-- != 0;) {
+			financial_history[k][CONVOI_TONKILO] = 0;
 		}
 	}
 	else
