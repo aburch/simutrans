@@ -1143,7 +1143,7 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 	else if(comp == &bt_reset_coupling) {
 		if(!schedule->empty()) {
 			schedule->at(schedule->get_current_stop()).reset_coupling();
-			schedule->at(schedule->get_current_stop()).set_uncouple_child(true);
+			schedule->at(schedule->get_current_stop()).set_uncouple_child(false);
 			update_selection();
 		}
 	}
