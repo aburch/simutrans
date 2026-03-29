@@ -71,9 +71,10 @@ void weg_t::set_cityroad_speedlimit(uint16 new_limit)
 		for(weg_t *w : alle_wege) {
 			if(  w->hat_gehweg()  &&  w->get_waytype() == road_wt  ) {
 				if (const way_desc_t* desc = w->get_desc()) {
-					w->set_max_speed(max(desc->get_topspeed(), cityroad_speed));
+					w->set_max_speed(min(desc->get_topspeed(), cityroad_speed));
 				}
 				else {
+					// should never occur ???
 					w->set_max_speed(cityroad_speed);
 				}
 			}

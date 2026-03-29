@@ -68,7 +68,7 @@ void strasse_t::rdwr(loadsave_t *file)
 			set_max_speed(old_max_speed);
 		}
 		if(hat_gehweg()) {
-			set_max_speed(max(desc->get_topspeed(),weg_t::get_cityroad_speedlimit()));
+			set_max_speed(min(desc->get_topspeed(),weg_t::get_cityroad_speedlimit()));
 		}
 	}
 }

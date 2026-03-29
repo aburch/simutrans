@@ -2724,13 +2724,13 @@ void way_builder_t::build_road()
 				player_t::add_maintenance(s, -weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype());
 				// cost is the more expensive one, so downgrading is between removing and new building
 				cost -= max( weg->get_desc()->get_price(), desc->get_price() );
+				weg->set_gehweg(add_sidewalk);
 				weg->set_desc(desc);
 				// respect max speed of catenary
 				wayobj_t const* const wo = gr->get_wayobj(desc->get_wtyp());
 				if (wo  &&  wo->get_desc()->get_topspeed() < weg->get_max_speed()) {
 					weg->set_max_speed( wo->get_desc()->get_topspeed() );
 				}
-				weg->set_gehweg(add_sidewalk);
 				player_t::add_maintenance( player_builder, weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype());
 				weg->set_owner(player_builder);
 				if (crossing_t* crossing = gr->get_crossing()) {
@@ -2742,8 +2742,8 @@ void way_builder_t::build_road()
 			// make new way
 			strasse_t * str = new strasse_t();
 
-			str->set_desc(desc);
 			str->set_gehweg(add_sidewalk);
+			str->set_desc(desc);
 			cost = -gr->neuen_weg_bauen(str, route.get_short_ribi(i), player_builder)-desc->get_price();
 
 			// into UNDO-list, so we can remove it later

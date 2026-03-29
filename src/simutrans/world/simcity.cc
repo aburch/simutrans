@@ -2934,7 +2934,8 @@ bool update_city_street(koord pos)
 // !!! We should take the bulding size into consideration, missing!!!
 	const way_desc_t* cr = world()->get_city_road();
 	for(  int i=0;  i<8;  i++  ) {
-		if(  grund_t *gr = world()->lookup_kartenboden(pos+neighbors[i])  ) {
+		koord check_pos = pos + neighbors[i];
+		if(  grund_t *gr = world()->lookup_kartenboden(check_pos)) {
 			if(  weg_t* const weg = gr->get_weg(road_wt)  ) {
 				// Check if any changes are needed.
 				if(  !weg->hat_gehweg()  ||  weg->get_desc() != cr  ) {
@@ -2946,7 +2947,7 @@ bool update_city_street(koord pos)
 					weg->set_gehweg(true);
 					weg->set_desc(cr);
 					gr->calc_image();
-					minimap_t::get_instance()->calc_map_pixel(pos+neighbors[i]);
+					minimap_t::get_instance()->calc_map_pixel(check_pos);
 					return true; // update only one road per renovation
 				}
 			}
@@ -3427,10 +3428,21 @@ void stadt_t::build_city_building(koord k_org)
 	rotation = orient_city_building( k, h, max_size );
 	grund_t *gr = welt->lookup_kartenboden_nocheck(k);
 	koord3d base_pos = koord3d(k, gr->get_hoehe() + slope_t::max_diff(gr->get_grund_hang()));
-	build_city_house(base_pos, h, rotation, cl, &exclude_desc);
+	const gebaeude_t* gb = build_city_house(base_pos, h, rotation, cl, &exclude_desc);
 
-	// to be extended for larger building ...
-	update_city_street(k);
+	if (gb) {
+		// more tests for larger building ...
+		koord sz = gb->get_tile()->get_desc()->get_size(gb->get_tile()->get_layout());
+		for (sint16 x = 0; x < sz.x; x++) {
+			for (sint16 y = 0; y < sz.y; y++) {
+				update_city_street(gb->get_pos().get_2d() + koord(x, y));
+			}
+		}
+	}
+	else {
+		// just check city roads
+		update_city_street(k);
+	}
 }
 
 
@@ -3561,7 +3573,20 @@ bool stadt_t::renovate_city_building(gebaeude_t *gb)
 		}
 
 		int rotation2 = orient_city_building(k, h, max_size);
-		build_city_house(koord3d(k, base_pos.z), h, rotation2, cl, &exclude_desc);
+		const gebaeude_t *gb= build_city_house(koord3d(k, base_pos.z), h, rotation2, cl, &exclude_desc);
+		if (gb) {
+			// more tests for larger building ...
+			koord sz = gb->get_tile()->get_desc()->get_size(gb->get_tile()->get_layout());
+			for (sint16 x = 0; x < sz.x; x++) {
+				for (sint16 y = 0; y < sz.y; y++) {
+					update_city_street(gb->get_pos().get_2d() + koord(x, y));
+				}
+			}
+		}
+		else {
+			// just check city roads
+			update_city_street(k);
+		}
 
 		recalc_city_size();
 	}
