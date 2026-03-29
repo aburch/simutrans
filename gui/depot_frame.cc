@@ -83,6 +83,14 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	scrolly_electrics(&electrics),
 	scrolly_loks(&loks),
 	scrolly_waggons(&waggons),
+	tram_pas(&tram_pas_vec),
+	tram_electrics(&tram_electrics_vec),
+	tram_loks(&tram_loks_vec),
+	tram_waggons(&tram_waggons_vec),
+	scrolly_tram_pas(&tram_pas),
+	scrolly_tram_electrics(&tram_electrics),
+	scrolly_tram_loks(&tram_loks),
+	scrolly_tram_waggons(&tram_waggons),
 	line_selector(line_scrollitem_t::compare),
 	lb_vehicle_filter("Filter:", SYSCOL_TEXT, gui_label_t::right)
 {
@@ -243,6 +251,18 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	waggons.set_player_nr(depot->get_owner_nr());
 	waggons.add_listener(this);
 
+	tram_pas.set_player_nr(depot->get_owner_nr());
+	tram_pas.add_listener(this);
+
+	tram_electrics.set_player_nr(depot->get_owner_nr());
+	tram_electrics.add_listener(this);
+
+	tram_loks.set_player_nr(depot->get_owner_nr());
+	tram_loks.add_listener(this);
+
+	tram_waggons.set_player_nr(depot->get_owner_nr());
+	tram_waggons.add_listener(this);
+
 	add_component(&tabs);
 	add_component(&div_tabbottom);
 	add_component(&lb_veh_action);
@@ -263,6 +283,13 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	bt_show_all.set_tooltip("Show also vehicles that do not match for current action.");
 	bt_show_all.pressed = show_all;
 	add_component(&bt_show_all);
+
+	bt_show_tram.set_typ(button_t::square_state);
+	bt_show_tram.set_text("Show tram");
+	bt_show_tram.add_listener(this);
+	bt_show_tram.set_tooltip("Switch between track and tram vehicle tabs.");
+	bt_show_tram.pressed = false;
+	add_component(&bt_show_tram);
 
 	bt_obsolete.set_typ(button_t::square_state);
 	bt_obsolete.set_text("Show obsolete");
@@ -320,6 +347,15 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	scrolly_waggons.set_scrollbar_mode   ( scrollbar_t::show_disabled );
 	scrolly_waggons.set_size_corner(false);
 
+	scrolly_tram_pas.set_scrollbar_mode      ( scrollbar_t::show_disabled );
+	scrolly_tram_pas.set_size_corner(false);
+	scrolly_tram_electrics.set_scrollbar_mode( scrollbar_t::show_disabled );
+	scrolly_tram_electrics.set_size_corner(false);
+	scrolly_tram_loks.set_scrollbar_mode     ( scrollbar_t::show_disabled );
+	scrolly_tram_loks.set_size_corner(false);
+	scrolly_tram_waggons.set_scrollbar_mode  ( scrollbar_t::show_disabled );
+	scrolly_tram_waggons.set_size_corner(false);
+
 	layout(&size);
 	gui_frame_t::set_windowsize(size);
 	set_resizemode( diagonal_resize );
@@ -335,6 +371,10 @@ depot_frame_t::~depot_frame_t()
 	clear_ptr_vector(electrics_vec);
 	clear_ptr_vector(loks_vec);
 	clear_ptr_vector(waggons_vec);
+	clear_ptr_vector(tram_pas_vec);
+	clear_ptr_vector(tram_electrics_vec);
+	clear_ptr_vector(tram_loks_vec);
+	clear_ptr_vector(tram_waggons_vec);
 }
 
 
@@ -648,6 +688,46 @@ void depot_frame_t::layout(scr_size *size)
 	scrolly_waggons.set_scroll_discrete_y(false);
 	scrolly_waggons.set_size_corner(false);
 
+	tram_pas.set_grid(grid);
+	tram_pas.set_placement(placement);
+	tram_pas.set_size(tabs.get_size() - scr_size(D_SCROLLBAR_WIDTH, 0));
+	tram_pas.recalc_size();
+	tram_pas.set_pos(scr_coord(0, 0));
+	scrolly_tram_pas.set_size(scrolly_tram_pas.get_size());
+	scrolly_tram_pas.set_scroll_amount_y(grid.y);
+	scrolly_tram_pas.set_scroll_discrete_y(false);
+	scrolly_tram_pas.set_size_corner(false);
+
+	tram_electrics.set_grid(grid);
+	tram_electrics.set_placement(placement);
+	tram_electrics.set_size(tabs.get_size() - scr_size(D_SCROLLBAR_WIDTH, 0));
+	tram_electrics.recalc_size();
+	tram_electrics.set_pos(scr_coord(0, 0));
+	scrolly_tram_electrics.set_size(scrolly_tram_electrics.get_size());
+	scrolly_tram_electrics.set_scroll_amount_y(grid.y);
+	scrolly_tram_electrics.set_scroll_discrete_y(false);
+	scrolly_tram_electrics.set_size_corner(false);
+
+	tram_loks.set_grid(grid);
+	tram_loks.set_placement(placement);
+	tram_loks.set_size(tabs.get_size() - scr_size(D_SCROLLBAR_WIDTH, 0));
+	tram_loks.recalc_size();
+	tram_loks.set_pos(scr_coord(0, 0));
+	scrolly_tram_loks.set_size(scrolly_tram_loks.get_size());
+	scrolly_tram_loks.set_scroll_amount_y(grid.y);
+	scrolly_tram_loks.set_scroll_discrete_y(false);
+	scrolly_tram_loks.set_size_corner(false);
+
+	tram_waggons.set_grid(grid);
+	tram_waggons.set_placement(placement);
+	tram_waggons.set_size(tabs.get_size() - scr_size(D_SCROLLBAR_WIDTH, 0));
+	tram_waggons.recalc_size();
+	tram_waggons.set_pos(scr_coord(0, 0));
+	scrolly_tram_waggons.set_size(scrolly_tram_waggons.get_size());
+	scrolly_tram_waggons.set_scroll_amount_y(grid.y);
+	scrolly_tram_waggons.set_scroll_discrete_y(false);
+	scrolly_tram_waggons.set_size_corner(false);
+
 	div_tabbottom.set_pos(scr_coord(0, PANEL_VSTART + PANEL_HEIGHT));
 	div_tabbottom.set_width(win_size.w);
 
@@ -684,6 +764,9 @@ void depot_frame_t::layout(scr_size *size)
 
 	bt_show_all.set_pos(scr_coord(D_MARGIN_LEFT, INFO_VSTART + (D_BUTTON_HEIGHT + D_V_SPACE)*2));
 //	bt_show_all.align_to(&sort_by, ALIGN_CENTER_TOP); Comboboxes change height when openen!!!
+
+	bt_show_tram.set_pos(scr_coord(D_MARGIN_LEFT + BUTTON_WIDTH_DEPOT + D_H_SPACE, INFO_VSTART + (D_BUTTON_HEIGHT + D_V_SPACE)*2));
+	bt_show_tram.set_visible(depot->get_secondary_waytype() != invalid_wt);
 
 	div_action_bottom.set_pos(scr_coord(0, INFO_VSTART + (D_BUTTON_HEIGHT + D_V_SPACE) * 3));
 	div_action_bottom.set_width(win_size.w);
@@ -729,8 +812,8 @@ bool depot_frame_t::is_in_vehicle_list(const vehicle_desc_t *info)
 }
 
 
-// add a single vehicle (helper function)
-void depot_frame_t::add_to_vehicle_list(const vehicle_desc_t *info)
+// add a single vehicle (helper function). is_secondary=true routes to tram tabs.
+void depot_frame_t::add_to_vehicle_list(const vehicle_desc_t *info, bool is_secondary)
 {
 	// Check if vehicle should be filtered
 	const goods_desc_t *freight = info->get_freight_type();
@@ -764,21 +847,39 @@ void depot_frame_t::add_to_vehicle_list(const vehicle_desc_t *info)
 
 	gui_image_list_t::image_data_t* img_data = new gui_image_list_t::image_data_t(info->get_name(), info->get_base_image());
 
-	if(  info->get_engine_type() == vehicle_desc_t::electric  &&  (info->get_freight_type()==goods_manager_t::passengers  ||  info->get_freight_type()==goods_manager_t::mail)  ) {
-		electrics_vec.append(img_data);
-	}
-	// since they come "pre-sorted" from the vehikelbauer, we have to do nothing to keep them sorted
-	else if(info->get_freight_type() == goods_manager_t::passengers  ||  info->get_freight_type() == goods_manager_t::mail) {
-		pas_vec.append(img_data);
-	}
-	else if(info->get_power() > 0  ||  info->get_capacity()==0) {
-		loks_vec.append(img_data);
+	if(  is_secondary  ) {
+		// Route to tram (secondary waytype) tabs
+		if(  info->get_engine_type() == vehicle_desc_t::electric  &&  (info->get_freight_type()==goods_manager_t::passengers  ||  info->get_freight_type()==goods_manager_t::mail)  ) {
+			tram_electrics_vec.append(img_data);
+		}
+		else if(info->get_freight_type() == goods_manager_t::passengers  ||  info->get_freight_type() == goods_manager_t::mail) {
+			tram_pas_vec.append(img_data);
+		}
+		else if(info->get_power() > 0  ||  info->get_capacity()==0) {
+			tram_loks_vec.append(img_data);
+		}
+		else {
+			tram_waggons_vec.append(img_data);
+		}
+		tram_vehicle_map.set(info, img_data);
 	}
 	else {
-		waggons_vec.append(img_data);
+		if(  info->get_engine_type() == vehicle_desc_t::electric  &&  (info->get_freight_type()==goods_manager_t::passengers  ||  info->get_freight_type()==goods_manager_t::mail)  ) {
+			electrics_vec.append(img_data);
+		}
+		// since they come "pre-sorted" from the vehikelbauer, we have to do nothing to keep them sorted
+		else if(info->get_freight_type() == goods_manager_t::passengers  ||  info->get_freight_type() == goods_manager_t::mail) {
+			pas_vec.append(img_data);
+		}
+		else if(info->get_power() > 0  ||  info->get_capacity()==0) {
+			loks_vec.append(img_data);
+		}
+		else {
+			waggons_vec.append(img_data);
+		}
+		// add reference to map
+		vehicle_map.set(info, img_data);
 	}
-	// add reference to map
-	vehicle_map.set(info, img_data);
 }
 
 // add all current vehicles
@@ -799,8 +900,13 @@ void depot_frame_t::build_vehicle_lists()
 	clear_ptr_vector(electrics_vec);
 	clear_ptr_vector(loks_vec);
 	clear_ptr_vector(waggons_vec);
-	// clear map
+	clear_ptr_vector(tram_pas_vec);
+	clear_ptr_vector(tram_electrics_vec);
+	clear_ptr_vector(tram_loks_vec);
+	clear_ptr_vector(tram_waggons_vec);
+	// clear maps
 	vehicle_map.clear();
+	tram_vehicle_map.clear();
 
 	// we do not allow to built electric vehicle in a depot without electrification
 	const waytype_t wt = depot->get_waytype();
@@ -827,11 +933,16 @@ void depot_frame_t::build_vehicle_lists()
 		}
 	}
 
+	const waytype_t sec_wt = depot->get_secondary_waytype();
+
 	// use this to show only sellable vehicles
 	if(!show_all  &&  veh_action==va_sell) {
 		// just list the one to sell
 		FOR(vector_tpl<vehicle_desc_t const*>, const info, typ_list) {
 			if (vehicle_map.get(info)) continue;
+			if (tram_vehicle_map.get(info)) continue;
+			// tram vehicles in sell mode are handled by the secondary loop below
+			if (sec_wt != invalid_wt  &&  info->get_waytype() == sec_wt) continue;
 			add_to_vehicle_list(info);
 		}
 	}
@@ -866,16 +977,56 @@ void depot_frame_t::build_vehicle_lists()
 			}
 		}
 	}
+
+	// Load secondary waytype vehicles (e.g. tram vehicles in track depot)
+	if(  sec_wt != invalid_wt  ) {
+		convoihandle_t cnv = depot->get_convoi(icnv);
+		const vehicle_desc_t *veh = NULL;
+		if(  cnv.is_bound()  &&  cnv->get_vehicle_count() > 0  ) {
+			veh = (veh_action == va_insert ? cnv->front() : cnv->back())->get_desc();
+		}
+
+		if(  !show_all  &&  veh_action == va_sell  ) {
+			// show only stored secondary vehicles
+			FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
+				if(  v->get_waytype() != sec_wt  ) continue;
+				vehicle_desc_t const* const d = v->get_desc();
+				if(  tram_vehicle_map.get(d)  ) continue;
+				add_to_vehicle_list(d, true);
+			}
+		}
+		else {
+			slist_tpl<const vehicle_desc_t*> const& tram_list = vehicle_builder_t::get_info(sec_wt, sort_by_action);
+			for(  slist_tpl<const vehicle_desc_t*>::const_iterator itr = tram_list.begin();  itr != tram_list.end();  ++itr  ) {
+				const vehicle_desc_t *info = *itr;
+				if(  tram_vehicle_map.get(info)  ) continue;
+				if(  is_in_vehicle_list(info)  ||
+					((weg_electrified  ||  info->get_engine_type() != vehicle_desc_t::electric)  &&
+					 (!info->is_future(month_now))  &&  (show_retired_vehicles  ||  !info->is_retired(month_now))  )  ) {
+					bool append = true;
+					if(  !show_all  ) {
+						if(  veh_action == va_insert  ) {
+							append = info->can_lead(veh)  &&  (veh==NULL  ||  veh->can_follow(info));
+						}
+						else if(  veh_action == va_append  ) {
+							append = info->can_follow(veh)  &&  (veh==NULL  ||  veh->can_lead(info));
+						}
+					}
+					if(  append  ) {
+						if(  depot->get_name_filter()[0]==0  ||  (utf8caseutf8(info->get_name(), name_filter_value)  ||  utf8caseutf8(translator::translate(info->get_name()), name_filter_value))  ) {
+							add_to_vehicle_list(info, true);
+						}
+					}
+				}
+			}
+		}
+	}
+
 DBG_DEBUG("depot_frame_t::build_vehicle_lists()","finally %i passenger vehicle, %i  engines, %i good wagons",pas_vec.get_count(),loks_vec.get_count(),waggons_vec.get_count());
 	update_data();
 	update_tabs();
 }
 
-
-static void get_line_list(const depot_t* depot, vector_tpl<linehandle_t>* lines)
-{
-	depot->get_owner()->simlinemgmt.get_lines(depot->get_line_type(), lines);
-}
 
 
 void depot_frame_t::update_data()
@@ -958,8 +1109,10 @@ void depot_frame_t::update_data()
 	if( cnv.is_bound() && !is_shown_convoy_coupled && cnv->get_schedule() && cnv->get_schedule()->get_count()==1) {
 		if( grund_t *gr_depot = welt->lookup(cnv->get_schedule()->at(0).pos) ) {
 			if( depot_t *dep=gr_depot->get_depot() ) {
-				// this convoy will be teleported to another depot
-				is_teleport_to_another_depot = true;
+				if(dep->can_accept_waytype(cnv->front()->get_desc()->get_waytype())) {
+					// this convoy will be teleported to another depot
+					is_teleport_to_another_depot = true;
+				}
 			}
 		}
 	}
@@ -987,8 +1140,14 @@ void depot_frame_t::update_data()
 		for(  unsigned i=0;  i < cnv->get_vehicle_count();  i++  ) {
 			// just make sure, there is this vehicle also here!
 			const vehicle_desc_t *info=cnv->get_vehikel(i)->get_desc();
-			if(  vehicle_map.get( info ) == NULL  ) {
-				add_to_vehicle_list( info );
+			if(  vehicle_map.get( info ) == NULL  &&  tram_vehicle_map.get( info ) == NULL  ) {
+				// Add to appropriate list based on waytype
+				if(  depot->get_secondary_waytype() != invalid_wt  &&  info->get_waytype() == depot->get_secondary_waytype()  ) {
+					add_to_vehicle_list( info, true );
+				}
+				else {
+					add_to_vehicle_list( info );
+				}
 			}
 
 			gui_image_list_t::image_data_t* img_data = new gui_image_list_t::image_data_t(info->get_name(), info->get_base_image());
@@ -1085,9 +1244,83 @@ void depot_frame_t::update_data()
 		}
 	}
 
+	// Waytype guard: if the active convoy has tram vehicles, all track vehicles become red (no mixing)
+	if(  depot->get_secondary_waytype() != invalid_wt  &&  veh  &&  veh->get_waytype() == depot->get_secondary_waytype()  ) {
+		FOR(vehicle_image_map, const& i, vehicle_map) {
+			i.value->lcolor = color_idx_to_rgb(COL_RED);
+			i.value->rcolor = color_idx_to_rgb(COL_RED);
+		}
+	}
+
+	// Color bars for tram (secondary waytype) vehicles
+	if(  depot->get_secondary_waytype() != invalid_wt  ) {
+		const bool track_convoy_active = veh  &&  veh->get_waytype() != depot->get_secondary_waytype();
+		FOR(vehicle_image_map, const& i, tram_vehicle_map) {
+			vehicle_desc_t const* const    info = i.key;
+			gui_image_list_t::image_data_t& img  = *i.value;
+			const PIXVAL ok_color = info->is_available(month_now) ? color_idx_to_rgb(COL_GREEN) : gui_theme_t::gui_color_obsolete;
+
+			img.count = 0;
+			img.lcolor = ok_color;
+			img.rcolor = ok_color;
+
+			// No mixing: if a track convoy is active, all tram vehicles are red
+			// Also: replacement seed must only contain vehicles of the depot's primary waytype
+			if(  track_convoy_active  ||  (cnv.is_bound()  &&  cnv == depot->get_replacement_seed())  ) {
+				img.lcolor = color_idx_to_rgb(COL_RED);
+				img.rcolor = color_idx_to_rgb(COL_RED);
+			}
+			else if(veh_action == va_insert) {
+				if(!info->can_lead(veh)  ||  (veh  &&  !veh->can_follow(info))) {
+					img.lcolor = color_idx_to_rgb(COL_RED);
+					img.rcolor = color_idx_to_rgb(COL_RED);
+				}
+				else if(!info->can_follow(NULL)) {
+					img.lcolor = color_idx_to_rgb(COL_YELLOW);
+				}
+			}
+			else if(veh_action == va_append) {
+				if(!info->can_follow(veh)  ||  (veh  &&  !veh->can_lead(info))) {
+					img.lcolor = color_idx_to_rgb(COL_RED);
+					img.rcolor = color_idx_to_rgb(COL_RED);
+				}
+				else if(!info->can_lead(NULL)) {
+					img.rcolor = color_idx_to_rgb(COL_YELLOW);
+				}
+			}
+			else if( veh_action == va_sell ) {
+				img.lcolor = color_idx_to_rgb(COL_RED);
+				img.rcolor = color_idx_to_rgb(COL_RED);
+			}
+			else if(  veh_action == va_set_offset  ) {
+				if(  rep.get_offset(info->get_name())==rep.get_default_offset()  ) {
+					img.lcolor = color_idx_to_rgb(COL_RED);
+					img.rcolor = color_idx_to_rgb(COL_RED);
+				} else if(  rep.get_offset(info->get_name())!=koord(0,0)  ) {
+					img.lcolor = color_idx_to_rgb(COL_YELLOW);
+					img.rcolor = color_idx_to_rgb(COL_YELLOW);
+				}
+			}
+			else if(  veh_action == va_cancel_offset  ) {
+				if(  rep.get_offset(info->get_name())==koord(0,0)  ) {
+					img.lcolor = color_idx_to_rgb(COL_RED);
+					img.rcolor = color_idx_to_rgb(COL_RED);
+				}
+			}
+		}
+	}
+
 	FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
 		// can fail, if currently not visible
 		if (gui_image_list_t::image_data_t* const imgdat = vehicle_map.get(v->get_desc())) {
+			imgdat->count++;
+			if(veh_action == va_sell) {
+				imgdat->lcolor = color_idx_to_rgb(COL_GREEN);
+				imgdat->rcolor = color_idx_to_rgb(COL_GREEN);
+			}
+		}
+		// also update tram vehicle storage counts
+		if (gui_image_list_t::image_data_t* const imgdat = tram_vehicle_map.get(v->get_desc())) {
 			imgdat->count++;
 			if(veh_action == va_sell) {
 				imgdat->lcolor = color_idx_to_rgb(COL_GREEN);
@@ -1099,18 +1332,25 @@ void depot_frame_t::update_data()
 	// update the line selector
 	line_selector.clear_elements();
 
+	// Determine the effective line type based on the current convoy's waytype.
+	// A tram convoy in a track depot should see tram lines, not train lines.
+	simline_t::linetype effective_line_type = depot->get_line_type();
+	if(  cnv.is_bound()  &&  cnv->get_vehicle_count() > 0  ) {
+		effective_line_type = simline_t::waytype_to_linetype( cnv->front()->get_desc()->get_waytype() );
+	}
+
 	if(  !last_selected_line.is_bound()  ) {
 		// new line may have a valid line now
 		last_selected_line = selected_line;
 		// if still nothing, resort to line management dialoge
 		if(  !last_selected_line.is_bound()  ) {
 			// try last specific line
-			last_selected_line = schedule_list_gui_t::selected_line[ depot->get_owner()->get_player_nr() ][ depot->get_line_type() ];
+			last_selected_line = schedule_list_gui_t::selected_line[ depot->get_owner()->get_player_nr() ][ effective_line_type ];
 		}
 		if(  !last_selected_line.is_bound()  ) {
 			// try last general line
 			last_selected_line = schedule_list_gui_t::selected_line[ depot->get_owner()->get_player_nr() ][ 0 ];
-			if(  last_selected_line.is_bound()  &&  last_selected_line->get_linetype() != depot->get_line_type()  ) {
+			if(  last_selected_line.is_bound()  &&  last_selected_line->get_linetype() != effective_line_type  ) {
 				last_selected_line = linehandle_t();
 			}
 		}
@@ -1143,7 +1383,7 @@ void depot_frame_t::update_data()
 		selected_line = cnv->get_line();
 	}
 	vector_tpl<linehandle_t> lines;
-	get_line_list(depot, &lines);
+	depot->get_owner()->simlinemgmt.get_lines(effective_line_type, &lines);
 	line_selector.set_selection( 0 );
 	FOR(  vector_tpl<linehandle_t>,  const line,  lines  ) {
 		line_selector.new_component<line_scrollitem_t>(line) ;
@@ -1587,6 +1827,18 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 		else if(  comp == &waggons  &&  last_meta_event_get_class() != EVENT_DOUBLE_CLICK  ) {
 			image_from_storage_list(waggons_vec[p.i]);
 		}
+		else if(  comp == &tram_pas  &&  last_meta_event_get_class() != EVENT_DOUBLE_CLICK  ) {
+			image_from_storage_list(tram_pas_vec[p.i]);
+		}
+		else if(  comp == &tram_electrics  &&  last_meta_event_get_class() != EVENT_DOUBLE_CLICK  ) {
+			image_from_storage_list(tram_electrics_vec[p.i]);
+		}
+		else if(  comp == &tram_loks  &&  last_meta_event_get_class() != EVENT_DOUBLE_CLICK  ) {
+			image_from_storage_list(tram_loks_vec[p.i]);
+		}
+		else if(  comp == &tram_waggons  &&  last_meta_event_get_class() != EVENT_DOUBLE_CLICK  ) {
+			image_from_storage_list(tram_waggons_vec[p.i]);
+		}
 		else if(  comp == &bt_remove_all_vehicles  ) {
 			depot->call_depot_tool(event_get_last_control_shift()==2?'D':'d', cnv, NULL);
 		}
@@ -1600,6 +1852,11 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			show_all = (show_all == 0);
 			bt_show_all.pressed = show_all;
 			depot_t::update_all_win();
+		}
+		else if(  comp == &bt_show_tram  ) {
+			bt_show_tram.pressed = !bt_show_tram.pressed;
+			build_vehicle_lists();
+			return true;
 		}
 		else if(  comp == &bt_sell_all  ) {
 			depot->call_depot_tool('S', convoihandle_t(), NULL);
@@ -1925,11 +2182,15 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 	cbuffer_t buf;
 
 	gui_component_t const* const tab = tabs.get_aktives_tab();
-	gui_image_list_t const* const lst =
-		tab == &scrolly_pas       ? &pas       :
-		tab == &scrolly_electrics ? &electrics :
-		tab == &scrolly_loks      ? &loks      :
-		&waggons;
+	gui_image_list_t const* lst;
+	if      (tab == &scrolly_pas)            lst = &pas;
+	else if (tab == &scrolly_electrics)      lst = &electrics;
+	else if (tab == &scrolly_loks)           lst = &loks;
+	else if (tab == &scrolly_tram_pas)       lst = &tram_pas;
+	else if (tab == &scrolly_tram_electrics) lst = &tram_electrics;
+	else if (tab == &scrolly_tram_loks)      lst = &tram_loks;
+	else if (tab == &scrolly_tram_waggons)   lst = &tram_waggons;
+	else                                     lst = &waggons;
 	int x = get_mouse_x();
 	int y = get_mouse_y();
 	double resale_value = -1.0;
@@ -1941,7 +2202,15 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 
 	if(  (sel_index != -1)  &&  (tabs.getroffen(x - pos.x, y - pos.y - D_TITLEBAR_HEIGHT))  ) {
 		// cursor over a vehicle in the selection list
-		const vector_tpl<gui_image_list_t::image_data_t*>& vec = (lst == &electrics ? electrics_vec : (lst == &pas ? pas_vec : (lst == &loks ? loks_vec : waggons_vec)));
+		const vector_tpl<gui_image_list_t::image_data_t*>& vec =
+			lst == &electrics      ? electrics_vec      :
+			lst == &pas            ? pas_vec            :
+			lst == &loks           ? loks_vec           :
+			lst == &tram_pas       ? tram_pas_vec       :
+			lst == &tram_electrics ? tram_electrics_vec :
+			lst == &tram_loks      ? tram_loks_vec      :
+			lst == &tram_waggons   ? tram_waggons_vec   :
+			waggons_vec;
 		veh_type = vehicle_builder_t::get_info( vec[sel_index]->text );
 		if(  vec[sel_index]->lcolor == color_idx_to_rgb(COL_RED)  ||  veh_action == va_sell  ) {
 			// don't show new_vehicle_length_sb when can't actually add the highlighted vehicle, or selling from inventory
@@ -2090,35 +2359,45 @@ void depot_frame_t::update_tabs()
 	tabs.clear();
 
 	bool one = false;
+	const bool show_tram_tabs = depot->get_secondary_waytype() != invalid_wt  &&  bt_show_tram.pressed;
 
-	// add only if there are any trolleybuses
-	if(  !electrics_vec.empty()  ) {
-		tabs.add_tab(&scrolly_electrics, translator::translate( depot->get_electrics_name() ) );
-		one = true;
+	if(  !show_tram_tabs  ) {
+		// Track (primary) vehicle tabs
+		if(  !electrics_vec.empty()  ) {
+			tabs.add_tab(&scrolly_electrics, translator::translate( depot->get_electrics_name() ) );
+			one = true;
+		}
+		if(  !pas_vec.empty()  ) {
+			tabs.add_tab(&scrolly_pas, translator::translate( depot->get_passenger_name() ) );
+			one = true;
+		}
+		if(  !loks_vec.empty()  ||  !waggons_vec.empty()  ) {
+			tabs.add_tab(&scrolly_loks, translator::translate( depot->get_zieher_name() ) );
+			one = true;
+		}
+		if(  !waggons_vec.empty()  ) {
+			tabs.add_tab(&scrolly_waggons, translator::translate( depot->get_haenger_name() ) );
+			one = true;
+		}
 	}
-
-	// add only if there are any
-	if(  !pas_vec.empty()  ) {
-		tabs.add_tab(&scrolly_pas, translator::translate( depot->get_passenger_name() ) );
-		one = true;
-	}
-
-/* 	// add only if there are any trolleybuses
-	if(  !electrics_vec.empty()  ) {
-		tabs.add_tab(&scrolly_electrics, translator::translate( depot->get_electrics_name() ) );
-		one = true;
-	} */
-
-	// add, if wagons are there ...
-	if(  !loks_vec.empty()  ||  !waggons_vec.empty()  ) {
-		tabs.add_tab(&scrolly_loks, translator::translate( depot->get_zieher_name() ) );
-		one = true;
-	}
-
-	// only add, if there are wagons
-	if(  !waggons_vec.empty()  ) {
-		tabs.add_tab(&scrolly_waggons, translator::translate( depot->get_haenger_name() ) );
-		one = true;
+	else {
+		// Tram (secondary waytype) tabs
+		if(  !tram_electrics_vec.empty()  ) {
+			tabs.add_tab(&scrolly_tram_electrics, translator::translate("Tram Electrics"));
+			one = true;
+		}
+		if(  !tram_pas_vec.empty()  ) {
+			tabs.add_tab(&scrolly_tram_pas, translator::translate("Tram Passengers"));
+			one = true;
+		}
+		if(  !tram_loks_vec.empty()  ||  !tram_waggons_vec.empty()  ) {
+			tabs.add_tab(&scrolly_tram_loks, translator::translate("Trams"));
+			one = true;
+		}
+		if(  !tram_waggons_vec.empty()  ) {
+			tabs.add_tab(&scrolly_tram_waggons, translator::translate("Tram Trailers"));
+			one = true;
+		}
 	}
 
 	if(  !one  ) {

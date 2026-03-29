@@ -503,7 +503,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 	if(  cnv->get_schedule()->get_count()==1  ) {
 		if(grund_t *gr_depot = welt->lookup(cnv->get_schedule()->at(0).pos)) {
 			depot_t *dep = gr_depot->get_depot();
-			if(  dep && dep->get_owner()==get_owner() && dep->get_waytype()==get_waytype()  ) {
+			if(  dep && dep->get_owner()==get_owner() && dep->can_accept_waytype(cnv->front()->get_desc()->get_waytype())  ) {
 				// find depot! move to there
 				convoihandle_t c = cnv;
 				while( c.is_bound() ){

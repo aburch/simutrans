@@ -358,7 +358,7 @@ void convoi_detail_t::draw(scr_coord offset)
 		// Check if all child convoys can be sent to the same depot.
 		convoihandle_t c = cnv->get_most_parent_convoi();
 		while( c.is_bound() ) {
-			if(  (cnv->get_owner() != c->get_owner())  ||  (cnv->front()->get_desc()->get_waytype() != c->front()->get_desc()->get_waytype())  ) {
+			if(  (cnv->get_owner() != c->get_owner())  ||  (cnv->front()->get_waytype() != c->front()->get_waytype())  ) {
 				show_move_to_depot_button = false;
 			}
 			c = c->get_coupling_convoi();

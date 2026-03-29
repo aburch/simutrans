@@ -3500,7 +3500,7 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd, const bool need_electric
 	}
 
 	if (depot_t *depot = bd->get_depot()) {
-		if (depot->get_waytype() != desc->get_waytype()  ||  (depot->get_owner() != get_owner() && !(cnv!=NULL && depot->get_owner() == cnv->get_owner()))) {
+		if (!depot->can_accept_waytype(desc->get_waytype())  ||  (depot->get_owner() != get_owner() && !(cnv!=NULL && depot->get_owner() == cnv->get_owner()))) {
 			return false;
 		}
 	}

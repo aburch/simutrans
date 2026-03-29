@@ -85,6 +85,18 @@ public:
 	virtual const char * get_zieher_name() { return "Lokomotive_tab"; }
 	virtual const char * get_haenger_name() { return "Waggon_tab"; }
 
+	/**
+	 * Secondary waytype: if not invalid_wt, this depot also shows vehicles of
+	 * this waytype in separate tabs (e.g. bahndepot shows tram vehicles).
+	 */
+	virtual waytype_t get_secondary_waytype() const { return invalid_wt; }
+
+	/**
+	 * Returns true if a convoy whose front vehicle has the given waytype may
+	 * enter (or be built in) this depot.
+	 */
+	virtual bool can_accept_waytype(waytype_t wt) const { return get_waytype() == wt; }
+
 	char const *get_name() const { return name; }
 	void set_name(const char *name);
 
@@ -269,6 +281,11 @@ public:
 	}
 
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::trainline; }
+
+	// Only the actual track depot (not tram/monorail/etc.) shows tram vehicles in separate tabs and accepts tram convoys.
+	waytype_t get_secondary_waytype() const OVERRIDE { return get_typ() == obj_t::bahndepot ? tram_wt : invalid_wt; }
+	bool can_accept_waytype(waytype_t wt) const OVERRIDE { return get_typ() == obj_t::bahndepot ? (wt == track_wt  ||  wt == tram_wt) : get_waytype() == wt; }
+
 	void rdwr_name(loadsave_t *file);
 
 	void rdwr_bahndepot(loadsave_t *file);

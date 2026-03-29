@@ -270,7 +270,7 @@ void depot_picker_t::fill_list()
 	scrolly.clear_elements();
 
 	FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
-		if (depot->get_owner() != owner || depot->get_waytype() != wt) {
+		if (depot->get_owner() != owner || !depot->can_accept_waytype(wt)) {
 			continue;
 		}
 		// Name filter (case-insensitive substring match)
