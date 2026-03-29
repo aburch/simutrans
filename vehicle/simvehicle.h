@@ -576,6 +576,9 @@ protected:
 	bool is_longblock_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const call_by_step);
 	bool is_choose_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const call_by_step);
 
+private:
+	bool is_next_tile_already_reserved(uint16 index);
+
 public:
 	waytype_t get_waytype() const OVERRIDE { return track_wt; }
 
