@@ -3788,7 +3788,7 @@ bool rail_vehicle_t::check_longblock_signal(signal_t *sig, uint16 next_block, si
 
 bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block, sint32 &restart_speed, const bool call_by_step)
 {
-	if(  cnv->is_waiting() || call_by_step  ) {
+	if(  cnv->is_waiting() || (call_by_step&&!sig->is_stop_before_check())  ) {
 		// we are in a step. do that.
 		const bool res = check_longblock_signal(sig, next_block, restart_speed);
 		cnv->set_signal_check_in_step_request_invalid();
@@ -3796,7 +3796,7 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block,
 	}
 	else {
 		// we are in a sync_step. request to do this in a step.
-		cnv->request_signal_check_in_step();
+		if(!sig->is_stop_before_check()) { cnv->request_signal_check_in_step(); }
 		restart_speed = 0;
 		return false;
 	}
@@ -3810,6 +3810,21 @@ bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_bl
 	uint16 next_signal, next_crossing;
 	grund_t const* const target = welt->lookup(cnv->get_route()->back());
 	bool try_coupling = cnv->get_schedule()->get_current_entry().is_try_coupling();
+
+	if(!cnv->is_waiting()&&!call_by_step) {
+		// we are in a sync_step->no calculate route, return
+		if(!try_coupling&&!sig->is_stop_before_check()) {
+			// non coupling -> non stop(search new route to halt in step)
+			cnv->request_signal_check_in_step();
+		} // try_coupling -> must stop at signal
+		restart_speed = -1;
+		return false;
+	}
+	// we are in a step. calculate route.
+	// reset request
+	cnv->set_signal_check_in_step_request_invalid();
+	// now we are in a step and can use the route search array
+
 	if(  cnv->is_waypoint(cnv->get_schedule()->get_current_entry()) && target!=NULL  ) {
 		// destination is a waypoint!
 		koord3d temp_target = cnv->get_schedule()->get_current_entry().pos;
@@ -3904,21 +3919,6 @@ skip_choose:
 		// no free route to target!
 		// note: any old reservations should be invalid after the block reserver call.
 		// => We can now start freshly all over
-
-		if(!cnv->is_waiting()&&!call_by_step) {
-			// we are in a sync_step->no calculate route, return
-			if(!try_coupling) {
-				// non coupling -> non stop(search new route to halt in step)
-				cnv->request_signal_check_in_step();
-			} // try_coupling -> must stop at signal
-			restart_speed = -1;
-			target_halt = halthandle_t();
-			return false;
-		}
-		// we are in a step. calculate route.
-		// reset request
-		cnv->set_signal_check_in_step_request_invalid();
-		// now we are in a step and can use the route search array
 
 		// now it we are in a step and can use the route search
 		route_t target_rt;
@@ -4109,6 +4109,13 @@ bool rail_vehicle_t::is_signal_clear(uint16 next_block, sint32 &restart_speed, b
 
 	// simple signal: fail, if next block is not free
 	if(  sig_desc->is_simple_signal()  ) {
+
+		// if this signal check only when convoy is stop:
+		if(  !cnv->is_waiting()&&sig->is_stop_before_check()  ) {
+			sig->set_state( roadsign_t::STATE_RED );
+			restart_speed = -1;
+			return false;
+		}
 
 		uint16 next_signal, next_crossing;
 		if(  block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false )  ) {

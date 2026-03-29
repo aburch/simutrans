@@ -745,6 +745,16 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @returns signal state: 0 = red, 1 = green, 2 = yellow
 	 */
 	register_method(vm, &roadsign_get_state, "get_state", true);
+
+	/**
+	 * Get "stop before check" flag of a signal.
+	 * Applicable to simple signals, longblock signals and choose signals.
+	 * When true, the signal forces the convoy to stop completely before the
+	 * block-clearance check is performed (signal_clear is held false and
+	 * restart_speed is set to -1 until the convoy is waiting).
+	 * @returns true if the flag is set
+	 */
+	register_method(vm, &roadsign_t::is_stop_before_check, "is_stop_before_check");
 	end_class(vm);
 
 	/**

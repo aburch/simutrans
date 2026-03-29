@@ -11,6 +11,13 @@ obj_infowin_t(s),
 signal(s)
 {
 	set_table_layout(1,0);
+
+	bt_stop_before_check.init( button_t::square_state, translator::translate("Stop before check") );
+	bt_stop_before_check.add_listener(this);
+	bt_stop_before_check.pressed = signal->is_stop_before_check();
+	if(  signal->get_desc()->is_simple_signal()  ||  signal->get_desc()->is_longblock_signal()  ||  signal->get_desc()->is_choose_sign()  ) {
+		add_component(&bt_stop_before_check);
+	}
 	
 	bt_require_parent.init( button_t::square_state, translator::translate("Require parent convoy to enter."));
 	bt_require_parent.add_listener(this);
@@ -111,6 +118,14 @@ bool signal_info_t::action_triggered( gui_action_creator_t* comp, value_t p)
 		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_ROADSIGN], welt->get_active_player() );
 		return true;
 	}
+	if(  comp==&bt_stop_before_check  ) {
+		char param[256];
+		bool v = signal->is_stop_before_check();
+		sprintf( param, "%s,%i,t", signal->get_pos().get_str(), !v );
+		tool_t::simple_tool[TOOL_CHANGE_ROADSIGN]->set_default_param( param );
+		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_ROADSIGN], welt->get_active_player() );
+		return true;
+	}
 	if(  comp==&bt_skip_default_route  ) {
 		char param[256];
 		bool v = signal->is_skip_default_route();
@@ -129,6 +144,7 @@ void signal_info_t::update_data()
 	bt_require_parent.pressed = signal->is_guide_signal();
 	bt_advance_to_end.pressed = signal->is_advance_to_end();
 	bt_choose_signal.pressed = signal->is_choose_signal();
+	bt_stop_before_check.pressed = signal->is_stop_before_check();
 	bt_skip_default_route.pressed = signal->is_skip_default_route();
 	if(  signal->is_choose_signal()  ) {
 		bt_advance_to_end.enable();
@@ -137,6 +153,10 @@ void signal_info_t::update_data()
 	} else {
 		bt_advance_to_end.disable();
 		numinp_tiles_margin.disable();
+		bt_stop_before_check.enable(signal->get_desc()->is_longblock_signal());
+	}
+	if(  signal->get_desc()->is_simple_signal()  ||  signal->get_desc()->is_longblock_signal()  ||  signal->get_desc()->is_choose_sign()  ) {
+		bt_stop_before_check.enable();
 	}
 	bt_remove_signal.enable( !signal->is_deletable( welt->get_active_player() ) );
 }

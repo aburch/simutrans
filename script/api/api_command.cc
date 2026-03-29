@@ -425,6 +425,13 @@ call_tool_work build_sign_at(player_t* pl, koord3d start, const roadsign_desc_t*
 	return call_tool_work(TOOL_BUILD_ROADSIGN | GENERAL_TOOL, sign->get_name(), 0, pl, start);
 }
 
+call_tool_init set_signal_stop_before_check(player_t* pl, koord3d pos, int val)
+{
+	cbuffer_t buf;
+	buf.printf("%hi,%hi,%hi,%hi,t", (sint16)pos.x, (sint16)pos.y, (sint16)pos.z, (sint16)val);
+	return call_tool_init(TOOL_CHANGE_ROADSIGN | SIMPLE_TOOL, (const char*)buf, 0, pl);
+}
+
 call_tool_work change_climate_at(player_t* pl, koord3d start, int climate)
 {
 	if (climate < water_climate || climate >= MAX_CLIMATES) {
@@ -604,6 +611,16 @@ void export_commands(HSQUIRRELVM vm)
 	 * @param sign type of road-sign or signal to be built
 	 */
 	STATIC register_method(vm, build_sign_at, "build_sign_at", false, true);
+	/**
+	 * Set or clear the "stop before check" flag on a rail signal.
+	 * Applicable to simple signals, longblock signals and choose signals.
+	 * @param pl  player who owns the signal
+	 * @param pos position of the signal tile
+	 * @param val 1 to enable, 0 to disable
+	 * @returns null on success, an error string otherwise
+	 * @typemask string(player_x, coord3d, int)
+	 */
+	STATIC register_method(vm, set_signal_stop_before_check, "set_stop_before_check", false, true);
 	/**
 	 * Build way-object.
 	 * @param pl player to pay for the work
