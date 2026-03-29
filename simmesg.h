@@ -51,6 +51,7 @@ public:
 		warnings     = 8,
 		traffic_jams = 9,
 		scenario     = 10,
+		stop_length	 = 11,
 		MAX_MESSAGE_TYPE,
 		MESSAGE_TYPE_MASK = 0xf,
 
