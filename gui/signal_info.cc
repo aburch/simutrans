@@ -12,6 +12,11 @@ signal(s)
 {
 	set_table_layout(1,0);
 
+	bt_start_signal.init( button_t::square_state, translator::translate("Starting signal"));
+	bt_start_signal.add_listener(this);
+	bt_start_signal.pressed = signal->is_start_signal();
+	add_component(&bt_start_signal);
+
 	bt_stop_before_check.init( button_t::square_state, translator::translate("Stop before check") );
 	bt_stop_before_check.add_listener(this);
 	bt_stop_before_check.pressed = signal->is_stop_before_check();
@@ -134,6 +139,14 @@ bool signal_info_t::action_triggered( gui_action_creator_t* comp, value_t p)
 		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_ROADSIGN], welt->get_active_player() );
 		return true;
 	}
+	if(  comp==&bt_start_signal  ) {
+		char param[256];
+		bool v = signal->is_start_signal();
+		sprintf( param, "%s,%i,p", signal->get_pos().get_str(), !v );
+		tool_t::simple_tool[TOOL_CHANGE_ROADSIGN]->set_default_param( param );
+		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_ROADSIGN], welt->get_active_player() );
+		return true;
+	}
 	return false;
 }
 
@@ -146,6 +159,7 @@ void signal_info_t::update_data()
 	bt_choose_signal.pressed = signal->is_choose_signal();
 	bt_stop_before_check.pressed = signal->is_stop_before_check();
 	bt_skip_default_route.pressed = signal->is_skip_default_route();
+	bt_start_signal.pressed = signal->is_start_signal();
 	if(  signal->is_choose_signal()  ) {
 		bt_advance_to_end.enable();
 		numinp_tiles_margin.enable();

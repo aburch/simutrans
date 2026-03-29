@@ -432,6 +432,13 @@ call_tool_init set_signal_stop_before_check(player_t* pl, koord3d pos, int val)
 	return call_tool_init(TOOL_CHANGE_ROADSIGN | SIMPLE_TOOL, (const char*)buf, 0, pl);
 }
 
+call_tool_init set_signal_start_signal(player_t* pl, koord3d pos, int val)
+{
+	cbuffer_t buf;
+	buf.printf("%hi,%hi,%hi,%hi,p", (sint16)pos.x, (sint16)pos.y, (sint16)pos.z, (sint16)val);
+	return call_tool_init(TOOL_CHANGE_ROADSIGN | SIMPLE_TOOL, (const char*)buf, 0, pl);
+}
+
 call_tool_work change_climate_at(player_t* pl, koord3d start, int climate)
 {
 	if (climate < water_climate || climate >= MAX_CLIMATES) {
@@ -621,6 +628,18 @@ void export_commands(HSQUIRRELVM vm)
 	 * @typemask string(player_x, coord3d, int)
 	 */
 	STATIC register_method(vm, set_signal_stop_before_check, "set_stop_before_check", false, true);
+	/**
+	 * Set or clear the "start signal" flag on a rail signal.
+	 * When set, a convoy in CAN_START or CAN_START_ONE_MONTH state checks
+	 * whether this signal (the next signal ahead) is clear before departing.
+	 * If the signal is RED the convoy stays put; if GREEN it departs normally.
+	 * @param pl  player who owns the signal
+	 * @param pos position of the signal tile
+	 * @param val 1 to enable, 0 to disable
+	 * @returns null on success, an error string otherwise
+	 * @typemask string(player_x, coord3d, int)
+	 */
+	STATIC register_method(vm, set_signal_start_signal, "set_start_signal", false, true);
 	/**
 	 * Build way-object.
 	 * @param pl player to pay for the work

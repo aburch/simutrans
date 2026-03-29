@@ -755,6 +755,15 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @returns true if the flag is set
 	 */
 	register_method(vm, &roadsign_t::is_stop_before_check, "is_stop_before_check");
+	/**
+	 * Get "start signal" flag of a signal.
+	 * When true, a convoy in CAN_START or CAN_START_ONE_MONTH state will check
+	 * whether the next signal ahead is clear before departing.  If that signal
+	 * is RED the convoy stays at its current position (does not advance to the
+	 * signal tile).
+	 * @returns true if the flag is set
+	 */
+	register_method(vm, &roadsign_t::is_start_signal, "is_start_signal");
 	end_class(vm);
 
 	/**

@@ -24,6 +24,7 @@ include("tests/test_powerline")
 include("tests/test_reservation")
 include("tests/test_scenario")
 include("tests/test_sign")
+include("tests/test_start_signal")
 include("tests/test_stop_before_check_signal")
 include("tests/test_slope")
 include("tests/test_terraform")
@@ -210,6 +211,11 @@ all_tests <- [
 	test_transport_route_cache_invalidation,
 	test_transport_route_cache_need_electric,
 	test_transport_two_convoys_on_same_line,
+	test_start_signal_default_false,
+	test_start_signal_set_get,
+	test_start_signal_convoy_stays_at_station,
+	test_start_signal_false_convoy_advances_to_signal,
+	test_start_signal_convoy_passes_when_clear,
 	test_stop_before_check_default_false,
 	test_stop_before_check_set_get,
 	test_stop_before_check_simple_signal_convoy_stops,
