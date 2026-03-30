@@ -685,6 +685,7 @@ void gui_halt_detail_t::update_connections( halthandle_t h )
 		row->set_table_layout(1, 1);
 		row->add_component(&bt_allow_unload_longer_convoy);
 	}
+	insert_empty_row();
 
 	const slist_tpl<fabrik_t *> & fab_list = halt->get_fab_list();
 	slist_tpl<const goods_desc_t *> nimmt_an;

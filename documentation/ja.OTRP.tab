@@ -311,6 +311,8 @@ Vehicle count:
 車両数:
 Teleport to Depot
 車庫に転送
+Go to depot
+車庫へ
 Teleport All to Depot
 全編成を車庫に転送
 Teleport this convoy to another depot(defined in schedule)
@@ -484,6 +486,16 @@ Sell all vehicles
 車庫の全車両売却
 Sell all vehicles stored here.
 車庫に格納された全車両を売却します
+Show tram
+路面電車を表示
+Tram Electric
+路面電車
+Tram Passengers
+軌道用客車
+Trams
+軌道用機関車
+Tram Trailers
+軌道用貨車
 #------編成最高速度機能------
 Set Max Speed
 編成最高速度を設定
@@ -614,6 +626,10 @@ Nearest
 距離の近い順
 Electrified
 電化
+%s leads\ndifferent owner's or\ndifferent waytype convoy.\n
+%sは異なる会社か\n異なる属性の車両を\n連結しているため\n入庫できません.\n
+Convoi has been sent\nto the selected depot\nof appropriate type.\n
+編成は指定された\n車庫に向かいました.\n
 #------その他の翻訳------
 Freight ton-kilo
 輸送量(人キロ/トンキロ)
@@ -723,3 +739,5 @@ Depots must be build on flat dead-end way tiles!
 この車庫は平坦な終端にしか建設できません!
 Unused addons
 未使用アドオン
+Show unused addons list
+未使用アドオンリストを表示

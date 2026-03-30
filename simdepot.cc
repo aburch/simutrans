@@ -499,6 +499,11 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 		create_win( new news_img(buf), w_time_delete, magic_none);
 		return false;
 	}
+	if (!cnv->get_schedule()) {
+		dbg->warning("depot_t::start_convoi()","No schedule for convoi.");
+		create_win( new news_img("Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n"), w_time_delete, magic_none);
+		return false;
+	}
 	// If this convoy has only 1 stop:another depot, teleport to there.
 	if(  cnv->get_schedule()->get_count()==1  ) {
 		if(grund_t *gr_depot = welt->lookup(cnv->get_schedule()->at(0).pos)) {

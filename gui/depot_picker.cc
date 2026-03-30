@@ -224,7 +224,7 @@ depot_picker_t::depot_picker_t(convoihandle_t cnv, bool teleport)
 	depot_picker_item_t::sort_origin = cnv->get_pos();
 	depot_picker_item_t::sort_mode   = DEPOT_SORT_ORIGINAL;
 	name_filter[0] = '\0';
-	init_ui(translator::translate(teleport ? "Teleport to depot" : "Go to depot"));
+	init_ui(translator::translate(teleport ? "Teleport to Depot" : "Go to depot"));
 }
 
 
