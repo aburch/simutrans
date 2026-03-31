@@ -941,9 +941,7 @@ void depot_frame_t::build_vehicle_lists()
 		FOR(vector_tpl<vehicle_desc_t const*>, const info, typ_list) {
 			if (vehicle_map.get(info)) continue;
 			if (tram_vehicle_map.get(info)) continue;
-			// tram vehicles in sell mode are handled by the secondary loop below
-			if (sec_wt != invalid_wt  &&  info->get_waytype() == sec_wt) continue;
-			add_to_vehicle_list(info);
+			add_to_vehicle_list(info, info->get_waytype() == sec_wt);
 		}
 	}
 	else {
@@ -986,16 +984,7 @@ void depot_frame_t::build_vehicle_lists()
 			veh = (veh_action == va_insert ? cnv->front() : cnv->back())->get_desc();
 		}
 
-		if(  !show_all  &&  veh_action == va_sell  ) {
-			// show only stored secondary vehicles
-			FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
-				if(  v->get_waytype() != sec_wt  ) continue;
-				vehicle_desc_t const* const d = v->get_desc();
-				if(  tram_vehicle_map.get(d)  ) continue;
-				add_to_vehicle_list(d, true);
-			}
-		}
-		else {
+		if(  show_all  ||  veh_action != va_sell  )  {
 			slist_tpl<const vehicle_desc_t*> const& tram_list = vehicle_builder_t::get_info(sec_wt, sort_by_action);
 			for(  slist_tpl<const vehicle_desc_t*>::const_iterator itr = tram_list.begin();  itr != tram_list.end();  ++itr  ) {
 				const vehicle_desc_t *info = *itr;
@@ -2101,6 +2090,7 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 	bt_obsolete.enable( action_allowed );
 	bt_show_all.enable( action_allowed );
 	bt_veh_action.enable( action_allowed );
+	bt_sell_all.enable( action_allowed );
 	line_button.enable( action_allowed );
 
 	bt_paste_convoi.enable( action_allowed );
