@@ -4200,7 +4200,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 							return true;
 						} else {
 							// the start signal is not clear -> stay here
-							block_reserver(cnv->get_route(), max(route_index, 1) - 1, next_signal, next_crossing, 0, false, false);
+							block_reserver(cnv->get_route(), max(route_index+1, 1) - 1, next_signal, next_crossing, 0, false, false);
 							restart_speed = 0;
 							return false;
 						}
