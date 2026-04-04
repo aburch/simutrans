@@ -1601,6 +1601,20 @@ void schedule_gui_t::init_departure_slot_group_selector()
 		}
 		vector_tpl<linehandle_t> lines;
 		player->simlinemgmt.get_lines(schedule->get_type(), &lines);
+		if(schedule->get_type()==schedule_t::train_schedule) {
+			vector_tpl<linehandle_t> tram_lines;
+			player->simlinemgmt.get_lines(schedule_t::tram_schedule, &tram_lines);
+			FOR(  vector_tpl<linehandle_t>, tram_line, tram_lines  ) {
+				lines.append(tram_line);
+			}
+		}
+		if(schedule->get_type()==schedule_t::tram_schedule) {
+			vector_tpl<linehandle_t> track_lines;
+			player->simlinemgmt.get_lines(schedule_t::train_schedule, &track_lines);
+			FOR(  vector_tpl<linehandle_t>, track_line, track_lines  ) {
+				lines.append(track_line);
+			}
+		}
 		FOR(  vector_tpl<linehandle_t>, const line,  lines  ) {
 			// only show leader lines (lines that are their own departure slot group)
 			if(  line->get_schedule()->get_departure_slot_group_id() != line  ) {
