@@ -1033,7 +1033,7 @@ public:
 	 */
 	uint16 get_next_coupling_index() const {return next_coupling_index;}
 	uint8 get_next_coupling_steps() const {return next_coupling_steps;}
-	void set_next_coupling(uint16 n, uint8 m) { next_coupling_index = n; next_coupling_steps = m; }
+	void set_next_coupling(uint16 n, uint8 m) { next_coupling_index = n; next_reservation_index = n; next_coupling_steps = m; }
 
 	convoihandle_t get_coupling_convoi() const {return coupling_convoi;}
 	void set_coupling_convoi(convoihandle_t c) {coupling_convoi = c;}

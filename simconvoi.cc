@@ -3444,6 +3444,16 @@ void convoi_t::rdwr(loadsave_t *file)
 	}
 
 	if(  file->is_loading()  ) {
+		// A try-coupling convoy waiting at a guide signal (WAITING_FOR_CLEARANCE etc.) has
+		// next_coupling_index == INVALID_INDEX because the coupling route is not yet found.
+		// next_reservation_index may have been set too far ahead by a prior block_reserver(1001)
+		// call on the ORIGINAL route (past the guide signal). Cap it at next_stop_index before
+		// reserve_route() runs so the wrong tiles are never reserved in the first place.
+		if(  is_waiting()  &&  next_coupling_index == route_t::INVALID_INDEX
+		  &&  schedule != NULL  &&  schedule->get_current_entry().is_try_coupling()
+		  &&  next_reservation_index > next_stop_index  ) {
+			next_reservation_index = next_stop_index;
+		}
 		reserve_route();
 		recalc_catg_index();
 	}
