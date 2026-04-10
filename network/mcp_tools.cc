@@ -146,8 +146,9 @@ std::string mcp_tools::tools_call(const std::string &name,
 		std::string code     = mcp_server_t::json_get_string_pub(args_json, "code");
 		std::string player_s = mcp_server_t::json_get_raw_pub(args_json, "player_nr");
 		int player_nr = player_s.empty() ? 1 : atoi(player_s.c_str());
+		if (player_nr < 0 || player_nr > 15) player_nr = 1;
 		return tool_run_squirrel(code, player_nr);
 	}
 
-	return "{\"error\":\"unknown tool: " + name + "\"}";
+	return "{\"error\":\"unknown tool: " + jesc(name) + "\"}";
 }

@@ -1787,6 +1787,7 @@ int simu_main(int argc, char** argv)
 	delete eventmanager;
 	eventmanager = NULL;
 
+	mcp_server_t::shutdown();
 	remove_port_forwarding( env_t::server );
 	network_core_shutdown();
 

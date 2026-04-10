@@ -23,7 +23,7 @@
 #include <string.h>
 #include <errno.h>
 
-#ifndef USE_WINSOCK
+#if !USE_WINSOCK
 #	include <fcntl.h>
 #	include <unistd.h>
 #endif
@@ -109,7 +109,7 @@ bool mcp_server_t::init(uint16 port)
 		memset(&addr, 0, sizeof(addr));
 		addr.sin6_family = AF_INET6;
 		addr.sin6_port   = htons(port);
-		addr.sin6_addr   = in6addr_any;
+		addr.sin6_addr   = in6addr_loopback;
 		if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) != 0) {
 			close_socket(s);
 			// Fallback to IPv4
@@ -129,16 +129,16 @@ bool mcp_server_t::init(uint16 port)
 		memset(&addr, 0, sizeof(addr));
 		addr.sin_family      = AF_INET;
 		addr.sin_port        = htons(port);
-		addr.sin_addr.s_addr = htonl(INADDR_ANY);
+		addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 		if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) != 0) {
-			dbg->warning("mcp_server_t::init", "bind() failed on port %u: %s", port, strerror(errno));
+			dbg->warning("mcp_server_t::init", "bind() failed on port %u (error %d)", port, (int)GET_LAST_ERROR());
 			close_socket(s);
 			return false;
 		}
 	}
 
 	if (listen(s, 8) != 0) {
-		dbg->warning("mcp_server_t::init", "listen() failed: %s", strerror(errno));
+		dbg->warning("mcp_server_t::init", "listen() failed (error %d)", (int)GET_LAST_ERROR());
 		close_socket(s);
 		return false;
 	}
