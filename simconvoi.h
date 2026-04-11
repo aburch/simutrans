@@ -132,6 +132,11 @@ private:
 	 */
 	sint32 sum_gear_and_power;
 	sint32 sum_gear_and_power_electric;
+
+	/*
+	* use electric or not
+	* YOU MUST UPDATE THIS FLAG WHEN CALCULATE ROUTE!!!!!
+	*/
 	bool use_electric;
 
 	// 40 bytes
