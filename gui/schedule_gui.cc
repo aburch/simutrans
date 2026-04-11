@@ -243,7 +243,7 @@ cbuffer_t schedule_gui_stats_t::buf;
 
 schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoihandle_t cnv_, const char* cnv_line_name) :
 	gui_frame_t( translator::translate("Fahrplan"), NULL),
-	line_selector(line_scrollitem_t::compare),
+	line_selector(line_color_line_scroll_item_t::compare),
 	next_line_selector(non_color_line_scroll_item_t::compare),
 	departure_slot_group_selector(company_color_line_scroll_item_t::compare),
 	lb_waitlevel(SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
@@ -1525,7 +1525,12 @@ void schedule_gui_t::init_line_selector()
 
 	FOR(  vector_tpl<linehandle_t>, const line,  lines  ) {
 		if(  !*schedule_filter  ||  utf8caseutf8(line->get_name(), schedule_filter)  ) {
-			line_selector.new_component<line_scrollitem_t>(line);
+			if(  env_t::show_line_colors  ) {
+				line_selector.new_component<line_color_line_scroll_item_t>(line);
+			}
+			else {
+				line_selector.new_component<line_scrollitem_t>(line);
+			}
 		}
 		if(  !new_line.is_bound()  ) {
 			if(  schedule->matches( welt, line->get_schedule() )  ) {

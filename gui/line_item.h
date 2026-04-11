@@ -43,6 +43,16 @@ public:
 	static bool compare(const gui_component_t *a, const gui_component_t *b );
 };
 
+class line_color_line_scroll_item_t: public line_scrollitem_t 
+{
+public:
+	line_color_line_scroll_item_t( linehandle_t l ) : line_scrollitem_t(l) {};
+	PIXVAL get_color() const OVERRIDE {
+		const uint8 color_idx = get_line()->get_colour();
+		return color_idx_to_rgb(color_idx);
+	}
+};
+
 class company_color_line_scroll_item_t: public line_scrollitem_t 
 {
 public:
