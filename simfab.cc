@@ -436,7 +436,7 @@ void fabrik_t::update_scaled_pax_demand()
 	// formula : desc_pax_demand * (current_production_base / desc_production_base); (prod >> 1) is for rounding
 	const uint32 pax_demand = (uint32)( ( desc_pax_demand * (sint64)prodbase + (prod >> 1) ) / prod );
 	// then, scaling based on month length
-	scaled_pax_demand = (uint32)welt->scale_with_month_length(pax_demand);
+	scaled_pax_demand = min( (uint32)welt->scale_with_month_length(pax_demand), 932067 );
 	if(  scaled_pax_demand == 0  &&  desc_pax_demand > 0  ) {
 		scaled_pax_demand = 1; // since desc pax demand > 0 -> ensure no less than 1
 	}
@@ -453,7 +453,7 @@ void fabrik_t::update_scaled_mail_demand()
 	// formula : desc_mail_demand * (current_production_base / desc_production_base); (prod >> 1) is for rounding
 	const uint32 mail_demand = (uint32)( ( desc_mail_demand * (sint64)prodbase + (prod >> 1) ) / prod );
 	// then, scaling based on month length
-	scaled_mail_demand = (uint32)welt->scale_with_month_length(mail_demand);
+	scaled_mail_demand = min( (uint32)welt->scale_with_month_length(mail_demand), 932067);
 	if(  scaled_mail_demand == 0  &&  desc_mail_demand > 0  ) {
 		scaled_mail_demand = 1; // since desc mail demand > 0 -> ensure no less than 1
 	}
