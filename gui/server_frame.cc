@@ -14,6 +14,7 @@
 
 
 #include "../dataobj/translator.h"
+#include "../sys/simsys.h"
 #include "../network/network.h"
 #include "../network/network_file_transfer.h"
 #include "../network/network_cmd_ingame.h"
@@ -80,6 +81,45 @@ public:
 
 	scr_size get_max_size() const OVERRIDE { return get_min_size(); }
 };
+
+
+void server_frame_t::load_pakset_servers()
+{
+	pakset_servers.clear();
+	std::string filepath = env_t::pak_dir + "config/servers.tab";
+	FILE *f = dr_fopen(filepath.c_str(), "r");
+	if(  !f  ) {
+		return;
+	}
+	char line[512];
+	while(  fgets(line, sizeof(line), f)  ) {
+		// skip leading whitespace
+		char *p = line;
+		while(  *p == ' '  ||  *p == '\t'  ) { p++; }
+		// skip comments and empty lines
+		if(  *p == '#'  ||  *p == '\0'  ||  *p == '\n'  ||  *p == '\r'  ) {
+			continue;
+		}
+		// find '='
+		char *eq = strchr(p, '=');
+		if(  !eq  ) { continue; }
+		// trim name (right-trim up to '=')
+		char *name_end = eq - 1;
+		while(  name_end > p  &&  (*name_end == ' '  ||  *name_end == '\t')  ) { name_end--; }
+		std::string name(p, name_end - p + 1);
+		// trim address (left-trim after '=')
+		char *addr = eq + 1;
+		while(  *addr == ' '  ||  *addr == '\t'  ) { addr++; }
+		// right-trim address
+		char *addr_end = addr + strlen(addr) - 1;
+		while(  addr_end > addr  &&  (*addr_end == ' '  ||  *addr_end == '\t'  ||  *addr_end == '\n'  ||  *addr_end == '\r')  ) { addr_end--; }
+		std::string dns(addr, addr_end - addr + 1);
+		if(  !name.empty()  &&  !dns.empty()  ) {
+			pakset_servers.push_back({ name, dns });
+		}
+	}
+	fclose(f);
+}
 
 
 server_frame_t::server_frame_t() :
@@ -199,6 +239,7 @@ server_frame_t::server_frame_t() :
 
 			// only update serverlist, when not already in network mode
 			// otherwise desync to current game may happen
+			load_pakset_servers();
 			update_serverlist();
 		}
 		end_table();
@@ -337,7 +378,7 @@ void server_frame_t::update_serverlist_threaded () {
 
 	if(  const char *err = network_http_get( ANNOUNCE_SERVER, ANNOUNCE_LIST_URL, network_buf )  ) {
 		dbg->error( "server_frame_t::update_serverlist", "could not download list: %s", err );
-		return;
+		// still update list so pakset-defined servers are shown
 	}
 
 	set_server_list_result(server_list_request_result_t{this, network_buf});
@@ -346,7 +387,15 @@ void server_frame_t::update_serverlist_threaded () {
 
 void server_frame_t::handle_serverlist_request_result(cbuffer_t network_buf) {
 	buf.clear();
-	
+
+	// Add servers defined in pak_dir/config/servers.tab first
+	for(  const pakset_server_t &s : pakset_servers  ) {
+		cbuffer_t name, dns, altdns;
+		name.append( s.name.c_str() );
+		dns.append(  s.dns.c_str()  );
+		serverlist.new_component<server_scrollitem_t>( name, dns, altdns, true, color_idx_to_rgb(COL_BLUE) );
+	}
+
 	// Parse listing into CSV_t object
 	CSV_t csvdata( network_buf.get_str() );
 	int ret;

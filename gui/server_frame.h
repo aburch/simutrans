@@ -16,6 +16,8 @@
 #include "components/gui_textinput.h"
 #include "../dataobj/gameinfo.h"
 #include "../utils/cbuffer_t.h"
+#include <string>
+#include <vector>
 
 class gui_minimap_t;
 /**
@@ -93,9 +95,16 @@ private:
 	 * show_offline checkboxes
 	 */
 	void update_serverlist ();
-	
+
 	void update_serverlist_threaded();
 	void handle_serverlist_request_result(cbuffer_t);
+
+	/// Servers defined in pak_dir/config/servers.tab (name, address pairs)
+	struct pakset_server_t { std::string name; std::string dns; };
+	std::vector<pakset_server_t> pakset_servers;
+
+	/// Load servers from pak_dir/config/servers.tab
+	void load_pakset_servers();
 
 public:
 	server_frame_t();
