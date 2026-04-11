@@ -1284,7 +1284,7 @@ bool convoi_t::drive_to()
 		// Cache-aware route calculation: tries cache first, falls back to A* on miss or passability failure.
 		// Only convoys assigned to a line use the cache, and only when the convoy's schedule
 		// exactly matches the line's schedule (no extra depot entries).
-		const bool use_route_cache = front()->get_waytype()!=air_wt  &&  line.is_bound()  &&  schedule->get_count() == line->get_schedule()->get_count();
+		const bool use_route_cache = front()->get_waytype()!=air_wt  &&  line.is_bound()  &&  schedule->get_count() == line->get_schedule()->get_count() && welt->get_settings().is_using_route_cache();
 		auto cached_calc_route = [&](koord3d s, koord3d z, route_t* r, bool pass_stop) -> bool {
 			if (use_route_cache) {
 				const uint8 entry_idx = schedule->get_current_stop();
