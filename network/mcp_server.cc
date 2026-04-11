@@ -348,7 +348,7 @@ std::string mcp_server_t::dispatch(const std::string &method,
 		if (args_json.empty()) args_json = "{}";
 		std::string result_json = mcp_tools::tools_call(tool_name, args_json, world);
 		// wrap in MCP content array
-		std::string escaped_result = json_escape_pub(result_json);
+		std::string escaped_result = json_escape(result_json);
 		std::string content = "{\"content\":[{\"type\":\"text\",\"text\":\""
 		                    + escaped_result + "\"}]}";
 		return make_response(id_json, content);
@@ -374,7 +374,7 @@ std::string mcp_server_t::make_error(const std::string &id_json, int code, const
 	       ",\"error\":{\"code\":" + buf + ",\"message\":\"" + json_escape(message) + "\"}}";
 }
 
-std::string mcp_server_t::json_escape_pub(const std::string &s)
+std::string mcp_server_t::json_escape(const std::string &s)
 {
 	std::string out;
 	out.reserve(s.size());
@@ -404,7 +404,7 @@ std::string mcp_server_t::json_escape_pub(const std::string &s)
  * Handles one level of nesting for objects and arrays.
  * Not a full JSON parser – sufficient for well-formed JSON-RPC envelopes.
  */
-std::string mcp_server_t::json_get_raw_pub(const std::string &json, const std::string &key)
+std::string mcp_server_t::json_get_raw(const std::string &json, const std::string &key)
 {
 	// Search for  "key":
 	std::string needle = "\"" + key + "\"";
@@ -475,9 +475,9 @@ std::string mcp_server_t::json_get_raw_pub(const std::string &json, const std::s
 	}
 }
 
-std::string mcp_server_t::json_get_string_pub(const std::string &json, const std::string &key)
+std::string mcp_server_t::json_get_string(const std::string &json, const std::string &key)
 {
-	std::string raw = json_get_raw_pub(json, key);
+	std::string raw = json_get_raw(json, key);
 	if (raw.size() < 2 || raw.front() != '"' || raw.back() != '"') {
 		return raw; // not a JSON string literal, return as-is
 	}

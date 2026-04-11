@@ -39,9 +39,9 @@ public:
 	static bool is_active() { return listen_sock != INVALID_SOCKET; }
 
 	// --- public JSON helpers (used by mcp_tools.cc) ---
-	static std::string json_escape_pub(const std::string &s);
-	static std::string json_get_raw_pub(const std::string &json, const std::string &key);
-	static std::string json_get_string_pub(const std::string &json, const std::string &key);
+	static std::string json_escape(const std::string &s);
+	static std::string json_get_raw(const std::string &json, const std::string &key);
+	static std::string json_get_string(const std::string &json, const std::string &key);
 
 private:
 	struct mcp_connection_t {
@@ -70,14 +70,6 @@ private:
 	static std::string dispatch(const std::string &method,
 	                            const std::string &id_json,
 	                            const std::string &params_json);
-
-	// --- internal JSON helpers (delegate to *_pub) ---
-	static std::string json_escape(const std::string &s)
-	         { return json_escape_pub(s); }
-	static std::string json_get_raw(const std::string &json, const std::string &key)
-	         { return json_get_raw_pub(json, key); }
-	static std::string json_get_string(const std::string &json, const std::string &key)
-	         { return json_get_string_pub(json, key); }
 
 	static void close_socket(SOCKET s);
 };

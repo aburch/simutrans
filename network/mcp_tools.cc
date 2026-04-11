@@ -34,7 +34,7 @@
 // Minimal JSON helpers (output only)
 // ---------------------------------------------------------------------------
 
-static std::string jesc(const std::string &s) { return mcp_server_t::json_escape_pub(s); }
+static std::string jesc(const std::string &s) { return mcp_server_t::json_escape(s); }
 static std::string jstr(const std::string &s)  { return "\"" + jesc(s) + "\""; }
 static std::string jstr(const char *s)          { return s ? jstr(std::string(s)) : "null"; }
 
@@ -144,8 +144,8 @@ std::string mcp_tools::tools_call(const std::string &name,
                                    karte_t           * /*welt*/)
 {
 	if (name == "run_squirrel") {
-		std::string code     = mcp_server_t::json_get_string_pub(args_json, "code");
-		std::string player_s = mcp_server_t::json_get_raw_pub(args_json, "player_nr");
+		std::string code     = mcp_server_t::json_get_string(args_json, "code");
+		std::string player_s = mcp_server_t::json_get_raw(args_json, "player_nr");
 		int player_nr = player_s.empty() ? 1 : atoi(player_s.c_str());
 		if (player_nr < 0 || player_nr > 15) player_nr = 1;
 		return tool_run_squirrel(code, player_nr);
