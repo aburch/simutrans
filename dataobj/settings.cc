@@ -151,7 +151,8 @@ settings_t::settings_t() :
 
 	electric_promille = 330;
 
-	credit_per_MWs = 2;
+	cst_kw_per_credit = 512;
+
 
 #ifdef OTTD_LIKE
 	// crossconnect all factories (like OTTD and similar games)
@@ -1021,9 +1022,13 @@ void settings_t::rdwr(loadsave_t *file)
 			overloading_runningcost_increase = true;
 			default_reverse = false;
 		}
+		uint32 credit_per_MWs;
 		if(  file->get_OTRP_version() >= 51  ) {
 			file->rdwr_bool(env_t::use_old_friction);
-			file->rdwr_long( credit_per_MWs );
+			if(  file->get_OTRP_version() < 54  ) {
+				// in standard 124.4, this value is set as cst_kw_per_credit
+				file->rdwr_long( credit_per_MWs );
+			}
 			file->rdwr_bool(allow_unload_longer_convoy);
 			file->rdwr_bool(allow_higher_flight);
 			file->rdwr_long(growthfactor_small_limit);
@@ -1075,6 +1080,14 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long(way_count_no_way);
 			file->rdwr_long(way_count_avoid_crossings);
 			file->rdwr_long(way_count_maximum);
+		}
+
+		uint32 cst_kw_per_credit = 1024/credit_per_MWs;
+		if (file->is_version_atleast(124, 4)||file->get_OTRP_version()>=54) {
+			file->rdwr_long(cst_kw_per_credit);
+		}
+		else {
+			cst_kw_per_credit = 512;
 		}
 		// otherwise the default values of the last one will be used
 	}
@@ -1704,7 +1717,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	close_old_factory			   = contents.get_int("close_old_factory", close_old_factory) != 0;
 	factory_max_years_obsolete = contents.get_int("max_years_obsolete", factory_max_years_obsolete);
 
-	credit_per_MWs		   = contents.get_int_clamped( "credit_per_MWs", credit_per_MWs, 1, 10000);
+	cst_kw_per_credit		   = contents.get_int_clamped( "cst_kw_per_credit", cst_kw_per_credit, 1, 10000);
 
 	env_t::just_in_time = contents.get_int_clamped("just_in_time", env_t::just_in_time, 0, 2);
 	just_in_time = env_t::just_in_time;

@@ -64,7 +64,7 @@ private:
 	sint32 electric_promille;
 	sint32 tourist_attractions;
 
-	uint32 credit_per_MWs;
+	uint32 cst_kw_per_credit=512;
 
 	sint32 city_count;
 	sint32 mean_citizen_count;
@@ -477,7 +477,7 @@ public:
 
 	sint32 get_electric_promille() const {return electric_promille;}
 
-	sint32 get_credit_per_MWs() const {return credit_per_MWs;}
+	sint32 get_cst_kw_per_credit() const {return cst_kw_per_credit;}
 
 	void set_tourist_attractions( sint32 n ) { tourist_attractions = n; }
 	sint32 get_tourist_attractions() const {return tourist_attractions;}

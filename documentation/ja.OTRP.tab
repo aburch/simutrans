@@ -565,8 +565,8 @@ allow_unload_longer_convoy
 有効長不足の車両からの下車を許可(allow_unload_longer_convoy)
 allow_higher_flight
 高高度の飛行を許可(allow_higher_flight)
-credit_per_MWs
-1MWあたりの収入(credit_per_MWs)
+cst_kw_per_credit
+収入1クレジット取得に必要な電力kw
 maximum_village_size
 村の人口上限:これ以上の人口の町は「都市city」となります(maximum_village_size)
 maximum_city_size
