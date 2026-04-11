@@ -339,6 +339,8 @@ settings_t::settings_t() :
 	default_reverse=false;
 	allow_unload_longer_convoy=false;
 	allow_higher_flight = true;
+
+	use_route_cache = false;
 }
 
 
@@ -1038,6 +1040,11 @@ void settings_t::rdwr(loadsave_t *file)
 			allow_unload_longer_convoy = false;
 			allow_higher_flight=true;
 		}
+		if(  file->get_OTRP_version() >= 54  ) {
+			file->rdwr_bool(use_route_cache);
+		} else {
+			use_route_cache = false;
+		}
  		if(  file->is_version_atleast(122, 1)  ) {
 			file->rdwr_enum(climate_generator);
 			file->rdwr_byte( wind_direction );
@@ -1168,6 +1175,8 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	env_t::draw_outside_tile = contents.get_int( "draw_outside_tile", env_t::draw_outside_tile ) != 0;
 
 	// display stuff
+	env_t::night_shift                 = contents.get_int( "day_night_shift",                        env_t::night_shift ) != 0;
+	env_t::daynight_level              = contents.get_int_clamped( "daynight_level",                 env_t::daynight_level,            0, 9 );
 	env_t::show_names                  = contents.get_int_clamped( "show_names",                     env_t::show_names,                0, 7 );
 	env_t::show_month                  = contents.get_int_clamped( "show_month",                     env_t::show_month,                0, 8 );
 	env_t::show_vehicle_states         = contents.get_int_clamped( "show_vehicle_states",            env_t::show_vehicle_states,       0, env_t::MAX_SHOW_VEHICLE_STATES );
@@ -1859,6 +1868,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 		= contents.get_int("waiting_limit_for_first_come_first_serve", waiting_limit_for_first_come_first_serve);
 	
 	allow_higher_flight = contents.get_int("allow_higher_flight", allow_higher_flight);
+	use_route_cache = contents.get_int("use_route_cache", use_route_cache);
 
 	routecost_wait = contents.get_int("routecost_wait", routecost_wait);
 	routecost_halt = contents.get_int("routecost_halt", routecost_halt);

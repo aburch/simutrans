@@ -350,6 +350,9 @@ private:
 	// flying height calculation method
 	bool allow_higher_flight;
 
+	// use route cache
+	bool use_route_cache;
+
 	// The flag whether the time based goods routing is enabled for the goods.
 	// The array index is the goods category index.
 	bool is_time_based_routing_enabled[256];
@@ -763,6 +766,8 @@ public:
 	bool is_default_reverse() const {return default_reverse;}
 	// allow unload longer convoy
 	bool is_allow_unload_longer_convoy() const { return allow_unload_longer_convoy; }
+
+	bool is_using_route_cache() const { return use_route_cache; }
 };
 
 #endif

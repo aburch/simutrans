@@ -261,6 +261,7 @@ void settings_routing_stats_t::init(settings_t const* const sets)
 	INIT_NUM ( "base_waiting_ticks_for_air_convoi", sets->base_waiting_ticks_for_air_convoi, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
 	SEPERATOR
 	INIT_BOOL( "allow_higher_flight", sets->allow_higher_flight );
+	INIT_BOOL( "use_route_cache", sets->use_route_cache );
 	INIT_END
 }
 
@@ -311,6 +312,7 @@ void settings_routing_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->base_waiting_ticks_for_air_convoi );
 
 	READ_BOOL_VALUE( sets->allow_higher_flight );
+	READ_BOOL_VALUE( sets->use_route_cache );
 }
 
 
