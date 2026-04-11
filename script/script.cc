@@ -104,7 +104,7 @@ void script_vm_t::errorfunc(HSQUIRRELVM vm, const SQChar *s_, ...)
 void export_include(HSQUIRRELVM vm, const char* include_path); // api_include.cc
 
 // virtual machine
-script_vm_t::script_vm_t(const char* include_path_, const char* log_name)
+script_vm_t::script_vm_t(const char* include_path_, const char* log_name, bool enable_io)
 {
 	pause_on_error = false;
 
@@ -143,8 +143,10 @@ script_vm_t::script_vm_t(const char* include_path_, const char* log_name)
 	sq_pushroottable(vm);
 	sqstd_register_stringlib(vm);
 	sqstd_register_mathlib(vm);
-	sqstd_register_systemlib(vm);
-	sqstd_register_iolib(vm);
+	if (enable_io) {
+		sqstd_register_systemlib(vm);
+		sqstd_register_iolib(vm);
+	}
 	sq_pop(vm, 1);
 	// export include command
 	export_include(vm, include_path);

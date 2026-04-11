@@ -28,7 +28,7 @@ void sq_setwakeupretvalue(HSQUIRRELVM v); //sq_extensions
  */
 class script_vm_t {
 public:
-	script_vm_t(const char* include_path, const char* log_name);
+	script_vm_t(const char* include_path, const char* log_name, bool enable_io = true);
 	~script_vm_t();
 
 	/**

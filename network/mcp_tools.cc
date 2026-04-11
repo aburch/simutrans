@@ -50,7 +50,8 @@ static std::string tool_run_squirrel(const std::string &code, int player_nr)
 	ai_path.printf("%sai/", env_t::data_dir);
 
 	script_vm_t *vm = script_loader_t::start_vm("ai_base.nut", "script-mcp.log",
-	                                              ai_path, /*is_scenario=*/false);
+	                                              ai_path, /*is_scenario=*/false,
+	                                              /*enable_io=*/false);
 	if (!vm) {
 		return "{\"error\":\"failed to initialize Squirrel VM\"}";
 	}
