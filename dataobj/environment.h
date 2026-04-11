@@ -298,6 +298,15 @@ public:
 	static bool show_line_colors;
 	static bool show_convoy_loadinglevel;
 
+	/// Controls clipping of objects below elevated ways/bridges
+	/// 0 = never clip (no cut), 1 = always clip (all cut), 2 = use pak descriptor (pak dependence)
+	enum clip_below_mode {
+		CLIP_BELOW_NEVER  = 0,
+		CLIP_BELOW_ALWAYS = 1,
+		CLIP_BELOW_PAK    = 2
+	};
+	static sint8 clip_below;
+
 	/// show station coverage indicators
 	static uint8 station_coverage_show;
 

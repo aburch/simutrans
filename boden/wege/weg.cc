@@ -56,6 +56,13 @@ const slist_tpl <weg_t *> & weg_t::get_alle_wege()
 }
 
 
+bool weg_t::is_clipping_below_needed() const
+{
+	// elevated no clip?
+	return desc->is_clip_below();
+}
+
+
 // returns a way with matching waytype
 weg_t* weg_t::alloc(waytype_t wt)
 {

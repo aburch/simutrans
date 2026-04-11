@@ -63,6 +63,8 @@ public:
 	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 */
 	const char *is_deletable(const player_t *player) OVERRIDE;
+
+	virtual bool is_clipping_below_needed() const OVERRIDE;
 };
 
 #endif

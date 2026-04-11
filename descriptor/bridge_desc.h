@@ -40,6 +40,7 @@ private:
 
 	// number of seasons (0 = none, 1 = no snow/snow
 	sint8 number_of_seasons = 0;
+	bool  clip_below;  // default is true
 
 public:
 	/*
@@ -79,6 +80,8 @@ public:
 		}
 		return image != NULL ? image->get_id() : IMG_EMPTY;
 	}
+
+	bool is_clip_below() const { return clip_below; }
 
 	img_t get_straight(ribi_t::ribi ribi, uint8 height) const;
 	img_t get_start(slope_t::type slope) const;

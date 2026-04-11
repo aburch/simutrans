@@ -69,6 +69,7 @@ private:
 	gui_numberinput_t cursor_hide_range;
 	gui_combobox_t hide_buildings;
 	gui_combobox_t factory_tooltip;
+	gui_combobox_t clip_below_setting;
 public:
 	transparency_settings_t();
 	bool action_triggered( gui_action_creator_t *comp, value_t v ) OVERRIDE;

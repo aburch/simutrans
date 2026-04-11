@@ -60,6 +60,8 @@ private:
 	/// if true front_images lists exists as nodes
 	bool front_images;
 
+	bool clip_below; // only relevant for elevated ways
+
 	/**
 	 * calculates index of image list for flat ways
 	 * for winter and/or front images
@@ -99,6 +101,8 @@ public:
 	systemtype_t get_styp() const { return (systemtype_t)styp; }
 
 	bool is_tram() const { return wtyp == track_wt  &&  styp == type_tram; }
+
+	bool is_clip_below() const { return clip_below; }
 
 	image_id get_image_id(ribi_t::ribi ribi, uint8 season, bool front = false) const
 	{

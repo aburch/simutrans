@@ -371,6 +371,15 @@ transparency_settings_t::transparency_settings_t()
 	factory_tooltip.set_selection( env_t::show_factory_storage_bar );
 	add_component( &factory_tooltip );
 	factory_tooltip.add_listener( this );
+
+	new_component<gui_label_t>( "Clip below elevated ways" );
+	clip_below_setting.set_focusable( false );
+	clip_below_setting.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "no cut" ), SYSCOL_TEXT );
+	clip_below_setting.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "all cut" ), SYSCOL_TEXT );
+	clip_below_setting.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "pak dependence" ), SYSCOL_TEXT );
+	clip_below_setting.set_selection( env_t::clip_below );
+	add_component( &clip_below_setting );
+	clip_below_setting.add_listener( this );
 }
 
 bool transparency_settings_t::action_triggered( gui_action_creator_t *comp, value_t v )
@@ -390,6 +399,11 @@ bool transparency_settings_t::action_triggered( gui_action_creator_t *comp, valu
 
 		return true;
 	}
+	if( comp == &clip_below_setting ) {
+		env_t::clip_below = (sint8)v.i;
+		world()->set_dirty();
+		return true;
+	}
 	return true;
 }
 
@@ -397,6 +411,7 @@ bool transparency_settings_t::action_triggered( gui_action_creator_t *comp, valu
 void transparency_settings_t::draw( scr_coord offset )
 {
 	hide_buildings.set_selection( env_t::hide_buildings );
+	clip_below_setting.set_selection( env_t::clip_below );
 
 	gui_aligned_container_t::draw(offset);
 }

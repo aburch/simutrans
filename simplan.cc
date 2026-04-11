@@ -459,7 +459,7 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 		gr0->display_obj_all_quick_and_dirty( xpos, ypos, raster_tile_width, is_global  CLIP_NUM_PAR );
 	}
 	else {
-		if(  (i >= ground_size) || !gr0->obj_bei(0) || gr0->obj_bei(0)->get_typ()==obj_t::way || gr0->get_leitung()  ) {
+		if(  (i >= ground_size) || !gr0->obj_bei(0) || ((gr0->obj_bei(0)->get_typ()==obj_t::way || gr0->get_leitung())&&env_t::clip_below==env_t::CLIP_BELOW_NEVER)  ) {
 			// no tree or not on the ground
 			gr0->display_obj_all( xpos, ypos, raster_tile_width, is_global  CLIP_NUM_PAR );
 		}
@@ -481,6 +481,11 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 				}
 				// not too low?
 				if(  htop >= hmin  ) {
+					if (obj_t *o = data.some[j]->obj_bei(0)) {
+						if (env_t::clip_below==env_t::CLIP_BELOW_PAK&&!o->is_clipping_below_needed()) {
+							continue;
+						}
+					}
 					// something on top: clip horizontally to prevent trees etc shining trough bridges
 					const sint16 yh = ypos - tile_raster_scale_y( (h + corner_nw(data.some[j]->get_grund_hang()) - h0) * TILE_HEIGHT_STEP, raster_tile_width ) + ((3 * raster_tile_width) >> 2);
 					if(  yh >= p_cr.y  ) {
