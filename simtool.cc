@@ -6883,6 +6883,14 @@ const char *tool_link_factory_t::do_work( player_t *, const koord3d &start, cons
 			return NULL;
 		}
 	}
+	else if(fab!=NULL  &&  last_fab!=NULL  &&  last_fab==fab  &&  is_shift_pressed()) {
+		// connect to all factories
+		fab->add_all_suppliers();
+		FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
+			// connect to an existing one, if this is an producer
+			f->add_supplier(fab);
+		}
+	}
 	return "";
 }
 
