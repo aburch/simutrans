@@ -19,6 +19,7 @@
 
 #include "mcp_server.h"
 
+#include <algorithm>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
