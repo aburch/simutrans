@@ -27,6 +27,7 @@
 #include "../dataobj/environment.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/plainstring.h"
+#include "../simconst.h"
 #include "../simworld.h"
 
 
@@ -147,7 +148,7 @@ std::string mcp_tools::tools_call(const std::string &name,
 		std::string code     = mcp_server_t::json_get_string(args_json, "code");
 		std::string player_s = mcp_server_t::json_get_raw(args_json, "player_nr");
 		int player_nr = player_s.empty() ? 1 : atoi(player_s.c_str());
-		if (player_nr < 0 || player_nr > 15) player_nr = 1;
+		if (player_nr < 0 || player_nr > MAX_PLAYER_COUNT-1) player_nr = 1;
 		return tool_run_squirrel(code, player_nr);
 	}
 
