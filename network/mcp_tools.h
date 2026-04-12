@@ -9,6 +9,7 @@
 #include <string>
 
 class karte_t;
+class script_vm_t;
 
 /**
  * MCP tool registry and dispatcher.
@@ -21,14 +22,19 @@ std::string tools_list_json();
 
 /**
  * Execute a tool call.
- * @param name      tool name (e.g. "get_time")
- * @param args_json raw JSON object string for the arguments (may be "{}" or "")
- * @param welt      current world pointer (may be null if world not loaded yet)
- * @return JSON-serialised result value (to be wrapped in MCP content array)
+ * @param name           tool name (e.g. "run_squirrel")
+ * @param args_json      raw JSON object string for the arguments (may be "{}" or "")
+ * @param welt           current world pointer (may be null if world not loaded yet)
+ * @param out_pending_vm if non-null and the script suspends (network mode command_x),
+ *                       the VM is stored here instead of being deleted; the caller
+ *                       must resume and eventually delete it.  The return value is ""
+ *                       in this case (response will be sent asynchronously).
+ * @return JSON-serialised result value, or "" when *out_pending_vm was set.
  */
 std::string tools_call(const std::string &name,
                        const std::string &args_json,
-                       karte_t           *welt);
+                       karte_t           *welt,
+                       script_vm_t      **out_pending_vm = nullptr);
 
 } // namespace mcp_tools
 

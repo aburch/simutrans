@@ -32,11 +32,14 @@
 #include "../simdebug.h"
 #include "../simversion.h"
 #include "../simworld.h"
+#include "../script/script.h"
+#include "../utils/plainstring.h"
 #include "mcp_tools.h"
 
 // ---- static member storage ----
 SOCKET mcp_server_t::listen_sock = INVALID_SOCKET;
 std::vector<mcp_server_t::mcp_connection_t *> mcp_server_t::connections;
+std::vector<mcp_server_t::mcp_pending_t *>    mcp_server_t::pending_scripts;
 karte_t *mcp_server_t::world = NULL;
 
 
@@ -153,6 +156,12 @@ bool mcp_server_t::init(uint16 port)
 
 void mcp_server_t::shutdown()
 {
+	for (mcp_pending_t *p : pending_scripts) {
+		delete p->vm;
+		delete p;
+	}
+	pending_scripts.clear();
+
 	for (mcp_connection_t *c : connections) {
 		close_socket(c->sock);
 		delete c;
@@ -184,6 +193,56 @@ void mcp_server_t::step(karte_t *welt)
 		connections.erase(std::find(connections.begin(), connections.end(), c));
 		delete c;
 	}
+
+	step_pending();
+}
+
+
+// ---- private: pending script resume ----
+
+void mcp_server_t::step_pending()
+{
+	if (pending_scripts.empty()) {
+		return;
+	}
+
+	std::vector<mcp_pending_t *> still_pending;
+	for (mcp_pending_t *p : pending_scripts) {
+		// If the connection was closed, cancel the script silently
+		if (p->conn->sock == INVALID_SOCKET) {
+			delete p->vm;
+			delete p;
+			continue;
+		}
+
+		plainstring result;
+		const char *err = p->vm->try_continue(result);
+
+		std::string result_json;
+		if (err == NULL) {
+			// Completed successfully
+			result_json = std::string("{\"result\":\"")
+			            + json_escape(result.c_str() ? result.c_str() : "") + "\"}";
+		}
+		else if (strcmp(err, "suspended") == 0) {
+			// Still waiting for network command
+			still_pending.push_back(p);
+			continue;
+		}
+		else {
+			// Error
+			result_json = std::string("{\"error\":\"") + json_escape(err) + "\"}";
+		}
+
+		// Wrap and send response
+		std::string escaped = json_escape(result_json);
+		std::string content = "{\"content\":[{\"type\":\"text\",\"text\":\""
+		                    + escaped + "\"}]}";
+		p->conn->send_buf += make_response(p->id_json, content) + '\n';
+		delete p->vm;
+		delete p;
+	}
+	pending_scripts = std::move(still_pending);
 }
 
 
@@ -294,19 +353,22 @@ void mcp_server_t::handle_line(mcp_connection_t *c, const std::string &line)
 		return;
 	}
 
-	std::string response = dispatch(method, id_json, params);
+	std::string response = dispatch(c, method, id_json, params);
 	if (!response.empty()) {
 		c->send_buf += response;
 		c->send_buf += '\n';
 	}
+	// If response is empty and this was a tools/call, the script may have suspended;
+	// the pending VM was already added to pending_scripts inside dispatch().
 }
 
 
 // ---- private: dispatch ----
 
-std::string mcp_server_t::dispatch(const std::string &method,
-                                    const std::string &id_json,
-                                    const std::string &params_json)
+std::string mcp_server_t::dispatch(mcp_connection_t   *c,
+                                    const std::string  &method,
+                                    const std::string  &id_json,
+                                    const std::string  &params_json)
 {
 	// Notifications (no id) → no response
 	if (id_json.empty() || id_json == "null") {
@@ -346,7 +408,15 @@ std::string mcp_server_t::dispatch(const std::string &method,
 		std::string tool_name = json_get_string(params_json, "name");
 		std::string args_json = json_get_raw(params_json, "arguments");
 		if (args_json.empty()) args_json = "{}";
-		std::string result_json = mcp_tools::tools_call(tool_name, args_json, world);
+
+		script_vm_t *pending_vm = nullptr;
+		std::string result_json = mcp_tools::tools_call(tool_name, args_json, world,
+		                                                 &pending_vm);
+		if (pending_vm) {
+			// Script suspended (network mode command_x) — response will be sent later
+			pending_scripts.push_back(new mcp_pending_t{pending_vm, c, id_json});
+			return "";
+		}
 		// wrap in MCP content array
 		std::string escaped_result = json_escape(result_json);
 		std::string content = "{\"content\":[{\"type\":\"text\",\"text\":\""

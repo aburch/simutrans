@@ -11,6 +11,7 @@
 #include <vector>
 
 class karte_t;
+class script_vm_t;
 
 /**
  * Minimal MCP (Model Context Protocol) server.
@@ -52,13 +53,22 @@ private:
 		explicit mcp_connection_t(SOCKET s) : sock(s), initialized(false) {}
 	};
 
+	/// A run_squirrel call that suspended mid-execution (network mode command_x).
+	struct mcp_pending_t {
+		script_vm_t      *vm;
+		mcp_connection_t *conn;
+		std::string       id_json;
+	};
+
 	static SOCKET listen_sock;
 	static std::vector<mcp_connection_t *> connections;
+	static std::vector<mcp_pending_t *>    pending_scripts;
 	static karte_t *world; ///< current world, set each step()
 
 	static void accept_new();
 	static void io_connection(mcp_connection_t *c);
 	static void handle_line(mcp_connection_t *c, const std::string &line);
+	static void step_pending();
 
 	/** Build a JSON-RPC success response. result_json is the raw JSON value. */
 	static std::string make_response(const std::string &id_json, const std::string &result_json);
@@ -66,10 +76,14 @@ private:
 	/** Build a JSON-RPC error response. */
 	static std::string make_error(const std::string &id_json, int code, const std::string &message);
 
-	/** Dispatch a parsed request and return the response JSON string (empty = no response). */
-	static std::string dispatch(const std::string &method,
-	                            const std::string &id_json,
-	                            const std::string &params_json);
+	/**
+	 * Dispatch a parsed request.
+	 * @return JSON-RPC response string, or "" if the response will be sent asynchronously.
+	 */
+	static std::string dispatch(mcp_connection_t   *c,
+	                            const std::string  &method,
+	                            const std::string  &id_json,
+	                            const std::string  &params_json);
 
 	static void close_socket(SOCKET s);
 };

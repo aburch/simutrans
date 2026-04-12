@@ -424,6 +424,46 @@ void script_vm_t::intern_resume_call(HSQUIRRELVM job)
 	dbg->message("script_vm_t::intern_resume_call", "stack=%d", sq_gettop(job));
 }
 
+
+const char* script_vm_t::try_continue(plainstring &result)
+{
+	if (sq_getvmstate(thread) == SQ_VMSTATE_IDLE) {
+		return "not pending";
+	}
+
+	// Read state flags from coroutine registry
+	sq_pushregistrytable(thread);
+	bool wait     = false;
+	bool retvalue = true;
+	script_api::get_slot(thread, "wait_external", wait,     -1);
+	script_api::get_slot(thread, "retvalue",      retvalue, -1);
+	sq_poptop(thread);
+
+	if (wait || !sq_canresumevm(thread)) {
+		return "suspended";
+	}
+
+	// Resume the coroutine
+	if (!SQ_SUCCEEDED(sq_resumevm(thread, retvalue, 100000))) {
+		sq_settop(thread, 0);
+		return "resume failed";
+	}
+
+	if (sq_getvmstate(thread) == SQ_VMSTATE_SUSPENDED) {
+		// Suspended again (e.g. another command_x in network mode)
+		return "suspended";
+	}
+
+	// Coroutine completed — retrieve return value from stack top
+	if (retvalue && sq_gettop(thread) > 0) {
+		result = script_api::param<plainstring>::get(thread, -1);
+	}
+	sq_settop(thread, 0); // clean up
+
+	return NULL; // success
+}
+
+
 /**
  * Stack(job): expects closure, nparams*objects, clean on exit.
  * Put call into registry.queue, callback into registry.queued_callbacks.

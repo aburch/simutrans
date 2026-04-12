@@ -69,6 +69,22 @@ public:
 	 */
 	static bool is_call_suspended(const char* err);
 
+	/**
+	 * MCP use: advance a script that was suspended mid-execution (e.g. by command_x
+	 * in network mode).  Must only be called on a VM whose last call_function(QUEUE,...)
+	 * returned "suspended".
+	 *
+	 * Does NOT go through the normal QUEUE callback mechanism; it directly resumes
+	 * the coroutine thread and retrieves the return value.  Safe because MCP VMs
+	 * have no registered callbacks and no queued calls.
+	 *
+	 * @param result  set to the script's return value when the call completes
+	 * @return NULL   = completed successfully (result is valid)
+	 *         "suspended" = still waiting (network command not yet processed)
+	 *         other  = error string
+	 */
+	const char* try_continue(plainstring &result);
+
 #	define prep_function_call() \
 		HSQUIRRELVM job; \
 		const char* err = intern_prepare_call(job, ct, function); \

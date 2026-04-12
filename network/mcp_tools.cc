@@ -44,7 +44,13 @@ static std::string jstr(const char *s)          { return s ? jstr(std::string(s)
 // Tool implementation
 // ---------------------------------------------------------------------------
 
-static std::string tool_run_squirrel(const std::string &code, int player_nr)
+// Start a squirrel script execution.
+// Returns result JSON on immediate completion.
+// On suspension (network mode command_x), sets *out_vm to the live VM and returns "".
+// On error, returns error JSON.
+// Caller owns *out_vm and must eventually delete it.
+static std::string tool_run_squirrel(const std::string &code, int player_nr,
+                                     script_vm_t **out_vm)
 {
 	// Create a fresh VM for each call so no state leaks between invocations.
 	cbuffer_t ai_path;
@@ -60,31 +66,37 @@ static std::string tool_run_squirrel(const std::string &code, int player_nr)
 	vm->pause_on_error = false;
 
 	// Wrap the user code in a named function so we can call it with
-	// call_function<plainstring>(FORCEX, ...) and capture the return value.
+	// call_function<plainstring>(QUEUE, ...) and capture the return value.
 	std::string wrapped =
 		"function __mcp_fn__() {\n"
 		+ code +
 		"\n}";
 
-	std::string result_json;
-
 	// Step 1: define __mcp_fn__ in the VM
 	const char *err = vm->eval_string(wrapped.c_str());
 	if (err && strcmp(err, "suspended") != 0) {
+		std::string result_json = "{\"error\":" + jstr(err) + "}";
+		delete vm;
+		return result_json;
+	}
+
+	// Step 2: call __mcp_fn__ via QUEUE mode (allows command_x suspend in network mode)
+	plainstring result;
+	err = vm->call_function(script_vm_t::QUEUE, "__mcp_fn__", result);
+
+	if (script_vm_t::is_call_suspended(err)) {
+		// Script suspended waiting for a network command — hand VM to caller
+		*out_vm = vm;
+		return "";
+	}
+
+	std::string result_json;
+	if (err) {
 		result_json = "{\"error\":" + jstr(err) + "}";
 	}
 	else {
-		// Step 2: call __mcp_fn__ synchronously, capture return value as string
-		plainstring result;
-		err = vm->call_function(script_vm_t::FORCEX, "__mcp_fn__", result);
-		if (err) {
-			result_json = "{\"error\":" + jstr(err) + "}";
-		}
-		else {
-			result_json = "{\"result\":" + jstr(result.c_str()) + "}";
-		}
+		result_json = "{\"result\":" + jstr(result.c_str()) + "}";
 	}
-
 	delete vm;
 	return result_json;
 }
@@ -142,14 +154,25 @@ std::string mcp_tools::tools_list_json()
 
 std::string mcp_tools::tools_call(const std::string &name,
                                    const std::string &args_json,
-                                   karte_t           * /*welt*/)
+                                   karte_t           * /*welt*/,
+                                   script_vm_t      **out_pending_vm)
 {
 	if (name == "run_squirrel") {
 		std::string code     = mcp_server_t::json_get_string(args_json, "code");
 		std::string player_s = mcp_server_t::json_get_raw(args_json, "player_nr");
 		int player_nr = player_s.empty() ? 1 : atoi(player_s.c_str());
 		if (player_nr < 0 || player_nr > MAX_PLAYER_COUNT-1) player_nr = 1;
-		return tool_run_squirrel(code, player_nr);
+		script_vm_t *pending_vm = nullptr;
+		std::string result = tool_run_squirrel(code, player_nr, &pending_vm);
+		if (out_pending_vm) {
+			*out_pending_vm = pending_vm;
+		}
+		else if (pending_vm) {
+			// Caller doesn't support async — treat as error
+			delete pending_vm;
+			return "{\"error\":\"script suspended but caller does not support async\"}";
+		}
+		return result;
 	}
 
 	return "{\"error\":\"unknown tool: " + jesc(name) + "\"}";
