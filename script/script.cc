@@ -444,7 +444,7 @@ const char* script_vm_t::try_continue(plainstring &result)
 	}
 
 	// Resume the coroutine
-	if (!SQ_SUCCEEDED(sq_resumevm(thread, retvalue, 100000))) {
+	if (!SQ_SUCCEEDED(sq_resumevm(thread, retvalue, 10000))) {
 		sq_settop(thread, 0);
 		return "resume failed";
 	}
