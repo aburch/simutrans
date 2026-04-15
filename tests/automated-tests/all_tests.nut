@@ -229,7 +229,8 @@ all_tests <- [
 	test_schedule_entry_spacing,
 	test_schedule_entry_length_coupling_done,
 	test_schedule_entry_max_speed,
-	test_schedule_entry_balance_speed
+	test_schedule_entry_balance_speed,
+	test_schedule_flags
 ]
 
 

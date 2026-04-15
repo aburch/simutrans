@@ -153,3 +153,32 @@ function test_schedule_entry_balance_speed()
 	local sched2 = cnv.get_schedule()
 	ASSERT_EQUAL(sched2.entries[0].balance_speed, 80)
 }
+
+// --- Property 6: schedule_x.flags ---
+
+function test_schedule_flags()
+{
+	local pl = player_x(0)
+
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(4, 2, 0), coord3d(4, 8, 0), "sand_track"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 2, 0), "TrainStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 7, 0), "TrainStop"), null)
+	ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 8, 0), building_desc_x("TrainDepot")), null)
+
+	local depot = depot_x(4, 8, 0)
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("1Diesellokomotive"))
+	local cnv = depot.get_convoy_list()[0]
+
+	cnv.change_schedule(pl, schedule_x(wt_rail, [
+		schedule_entry_x(coord3d(4, 2, 0), 0, 0),
+		schedule_entry_x(coord3d(4, 7, 0), 0, 0),
+	]))
+
+	// SAME_DEP_TIME=2, FULL_LOAD_ACCELERATION=4 => flags=6
+	local sched = cnv.get_schedule()
+	sched.flags = 6
+	cnv.change_schedule(pl, sched)
+
+	local sched2 = cnv.get_schedule()
+	ASSERT_EQUAL(sched2.flags, 6)
+}

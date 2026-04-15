@@ -607,7 +607,11 @@ namespace script_api {
 	SQInteger param<const schedule_t*>::push(HSQUIRRELVM vm, const schedule_t* const& v)
 	{
 		if (v) {
-			return push_instance(vm, "schedule_x", v->get_waytype(), v->get_entries(), v->get_additional_base_waiting_time());
+			SQInteger result = push_instance(vm, "schedule_x", v->get_waytype(), v->get_entries(), v->get_additional_base_waiting_time());
+			if (result > 0) {
+				set_slot(vm, "flags", (sint32)v->get_flags());
+			}
+			return result;
 		}
 		else {
 			sq_pushnull(vm); return 1;

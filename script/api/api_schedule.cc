@@ -134,6 +134,11 @@ schedule_t* script_api::param<schedule_t*>::get(HSQUIRRELVM vm, SQInteger index)
 		uint16 wait = 0;
 		get_slot(vm, "base_waiting_time", wait, index);
 		sched->set_additional_base_waiting_time(wait);
+
+		uint8 schedule_flags = 0;
+		get_slot(vm, "flags", schedule_flags, index);
+		sched->set_flags(schedule_flags);
+
 		sched->set_next_line(next_line);
 	}
 	return sched;
@@ -229,13 +234,18 @@ void export_schedule(HSQUIRRELVM vm)
 	
 	/**
 	 * Additional base waiting time for this schedule.
-	 * 
 	 */
 	integer base_waiting_time;
+
+	/**
+	 * Schedule-level flags bitmask (TEMPORARY=1, SAME_DEP_TIME=2, FULL_LOAD_ACCELERATION=4, FULL_LOAD_TIME=8, REVERSE_DEFAULT=16).
+	 */
+	integer flags;
 #else
 	create_slot(vm, "entries", 0);
 	create_slot(vm, "waytype", 0);
 	create_slot(vm, "base_waiting_time", 0);
+	create_slot(vm, "flags", 0);
 #endif
 
 	end_class(vm);
