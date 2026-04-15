@@ -566,20 +566,29 @@ namespace script_api {
 
 	SQInteger param<schedule_entry_t>::push(HSQUIRRELVM vm, schedule_entry_t const& v)
 	{
-		if (&v) {
-			koord k = v.pos.get_2d();
-			// transform coordinates
-			coordinate_transform_t::koord_w2sq(k);
-			if (SQ_FAILED(push_instance(vm, "schedule_entry_x", k.x, k.y, v.pos.z))) {
-				return SQ_ERROR;
-			}
+		koord k = v.pos.get_2d();
+		// transform coordinates
+		coordinate_transform_t::koord_w2sq(k);
+		// Create instance without calling the Squirrel constructor
+		// (the Squirrel constructor expects a coord3d object as first arg, not integers)
+		if (SQ_FAILED(push_class(vm, "schedule_entry_x"))) {
+			return SQ_ERROR;
 		}
+		if (SQ_FAILED(sq_createinstance(vm, -1))) {
+			sq_pop(vm, 1); // remove class
+			return SQ_ERROR;
+		}
+		sq_remove(vm, -2); // remove class, leave instance on top
 
+		set_slot(vm, "x", k.x);
+		set_slot(vm, "y", k.y);
+		set_slot(vm, "z", v.pos.z);
 		set_slot(vm, "load", (sint32)v.minimum_loading);
+		set_slot(vm, "maximum_load", (sint32)v.maximum_loading);
 		set_slot(vm, "wait", (sint32)v.waiting_time_shift);
 		set_slot(vm, "flags", v.get_stop_flags());
 
-    return 1;
+		return 1;
 	}
 
 

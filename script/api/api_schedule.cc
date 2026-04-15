@@ -77,9 +77,12 @@ void append_entry(HSQUIRRELVM vm, SQInteger index, schedule_t* sched)
 	uint32 stop_flags = 0;
 	get_slot(vm, "flags", stop_flags, index);
 
+	uint8 maximum_loading = 100;
+	get_slot(vm, "maximum_load", maximum_loading, index);
+
 	grund_t *gr = welt->lookup(pos);
 	if (gr) {
-		sched->append(gr, minimum_loading, waiting_time_shift, stop_flags);
+		sched->append(gr, minimum_loading, waiting_time_shift, stop_flags, 0, 0, maximum_loading);
 	}
 }
 
@@ -163,6 +166,7 @@ void export_schedule(HSQUIRRELVM vm)
 #endif
 
 	create_slot(vm, "flags", 0);
+	create_slot(vm, "maximum_load", 100);
 
 	/**
 	 * Returns halt at this entry position.
