@@ -225,7 +225,8 @@ all_tests <- [
 	test_stop_before_check_false_convoy_does_not_stop,
 	test_trees_plant_single_invalid_param,
 	test_way_tunnel_build_straight,
-	test_schedule_entry_maximum_load
+	test_schedule_entry_maximum_load,
+	test_schedule_entry_spacing
 ]
 
 
