@@ -135,6 +135,10 @@ schedule_t* script_api::param<schedule_t*>::get(HSQUIRRELVM vm, SQInteger index)
 		get_slot(vm, "base_waiting_time", wait, index);
 		sched->set_additional_base_waiting_time(wait);
 
+		uint8 current = 0;
+		get_slot(vm, "current", current, index);
+		sched->set_current_stop(current);
+
 		uint8 schedule_flags = 0;
 		get_slot(vm, "flags", schedule_flags, index);
 		sched->set_flags(schedule_flags);
@@ -242,6 +246,16 @@ void export_schedule(HSQUIRRELVM vm)
 	integer base_waiting_time;
 
 	/**
+	 * Current stop of schedule:
+	 * default first stop (schedule of line)
+	 * or next stop of convoy (schedule of convoy).
+	 *
+	 * In order to change this value for a convoy
+	 * call @ref convoy_x::change_schedule.
+	 */
+	integer current;
+
+	/**
 	 * Schedule-level flags bitmask (TEMPORARY=1, SAME_DEP_TIME=2, FULL_LOAD_ACCELERATION=4, FULL_LOAD_TIME=8, REVERSE_DEFAULT=16).
 	 */
 	integer flags;
@@ -254,6 +268,7 @@ void export_schedule(HSQUIRRELVM vm)
 	create_slot(vm, "entries", 0);
 	create_slot(vm, "waytype", 0);
 	create_slot(vm, "base_waiting_time", 0);
+	create_slot(vm, "current", 0);
 	create_slot(vm, "flags", 0);
 	create_slot(vm, "max_speed", 0);
 #endif
