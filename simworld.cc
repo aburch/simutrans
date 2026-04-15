@@ -72,6 +72,7 @@
 #include "network/network_file_transfer.h"
 #include "network/network_socket_list.h"
 #include "network/network_cmd_ingame.h"
+#include "network/mcp_server.h"
 
 #include "dataobj/height_map_loader.h"
 #include "dataobj/ribi.h"
@@ -7560,6 +7561,9 @@ bool karte_t::interactive(uint32 quit_month)
 		if (env_t::quit_simutrans){
 			break;
 		}
+
+		// poll MCP server (accept connections, read/dispatch/write) – main thread, no locks needed
+		mcp_server_t::step(this);
 
 		if(  env_t::networkmode  ) {
 			process_network_commands(&ms_difference);

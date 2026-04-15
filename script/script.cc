@@ -104,7 +104,7 @@ void script_vm_t::errorfunc(HSQUIRRELVM vm, const SQChar *s_, ...)
 void export_include(HSQUIRRELVM vm, const char* include_path); // api_include.cc
 
 // virtual machine
-script_vm_t::script_vm_t(const char* include_path_, const char* log_name)
+script_vm_t::script_vm_t(const char* include_path_, const char* log_name, bool enable_io)
 {
 	pause_on_error = false;
 
@@ -143,8 +143,10 @@ script_vm_t::script_vm_t(const char* include_path_, const char* log_name)
 	sq_pushroottable(vm);
 	sqstd_register_stringlib(vm);
 	sqstd_register_mathlib(vm);
-	sqstd_register_systemlib(vm);
-	sqstd_register_iolib(vm);
+	if (enable_io) {
+		sqstd_register_systemlib(vm);
+		sqstd_register_iolib(vm);
+	}
 	sq_pop(vm, 1);
 	// export include command
 	export_include(vm, include_path);
@@ -421,6 +423,46 @@ void script_vm_t::intern_resume_call(HSQUIRRELVM job)
 
 	dbg->message("script_vm_t::intern_resume_call", "stack=%d", sq_gettop(job));
 }
+
+
+const char* script_vm_t::try_continue(plainstring &result)
+{
+	if (sq_getvmstate(thread) == SQ_VMSTATE_IDLE) {
+		return "not pending";
+	}
+
+	// Read state flags from coroutine registry
+	sq_pushregistrytable(thread);
+	bool wait     = false;
+	bool retvalue = true;
+	script_api::get_slot(thread, "wait_external", wait,     -1);
+	script_api::get_slot(thread, "retvalue",      retvalue, -1);
+	sq_poptop(thread);
+
+	if (wait || !sq_canresumevm(thread)) {
+		return "suspended";
+	}
+
+	// Resume the coroutine
+	if (!SQ_SUCCEEDED(sq_resumevm(thread, retvalue, 10000))) {
+		sq_settop(thread, 0);
+		return "resume failed";
+	}
+
+	if (sq_getvmstate(thread) == SQ_VMSTATE_SUSPENDED) {
+		// Suspended again (e.g. another command_x in network mode)
+		return "suspended";
+	}
+
+	// Coroutine completed — retrieve return value from stack top
+	if (retvalue && sq_gettop(thread) > 0) {
+		result = script_api::param<plainstring>::get(thread, -1);
+	}
+	sq_settop(thread, 0); // clean up
+
+	return NULL; // success
+}
+
 
 /**
  * Stack(job): expects closure, nparams*objects, clean on exit.

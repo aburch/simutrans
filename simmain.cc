@@ -78,6 +78,7 @@
 #include "dataobj/repositioning.h"
 #include "network/pakset_info.h"
 #include "network/otrp_log_sender.h"
+#include "network/mcp_server.h"
 
 #include "descriptor/reader/obj_reader.h"
 #include "descriptor/sound_desc.h"
@@ -396,6 +397,7 @@ void print_help()
 		"                      1=640x480, 2=800x600, 3=1024x768, 4=1280x1024\n"
 		" -scenario NAME      Load scenario NAME\n"
 		" -screensize WxH     set screensize to width W and height H\n"
+		" -mcp-port PORT      start MCP (Model Context Protocol) server on PORT\n"
 		" -server [PORT]      starts program as server (for network game)\n"
 		"                     without port specified uses 13353\n"
 		" -announce           Enable server announcements\n"
@@ -820,6 +822,14 @@ int simu_main(int argc, char** argv)
 			// no announce for clients ...
 			env_t::server_announce = 0;
 		}
+	}
+
+	// start MCP server if requested
+	if (args.has_arg("-mcp-port")) {
+		const char *p = args.gimme_arg("-mcp-port", 1);
+		uint16 mcp_port = p ? (uint16)atoi(p) : 13354;
+		if (mcp_port == 0) { mcp_port = 13354; }
+		mcp_server_t::init(mcp_port);
 	}
 
 	DBG_MESSAGE("simu_main()", "Version:    " VERSION_NUMBER "  Date: " VERSION_DATE);
@@ -1777,6 +1787,7 @@ int simu_main(int argc, char** argv)
 	delete eventmanager;
 	eventmanager = NULL;
 
+	mcp_server_t::shutdown();
 	remove_port_forwarding( env_t::server );
 	network_core_shutdown();
 

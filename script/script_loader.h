@@ -15,7 +15,7 @@ struct script_loader_t
 	 * Starts vm, loads the scripting interface, loads script/[base_file_name].
 	 * @returns vm or NULL in case of error
 	 */
-	static script_vm_t* start_vm(const char* base_file_name, const char* logfile_name, const char* include_path, bool is_scenario);
+	static script_vm_t* start_vm(const char* base_file_name, const char* logfile_name, const char* include_path, bool is_scenario, bool enable_io = true);
 
 	/**
 	 * Loads base script files: env_t::data_dir/script/script_base.nut and env_t::data_dir/script/[base].
