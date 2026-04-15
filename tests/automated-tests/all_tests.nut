@@ -36,6 +36,7 @@ include("tests/test_way_runway")
 include("tests/test_way_tram")
 include("tests/test_way_tunnel")
 include("tests/test_wayobj")
+include("tests/test_schedule")
 
 
 all_tests <- [
@@ -223,7 +224,12 @@ all_tests <- [
 	test_stop_before_check_choose_signal_convoy_stops,
 	test_stop_before_check_false_convoy_does_not_stop,
 	test_trees_plant_single_invalid_param,
-	test_way_tunnel_build_straight
+	test_way_tunnel_build_straight,
+	test_schedule_entry_maximum_load,
+	test_schedule_entry_spacing,
+	test_schedule_entry_length_coupling_done,
+	test_schedule_entry_max_speed,
+	test_schedule_entry_balance_speed
 ]
 
 
