@@ -139,6 +139,10 @@ schedule_t* script_api::param<schedule_t*>::get(HSQUIRRELVM vm, SQInteger index)
 		get_slot(vm, "flags", schedule_flags, index);
 		sched->set_flags(schedule_flags);
 
+		uint16 schedule_max_speed = 0;
+		get_slot(vm, "max_speed", schedule_max_speed, index);
+		sched->set_max_speed(schedule_max_speed);
+
 		sched->set_next_line(next_line);
 	}
 	return sched;
@@ -241,11 +245,17 @@ void export_schedule(HSQUIRRELVM vm)
 	 * Schedule-level flags bitmask (TEMPORARY=1, SAME_DEP_TIME=2, FULL_LOAD_ACCELERATION=4, FULL_LOAD_TIME=8, REVERSE_DEFAULT=16).
 	 */
 	integer flags;
+
+	/**
+	 * Schedule-level operational maximum speed (km/h). 0 means no limit.
+	 */
+	integer max_speed;
 #else
 	create_slot(vm, "entries", 0);
 	create_slot(vm, "waytype", 0);
 	create_slot(vm, "base_waiting_time", 0);
 	create_slot(vm, "flags", 0);
+	create_slot(vm, "max_speed", 0);
 #endif
 
 	end_class(vm);

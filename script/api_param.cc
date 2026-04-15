@@ -610,6 +610,7 @@ namespace script_api {
 			SQInteger result = push_instance(vm, "schedule_x", v->get_waytype(), v->get_entries(), v->get_additional_base_waiting_time());
 			if (result > 0) {
 				set_slot(vm, "flags", (sint32)v->get_flags());
+				set_slot(vm, "max_speed", (sint32)v->get_max_speed());
 			}
 			return result;
 		}
