@@ -5346,6 +5346,9 @@ const char* convoi_t::send_to_depot(bool local)
 			}
 			if(  valid_waytype  ) {
 				txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
+				cbuffer_t buf;
+				buf.printf( translator::translate("%s has entered a depot."), get_name() );
+				welt->get_message()->add_message(buf, front()->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_EMPTY);
 				betrete_depot(dep,false);
 				return txt;
 			}
@@ -5500,6 +5503,9 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 				c = c->get_coupling_convoi();
 			}
 		}
+		cbuffer_t buf;
+		buf.printf( translator::translate("%s has entered a depot."), get_name() );
+		welt->get_message()->add_message(buf, home.get_2d(),message_t::warnings, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_EMPTY);
 		betrete_depot(world()->lookup(home)->get_depot(), false);
 		txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
 		set_schedule(get_schedule());
@@ -5524,6 +5530,7 @@ const char* convoi_t::send_to_specific_depot(koord3d depot_pos, bool immediate, 
 		return "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
 	}
 	vehicle_t *v = front();
+
 	if (!dep->can_accept_waytype(v->get_desc()->get_waytype()) || dep->get_owner() != get_owner()) {
 		return "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
 	}
@@ -5554,6 +5561,9 @@ const char* convoi_t::send_to_specific_depot(koord3d depot_pos, bool immediate, 
 				c = c->get_coupling_convoi();
 			}
 		}
+		cbuffer_t buf;
+		buf.printf( translator::translate("%s has entered a depot."), get_name() );
+		welt->get_message()->add_message(buf, depot_pos.get_2d(),message_t::warnings, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_EMPTY);
 		betrete_depot(dep, false);
 	}
 	else {
