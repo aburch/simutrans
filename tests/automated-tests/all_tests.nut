@@ -226,7 +226,8 @@ all_tests <- [
 	test_trees_plant_single_invalid_param,
 	test_way_tunnel_build_straight,
 	test_schedule_entry_maximum_load,
-	test_schedule_entry_spacing
+	test_schedule_entry_spacing,
+	test_schedule_entry_length_coupling_done
 ]
 
 

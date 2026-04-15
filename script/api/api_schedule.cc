@@ -80,6 +80,9 @@ void append_entry(HSQUIRRELVM vm, SQInteger index, schedule_t* sched)
 	uint8 maximum_loading = 100;
 	get_slot(vm, "maximum_load", maximum_loading, index);
 
+	uint16 length_coupling_done = 0;
+	get_slot(vm, "length_coupling_done", length_coupling_done, index);
+
 	uint16 spacing = 1;
 	get_slot(vm, "spacing", spacing, index);
 
@@ -91,7 +94,7 @@ void append_entry(HSQUIRRELVM vm, SQInteger index, schedule_t* sched)
 
 	grund_t *gr = welt->lookup(pos);
 	if (gr) {
-		if (sched->append(gr, minimum_loading, waiting_time_shift, stop_flags, 0, 0, maximum_loading)) {
+		if (sched->append(gr, minimum_loading, waiting_time_shift, stop_flags, 0, length_coupling_done, maximum_loading)) {
 			sched->at(sched->get_count() - 1).set_spacing(spacing, spacing_shift, delay_tolerance);
 		}
 	}
@@ -178,6 +181,7 @@ void export_schedule(HSQUIRRELVM vm)
 
 	create_slot(vm, "flags", 0);
 	create_slot(vm, "maximum_load", 100);
+	create_slot(vm, "length_coupling_done", 0);
 	create_slot(vm, "spacing", 1);
 	create_slot(vm, "spacing_shift", 0);
 	create_slot(vm, "delay_tolerance", 0);

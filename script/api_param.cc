@@ -587,6 +587,7 @@ namespace script_api {
 		set_slot(vm, "maximum_load", (sint32)v.maximum_loading);
 		set_slot(vm, "wait", (sint32)v.waiting_time_shift);
 		set_slot(vm, "flags", v.get_stop_flags());
+		set_slot(vm, "length_coupling_done", (sint32)v.length_coupling_done);
 		set_slot(vm, "spacing", (sint32)v.spacing);
 		set_slot(vm, "spacing_shift", (sint32)v.spacing_shift);
 		set_slot(vm, "delay_tolerance", (sint32)v.delay_tolerance);
