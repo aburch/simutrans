@@ -80,7 +80,7 @@ void dr_play_midi(int key)
 	if (midi_number > 0) {
 
 		if (key >= 0 && key <= midi_number) {
-			sprintf(str, "open \"%s\" type sequencer alias SimuMIDI", midi_filenames[key].c_str());
+			sprintf(str, "open \"%s\" alias SimuMIDI", midi_filenames[key].c_str());
 			dbg->debug("dr_play_midi(w32)", "MCI string: %s", str);
 
 			if (mciSendStringA(str, NULL, 0, NULL) != 0) {
