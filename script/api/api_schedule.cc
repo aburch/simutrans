@@ -115,7 +115,6 @@ schedule_t* script_api::param<schedule_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	// get instance pointer
 	schedule_t* sched = get_attached_instance<schedule_t>(vm, index, param<schedule_t*>::tag());
 	if (sched) {
-		linehandle_t const next_line = sched->get_next_line();
 		sched->remove_all();
 		// now read the entries
 		sq_pushstring(vm, "entries", -1);
@@ -151,7 +150,11 @@ schedule_t* script_api::param<schedule_t*>::get(HSQUIRRELVM vm, SQInteger index)
 		get_slot(vm, "departure_slot_group_id", dsgid_handle, index);
 		sched->set_departure_slot_group_id(dsgid_handle);
 
-		sched->set_next_line(next_line);
+		linehandle_t next_line_handle;
+		get_slot(vm, "next_line", next_line_handle, index);
+		if (next_line_handle.is_bound()) {
+			sched->set_next_line(next_line_handle);
+		}
 	}
 	return sched;
 }
@@ -159,6 +162,18 @@ schedule_t* script_api::param<schedule_t*>::get(HSQUIRRELVM vm, SQInteger index)
 void* script_api::param<schedule_t*>::tag()
 {
 	return (void*)&script_api::param<schedule_t*>::get;
+}
+
+static SQInteger schedule_set_next_line(HSQUIRRELVM vm)
+{
+	schedule_t* sched = get_attached_instance<schedule_t>(vm, 1, param<schedule_t*>::tag());
+	if (sched == NULL) {
+		return sq_raise_error(vm, "schedule is null");
+	}
+	linehandle_t line = param<linehandle_t>::get(vm, 2);
+	sched->set_next_line(line);
+	set_slot(vm, "next_line", sched->get_next_line(), 1);
+	return 0;
 }
 
 void export_schedule(HSQUIRRELVM vm)
@@ -275,6 +290,21 @@ void export_schedule(HSQUIRRELVM vm)
 	 * null if not assigned to any departure slot group.
 	 */
 	line_x departure_slot_group_id;
+
+	/**
+	 * The line to which the convoy transitions when this schedule is completed.
+	 * Read-only: use @ref set_next_line to change this value.
+	 * null if not set.
+	 */
+	line_x next_line;
+
+	/**
+	 * Sets the next line, applying validity checks (waytype match, >=2 entries, stoppable halt at first stop).
+	 * Pass null to unset.
+	 * @param line the candidate next line, or null
+	 * @typemask void(line_x)
+	 */
+	void set_next_line(line_x line);
 #else
 	create_slot(vm, "entries", 0);
 	create_slot(vm, "waytype", 0);
@@ -283,6 +313,8 @@ void export_schedule(HSQUIRRELVM vm)
 	create_slot(vm, "flags", 0);
 	create_slot(vm, "max_speed", 0);
 	create_slot(vm, "departure_slot_group_id", linehandle_t());
+	create_slot(vm, "next_line", linehandle_t());
+	register_function(vm, schedule_set_next_line, "set_next_line", 2, "xt|x|y|o");
 #endif
 
 	end_class(vm);
