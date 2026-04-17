@@ -147,6 +147,10 @@ schedule_t* script_api::param<schedule_t*>::get(HSQUIRRELVM vm, SQInteger index)
 		get_slot(vm, "max_speed", schedule_max_speed, index);
 		sched->set_max_speed(schedule_max_speed);
 
+		linehandle_t dsgid_handle;
+		get_slot(vm, "departure_slot_group_id", dsgid_handle, index);
+		sched->set_departure_slot_group_id(dsgid_handle);
+
 		sched->set_next_line(next_line);
 	}
 	return sched;
@@ -264,6 +268,13 @@ void export_schedule(HSQUIRRELVM vm)
 	 * Schedule-level operational maximum speed (km/h). 0 means no limit.
 	 */
 	integer max_speed;
+
+	/**
+	 * The leader line of the departure slot group.
+	 * A line in its own group has this set to its own line.
+	 * null if not assigned to any departure slot group.
+	 */
+	line_x departure_slot_group_id;
 #else
 	create_slot(vm, "entries", 0);
 	create_slot(vm, "waytype", 0);
@@ -271,6 +282,7 @@ void export_schedule(HSQUIRRELVM vm)
 	create_slot(vm, "current", 0);
 	create_slot(vm, "flags", 0);
 	create_slot(vm, "max_speed", 0);
+	create_slot(vm, "departure_slot_group_id", linehandle_t());
 #endif
 
 	end_class(vm);

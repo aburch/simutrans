@@ -612,6 +612,7 @@ namespace script_api {
 				set_slot(vm, "current", (sint32)v->get_current_stop());
 				set_slot(vm, "flags", (sint32)v->get_flags());
 				set_slot(vm, "max_speed", (sint32)v->get_max_speed());
+				set_slot(vm, "departure_slot_group_id", v->get_departure_slot_group_id());
 			}
 			return result;
 		}
