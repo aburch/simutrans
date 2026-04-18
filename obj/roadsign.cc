@@ -227,6 +227,9 @@ void roadsign_t::show_info()
 	else if(  desc->is_end_choose_signal()  ) {
 		create_win(new end_of_choose_info_t(this), w_info, (ptrdiff_t)this);
 	}
+	else if(  desc->is_choose_sign()  ) {
+		create_win(new onewaysign_info_t(this, koord3d::invalid), w_info, (ptrdiff_t)this);
+	}
 	else {
 		obj_t::show_info();
 	}
@@ -676,9 +679,16 @@ void roadsign_t::rdwr(loadsave_t *file)
 		dir = ribi_t::backward(dir);
 	}
 	
-	if(file->get_OTRP_version()>=46) {	
-		file->rdwr_byte(choose_sign_flag);
-	} 
+	if(file->get_OTRP_version()>=54) {
+		file->rdwr_short(choose_sign_flag);
+	}
+	else if(file->get_OTRP_version()>=46) {
+		uint8 flag8 = (uint8)choose_sign_flag;
+		file->rdwr_byte(flag8);
+		if(  file->is_loading()  ) {
+			choose_sign_flag = flag8;
+		}
+	}
 	else if(file->get_OTRP_version()>=22) {
 		bool guide_signal = is_guide_signal();
 		file->rdwr_bool(guide_signal);

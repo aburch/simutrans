@@ -17,7 +17,7 @@ class signal_info_t : public obj_infowin_t, public action_listener_t
 {
 	private:
 		signal_t* signal;
-		button_t bt_require_parent, bt_remove_signal, bt_advance_to_end, bt_choose_signal, bt_stop_before_check, bt_skip_default_route, bt_start_signal;
+		button_t bt_require_parent, bt_remove_signal, bt_advance_to_end, bt_choose_signal, bt_stop_before_check, bt_skip_default_route, bt_start_signal, bt_length_based;
 
 		gui_numberinput_t numinp_tiles_margin;	
 		gui_label_t lb_tiles_margin;

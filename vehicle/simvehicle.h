@@ -282,6 +282,8 @@ public:
 
 	void rotate90() OVERRIDE;
 
+	uint32 get_available_halt_length_in_vehicle_steps(const grund_t *gr, const ribi_t::ribi) const OVERRIDE;
+
 	ribi_t::ribi get_previous_direction() const { return previous_direction; }
 
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const OVERRIDE;
@@ -493,7 +495,7 @@ class road_vehicle_t : public vehicle_t
 private:
 	// called internally only from ist_weg_frei()
 	// returns true on success
-	bool choose_route(sint32 &restart_speed, ribi_t::ribi start_direction, uint16 index);
+	bool choose_route(sint32 &restart_speed, ribi_t::ribi start_direction, uint16 index, const bool length_based );
 
 	koord3d last_stop_for_intersection;
 

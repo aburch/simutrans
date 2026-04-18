@@ -115,7 +115,7 @@ bool route_t::node_in_use=false;
 /**
  * find the route to an unknown location
  */
-bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 max_depth, bool need_electric, bool coupling, const uint8 choose_margin )
+bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 max_depth, bool need_electric, const bool length_based, bool coupling, const uint8 choose_margin )
 {
 	bool ok = false;
 
@@ -161,6 +161,9 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	tmp->g = 0;
 	tmp->dir = 0;
 
+	uint32 platform_length = UINT_MAX;
+	ANode* found_node = NULL;
+
 	assert(start_dir == ribi_t::all  ||  ribi_t::is_single(start_dir) );
 	// start_dir is direction to start with, adjust ribi_from such that bit mask boiles down to start_dir
 	tmp->ribi_from = ribi_t::reverse_single(start_dir) ^ 0x0f;
@@ -203,7 +206,17 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		if(  already_there  ) {
 			// we added a target to the closed list: check for length
 			target_reached = true;
-			break;
+			if(  !length_based  ) {
+				break;
+			}
+			// length based: compare to other.
+			const uint32 found_platform_length = tdriver->get_available_halt_length_in_vehicle_steps(tmp->gr,tmp->ribi_from);
+			if(  platform_length > found_platform_length && found_platform_length > 0  ) {
+				// we found good one:
+				platform_length = found_platform_length;
+				found_node = tmp;
+			}
+			continue;
 		}
 
 		// testing all four possible directions
@@ -254,6 +267,16 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	INT_CHECK("route 194");
 
 	// target reached?
+	if( length_based && target_reached ) {
+		if( found_node != NULL ) {
+			tmp = found_node;
+			step = MAX_STEP-1;
+		} else {
+			// Platforms were found by is_target(), but get_available_halt_length_in_vehicle_steps()
+			// returned 0 for all of them. Treat as no route found.
+			target_reached = false;
+		}
+	}
 	if(!target_reached  ||  step >= MAX_STEP) {
 		if(  step >= MAX_STEP  ) {
 			dbg->warning("route_t::find_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);

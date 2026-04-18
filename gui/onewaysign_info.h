@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2003 Hansjï¿½rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -25,6 +25,7 @@ class onewaysign_info_t : public obj_infowin_t, public action_listener_t
 	private:
 		roadsign_t* sign;
 		button_t direction[2];
+		button_t bt_length_based;
 
 	public:
 		onewaysign_info_t(roadsign_t* s, koord3d first_intersection);

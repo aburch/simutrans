@@ -3812,6 +3812,7 @@ public:
 	waytype_t get_waytype() const OVERRIDE { return wt; }
 	int get_cost(const grund_t*, const weg_t*, const sint32, ribi_t::ribi) const OVERRIDE { return 1; }
 	bool is_target(const grund_t*, const grund_t*) const OVERRIDE { return false; }
+	
 };
 
 class scenario_checker_t : public test_driver_t {
@@ -9846,7 +9847,27 @@ bool tool_change_roadsign_t::init( player_t* )
 				}
 			}
 		}
+		break;
 
+		case 'l':
+		// length based choose: do not enter first found tile, choose shortest halt that fits the convoy
+		if(  grund_t *gr = welt->lookup(pos)  ) {
+			if(  roadsign_t *rs = gr->find<signal_t>()  ) {
+				rs->set_length_based(inst);
+				signal_info_t* signal_info_win = (signal_info_t*)win_get_magic((ptrdiff_t)rs);
+				if(  signal_info_win  ) {
+					signal_info_win->update_data();
+				}
+			}
+			else if(  roadsign_t *rs = gr->find<roadsign_t>()  ) {
+				rs->set_length_based(inst);
+				onewaysign_info_t* sign_info_win = (onewaysign_info_t*)win_get_magic((ptrdiff_t)rs);
+				if(  sign_info_win  ) {
+					sign_info_win->update_data();
+				}
+			}
+		}
+		break;
 
 		default:
 		// do nothing

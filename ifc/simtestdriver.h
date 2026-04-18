@@ -48,6 +48,7 @@ public:
 	// first is current ground, second is starting ground
 	virtual bool is_target(const grund_t *,const grund_t *) const = 0;
 	virtual bool is_target(const grund_t *gr, const grund_t *prev_gr, const bool need_electric, const uint8 choose_margin) const {return is_target(gr, prev_gr);}
+	virtual uint32 get_available_halt_length_in_vehicle_steps(const grund_t*, const ribi_t::ribi) const {return 0;}
 	
 	virtual bool is_coupling_target(const grund_t *, const grund_t *) const { return 0; }
 
