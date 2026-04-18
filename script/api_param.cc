@@ -612,6 +612,8 @@ namespace script_api {
 			const minivec_tpl<schedule_entry_t>& src = v->get_entries();
 			SQInteger result;
 			if (v->get_next_line().is_bound() && src.get_count() > 0) {
+				// The dummy entry must have no_load and unload_all set (set by set_next_line()).
+				assert(src.back().is_no_load() && src.back().is_unload_all());
 				minivec_tpl<schedule_entry_t> filtered;
 				for (uint32 i = 0; i < src.get_count() - 1; i++) {
 					filtered.append(src[i]);

@@ -301,6 +301,9 @@ void export_schedule(HSQUIRRELVM vm)
 	/**
 	 * Sets the next line, applying validity checks (waytype match, >=2 entries, stoppable halt at first stop).
 	 * Pass null to unset.
+	 * @note The underlying C++ implementation calls unset_next_line() before running validity checks.
+	 *       Therefore, if a non-null line is passed and fails the checks, the existing next_line is
+	 *       still cleared. After a failed call, next_line will be null.
 	 * @param line the candidate next line, or null
 	 * @typemask void(line_x)
 	 */
