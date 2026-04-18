@@ -11,6 +11,7 @@
 #include "goods_desc.h"
 #include "image_list.h"
 #include "image_array.h"
+#include "image_array_3d.h"
 #include "skin_desc.h"
 #include "sound_desc.h"
 #include "../dataobj/ribi.h"
@@ -80,6 +81,7 @@ private:
 	uint8  engine_type; // diesel, steam, electric (requires electrified ways), fuel_cell, etc.
 
 	sint8 freight_image_type; // number of freight images (displayed for different goods)
+	uint8 livery_image_type;  // number of livery variants (Extended); 0 in standard OTRP vehicles
 
 public:
 	// dummy vehicle for the XREF reader
@@ -91,7 +93,7 @@ public:
 	// default vehicle (used for way search and similar tasks)
 	// since it has no images and not even a name node any calls to this will case a crash
 	vehicle_desc_t(uint8 wtype, uint16 speed, engine_t engine) {
-		maintenance = freight_image_type = price = capacity = axle_load = running_cost = intro_date = leader_count = trailer_count = 0;
+		maintenance = freight_image_type = livery_image_type = price = capacity = axle_load = running_cost = intro_date = leader_count = trailer_count = 0;
 		power = weight = 1;
 		loading_time = 1000;
 		gear = 64;
@@ -129,7 +131,7 @@ public:
 			sint8 goods_index=-1; // freight images: if not found use first freight
 			// special images. this is for reversed image or electric-train image without catenary.
 			// if special_image_index<0, this vehicle do not have freightimagetype="Reverse", "No_Electric" or "Reverse_No_Electric".
-			sint8 special_image_index=-1; 
+			sint8 special_image_index=-1;
 			for( sint8 i=0;  i<freight_image_type;  i++  ) {
 				if (ware == get_child<goods_desc_t>(6 + trailer_count + leader_count + i)) {
 					// searching freight image
@@ -149,8 +151,6 @@ public:
 				}
 			}
 
-			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
-			image_array_t const* const list2d = get_child<image_array_t>(5);
 			// no freight and non reversed->use EmptyImage
 			if(special_image_index>-1) {
 				goods_index = special_image_index;//find the reverse images, we use reversed one.
@@ -159,9 +159,20 @@ public:
 				goods_index = 0;
 			}
 			if(goods_index>-1) {
-				image=list2d->get_image(dir, goods_index);
-				if(!image) {
-					if(dir>3) {
+				if(livery_image_type > 0) {
+					// Extended pak with both freight and livery images: child 5 is image_array_3d_t
+					// indexed as [dir][livery_index][goods_index]; OTRP always uses livery_index=0
+					image_array_3d_t const* const list3d = get_child<image_array_3d_t>(5);
+					image = list3d->get_image(dir, 0, goods_index);
+					if(!image && dir>3) {
+						image = list3d->get_image(dir - 4, 0, goods_index);
+					}
+				}
+				else {
+					// Normal 2D freight images
+					image_array_t const* const list2d = get_child<image_array_t>(5);
+					image=list2d->get_image(dir, goods_index);
+					if(!image && dir>3) {
 						image = list2d->get_image(dir - 4, goods_index);
 					}
 				}

@@ -13,6 +13,9 @@
 #define COMPILER_VERSION_CODE_11 (0 * 1000000 + 1 * 1000 + 1)
 #define COMPILER_VERSION_CODE (0 * 1000000 + 1 * 1000 + 3)
 
+// Extended pak flag: bit 14 of the version field marks Extended-compiled pak objects
+#define EX_VER 0x4000
+
 /*
  * obj_type value are stored inside the pak-files. Values are choosen to make
  * them somewhat readable (up to 4 uppercase letters describing the type).
@@ -59,7 +62,11 @@ enum obj_type
 	obj_vehicle     = C4ID('V','H','C','L'),
 	obj_way         = C4ID('W','A','Y', 0 ),
 	obj_way_obj     = C4ID('W','Y','O','B'),
-	obj_xref        = C4ID('X','R','E','F')
+	obj_xref        = C4ID('X','R','E','F'),
+	// Extended-only object types (for pak compatibility)
+	obj_fupgrade    = C4ID('F','U','P','G'),
+	obj_imagelist3d = C4ID('I','M','G','3'),
+	obj_pier        = C4ID('P','I','E','R')
 };
 
 #endif

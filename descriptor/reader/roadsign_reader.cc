@@ -3,6 +3,7 @@
  * (see LICENSE.txt)
  */
 
+#include "../objversion.h"
 #include <stdio.h>
 
 #include "../../obj/roadsign.h"
@@ -46,11 +47,18 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	char *p = desc_buf.begin();
 
 	const uint16 v = decode_uint16(p);
-	const int version = v & 0x8000 ? v & 0x7FFF : 0;
+	int version = v & 0x8000 ? v & 0x7FFF : 0;
+	const bool extended = version > 0 ? (v & EX_VER) != 0 : false;
+	uint16 extended_version = 0;
+	if (extended) {
+		version = version & EX_VER ? version & 0x3FFF : 0;
+		while (version > 0x100) { version -= 0x100; extended_version++; }
+		extended_version--;
+	}
 	roadsign_desc_t *desc = new roadsign_desc_t();
 
 	if (version == 6) {
-		// cost as sint64, maintenance added
+		// OTRP-only: cost as sint64, maintenance added
 		desc->min_speed   = kmh_to_speed(decode_uint16(p));
 		desc->price       = decode_sint64(p);
 		desc->maintenance = decode_sint64(p);
@@ -61,7 +69,7 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->retire_date = decode_uint16(p);
 	}
 	else if(version==5) {
-		// Versioned node, version 5
+		// Versioned node, version 5 (OTRP-only: flags as uint16)
 		desc->min_speed = kmh_to_speed(decode_uint16(p));
 		desc->price = decode_uint32(p);
 		desc->flags = decode_uint16(p);
@@ -79,6 +87,30 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->wtyp = decode_uint8(p);
 		desc->intro_date = decode_uint16(p);
 		desc->retire_date = decode_uint16(p);
+		if (extended) {
+			if (extended_version > 3) {
+				dbg->fatal("roadsign_reader_t::read_node()", "Incompatible Extended pak version %i", extended_version);
+			}
+			decode_uint8(p); // allow_underground
+			if (extended_version >= 1) {
+				decode_uint32(p); // signal_group
+				decode_uint32(p); // base_maintenance
+				decode_uint32(p); // max_distance_to_signalbox
+				decode_uint8(p);  // aspects
+				decode_sint8(p);  // has_call_on
+				decode_sint8(p);  // has_selective_choose
+				decode_uint8(p);  // working_method
+				decode_sint8(p);  // permissive
+				decode_uint32(p); // max_speed (kmh)
+				decode_uint32(p); // base_way_only_cost
+				decode_uint8(p);  // upgrade_group
+				decode_uint8(p);  // intermediate_block
+				decode_uint8(p);  // normal_danger
+			}
+			if (extended_version >= 2) {
+				decode_uint8(p); // double_block
+			}
+		}
 	}
 	else if(version==3) {
 		// Versioned node, version 3
@@ -89,6 +121,12 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->wtyp = decode_uint8(p);
 		desc->intro_date = decode_uint16(p);
 		desc->retire_date = decode_uint16(p);
+		if (extended) {
+			if (extended_version > 1) {
+				dbg->fatal("roadsign_reader_t::read_node()", "Incompatible Extended pak version %i", extended_version);
+			}
+			decode_uint8(p); // allow_underground
+		}
 	}
 	else if(version==2) {
 		// Versioned node, version 2

@@ -3,6 +3,7 @@
  * (see LICENSE.txt)
  */
 
+#include "../objversion.h"
 #include <stdio.h>
 #include "../../simdebug.h"
 
@@ -39,7 +40,17 @@ obj_desc_t *bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.
 	const uint16 v = decode_uint16(p);
-	const int version = v & 0x8000 ? v & 0x7FFF : 0;
+	int version = v & 0x8000 ? v & 0x7FFF : 0;
+	const bool extended = version > 0 ? (v & EX_VER) != 0 : false;
+	uint16 extended_version = 0;
+	if (extended) {
+		version = version & EX_VER ? version & 0x3FFF : 0;
+		while (version > 0x100) {
+			version -= 0x100;
+			extended_version++;
+		}
+		extended_version--;
+	}
 
 	// some defaults
 	bridge_desc_t *desc = new bridge_desc_t();
@@ -138,9 +149,30 @@ obj_desc_t *bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->pillars_asymmetric = (decode_uint8(p)!=0);
 		desc->max_height = decode_uint8(p);
 		desc->number_of_seasons = decode_uint8(p);
+		if (extended) {
+			// skip Extended-specific: axle_load(4), way_constraints(2), optional gradient fields
+			desc->axle_load = decode_uint32(p);
+			decode_uint8(p); // permissive
+			decode_uint8(p); // prohibitive
+			if (extended_version >= 1) {
+				decode_uint16(p); // topspeed_gradient_1
+				decode_uint16(p); // topspeed_gradient_2
+				decode_sint8(p);  // max_altitude
+				decode_uint8(p);  // max_vehicles_on_tile
+				decode_uint8(p);  // has_own_way_graphics
+				decode_uint8(p);  // has_way
+			}
+			if (extended_version > 1) {
+				dbg->fatal("bridge_reader_t::read_node()", "Incompatible Extended pak version %i", extended_version);
+			}
+		}
 
 	}
 	else if (version==9) {
+
+		// Extended v9 has different field order than OTRP v9:
+		// Extended: ..., pillars_asymmetric, max_height, axle_load(u16), [extended fields], number_of_seasons
+		// OTRP:     ..., pillars_asymmetric, axle_load(u16), max_height, number_of_seasons
 
 		desc->topspeed = decode_uint16(p);
 		desc->price = decode_uint32(p);
@@ -151,9 +183,33 @@ obj_desc_t *bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->intro_date = decode_uint16(p);
 		desc->retire_date = decode_uint16(p);
 		desc->pillars_asymmetric = (decode_uint8(p)!=0);
-		desc->axle_load = decode_uint16(p); // new
-		desc->max_height = decode_uint8(p);
-		desc->number_of_seasons = decode_uint8(p);
+		if (extended) {
+			// Extended reads max_height before axle_load
+			desc->max_height = decode_uint8(p);
+			desc->axle_load = decode_uint16(p);
+			// skip Extended-specific fields: max_weight(4), way_constraints(2), optionals
+			decode_uint32(p); // max_weight (Extended distinguishes from axle_load)
+			decode_uint8(p);  // permissive
+			decode_uint8(p);  // prohibitive
+			if (extended_version >= 1) {
+				decode_uint16(p); // topspeed_gradient_1
+				decode_uint16(p); // topspeed_gradient_2
+				decode_sint8(p);  // max_altitude
+				decode_uint8(p);  // max_vehicles_on_tile
+				decode_uint8(p);  // has_own_way_graphics
+				decode_uint8(p);  // has_way
+			}
+			if (extended_version > 1) {
+				dbg->fatal("bridge_reader_t::read_node()", "Incompatible Extended pak version %i", extended_version);
+			}
+			desc->number_of_seasons = decode_uint8(p);
+		}
+		else {
+			// OTRP reads axle_load before max_height
+			desc->axle_load = decode_uint16(p);
+			desc->max_height = decode_uint8(p);
+			desc->number_of_seasons = decode_uint8(p);
+		}
 
 	}
 	else if (version==10) {

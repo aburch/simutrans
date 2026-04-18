@@ -3,6 +3,7 @@
  * (see LICENSE.txt)
  */
 
+#include "../objversion.h"
 #include <stdio.h>
 #include "../../simdebug.h"
 #include "../../bauer/goods_manager.h"
@@ -46,7 +47,14 @@ obj_desc_t * goods_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.
 	const uint16 v = decode_uint16(p);
-	const int version = v & 0x8000 ? v & 0x7FFF : 0;
+	int version = v & 0x8000 ? v & 0x7FFF : 0;
+	const bool extended = version > 0 ? (v & EX_VER) != 0 : false;
+	uint16 extended_version = 0;
+	if (extended) {
+		version = version & EX_VER ? version & 0x3FFF : 0;
+		while (version > 0x100) { version -= 0x100; extended_version++; }
+		extended_version--;
+	}
 
 	// some defaults
 	goods_desc_t *desc = new goods_desc_t();
@@ -64,7 +72,6 @@ obj_desc_t * goods_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 	else if(version == 2) {
 		// Versioned node, version 2
-
 		desc->base_value = decode_uint16(p);
 		desc->catg = (uint8)decode_uint16(p);
 		desc->speed_bonus = decode_uint16(p);
@@ -73,14 +80,46 @@ obj_desc_t * goods_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 	else if(version == 3) {
 		// Versioned node, version 3
-		desc->base_value = decode_uint16(p);
+		const uint16 base_value = decode_uint16(p);
 		desc->catg = decode_uint8(p);
 		desc->speed_bonus = decode_uint16(p);
 		desc->weight_per_unit = decode_uint16(p);
 		desc->color = decode_uint8(p);
-
+		if (extended) {
+			// Extended has fare_stages and class data; OTRP uses simple base_value
+			uint8 number_of_classes = 1;
+			if (extended_version >= 1) {
+				number_of_classes = decode_uint8(p);
+			}
+			const uint8 fare_stages = decode_uint8(p);
+			if (fare_stages > 0) {
+				// read first fare stage as base_value, skip rest
+				desc->base_value = decode_uint16(p); // to_distance
+				desc->base_value = decode_uint16(p); // price -> use as base_value
+				for (int i = 1; i < fare_stages; i++) {
+					decode_uint16(p); // to_distance
+					decode_uint16(p); // price
+				}
+			}
+			else {
+				desc->base_value = base_value;
+			}
+			if (extended_version >= 1) {
+				// skip class revenue percentages
+				for (uint8 i = 0; i < number_of_classes; i++) {
+					decode_uint16(p);
+				}
+			}
+			if (extended_version > 1) {
+				dbg->fatal("goods_reader_t::read_node()", "Incompatible Extended pak version %i", extended_version);
+			}
+		}
+		else {
+			desc->base_value = base_value;
+		}
 	}
 	else if (version == 4) {
+		// OTRP-only: base_value as sint64
 		desc->base_value      = decode_sint64(p);
 		desc->catg            = decode_uint8(p);
 		desc->speed_bonus     = decode_uint16(p);

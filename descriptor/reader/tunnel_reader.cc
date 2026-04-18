@@ -3,6 +3,7 @@
  * (see LICENSE.txt)
  */
 
+#include "../objversion.h"
 #include <stdio.h>
 
 #include "../../simdebug.h"
@@ -73,10 +74,17 @@ obj_desc_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	char *p = desc_buf.begin();
 
 	const uint16 v = decode_uint16(p);
-	const int version = v & 0x8000 ? v & 0x7FFF : 0;
+	int version = v & 0x8000 ? v & 0x7FFF : 0;
+	const bool extended = version > 0 ? (v & EX_VER) != 0 : false;
+	uint16 extended_version = 0;
+	if (extended) {
+		version = version & EX_VER ? version & 0x3FFF : 0;
+		while (version > 0x100) { version -= 0x100; extended_version++; }
+		extended_version--;
+	}
 
 	if (version == 6) {
-		// cost/maintenance as sint64
+		// OTRP-only: cost/maintenance as sint64
 		desc->topspeed          = decode_uint32(p);
 		desc->price             = decode_sint64(p);
 		desc->maintenance       = decode_sint64(p);
@@ -96,10 +104,38 @@ obj_desc_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->wtyp = decode_uint8(p);
 		desc->intro_date = decode_uint16(p);
 		desc->retire_date = decode_uint16(p);
-		desc->axle_load = decode_uint16(p); // new
+		desc->axle_load = decode_uint16(p);
 		desc->number_of_seasons = decode_uint8(p);
 		desc->has_way = decode_uint8(p);
 		desc->broad_portals = decode_uint8(p);
+		if (extended) {
+			// skip Extended-specific way_constraints and gradient fields
+			decode_uint8(p); // permissive
+			decode_uint8(p); // prohibitive
+			if (extended_version >= 1) {
+				decode_uint16(p); // topspeed_gradient_1
+				decode_uint16(p); // topspeed_gradient_2
+				decode_sint8(p);  // max_altitude
+				decode_uint8(p);  // max_vehicles_on_tile
+			}
+			if (extended_version >= 2) {
+				// flags byte: bit0=is_half_height, other bits select optional cost fields
+				uint8 flags = decode_uint8(p);
+				if (flags & 0x02) { decode_uint32(p); decode_uint32(p); } // subsea_cost, subsea_maintenance
+				if (flags & 0x04) { decode_uint32(p); } // subbuilding_cost
+				if (flags & 0x08) { decode_uint32(p); decode_uint32(p); } // subwaterline_cost, _maintenance
+				if (flags & 0x10) {
+					decode_uint32(p); decode_uint32(p); decode_uint32(p); // subway, depth, depth2
+					uint8 dl = decode_uint8(p); // depth_limit
+					if (dl & 0x80) { /* underwater_limit encoded in dl */ }
+				}
+				if (flags & 0x20) { decode_uint8(p); } // underwater_limit
+				if (flags & 0x40) { decode_uint16(p); } // length_limit
+			}
+			if (extended_version > 2) {
+				dbg->fatal("tunnel_reader_t::read_node()", "Incompatible Extended pak version %i", extended_version);
+			}
+		}
 	}
 	else if( version == 4 ) {
 		// versioned node, version 4 - broad portal support
@@ -110,6 +146,20 @@ obj_desc_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->intro_date = decode_uint16(p);
 		desc->retire_date = decode_uint16(p);
 		desc->number_of_seasons = decode_uint8(p);
+		if (extended) {
+			desc->axle_load = decode_uint32(p);
+			decode_uint8(p); // permissive
+			decode_uint8(p); // prohibitive
+			if (extended_version >= 1) {
+				decode_uint16(p); // topspeed_gradient_1
+				decode_uint16(p); // topspeed_gradient_2
+				decode_sint8(p);  // max_altitude
+				decode_uint8(p);  // max_vehicles_on_tile
+			}
+			if (extended_version > 1) {
+				dbg->fatal("tunnel_reader_t::read_node()", "Incompatible Extended pak version %i", extended_version);
+			}
+		}
 		desc->has_way = decode_uint8(p);
 		desc->broad_portals = decode_uint8(p);
 	}
@@ -123,6 +173,14 @@ obj_desc_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->retire_date = decode_uint16(p);
 		desc->number_of_seasons = decode_uint8(p);
 		desc->has_way = decode_uint8(p);
+		if (extended) {
+			desc->axle_load = decode_uint32(p);
+			decode_uint8(p); // permissive
+			decode_uint8(p); // prohibitive
+			if (extended_version > 0) {
+				dbg->fatal("tunnel_reader_t::read_node()", "Incompatible Extended pak version %i", extended_version);
+			}
+		}
 		desc->broad_portals = 0;
 	}
 	else if(version == 2) {
@@ -134,6 +192,16 @@ obj_desc_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->intro_date = decode_uint16(p);
 		desc->retire_date = decode_uint16(p);
 		desc->number_of_seasons = decode_uint8(p);
+		if (extended) {
+			if (extended_version == 0) {
+				desc->axle_load = decode_uint32(p);
+				decode_uint8(p); // permissive
+				decode_uint8(p); // prohibitive
+			}
+			else {
+				dbg->fatal("tunnel_reader_t::read_node()", "Incompatible Extended pak version %i", extended_version);
+			}
+		}
 		desc->has_way = 0;
 		desc->broad_portals = 0;
 	}

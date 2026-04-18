@@ -3,6 +3,7 @@
  * (see LICENSE.txt)
  */
 
+#include "../objversion.h"
 #include <stdio.h>
 #include <string.h>
 #include "../../bauer/hausbauer.h"
@@ -42,7 +43,14 @@ obj_desc_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// old versions of PAK files have no version stamp.
 	// But we know, the highest bit was always cleared.
 	const uint16 v = decode_uint16(p);
-	const int version = (v & 0x8000)!=0 ? v&0x7FFF : 0;
+	int version = (v & 0x8000) != 0 ? v & 0x7FFF : 0;
+	const bool extended = version > 0 ? (v & EX_VER) != 0 : false;
+	uint16 extended_version = 0;
+	if (extended) {
+		version = version & EX_VER ? version & 0x3FFF : 0;
+		while (version > 0x100) { version -= 0x100; extended_version++; }
+		extended_version--;
+	}
 
 	building_tile_desc_t *desc = new building_tile_desc_t();
 
@@ -231,7 +239,14 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// old versions of PAK files have no version stamp.
 	// But we know, the highest bit was always cleared.
 	const uint16 v = decode_uint16(p);
-	const int version = (v & 0x8000)!=0 ? v&0x7FFF : 0;
+	int version = (v & 0x8000) != 0 ? v & 0x7FFF : 0;
+	const bool extended = version > 0 ? (v & EX_VER) != 0 : false;
+	uint16 extended_version = 0;
+	if (extended) {
+		version = version & EX_VER ? version & 0x3FFF : 0;
+		while (version > 0x100) { version -= 0x100; extended_version++; }
+		extended_version--;
+	}
 
 	old_btyp::typ btyp;
 	building_desc_t *desc = new building_desc_t();
@@ -281,8 +296,9 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->preservation_year_month = decode_uint16(p);
 	}
 	else if(version == 8  ||  version == 9) {
-		// Versioned node, version 8
+		// Versioned node, version 8/9
 		// station price, maintenance and capacity added
+		// Extended adds trailing block: control_tower, population, employment, mail, radius, class proportions, pier masks
 		btyp = (old_btyp::typ)decode_uint8(p);
 		desc->type = (building_desc_t::btype)decode_uint8(p);
 		desc->level = decode_uint16(p);
@@ -291,7 +307,14 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->size.y = decode_uint16(p);
 		desc->layouts = decode_uint8(p);
 		desc->allowed_climates = (climate_bits)(decode_uint16(p) & ALL_CLIMATES);
-		desc->enables = decode_uint8(p);
+		if (extended && extended_version >= 5) {
+			decode_uint16(p); // allowed_regions - not used in OTRP
+		}
+		if (extended && extended_version >= 3) {
+			desc->enables = decode_uint16(p); // uint16 in Extended ext_ver >= 3
+		} else {
+			desc->enables = decode_uint8(p);
+		}
 		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
 		desc->intro_date = decode_uint16(p);
@@ -301,6 +324,31 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->maintenance = decode_sint32(p);
 		desc->price = decode_sint32(p);
 		desc->allow_underground = decode_uint8(p);
+		if (extended) {
+			if (extended_version > 6) {
+				dbg->fatal("building_reader_t::read_node()", "Incompatible Extended pak version %i", extended_version);
+			}
+			// skip Extended-specific trailing fields not present in OTRP
+			decode_uint8(p);  // is_control_tower
+			decode_uint16(p); // population_and_visitor_demand_capacity
+			decode_uint16(p); // employment_capacity
+			decode_uint16(p); // mail_demand_and_production_capacity
+			if (extended_version >= 1) {
+				decode_uint32(p); // radius
+			}
+			if (extended_version >= 4) {
+				uint8 nclasses = decode_uint8(p);
+				for (uint8 i = 0; i < nclasses; i++) { decode_uint16(p); }
+				uint8 nclasses_jobs = decode_uint8(p);
+				for (uint8 i = 0; i < nclasses_jobs; i++) { decode_uint16(p); }
+			}
+			if (extended_version >= 6) {
+				decode_uint32(p); // pier_deck_mask
+				decode_uint32(p); // pier_sub_1_mask
+				decode_uint32(p); // pier_sub_2_mask
+				decode_uint8(p);  // pier_sub_needed
+			}
+		}
 	}
 	else if(version == 7) {
 		// Versioned node, version 7

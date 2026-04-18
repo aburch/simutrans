@@ -3,6 +3,7 @@
  * (see LICENSE.txt)
  */
 
+#include "../objversion.h"
 #include <stdio.h>
 #include "../../simfab.h"
 #include "../../bauer/fabrikbauer.h"
@@ -205,7 +206,14 @@ obj_desc_t *factory_supplier_reader_t::read_node(FILE *fp, obj_node_info_t &node
 	// But we know, the higher most bit was always cleared.
 
 	const uint16 v = decode_uint16(p);
-	const int version = v & 0x8000 ? v & 0x7FFF : 0;
+	int version = v & 0x8000 ? v & 0x7FFF : 0;
+	const bool extended = version > 0 ? (v & EX_VER) != 0 : false;
+	uint16 extended_version = 0;
+	if (extended) {
+		version = version & EX_VER ? version & 0x3FFF : 0;
+		while (version > 0x100) { version -= 0x100; extended_version++; }
+		extended_version--;
+	}
 
 	factory_supplier_desc_t *desc = new factory_supplier_desc_t();
 
@@ -241,7 +249,14 @@ obj_desc_t *factory_product_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.
 	const uint16 v = decode_uint16(p);
-	const int version = v & 0x8000 ? v & 0x7FFF : 0;
+	int version = v & 0x8000 ? v & 0x7FFF : 0;
+	const bool extended = version > 0 ? (v & EX_VER) != 0 : false;
+	uint16 extended_version = 0;
+	if (extended) {
+		version = version & EX_VER ? version & 0x3FFF : 0;
+		while (version > 0x100) { version -= 0x100; extended_version++; }
+		extended_version--;
+	}
 
 	factory_product_desc_t *desc = new factory_product_desc_t();
 	if(version == 1) {
@@ -279,7 +294,14 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.
 	const uint16 v = decode_uint16(p);
-	const int version = v & 0x8000 ? v & 0x7FFF : 0;
+	int version = v & 0x8000 ? v & 0x7FFF : 0;
+	const bool extended = version > 0 ? (v & EX_VER) != 0 : false;
+	uint16 extended_version = 0;
+	if (extended) {
+		version = version & EX_VER ? version & 0x3FFF : 0;
+		while (version > 0x100) { version -= 0x100; extended_version++; }
+		extended_version--;
+	}
 
 	factory_desc_t *desc = new factory_desc_t();
 	desc->sound_id = NO_SOUND;

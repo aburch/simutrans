@@ -3,6 +3,7 @@
  * (see LICENSE.txt)
  */
 
+#include "../objversion.h"
 #include <stdio.h>
 #include "../../simdebug.h"
 #include "../../utils/simstring.h"
@@ -65,6 +66,13 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else {
 		const uint16 v = decode_uint16(p);
 		version = v & 0x7FFF;
+		const bool extended = version > 0 ? (v & EX_VER) != 0 : false;
+		uint16 extended_version = 0;
+		if (extended) {
+			version = version & EX_VER ? version & 0x3FFF : 0;
+			while (version > 0x100) { version -= 0x100; extended_version++; }
+			extended_version--;
+		}
 
 		if (version == 8) {
 			// cost/maintenance as sint64
@@ -100,20 +108,46 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->price = decode_uint32(p);
 			desc->maintenance = decode_uint32(p);
 			desc->topspeed = decode_uint32(p);
-			desc->max_weight = decode_uint32(p);
+			if (!extended) {
+				// OTRP has separate max_weight field here; Extended does not
+				desc->max_weight = decode_uint32(p);
+			}
 			desc->intro_date = decode_uint16(p);
 			desc->retire_date = decode_uint16(p);
-			desc->axle_load = decode_uint16(p); // new
+			desc->axle_load = decode_uint16(p);
 			desc->wtyp = decode_uint8(p);
 			desc->styp = decode_uint8(p);
 			desc->draw_as_obj = decode_uint8(p);
 			desc->number_of_seasons = decode_sint8(p);
+			if (extended) {
+				desc->max_weight = 9999;
+				// skip Extended-specific way_constraints and gradient fields
+				decode_uint8(p); // permissive
+				decode_uint8(p); // prohibitive
+				if (extended_version >= 1) {
+					decode_sint32(p); // topspeed_gradient_1
+					decode_sint32(p); // topspeed_gradient_2
+					decode_sint8(p);  // max_altitude
+					decode_uint8(p);  // max_vehicles_on_tile
+					decode_uint32(p); // wear_capacity
+					decode_uint32(p); // way_only_cost
+					decode_uint8(p);  // upgrade_group
+					decode_uint32(p); // monthly_base_wear
+				}
+				if (extended_version >= 2) {
+					decode_uint32(p); // deck_mask
+				}
+				if (extended_version > 2) {
+					dbg->fatal("way_reader_t::read_node()", "Incompatible Extended pak version %i", extended_version);
+				}
+			}
 		}
 		else if(version==4  ||  version==5) {
 			// Versioned node, version 4+5
 			desc->price = decode_uint32(p);
 			desc->maintenance = decode_uint32(p);
 			desc->topspeed = decode_uint32(p);
+			// Extended reads axle_load here (uint32); OTRP calls it max_weight
 			desc->max_weight = decode_uint32(p);
 			desc->intro_date = decode_uint16(p);
 			desc->retire_date = decode_uint16(p);
@@ -121,6 +155,23 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->styp = decode_uint8(p);
 			desc->draw_as_obj = decode_uint8(p);
 			desc->number_of_seasons = decode_sint8(p);
+			if (extended) {
+				// skip Extended-specific way_constraints fields
+				decode_uint8(p); // permissive
+				decode_uint8(p); // prohibitive
+				if (extended_version >= 1) {
+					decode_sint32(p); // topspeed_gradient_1
+					decode_sint32(p); // topspeed_gradient_2
+					decode_sint8(p);  // max_altitude
+					decode_uint8(p);  // max_vehicles_on_tile
+					decode_uint32(p); // wear_capacity
+					decode_uint32(p); // way_only_cost
+					decode_uint8(p);  // upgrade_group
+				}
+				if (extended_version > 1) {
+					dbg->fatal("way_reader_t::read_node()", "Incompatible Extended pak version %i", extended_version);
+				}
+			}
 		}
 		else if(version==3) {
 			// Versioned node, version 3
