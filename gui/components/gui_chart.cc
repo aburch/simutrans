@@ -189,6 +189,7 @@ void gui_chart_t::draw(scr_coord offset)
 	FOR(slist_tpl<curve_t>, const& c, curves) {
 		if (c.show) {
 			double display_tmp;
+			long y_off = 0, last_y_off = 0;
 			// for each curve iterate through all elements and display curve
 			for (int i=0;i<c.elements;i++) {
 
@@ -197,20 +198,28 @@ void gui_chart_t::draw(scr_coord offset)
 				if(  c.convert  ) {
 					tmp = c.convert(tmp);
 					display_tmp = tmp;
+					y_off = (long)(tmp/scale);
+				}
+				else if(  c.type==PERCENT  ) {
+					display_tmp = tmp*0.01;
+					tmp /= 100;  // 0..100
+					y_off = (long)((double)tmp * chart_size.h / 100.0);
 				}
 				else if(  c.type!=0  ) {
 					display_tmp = tmp*0.01;
 					tmp /= 100;
+					y_off = (long)(tmp/scale);
 				}
 				else {
 					display_tmp = tmp;
+					y_off = (long)(tmp/scale);
 				}
 
 				// display marker(box) for financial value
-				display_fillbox_wh_clip_rgb(tmpx+factor*(chart_size.w / (x_elements - 1))*i-2, (scr_coord_val)(offset.y+baseline- (long)(tmp/scale)-2), 5, 5, c.color, true);
+				display_fillbox_wh_clip_rgb(tmpx+factor*(chart_size.w / (x_elements - 1))*i-2, (scr_coord_val)(offset.y+baseline-y_off-2), 5, 5, c.color, true);
 
 				// display tooltip?
-				if(i==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipcoord.y))<10) {
+				if(i==tooltip_n  &&  abs((int)(baseline-y_off-tooltipcoord.y))<10) {
 					number_to_string(tooltip, display_tmp, c.precision);
 					if (c.suffix) {
 						strcat(tooltip, c.suffix);
@@ -221,9 +230,9 @@ void gui_chart_t::draw(scr_coord offset)
 				// draw line between two financial markers; this is only possible from the second value on
 				if (i>0) {
 					display_direct_line_rgb(tmpx+factor*(chart_size.w / (x_elements - 1))*(i-1),
-						(scr_coord_val)( offset.y+baseline-(int)(last_year/scale) ),
+						(scr_coord_val)( offset.y+baseline-last_y_off ),
 						tmpx+factor*(chart_size.w / (x_elements - 1))*(i),
-						(scr_coord_val)( offset.y+baseline-(int)(tmp/scale) ),
+						(scr_coord_val)( offset.y+baseline-y_off ),
 						c.color);
 				}
 				else {
@@ -240,18 +249,19 @@ void gui_chart_t::draw(scr_coord offset)
 							number_to_string_fit(cmin, display_tmp, c.precision, maximum_axis_len - (c.suffix != NULL) );
 							if (c.suffix) {
 								strcat(cmin, c.suffix);
-							}							
+							}
 						}
 
 						if(  env_t::left_to_right_graphs  ) {
-							display_ddd_proportional_clip( tmpx + 8, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), color_idx_to_rgb(COL_GREY4), c.color, cmin, true);
+							display_ddd_proportional_clip( tmpx + 8, (scr_coord_val)(offset.y+baseline-y_off-4), color_idx_to_rgb(COL_GREY4), c.color, cmin, true);
 						}
-						else if(  (baseline-tmp/scale-8) > 0  &&  (baseline-tmp/scale+8) < chart_size.h  &&  abs((int)(tmp/scale)) > 9  ) {
-							display_proportional_clip_rgb(tmpx - 4, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), cmin, ALIGN_RIGHT, c.color, true );
+						else if(  (baseline-y_off-8) > 0  &&  (baseline-y_off+8) < chart_size.h  &&  abs((int)y_off) > 9  ) {
+							display_proportional_clip_rgb(tmpx - 4, (scr_coord_val)(offset.y+baseline-y_off-4), cmin, ALIGN_RIGHT, c.color, true );
 						}
 					}
 				}
 				last_year=tmp;
+				last_y_off=y_off;
 			}
 		}
 		last_year=tmp=0;

@@ -44,6 +44,10 @@ private:
 	gui_aligned_container_t container_year, container_month, container_factories,all_factories;
 	gui_chart_t chart, mchart;                ///< Year and month history charts
 
+	/// Precomputed electricity satisfaction percentage for the charts (HIST_POWER_RECEIVED/HIST_POWER_NEEDED*100)
+	sint64 power_pct_year[MAX_CITY_HISTORY_YEARS];
+	sint64 power_pct_month[MAX_CITY_HISTORY_MONTHS];
+
 	gui_city_minimap_t *pax_map;
 
 	gui_button_to_chart_array_t button_to_chart;

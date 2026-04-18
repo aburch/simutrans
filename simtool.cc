@@ -1886,10 +1886,24 @@ const char *tool_transformer_t::work( player_t *player, koord3d pos )
 		underground = true;
 	}
 
+	bool in_city = false;
 	if( !fab  ) {
-		return "Transformer only next to factory!";
+		// Check if inside city limits (city substations don't require a factory)
+		if(!underground) {
+			stadt_t *city = welt->find_nearest_city(k);
+			if(city != NULL) {
+				const koord lo = city->get_linksoben();
+				const koord ur = city->get_rechtsunten();
+				if(k.x >= lo.x && k.x <= ur.x && k.y >= lo.y && k.y <= ur.y) {
+					in_city = true;
+				}
+			}
+		}
+		if(!in_city) {
+			return "Transformer only next to factory!";
+		}
 	}
-	if(  fab->is_transformer_connected()  ) {
+	if(  fab  &&  fab->is_transformer_connected()  ) {
 		return "Only one transformer per factory!";
 	}
 
@@ -1931,8 +1945,8 @@ const char *tool_transformer_t::work( player_t *player, koord3d pos )
 	}
 	// transformer will be build on tile pointed to by gr
 
-	// build source or drain depending on factory type
-	if(fab->get_desc()->is_electricity_producer()) {
+	// build source or drain depending on factory type; city substations are always drains
+	if(fab && fab->get_desc()->is_electricity_producer()) {
 		pumpe_t *p = new pumpe_t(gr->get_pos(), player);
 		gr->obj_add( p );
 		p->finish_rd();

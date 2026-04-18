@@ -23,6 +23,7 @@ class player_t;
 class rule_t;
 class grund_t;
 class way_desc_t;
+class senke_t;
 
 
 #define MAX_CITY_HISTORY_YEARS  (12) // number of years to keep history
@@ -43,7 +44,8 @@ enum city_cost {
 	HIST_MAIL_GENERATED,   // all letters generated
 	HIST_GOODS_RECEIVED,   // times all storages were not empty
 	HIST_GOODS_NEEDED,     // times storages checked
-	HIST_POWER_RECEIVED,   // power consumption (not used at the moment!)
+	HIST_POWER_RECEIVED,   // power received by city substations
+	HIST_POWER_NEEDED,     // power demanded by the city
 	MAX_CITY_HISTORY       // Total number of items in array
 };
 
@@ -127,6 +129,9 @@ private:
 	plainstring name;
 
 	weighted_vector_tpl <gebaeude_t *> buildings;
+
+	// City power substations
+	vector_tpl<senke_t*> substations;
 
 	sparse_tpl<PIXVAL> pax_destinations_old;
 	sparse_tpl<PIXVAL> pax_destinations_new;
@@ -405,6 +410,14 @@ private:
 
 public:
 	bool is_within_players_network( const player_t* player ) const;
+
+	// Power substation management
+	void add_power(uint32 p) { city_history_month[0][HIST_POWER_RECEIVED] += p; city_history_year[0][HIST_POWER_RECEIVED] += p; }
+	void add_power_demand(uint32 p) { city_history_month[0][HIST_POWER_NEEDED] += p; city_history_year[0][HIST_POWER_NEEDED] += p; }
+	uint32 get_power_demand() const;
+	void add_substation(senke_t* sub);
+	void remove_substation(senke_t* sub);
+	uint32 get_substations_count() const {return substations.get_count();}
 
 	/// Connects factories to this city.
 	void verbinde_fabriken();

@@ -1093,6 +1093,9 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				// things with convoi will not be saved
 				||  (new_obj->get_typ()>=66  &&  new_obj->get_typ()<82)
 				||  (new_obj->get_typ()==obj_t::baum  &&  file->is_version_atleast(110, 1)  && (env_t::server  ||  file->is_version_atleast(122, 2))) // trees are saved from boden_t
+			// do not save city substations (no factory) when saving in standard (non-OTRP) format
+			||  (new_obj->get_typ()==obj_t::senke  &&  static_cast<senke_t*>(new_obj)->get_city()!=NULL
+			     &&  file->get_OTRP_version()<54)
 			) {
 				// these objects are simply not saved
 			}

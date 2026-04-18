@@ -34,6 +34,7 @@
 #include "simdebug.h"
 
 #include "obj/gebaeude.h"
+#include "obj/leitung2.h"
 
 #include "dataobj/translator.h"
 #include "dataobj/settings.h"
@@ -935,6 +936,12 @@ stadt_t::~stadt_t()
 		minimap_t::get_instance()->set_selected_city(NULL);
 	}
 
+	// disconnect all substations
+	for(senke_t* sub : substations) {
+		sub->city = NULL;
+	}
+	substations.clear();
+
 	// only if there is still a world left to delete from
 	if( welt->get_size().x > 1 ) {
 
@@ -962,6 +969,23 @@ stadt_t::~stadt_t()
 			// avoid the bookkeeping if world gets destroyed
 		}
 	}
+}
+
+
+uint32 stadt_t::get_power_demand() const
+{
+	// 1kW per citizen in internal power units (POWER_TO_MW=12: 1<<12 internal units = 1MW)
+	return ((uint32)city_history_month[0][HIST_CITIZENS] << POWER_TO_MW) / 1000;
+}
+
+void stadt_t::add_substation(senke_t* sub)
+{
+	substations.append_unique(sub);
+}
+
+void stadt_t::remove_substation(senke_t* sub)
+{
+	substations.remove(sub);
 }
 
 
@@ -1210,6 +1234,20 @@ void stadt_t::rdwr(loadsave_t* file)
 		// save button settings for this town
 		file->rdwr_long( stadtinfo_options);
 	}
+	else if(  file->get_OTRP_version()<54  ) {
+		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) {
+			for (uint hist_type = 0; hist_type < HIST_POWER_NEEDED; hist_type++) {
+				file->rdwr_longlong(city_history_year[year][hist_type]);
+			}
+		}
+		for (uint month = 0; month < MAX_CITY_HISTORY_MONTHS; month++) {
+			for (uint hist_type = 0; hist_type < HIST_POWER_NEEDED; hist_type++) {
+				file->rdwr_longlong(city_history_month[month][hist_type]);
+			}
+		}
+		// save button settings for this town
+		file->rdwr_long( stadtinfo_options);
+	} 
 	else {
 		// 120,001 with walking (direct connections) recored seperately
 		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) {
