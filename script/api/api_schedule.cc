@@ -115,7 +115,6 @@ schedule_t* script_api::param<schedule_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	// get instance pointer
 	schedule_t* sched = get_attached_instance<schedule_t>(vm, index, param<schedule_t*>::tag());
 	if (sched) {
-		linehandle_t const next_line = sched->get_next_line();
 		sched->remove_all();
 		// now read the entries
 		sq_pushstring(vm, "entries", -1);
@@ -134,7 +133,28 @@ schedule_t* script_api::param<schedule_t*>::get(HSQUIRRELVM vm, SQInteger index)
 		uint16 wait = 0;
 		get_slot(vm, "base_waiting_time", wait, index);
 		sched->set_additional_base_waiting_time(wait);
-		sched->set_next_line(next_line);
+
+		uint8 current = 0;
+		get_slot(vm, "current", current, index);
+		sched->set_current_stop(current);
+
+		uint8 schedule_flags = 0;
+		get_slot(vm, "flags", schedule_flags, index);
+		sched->set_flags(schedule_flags);
+
+		uint16 schedule_max_speed = 0;
+		get_slot(vm, "max_speed", schedule_max_speed, index);
+		sched->set_max_speed(schedule_max_speed);
+
+		linehandle_t dsgid_handle;
+		get_slot(vm, "departure_slot_group_id", dsgid_handle, index);
+		sched->set_departure_slot_group_id(dsgid_handle);
+
+		linehandle_t next_line_handle;
+		get_slot(vm, "next_line", next_line_handle, index);
+		if (next_line_handle.is_bound()) {
+			sched->set_next_line(next_line_handle);
+		}
 	}
 	return sched;
 }
@@ -142,6 +162,18 @@ schedule_t* script_api::param<schedule_t*>::get(HSQUIRRELVM vm, SQInteger index)
 void* script_api::param<schedule_t*>::tag()
 {
 	return (void*)&script_api::param<schedule_t*>::get;
+}
+
+static SQInteger schedule_set_next_line(HSQUIRRELVM vm)
+{
+	schedule_t* sched = get_attached_instance<schedule_t>(vm, 1, param<schedule_t*>::tag());
+	if (sched == NULL) {
+		return sq_raise_error(vm, "schedule is null");
+	}
+	linehandle_t line = param<linehandle_t>::get(vm, 2);
+	sched->set_next_line(line);
+	set_slot(vm, "next_line", sched->get_next_line(), 1);
+	return 0;
 }
 
 void export_schedule(HSQUIRRELVM vm)
@@ -229,13 +261,63 @@ void export_schedule(HSQUIRRELVM vm)
 	
 	/**
 	 * Additional base waiting time for this schedule.
-	 * 
 	 */
 	integer base_waiting_time;
+
+	/**
+	 * Current stop of schedule:
+	 * default first stop (schedule of line)
+	 * or next stop of convoy (schedule of convoy).
+	 *
+	 * In order to change this value for a convoy
+	 * call @ref convoy_x::change_schedule.
+	 */
+	integer current;
+
+	/**
+	 * Schedule-level flags bitmask (TEMPORARY=1, SAME_DEP_TIME=2, FULL_LOAD_ACCELERATION=4, FULL_LOAD_TIME=8, REVERSE_DEFAULT=16).
+	 */
+	integer flags;
+
+	/**
+	 * Schedule-level operational maximum speed (km/h). 0 means no limit.
+	 */
+	integer max_speed;
+
+	/**
+	 * The leader line of the departure slot group.
+	 * A line in its own group has this set to its own line.
+	 * null if not assigned to any departure slot group.
+	 */
+	line_x departure_slot_group_id;
+
+	/**
+	 * The line to which the convoy transitions when this schedule is completed.
+	 * Read-only: use @ref set_next_line to change this value.
+	 * null if not set.
+	 */
+	line_x next_line;
+
+	/**
+	 * Sets the next line, applying validity checks (waytype match, >=2 entries, stoppable halt at first stop).
+	 * Pass null to unset.
+	 * @note The underlying C++ implementation calls unset_next_line() before running validity checks.
+	 *       Therefore, if a non-null line is passed and fails the checks, the existing next_line is
+	 *       still cleared. After a failed call, next_line will be null.
+	 * @param line the candidate next line, or null
+	 * @typemask void(line_x)
+	 */
+	void set_next_line(line_x line);
 #else
 	create_slot(vm, "entries", 0);
 	create_slot(vm, "waytype", 0);
 	create_slot(vm, "base_waiting_time", 0);
+	create_slot(vm, "current", 0);
+	create_slot(vm, "flags", 0);
+	create_slot(vm, "max_speed", 0);
+	create_slot(vm, "departure_slot_group_id", linehandle_t());
+	create_slot(vm, "next_line", linehandle_t());
+	register_function(vm, schedule_set_next_line, "set_next_line", 2, "xt|x|y|o");
 #endif
 
 	end_class(vm);

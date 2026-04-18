@@ -607,7 +607,30 @@ namespace script_api {
 	SQInteger param<const schedule_t*>::push(HSQUIRRELVM vm, const schedule_t* const& v)
 	{
 		if (v) {
-			return push_instance(vm, "schedule_x", v->get_waytype(), v->get_entries(), v->get_additional_base_waiting_time());
+			// When next_line is set, the last entry is a dummy appended by set_next_line().
+			// Exclude it from the Squirrel entries so the round-trip doesn't double-append it.
+			const minivec_tpl<schedule_entry_t>& src = v->get_entries();
+			SQInteger result;
+			if (v->get_next_line().is_bound() && src.get_count() > 0) {
+				// The dummy entry must have no_load and unload_all set (set by set_next_line()).
+				assert(src.back().is_no_load() && src.back().is_unload_all());
+				minivec_tpl<schedule_entry_t> filtered;
+				for (uint32 i = 0; i < src.get_count() - 1; i++) {
+					filtered.append(src[i]);
+				}
+				result = push_instance(vm, "schedule_x", v->get_waytype(), filtered, v->get_additional_base_waiting_time());
+			}
+			else {
+				result = push_instance(vm, "schedule_x", v->get_waytype(), src, v->get_additional_base_waiting_time());
+			}
+			if (result > 0) {
+				set_slot(vm, "current", (sint32)v->get_current_stop());
+				set_slot(vm, "flags", (sint32)v->get_flags());
+				set_slot(vm, "max_speed", (sint32)v->get_max_speed());
+				set_slot(vm, "departure_slot_group_id", v->get_departure_slot_group_id());
+				set_slot(vm, "next_line", v->get_next_line());
+			}
+			return result;
 		}
 		else {
 			sq_pushnull(vm); return 1;

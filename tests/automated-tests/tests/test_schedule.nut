@@ -153,3 +153,215 @@ function test_schedule_entry_balance_speed()
 	local sched2 = cnv.get_schedule()
 	ASSERT_EQUAL(sched2.entries[0].balance_speed, 80)
 }
+
+// --- Property 6: schedule_x.flags ---
+
+function test_schedule_flags()
+{
+	local pl = player_x(0)
+
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(4, 2, 0), coord3d(4, 8, 0), "sand_track"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 2, 0), "TrainStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 7, 0), "TrainStop"), null)
+	ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 8, 0), building_desc_x("TrainDepot")), null)
+
+	local depot = depot_x(4, 8, 0)
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("1Diesellokomotive"))
+	local cnv = depot.get_convoy_list()[0]
+
+	cnv.change_schedule(pl, schedule_x(wt_rail, [
+		schedule_entry_x(coord3d(4, 2, 0), 0, 0),
+		schedule_entry_x(coord3d(4, 7, 0), 0, 0),
+	]))
+
+	// SAME_DEP_TIME=2, FULL_LOAD_ACCELERATION=4 => flags=6
+	local sched = cnv.get_schedule()
+	sched.flags = 6
+	cnv.change_schedule(pl, sched)
+
+	local sched2 = cnv.get_schedule()
+	ASSERT_EQUAL(sched2.flags, 6)
+}
+
+// --- Property 7: schedule_x.max_speed ---
+
+function test_schedule_max_speed()
+{
+	local pl = player_x(0)
+
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(4, 2, 0), coord3d(4, 8, 0), "sand_track"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 2, 0), "TrainStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 7, 0), "TrainStop"), null)
+	ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 8, 0), building_desc_x("TrainDepot")), null)
+
+	local depot = depot_x(4, 8, 0)
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("1Diesellokomotive"))
+	local cnv = depot.get_convoy_list()[0]
+
+	cnv.change_schedule(pl, schedule_x(wt_rail, [
+		schedule_entry_x(coord3d(4, 2, 0), 0, 0),
+		schedule_entry_x(coord3d(4, 7, 0), 0, 0),
+	]))
+
+	local sched = cnv.get_schedule()
+	sched.max_speed = 100
+	cnv.change_schedule(pl, sched)
+
+	local sched2 = cnv.get_schedule()
+	ASSERT_EQUAL(sched2.max_speed, 100)
+}
+
+// --- Property 8: schedule_x.departure_slot_group_id ---
+
+function test_schedule_departure_slot_group_id()
+{
+	local pl = player_x(0)
+
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(4, 2, 0), coord3d(4, 8, 0), "sand_track"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 2, 0), "TrainStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 7, 0), "TrainStop"), null)
+	ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 8, 0), building_desc_x("TrainDepot")), null)
+
+	local depot = depot_x(4, 8, 0)
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("1Diesellokomotive"))
+	local cnv = depot.get_convoy_list()[0]
+
+	cnv.change_schedule(pl, schedule_x(wt_rail, [
+		schedule_entry_x(coord3d(4, 2, 0), 0, 0),
+		schedule_entry_x(coord3d(4, 7, 0), 0, 0),
+	]))
+
+	// departure_slot_group_id defaults to null when not assigned to any group
+	local sched = cnv.get_schedule()
+	ASSERT_EQUAL(sched.departure_slot_group_id, null)
+	// round-trip preserves null
+	cnv.change_schedule(pl, sched)
+	local sched2 = cnv.get_schedule()
+	ASSERT_EQUAL(sched2.departure_slot_group_id, null)
+}
+
+function test_schedule_departure_slot_group_id_non_null()
+{
+	local pl = player_x(0)
+
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(4, 2, 0), coord3d(4, 8, 0), "sand_track"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 2, 0), "TrainStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 7, 0), "TrainStop"), null)
+	ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 8, 0), building_desc_x("TrainDepot")), null)
+
+	local depot = depot_x(4, 8, 0)
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("1Diesellokomotive"))
+	local cnv = depot.get_convoy_list()[0]
+
+	cnv.change_schedule(pl, schedule_x(wt_rail, [
+		schedule_entry_x(coord3d(4, 2, 0), 0, 0),
+		schedule_entry_x(coord3d(4, 7, 0), 0, 0),
+	]))
+
+	ASSERT_EQUAL(pl.create_line(wt_rail), true)
+	local line_list = pl.get_line_list()
+	local line = line_list[line_list.get_count() - 1]
+
+	// Set departure_slot_group_id to an existing line and verify round-trip
+	local sched = cnv.get_schedule()
+	sched.departure_slot_group_id = line
+	cnv.change_schedule(pl, sched)
+
+	local sched2 = cnv.get_schedule()
+	ASSERT_TRUE(sched2.departure_slot_group_id != null)
+	ASSERT_EQUAL(sched2.departure_slot_group_id.get_name(), line.get_name())
+}
+
+// --- Property 9: schedule_x.next_line ---
+
+function test_schedule_next_line()
+{
+	local pl = player_x(0)
+
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(4, 2, 0), coord3d(4, 8, 0), "sand_track"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 2, 0), "TrainStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 7, 0), "TrainStop"), null)
+	ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 8, 0), building_desc_x("TrainDepot")), null)
+
+	local depot = depot_x(4, 8, 0)
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("1Diesellokomotive"))
+	local cnv = depot.get_convoy_list()[0]
+
+	cnv.change_schedule(pl, schedule_x(wt_rail, [
+		schedule_entry_x(coord3d(4, 2, 0), 0, 0),
+		schedule_entry_x(coord3d(4, 7, 0), 0, 0),
+	]))
+
+	// next_line defaults to null when no connected route is set
+	local sched = cnv.get_schedule()
+	ASSERT_EQUAL(sched.next_line, null)
+	// round-trip preserves null
+	cnv.change_schedule(pl, sched)
+	local sched2 = cnv.get_schedule()
+	ASSERT_EQUAL(sched2.next_line, null)
+}
+
+function test_schedule_next_line_non_null()
+{
+	local pl = player_x(0)
+
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(4, 2, 0), coord3d(4, 8, 0), "sand_track"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 2, 0), "TrainStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 7, 0), "TrainStop"), null)
+	ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 8, 0), building_desc_x("TrainDepot")), null)
+
+	local depot = depot_x(4, 8, 0)
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("1Diesellokomotive"))
+	local cnv = depot.get_convoy_list()[0]
+
+	cnv.change_schedule(pl, schedule_x(wt_rail, [
+		schedule_entry_x(coord3d(4, 2, 0), 0, 0),
+		schedule_entry_x(coord3d(4, 7, 0), 0, 0),
+	]))
+
+	ASSERT_EQUAL(pl.create_line(wt_rail), true)
+	local line_list = pl.get_line_list()
+	local line = line_list[line_list.get_count() - 1]
+
+	// Give the line a valid schedule so it passes set_next_line() validity checks
+	line.change_schedule(pl, schedule_x(wt_rail, [
+		schedule_entry_x(coord3d(4, 2, 0), 0, 0),
+		schedule_entry_x(coord3d(4, 7, 0), 0, 0),
+	]))
+
+	// Set next_line via set_next_line() and verify round-trip
+	local sched = cnv.get_schedule()
+	sched.set_next_line(line)
+	cnv.change_schedule(pl, sched)
+
+	local sched2 = cnv.get_schedule()
+	ASSERT_EQUAL(sched2.next_line.get_name(), line.get_name())
+}
+
+// --- Property 10: schedule_x.current ---
+
+function test_schedule_current()
+{
+	local pl = player_x(0)
+
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(4, 2, 0), coord3d(4, 8, 0), "sand_track"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 2, 0), "TrainStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 7, 0), "TrainStop"), null)
+	ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 8, 0), building_desc_x("TrainDepot")), null)
+
+	local depot = depot_x(4, 8, 0)
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("1Diesellokomotive"))
+	local cnv = depot.get_convoy_list()[0]
+
+	cnv.change_schedule(pl, schedule_x(wt_rail, [
+		schedule_entry_x(coord3d(4, 2, 0), 0, 0),
+		schedule_entry_x(coord3d(4, 7, 0), 0, 0),
+	]))
+
+	local sched = cnv.get_schedule()
+	sched.current = 1
+	cnv.change_schedule(pl, sched)
+
+	local sched2 = cnv.get_schedule()
+	ASSERT_EQUAL(sched2.current, 1)
+}
