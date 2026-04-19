@@ -373,10 +373,15 @@ image_id gebaeude_t::get_image() const
 {
 	if(env_t::hide_buildings!=0  &&  tile->has_image()) {
 		// opaque houses
-		if(is_city_building()) {
-			return env_t::hide_with_transparency ? skinverwaltung_t::fussweg->get_image_id(0) : skinverwaltung_t::construction_site->get_image_id(0);
+		if (is_city_building()) {
+			if (skinverwaltung_t::construction_site->get_count() == 1) {
+				// only one kind of construction site?
+				return skinverwaltung_t::construction_site->get_image_id(0);
+			}
+			// 6 is special building, 7-9 is res com ind (our type)
+			return skinverwaltung_t::construction_site->get_count() > 7 ? skinverwaltung_t::construction_site->get_image_id(tile->get_desc()->get_type() - building_desc_t::city_res + 7) : skinverwaltung_t::construction_site->get_image_id(0);
 		}
-		else if(  (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING  &&  tile->get_desc()->get_type() < building_desc_t::others)) {
+		else if(  env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING  &&  tile->get_desc()->get_type() < building_desc_t::others  ) {
 			// hide with transparency or tile without information
 			if(env_t::hide_with_transparency) {
 				if(tile->get_desc()->get_type() == building_desc_t::factory  &&  ptr.fab->get_desc()->get_placement() == factory_desc_t::Water) {
@@ -385,10 +390,13 @@ image_id gebaeude_t::get_image() const
 				}
 				return skinverwaltung_t::fussweg->get_image_id(0);
 			}
-			else {
-				uint16 kind=skinverwaltung_t::construction_site->get_count()<=tile->get_desc()->get_type() ? skinverwaltung_t::construction_site->get_count()-1 : tile->get_desc()->get_type();
-				return skinverwaltung_t::construction_site->get_image_id( kind );
+			// only one kind of construction site
+			if (skinverwaltung_t::construction_site->get_count() == 1) {
+				return skinverwaltung_t::construction_site->get_image_id(0);
 			}
+			// 6 is special building, 7-9 is res com ind (handled above) => we only go up to 6
+			uint16 kind = tile->get_desc()->get_type() > 6 ? 6 : tile->get_desc()->get_type();
+			return skinverwaltung_t::construction_site->get_image_id( kind );
 		}
 	}
 
@@ -936,9 +944,9 @@ void gebaeude_t::rdwr(loadsave_t *file)
 				switch(type) {
 					case building_desc_t::city_res:
 						{
-							const building_desc_t *bdsc = hausbauer_t::get_residential( level, welt->get_timeline_year_month(), welt->get_climate( get_pos().get_2d() ), 0, koord(1,1), koord(1,1) );
+							const building_desc_t *bdsc = hausbauer_t::get_residential( level, welt->get_timeline_year_month(), welt->get_climate( get_pos().get_2d() ), 0, koord((sint16)1,(sint16)1), koord((sint16)1,(sint16)1) );
 							if(bdsc==NULL) {
-								bdsc = hausbauer_t::get_residential(level,0, MAX_CLIMATES, 0, koord(1,1), koord(1,1) );
+								bdsc = hausbauer_t::get_residential(level,0, MAX_CLIMATES, 0, koord((sint16)1,(sint16)1), koord((sint16)1,(sint16)1) );
 							}
 							if( bdsc) {
 								dbg->message("gebaeude_t::rwdr", "replace unknown building %s with residence level %i by %s",buf,level,bdsc->get_name());
@@ -950,9 +958,9 @@ void gebaeude_t::rdwr(loadsave_t *file)
 					case building_desc_t::city_com:
 						{
 							// for replacement, ignore cluster and size
-							const building_desc_t *bdsc = hausbauer_t::get_commercial( level, welt->get_timeline_year_month(), welt->get_climate( get_pos().get_2d() ), 0, koord(1,1), koord(1,1) );
+							const building_desc_t *bdsc = hausbauer_t::get_commercial( level, welt->get_timeline_year_month(), welt->get_climate( get_pos().get_2d() ), 0, koord((sint16)1,(sint16)1), koord((sint16)1,(sint16)1) );
 							if(bdsc==NULL) {
-								bdsc = hausbauer_t::get_commercial(level, 0, MAX_CLIMATES, 0, koord(1,1), koord(1,1) );
+								bdsc = hausbauer_t::get_commercial(level, 0, MAX_CLIMATES, 0, koord((sint16)1,(sint16)1), koord((sint16)1,(sint16)1) );
 							}
 							if(bdsc) {
 								dbg->message("gebaeude_t::rwdr", "replace unknown building %s with commercial level %i by %s",buf,level,bdsc->get_name());
@@ -963,11 +971,11 @@ void gebaeude_t::rdwr(loadsave_t *file)
 
 					case building_desc_t::city_ind:
 						{
-							const building_desc_t *bdsc = hausbauer_t::get_industrial( level, welt->get_timeline_year_month(), welt->get_climate( get_pos().get_2d() ), 0, koord(1,1), koord(1,1) );
+							const building_desc_t *bdsc = hausbauer_t::get_industrial( level, welt->get_timeline_year_month(), welt->get_climate( get_pos().get_2d() ), 0, koord((sint16)1,(sint16)1), koord((sint16)1,(sint16)1) );
 							if(bdsc==NULL) {
-								bdsc = hausbauer_t::get_industrial(level, 0, MAX_CLIMATES, 0, koord(1,1), koord(1,1) );
+								bdsc = hausbauer_t::get_industrial(level, 0, MAX_CLIMATES, 0, koord((sint16)1,(sint16)1), koord((sint16)1,(sint16)1) );
 								if(bdsc==NULL) {
-									bdsc = hausbauer_t::get_residential(level, 0, MAX_CLIMATES, 0, koord(1,1), koord(1,1) );
+									bdsc = hausbauer_t::get_residential(level, 0, MAX_CLIMATES, 0, koord((sint16)1,(sint16)1), koord((sint16)1,(sint16)1) );
 								}
 							}
 							if (bdsc) {
@@ -1010,8 +1018,13 @@ void gebaeude_t::rdwr(loadsave_t *file)
 			city_index = welt->get_cities().index_of( ptr.stadt );
 		}
 		file->rdwr_long(city_index);
-		if(  file->is_loading()  &&  city_index!=-1  &&  (tile==NULL  ||  tile->get_desc()==NULL  ||  tile->get_desc()->is_connected_with_town())  ) {
-			ptr.stadt = welt->get_cities()[city_index];
+		if(  file->is_loading()  &&  (tile==NULL  ||  tile->get_desc()==NULL  ||  tile->get_desc()->is_connected_with_town())  ) {
+			if (city_index != -1) {
+				ptr.stadt = welt->get_cities()[city_index];
+			}
+			else {
+				ptr.stadt = NULL;
+			}
 		}
 	}
 

@@ -230,6 +230,8 @@ public:
 		return (layout & 1) ? size.y : size.x;
 	}
 
+	sint16 get_area() const { return size.x * size.y; }
+
 	uint8 get_all_layouts() const { return layouts; }
 
 	uint32 get_extra() const { return extra_data; }

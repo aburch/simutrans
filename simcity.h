@@ -364,10 +364,6 @@ private:
 	// find out, what building matches best
 	void bewerte_res_com_ind(const koord pos, int &ind, int &com, int &res);
 
-	/**
-	 * Build/renovates a city building at Planquadrat (tile) x,y
-	 */
-	void build_city_building(koord pos);
 	void renovate_city_building(gebaeude_t *gb);
 
 #ifdef DESTINATION_CITYCARS
@@ -409,6 +405,13 @@ private:
 	static bool process_city_street(grund_t& gr, const way_desc_t* cr);
 
 public:
+	bool check_ground_tile_for_house(grund_t* gr, sint8 zpos) const;
+	gebaeude_t* build_city_house(koord3d base_pos, const building_desc_t* h, uint8 rotation, uint32 cl, vector_tpl<const building_desc_t*>* exclude_desc);
+	/**
+	 * Build/renovates a city building at Planquadrat (tile) x,y
+	 */
+	void build_city_building(koord pos);
+
 	bool is_within_players_network( const player_t* player ) const;
 
 	// Power substation management

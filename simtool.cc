@@ -6415,7 +6415,8 @@ const char *tool_build_house_t::work_on_ground( player_t *player, koord k )
 	else if(  default_param[1]=='A'  ) {
 		if(  desc->get_type()!=building_desc_t::attraction_land  &&  desc->get_type()!=building_desc_t::attraction_city  ) {
 			// auto rotation only valid for city buildings
-			rotation = stadt_t::orient_city_building( k, desc, desc->get_size() );
+			koord max_size(max(desc->get_size().x, desc->get_size().y), max(desc->get_size().x, desc->get_size().y));
+			rotation = stadt_t::orient_city_building( k, desc, max_size);
 			if(  rotation < 0 ) {
 				return NOTICE_UNSUITABLE_GROUND;
 			}
@@ -6430,6 +6431,11 @@ const char *tool_build_house_t::work_on_ground( player_t *player, koord k )
 
 	koord size = desc->get_size(rotation);
 
+	stadt_t* city = welt->find_nearest_city(k);
+	if(  desc->is_city_building()  &&  !city  ) {
+		return NOTICE_UNSUITABLE_GROUND;
+	}
+
 	// process ignore climates switch
 	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : desc->get_allowed_climate_bits();
 
@@ -6443,14 +6449,11 @@ const char *tool_build_house_t::work_on_ground( player_t *player, koord k )
 	// Place found...
 	if(hat_platz) {
 		player_t *gb_player = desc->is_city_building() ? NULL : welt->get_public_player();
-		gebaeude_t *gb = hausbauer_t::build(gb_player, k, rotation, desc);
+		gebaeude_t *gb = hausbauer_t::build(gb_player, k, rotation, desc, city);
 		if(gb) {
 			// building successful
-			if(  desc->get_type()!=building_desc_t::attraction_land  &&  desc->get_type()!=building_desc_t::attraction_city  ) {
-				stadt_t *city = welt->find_nearest_city( k );
-				if(city) {
-					city->add_gebaeude_to_stadt(gb);
-				}
+			if(  desc->get_type()==building_desc_t::monument  &&  city  ) {
+				city->add_gebaeude_to_stadt(gb);
 			}
 			player_t::book_construction_costs(player, -desc->get_price(welt) * size.x * size.y, k, gb->get_waytype());
 			return NULL;
