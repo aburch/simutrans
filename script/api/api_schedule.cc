@@ -226,6 +226,29 @@ void export_schedule(HSQUIRRELVM vm)
 	create_slot(vm, "spacing_shift", 0);
 	create_slot(vm, "delay_tolerance", 0);
 
+#ifdef SQAPI_DOC // document members
+	/**
+	 * Array of last 5 journey times (ticks), most recent at index 0.
+	 * The journey time is the time between departure from the previous stop and arrival at this stop.
+	 * 0 means not yet recorded.
+	 */
+	array<integer> journey_time;
+	/**
+	 * Array of last 5 average waiting times of goods (ticks), most recent at index 0.
+	 * 0 means not yet recorded.
+	 */
+	array<integer> waiting_time;
+	/**
+	 * Array of last 5 convoy stopping times (ticks), most recent at index 0.
+	 * 0 means not yet recorded.
+	 */
+	array<integer> convoy_stopping_time;
+#endif
+
+	create_slot(vm, "journey_time", 0);
+	create_slot(vm, "waiting_time", 0);
+	create_slot(vm, "convoy_stopping_time", 0);
+
 	/**
 	 * Returns halt at this entry position.
 	 * @param pl player that wants to use halt here
