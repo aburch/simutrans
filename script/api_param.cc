@@ -594,6 +594,25 @@ namespace script_api {
 		set_slot(vm, "spacing_shift", (sint32)v.spacing_shift);
 		set_slot(vm, "delay_tolerance", (sint32)v.delay_tolerance);
 
+		// time arrays: newest entry first (jt_at_index points to next-write slot)
+		vector_tpl<sint32> jt_arr(NUM_ARRIVAL_TIME_STORED);
+		for(int i = 0; i < NUM_ARRIVAL_TIME_STORED; i++) {
+			jt_arr.append((sint32)v.journey_time[(v.jt_at_index - 1 - i + NUM_ARRIVAL_TIME_STORED) % NUM_ARRIVAL_TIME_STORED]);
+		}
+		set_slot(vm, "journey_time", jt_arr);
+
+		vector_tpl<sint32> wt_arr(NUM_WAITING_TIME_STORED);
+		for(int i = 0; i < NUM_WAITING_TIME_STORED; i++) {
+			wt_arr.append((sint32)v.waiting_time[(v.wt_at_index - 1 - i + NUM_WAITING_TIME_STORED) % NUM_WAITING_TIME_STORED]);
+		}
+		set_slot(vm, "waiting_time", wt_arr);
+
+		vector_tpl<sint32> cs_arr(NUM_STOPPING_TIME_STORED);
+		for(int i = 0; i < NUM_STOPPING_TIME_STORED; i++) {
+			cs_arr.append((sint32)v.convoy_stopping_time[(v.cs_at_index - 1 - i + NUM_STOPPING_TIME_STORED) % NUM_STOPPING_TIME_STORED]);
+		}
+		set_slot(vm, "convoy_stopping_time", cs_arr);
+
 		return 1;
 	}
 

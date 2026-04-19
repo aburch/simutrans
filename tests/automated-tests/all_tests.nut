@@ -236,7 +236,8 @@ all_tests <- [
 	test_schedule_departure_slot_group_id_non_null,
 	test_schedule_next_line,
 	test_schedule_next_line_non_null,
-	test_schedule_current
+	test_schedule_current,
+	test_schedule_entry_time_statistics
 ]
 
 

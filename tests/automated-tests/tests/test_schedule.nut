@@ -365,3 +365,63 @@ function test_schedule_current()
 	local sched2 = cnv.get_schedule()
 	ASSERT_EQUAL(sched2.current, 1)
 }
+
+
+// --- Properties: schedule_entry_x journey_time / waiting_time / convoy_stopping_time ---
+
+function test_schedule_entry_time_statistics()
+{
+	local pl = player_x(0)
+
+	// Build 3-stop road route: A(4,2) - B(4,5) - C(4,8) - depot(4,9)
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(4, 2, 0), coord3d(4, 9, 0), "cobblestone_road"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 2, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 5, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 8, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 9, 0), building_desc_x("CarDepot")), null)
+
+	// Create line: stats are recorded on the line's schedule, not the convoy's.
+	ASSERT_TRUE(pl.create_line(wt_road))
+	local line_list = pl.get_line_list()
+	local line = line_list[line_list.get_count() - 1]
+	local the_schedule = schedule_x(wt_road, [
+		schedule_entry_x(coord3d(4, 2, 0), 0, 0),
+		schedule_entry_x(coord3d(4, 5, 0), 0, 0),
+		schedule_entry_x(coord3d(4, 8, 0), 0, 0),
+	])
+	line.change_schedule(pl, the_schedule)
+
+	local halt_b = halt_x.get_halt(coord3d(4, 5, 0), pl)
+
+	local depot = depot_x(4, 9, 0)
+	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("Buessig"))
+	local cnv = depot.get_convoy_list()[0]
+	// Assign to line while in depot (state=INITIAL) to avoid EDIT_SCHEDULE on set_line.
+	// This copies the line's schedule to the convoy without triggering re-routing.
+	cnv.set_line(pl, line)
+	depot.start_all_convoys(pl)
+	debug.set_game_speed(5)
+
+	// Wait until A->B routing graph is established (generate_goods returns ROUTE_OK=1).
+	while (world.generate_goods(coord(3, 2), coord(3, 5), good_desc_x.passenger, 1) == 0) {
+		sleep()
+	}
+
+	// Count 4 B arrivals after routing is ready to ensure 3 A visits with passengers.
+	local base_b = halt_b.convoys[0]
+	while (halt_b.convoys[0] < base_b + 4) {
+		world.generate_goods(coord(3, 2), coord(3, 5), good_desc_x.passenger, 30)
+		sleep()
+	}
+
+	// Read stats from the LINE's schedule (not the convoy's schedule).
+	local sched = line.get_schedule()
+	local entry_b = sched.entries[1]
+
+	// journey_time at B: A->B travel time, recorded on each arrival at B
+	ASSERT_EQUAL(typeof entry_b.journey_time, "array")
+	ASSERT_EQUAL(entry_b.journey_time.len(), 5)
+	ASSERT_TRUE(entry_b.journey_time[0] > 0)
+	ASSERT_TRUE(entry_b.journey_time[1] > 0)
+	ASSERT_TRUE(entry_b.journey_time[2] > 0)
+}
