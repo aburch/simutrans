@@ -2371,12 +2371,13 @@ void fabrik_t::step(uint32 delta_t)
 			}
 			case CL_ELEC_CLASSIC: {
 				// Classic no input power producer.
-				currently_requiring_power = false;
+				currently_requiring_power = true;
+				// currently_producing = true;
 				work = 1 << WORK_BITS;
 
 				// power station? => produce power
 				if(  desc->is_electricity_producer()  ) {
-					currently_requiring_power = true;
+					// currently_requiring_power = true;
 					currently_producing = true;
 					set_power_supply((uint32)( ((sint64)scaled_electric_demand * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS ));
 				}
@@ -2385,7 +2386,7 @@ void fabrik_t::step(uint32 delta_t)
 			case CL_NONE:
 			default: {
 				currently_producing = false;
-				currently_requiring_power = false;
+				currently_requiring_power = true;
 				// None always produces maximum for whatever reason. Also default.
 				work = 1 << WORK_BITS;
 				break;
