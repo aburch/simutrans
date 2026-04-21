@@ -420,6 +420,13 @@ private:
 	uint16 max_balance_speed_convoi;
 
 	/**
+	 * invalid convoy: invalid coupling condition, etc..
+	 * if set "allow invalid convoy" in depot, it can be.
+	 * no load/ no engine.
+	 */
+	bool invalid_convoy;
+
+	/**
 	* Initialize all variables with default values.
 	* Each constructor must call this method first!
 	*/
@@ -731,7 +738,7 @@ public:
 	 * @return total power of this convoi
 	 */
 	const uint32 & get_sum_power() const {return sum_power;}
-	const sint32 get_sum_gear_and_power() const {return use_electric? sum_gear_and_power: sum_gear_and_power-sum_gear_and_power_electric;}
+	const sint32 get_sum_gear_and_power() const {return invalid_convoy?0:(use_electric? sum_gear_and_power: sum_gear_and_power-sum_gear_and_power_electric);}
 	const sint32 & get_min_top_speed() const {return min_top_speed;}
 	const sint32 & get_speed_limit() const {return speed_limit;}
 
@@ -916,6 +923,12 @@ public:
 	* Check if this convoi has entered a depot.
 	*/
 	bool in_depot() const { return state == INITIAL; }
+
+	/**
+	 * invalid convoy: invalid coupling condition
+	 */
+	bool is_invalid_convoy() const { return invalid_convoy; }
+	void set_invalid_convoy(bool y) { invalid_convoy = y; }
 
 	/**
 	* loading_level was minimum_loading before. Actual percentage loaded of loadable

@@ -108,6 +108,7 @@ private:
 	button_t bt_reverse;
 	button_t bt_uncouple;
 	button_t bt_remove_all_vehicles;
+	button_t bt_allow_invalid_convoy;
 	const char* no_child_text;
 	gui_label_t lb_child_convoy;
 	// coupling convoy selector

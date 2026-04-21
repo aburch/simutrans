@@ -236,6 +236,11 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	bt_remove_all_vehicles.set_tooltip("remove all vehicles.");
 	add_component(&bt_remove_all_vehicles);
 
+	bt_allow_invalid_convoy.init(button_t::square_state,"allow invalid convoy");
+	bt_allow_invalid_convoy.add_listener(this);
+	bt_allow_invalid_convoy.set_tooltip("allow invalid coupling convoy start. If start invalid convoy, the power set as 0, and no load permitted!");
+	add_component(&bt_allow_invalid_convoy);
+
 	/*
 	* [PANEL]
 	*/
@@ -514,6 +519,8 @@ void depot_frame_t::layout(scr_size *size)
 	}
 	gui_frame_t::set_windowsize(win_size);
 	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, MIN_TOTAL_HEIGHT));
+	const waytype_t wt = depot->get_waytype();
+	const bool should_show_child_convoi_selector = (wt != road_wt && wt != air_wt && wt != water_wt);
 
 	/*
 	 * DONE with layout planning - now build everything.
@@ -574,6 +581,11 @@ void depot_frame_t::layout(scr_size *size)
 	bt_remove_all_vehicles.set_pos(scr_size(D_MARGIN_LEFT, CONVOI_VSTART + cont_convoi.get_size().h + (3+D_SCROLLBAR_HEIGHT)*(CLIST_WIDTH >= win_size.w-D_MARGIN_LEFT-D_MARGIN_RIGHT) + D_V_SPACE));
 	bt_remove_all_vehicles.set_width(BUTTON_WIDTH_DEPOT);
 
+	bt_allow_invalid_convoy.set_pos(scr_size(D_MARGIN_LEFT+D_H_SPACE+BUTTON_WIDTH_DEPOT, CONVOI_VSTART + cont_convoi.get_size().h + (3+D_SCROLLBAR_HEIGHT)*(CLIST_WIDTH >= win_size.w-D_MARGIN_LEFT-D_MARGIN_RIGHT) + D_V_SPACE));
+	bt_allow_invalid_convoy.set_width(BUTTON_WIDTH_DEPOT);
+	// invalid convoy can not go alone!
+	bt_allow_invalid_convoy.set_visible(should_show_child_convoi_selector);
+
 	// place for description text
 	second_column_x = D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT+D_H_SPACE*2)*2;
 	second_column_w = (BUTTON_WIDTH_DEPOT+D_H_SPACE)*2;
@@ -603,8 +615,6 @@ void depot_frame_t::layout(scr_size *size)
 	/*
 	 * [ACTIONS]
 	 */
-	const waytype_t wt = depot->get_waytype();
-	const bool should_show_child_convoi_selector = (wt != road_wt && wt != air_wt && wt != water_wt);
 	lb_child_convoy.set_visible(should_show_child_convoi_selector);
 	child_convoi_selector.set_visible(should_show_child_convoi_selector);
 	lb_child_convoy.set_pos(scr_coord(D_MARGIN_LEFT, ACTIONS_VSTART - D_BUTTON_HEIGHT ));
@@ -1075,6 +1085,9 @@ void depot_frame_t::update_data()
 		if(  cnv.is_bound()  &&  c == cnv  ) {
 			// this convoy
 			convoy_selector.set_selection( convoy_selector.count_elements() - 1 );
+			if(  cnv->get_vehicle_count()>0  ) {
+				bt_show_tram.pressed = cnv->front()->get_desc()->get_waytype()==tram_wt;
+			}
 		} 
 	}
 
@@ -1171,6 +1184,7 @@ void depot_frame_t::update_data()
 		bt_reverse.pressed=cnv->is_reversing_needed();
 		bt_uncouple.enable();
 		bt_remove_all_vehicles.enable();
+		bt_allow_invalid_convoy.pressed|=cnv->is_invalid_convoy();
 	}
 
 	repositioning_t& rep = repositioning_t::get_instance();
@@ -1684,7 +1698,7 @@ sint64 depot_frame_t::calc_restwert(const vehicle_desc_t *veh_type)
 
 void depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *image_data)
 {
-	if(  image_data->lcolor != color_idx_to_rgb(COL_RED)  &&  image_data->rcolor != color_idx_to_rgb(COL_RED)  ) {
+	if(  (image_data->lcolor != color_idx_to_rgb(COL_RED)  &&  image_data->rcolor != color_idx_to_rgb(COL_RED))  ||  (bt_allow_invalid_convoy.pressed)) {
 		if(  veh_action == va_set_offset  ) {
 			repositioning_t::get_instance().set_offset(image_data->text);
 			welt->set_dirty();
@@ -1704,7 +1718,7 @@ void depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *imag
 				// rather than one new convoi with multiple vehicles
 				depot->set_command_pending();
 			}
-			depot->call_depot_tool( veh_action == va_insert ? 'i' : 'a', cnv, image_data->text );
+			depot->call_depot_tool( veh_action == va_insert ? 'i' : bt_allow_invalid_convoy.pressed? 'A' : 'a', cnv, image_data->text );
 		}
 	}
 }
@@ -1720,7 +1734,7 @@ void depot_frame_t::image_from_convoi_list(uint nr, bool to_end)
 		while(  start_nr > 0  ) {
 			start_nr--;
 			const vehicle_desc_t *info = cnv->get_vehikel(start_nr)->get_desc();
-			if(  info->get_trailer_count() != 1  ) {
+			if(  info->get_trailer_count() != 1 || cnv->is_invalid_convoy()  ) {
 				start_nr++;
 				break;
 			}
@@ -1800,6 +1814,10 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			bt_reverse.pressed = !bt_reverse.pressed;
 			return true;
 		}
+		else if(  comp == &bt_allow_invalid_convoy  ) {
+			bt_allow_invalid_convoy.pressed = !bt_allow_invalid_convoy.pressed;
+			return true;
+		}
 		// image list selection here ...
 		else if(  comp == &convoi  ) {
 			image_from_convoi_list( p.i, last_meta_event_get_class() == EVENT_DOUBLE_CLICK);
@@ -1843,8 +1861,10 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			depot_t::update_all_win();
 		}
 		else if(  comp == &bt_show_tram  ) {
-			bt_show_tram.pressed = !bt_show_tram.pressed;
-			build_vehicle_lists();
+			if(  !cnv.is_bound()  ) {
+				bt_show_tram.pressed = !bt_show_tram.pressed;
+				build_vehicle_lists();
+			}
 			return true;
 		}
 		else if(  comp == &bt_sell_all  ) {
