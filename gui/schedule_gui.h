@@ -53,7 +53,7 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 	button_t bt_promote_to_line;
 	gui_combobox_t line_selector, departure_slot_group_selector, next_line_selector;
 	gui_label_buf_t lb_waitlevel;
-	gui_fill_t sp_schedule_settings,sp_load_settings,sp_departure_settings,sp_coupling_settings,sp_reverse_settings,sp_road_settings,sp_schedule_reverse_settings;
+	gui_fill_t sp_schedule_settings,sp_load_settings,sp_departure_settings,sp_coupling_settings,sp_reverse_settings,sp_road_settings,sp_schedule_reverse_settings,sp_schedule_coupling_settings;
 
 	// always needed
 	button_t bt_add, bt_insert, bt_remove; // stop management
@@ -69,6 +69,7 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 	button_t bt_find_parent, bt_wait_for_child, bt_reset_coupling; // convoy coupling
 	button_t bt_no_go_no_users;
 	button_t bt_wait_full_load;
+	button_t bt_no_use_electric;
 	button_t bt_no_load, bt_no_unload, bt_tmp_schedule, bt_wait_for_time, 
 		bt_same_dep_time, bt_full_load_acceleration, bt_full_load_time,bt_unload_all,bt_transfer_interval, bt_balance_speed_kmh_of_convoi,
 		bt_load_before_departure, bt_reverse_convoy, bt_reverse_coupling, bt_wait_coupling_done, bt_uncouple_child, bt_max_speed_kmh_of_convoi, bt_no_overtake, bt_max_load_all_stops, bt_pass_stop,

@@ -432,6 +432,12 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		bt_reverse_default.add_listener(this);
 		add_component(&bt_reverse_default);
 		add_component(&sp_schedule_reverse_settings);
+
+		bt_no_use_electric.init(button_t::square_state, "Not use electricity");
+		bt_no_use_electric.set_tooltip(translator::translate("Not use electriciry in this schedule"));
+		bt_no_use_electric.add_listener(this);
+		add_component(&bt_no_use_electric);
+		add_component(&sp_coupling_settings);
 	}
 	end_table();
 
@@ -1321,6 +1327,10 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 		schedule->set_temporary(!bt_tmp_schedule.pressed);
 		bt_tmp_schedule.pressed = schedule->is_temporary();
 	}
+	else if(comp == &bt_no_use_electric) {
+		schedule->set_no_use_electric(!bt_no_use_electric.pressed);
+		bt_no_use_electric.pressed = schedule->is_no_use_electric();
+	}
 	else if(comp == &bt_reverse_default) {
 		schedule->set_reverse_default(!bt_reverse_default.pressed);
 		bt_reverse_default.pressed = schedule->is_reverse_default();
@@ -1746,6 +1756,9 @@ void schedule_gui_t::extract_schedule_settings(bool yesno) {
 	const bool show_reverse_settings = reversible_waytype && schedule->get_waytype()!=water_wt && !welt->get_settings().is_default_reverse(); // water convoy does not reverse default!
 	bt_reverse_default.set_visible(show_reverse_settings&&yesno);
 	sp_schedule_reverse_settings.set_visible(show_reverse_settings&&yesno);
+	const bool coupling_waytype = schedule->get_waytype()!=road_wt  &&  schedule->get_waytype()!=air_wt  &&  schedule->get_waytype()!=water_wt;
+	bt_no_use_electric.set_visible(coupling_waytype&&yesno);
+	sp_coupling_settings.set_visible(coupling_waytype&&yesno);	
 }
 void schedule_gui_t::extract_loading_settings(bool yesno) {
 	bt_extract_loading_settings.set_typ(yesno? button_t::arrowup: button_t::arrowdown);
