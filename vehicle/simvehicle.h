@@ -274,6 +274,7 @@ public:
 	void calc_image() OVERRIDE;
 
 	static sint8 vehicle_offset_defined_by_way(ribi_t::dir d, const sint8 offset, const bool is_x, const bool reverse, const sint16 raster_width);
+	static constexpr uint16 turned_length = VEHICLE_STEPS_PER_TILE / 32;
 
 	// the coordinates, where the vehicle was loaded the last time
 	koord3d last_stop_pos;
@@ -507,6 +508,8 @@ protected:
 
 	koord3d pos_prev; //used in enter_tile()
 
+	sint16 sideways_image_steps; // >0 while showing sideways departure image
+
 public:
 	virtual void enter_tile(grund_t*) OVERRIDE;
 
@@ -542,6 +545,9 @@ public:
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const OVERRIDE { get_screen_offset(xoff,yoff,raster_width,false); }
 
 	obj_t::typ get_typ() const OVERRIDE { return road_vehicle; }
+
+	void calc_image() OVERRIDE;
+	uint32 do_drive(uint32 dist) OVERRIDE;
 
 	koord3d get_pos_prev() const { return pos_prev; }
 

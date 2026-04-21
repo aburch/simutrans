@@ -2172,11 +2172,13 @@ road_vehicle_t::road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t
 	cnv = cn;
 	pos_prev = koord3d::invalid;
 	last_stop_for_intersection = koord3d::invalid;
+	sideways_image_steps = 0;
 }
 
 
 road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : vehicle_t()
 {
+	sideways_image_steps = 0;
 	rdwr_from_convoi(file);
 
 	if(  file->is_loading()  ) {
@@ -2238,6 +2240,61 @@ void road_vehicle_t::calc_disp_lane()
 	ribi_t::ribi test_dir = welt->get_settings().is_drive_left() ? ribi_t::northeast : ribi_t::southwest;
 	disp_lane = get_direction() & test_dir ? 1 : 3;
 }
+
+void road_vehicle_t::calc_image()
+{
+	// Show sideways image when departing from a stop in the opposite direction.
+	// This happens when the vehicle turns 180° (e.g., departs a terminus in reverse).
+	if(  previous_direction != ribi_t::none
+		&&  direction == ribi_t::backward(previous_direction)  ) {
+		// Check if we departed from a halt tile
+		grund_t *prev_gr = welt->lookup(pos_prev);
+		if(  prev_gr  &&  prev_gr->is_halt()  ) {
+			// Determine effective drive side: drive-on-left XOR inverted_mode on current tile
+			strasse_t *str = (strasse_t*)welt->lookup(get_pos())->get_weg(road_wt);
+			const bool drives_left = welt->get_settings().is_drive_left();
+			const bool inverted    = str  &&  str->get_overtaking_mode() == inverted_mode;
+			const bool effective_drive_left = drives_left ^ inverted;
+
+			// Sideways direction: right side for drive-on-right, left side for drive-on-left
+			// rotate90l = CCW = right side of forward dir; rotate90 = CW = left side
+			ribi_t::ribi side_dir = effective_drive_left
+				? ribi_t::rotate90l(direction)  // left side -> turn left
+				: ribi_t::rotate90(direction);  // right side -> turn right
+
+			image_id old_image = get_image();
+			const bool is_reversed    = (cnv == NULL || cnv == (convoi_t*)1) ? false : cnv->is_reversed();
+			const bool is_no_electric = (cnv == NULL || cnv == (convoi_t*)1) ? false : !cnv->get_use_electric();
+			if(  fracht.empty()  ) {
+				set_image(desc->get_image_id(ribi_t::get_dir(side_dir), NULL, is_reversed, is_no_electric));
+			}
+			else {
+				set_image(desc->get_image_id(ribi_t::get_dir(side_dir), fracht.front().get_desc(), is_reversed, is_no_electric));
+			}
+			if(  old_image != get_image()  ) {
+				set_flag(obj_t::dirty);
+			}
+			sideways_image_steps = (sint16)(turned_length + get_desc()->get_length_in_steps());
+			return;
+		}
+	}
+	vehicle_t::calc_image();
+}
+
+
+uint32 road_vehicle_t::do_drive(uint32 dist)
+{
+	uint32 result = vehicle_base_t::do_drive(dist);
+	if(  sideways_image_steps > 0  ) {
+		sideways_image_steps -= (sint16)(result >> YARDS_PER_VEHICLE_STEP_SHIFT);
+		if(  sideways_image_steps <= 0  ) {
+			sideways_image_steps = 0;
+			vehicle_t::calc_image();
+		}
+	}
+	return result;
+}
+
 
 // need to reset halt reservation (if there was one)
 bool road_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route, bool pass_next)
@@ -2383,7 +2440,7 @@ void road_vehicle_t::get_screen_offset( int &xoff, int &yoff, const sint16 raste
 	vehicle_base_t::get_screen_offset( xoff, yoff, raster_width );
 	const int dir = ribi_t::get_dir(get_direction());
 
-	if(  welt->get_settings().is_drive_left()  ) {
+	if(  welt->get_settings().is_drive_left() && sideways_image_steps==0  ) {
 		xoff += tile_raster_scale_x( env_t::driveleft_base_offsets[dir][0], raster_width );
 		yoff += tile_raster_scale_y( env_t::driveleft_base_offsets[dir][1], raster_width );
 	}
@@ -2395,11 +2452,11 @@ void road_vehicle_t::get_screen_offset( int &xoff, int &yoff, const sint16 raste
 		yoff += vehicle_offset_defined_by_way(dir,welt->lookup(get_pos())->get_weg(get_waytype())->get_vehicle_offset(),false,welt->lookup(get_pos())->get_weg(get_waytype())->get_vehicle_offset_mode(), raster_width);
 		}
 		sint8 tiles_overtaking = prev_based ? cnv->get_prev_tiles_overtaking() : cnv->get_tiles_overtaking();
-		if(  tiles_overtaking>0  ) { /* This means the convoy is overtaking other vehicles. */
+		if(  tiles_overtaking>0 && sideways_image_steps==0 ) { /* This means the convoy is overtaking other vehicles. */
 			xoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_direction())][0], raster_width);
 			yoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_direction())][1], raster_width);
 		}
-		else if(  tiles_overtaking<0  ) { /* This means the convoy is overtaken by other vehicles. */
+		else if(  tiles_overtaking<0 && sideways_image_steps==0  ) { /* This means the convoy is overtaken by other vehicles. */
 			xoff -= tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_direction())][0], raster_width)/5;
 			yoff -= tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_direction())][1], raster_width)/5;
 		}
