@@ -2798,6 +2798,19 @@ void convoi_t::vorfahren()
 				}
 				inspecting = inspecting->get_coupling_convoi();
 			}
+			// Reset sideways image timer: the initial do_drive() above consumes different
+			// amounts per direction, so reset to turned_length for a uniform display time.
+			if(  !go_same_direction  ) {
+				inspecting = self;
+				while(  inspecting.is_bound()  ) {
+					for(  unsigned i = 0;  i < inspecting->get_vehicle_count();  i++  ) {
+						if(  road_vehicle_t* rv = dynamic_cast<road_vehicle_t*>(inspecting->get_vehikel(i))  ) {
+							rv->reset_sideways_image_timer();
+						}
+					}
+					inspecting = inspecting->get_coupling_convoi();
+				}
+			}
 			// if this convoy go to the same direction, we need to advance them to the initial step.
 			if(  go_same_direction ) {
 				inspecting = self;
