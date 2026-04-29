@@ -874,6 +874,24 @@ void senke_t::rdwr(loadsave_t *file)
 		delta_sum = 0;
 		next_t = 0;
 	}
+	if(  file->get_OTRP_version()>53  ) {
+		koord city_pos = koord::invalid;
+		if(  file->is_saving() && city!=NULL  ) {
+			city_pos = city->get_pos();
+		}
+		city_pos.rdwr(file);
+		if(  file->is_loading()  ) {
+			if(  city_pos==koord::invalid  ) {
+				city==NULL;
+			}
+			else {
+				city = welt->find_nearest_city(city_pos);
+				if(  city  ) {
+					city->add_substation(this);
+				}
+			}
+		}
+	}
 }
 
 void senke_t::finish_rd()
