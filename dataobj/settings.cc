@@ -1024,12 +1024,13 @@ void settings_t::rdwr(loadsave_t *file)
 			overloading_runningcost_increase = true;
 			default_reverse = false;
 		}
-		uint32 credit_per_MWs = 1024/cst_kw_per_credit;
 		if(  file->get_OTRP_version() >= 51  ) {
 			file->rdwr_bool(env_t::use_old_friction);
 			if(  file->get_OTRP_version() < 54  ) {
+				uint32 credit_per_MWs = cst_kw_per_credit>0? 1024/cst_kw_per_credit: 2;
 				// in standard 124.4, this value is set as cst_kw_per_credit
 				file->rdwr_long( credit_per_MWs );
+				cst_kw_per_credit = (credit_per_MWs>0)&&(credit_per_MWs<1025) ? 1024/credit_per_MWs : 512;
 			}
 			file->rdwr_bool(allow_unload_longer_convoy);
 			file->rdwr_bool(allow_higher_flight);
@@ -1091,9 +1092,6 @@ void settings_t::rdwr(loadsave_t *file)
 
 		if (file->is_version_atleast(124, 4)||file->get_OTRP_version()>=54) {
 			file->rdwr_long(cst_kw_per_credit);
-		}
-		else {
-			cst_kw_per_credit = credit_per_MWs>0 ? 1024/credit_per_MWs : 512;
 		}
 		// otherwise the default values of the last one will be used
 	}
