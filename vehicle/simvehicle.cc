@@ -4251,6 +4251,23 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		// reserve first block at the start until the next signal
 		if (grund_t* gr_current = welt->lookup(get_pos())) {
 			if (weg_t* w = gr_current->get_weg(get_waytype())) {
+				// before start, we must check other cars
+				for(  uint8 pos=1;  pos<(volatile uint8)gr_current->get_top();  pos++  ) {
+					if(  rail_vehicle_t* const v = dynamic_cast<rail_vehicle_t*>(gr_current->obj_bei(pos))  ) {
+						if(  v->get_convoi()->get_most_parent_convoi()!=get_convoi()->get_most_parent_convoi()  ) {
+							// we find another car in same tile!
+							if(  (v->get_direction()&get_direction())>0  ) {
+								// we are in the same direction
+								// we must compare steps
+								if(  v->get_steps()>get_steps()  ) {
+									// the other car is front of us. we should do not anything!
+									return false;
+								}
+							}
+						}
+					}
+				}
+
 				if (!(w->has_signal()  ||  gr_current->get_crossing())) {
 					// free track => reserve up to next signal
 					if (!block_reserver(cnv->get_route(), max(route_index, 1) - 1, next_signal, next_crossing, 0, true, false)) {
