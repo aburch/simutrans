@@ -286,6 +286,16 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, double *scale, char *c
 				// convert value where necessary
 				if(  c.convert  ) {
 					tmp = c.convert(tmp);
+					if (min > tmp) {
+						min = tmp;
+						precision = c.precision;
+						min_suffix = c.suffix;
+					}
+					if (max < tmp) {
+						max = tmp;
+						precision = c.precision;
+						max_suffix = c.suffix;
+					}
 				}
 				else if(  c.type==0  ) {
 					if (min > tmp) {
