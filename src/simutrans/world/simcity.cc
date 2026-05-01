@@ -3613,8 +3613,8 @@ void stadt_t::generate_private_cars(koord pos, koord target)
 							continue;
 						}
 						private_car_t* vt = new private_car_t(gr, target);
-							gr->obj_add(vt);
-							city_history_month[0][HIST_CITYCARS]++;
+						gr->obj_add(vt);
+						city_history_month[0][HIST_CITYCARS]++;
 						city_history_year[0][HIST_CITYCARS]++;
 						number_of_cars--;
 						return;
