@@ -2687,12 +2687,12 @@ const way_desc_t *tool_build_way_t::get_desc( uint16 timeline_year_month) const
 	if (!default_param) {
 		return NULL;
 	}
-	// Extract the way name (first segment before '|')
-	const char* pipe = strchr(default_param, '|');
+	// Extract the way name (first segment before ',')
+	const char* comma = strchr(default_param, ',');
 	char name_buf[256];
 	const char* name;
-	if (pipe) {
-		size_t len = (size_t)(pipe - default_param);
+	if (comma) {
+		size_t len = (size_t)(comma - default_param);
 		if (len >= sizeof(name_buf)) { len = sizeof(name_buf) - 1; }
 		memcpy(name_buf, default_param, len);
 		name_buf[len] = '\0';
@@ -2779,9 +2779,9 @@ const char* tool_build_way_t::get_default_param(player_t *player) const
 		else {
 			// Fallback: numeric waytype — extract first segment
 			static char name_buf[64];
-			const char* pipe = strchr(default_param, '|');
-			if (pipe) {
-				size_t len = (size_t)(pipe - default_param);
+			const char* comma = strchr(default_param, ',');
+			if (comma) {
+				size_t len = (size_t)(comma - default_param);
 				if (len >= sizeof(name_buf)) { len = sizeof(name_buf) - 1; }
 				memcpy(name_buf, default_param, len);
 				name_buf[len] = '\0';
@@ -2807,7 +2807,7 @@ const char* tool_build_way_t::get_default_param(player_t *player) const
 		}
 	}
 	static char buf[300];
-	sprintf(buf, "%s|%d|%d|%d|%d", way_name ? way_name : "", (int)mode, (int)flag, (int)hf, (int)vo);
+	sprintf(buf, "%s,%d,%d,%d,%d", way_name ? way_name : "", (int)mode, (int)flag, (int)hf, (int)vo);
 	return buf;
 }
 
@@ -2839,12 +2839,12 @@ bool tool_build_way_t::init( player_t *player, bool called_from_move )
 		return false;
 	}
 
-	// Parse field values from default_param (format: "way_name|mode|flag|height|vehicle")
+	// Parse field values from default_param (format: "way_name,mode,flag,height,vehicle")
 	if (default_param) {
-		const char* pipe = strchr(default_param, '|');
-		if (pipe) {
+		const char* comma = strchr(default_param, ',');
+		if (comma) {
 			int mode, flag, hf, vo;
-			if (sscanf(pipe + 1, "%d|%d|%d|%d", &mode, &flag, &hf, &vo) == 4) {
+			if (sscanf(comma + 1, "%d,%d,%d,%d", &mode, &flag, &hf, &vo) == 4) {
 				overtaking_mode = (overtaking_mode_t)mode;
 				street_flag = (uint8)flag;
 				height_offset = (sint8)hf;
