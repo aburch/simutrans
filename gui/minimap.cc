@@ -1960,6 +1960,63 @@ void minimap_t::draw(scr_coord pos)
 
 	}
 
+	// draw convoy positions for the displayed line
+	if(  displayed_line.is_bound()  ) {
+		const skin_desc_t *waytype_icon = NULL;
+		switch(  displayed_line->get_schedule()->get_waytype()  ) {
+			case track_wt:        waytype_icon = skinverwaltung_t::zughaltsymbol;          break;
+			case water_wt:        waytype_icon = skinverwaltung_t::schiffshaltsymbol;      break;
+			case road_wt:         waytype_icon = skinverwaltung_t::autohaltsymbol;         break;
+			case air_wt:          waytype_icon = skinverwaltung_t::airhaltsymbol;          break;
+			case monorail_wt:     waytype_icon = skinverwaltung_t::monorailhaltsymbol;     break;
+			case tram_wt:         waytype_icon = skinverwaltung_t::tramhaltsymbol;         break;
+			case maglev_wt:       waytype_icon = skinverwaltung_t::maglevhaltsymbol;       break;
+			case narrowgauge_wt:  waytype_icon = skinverwaltung_t::narrowgaugehaltsymbol;  break;
+			default:              waytype_icon = skinverwaltung_t::autohaltsymbol;         break;
+		}
+
+		image_id icon_img = (waytype_icon ? waytype_icon->get_image_id(0) : IMG_EMPTY);
+		scr_coord_val icon_xoff = 0, icon_yoff = 0, icon_xw = 12, icon_yw = 12;
+		if(  icon_img != IMG_EMPTY  ) {
+			display_get_image_offset(icon_img, &icon_xoff, &icon_yoff, &icon_xw, &icon_yw);
+		}
+
+		scr_coord hover_scr = map_to_screen_coord(last_world_pos);
+		convoihandle_t hover_cnv;
+		for(  uint32 i = 0;  i < displayed_line->count_convoys();  i++  ) {
+			convoihandle_t cnv = displayed_line->get_convoy(i);
+			if(  !cnv.is_bound()  ) continue;
+			koord cnv_pos = cnv->get_pos().get_2d();
+			if(  !world->is_within_limits(cnv_pos)  ) continue;
+
+			scr_coord cnv_scr = map_to_screen_coord(cnv_pos);
+			scr_coord draw_pos = cnv_scr + pos;
+
+			if(  icon_img != IMG_EMPTY  ) {
+				// center icon: display_color_img adds icon_xoff internally, so we subtract it back
+				display_color_img(icon_img, draw_pos.x - icon_xoff - icon_xw/2, draw_pos.y - icon_yoff - icon_yw/2, cnv->get_owner()->get_player_nr(), false, false);
+			}
+			else {
+				display_fillbox_wh_clip_rgb(draw_pos.x - 3, draw_pos.y - 3, 7, 7, color_idx_to_rgb(COL_BLACK), true);
+				display_fillbox_wh_clip_rgb(draw_pos.x - 2, draw_pos.y - 2, 5, 5, color_idx_to_rgb(cnv->get_owner()->get_player_color1() + 3), true);
+			}
+
+			if(  abs(cnv_scr.x - hover_scr.x) <= 8  &&  abs(cnv_scr.y - hover_scr.y) <= 8  ) {
+				hover_cnv = cnv;
+			}
+		}
+
+		if(  hover_cnv.is_bound()  ) {
+			scr_coord cnv_map_pos = map_to_screen_coord(hover_cnv->get_pos().get_2d());
+			const char *name = hover_cnv->get_name();
+			int name_width = proportional_string_width(name) + (LINESPACE / 2);
+			scr_coord boxpos = cnv_map_pos + scr_coord(10, 0);
+			boxpos.x = clamp(boxpos.x, 0, get_size().w - name_width);
+			boxpos += pos;
+			display_ddd_proportional_clip(boxpos.x, boxpos.y, color_idx_to_rgb(COL_GREY4), color_idx_to_rgb(COL_WHITE), name, true);
+		}
+	}
+
 	// if we do not do this here, vehicles would erase the town names
 	// ADD: if CRTL key is pressed, temporary show the name
 	if(  mode & MAP_TOWN  ) {

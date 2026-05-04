@@ -124,6 +124,7 @@ private:
 	schedule_t* current_schedule;
 	uint8 last_schedule_counter;
 	vector_tpl<halthandle_t> stop_cache;
+	linehandle_t displayed_line;
 
 	/// adds a schedule to cache
 	void add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints );
@@ -255,6 +256,7 @@ public:
 
 	void set_selected_cnv( convoihandle_t c, bool const clear_cache = true );
 	void set_selected_route(schedule_t* schedule, player_t* owner, bool is_highlighted = true, bool const clear_cache = true);
+	void set_displayed_line(linehandle_t l) { displayed_line = l; }
 
 	void set_selected_city( const stadt_t* _city );
 
