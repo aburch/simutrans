@@ -942,26 +942,27 @@ stadt_t::~stadt_t()
 
 		welt->lookup_kartenboden(pos)->set_text(NULL);
 
+		// avoid the bookkeeping if world gets destroyed
 		if (!welt->is_destroying()) {
+			stadt_t* city = NULL; // headquarters will be belong to the same town with all tiles ...
 			// remove city info and houses
 			while (!buildings.empty()) {
 
-				gebaeude_t* const gb = buildings.pop_back();
-				assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
-
+				gebaeude_t* const gb = buildings[0];
 				if(gb->get_tile()->get_desc()->get_type()==building_desc_t::headquarters) {
-					stadt_t *city = welt->find_nearest_city(gb->get_pos().get_2d());
+					if (!city) {
+						city = welt->find_nearest_city(gb->get_pos().get_2d());
+					}
 					gb->set_stadt( city );
 					if(city) {
 						city->buildings.append(gb, gb->get_passagier_level());
 					}
+					buildings.remove_at(0);
 				}
 				else {
-					gb->set_stadt( NULL );
 					hausbauer_t::remove(welt->get_public_player(),gb);
 				}
 			}
-			// avoid the bookkeeping if world gets destroyed
 		}
 	}
 }

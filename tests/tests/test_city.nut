@@ -145,6 +145,65 @@ function test_city_change_size_invalid_params()
 }
 
 
+// Exercises the stadt_t::~stadt_t() multi-tile-building path: build a
+// city, grow it until check_bau_townhall picks a multi-tile townhall
+// (pak64 lands on 04_CITY 2x2 around bev=20000), tear down every
+// non-townhall building first to keep the destructor's iteration
+// focused on the multi-tile townhall, then remove the townhall.
+// Without the destructor fix in this commit, the cascade through
+// gebaeude_t::cleanup -> stadt_t::remove_gebaeude_from_stadt asserts
+// when it walks back to the already-popped head tile.
+function test_city_remove_with_multitile_townhall()
+{
+	local pl = player_x(1)
+	local townhall_pos = coord3d(8, 8, 0)
+
+	ASSERT_EQUAL(command_x(tool_add_city).work(pl, townhall_pos, "0"), null)
+	ASSERT_EQUAL(command_x(tool_change_city_size).work(player_x(0), townhall_pos, "20000"), null)
+
+	// Tear down every non-townhall building.  Capture the townhall's
+	// position on the way through.
+	local size = world.get_size()
+	local th_corner = null
+	for (local x = 0; x < size.x; x++) {
+		for (local y = 0; y < size.y; y++) {
+			local b = tile_x(x, y, 0).find_object(mo_building)
+			if (b == null) continue
+			if (b.is_townhall()) {
+				if (th_corner == null) th_corner = coord3d(x, y, 0)
+				continue
+			}
+			command_x(tool_remover).work(pl, coord3d(x, y, 0))
+		}
+	}
+
+	// Fail loudly if the pakset never upgraded the townhall to multi-
+	// tile; otherwise the test would silently pass without exercising
+	// the destructor path we care about.
+	local th_size = tile_x(th_corner.x, th_corner.y, 0).find_object(mo_building).get_desc().get_size(0)
+	ASSERT_TRUE(th_size.x > 1 || th_size.y > 1)
+
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, th_corner), null)
+
+	// ~stadt_t() tears down everything in stadt::buildings (the
+	// townhall, plus monuments/attractions added via
+	// add_gebaeude_to_stadt) but not the auto-generated road network;
+	// sweep what's left so RESET_ALL_PLAYER_FUNDS sees zero
+	// maintenance.
+	for (local x = 0; x < size.x; x++) {
+		for (local y = 0; y < size.y; y++) {
+			local tile = tile_x(x, y, 0)
+			if (tile.get_way(wt_road) != null) {
+				local p = coord3d(x, y, 0)
+				command_x(tool_remove_way).work(pl, p, p, "" + wt_road)
+			}
+		}
+	}
+
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
 function test_city_change_size_to_minimum()
 {
 	ASSERT_EQUAL(command_x(tool_add_city).work(player_x(1), coord3d(1, 1, 0)), null)
