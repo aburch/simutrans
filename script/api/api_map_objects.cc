@@ -28,6 +28,7 @@
 #include "../../obj/wayobj.h"
 #include "../../obj/bruecke.h"
 #include "../../obj/tunnel.h"
+#include "../../boden/wege/strasse.h"
 #include "../../player/simplay.h"
 
 // for depot tools
@@ -184,6 +185,7 @@ getpush_obj_pos(baum_t, obj_t::baum);
 getpush_obj_pos(gebaeude_t, obj_t::gebaeude);
 getpush_obj_pos(label_t, obj_t::label);
 getpush_obj_pos(weg_t, obj_t::way);
+getpush_obj_pos(strasse_t, obj_t::way);
 getpush_obj_pos(leitung_t, obj_t::leitung);
 getpush_obj_pos(field_t, obj_t::field);
 getpush_obj_pos(wayobj_t, obj_t::wayobj);
@@ -251,7 +253,12 @@ SQInteger script_api::param<obj_t*>::push(HSQUIRRELVM vm, obj_t* const& obj)
 		case_resolve_obj(baum_t);
 		case_resolve_obj(gebaeude_t);
 		case_resolve_obj(label_t);
-		case_resolve_obj(weg_t);
+		case bind_code<weg_t>::objtype:
+		if (((weg_t*)obj)->get_waytype() == road_wt) {
+			return script_api::param<strasse_t*>::push(vm, (strasse_t*)obj);
+		}
+		return script_api::param<weg_t*>::push(vm, (weg_t*)obj);
+
 		case_resolve_obj(roadsign_t);
 		case_resolve_obj(signal_t);
 		case_resolve_obj(field_t);
@@ -291,6 +298,24 @@ static SQInteger get_way_ribi(HSQUIRRELVM vm)
 	ribi_t::ribi ribi = w ? (masked ? w->get_ribi() : w->get_ribi_unmasked() ) : 0;
 
 	return param<my_ribi_t>::push(vm, ribi);
+}
+
+static SQInteger get_overtaking_mode(HSQUIRRELVM vm)
+{
+	strasse_t *w = param<strasse_t*>::get(vm, 1);
+	if (w) {
+		return param<sint8>::push(vm, w->get_overtaking_mode());
+	}
+	return param<sint8>::push(vm, twoway_mode);
+}
+
+static SQInteger get_street_flags(HSQUIRRELVM vm)
+{
+	strasse_t *w = param<strasse_t*>::get(vm, 1);
+	if (w) {
+		return param<uint8>::push(vm, w->get_street_flag());
+	}
+	return param<uint8>::push(vm, 0);
 }
 
 // create class
@@ -697,6 +722,19 @@ void export_map_objects(HSQUIRRELVM vm)
 	register_method_fv(vm, &get_way_stat, "get_convoys_passed",    freevariable<sint32>(WAY_STAT_CONVOIS), true);
 	end_class(vm);
 
+	/**
+	 * Streets (roads)
+	 */
+	begin_obj_class<strasse_t>(vm, "street_x", "way_x");
+	/**
+	 * @return overtaking mode
+	 */
+	register_function(vm, &get_overtaking_mode, "get_overtaking_mode", 1, "x");
+	/**
+	 * @return street flags
+	 */
+	register_function(vm, &get_street_flags, "get_street_flags", 1, "x");
+	end_class(vm);
 
 	/**
 	 * Labels.

@@ -4,6 +4,7 @@
  */
 
 #include "api.h"
+#include "../../boden/wege/strasse.h"
 
 /** @file api_const.cc exports constants */
 
@@ -185,6 +186,40 @@ void export_global_constants(HSQUIRRELVM vm)
 	enum_slot(vm, "st_runway", type_runway);
 	/// tram tracks (here way type has to be wt_tram)
 	enum_slot(vm, "st_tram", type_tram);
+	end_enum();
+
+	/**
+	 * Conditions for overtaking on roads.
+	 */
+	begin_enum("overtaking_modes");
+	/// vehicles can stop on passing lane
+	enum_slot(vm, "halt_mode", halt_mode);
+	/// condition for one-way road
+	enum_slot(vm, "oneway_mode", oneway_mode);
+	/// condition for two-way road
+	enum_slot(vm, "twoway_mode", twoway_mode);
+	/// overtake a loading convoy only
+	enum_slot(vm, "loading_only_mode", loading_only_mode);
+	/// overtaking is completely forbidden
+	enum_slot(vm, "prohibited_mode", prohibited_mode);
+	/// vehicles can go only on passing lane
+	enum_slot(vm, "inverted_mode", inverted_mode);
+	end_enum();
+
+	/**
+	 * Flags for roads.
+	 */
+	begin_enum("street_flags");
+	/// this street avoid becoming cityroad.
+	enum_slot(vm, "road_avoid_cityroad", strasse_t::AVOID_CITYROAD);
+	/// citycar cannot enter this road.
+	enum_slot(vm, "road_citycar_no_entry", strasse_t::CITYCAR_NO_ENTRY);
+	/// no building can be built adjacent to this road
+	enum_slot(vm, "road_no_building", strasse_t::NO_BUILDING);
+	/// allow branch cityroad from avoid-cityroad
+	enum_slot(vm, "road_allow_branch_cityroad", strasse_t::ALLOW_BRANCH_CITYROAD);
+	/// pedestrian cannot enter this road.
+	enum_slot(vm, "road_pedestrian_no_entry", strasse_t::PEDESTRIAN_NO_ENTRY);
 	end_enum();
 
 	// players
