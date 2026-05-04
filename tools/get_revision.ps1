@@ -4,7 +4,7 @@ $answer = svnversion
 $has_svn = $?
 #$answer=$answer.Trim("MSP:")
 $answer=$answer.substring(0,5);
-$is_number = ($null -ne ($answer -as [int]))
+$is_number = ($answer  -and $null -ne ($answer -as [int]))
 if($has_svn -and $is_number)
 {
 	# svnversion valid number
@@ -55,7 +55,7 @@ if($is_number) {
 	}
 }
 else {
-	"0"
+	"0 (undefined)"
 	if($args.count -eq 1) {
 		# create revision.h
 		$revfile = "#define REVISION unrevisioned`n"
