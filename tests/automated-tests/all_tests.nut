@@ -37,6 +37,8 @@ include("tests/test_way_tram")
 include("tests/test_way_tunnel")
 include("tests/test_wayobj")
 include("tests/test_schedule")
+include("tests/test_road_api")
+
 
 
 all_tests <- [
@@ -240,7 +242,8 @@ all_tests <- [
 	test_schedule_next_line,
 	test_schedule_next_line_non_null,
 	test_schedule_current,
-	test_schedule_entry_time_statistics
+	test_schedule_entry_time_statistics,
+	test_road_api
 ]
 
 
