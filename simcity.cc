@@ -976,7 +976,20 @@ stadt_t::~stadt_t()
 					}
 				}
 				else {
-					gb->set_stadt( NULL );
+					// For multi-tile buildings: pop_back() removed only this one tile's entry,
+					// but hausbauer_t::remove will delete all tiles. Pre-clear all tiles from
+					// buildings and set stadt=NULL so their destructors skip
+					// remove_gebaeude_from_stadt (which would otherwise fail to find the
+					// already-popped tile and assert).
+					static vector_tpl<grund_t*> tile_list;
+					gb->get_tile_list(tile_list);
+					for (grund_t* gr : tile_list) {
+						if (gebaeude_t* tile_gb = gr->find<gebaeude_t>()) {
+							buildings.remove(tile_gb); // may return false for gb (already popped), that's OK
+							tile_gb->set_stadt(NULL);
+						}
+					}
+					gb->set_stadt(NULL); // ensure the popped tile is also cleared
 					hausbauer_t::remove(welt->get_public_player(),gb);
 				}
 			}

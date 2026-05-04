@@ -309,7 +309,7 @@ void convoi_t::unreserve_route()
  */
 void convoi_t::reserve_route()
 {
-	if(  reserved_tiles.get_count()>0  ) {
+	if(  reserved_tiles.get_count()>0  &&  anz_vehikel>0  ) {
 		// reservation is controlled by reserved_tiles
 		for(  uint32 idx = 0;  idx < reserved_tiles.get_count();  idx++  ) {
 			if(  grund_t *gr = welt->lookup( reserved_tiles[idx] )  ) {
@@ -631,6 +631,21 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 		calc_min_top_speed();
 	}
 	calc_speedbonus_kmh();
+
+	// Restore track reservations after all convoy data and vehicle positions are settled.
+	// Done here (not in rdwr) so all convoys are fully loaded before any reservation is
+	// attempted, avoiding convoy-vs-convoy conflicts during sequential rdwr loading.
+	// Skip when realignment already reserved the occupied tiles directly.
+	if(  !realign_position  ) {
+		// A try-coupling convoy waiting at a guide signal may have next_reservation_index
+		// set beyond next_stop_index by a prior block_reserver(1001) call. Cap it first.
+		if(  is_waiting()  &&  next_coupling_index == route_t::INVALID_INDEX
+		  &&  schedule != NULL  &&  schedule->get_current_entry().is_try_coupling()
+		  &&  next_reservation_index > next_stop_index  ) {
+			next_reservation_index = min(next_stop_index, route.get_count());
+		}
+		reserve_route();
+	}
 }
 
 
@@ -3488,17 +3503,6 @@ void convoi_t::rdwr(loadsave_t *file)
 	}
 
 	if(  file->is_loading()  ) {
-		// A try-coupling convoy waiting at a guide signal (WAITING_FOR_CLEARANCE etc.) has
-		// next_coupling_index == INVALID_INDEX because the coupling route is not yet found.
-		// next_reservation_index may have been set too far ahead by a prior block_reserver(1001)
-		// call on the ORIGINAL route (past the guide signal). Cap it at next_stop_index before
-		// reserve_route() runs so the wrong tiles are never reserved in the first place.
-		if(  is_waiting()  &&  next_coupling_index == route_t::INVALID_INDEX
-		  &&  schedule != NULL  &&  schedule->get_current_entry().is_try_coupling()
-		  &&  next_reservation_index > next_stop_index  ) {
-			next_reservation_index = min(next_stop_index,route.get_count());
-		}
-		reserve_route();
 		recalc_catg_index();
 	}
 }
