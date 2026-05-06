@@ -546,10 +546,9 @@ public:
 
 	obj_t::typ get_typ() const OVERRIDE { return road_vehicle; }
 
-	void calc_image() OVERRIDE;
 	uint32 do_drive(uint32 dist) OVERRIDE;
 
-	void reset_sideways_image_timer() { if(sideways_image_steps > 0) { sideways_image_steps = turned_length; } }
+	void set_sideways_image();
 
 	koord3d get_pos_prev() const { return pos_prev; }
 

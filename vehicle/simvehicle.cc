@@ -2241,44 +2241,33 @@ void road_vehicle_t::calc_disp_lane()
 	disp_lane = get_direction() & test_dir ? 1 : 3;
 }
 
-void road_vehicle_t::calc_image()
+void road_vehicle_t::set_sideways_image()
 {
-	// Show sideways image when departing from a stop in the opposite direction.
-	// This happens when the vehicle turns 180° (e.g., departs a terminus in reverse).
-	if(  previous_direction != ribi_t::none
-		&&  direction == ribi_t::backward(previous_direction)  ) {
-		// Check if we departed from a halt tile
-		grund_t *prev_gr = welt->lookup(pos_prev);
-		if(  prev_gr  &&  prev_gr->is_halt()  ) {
-			// Determine effective drive side: drive-on-left XOR inverted_mode on current tile
-			strasse_t *str = (strasse_t*)welt->lookup(get_pos())->get_weg(road_wt);
-			const bool drives_left = welt->get_settings().is_drive_left();
-			const bool inverted    = str  &&  str->get_overtaking_mode() == inverted_mode;
-			const bool effective_drive_left = drives_left ^ inverted;
+	// Determine effective drive side: drive-on-left XOR inverted_mode on current tile
+	const strasse_t *str = (strasse_t*)welt->lookup(get_pos())->get_weg(road_wt);
+	const bool drives_left = welt->get_settings().is_drive_left();
+	const bool inverted    = str  &&  str->get_overtaking_mode() == inverted_mode;
+	const bool effective_drive_left = drives_left ^ inverted;
 
-			// Sideways direction: right side for drive-on-right, left side for drive-on-left
-			// rotate90l = CCW = right side of forward dir; rotate90 = CW = left side
-			ribi_t::ribi side_dir = effective_drive_left
-				? ribi_t::rotate90l(direction)  // left side -> turn left
-				: ribi_t::rotate90(direction);  // right side -> turn right
+	// Sideways direction: right side for drive-on-right, left side for drive-on-left
+	// rotate90l = CCW = right side of forward dir; rotate90 = CW = left side
+	const ribi_t::ribi side_dir = effective_drive_left
+		? ribi_t::rotate90l(direction)  // left side -> turn left
+		: ribi_t::rotate90(direction);  // right side -> turn right
 
-			image_id old_image = get_image();
-			const bool is_reversed    = (cnv == NULL || cnv == (convoi_t*)1) ? false : cnv->is_reversed();
-			const bool is_no_electric = (cnv == NULL || cnv == (convoi_t*)1) ? false : !cnv->get_use_electric();
-			if(  fracht.empty()  ) {
-				set_image(desc->get_image_id(ribi_t::get_dir(side_dir), NULL, is_reversed, is_no_electric));
-			}
-			else {
-				set_image(desc->get_image_id(ribi_t::get_dir(side_dir), fracht.front().get_desc(), is_reversed, is_no_electric));
-			}
-			if(  old_image != get_image()  ) {
-				set_flag(obj_t::dirty);
-			}
-			sideways_image_steps = (sint16)(turned_length + get_desc()->get_length_in_steps());
-			return;
-		}
+	const image_id old_image = get_image();
+	const bool is_reversed    = (cnv == NULL || cnv == (convoi_t*)1) ? false : cnv->is_reversed();
+	const bool is_no_electric = (cnv == NULL || cnv == (convoi_t*)1) ? false : !cnv->get_use_electric();
+	if(  fracht.empty()  ) {
+		set_image(desc->get_image_id(ribi_t::get_dir(side_dir), NULL, is_reversed, is_no_electric));
 	}
-	vehicle_t::calc_image();
+	else {
+		set_image(desc->get_image_id(ribi_t::get_dir(side_dir), fracht.front().get_desc(), is_reversed, is_no_electric));
+	}
+	if(  old_image != get_image()  ) {
+		set_flag(obj_t::dirty);
+	}
+	sideways_image_steps = turned_length;
 }
 
 
