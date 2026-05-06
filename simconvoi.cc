@@ -2825,6 +2825,12 @@ void convoi_t::vorfahren()
 					}
 				}
 			}
+			else if(  !get_coupling_convoi().is_bound()  &&  get_vehicle_count()==1  ) {
+				// In case that single car bus or truck is turning around...
+				if(  road_vehicle_t* rv = dynamic_cast<road_vehicle_t*>(self->front())  ) {
+					rv->set_sideways_image();
+				}
+			}
 			fahr[0]->set_leading(true);
 		}
 		if (!at_dest) {
