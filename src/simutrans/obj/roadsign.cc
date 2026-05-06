@@ -89,6 +89,9 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 			ticks_offset = 1 << player->get_player_nr();
 		}
 	}
+	if(  desc->is_signal_type()  ) {
+		set_two_ways(false);
+	}
 	/* if more than one state, we will switch direction and phase for traffic lights
 	 * however also gate signs need indications
 	 */
@@ -143,7 +146,7 @@ void roadsign_t::set_dir(ribi_t::ribi dir)
 		if(  desc->get_wtyp()!=track_wt  &&  desc->get_wtyp()!=monorail_wt  &&  desc->get_wtyp()!=maglev_wt  &&  desc->get_wtyp()!=narrowgauge_wt  ) {
 			weg->count_sign();
 		}
-		if(desc->is_single_way()  ||  desc->is_signal_type()) {
+		if(desc->is_single_way()  ||  (desc->is_signal_type() && !get_two_ways())) {
 			// set mask, if it is a single way ...
 			weg->count_sign();
 			weg->set_ribi_maske(calc_mask());
@@ -165,6 +168,20 @@ DBG_MESSAGE("roadsign_t::set_dir()","ribi %i",dir);
 
 	if (preview)
 		this->dir = olddir;
+}
+
+
+void roadsign_t::set_two_ways(bool yesno)
+{
+	 ticks_ns = yesno ? 1 : 0;
+	 if(desc->is_signal_type() && !preview) {
+		 // Mask needs a change
+		 weg_t *weg = welt->lookup(get_pos())->get_weg(desc->get_wtyp()!=tram_wt ? desc->get_wtyp() : track_wt);
+		 if (weg) {
+			 weg->count_sign();
+			 weg->set_ribi_maske(yesno ? (ribi_t::ribi)ribi_t::none : calc_mask());
+		 }
+	 }
 }
 
 
@@ -643,6 +660,9 @@ void roadsign_t::rdwr(loadsave_t *file)
 				ticks_offset = ticks_ns;
 				ticks_ns = 0xFF;
 			}
+		}
+		if(  desc  &&  desc->is_signal_type()  &&  ticks_ns >= 2  ) {
+			ticks_ns = 0;
 		}
 	}
 }

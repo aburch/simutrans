@@ -4520,6 +4520,10 @@ obj=help_text
 name=Compile a report what pak files are wrong (can be slow)
 note=tooltip for compare paks
 --
+obj=button_text
+name=allow reverse passage
+note=button in signal info
+--
 
 #obj=help_text
 #name=Lower values mean more local sounds

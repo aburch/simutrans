@@ -28,7 +28,7 @@ protected:
 	image_id foreground_image;
 
 	enum {
-		SHOW_FONT        = 1,
+		SHOW_FRONT       = 1,
 		SHOW_BACK        = 2,
 		SWITCH_AUTOMATIC = 16
 	};
@@ -38,9 +38,16 @@ protected:
 
 	uint8 automatic:1;
 	uint8 preview:1;
+
+	/*
+	 * Many things go in these...
+	 *   Traffic lights -> intended usage
+	 *   Private way signs -> bits go in ticks_ow (MSB) and ticks_iffset (LSB)
+	 *   Signals -> two_ways state goes in ticks_ns
+	 */
 	uint8 ticks_ns;
 	uint8 ticks_ow;
-        uint8 ticks_yellow_ns, ticks_yellow_ow;
+	uint8 ticks_yellow_ns, ticks_yellow_ow;
 	uint8 ticks_offset;
 
 	sint8 after_yoffset, after_xoffset;
@@ -68,6 +75,12 @@ public:
 	* Caution: it will modify way ribis directly unless in preview mode!
 	*/
 	void set_dir(ribi_t::ribi dir);
+
+	/*
+	 * Only makes sense for signals!
+	 */
+	bool get_two_ways() const { return ticks_ns != 0; }
+	void set_two_ways(bool yesno);
 
 	void set_state(signalstate z) {state = z; calc_image();}
 	signalstate get_state() { return (signalstate)state; }

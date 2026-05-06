@@ -415,7 +415,7 @@ bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const route_t::index_
 		}
 		if(  way->has_signal()  ) {
 			signal_t *sig = gr->find<signal_t>(1);
-			if(  sig  &&  sig->get_desc()->is_choose_sign()  ) {
+			if(  sig  &&  sig->get_desc()->is_choose_sign()  &&  !( sig->get_two_ways() && !(ribi_type(cnv->get_route()->at(idx), cnv->get_route()->at(idx-1)) & sig->get_dir()) )) {
 				// second choose signal on route => not choosing here
 				choose_ok = false;
 			}
@@ -755,20 +755,24 @@ bool rail_vehicle_t::block_reserver(const route_t *route, route_t::index_t start
 #endif
 		if(reserve) {
 			if(  sch1->has_signal()  &&  i<route->get_count()-1  ) {
-				if(count) {
-					signs.append(gr);
+				signal_t* signal = gr->find<signal_t>();
+				// Maybe we can ignore the signal
+				if (!( signal->get_two_ways() && i>start_index && !(ribi_type(pos, route->at(i-1)) & signal->get_dir()) )) {
+					if (count) {
+						signs.append(gr);
+					}
+					count --;
+					next_signal_index = i;
 				}
-				count --;
-				next_signal_index = i;
 			}
-			if (!sch1->reserve(cnv->self, ribi_type(route->at(max(1u, i) - 1u), route->at(min(route->get_count() - 1u, i + 1u))))) {
+			if (!sch1->reserve(cnv->self, ribi_type(route->at(max(1u,i)-1u), route->at(min(route->get_count()-1u, i+1u))))) {
 				success = false;
 			}
 			if (gr->has_two_ways()) {
 				// we may need to reserve the other way as well
 				if (schiene_t* sch0 = dynamic_cast<schiene_t*>(gr->get_weg_nr(gr->get_weg_nr(0) == sch1))) {
 					// the other way is reservable too => try to reserve it
-					if (!sch0->reserve(cnv->self, ribi_type(route->at(max(1u, i) - 1u), route->at(min(route->get_count() - 1u, i + 1u))))) {
+					if (!sch0->reserve(cnv->self, ribi_type(route->at(max(1u,i)-1u), route->at(min(route->get_count()-1u, i+1u))))) {
 						success = false;
 					}
 				}
@@ -811,7 +815,7 @@ bool rail_vehicle_t::block_reserver(const route_t *route, route_t::index_t start
 	if(!success) {
 		// free reservation
 		for ( route_t::index_t j=start_index; j<i; j++) {
-			if (grund_t * gr=welt->lookup(route->at(j))) {
+			if (grund_t* gr = welt->lookup(route->at(j))) {
 				schiene_t* sch1 = (schiene_t*)gr->get_weg(get_waytype());
 				if(sch1) {
 					sch1->unreserve(cnv->self);

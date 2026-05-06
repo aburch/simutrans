@@ -21,6 +21,7 @@ class signal_t;
 class signal_info_t : public obj_infowin_t, public action_listener_t
 {
  private:
+	button_t two_ways_toggle;
 	button_t remove;
 	signal_t *sig;
 

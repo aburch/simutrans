@@ -11,11 +11,17 @@
 
 #include "../tool/simmenu.h"
 #include "../world/simworld.h"
+#include "../dataobj/ribi.h"
 
 signal_info_t::signal_info_t(signal_t *s) :
 	obj_infowin_t(s),
 	sig(s)
 {
+	two_ways_toggle.init( button_t::square_state, "allow reverse passage");
+	two_ways_toggle.add_listener( this );
+	two_ways_toggle.pressed = sig->get_two_ways();
+	add_component( &two_ways_toggle );
+
 	remove.init( button_t::roundbox, "remove signal");
 	remove.add_listener( this );
 	add_component( &remove );
@@ -31,15 +37,23 @@ signal_info_t::signal_info_t(signal_t *s) :
 }
 
 
-bool signal_info_t::action_triggered( gui_action_creator_t *, value_t /* */)
+bool signal_info_t::action_triggered( gui_action_creator_t *comp, value_t /* */)
 {
-	bool suspended_execution=false;
-	koord3d pos = sig->get_pos();
-	tool_t::general_tool[TOOL_REMOVE_SIGNAL]->set_default_param(NULL);
-	const char *err = welt->call_work_api( tool_t::general_tool[TOOL_REMOVE_SIGNAL], welt->get_active_player(), pos, suspended_execution);
-	if(!suspended_execution) {
-		// play sound / error message
-		welt->get_active_player()->tell_tool_result(tool_t::general_tool[TOOL_REMOVE_SIGNAL], pos, err);
+	if (comp == &remove) {
+		bool suspended_execution=false;
+		koord3d pos = sig->get_pos();
+		tool_t::general_tool[TOOL_REMOVE_SIGNAL]->set_default_param(NULL);
+		const char *err = welt->call_work_api( tool_t::general_tool[TOOL_REMOVE_SIGNAL], welt->get_active_player(), pos, suspended_execution);
+		if(!suspended_execution) {
+			// play sound / error message
+			welt->get_active_player()->tell_tool_result(tool_t::general_tool[TOOL_REMOVE_SIGNAL], pos, err);
+		}
+	}
+	else if (comp == &two_ways_toggle) {
+		char param[64];
+		sprintf(param, "%s,1,%u", sig->get_pos().get_str(), !sig->get_two_ways());
+		tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT]->set_default_param(param);
+		welt->set_tool(tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT], welt->get_active_player());
 	}
 	return true;
 }
@@ -47,6 +61,8 @@ bool signal_info_t::action_triggered( gui_action_creator_t *, value_t /* */)
 
 void signal_info_t::draw( scr_coord pos, scr_size size )
 {
+	two_ways_toggle.pressed = sig->get_two_ways();
+	two_ways_toggle.enable( ribi_t::is_single(sig->get_dir()) );
 	remove.enable( !sig->get_removal_error( welt->get_active_player() ) );
 	obj_infowin_t::draw( pos, size );
 }

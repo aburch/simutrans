@@ -52,6 +52,7 @@
 #include "../gui/city_info.h"
 #include "../gui/trafficlight_info.h"
 #include "../gui/privatesign_info.h"
+#include "../gui/signal_info.h"
 #include "../gui/messagebox.h"
 
 #include "../network/network_socket_list.h"
@@ -5353,11 +5354,11 @@ void tool_build_roadsign_t::mark_tiles(player_t *player, const koord3d &start, c
 		if(  single_ribi  ) {
 			if(i>0) {
 				// take backward direction
-				ribi = ribi_type(route.at(i), route.at(i-1));
+				ribi = ribi_type(route[i], route[i-1]);
 			}
 			else {
 				// clear one direction bit to get single direction for signal
-				ribi &= ~ribi_type(route.at(i), route.at(i+1));
+				ribi &= ~ribi_type(route[i], route[i+1]);
 			}
 		}
 
@@ -5372,12 +5373,12 @@ void tool_build_roadsign_t::mark_tiles(player_t *player, const koord3d &start, c
 		}
 
 		// check owner .. other signals...
-		const bool straight = (i == 0)  ||  (i == route.get_count()-1)  ||  ribi_t::is_straight(ribi_type(route.at(i-1), route.at(i+1)));
+		const bool straight = (i == 0)  ||  (i == route.get_count()-1)  ||  ribi_t::is_straight(ribi_type(route[i-1], route[i+1]));
 		next_signal += straight ? 2 : 1;
 
 		if(  next_signal >= signal_density  ) {
 			// can we place signal here?
-			if (check_pos_intern(player, route.at(i))==NULL  || (s.replace_other && rs && !rs->get_removal_error(player))) {
+			if(check_pos_intern(player, route[i]) == NULL  ||  (s.replace_other && rs && !rs->get_removal_error(player))) {
 				zeiger_t *zeiger = new zeiger_t(gr->get_pos(), player );
 				marked.append(zeiger);
 				zeiger->set_image( skinverwaltung_t::bauigelsymbol->get_image_id(0) );
@@ -5391,7 +5392,7 @@ void tool_build_roadsign_t::mark_tiles(player_t *player, const koord3d &start, c
 				cost += rs ? (rs->get_desc()==desc ? 0  : desc->get_price()+rs->get_desc()->get_price()) : desc->get_price();
 			}
 		}
-		else if (s.remove_intermediate && rs && !rs->get_removal_error(player)) {
+		else if(s.remove_intermediate  &&  rs  &&  !rs->get_removal_error(player)) {
 			zeiger_t *zeiger = new zeiger_t(gr->get_pos(), player );
 			marked.append(zeiger);
 			zeiger->set_image( tool_t::general_tool[TOOL_REMOVER]->cursor );
@@ -8496,6 +8497,13 @@ bool tool_change_traffic_light_t::init( player_t *player )
 					if (trafficlight_win) {
 						trafficlight_win->update_data();
 					}
+				}
+			}
+		}
+		else if ( signal_t *sig = gr->find<signal_t>() ) {
+			if (player_t::check_owner(sig->get_owner(), player)) {
+				if (ns == 1) {
+					sig->set_two_ways(ticks);
 				}
 			}
 		}
