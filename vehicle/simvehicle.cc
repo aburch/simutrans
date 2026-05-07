@@ -2389,32 +2389,49 @@ bool road_vehicle_t::is_target(const grund_t *gr, const grund_t *prev_gr) const
 			const ribi_t::ribi ribi = gr->get_weg(get_waytype())->get_ribi() & ~ribi_t::backward(ribi_type(dir));
 			
 			grund_t *to;
-			if(  !ribi_t::is_single(ribi)  ||  !gr->get_neighbour(to,road_wt,ribi)  ||  !(to->get_halt()==target_halt)  ) {
-				// end of stop: Is it long enough?
-				const uint32 length=cnv->get_length_in_steps();
-				ribi_t::ribi back_ribi=ribi_t::backward(ribi_type(dir));
-				const uint32 stop_length=cnv->calc_available_halt_length_in_vehicle_steps(gr->get_pos(),ribi);
-				if(length>stop_length) {
-					// length not enough
+			if(  ribi_t::is_single(ribi)  && gr->get_neighbour(to,road_wt,ribi)  ) {
+				// we can stop the tile before/after other cars exist.
+				// if we cannot overtake them, we should stop that point
+				if(  to->is_halt() && to->get_halt()==target_halt  ) {
+					uint8 empty_lane = target_halt->get_empty_lane(to,cnv->self);
+					if(  empty_lane>0  ) {
+						// we can advance more
+						return false;
+					}
+					else {
+						// there are another car here!
+						strasse_t *str = (strasse_t*)to->get_weg(road_wt);
+						const overtaking_mode_t overtaking_mode = str->get_overtaking_mode();
+						if(  overtaking_mode==prohibited_mode || overtaking_mode==halt_mode ) {
+							// we do not have empty lane, also we cannot enter because we cannot overtake it!(avoid stack)
+							return false;
+						}
+						// else, we should check because gr is the end of empty halt.
+					}
+				}
+			}
+			// end of stop: Is it long enough?
+			const uint32 length=cnv->get_length_in_steps();
+			ribi_t::ribi back_ribi=ribi_t::backward(ribi_type(dir));
+			const uint32 stop_length=cnv->calc_available_halt_length_in_vehicle_steps(gr->get_pos(),ribi);
+			if(length>stop_length) {
+				// length not enough
+				return false;
+			}
+			uint8 empty_lane = target_halt->get_empty_lane(gr,cnv->self);
+			while(  gr->get_neighbour(to,get_waytype(),back_ribi) && to->get_halt().is_bound() && (to->get_halt()==target_halt)  ) {
+				if(  (empty_lane &= target_halt->get_empty_lane(to,cnv->self))==0  ) {
+					// there are other cars.
 					return false;
 				}
-				uint8 empty_lane = target_halt->get_empty_lane(gr,cnv->self);
-				while(  gr->get_neighbour(to,get_waytype(),back_ribi) && to->get_halt().is_bound() && (to->get_halt()==target_halt)  ) {
-					if(  (empty_lane &= target_halt->get_empty_lane(to,cnv->self))==0  ) {
-						// there are other cars.
-						return false;
-					}
-					back_ribi = to->get_weg_ribi_unmasked(get_waytype()) & ~ribi_t::backward(back_ribi);
-					if(  !ribi_t::is_single(back_ribi)  ) {
-						// connecting direction something wrong
-						return false;
-					}
-					gr = to;
+				back_ribi = to->get_weg_ribi_unmasked(get_waytype()) & ~ribi_t::backward(back_ribi);
+				if(  !ribi_t::is_single(back_ribi)  ) {
+					// connecting direction something wrong
+					return false;
 				}
-				return true;
+				gr = to;
 			}
-			// can advance more
-			return false;
+			return true;
 		}
 //DBG_MESSAGE("is_target()","success at %i,%i",gr->get_pos().x,gr->get_pos().y);
 //		return true;
