@@ -105,17 +105,13 @@ class gui_halt_detail_t : public gui_aligned_container_t, private action_listene
 		bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE
 		{
 			player_t *player = welt->get_active_player();
-			if(  player == line->get_owner()  ) {
-				player->simlinemgmt.show_lineinfo(player, line);
-			}
+			player->simlinemgmt.show_lineinfo(line->get_owner(), line);
 			return true;
 		}
 
 		void draw(scr_coord offset) OVERRIDE
 		{
-			if (line->get_owner() == welt->get_active_player()) {
-				button_t::draw(offset);
-			}
+			button_t::draw(offset);
 		}
 	};
 
