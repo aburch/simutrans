@@ -1027,7 +1027,23 @@ void scenario_t::rdwr(loadsave_t *file)
 			// load persistent scenario data
 			plainstring str;
 			file->rdwr_str(str);
+
+			// forbid system execution (with manipulated savegames) in data string
+			const char* s = strstr(str, "system");
+			if (s && (s == str || s[-1] <= ' ')) {
+				s += 6;
+				while (*s && *s++ <= ' ') {}
+				if (*s == '(') {
+					dbg->fatal("scenario_t::rdwr", "Manipulated savegame data contained \"system\" call: %s", str.c_str());
+					// we could actually continue by ignoring the script
+					what_scenario = 0;
+					script = NULL;
+					str = "";
+				}
+			}
+
 			dbg->warning("scenario_t::rdwr", "loaded persistent scenario data: %s", str.c_str());
+
 			if (env_t::networkmode   &&  !env_t::server) {
 				// client playing network scenario game:
 				// script files are not available
@@ -1056,6 +1072,7 @@ void scenario_t::rdwr(loadsave_t *file)
 
 				if (!rdwr_error) {
 					script_loader_t::load_compatibility_script(script);
+
 					// restore persistent data
 					const char* err = script->eval_string(str);
 					if (err) {
