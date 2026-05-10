@@ -10,6 +10,7 @@
 
 #include <string.h>
 #include <errno.h>
+#include <stdlib.h>
 #include "../utils/cbuffer.h"
 
 #ifndef NETTOOL
@@ -24,6 +25,24 @@
 /*
  * Functions required by both Simutrans and Nettool
  */
+
+
+#ifndef NETTOOL
+/// Parses a Content-Length header value.
+/// @returns a non-negative value on success, or -1 on error (e.g. missing/invalid/out-of-range value)
+static inline sint32 parse_content_length(const char *content_length_str)
+{
+	char *endp = NULL;
+	errno = 0;
+	const long parsed = strtol(content_length_str, &endp, 10);
+	if (endp == content_length_str || errno != 0 || parsed < 0 || parsed > INT32_MAX) {
+		return -1;
+	}
+
+	return (sint32)parsed;
+}
+#endif
+
 
 const char *network_receive_file(const SOCKET src_sock, const char *const save_as, sint32 const length, sint32 const timeout )
 {
@@ -388,7 +407,7 @@ const char *network_http_post( const char *address, const char *name, const char
 					// are seeking (e.g. Content-Length)
 					DBG_MESSAGE("network_http_post", "received header: %s", line);
 					if(  STRNICMP("Content-Length:",line,15)==0  ) {
-						length = atol( line+15 );
+						length = parse_content_length(line + 15);
 					}
 					// Begin again to parse the next line
 					pos = 0;
@@ -437,7 +456,7 @@ const char* network_http_get(const char* address, const char* name, cbuffer_t& l
 		// Read the response header and parse arguments as needed
 		char line[1024], rbuf;
 		unsigned int pos = 0;
-		sint32 length = 0;
+		sint32 length = -1;
 		while (1) {
 			// Receive one character at a time the HTTP headers
 			int i = recv(my_client_socket, &rbuf, 1, 0);
@@ -452,9 +471,8 @@ const char* network_http_get(const char* address, const char* name, cbuffer_t& l
 					}
 					line[pos] = 0;
 					DBG_MESSAGE("network_http_get", "received header: %s", line);
-					// Parse out the length tag to get length of content
 					if (STRNICMP("Content-Length:", line, 15) == 0) {
-						length = atol(line + 15);
+						length = parse_content_length(line + 15);
 					}
 					pos = 0;
 				}
@@ -464,11 +482,16 @@ const char* network_http_get(const char* address, const char* name, cbuffer_t& l
 			}
 		}
 
-		// Make buffer to receive data into
-		char* buffer = new char[length + 1];
+		if (length < 0 || length > UINT16_MAX) {
+			// network_receive_data takes a uint16 length; bigger bodies would need chunking.
+			network_close_socket(my_client_socket);
+			return "Error: missing or invalid Content-Length";
+		}
+
+		char* buffer = new char[(size_t)length + 1];
 		uint16 bytesreceived = 0;
 
-		if (!network_receive_data(my_client_socket, buffer, length, bytesreceived, 10000)) {
+		if (length > 0  &&  !network_receive_data(my_client_socket, buffer, (uint16)length, bytesreceived, 10000)) {
 			err = "Error: network_receive_data failed!";
 		}
 		else if (bytesreceived != length) {
@@ -562,7 +585,7 @@ const char *network_http_get_file( const char* address, const char* name, const 
 
 		if (http_code == 200) {
 			if (char *c=strstr(line,"Content-Length:")) {
-				length = atol(c + 15);
+				length = parse_content_length(c + 15);
 			}
 			DBG_MESSAGE("network_http_get", "received data length: %i", length);
 			err = network_receive_file(my_client_socket, filename, length);
