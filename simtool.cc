@@ -8718,6 +8718,7 @@ bool scenario_check_convoy(karte_t *welt, player_t *player, convoihandle_t cnv, 
  * 'm' : apply max speed of convoy
  * 'b' : apply balance speed (limit power)
  * 'i' : set invalid convoy
+ * 'u' : suspension
  */
 bool tool_change_convoi_t::init( player_t *player )
 {
@@ -8993,6 +8994,13 @@ bool tool_change_convoi_t::init( player_t *player )
 		{
 			cnv->set_invalid_convoy(atoi(p)!=0);
 		}
+		break;
+
+		case 'u':
+		{
+			cnv->set_suspension(atoi(p)!=0);
+		}
+		break;
 	}
 
 	if(  cnv->in_depot()  &&  (tool=='g'  ||  tool=='l')  ) {

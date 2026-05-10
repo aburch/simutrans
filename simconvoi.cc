@@ -1123,6 +1123,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 		case CAN_START:
 		case CAN_START_ONE_MONTH:
 		case CAN_START_TWO_MONTHS:
+		case SUSPENSION:
 			// this is an async task, see step()
 			break;
 
@@ -1231,6 +1232,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 			break;
 
 		case LOADING:
+		case SUSPENSION_LOADING:
 			// loading is an async task, see laden()
 			break;
 
@@ -1531,6 +1533,7 @@ void convoi_t::step()
 	switch(state) {
 
 		case LOADING:
+		case SUSPENSION_LOADING:
 			laden();
 			//When loading, vehicle should not be on passing lane.
 			str = (strasse_t*)welt->lookup(get_pos())->get_weg(road_wt);
@@ -1539,6 +1542,7 @@ void convoi_t::step()
 
 		case DUMMY4:
 		case DUMMY5:
+		case SUSPENSION:
 			break;
 
 		case EDIT_SCHEDULE:
@@ -2994,6 +2998,10 @@ void convoi_t::rdwr(loadsave_t *file)
 			s = LOADING;
 		} else if(  s==WAITING_FOR_LEAVING_DEPOT  ) {
 			s = INITIAL;
+		} else if(  s==SUSPENSION  ) {
+			s = EDIT_SCHEDULE;
+		} else if(  s==SUSPENSION_LOADING  ) {
+			s = LOADING;
 		}
 		file->rdwr_enum(s);
 	} else {
@@ -4325,7 +4333,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 		}
 	}
 
-	if(  scheduled_departure_time==0  ) {
+	if(  scheduled_departure_time==0  &&  state!=SUSPENSION_LOADING  ) {
 		bool need_coupling_at_this_stop = false;
 		// departure judgement is done in a helper function.
 		departure_cond = can_depart(self, halt, arrived_time,
@@ -4336,6 +4344,10 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 			// to load cargo and do coupling.
 			departure_cond = false;
 		}
+	}
+
+	if(  state==SUSPENSION_LOADING  ) {
+		departure_cond = false;
 	}
 
 	// loading is finished => maybe drive on
@@ -4476,6 +4488,34 @@ sint64 convoi_t::calc_restwert() const
 		result += fahr[i]->calc_sale_value();
 	}
 	return result;
+}
+
+
+void convoi_t::set_suspension( bool y )
+{
+	if( is_coupled() ) {
+		// nothing to do
+		return;
+	}
+	if( is_loading() ) {
+		state = y? SUSPENSION_LOADING: LOADING;
+		return;
+	}
+	// end suspension
+	if( !y ) {
+		// re-driving
+		if( state==EDIT_SCHEDULE ) {
+			// please close schedule window.
+			return;
+		}
+		state = DRIVING;
+		return;
+	}
+	// set 
+	if( state!=EDIT_SCHEDULE ) {
+		state = SUSPENSION;
+		return;
+	}
 }
 
 

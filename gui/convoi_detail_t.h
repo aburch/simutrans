@@ -48,6 +48,7 @@ private:
 	button_t trade_convoi_button;
 	button_t max_speed_kmh_of_convoi_button;
 	button_t max_balance_speed_kmh_of_convoi_button;
+	button_t suspension_button;
 	uint8 viewable_players[MAX_PLAYER_COUNT];
 	gui_combobox_t trade_player_num;
 	gui_numberinput_t max_speed_kmh_of_convoi_numberinput;

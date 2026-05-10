@@ -164,8 +164,13 @@ void convoi_detail_t::init(convoihandle_t cnv)
 
 		new_component<gui_fill_t>();
 
-		add_table(3,1)->set_force_equal_columns(true);
+		add_table(4,1)->set_force_equal_columns(true);
 		{
+			suspension_button.init(button_t::roundbox| button_t::flexible, "Suspension");
+			suspension_button.set_tooltip(translator::translate("Suspend this convoy"));
+			suspension_button.add_listener(this);
+			add_component(&suspension_button);
+
 			move_to_depot_button.init(button_t::roundbox| button_t::flexible, "Teleport to Depot");
 			move_to_depot_button.set_tooltip(translator::translate("Remove vehicle from here and send to the nearest depot. (Ctrl+click to choose depot.)"));
 			move_to_depot_button.add_listener(this);
@@ -384,6 +389,12 @@ void convoi_detail_t::draw(scr_coord offset)
 		max_balance_speed_kmh_of_convoi_numberinput.disable();
 	}
 	max_balance_speed_kmh_of_convoi_button.enable(is_owner);
+	if (is_owner) {
+		suspension_button.enable(cnv->get_state()!=convoi_t::EDIT_SCHEDULE);
+	} else {
+		suspension_button.disable();
+	}
+	suspension_button.pressed = cnv->is_suspended();
 
 	update_labels();
 
@@ -446,6 +457,12 @@ bool convoi_detail_t::action_triggered(gui_action_creator_t *comp,value_t /* */)
 			cbuffer_t buf;
 			buf.printf( "%d", (uint16)max_balance_speed_kmh_of_convoi_numberinput.get_value() );
 			cnv->call_convoi_tool( 'b', buf );
+			return true;
+		}
+		else if(comp==&suspension_button) {
+			cbuffer_t buf;
+			buf.printf( "%d", !cnv->is_suspended() );
+			cnv->call_convoi_tool( 'u', buf );
 			return true;
 		}
 	}
