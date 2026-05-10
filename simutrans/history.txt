@@ -4,6 +4,7 @@
 	FIX: (janry+prissi) assertion in debug mode when deleting multitile buildings during city removal
 	ADD: (Nazalassa) button to allow signals to pass convois in reverse
 	CHG: parse script data in scenario files for system calls (manipulated savegames only)
+	FIX: Wrong signal direction overlay arrows for signals on tiles with two ways (crossings, tram tracks)
 
 
 Release of 124.4.1 (r11930 on 18-Apr-2026):

@@ -1762,28 +1762,36 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 	}
 
 	if( schiene_t::show_reservations &&  hat_wege()  ) {
-		if( weg_t* w = get_weg_nr( 0 ) ) {
-			weg_t* w2 = get_weg_nr(1);
+		if( weg_t* w0 = get_weg_nr(0) ) {
+			weg_t* w1 = get_weg_nr(1);
 			signal_t* sig = NULL;
-			if (w->has_signal() || (w2 && w2->has_signal())) {
-				sig = find<signal_t>();
+			weg_t *signal_w = NULL;
+
+			if (w0->has_signal()) {
+				sig = this->find<signal_t>();
+				signal_w = w0;
 			}
+			else if (w1 && w1->has_signal()) {
+				sig = this->find<signal_t>();
+				signal_w = w1;
+			}
+
 			if(sig) {
 				// display arrow here
 				PIXVAL c1 = gfx->palette_lookup( COL_GREEN+2 );
 				PIXVAL c2 = gfx->palette_lookup( COL_GREEN );
 
-				ribi_t::ribi mask = w->get_ribi_maske();
-				if( !mask ) {
-					mask = w->get_ribi_unmasked();
+				ribi_t::ribi signal_mask = signal_w->get_ribi_maske();
+				if( !signal_mask ) {
+					signal_mask = signal_w->get_ribi_unmasked();
 				}
 
 				if (sig->get_two_ways()) {
 					// Display only second arrow always green
-					ribi_t::ribi mask2 = sig->get_dir();
-					gfx->draw_signal_direction(xpos, ypos + tile_raster_scale_y(w->get_yoff(), gfx->get_current_tile_raster_width()),
-						w->get_ribi_unmasked(), mask&~mask2, c1, c2, w->is_diagonal(), get_weg_hang());
-					mask = mask2;
+					ribi_t::ribi signal_active_ribi = sig->get_dir();
+					gfx->draw_signal_direction(xpos, ypos + tile_raster_scale_y(signal_w->get_yoff(), gfx->get_current_tile_raster_width()),
+						signal_w->get_ribi_unmasked(), signal_mask&~signal_active_ribi, c1, c2, signal_w->is_diagonal(), get_weg_hang());
+					signal_mask = signal_active_ribi;
 				}
 
 				if (sig->get_state() == roadsign_t::signalstate::STATE_RED) {
@@ -1791,20 +1799,21 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 					c2 = gfx->palette_lookup(COL_ORANGE);
 				}
 
-				gfx->draw_signal_direction(xpos, ypos + tile_raster_scale_y(w->get_yoff(), gfx->get_current_tile_raster_width()),
-					w->get_ribi_unmasked(), mask, c1, c2, w->is_diagonal(), get_weg_hang());
+				ribi_t::ribi way_ribi = signal_w->get_ribi_unmasked();
+				gfx->draw_signal_direction(xpos, ypos + tile_raster_scale_y(signal_w->get_yoff(), gfx->get_current_tile_raster_width()),
+					way_ribi, signal_mask, c1, c2, signal_w->is_diagonal(), get_weg_hang());
 			}
-			else if( w->get_ribi_maske() ) {
+			else if( w0->get_ribi_maske() ) {
 				PIXVAL c1 = gfx->palette_lookup( COL_BLUE+2 );
 				PIXVAL c2 = gfx->palette_lookup( COL_BLUE );
-				gfx->draw_signal_direction( xpos, ypos + tile_raster_scale_y( w->get_yoff(), gfx->get_current_tile_raster_width() ),
-					w->get_ribi_unmasked(), w->get_ribi_maske(), c1, c2, w->is_diagonal(), get_weg_hang() );
+				gfx->draw_signal_direction( xpos, ypos + tile_raster_scale_y( w0->get_yoff(), gfx->get_current_tile_raster_width() ),
+					w0->get_ribi_unmasked(), w0->get_ribi_maske(), c1, c2, w0->is_diagonal(), get_weg_hang() );
 			}
-			else if (w2  &&  w2->get_ribi_maske()) {
+			else if (w1  &&  w1->get_ribi_maske()) {
 				PIXVAL c1 = gfx->palette_lookup(COL_BLUE + 2);
 				PIXVAL c2 = gfx->palette_lookup(COL_BLUE);
-				gfx->draw_signal_direction(xpos, ypos + tile_raster_scale_y(w2->get_yoff(), gfx->get_current_tile_raster_width()),
-					w2->get_ribi_unmasked(), w2->get_ribi_maske(), c1, c2, w2->is_diagonal(), get_weg_hang());
+				gfx->draw_signal_direction(xpos, ypos + tile_raster_scale_y(w1->get_yoff(), gfx->get_current_tile_raster_width()),
+					w1->get_ribi_unmasked(), w1->get_ribi_maske(), c1, c2, w1->is_diagonal(), get_weg_hang());
 			}
 		}
 	}
