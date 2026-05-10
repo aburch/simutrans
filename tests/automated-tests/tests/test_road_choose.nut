@@ -5,8 +5,8 @@
 // Layout (x=5):
 //   y=0  CarDepot
 //   y=2  road + choose sign (south-facing, built twice)
-//   y=3  BusStop  (手前のマス / near tile)
-//   y=4  BusStop  (奥のマス  / far  tile)  <- Bus A parked here
+//   y=3  BusStop  (near tile)
+//   y=4  BusStop  (far  tile)  <- Bus A parked here
 //   y=5  road dead-end
 //
 // Bus A targets far stop (y=4) with min_load=200 so it never departs.
@@ -21,8 +21,8 @@ local OT_PROHIBITED   =  3   // prohibited_mode
 local OT_INVERTED     =  4   // inverted_mode
 
 local RC_X    = 5   // column used by all road-choose tests
-local RC_NEAR = 3   // y of near (手前) stop tile
-local RC_FAR  = 4   // y of far  (奥)  stop tile
+local RC_NEAR = 3   // y of near stop tile
+local RC_FAR  = 4   // y of far  stop tile
 
 
 // ── Infrastructure helpers ────────────────────────────────────────────────
