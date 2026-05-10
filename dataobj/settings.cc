@@ -79,6 +79,8 @@ settings_t::settings_t() :
 	// since the turning rules are different, driving must now be saved here
 	drive_on_left = false;
 	signals_on_left = false;
+	signal_reverse_front_back = false;
+	roadsign_reverse_front_back = false;
 
 	// forest setting ...
 	forest_base_size = 36;                 // Base forest size - minimal size of forest - map independent
@@ -1046,6 +1048,13 @@ void settings_t::rdwr(loadsave_t *file)
 		} else {
 			use_route_cache = false;
 		}
+		if(  file->get_OTRP_version() >= 55  ) {
+			file->rdwr_bool(signal_reverse_front_back);
+			file->rdwr_bool(roadsign_reverse_front_back);
+		} else {
+			signal_reverse_front_back = false;
+			roadsign_reverse_front_back = false;
+		}
  		if(  file->is_version_atleast(122, 1)  ) {
 			file->rdwr_enum(climate_generator);
 			file->rdwr_byte( wind_direction );
@@ -1348,6 +1357,8 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 
 	drive_on_left                  = contents.get_int( "drive_left",                     drive_on_left ) != 0;
 	signals_on_left                = contents.get_int( "signals_on_left",                signals_on_left ) != 0;
+	signal_reverse_front_back      = contents.get_int( "signal_reverse_front_back",      signal_reverse_front_back ) != 0;
+	roadsign_reverse_front_back    = contents.get_int( "roadsign_reverse_front_back",    roadsign_reverse_front_back ) != 0;
 	allow_underground_transformers = contents.get_int( "allow_underground_transformers", allow_underground_transformers ) != 0;
 	disable_make_way_public        = contents.get_int( "disable_make_way_public",        disable_make_way_public ) != 0;
 

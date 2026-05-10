@@ -4,6 +4,7 @@
  */
 
 #include <stdio.h>
+#include <algorithm>
 
 #include "../simunits.h"
 #include "../simdebug.h"
@@ -503,6 +504,14 @@ void roadsign_t::calc_image()
 				}
 			}
 
+		}
+	}
+	// swap front/back if the pak requires it
+	if(  !automatic && (desc->get_flags()&roadsign_desc_t::ONLY_BACKIMAGE)==0  ) {
+		if(  welt->get_settings().get_roadsign_reverse_front_back()  ) {
+			std::swap( tmp_image, foreground_image );
+			std::swap( xoff, after_xoffset );
+			std::swap( yoff, after_yoffset );
 		}
 	}
 	// set image and offsets
