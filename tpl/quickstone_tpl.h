@@ -31,25 +31,25 @@ private:
 	/**
 	 * Next entry to check
 	 */
-	static uint16 next;
+	static uint32 next;
 
 	/**
 	 * Size of tombstone table
 	 */
-	static uint16 size;
+	static uint32 size;
 
 	/**
 	 * The index in the table for this handle.
 	 * (only this variable is actually saved, since the rest is static!)
 	 */
-	uint16 entry;
+	uint32 entry;
 
 private:
 	/**
 	 * Retrieves next free tombstone index
 	 */
-	static uint16 find_next() {
-		uint16 i;
+	static uint32 find_next() {
+		uint32 i;
 
 		// scan rest of array
 		for(  i=next;  i<size;  i++  ) {
@@ -69,17 +69,17 @@ private:
 		return enlarge();
 	}
 
-	static uint16 enlarge()
+	static uint32 enlarge()
 	{
 		// no free entry found, extend array if possible
-		uint16 newsize;
-		if (size == 65535) {
+		uint32 newsize;
+		if (size == 0xFFFFFFFFu) {
 			// completely out of handles
 			dbg->fatal("quickstone<T>::find_next()","no free index found (size=%i)",size);
 			return 0; //dummy for compiler
-		} else if (size >= 32768) {
-			// max out on handles, don't overflow uint16
-			newsize = 65535;
+		} else if (size >= 0x80000000u) {
+			// max out on handles, don't overflow uint32
+			newsize = 0xFFFFFFFFu;
 		} else {
 			newsize = 2*size;
 		}
@@ -87,7 +87,7 @@ private:
 		// Move data to new extended array
 		T ** newdata = new T* [newsize];
 		memcpy( newdata, data, sizeof(T*)*size );
-		for(  uint16 i=size;  i<newsize;  i++  ) {
+		for(  uint32 i=size;  i<newsize;  i++  ) {
 			newdata[i] = 0;
 		}
 		delete [] data;
@@ -104,14 +104,14 @@ public:
 	 *
 	 * @param n number of elements
 	 */
-	static void init(const uint16 n)
+	static void init(const uint32 n)
 	{
 		delete [] data;
 		size = n;
 		data = new T* [size];
 
 		// all NULL pointers are mapped to entry 0
-		for(int i=0; i<size; i++) {
+		for(uint32 i=0; i<size; i++) {
 			data[i] = 0;
 		}
 		next = 1;
@@ -139,7 +139,7 @@ public:
 	// connects with last handle
 	explicit quickstone_tpl(T* p, bool)
 	{
-		uint16 i;
+		uint32 i;
 
 		// scan rest of array
 		for(  i=size-1;  i>0;  i++  ) {
@@ -162,24 +162,24 @@ public:
 	}
 
 	// creates handle with id, fails if already taken
-	quickstone_tpl(T* p, uint16 id)
+	quickstone_tpl(T* p, uint32 id)
 	{
 		if(p) {
 			if(  id == 0  ) {
-				dbg->fatal("quickstone<T>::quickstone_tpl(T*,uint16)","wants to assign non-null pointer to null index");
+				dbg->fatal("quickstone<T>::quickstone_tpl(T*,uint32)","wants to assign non-null pointer to null index");
 			}
 			while(  id >= size  ) {
 				enlarge();
 			}
 			if(  data[id]!=NULL  &&  data[id]!=p  ) {
-				dbg->fatal("quickstone<T>::quickstone_tpl(T*,uint16)","slot (%d) already taken", id);
+				dbg->fatal("quickstone<T>::quickstone_tpl(T*,uint32)","slot (%d) already taken", id);
 			}
 			entry = id;
 			data[entry] = p;
 		}
 		else {
 			if(  id!=0  ) {
-				dbg->fatal("quickstone<T>::quickstone_tpl(T*,uint16)","wants to assign null pointer to non-null index");
+				dbg->fatal("quickstone<T>::quickstone_tpl(T*,uint32)","wants to assign null pointer to non-null index");
 			}
 			// all NULL pointers are mapped to entry 0
 			entry = 0;
@@ -189,9 +189,9 @@ public:
 	// returns true, if no handles left
 	static bool is_exhausted()
 	{
-		if(  size==65535  ) {
+		if(  size==0xFFFFFFFFu  ) {
 			// scan  array
-			for(  uint16 i = 1; i<size; i++) {
+			for(  uint32 i = 1; i<size; i++) {
 				if(data[i] == 0) {
 					// still empty handles left
 					return false;
@@ -234,13 +234,13 @@ public:
 	 * @return the index into the tombstone table. May be used as
 	 * an ID for the referenced object.
 	 */
-	uint16 get_id() const { return entry; }
+	uint32 get_id() const { return entry; }
 
 	/**
 	 * Sets the current id: Needed to recreate stuff via network.
 	 * ATTENTION: This may be harmful. DO not use unless really really needed!
 	 */
-	void set_id(uint16 e) { entry=e; }
+	void set_id(uint32 e) { entry=e; }
 
 	/**
 	 * Overloaded dereference operator. With this, quickstones can
@@ -254,18 +254,18 @@ public:
 
 	bool operator!= (const quickstone_tpl<T> &other) const { return entry != other.entry; }
 
-	static uint16 get_size() { return size; }
+	static uint32 get_size() { return size; }
 
 	/**
 	 * For checking the consistency of handle allocation
 	 * among the server and the clients in network mode
 	 */
-	static uint16 get_next_check() { return next; }
+	static uint32 get_next_check() { return next; }
 };
 
 template <class T> T** quickstone_tpl<T>::data = 0;
 
-template <class T> uint16 quickstone_tpl<T>::next = 1;
-template <class T> uint16 quickstone_tpl<T>::size = 0;
+template <class T> uint32 quickstone_tpl<T>::next = 1;
+template <class T> uint32 quickstone_tpl<T>::size = 0;
 
 #endif

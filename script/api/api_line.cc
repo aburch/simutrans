@@ -99,7 +99,7 @@ call_tool_init line_set_name(simline_t* line, const char* name)
 
 vector_tpl<linehandle_t> const* generic_get_line_list(HSQUIRRELVM vm, SQInteger index)
 {
-	uint16 id;
+	uint32 id;
 	if (SQ_SUCCEEDED(get_slot(vm, "halt_id", id, index))) {
 		halthandle_t halt;
 		halt.set_id(id);

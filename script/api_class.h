@@ -191,7 +191,7 @@ namespace script_api {
 		}
 		static const quickstone_tpl<T> get(HSQUIRRELVM vm, SQInteger index)
 		{
-			uint16 id = 0;
+			uint32 id = 0;
 			get_slot(vm, "id", id, index);
 			quickstone_tpl<T> h;
 			if (id < quickstone_tpl<T>::get_size()) {

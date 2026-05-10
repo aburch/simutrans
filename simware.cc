@@ -111,16 +111,33 @@ void ware_t::rdwr(loadsave_t *file)
 		}
 	}
 	// convert coordinate to halt indices
-	if(  file->get_OTRP_version() >= 39  ) {
+	if(  file->get_OTRP_version() >= 55  ) {
 		// rdwr ziel
-		uint16 ziel_halt_id = ziel.is_bound() ? ziel.get_id() : 0;
+		uint32 ziel_halt_id = ziel.is_bound() ? ziel.get_id() : 0;
+		file->rdwr_long(ziel_halt_id);
+		if(  file->is_loading()  ) {
+			ziel.set_id(ziel_halt_id);
+		}
+		// rwdr transit_halts
+		std::function<void(loadsave_t*, halthandle_t&)> rdwr_halt = [](loadsave_t *file, halthandle_t &h) {
+			uint32 halt_id = h.is_bound() ? h.get_id() : 0;
+			file->rdwr_long(halt_id);
+			if(  file->is_loading()  ) {
+				h.set_id(halt_id);
+			}
+		};
+		file->rdwr_vector(transit_halts, rdwr_halt);
+	}
+	else if(  file->get_OTRP_version() >= 39  ) {
+		// rdwr ziel (loading old saves only; saving always takes the >= 55 path)
+		uint16 ziel_halt_id = ziel.is_bound() ? (uint16)ziel.get_id() : 0;
 		file->rdwr_short(ziel_halt_id);
 		if(  file->is_loading()  ) {
 			ziel.set_id(ziel_halt_id);
 		}
 		// rwdr transit_halts
 		std::function<void(loadsave_t*, halthandle_t&)> rdwr_halt = [](loadsave_t *file, halthandle_t &h) {
-			uint16 halt_id = h.is_bound() ? h.get_id() : 0;
+			uint16 halt_id = h.is_bound() ? (uint16)h.get_id() : 0;
 			file->rdwr_short(halt_id);
 			if(  file->is_loading()  ) {
 				h.set_id(halt_id);
@@ -131,9 +148,9 @@ void ware_t::rdwr(loadsave_t *file)
 	else if(file->is_version_atleast(110, 6)) {
 		// save halt id directly
 		if(file->is_saving()) {
-			uint16 halt_id = ziel.is_bound() ? ziel.get_id() : 0;
+			uint16 halt_id = ziel.is_bound() ? (uint16)ziel.get_id() : 0;
 			file->rdwr_short(halt_id);
-			halt_id = !transit_halts.empty() ? transit_halts[0].get_id() : 0;
+			halt_id = !transit_halts.empty() ? (uint16)transit_halts[0].get_id() : 0;
 			file->rdwr_short(halt_id);
 		}
 		else {

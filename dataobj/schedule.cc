@@ -632,7 +632,7 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 		return false;
 	}
 	//  first get current_stop pointer
-	uint32 s = atoi( p );
+	uint32 s = (uint32)strtoul( p, NULL, 10 );
 	current_stop = s & 0xff;
 	flags = ((s&0xff00) >> 8);
 	max_speed = (s>>16);
@@ -645,7 +645,7 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 	}
 	p++;
 	// then departure_slot_group_id
-	departure_slot_group_id.set_id( (uint16)atoi( p ) );
+	departure_slot_group_id.set_id( strtoul( p, NULL, 10 ) );
 	while(  *p  &&  *p!='|'  ) {
 		p++;
 	}
@@ -655,7 +655,7 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 	}
 	p++;
 	// then additional_base_waiting_time
-	additional_base_waiting_time = atoi( p );
+	additional_base_waiting_time = (uint32)strtoul( p, NULL, 10 );
 	while(  *p  &&  *p!='|'  ) {
 		p++;
 	}
@@ -680,7 +680,7 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 	}
 	p++;
 	//  then next line
-	uint16 next_line_id = atoi( p );
+	uint32 next_line_id = strtoul( p, NULL, 10 );
 	next_line.set_id(next_line_id);
 	while(  *p  &&  *p!='|'  ) {
 		p++;

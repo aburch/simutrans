@@ -1987,7 +1987,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			cbuffer_t couple_buf;
 			// selection number should be modified because child_convoi_selector(0) is "departing alone"
 			const int selection = p.i <= icnv? p.i-1: p.i;
-			uint16 child_convoy_id = selection < 0? 0: depot->get_convoi(selection).get_id();
+			uint32 child_convoy_id = selection < 0? 0: depot->get_convoi(selection).get_id();
 			// check the ouroboros-like coupling setting:
 			// If this convoy's connecting convoy contains itself, this convoy don't start coupling!
 			convoihandle_t check_cnv = depot->get_convoi(selection);

@@ -8729,14 +8729,14 @@ bool scenario_check_convoy(karte_t *welt, player_t *player, convoihandle_t cnv, 
 bool tool_change_convoi_t::init( player_t *player )
 {
 	char tool=0;
-	uint16 convoi_id = 0;
+	uint32 convoi_id = 0;
 
 	// skip the rest of the command
 	const char *p = default_param;
 	while(  *p  &&  *p<=' '  ) {
 		p++;
 	}
-	sscanf( p, "%c,%hi", &tool, &convoi_id );
+	sscanf( p, "%c,%u", &tool, &convoi_id );
 
 	// skip to the commands ...
 	for(  int z = 2;  *p  &&  z>0;  p++  ) {
@@ -8817,8 +8817,9 @@ bool tool_change_convoi_t::init( player_t *player )
 		case 'l': // change line
 			{
 				// read out id and new current_stop index
-				uint16 id=0, current_stop=0;
-				int count=sscanf( p, "%hi,%hi", &id, &current_stop );
+				uint32 id=0;
+				uint16 current_stop=0;
+				int count=sscanf( p, "%u,%hi", &id, &current_stop );
 				linehandle_t l;
 				l.set_id( id );
 				if(  l.is_bound()  ) {
@@ -9042,7 +9043,7 @@ bool tool_change_convoi_t::init( player_t *player )
  */
 bool tool_change_line_t::init( player_t *player )
 {
-	uint16 line_id = 0;
+	uint32 line_id = 0;
 
 
 	// skip the rest of the command
@@ -9059,7 +9060,7 @@ bool tool_change_line_t::init( player_t *player )
 		return false;
 	}
 
-	line_id = atoi(p);
+	line_id = (uint32)strtoul(p, NULL, 10);
 
 
 	while(  *p  &&  *p++!=','  ) {
@@ -9389,14 +9390,14 @@ bool tool_change_depot_t::init( player_t *player )
 	char tool=0;
 	koord pos2d;
 	sint8 z;
-	uint16 convoi_id;
+	uint32 convoi_id;
 
 	// skip the rest of the command
 	const char *p = default_param;
 	while(  *p  &&  *p<=' '  ) {
 		p++;
 	}
-	sscanf( p, "%c,%hi,%hi,%hhi,%hi", &tool, &pos2d.x, &pos2d.y, &z, &convoi_id );
+	sscanf( p, "%c,%hi,%hi,%hhi,%u", &tool, &pos2d.x, &pos2d.y, &z, &convoi_id );
 
 	koord3d pos(pos2d, z);
 
@@ -9647,7 +9648,7 @@ bool tool_change_depot_t::init( player_t *player )
 		}
 		case 'u': { // coupling convoy in depot
 			convoihandle_t child = convoihandle_t();
-			uint16 coupled_cnv_id = atoi(p);
+			uint32 coupled_cnv_id = (uint32)strtoul(p, NULL, 10);
 			if( coupled_cnv_id != 0) {
 				child.set_id(coupled_cnv_id);
 			}
@@ -10025,14 +10026,14 @@ bool tool_change_city_t::init( player_t *player )
  */
 bool tool_change_halt_t::init(player_t *player) {
 	char tool=0;
-	uint16 halt_id = 0;
+	uint32 halt_id = 0;
 
 	// skip the rest of the command
 	const char *p = default_param;
 	while(  *p  &&  *p<=' '  ) {
 		p++;
 	}
-	sscanf( p, "%c,%hi", &tool, &halt_id );
+	sscanf( p, "%c,%u", &tool, &halt_id );
 
 	// skip to the commands ...
 	for(  int z = 2;  *p  &&  z>0;  p++  ) {
@@ -10077,7 +10078,7 @@ bool tool_change_halt_t::init(player_t *player) {
  */
 bool tool_rename_t::init(player_t *player)
 {
-	uint16 id = 0;
+	uint32 id = 0;
 	koord3d pos = koord3d::invalid;
 
 	// skip the rest of the command
@@ -10089,7 +10090,7 @@ bool tool_rename_t::init(player_t *player)
 		case 'c':
 		case 't':
 		case 'p':
-			id = atoi(p);
+			id = (uint32)strtoul(p, NULL, 10);
 			while(  *p>0  &&  *p++!=','  ) {
 			}
 			break;

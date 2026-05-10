@@ -2921,10 +2921,19 @@ void convoi_t::clear_reserved_tile_if_not_matching_route()
 void convoi_t::rdwr_convoihandle_t(loadsave_t *file, convoihandle_t &cnv)
 {
 	if(  file->is_version_atleast(112, 3)  ) {
-		uint16 id = (file->is_saving()  &&  cnv.is_bound()) ? cnv.get_id() : 0;
-		file->rdwr_short( id );
-		if (file->is_loading()) {
-			cnv.set_id( id );
+		if(  file->get_OTRP_version() >= 55  ) {
+			uint32 id = (file->is_saving()  &&  cnv.is_bound()) ? cnv.get_id() : 0;
+			file->rdwr_long( id );
+			if (file->is_loading()) {
+				cnv.set_id( id );
+			}
+		}
+		else {
+			uint16 id = (file->is_saving()  &&  cnv.is_bound()) ? (uint16)cnv.get_id() : 0;
+			file->rdwr_short( id );
+			if (file->is_loading()) {
+				cnv.set_id( id );
+			}
 		}
 	}
 }
@@ -2956,15 +2965,26 @@ void convoi_t::rdwr(loadsave_t *file)
 		if(  file->is_version_less(112, 3)  ) {
 			self = convoihandle_t( this );
 		}
+		else if(  file->get_OTRP_version() >= 55  ) {
+			uint32 id;
+			file->rdwr_long( id );
+			self = convoihandle_t( this, id );
+		}
 		else {
 			uint16 id;
 			file->rdwr_short( id );
-			self = convoihandle_t( this, id );
+			self = convoihandle_t( this, (uint32)id );
 		}
 	}
 	else if(  file->is_version_atleast(112, 3)  ) {
-		uint16 id = self.get_id();
-		file->rdwr_short( id );
+		if(  file->get_OTRP_version() >= 55  ) {
+			uint32 id = self.get_id();
+			file->rdwr_long( id );
+		}
+		else {
+			uint16 id = (uint16)self.get_id();
+			file->rdwr_short( id );
+		}
 	}
 
 	dummy = anz_vehikel;
@@ -3668,7 +3688,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 
 void convoi_t::open_schedule_window( bool show )
 {
-	DBG_MESSAGE("convoi_t::open_schedule_window()","Id = %hu, State = %d, Lock = %d", self.get_id(), (int)state, wait_lock);
+	DBG_MESSAGE("convoi_t::open_schedule_window()","Id = %u, State = %d, Lock = %d", self.get_id(), (int)state, wait_lock);
 
 	// manipulation of schedule not allowed while:
 	// - just starting

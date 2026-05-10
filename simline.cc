@@ -235,9 +235,21 @@ void simline_t::remove_convoy(convoihandle_t cnv)
 
 void simline_t::rdwr_linehandle_t(loadsave_t *file, linehandle_t &line)
 {
+	if(  file->get_OTRP_version() >= 55  ) {
+		uint32 id = 0;
+		if(  file->is_saving()  ) {
+			id = line.is_bound() ? line.get_id() : 0;
+		}
+		file->rdwr_long(id);
+		if(  file->is_loading()  ) {
+			line.set_id(id);
+		}
+		return;
+	}
+
 	uint16 id;
 	if (file->is_saving()) {
-		id = line.is_bound() ? line.get_id() :
+		id = line.is_bound() ? (uint16)line.get_id() :
 			 (file->is_version_less(110, 0)  ? INVALID_LINE_ID_OLD : INVALID_LINE_ID);
 	}
 	else {

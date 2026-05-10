@@ -67,7 +67,7 @@ sint32 convoy_get_kmh(convoi_t const* cnv)
 
 vector_tpl<convoihandle_t> const* generic_get_convoy_list(HSQUIRRELVM vm, SQInteger index)
 {
-	uint16 id;
+	uint32 id;
 	bool use_world;
 	if (SQ_SUCCEEDED(get_slot(vm, "halt_id", id, index))) {
 		halthandle_t halt;
