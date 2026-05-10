@@ -434,7 +434,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		add_component(&sp_schedule_reverse_settings);
 
 		bt_no_use_electric.init(button_t::square_state, "Not use electricity");
-		bt_no_use_electric.set_tooltip(translator::translate("Not use electriciry in this schedule"));
+		bt_no_use_electric.set_tooltip(translator::translate("Not use electricity in this schedule"));
 		bt_no_use_electric.add_listener(this);
 		add_component(&bt_no_use_electric);
 		add_component(&sp_coupling_settings);
