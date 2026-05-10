@@ -575,9 +575,10 @@ public:
 class rail_vehicle_t : public vehicle_t
 {
 protected:
-	bool check_next_tile(const grund_t *bd, const bool need_electric, bool find_route, bool coupling) const OVERRIDE;
-	bool check_next_tile(const grund_t *bd, const bool need_electric) const OVERRIDE { return check_next_tile(bd, need_electric, false, false); }
-	bool check_next_tile(const grund_t *bd) const OVERRIDE {return check_next_tile(bd, false, false, false);}
+	bool check_next_tile(const grund_t *bd, const bool need_electric, bool find_route, bool coupling, const koord3d& prev) const OVERRIDE;
+	bool check_next_tile(const grund_t *bd, const bool need_electric, bool find_route, bool coupling) const OVERRIDE { return check_next_tile(bd, need_electric, find_route, coupling, koord3d::invalid); }
+	bool check_next_tile(const grund_t *bd, const bool need_electric) const OVERRIDE { return check_next_tile(bd, need_electric, false, false, koord3d::invalid); }
+	bool check_next_tile(const grund_t *bd) const OVERRIDE { return check_next_tile(bd, false, false, false, koord3d::invalid); }
 	void enter_tile(grund_t*) OVERRIDE;
 
 	bool is_pre_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed, bool const call_by_step);

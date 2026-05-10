@@ -26,6 +26,7 @@ public:
 	virtual bool check_next_tile(const grund_t*) const = 0;
 	virtual bool check_next_tile(const grund_t* bd, const bool need_electric) const { return check_next_tile(bd); }
 	virtual bool check_next_tile(const grund_t* bd, const bool need_electric, bool, bool) const { return check_next_tile(bd,need_electric); }
+	virtual bool check_next_tile(const grund_t* bd, const bool need_electric, bool find_route, bool coupling, const koord3d& prev) const { return check_next_tile(bd,need_electric,find_route,coupling); }
 
 	/**
 	 * Determine the direction bits (ribi) for the applicable vehicle,

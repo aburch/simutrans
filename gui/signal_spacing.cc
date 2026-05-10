@@ -11,11 +11,13 @@
 
 #include "signal_spacing.h"
 #include "../simtool.h"
+#include "../descriptor/roadsign_desc.h"
 
 
 uint8 signal_spacing_frame_t::signal_spacing = 2;
 bool signal_spacing_frame_t::remove = true;
 bool signal_spacing_frame_t::replace = true;
+bool signal_spacing_frame_t::two_ways = false;
 
 signal_spacing_frame_t::signal_spacing_frame_t(player_t *player_, tool_build_roadsign_t* tool_) :
 	gui_frame_t( translator::translate("set signal spacing") ),
@@ -23,7 +25,7 @@ signal_spacing_frame_t::signal_spacing_frame_t(player_t *player_, tool_build_roa
 {
 	player = player_;
 	tool = tool_;
-	tool->get_values(player, signal_spacing, remove, replace);
+	tool->get_values(player, signal_spacing, remove, replace, two_ways);
 
 	set_table_layout(3,0);
 
@@ -44,6 +46,13 @@ signal_spacing_frame_t::signal_spacing_frame_t(player_t *player_, tool_build_roa
 	replace_button.pressed = replace;
 	add_component( &replace_button, 3);
 
+	if(  tool->get_desc()  &&  tool->get_desc()->is_signal_type()  ) {
+		two_ways_button.init( button_t::square_state, "allow reverse passage");
+		two_ways_button.add_listener(this);
+		two_ways_button.pressed = two_ways;
+		add_component( &two_ways_button, 3);
+	}
+
 	reset_min_windowsize();
 	set_windowsize(get_min_windowsize() );
 }
@@ -61,6 +70,10 @@ bool signal_spacing_frame_t::action_triggered( gui_action_creator_t *comp, value
 		replace = !replace;
 		replace_button.pressed = replace;
 	}
-	tool->set_values(player, signal_spacing, remove, replace);
+	else if( comp == &two_ways_button ) {
+		two_ways = !two_ways;
+		two_ways_button.pressed = two_ways;
+	}
+	tool->set_values(player, signal_spacing, remove, replace, two_ways);
 	return true;
 }

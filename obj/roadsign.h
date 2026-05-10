@@ -26,7 +26,7 @@ protected:
 	image_id foreground_image;
 
 	enum {
-		SHOW_FONT        = 1,
+		SHOW_FRONT       = 1,
 		SHOW_BACK        = 2,
 		SWITCH_AUTOMATIC = 16
 	};
@@ -82,6 +82,10 @@ public:
 	* Caution: it will modify way ribis directly unless in preview mode!
 	*/
 	void set_dir(ribi_t::ribi dir);
+
+	// Only meaningful for signals: allow convoys to pass from the reverse direction.
+	bool get_two_ways() const { return ticks_ns != 0; }
+	void set_two_ways(bool yesno);
 
 	void set_state(signalstate z) {state = z; calc_image();}
 	signalstate get_state() { return (signalstate)state; }

@@ -140,7 +140,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	route.clear();
 
 	// first tile is not valid?!?
-	if(  !tdriver->check_next_tile(g, need_electric, true, coupling)  ) {
+	if(  !tdriver->check_next_tile(g, need_electric, true, coupling, koord3d::invalid)  ) {
 		return false;
 	}
 
@@ -228,7 +228,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			    && koord_distance(start, gr->get_pos() + koord::nesw[r])<max_depth // not too far away
 			    && gr->get_neighbour(to, wegtyp, ribi_t::nesw[r])  // is connected
 			    && !marker.is_marked(to) // not already tested
-			    && tdriver->check_next_tile(to, need_electric, true, coupling) // can be driven on
+			    && tdriver->check_next_tile(to, need_electric, true, coupling, gr->get_pos()) // can be driven on
 			) {
 				// not in there or taken out => add new
 				ANode* k = &nodes[step++];

@@ -5,6 +5,7 @@
 
 #include "../simmenu.h"
 #include "../simworld.h"
+#include "../dataobj/ribi.h"
 
 signal_info_t::signal_info_t(signal_t* s) :
 obj_infowin_t(s),
@@ -75,6 +76,12 @@ signal(s)
 		}
 	}
 	end_table();
+
+	bt_two_ways.init( button_t::square_state, translator::translate("allow reverse passage") );
+	bt_two_ways.add_listener(this);
+	bt_two_ways.pressed = signal->get_two_ways();
+	bt_two_ways.enable( ribi_t::is_single(signal->get_dir()) );
+	add_component(&bt_two_ways);
 
 	bt_remove_signal.init( button_t::roundbox, translator::translate("remove signal"));
 	bt_remove_signal.enable( !signal->is_deletable( welt->get_active_player() ) );
@@ -162,6 +169,14 @@ bool signal_info_t::action_triggered( gui_action_creator_t* comp, value_t p)
 		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_ROADSIGN], welt->get_active_player() );
 		return true;
 	}
+	if(  comp==&bt_two_ways  ) {
+		char param[256];
+		bool v = signal->get_two_ways();
+		sprintf( param, "%s,%i,w", signal->get_pos().get_str(), !v );
+		tool_t::simple_tool[TOOL_CHANGE_ROADSIGN]->set_default_param( param );
+		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_ROADSIGN], welt->get_active_player() );
+		return true;
+	}
 	return false;
 }
 
@@ -190,5 +205,7 @@ void signal_info_t::update_data()
 	if(  signal->get_desc()->is_simple_signal()  ||  signal->get_desc()->is_longblock_signal()  ||  signal->get_desc()->is_choose_sign()  ) {
 		bt_stop_before_check.enable();
 	}
+	bt_two_ways.pressed = signal->get_two_ways();
+	bt_two_ways.enable( ribi_t::is_single(signal->get_dir()) );
 	bt_remove_signal.enable( !signal->is_deletable( welt->get_active_player() ) );
 }
