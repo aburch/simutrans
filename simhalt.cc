@@ -869,17 +869,19 @@ haltestelle_t::~haltestelle_t()
 		lr.clip_min(pos);
 	}
 
-	// remove from all haltlists
-	uint16 const cov = welt->get_settings().get_station_coverage();
-	ul.x = max(0, ul.x - cov);
-	ul.y = max(0, ul.y - cov);
-	lr.x = min(welt->get_size().x, lr.x + 1 + cov);
-	lr.y = min(welt->get_size().y, lr.y + 1 + cov);
-	for(  int y=ul.y;  y<lr.y;  y++  ) {
-		for(  int x=ul.x;  x<lr.x;  x++  ) {
-			planquadrat_t *plan = welt->access(x,y);
-			if(plan->get_haltlist_count()>0) {
-				plan->remove_from_haltlist(self);
+	// remove from all haltlists — skip during map teardown, plan array is about to be deleted
+	if(  !welt->is_destroying()  ) {
+		uint16 const cov = welt->get_settings().get_station_coverage();
+		ul.x = max(0, ul.x - cov);
+		ul.y = max(0, ul.y - cov);
+		lr.x = min(welt->get_size().x, lr.x + 1 + cov);
+		lr.y = min(welt->get_size().y, lr.y + 1 + cov);
+		for(  int y=ul.y;  y<lr.y;  y++  ) {
+			for(  int x=ul.x;  x<lr.x;  x++  ) {
+				planquadrat_t *plan = welt->access(x,y);
+				if(plan->get_haltlist_count()>0) {
+					plan->remove_from_haltlist(self);
+				}
 			}
 		}
 	}
@@ -892,8 +894,10 @@ haltestelle_t::~haltestelle_t()
 
 	for(unsigned i=0; i<goods_manager_t::get_max_catg_index(); i++) {
 		if(cargo[i]) {
-			for(const auto& w : *cargo[i]) {
-				fabrik_t::update_transit(&w->goods, false);
+			if(  !welt->is_destroying()  ) {
+				for(const auto& w : *cargo[i]) {
+					fabrik_t::update_transit(&w->goods, false);
+				}
 			}
 			delete cargo[i];
 		}
@@ -905,7 +909,9 @@ haltestelle_t::~haltestelle_t()
 	}
 
 	// routes may have changed without this station ...
-	verbinde_fabriken();
+	if(  !welt->is_destroying()  ) {
+		verbinde_fabriken();
+	}
 }
 
 
