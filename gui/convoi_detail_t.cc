@@ -389,7 +389,7 @@ void convoi_detail_t::draw(scr_coord offset)
 		max_balance_speed_kmh_of_convoi_numberinput.disable();
 	}
 	max_balance_speed_kmh_of_convoi_button.enable(is_owner);
-	if (is_owner) {
+	if (is_owner&&!cnv->is_coupled()) {
 		suspension_button.enable(cnv->get_state()!=convoi_t::EDIT_SCHEDULE);
 	} else {
 		suspension_button.disable();
