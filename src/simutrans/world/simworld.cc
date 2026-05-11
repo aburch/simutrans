@@ -1468,7 +1468,7 @@ void karte_t::create_lakes(  int xoff, int yoff, sint8 max_lake_height  )
 	new_stage = new sint8[size_x * size_y];
 	local_stage = new sint8[size_x * size_y];
 
-	const sint8 lake_height_ceiling = std::min(this->get_groundwater() + max_lake_height, INT8_MAX);
+	const sint8 lake_height_ceiling = min(this->get_groundwater() + max_lake_height, INT8_MAX);
 
 	for(  h = groundwater+1; h<lake_height_ceiling; h++  ) {
 		need_to_flood = false;
