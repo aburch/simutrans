@@ -6077,10 +6077,17 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 	// rdwr convois
 	if (file->is_loading()) {
 		DBG_MESSAGE("karte_t::rdwr_gamestate()", "load convois");
-		uint16 convoi_nr = 65535;
-		uint16 max_convoi = 65535;
+		uint32 convoi_nr = 65535;
+		uint32 max_convoi = 65535;
 		if(  file->is_version_atleast(101, 0)  ) {
-			file->rdwr_short(convoi_nr);
+			if(  file->get_OTRP_version() >= 55  ) {
+				file->rdwr_long(convoi_nr);
+			}
+			else {
+				uint16 tmp = 65535;
+				file->rdwr_short(tmp);
+				convoi_nr = tmp;
+			}
 			max_convoi = convoi_nr;
 		}
 
@@ -6121,8 +6128,14 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 	else {
 		// save number of convois
 		if(  file->is_version_atleast(101, 0)  ) {
-			uint16 i=convoi_array.get_count();
-			file->rdwr_short(i);
+			if(  file->get_OTRP_version() >= 55  ) {
+				uint32 i = convoi_array.get_count();
+				file->rdwr_long(i);
+			}
+			else {
+				uint16 i = convoi_array.get_count();
+				file->rdwr_short(i);
+			}
 		}
 		FOR(vector_tpl<convoihandle_t>, const cnv, convoi_array) {
 			// one MUST NOT call INT_CHECK here or else the convoi will be broken during reloading!
