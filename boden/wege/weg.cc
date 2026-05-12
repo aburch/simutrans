@@ -123,6 +123,9 @@ void weg_t::set_desc(const way_desc_t *b)
 {
 	desc = b;
 
+	if(  desc == NULL  ) {
+		return;
+	}
 	if(  hat_gehweg() &&  desc->get_wtyp() == road_wt  &&  desc->get_topspeed() > 50  ) {
 		max_speed = 50;
 	}
