@@ -540,7 +540,7 @@ private:
 	};
 
 	// store the best weight so far for a halt, and indicate whether it is a destination
-	static halt_data_t halt_data[65536];
+	static halt_data_t *halt_data;
 
 	// for efficient retrieval of the node with the smallest weight
 	static bucket_heap_tpl<route_node_t> open_list;
@@ -548,8 +548,11 @@ private:
 	/**
 	 * Markers used in route searching to avoid processing the same halt more than once
 	 */
-	static uint8 markers[65536];
+	static uint8 *markers;
 	static uint8 current_marker;
+
+	static uint32 halt_array_size;
+	static void resize_halt_arrays(uint32 new_size);
 
 	/**
 	 * Remember last route search start and catg to resume search

@@ -798,6 +798,7 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 
 	rdwr(file);
 
+	resize_halt_arrays(halthandle_t::get_size());
 	markers[ self.get_id() ] = current_marker;
 
 	alle_haltestellen.append(self);
@@ -810,6 +811,7 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 	assert( !alle_haltestellen.is_contained(self) );
 	alle_haltestellen.append(self);
 
+	resize_halt_arrays(halthandle_t::get_size());
 	markers[ self.get_id() ] = current_marker;
 
 	last_loading_step = welt->get_steps();
@@ -2019,10 +2021,29 @@ public:
 /**
  * Data for route searching
  */
-haltestelle_t::halt_data_t haltestelle_t::halt_data[65536];
+haltestelle_t::halt_data_t *haltestelle_t::halt_data = NULL;
 bucket_heap_tpl<haltestelle_t::route_node_t> haltestelle_t::open_list;
-uint8 haltestelle_t::markers[65536];
+uint8 *haltestelle_t::markers = NULL;
 uint8 haltestelle_t::current_marker = 0;
+uint32 haltestelle_t::halt_array_size = 0;
+
+void haltestelle_t::resize_halt_arrays(uint32 new_size)
+{
+	if(  new_size <= halt_array_size  ) {
+		return;
+	}
+	halt_data_t *new_halt_data = new halt_data_t[new_size]();
+	uint8 *new_markers = new uint8[new_size]();
+	if(  halt_data  ) {
+		memcpy(new_halt_data, halt_data, sizeof(halt_data_t) * halt_array_size);
+		memcpy(new_markers, markers, sizeof(uint8) * halt_array_size);
+		delete[] halt_data;
+		delete[] markers;
+	}
+	halt_data = new_halt_data;
+	markers = new_markers;
+	halt_array_size = new_size;
+}
 /**
  * Data for resumable route search
  */
@@ -2361,7 +2382,7 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
 	}
 
 	// remember destination nodes, to reset them before returning
-	static vector_tpl<uint16> dest_indices(16);
+	static vector_tpl<uint32> dest_indices(16);
 	dest_indices.clear();
 
 	uint32 best_destination_weight = UINT32_MAX;
@@ -2556,7 +2577,7 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
 	}
 
 	// clear destinations since we may want to do another search with the same current_marker
-	FOR(vector_tpl<uint16>, const i, dest_indices) {
+	FOR(vector_tpl<uint32>, const i, dest_indices) {
 		halt_data[i].destination = false;
 		if (halt_data[i].best_weight == UINT32_MAX) {
 			// not processed -> reset marker

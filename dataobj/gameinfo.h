@@ -35,8 +35,8 @@ private:
 	sint32 city_count;
 	sint32 citizen_count;
 
-	uint16 convoi_count;
-	uint16 halt_count;
+	uint32 convoi_count;
+	uint32 halt_count;
 
 	sint64 total_pass_transported;
 	sint64 total_mail_transported;
@@ -78,8 +78,8 @@ public:
 	sint32 get_city_count() const {return city_count;}
 	sint32 get_citizen_count() const {return citizen_count;}
 
-	sint32 get_convoi_count() const {return convoi_count;}
-	sint32 get_halt_count() const {return halt_count;}
+	uint32 get_convoi_count() const {return convoi_count;}
+	uint32 get_halt_count() const {return halt_count;}
 
 	uint8 get_use_timeline() const {return use_timeline;}
 	sint16 get_current_year() const {return current_year_month/12;}
