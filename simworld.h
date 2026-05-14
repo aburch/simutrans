@@ -95,6 +95,7 @@ public:
 		WORLD_MAIL_GENERATED,    ///< all letters generated
 		WORLD_GOODS_RATIO,       ///< ratio of chain completeness
 		WORLD_TRANSPORTED_GOODS, ///< all transported goods
+		WORLD_HALTS,             ///< total number of halts (recorded from OTRP v55)
 		MAX_WORLD_COST
 	};
 

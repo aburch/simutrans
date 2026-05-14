@@ -4496,6 +4496,7 @@ void karte_t::update_history()
 {
 	finance_history_year[0][WORLD_CONVOIS] = finance_history_month[0][WORLD_CONVOIS] = convoi_array.get_count();
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
+	finance_history_year[0][WORLD_HALTS] = finance_history_month[0][WORLD_HALTS] = haltestelle_t::get_alle_haltestellen().get_count();
 
 	// now step all towns (to generate passengers)
 	sint64 bev=0;
@@ -4929,6 +4930,13 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 			for (int cost_type = 0; cost_type</*MAX_WORLD_COST*/12; cost_type++) {
 				file->rdwr_longlong(finance_history_month[month][cost_type]);
 			}
+		}
+		// WORLD_HALTS added in OTRP v55
+		for(int year = 0; year < /*MAX_WORLD_HISTORY_YEARS*/12; year++) {
+			file->rdwr_longlong(finance_history_year[year][WORLD_HALTS]);
+		}
+		for(int month = 0; month < /*MAX_WORLD_HISTORY_MONTHS*/12; month++) {
+			file->rdwr_longlong(finance_history_month[month][WORLD_HALTS]);
 		}
 	}
 
@@ -5512,13 +5520,30 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	}
 	else {
 		for (int year = 0;  year</*MAX_WORLD_HISTORY_YEARS*/12;  year++) {
-			for (int cost_type = 0; cost_type</*MAX_WORLD_COST*/12; cost_type++) {
+			for (int cost_type = 0; cost_type<WORLD_HALTS; cost_type++) {
 				file->rdwr_longlong(finance_history_year[year][cost_type]);
 			}
 		}
 		for (int month = 0;month</*MAX_WORLD_HISTORY_MONTHS*/12;month++) {
-			for (int cost_type = 0; cost_type</*MAX_WORLD_COST*/12; cost_type++) {
+			for (int cost_type = 0; cost_type<WORLD_HALTS; cost_type++) {
 				file->rdwr_longlong(finance_history_month[month][cost_type]);
+			}
+		}
+		// WORLD_HALTS added in OTRP v56; older files have no recorded data
+		if(  file->get_OTRP_version() > 55  ) {
+			for(int year = 0; year < /*MAX_WORLD_HISTORY_YEARS*/12; year++) {
+				file->rdwr_longlong(finance_history_year[year][WORLD_HALTS]);
+			}
+			for(int month = 0; month < /*MAX_WORLD_HISTORY_MONTHS*/12; month++) {
+				file->rdwr_longlong(finance_history_month[month][WORLD_HALTS]);
+			}
+		}
+		else {
+			for(int year = 0; year < /*MAX_WORLD_HISTORY_YEARS*/12; year++) {
+				finance_history_year[year][WORLD_HALTS] = 0;
+			}
+			for(int month = 0; month < /*MAX_WORLD_HISTORY_MONTHS*/12; month++) {
+				finance_history_month[month][WORLD_HALTS] = 0;
 			}
 		}
 		last_month_bev = finance_history_month[1][WORLD_CITIZENS];
