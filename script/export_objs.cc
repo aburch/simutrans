@@ -23,6 +23,7 @@ void register_export_function(HSQUIRRELVM vm, bool scenario)
 	export_control(vm);
 	export_convoy(vm);
 	export_factory(vm);
+	export_good(vm);
 	export_goods_desc(vm);
 	export_gui(vm, scenario);
 	export_halt(vm);

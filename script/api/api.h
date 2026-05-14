@@ -16,6 +16,7 @@ void export_city(HSQUIRRELVM vm);
 void export_control(HSQUIRRELVM vm);
 void export_convoy(HSQUIRRELVM vm);
 void export_factory(HSQUIRRELVM vm);
+void export_good(HSQUIRRELVM vm);
 void export_goods_desc(HSQUIRRELVM vm);
 void export_gui(HSQUIRRELVM vm, bool scenario);
 void export_halt(HSQUIRRELVM vm);
