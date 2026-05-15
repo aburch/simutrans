@@ -1913,6 +1913,13 @@ const char *tool_transformer_t::work( player_t *player, koord3d pos )
 		return "Only one transformer per factory!";
 	}
 
+	// check for existing transformer on the target surface tile (catches cross-player placement)
+	if(  gr->find<pumpe_t>()  ||  gr->find<senke_t>()  ) {
+		if(  const char *fail = gr->kann_alle_obj_entfernen(player)  ) {
+			return fail;
+		}
+	}
+
 	// underground: first build tunnel tile at coordinate pos
 	if(underground) {
 		if(gr->is_water()) {
