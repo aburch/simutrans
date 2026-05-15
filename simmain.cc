@@ -1164,11 +1164,11 @@ int simu_main(int argc, char** argv)
 	}
 #endif
 
-	// just check before loading objects
-	if(  args.has_arg("-sound")  &&  dr_init_sound()  ) {
+	// Always init sound unless -mute; muted by default if -sound not given
+	if(  !args.has_arg("-mute")  &&  dr_init_sound()  ) {
 		dbg->message("simu_main()","Reading compatibility sound data ...");
 		sound_desc_t::init();
-		sound_set_mute(false);
+		sound_set_mute( !args.has_arg("-sound") );
 	}
 	else {
 		sound_set_mute(true);
@@ -1436,12 +1436,12 @@ int simu_main(int argc, char** argv)
 	// now always writing in user dir (which points to the data dir in multiuser mode)
 	dr_chdir( env_t::user_dir );
 
-	bool is_before_midi = 1;
-	// init midi before loading sounds
-	if(  args.has_arg("-midi")  &&  dr_init_midi() ) {
+	// Always init and load midi unless -mute; muted by default if -midi not given
+	bool is_before_midi = true;
+	if(  !args.has_arg("-mute")  &&  dr_init_midi()  ) {
 		dbg->message("simu_main()","Reading midi data ...");
-		if(  midi_get_mute()  ){
-			is_before_midi = 0;
+		if(  midi_get_mute()  ) {
+			is_before_midi = false;
 		}
 		char pak_dir[PATH_MAX];
 		sprintf( pak_dir, "%s%s", env_t::data_dir, env_t::objfilename.c_str() );
@@ -1449,7 +1449,10 @@ int simu_main(int argc, char** argv)
 			midi_set_mute(true);
 			dbg->message("simu_main()","Midi disabled ...");
 		}
-		midi_set_mute(false);
+		else {
+			// loaded ok; unmute only if -midi was given, otherwise stay muted (user can enable in settings)
+			midi_set_mute( !args.has_arg("-midi") );
+		}
 #ifdef USE_FLUIDSYNTH_MIDI
 		// Audio is ok, but we failed to find a soundfont
 		if(  strcmp( env_t::soundfont_filename.c_str(), "Error" ) == 0  ) {
@@ -1462,11 +1465,6 @@ int simu_main(int argc, char** argv)
 		midi_set_mute(true);
 	}
 
-	if(  args.has_arg("-mute")  ) {
-		sound_set_mute(true);
-		midi_set_mute(true);
-	}
-
 	// restore previous sound settings ...
 	sound_set_mute(  env_t::global_mute_sound  ||  sound_get_mute() );
 	midi_set_mute(  env_t::mute_midi  ||  midi_get_mute() );
@@ -1474,19 +1472,18 @@ int simu_main(int argc, char** argv)
 	sound_set_global_volume( env_t::global_volume );
 	sound_set_midi_volume( env_t::midi_volume );
 	if(  !midi_get_mute()  &&  is_before_midi  ) {
-		// not muted => play random song
-		midi_play( env_t::shuffle_midi ? -1 : 0 );
+		// not muted => play first song (always song 0, regardless of shuffle_midi)
+		midi_play( 0 );
 		// reset volume after first play call else no/low sound or music with win32 and sdl
 		sound_set_midi_volume( env_t::midi_volume );
 	}
-	else if(  !midi_get_mute()  ){
-		// not muted => play random song
-		midi_play( env_t::shuffle_midi ? -1 : 0 );
+	else if(  !midi_get_mute()  ) {
+		// not muted => play first song (always song 0, regardless of shuffle_midi)
+		midi_play( 0 );
 		midi_set_mute(true);
 		midi_set_mute(false);
 		// reset volume after first play call else no/low sound or music with win32 and sdl
 		sound_set_midi_volume( env_t::midi_volume );
-
 	}
 
 	karte_t *welt = new karte_t();
