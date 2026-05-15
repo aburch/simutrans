@@ -3615,12 +3615,12 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd, const bool need_electric
 				}
 			}
 		}
-		if(  sch->has_signal()  ) {
+		if(  sch->has_signal() && prev != koord3d::invalid  ) {
 			const signal_t* sig = bd->find<signal_t>();
 			if(  sig  &&  sig->get_desc()->is_choose_sign()  &&  sig->get_desc()->get_wtyp()==get_waytype()  ) {
 				if(  coupling ? sig->is_guide_signal() : sig->is_choose_signal()  ) {
 					// signal only acts as choose-area boundary when facing our travel direction
-					const ribi_t::ribi approach = prev != koord3d::invalid ? ribi_type(prev, bd->get_pos()) : ribi_t::none;
+					const ribi_t::ribi approach = ribi_type(prev, bd->get_pos()); // we already check that prev is not invalid.
 					if(  approach == ribi_t::none  ||  !ribi_t::is_single(sig->get_dir()) || ((bd->get_weg(get_waytype())->get_ribi_unmasked() & ~sig->get_dir()) & ~ribi_t::backward(approach))  ) {
 						return false;
 					}
