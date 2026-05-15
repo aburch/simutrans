@@ -51,6 +51,28 @@ overtaking_mode_frame_t::overtaking_mode_frame_t(player_t *player_, tool_build_t
 	init(player_, tool_tu->get_overtaking_mode(), tool_tu->get_street_flag(), false);
 }
 
+overtaking_mode_frame_t::overtaking_mode_frame_t(player_t *player_, tool_change_way_settings_t* tool_) :
+	gui_frame_t( translator::translate("Road Configuration") )
+{
+	tool_class = 3;
+	tool_ws = tool_;
+	waytype = road_wt;
+	vehicle_offset_value = 0;
+	vehicle_offset_mode_value = false;
+	init(player_, tool_ws->get_overtaking_mode(), tool_ws->get_street_flag(), true);
+}
+
+overtaking_mode_frame_t::overtaking_mode_frame_t(player_t *player_, tool_change_way_offset_t* tool_) :
+	gui_frame_t( translator::translate("Way Offset Configuration") )
+{
+	tool_class = 4;
+	tool_wo = tool_;
+	waytype = invalid_wt; // no road-flag section for offset-only tool
+	vehicle_offset_value = tool_->get_vehicle_offset();
+	vehicle_offset_mode_value = tool_->get_vehicle_offset_mode();
+	init(player_, twoway_mode, 0, false);
+}
+
 void overtaking_mode_frame_t::init( player_t* player_, overtaking_mode_t overtaking_mode_, uint8 street_flag_, bool show_avoid_cityroad) {
 	player = player_;
 	overtaking_mode = overtaking_mode_;
@@ -75,7 +97,7 @@ void overtaking_mode_frame_t::init( player_t* player_, overtaking_mode_t overtak
 
 		add_component(&divider[0]);
 		
-		if(  tool_class==0  &&  show_avoid_cityroad  ) {
+		if(  (tool_class==0  ||  tool_class==3)  &&  show_avoid_cityroad  ) {
 			avoid_cityroad_button.init( button_t::square_state, "avoid becoming cityroad");
 			avoid_cityroad_button.add_listener(this);
 			avoid_cityroad_button.pressed = street_flag_&strasse_t::AVOID_CITYROAD;
@@ -122,6 +144,7 @@ void overtaking_mode_frame_t::init( player_t* player_, overtaking_mode_t overtak
 		}
 		end_table();
 	}
+	if(  tool_class != 3  ) {
 	add_table(3,1);
 	{
 		vehicle_offset_label.set_text("vehicle offset");
@@ -140,7 +163,8 @@ void overtaking_mode_frame_t::init( player_t* player_, overtaking_mode_t overtak
 		add_component(&vehicle_offset_mode);
 	}
 	end_table();
-	
+	} // if tool_class != 3
+
 	reset_min_windowsize();
 	set_windowsize(get_min_windowsize() );
 }
@@ -207,6 +231,9 @@ bool overtaking_mode_frame_t::action_triggered( gui_action_creator_t *komp, valu
 			case 2:
 			tool_tu->set_vehicle_offset(vehicle_offset.get_value());
 			break;
+			case 4:
+			tool_wo->set_vehicle_offset(vehicle_offset.get_value());
+			break;
 			default:
 			dbg->fatal("overtaking_mode_frame_t::action_triggered()", "Illegal tool_class");
 		}
@@ -222,6 +249,9 @@ bool overtaking_mode_frame_t::action_triggered( gui_action_creator_t *komp, valu
 			break;
 			case 2:
 			tool_tu->set_vehicle_offset_mode(vehicle_offset_mode.pressed);
+			break;
+			case 4:
+			tool_wo->set_vehicle_offset_mode(vehicle_offset_mode.pressed);
 			break;
 			default:
 			dbg->fatal("overtaking_mode_frame_t::action_triggered()", "Illegal tool_class");
@@ -262,6 +292,12 @@ bool overtaking_mode_frame_t::action_triggered( gui_action_creator_t *komp, valu
 		tool_tu->set_overtaking_mode(overtaking_mode);
 		tool_tu->set_street_flag(flag);
 		break;
+		case 3:
+		tool_ws->set_overtaking_mode(overtaking_mode);
+		tool_ws->set_street_flag(flag);
+		break;
+		case 4:
+		break; // offset tool has no road flags
 		default:
 		dbg->fatal("overtaking_mode_frame_t::action_triggered()", "Illegal tool_class");
 	}

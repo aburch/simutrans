@@ -121,6 +121,8 @@ const char *tool_t::id_to_string(uint16 id)
 		CASE_TO_STRING(TOOL_CHANGE_CITY_OF_BUILDING);
 		CASE_TO_STRING(TOOL_PIPETTE);
 		CASE_TO_STRING(TOOL_RECREATE_HALT_NAME);
+		CASE_TO_STRING(TOOL_CHANGE_WAY_SETTINGS);
+		CASE_TO_STRING(TOOL_CHANGE_WAY_OFFSET);
 		}
 	}
 	else if (id & SIMPLE_TOOL) {
@@ -285,6 +287,8 @@ tool_t *create_general_tool(int toolnr)
 		case TOOL_CHANGE_CITY_OF_BUILDING: 	   tool = new tool_change_city_of_building_t(); break;
 		case TOOL_PIPETTE:                     tool = new tool_pipette_t();             break;
 		case TOOL_RECREATE_HALT_NAME:          tool = new tool_recreate_halt_name_t();  break;
+		case TOOL_CHANGE_WAY_SETTINGS:         tool = new tool_change_way_settings_t(); break;
+		case TOOL_CHANGE_WAY_OFFSET:           tool = new tool_change_way_offset_t();  break;
 		default:
 			dbg->error("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
 			return NULL;
