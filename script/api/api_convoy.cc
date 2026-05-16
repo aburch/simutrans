@@ -15,6 +15,7 @@
 #include "../../simhalt.h"
 #include "../../simline.h"
 #include "../../simworld.h"
+#include "../../simware.h"
 #include "../../vehicle/simvehicle.h"
 #include "../../dataobj/schedule.h"
 
@@ -176,6 +177,26 @@ call_tool_init convoy_change_schedule(convoi_t *cnv, player_t *player, schedule_
 bool convoy_is_schedule_editor_open(convoi_t *cnv)
 {
 	return cnv->get_state() == convoi_t::EDIT_SCHEDULE;
+}
+
+
+SQInteger convoy_get_cargo(HSQUIRRELVM vm)
+{
+	convoi_t* cnv = param<convoi_t*>::get(vm, 1);
+	sq_newarray(vm, 0);
+	if (!cnv) {
+		return 1;
+	}
+	for (uint16 i = 0; i < cnv->get_vehicle_count(); i++) {
+		sq_newarray(vm, 0);
+		const slist_tpl<ware_t>& cargo = cnv->get_vehikel(i)->get_cargo();
+		for (const ware_t& ware : cargo) {
+			param<ware_t>::push(vm, ware);
+			sq_arrayappend(vm, -2);
+		}
+		sq_arrayappend(vm, -2);
+	}
+	return 1;
 }
 
 bool convoy_is_loading(convoi_t *cnv)
@@ -383,6 +404,13 @@ void export_convoy(HSQUIRRELVM vm)
 	 * @returns returns the number of station tiles covered by the convoy.
 	 */
 	register_method(vm, &convoi_t::get_tile_length, "get_tile_length");
+	/**
+	 * Returns cargo loaded in each vehicle of this convoy.
+	 * @returns array of arrays: outer array indexed by vehicle position,
+	 *          inner array contains good_x instances for each goods packet.
+	 * @typemask array(array(good_x))()
+	 */
+	register_function(vm, convoy_get_cargo, "get_cargo", 1, "x");
 
 #define STATIC
 	/**

@@ -14,6 +14,7 @@ include("tests/test_climate")
 include("tests/test_depot")
 include("tests/test_dir")
 include("tests/test_factory")
+include("tests/test_convoy_cargo")
 include("tests/test_good")
 include("tests/test_groundobj")
 include("tests/test_halt")
@@ -93,6 +94,8 @@ all_tests <- [
 	test_factory_build_with_fields,
 	test_factory_build_climate,
 	test_factory_link,
+	test_convoy_cargo_empty,
+	test_convoy_cargo_loaded,
 	test_good_is_interchangeable,
 	test_good_speed_bonus,
 	test_groundobj_build_invalid_param,

@@ -542,6 +542,7 @@ SOURCES += script/api/api_const.cc
 SOURCES += script/api/api_control.cc
 SOURCES += script/api/api_convoy.cc
 SOURCES += script/api/api_factory.cc
+SOURCES += script/api/api_good.cc
 SOURCES += script/api/api_gui.cc
 SOURCES += script/api/api_halt.cc
 SOURCES += script/api/api_include.cc
