@@ -207,33 +207,33 @@ public:
 	};
 
 private:
-	site_t placement;
-	uint16 productivity;
-	uint16 range;
-	uint16 distribution_weight; // probability of construction of this factory
-	uint8 color;
-	uint16 supplier_count;
-	uint16 product_count;
-	uint8 fields; // only if there are any ...
-	uint16 pax_level;
-	bool electricity_producer;
-	uint16 expand_probability;
-	uint16 expand_minimum;
-	uint16 expand_range;
-	uint16 expand_times;
-	uint16 electric_boost;
-	uint16 pax_boost;
-	uint16 mail_boost;
-	uint16 electric_demand;
-	uint16 pax_demand;
-	uint16 mail_demand;
-	uint16 smokeuplift;
-	uint16 smokelifetime;
+	site_t placement            = site_t::Land;
+	uint16 productivity         = 0;
+	uint16 range                = 0;
+	uint16 distribution_weight  = 0;    // probability of construction of this factory
+	uint8  color                = 0;
+	uint8  electricity_producer = 0xFF; // 0=no,1=yes, 0xFF=unknown
+	uint8  fields               = 0;    // only if there are any ...
+	uint16 supplier_count       = 0;
+	uint16 product_count        = 0;
+	uint16 pax_level            = 12;
+	uint16 expand_probability   = 0;
+	uint16 expand_minimum       = 0;
+	uint16 expand_range         = 0;
+	uint16 expand_times         = 0;
+	uint16 electric_boost       = 256;
+	uint16 pax_boost            = 0;
+	uint16 mail_boost           = 0;
+	uint16 electric_demand      = 65535;
+	uint16 pax_demand           = 65535;
+	uint16 mail_demand          = 65535;
+	uint16 smokeuplift          = 0;
+	uint16 smokelifetime        = 0;
 	koord  smoketile[4];
 	koord  smokeoffset[4];
-	uint8  smokerotations;
-	sint8  sound_id;
-	uint32 sound_interval;
+	uint8  smokerotations       = 0;
+	sint8  sound_id             = 0;
+	uint32 sound_interval       = 0;
 
 public:
 	const char *get_name() const { return get_building()->get_name(); }

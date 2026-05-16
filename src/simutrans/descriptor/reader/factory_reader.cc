@@ -287,34 +287,70 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	desc->smokerotations = 0;
 
 	typedef factory_desc_t::site_t site_t;
-	if(version == 5) {
-		// Versioned node, version 5 with smoke offsets
-		desc->placement = (site_t)decode_uint16(p);
-		desc->productivity = decode_uint16(p);
-		desc->range = decode_uint16(p);
-		desc->distribution_weight = decode_uint16(p);
-		desc->color = decode_uint8(p);
-		desc->fields = decode_uint8(p);
-		desc->supplier_count = decode_uint16(p);
-		desc->product_count = decode_uint16(p);
-		desc->pax_level = decode_uint16(p);
-		desc->expand_probability = rescale_probability( decode_uint16(p) );
-		desc->expand_minimum = decode_uint16(p);
-		desc->expand_range = decode_uint16(p);
-		desc->expand_times = decode_uint16(p);
-		desc->electric_boost = decode_uint16(p);
-		desc->pax_boost = decode_uint16(p);
-		desc->mail_boost = decode_uint16(p);
-		desc->electric_demand = decode_uint16(p);
-		desc->pax_demand = decode_uint16(p);
-		desc->mail_demand = decode_uint16(p);
-		desc->sound_interval = decode_uint32(p);
-		desc->sound_id = decode_sint8(p);
+
+	if(version == 6) {
+		// Versioned node, version 6 with explicit electricity producer information
+		desc->placement            = (site_t)decode_uint16(p);
+		desc->productivity         = decode_uint16(p);
+		desc->range                = decode_uint16(p);
+		desc->distribution_weight  = decode_uint16(p);
+		desc->color                = decode_uint8(p);
+		desc->fields               = decode_uint8(p);
+		desc->supplier_count       = decode_uint16(p);
+		desc->product_count        = decode_uint16(p);
+		desc->pax_level            = decode_uint16(p);
+		desc->expand_probability   = rescale_probability( decode_uint16(p) );
+		desc->expand_minimum       = decode_uint16(p);
+		desc->expand_range         = decode_uint16(p);
+		desc->expand_times         = decode_uint16(p);
+		desc->electric_boost       = decode_uint16(p);
+		desc->pax_boost            = decode_uint16(p);
+		desc->mail_boost           = decode_uint16(p);
+		desc->electric_demand      = decode_uint16(p);
+		desc->pax_demand           = decode_uint16(p);
+		desc->mail_demand          = decode_uint16(p);
+		desc->electricity_producer = decode_uint8(p);
+		desc->sound_interval       = decode_uint32(p);
+		desc->sound_id             = decode_sint8(p);
 
 		desc->smokerotations = decode_sint8(p);
 		for( int i = 0; i < 4; i++ ) {
-			desc->smoketile[i].x = decode_sint16(p);
-			desc->smoketile[i].y = decode_sint16(p);
+			desc->smoketile  [i].x = decode_sint16(p);
+			desc->smoketile  [i].y = decode_sint16(p);
+			desc->smokeoffset[i].x = decode_sint16(p);
+			desc->smokeoffset[i].y = decode_sint16(p);
+		}
+		desc->smokeuplift = decode_uint16(p);
+		desc->smokelifetime = decode_uint16(p);
+	}
+	else if(version == 5) {
+		// Versioned node, version 5 with smoke offsets
+		desc->placement           = (site_t)decode_uint16(p);
+		desc->productivity        = decode_uint16(p);
+		desc->range               = decode_uint16(p);
+		desc->distribution_weight = decode_uint16(p);
+		desc->color               = decode_uint8(p);
+		desc->fields              = decode_uint8(p);
+		desc->supplier_count      = decode_uint16(p);
+		desc->product_count       = decode_uint16(p);
+		desc->pax_level           = decode_uint16(p);
+		desc->expand_probability  = rescale_probability( decode_uint16(p) );
+		desc->expand_minimum      = decode_uint16(p);
+		desc->expand_range        = decode_uint16(p);
+		desc->expand_times        = decode_uint16(p);
+		desc->electric_boost      = decode_uint16(p);
+		desc->pax_boost           = decode_uint16(p);
+		desc->mail_boost          = decode_uint16(p);
+		desc->electric_demand     = decode_uint16(p);
+		desc->pax_demand          = decode_uint16(p);
+		desc->mail_demand         = decode_uint16(p);
+		desc->sound_interval      = decode_uint32(p);
+		desc->sound_id            = decode_sint8(p);
+
+		desc->smokerotations = decode_sint8(p);
+		for( int i = 0; i < 4; i++ ) {
+			desc->smoketile  [i].x = decode_sint16(p);
+			desc->smoketile  [i].y = decode_sint16(p);
 			desc->smokeoffset[i].x = decode_sint16(p);
 			desc->smokeoffset[i].y = decode_sint16(p);
 		}
@@ -323,119 +359,120 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 	else if(version == 4) {
 		// Versioned node, version 4 with sound and animation
-		desc->placement = (site_t)decode_uint16(p);
-		desc->productivity = decode_uint16(p);
-		desc->range = decode_uint16(p);
+		desc->placement           = (site_t)decode_uint16(p);
+		desc->productivity        = decode_uint16(p);
+		desc->range               = decode_uint16(p);
 		desc->distribution_weight = decode_uint16(p);
-		desc->color = decode_uint8(p);
-		desc->fields = decode_uint8(p);
-		desc->supplier_count = decode_uint16(p);
-		desc->product_count = decode_uint16(p);
-		desc->pax_level = decode_uint16(p);
-		desc->expand_probability = rescale_probability( decode_uint16(p) );
-		desc->expand_minimum = decode_uint16(p);
-		desc->expand_range = decode_uint16(p);
-		desc->expand_times = decode_uint16(p);
-		desc->electric_boost = decode_uint16(p);
-		desc->pax_boost = decode_uint16(p);
-		desc->mail_boost = decode_uint16(p);
-		desc->electric_demand = decode_uint16(p);
-		desc->pax_demand = decode_uint16(p);
-		desc->mail_demand = decode_uint16(p);
-		desc->sound_interval = decode_uint32(p);
-		desc->sound_id = decode_sint8(p);
+		desc->color               = decode_uint8(p);
+		desc->fields              = decode_uint8(p);
+		desc->supplier_count      = decode_uint16(p);
+		desc->product_count       = decode_uint16(p);
+		desc->pax_level           = decode_uint16(p);
+		desc->expand_probability  = rescale_probability( decode_uint16(p) );
+		desc->expand_minimum      = decode_uint16(p);
+		desc->expand_range        = decode_uint16(p);
+		desc->expand_times        = decode_uint16(p);
+		desc->electric_boost      = decode_uint16(p);
+		desc->pax_boost           = decode_uint16(p);
+		desc->mail_boost          = decode_uint16(p);
+		desc->electric_demand     = decode_uint16(p);
+		desc->pax_demand          = decode_uint16(p);
+		desc->mail_demand         = decode_uint16(p);
+		desc->sound_interval      = decode_uint32(p);
+		desc->sound_id            = decode_sint8(p);
 	}
 	else if(version == 3) {
 		// Versioned node, version 3
-		desc->placement = (site_t)decode_uint16(p);
-		desc->productivity = decode_uint16(p);
-		desc->range = decode_uint16(p);
+		desc->placement           = (site_t)decode_uint16(p);
+		desc->productivity        = decode_uint16(p);
+		desc->range               = decode_uint16(p);
 		desc->distribution_weight = decode_uint16(p);
-		desc->color = decode_uint8(p);
-		desc->fields = decode_uint8(p);
-		desc->supplier_count = decode_uint16(p);
-		desc->product_count = decode_uint16(p);
-		desc->pax_level = decode_uint16(p);
-		desc->expand_probability = rescale_probability( decode_uint16(p) );
-		desc->expand_minimum = decode_uint16(p);
-		desc->expand_range = decode_uint16(p);
-		desc->expand_times = decode_uint16(p);
-		desc->electric_boost = decode_uint16(p);
-		desc->pax_boost = decode_uint16(p);
-		desc->mail_boost = decode_uint16(p);
-		desc->electric_demand = decode_uint16(p);
-		desc->pax_demand = decode_uint16(p);
-		desc->mail_demand = decode_uint16(p);
+		desc->color               = decode_uint8(p);
+		desc->fields              = decode_uint8(p);
+		desc->supplier_count      = decode_uint16(p);
+		desc->product_count       = decode_uint16(p);
+		desc->pax_level           = decode_uint16(p);
+		desc->expand_probability  = rescale_probability( decode_uint16(p) );
+		desc->expand_minimum      = decode_uint16(p);
+		desc->expand_range        = decode_uint16(p);
+		desc->expand_times        = decode_uint16(p);
+		desc->electric_boost      = decode_uint16(p);
+		desc->pax_boost           = decode_uint16(p);
+		desc->mail_boost          = decode_uint16(p);
+		desc->electric_demand     = decode_uint16(p);
+		desc->pax_demand          = decode_uint16(p);
+		desc->mail_demand         = decode_uint16(p);
 	}
 	else if(version == 2) {
 		// Versioned node, version 2
-		desc->placement = (site_t)decode_uint16(p);
-		desc->productivity = decode_uint16(p);
-		desc->range = decode_uint16(p);
+		desc->placement           = (site_t)decode_uint16(p);
+		desc->productivity        = decode_uint16(p);
+		desc->range               = decode_uint16(p);
 		desc->distribution_weight = decode_uint16(p);
-		desc->color = decode_uint8(p);
-		desc->fields = decode_uint8(p);
-		desc->supplier_count = decode_uint16(p);
-		desc->product_count = decode_uint16(p);
-		desc->pax_level = decode_uint16(p);
-		desc->expand_probability = 0;
-		desc->expand_minimum = 0;
-		desc->expand_range = 0;
-		desc->expand_times = 0;
-		desc->electric_boost = 256;
-		desc->pax_boost = 0;
-		desc->mail_boost = 0;
-		desc->electric_demand = 65535;
-		desc->pax_demand = 65535;
-		desc->mail_demand = 65535;
+		desc->color               = decode_uint8(p);
+		desc->fields              = decode_uint8(p);
+		desc->supplier_count      = decode_uint16(p);
+		desc->product_count       = decode_uint16(p);
+		desc->pax_level           = decode_uint16(p);
+		desc->expand_probability  = 0;
+		desc->expand_minimum      = 0;
+		desc->expand_range        = 0;
+		desc->expand_times        = 0;
+		desc->electric_boost      = 256;
+		desc->pax_boost           = 0;
+		desc->mail_boost          = 0;
+		desc->electric_demand     = 65535;
+		desc->pax_demand          = 65535;
+		desc->mail_demand         = 65535;
 	}
 	else if(version == 1) {
 		// Versioned node, version 1
-		desc->placement = (site_t)decode_uint16(p);
-		desc->productivity = decode_uint16(p);
-		desc->range = decode_uint16(p);
+		desc->placement           = (site_t)decode_uint16(p);
+		desc->productivity        = decode_uint16(p);
+		desc->range               = decode_uint16(p);
 		desc->distribution_weight = decode_uint16(p);
-		desc->color = (uint8)decode_uint16(p);
-		desc->supplier_count = decode_uint16(p);
-		desc->product_count = decode_uint16(p);
-		desc->pax_level = decode_uint16(p);
-		desc->fields = 0;
-		desc->expand_probability = 0;
-		desc->expand_minimum = 0;
-		desc->expand_range = 0;
-		desc->expand_times = 0;
-		desc->electric_boost = 256;
-		desc->pax_boost = 0;
-		desc->mail_boost = 0;
-		desc->electric_demand = 65535;
-		desc->pax_demand = 65535;
-		desc->mail_demand = 65535;
+		desc->color               = (uint8)decode_uint16(p);
+		desc->supplier_count      = decode_uint16(p);
+		desc->product_count       = decode_uint16(p);
+		desc->pax_level           = decode_uint16(p);
+		desc->fields              = 0;
+		desc->expand_probability  = 0;
+		desc->expand_minimum      = 0;
+		desc->expand_range        = 0;
+		desc->expand_times        = 0;
+		desc->electric_boost      = 256;
+		desc->pax_boost           = 0;
+		desc->mail_boost          = 0;
+		desc->electric_demand     = 65535;
+		desc->pax_demand          = 65535;
+		desc->mail_demand         = 65535;
 	}
 	else {
 		if( version ) {
 			dbg->fatal( "factory_reader_t::read_node()", "Cannot handle too new node version %i", version );
 		}
+
 		// old node, version 0, without pax_level
-		desc->placement = (site_t)v;
+		desc->placement           = (site_t)v;
 		decode_uint16(p); // alsways zero
-		desc->productivity = decode_uint16(p)|0x8000;
-		desc->range = decode_uint16(p);
+		desc->productivity        = decode_uint16(p)|0x8000;
+		desc->range               = decode_uint16(p);
 		desc->distribution_weight = decode_uint16(p);
-		desc->color = (uint8)decode_uint16(p);
-		desc->supplier_count = decode_uint16(p);
-		desc->product_count = decode_uint16(p);
-		desc->pax_level = 12;
-		desc->fields = 0;
-		desc->expand_probability = 0;
-		desc->expand_minimum = 0;
-		desc->expand_range = 0;
-		desc->expand_times = 0;
-		desc->electric_boost = 256;
-		desc->pax_boost = 0;
-		desc->mail_boost = 0;
-		desc->electric_demand = 65535;
-		desc->pax_demand = 65535;
-		desc->mail_demand = 65535;
+		desc->color               = (uint8)decode_uint16(p);
+		desc->supplier_count      = decode_uint16(p);
+		desc->product_count       = decode_uint16(p);
+		desc->pax_level           = 12;
+		desc->fields              = 0;
+		desc->expand_probability  = 0;
+		desc->expand_minimum      = 0;
+		desc->expand_range        = 0;
+		desc->expand_times        = 0;
+		desc->electric_boost      = 256;
+		desc->pax_boost           = 0;
+		desc->mail_boost          = 0;
+		desc->electric_demand     = 65535;
+		desc->pax_demand          = 65535;
+		desc->mail_demand         = 65535;
 	}
 
 	if(desc->sound_id==LOAD_SOUND) {
@@ -460,9 +497,18 @@ PAKSET_INFO("factory_reader_t::register_obj()","old sound %i to %i",old_id,desc-
 
 void factory_reader_t::register_obj(obj_desc_t *&data)
 {
-	factory_desc_t* desc = static_cast<factory_desc_t*>(data);
-	size_t fab_name_len = strlen( desc->get_name() );
-	desc->electricity_producer = (fab_name_len>=10   &&  strcmp(desc->get_name()+fab_name_len-9, "kraftwerk")==0)  ||  (fab_name_len>=12  &&  strcmp(desc->get_name()+fab_name_len-11, "Power Plant")==0);
+	factory_desc_t *desc = static_cast<factory_desc_t*>(data);
+
+	if (desc->electricity_producer == 0xFF) {
+		// Not explicitly specified whether this is an electricity producer -
+		// fall back to old behaviour of inferring this from the object name
+		const size_t fab_name_len = strlen( desc->get_name() );
+
+		desc->electricity_producer =
+			(fab_name_len>=10  &&  strcmp(desc->get_name()+fab_name_len- 9, "kraftwerk"  )==0)  ||
+			(fab_name_len>=12  &&  strcmp(desc->get_name()+fab_name_len-11, "Power Plant")==0);
+	}
+
 	desc->correct_smoke();
 	factory_builder_t::register_desc(desc);
 }

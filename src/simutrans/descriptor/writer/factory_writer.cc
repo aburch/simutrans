@@ -179,21 +179,23 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		expand_probability = 10000;
 	}
 
-	uint16 const expand_minimum     = obj.get_int("expand_minimum",     0);
-	uint16 const expand_range       = obj.get_int("expand_range",       0);
-	uint16 const expand_times       = obj.get_int("expand_times",       0);
+	uint16 const expand_minimum      = obj.get_int("expand_minimum",     0);
+	uint16 const expand_range        = obj.get_int("expand_range",       0);
+	uint16 const expand_times        = obj.get_int("expand_times",       0);
 
-	uint16 const electric_boost  = (obj.get_int("electricity_boost",   1000) * 256 + 500) / 1000;
-	uint16 const pax_boost       = (obj.get_int("passenger_boost",        0) * 256 + 500) / 1000;
-	uint16 const mail_boost      = (obj.get_int("mail_boost",             0) * 256 + 500) / 1000;
-	uint16 electric_demand       =  obj.get_int("electricity_amount", 65535);
-	electric_demand              =  obj.get_int("electricity_demand", electric_demand);
-	uint16 const pax_demand      =  obj.get_int("passenger_demand",   65535);
-	uint16 const mail_demand     =  obj.get_int("mail_demand",        65535);
+	uint8  const electricity_producer =  obj.get_int("electricity_producer", 0xFF);
+
+	uint16 const electric_boost       = (obj.get_int("electricity_boost",   1000) * 256 + 500) / 1000;
+	uint16 const pax_boost            = (obj.get_int("passenger_boost",        0) * 256 + 500) / 1000;
+	uint16 const mail_boost           = (obj.get_int("mail_boost",             0) * 256 + 500) / 1000;
+	uint16 electric_demand            =  obj.get_int("electricity_amount",   65535);
+	electric_demand                   =  obj.get_int("electricity_demand",   electric_demand);
+	uint16 const pax_demand           =  obj.get_int("passenger_demand",     65535);
+	uint16 const mail_demand          =  obj.get_int("mail_demand",          65535);
 	// how long between sounds
 	uint32 const sound_interval   =  obj.get_int("sound_interval",     0xFFFFFFFFul );
 
-	uint16 total_len = 80;
+	uint16 total_len = 81;
 
 	// must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
@@ -309,7 +311,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	}
 
 	// new version with pax_level, and smoke offsets part of factory
-	node.write_version(fp, 5);
+	node.write_version(fp, 6);
 
 	node.write_uint16(fp, placement);
 	node.write_uint16(fp, productivity);
@@ -330,6 +332,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint16(fp, electric_demand);
 	node.write_uint16(fp, pax_demand);
 	node.write_uint16(fp, mail_demand);
+	node.write_uint8 (fp, electricity_producer);
 	node.write_uint32(fp, sound_interval);
 	node.write_uint8 (fp, sound_id);
 
