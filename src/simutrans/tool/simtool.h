@@ -297,13 +297,18 @@ private:
 
 protected:
 	const way_desc_t *desc;
+	bool   automatic_tunnel_and_bridges;
+	uint32 max_length;
 
 	virtual way_desc_t const* get_desc() const;
 	const char *calc_route( way_builder_t &bauigel, const koord3d &, const koord3d & );
 	void start_at( koord3d &new_start ) OVERRIDE;
 
 public:
-	tool_build_way_t(uint16 const id = TOOL_BUILD_WAY | GENERAL_TOOL) : two_click_tool_t(id), desc() {}
+	tool_build_way_t(uint16 const id = TOOL_BUILD_WAY | GENERAL_TOOL) : two_click_tool_t(id), desc() {
+		automatic_tunnel_and_bridges = false;
+		max_length = 0x7FFFFFFFul;
+	}
 	image_id get_icon(player_t*) const OVERRIDE;
 	static const way_desc_t* get_default_desc(waytype_t wt);
 	char const* get_tooltip(player_t const*) const OVERRIDE;

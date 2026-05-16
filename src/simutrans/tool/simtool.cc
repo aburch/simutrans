@@ -2565,7 +2565,17 @@ const way_desc_t *tool_build_way_t::defaults[17] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 
 const way_desc_t *tool_build_way_t::get_desc() const
 {
-	const way_desc_t *desc = default_param ? way_builder_t::get_desc(default_param,0) : NULL;
+	const way_desc_t* desc;
+	const char* n;
+	if (default_param && (n = strchr(default_param, ','))) {
+		char name[256];
+		long len = (long)(n-default_param);
+		tstrncpy( name, default_param, min(255,len));
+		desc = way_builder_t::get_desc(default_param, 0);
+	}
+	else {
+		desc = default_param ? way_builder_t::get_desc(default_param, 0) : NULL;
+	}
 	if(  desc==NULL  &&  default_param  ) {
 		waytype_t wt = (waytype_t)atoi(default_param); // powerline is mapped to 0!
 		if (wt > ignore_wt) {
@@ -2668,6 +2678,15 @@ bool tool_build_way_t::init( player_t *player )
 	if(  desc  &&  desc->get_cursor()->get_image_id(0) != IMG_EMPTY  ) {
 		cursor = desc->get_cursor()->get_image_id(0);
 	}
+
+	const char* n;
+	if (default_param && (n = strchr(default_param, ','))!=NULL) {
+		automatic_tunnel_and_bridges = n[1] == '1';
+		if (n[2] == ',') {
+			max_length = atol(n + 3);
+		}
+	}
+
 	if(  desc  &&  !desc->is_available(welt->get_timeline_year_month())  &&  player!=NULL  &&  player!=welt->get_public_player()  ) {
 		// non available way => fail if not public player
 		return false;
@@ -2764,8 +2783,16 @@ const char *tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d 
 	if(desc->get_styp()==type_elevated  &&  desc->get_wtyp()!=air_wt) {
 		bautyp |= way_builder_t::elevated_flag;
 	}
+	const tunnel_desc_t* tunnel = NULL;
+	const bridge_desc_t* br = NULL;
+	if (automatic_tunnel_and_bridges) {
+		// automatich selecting tunnel and bridges
+		bautyp |= way_builder_t::terraform_flag;
+		br = bridge_builder_t::find_bridge(desc->get_wtyp(), desc->get_topspeed(), welt->get_timeline_year_month());
+		tunnel = tunnel_builder_t::get_tunnel_desc(desc->get_wtyp(), desc->get_topspeed(), welt->get_timeline_year_month());
+	}
 
-	bauigel.init_builder(bautyp, desc);
+	bauigel.init_builder(bautyp, desc, tunnel, br);
 	if(  is_ctrl_pressed()  &&  !is_shift_pressed()) {
 		bauigel.set_keep_existing_ways( false );
 	}
@@ -2776,6 +2803,7 @@ const char *tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d 
 	if (is_shift_pressed()  &&  desc->get_styp() == type_flat  &&  desc->get_wtyp() == road_wt) {
 		bauigel.set_keep_city_roads(true);
 	}
+
 
 	koord3d my_end = end;
 	// ending point is applied that elevated ways with SHIFT selects the current layer, when already on an elevated way

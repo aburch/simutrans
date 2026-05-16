@@ -746,6 +746,7 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 		}
 	}
 
+	warn_fail = "";
 	bool fundament = to->get_typ()==grund_t::fundament;
 
 	// now check way specific stuff
@@ -897,9 +898,13 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 			// calculate costs
 			if(ok) {
 				*costs = s.way_count_straight;
-				if(  !to->get_leitung()  ) {
-					// extra malus for not following an existing line or going on ways
-					*costs += s.way_count_leaving_way + (to->hat_wege() ? s.way_count_avoid_crossings : 0); // prefer existing powerlines
+				// extra malus for not following an existing line
+				if(  from->get_leitung()  &&  !to->get_leitung()  ) {
+					*costs += s.way_count_leaving_way;
+				}
+				// avoid crossings
+				if (to->hat_wege()) {
+					*costs += s.way_count_avoid_crossings;
 				}
 			}
 		break;
@@ -1461,9 +1466,15 @@ sint32 way_builder_t::intern_calc_route(const vector_tpl<koord3d> &start, const 
 DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,gr->get_pos().z,tmp->f);
 #endif
 
-		// already there
-		if(  ziel.is_contained(gr_pos)  ||  tmp->g>maximum) {
+		// already there?
+		if (ziel.is_contained(gr_pos)) {
 			// we added a target to the closed list: we are finished
+			warn_fail = "";
+			break;
+		}
+		// route costs too high => abort
+		if (tmp->g > maximum) {
+			warn_fail = "Route cost exceeded max_route_steps";
 			break;
 		}
 
