@@ -166,8 +166,9 @@ void export_pathfinding(HSQUIRRELVM vm)
 	 */
 	register_method(vm, simple_heap_insert, "insert", true);
 	/**
+	 * Pops the top node of the heap.
 	 * Raises error if heap is empty.
-	 * @returns top node of the heap
+	 * @returns top node
 	 */
 	register_function(vm, simple_heap_pop, "pop", 1, "x");
 #ifdef SQAPI_DOC
