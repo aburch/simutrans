@@ -1285,7 +1285,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 
 	groundwater       = contents.get_int_clamped("groundwater", groundwater, -128, 127);
 	tree_distribution = contents.get_int_clamped( "tree_distribution", tree_distribution, TREE_DIST_NONE, TREE_DIST_COUNT-1 );
-	lake_height       = (contents.get_int("no_lakes", 1 )==0 ? -128 : lake_height;
+	lake_height       = contents.get_int("no_lakes", 1 )==0 ? -128 : lake_height;
 	lake_height       = contents.get_int_clamped("lake_height", lake_height, groundwater, 127 );
 
 	// these are pak specific; the diagonal length affect travelling time (is game critical)
