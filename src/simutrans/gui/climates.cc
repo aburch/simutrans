@@ -189,7 +189,7 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 	}
 	else if(comp==&water_level) {
 		sets->groundwater = (sint16)v.i;
-
+		lake.set_limits(v.i, 127);
 		if(  welt_gui  ) {
 			welt_gui->update_preview();
 		}

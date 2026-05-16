@@ -682,12 +682,12 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short(tree_distribution);
 		}
 		else if(  file->is_version_atleast(120, 2) ) {
-			bool this_lake = lake_height > 0;
+			bool this_lake = lake_height > groundwater;
 			file->rdwr_bool(this_lake);
 			bool no_trees = (tree_distribution==TREE_DIST_NONE);
 			file->rdwr_bool( no_trees );
 			if( file->is_loading() ) {
-				lake_height = this_lake ? 8 : 0;
+				lake_height = this_lake ? 8 : groundwater;
 				tree_distribution = no_trees ? TREE_DIST_NONE : TREE_DIST_RANDOM;
 			}
 		}
@@ -1283,9 +1283,10 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 		tree_distribution = no_trees ? TREE_DIST_NONE : TREE_DIST_RANDOM;
 	}
 
+	groundwater       = contents.get_int_clamped("groundwater", groundwater, -128, 127);
 	tree_distribution = contents.get_int_clamped( "tree_distribution", tree_distribution, TREE_DIST_NONE, TREE_DIST_COUNT-1 );
-	lake_height       = (contents.get_int("no_lakes", (lake_height == 0) )) ? 0 : 8;
-	lake_height       = contents.get_int_clamped("lake_height", lake_height, 0, INT_MAX );
+	lake_height       = (contents.get_int("no_lakes", 1 )==0 ? -128 : lake_height;
+	lake_height       = contents.get_int_clamped("lake_height", lake_height, groundwater, 127 );
 
 	// these are pak specific; the diagonal length affect travelling time (is game critical)
 	pak_diagonal_multiplier = contents.get_int_clamped("diagonal_multiplier", pak_diagonal_multiplier, 1, INT_MAX );

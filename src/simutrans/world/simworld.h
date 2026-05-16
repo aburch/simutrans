@@ -507,7 +507,7 @@ private:
 
 	/**
 	 * Will create lakes.
-	 * @param height Height relative to ground water below which lakes will be created.
+	 * @param height absolute height below which lakes will be created.
 	 */
 	void create_lakes( int xoff, int yoff, sint8 height );
 

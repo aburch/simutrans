@@ -8,7 +8,8 @@
 	FIX: (janry) Crash when server replies with invalid or corrupted Content-Length header field
 	FIX: shift the special keycode to private unicode range to allow for latin2 characters
 	FIX: Wrong generation of lakes during map generation when groundwater level is not 0
-	FIX: powerlines did not correctly calculated routing costs
+	FIX: powerlines did not correctly calculated routing costs max_route_steps after 40-50 tiles
+	FIX: settign of lake height via simuconf.tab broeken, also no way to set default ground water height, lake_height again absolute value
 
 
 Release of 124.4.1 (r11930 on 18-Apr-2026):
