@@ -4931,12 +4931,14 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 				file->rdwr_longlong(finance_history_month[month][cost_type]);
 			}
 		}
-		// WORLD_HALTS added in OTRP v55
-		for(int year = 0; year < /*MAX_WORLD_HISTORY_YEARS*/12; year++) {
-			file->rdwr_longlong(finance_history_year[year][WORLD_HALTS]);
-		}
-		for(int month = 0; month < /*MAX_WORLD_HISTORY_MONTHS*/12; month++) {
-			file->rdwr_longlong(finance_history_month[month][WORLD_HALTS]);
+		// WORLD_HALTS added in OTRP v56
+		if(  file->get_OTRP_version()>55  ) {
+			for(int year = 0; year < /*MAX_WORLD_HISTORY_YEARS*/12; year++) {
+				file->rdwr_longlong(finance_history_year[year][WORLD_HALTS]);
+			}
+			for(int month = 0; month < /*MAX_WORLD_HISTORY_MONTHS*/12; month++) {
+				file->rdwr_longlong(finance_history_month[month][WORLD_HALTS]);
+			}
 		}
 	}
 
