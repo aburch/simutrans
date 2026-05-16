@@ -785,21 +785,13 @@ void export_map_objects(HSQUIRRELVM vm)
 	register_method(vm, &roadsign_get_state, "get_state", true);
 
 	/**
-	 * Get "stop before check" flag of a signal.
-	 * Applicable to simple signals, longblock signals and choose signals.
-	 * When true, the signal forces the convoy to stop completely before the
-	 * block-clearance check is performed (signal_clear is held false and
-	 * restart_speed is set to -1 until the convoy is waiting).
-	 * @returns true if the flag is set
+	 * @returns true if this signal forces the convoy to stop completely before
+	 *          block-clearance check (applicable to simple signals, longblock signals and choose signals)
 	 */
 	register_method(vm, &roadsign_t::is_stop_before_check, "is_stop_before_check");
 	/**
-	 * Get "start signal" flag of a signal.
-	 * When true, a convoy in CAN_START or CAN_START_ONE_MONTH state will check
-	 * whether the next signal ahead is clear before departing.  If that signal
-	 * is RED the convoy stays at its current position (does not advance to the
-	 * signal tile).
-	 * @returns true if the flag is set
+	 * @returns true if this signal makes convoys in CAN_START state check whether
+	 *          the next signal ahead is clear before departing
 	 */
 	register_method(vm, &roadsign_t::is_start_signal, "is_start_signal");
 	end_class(vm);
@@ -824,7 +816,7 @@ void export_map_objects(HSQUIRRELVM vm)
 	begin_obj_class<pumpe_t>(vm, "transformer_x", "powerline_x");
 
 	/**
-	 * Get factory connected to this transformer.
+	 * @returns factory connected to this transformer, or null if none
 	 */
 	register_method(vm, &transformer_get_factory, "get_factory", true);
 	end_class(vm);
