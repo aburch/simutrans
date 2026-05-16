@@ -5,6 +5,7 @@
 
 # Doxygen file to generate documentation for Squirrel API
 PROJECT_NAME           = Simutrans-Squirrel-API
+PROJECT_NUMBER         = $(OTRP_VERSION)
 OUTPUT_DIRECTORY       = ../../doxygen/sqapi
 
 EXTRACT_PRIVATE        = YES
@@ -20,11 +21,13 @@ INPUT                  = api_factory.cc \
 			 api_const.cc \
 			 api_control.cc \
 			 api_convoy.cc \
+			 api_good.cc \
 			 api_gui.cc \
 			 api_halt.cc \
 			 api_include.cc \
 			 api_line.cc \
 			 api_map_objects.cc \
+			 api_obj_desc_base.cc \
 			 api_obj_desc.cc \
 			 api_pathfinding.cc \
 			 api_player.cc \
@@ -36,7 +39,7 @@ INPUT                  = api_factory.cc \
 			 api_tiles.cc
 
 INPUT_FILTER           = ./filter_cpp.sh
-FILTER_PATTERNS        = *.nut=
+FILTER_PATTERNS        =
 
 FILTER_SOURCE_FILES    = YES
 FILTER_SOURCE_PATTERNS = ./filter_sq.sh
@@ -46,5 +49,5 @@ SOURCE_BROWSER         = YES
 ENABLE_PREPROCESSING   = YES
 PREDEFINED             = SQAPI_DOC
 
-EXAMPLE_PATH           = ../../simutrans/pak/scenario/
+EXAMPLE_PATH           =
 EXAMPLE_PATTERNS       = *.nut

@@ -370,7 +370,7 @@ register_function("mark_tile");
  * @param pos position to test
  * @param start first tile clicked by user
  * @ingroup tool_skel
- * @typemask void(player_x, coord3d, coord3d)
+ * @typemask integer(player_x, coord3d, coord3d)
  */
 register_function("is_valid_pos");
 
