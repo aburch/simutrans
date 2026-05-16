@@ -341,7 +341,7 @@
 /**
  * @defgroup tool_only Tool only functions
  *
- * These classes and methods are only available for scripted scenarios.
+ * These classes and methods are only available for scripted tools.
  *
  */
 
