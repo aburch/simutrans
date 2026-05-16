@@ -1954,6 +1954,7 @@ void fabrik_t::step(uint32 delta_t)
 				// Classic producer logic.
 				currently_requiring_power = false;
 				currently_producing = false;
+				uint32 power = 0;
 
 				// produces something
 				for(  uint32 product = 0;  product < output.get_count();  product++  ) {
@@ -1980,6 +1981,10 @@ void fabrik_t::step(uint32 delta_t)
 							// if less than 3/4 filled we neary always consume power
 							currently_requiring_power |= (output[product].menge*4 < output[product].max*3);
 							currently_producing = true;
+							if(  desc->is_electricity_producer()  ) {
+								// power station => produce power
+								power += (uint32)( ((sint64)scaled_electric_demand * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS );
+							}
 						}
 						else {
 							output[product].book_stat((sint64)(output[product].max - 1 - output[product].menge) * (sint64)desc->get_product(product)->get_factor(), FAB_GOODS_PRODUCED);
@@ -1987,6 +1992,7 @@ void fabrik_t::step(uint32 delta_t)
 						}
 					}
 				}
+				set_power_supply(power);
 
 				break;
 			}
@@ -2029,6 +2035,11 @@ void fabrik_t::step(uint32 delta_t)
 
 				// normalize work with respect to output number
 				work /= output.get_count();
+				if(  desc->is_electricity_producer()  ) {
+					// compute power production
+					uint64 pp = ((uint64)scaled_electric_demand * (uint64)boost * (uint64)work) >> (DEFAULT_PRODUCTION_FACTOR_BITS + WORK_BITS);
+					set_power_supply((uint32)pp);
+				}
 
 				break;
 			}
@@ -2081,6 +2092,7 @@ void fabrik_t::step(uint32 delta_t)
 							}
 						}
 					}
+					uint32 power = 0;
 
 					// and finally consume stock
 					for(  uint32 index = 0;  index < input.get_count();  index++  ) {
@@ -2089,6 +2101,10 @@ void fabrik_t::step(uint32 delta_t)
 						if(  (uint32)input[index].menge > v + 1  ) {
 							input[index].menge -= v;
 							input[index].book_stat((sint64)v * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
+							if(  desc->is_electricity_producer()  ) {
+								// power station => produce power
+								power += (uint32)( ((sint64)scaled_electric_demand * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS );
+							}
 						}
 						else {
 							input[index].book_stat((sint64)input[index].menge * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
@@ -2098,6 +2114,7 @@ void fabrik_t::step(uint32 delta_t)
 
 					// work done is consumption rate
 					work = work_from_production(prod, consumed_menge);
+					set_power_supply(power);
 				}
 
 				break;
@@ -2209,6 +2226,11 @@ void fabrik_t::step(uint32 delta_t)
 							input[index].menge = 0;
 							inactive_inputs ++;
 						}
+					}
+					if(  desc->is_electricity_producer()  ) {
+						// compute power production
+						uint64 pp = ((uint64)scaled_electric_demand * (uint64)boost * (uint64)work) >> (DEFAULT_PRODUCTION_FACTOR_BITS + WORK_BITS);
+						set_power_supply((uint32)pp);
 					}
 				}
 				break;

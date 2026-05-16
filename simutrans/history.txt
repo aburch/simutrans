@@ -10,6 +10,7 @@
 	FIX: Wrong generation of lakes during map generation when groundwater level is not 0
 	FIX: powerlines did not correctly calculated routing costs max_route_steps after 40-50 tiles
 	FIX: settign of lake height via simuconf.tab broeken, also no way to set default ground water height, lake_height again absolute value
+	CHG: (poppo) producing factories can also generate electricity (use with care)
 
 
 Release of 124.4.1 (r11930 on 18-Apr-2026):
