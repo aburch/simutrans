@@ -96,6 +96,14 @@ function test_convoy_cargo_loaded()
 	local transit = good.get_transit_halts()
 	ASSERT_EQUAL(typeof transit, "array")
 
+	// get_amount: we generated 30 passengers so at least 1 was loaded
+	ASSERT_TRUE(good.get_amount() > 0)
+
+	// is_passenger / is_mail / is_freight: cargo is passengers
+	ASSERT_TRUE(good.is_passenger())
+	ASSERT_FALSE(good.is_mail())
+	ASSERT_FALSE(good.is_freight())
+
 	// clean up
 	cnv.destroy(pl)
 	sleep()
