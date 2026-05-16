@@ -1,0 +1,61 @@
+name: Generate Squirrel API Docs
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version_string:
+        description: 'Version string shown in docs header (e.g. v51_1)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: sudo apt-get -y install doxygen gawk
+
+      - name: Set version string
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "OTRP_VERSION=OTRP ${{ inputs.version_string }}" >> $GITHUB_ENV
+          else
+            echo "OTRP_VERSION=OTRP ${{ github.ref_name }}" >> $GITHUB_ENV
+          fi
+
+      - name: Generate documentation
+        run: |
+          mkdir -p doxygen/sqapi
+          cd script/api && doxygen Doxyfile_SQAPI
+
+      - name: Arrange pages structure
+        run: |
+          mkdir -p pages-root/otrp-squirrel-api
+          cp -r doxygen/sqapi/html/. pages-root/otrp-squirrel-api/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: pages-root/
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
