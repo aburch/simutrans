@@ -148,26 +148,22 @@ void export_good(HSQUIRRELVM vm)
 	register_method(vm, &good_get_desc, "get_desc", true);
 
 	/**
-	 * Amount of goods in this packet.
 	 * @returns amount of goods in this packet
 	 */
 	register_method(vm, &good_get_amount, "get_amount", true);
 
 	/**
-	 * Whether this goods packet carries passengers.
 	 * @returns true if this goods packet carries passengers
 	 */
 	register_method(vm, &good_is_passenger, "is_passenger", true);
 
 	/**
-	 * Whether this goods packet carries mail.
 	 * @returns true if this goods packet carries mail
 	 */
 	register_method(vm, &good_is_mail, "is_mail", true);
 
 	/**
-	 * Whether this goods packet carries freight (neither passengers nor mail).
-	 * @returns true if this goods packet carries freight
+	 * @returns true if this goods packet carries freight (neither passengers nor mail)
 	 */
 	register_method(vm, &good_is_freight, "is_freight", true);
 
