@@ -18,6 +18,8 @@
 #include "../gui/obj_info.h"
 #include "../gui/simwin.h"
 #include "../vehicle/simvehicle.h"
+#include "../simconvoi.h"
+#include "../simline.h"
 #include "../simcolor.h"
 #include "../simdebug.h"
 #include "../simworld.h"
@@ -204,7 +206,8 @@ void obj_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 			// vehicles need finer steps to appear smoother
 			v->get_screen_offset( xpos, ypos, raster_width );
 		}
-		if(  vehicle_t const* const vt = obj_cast<vehicle_t>(this)  ) {
+		vehicle_t const* const vt = obj_cast<vehicle_t>(this);
+		if(  vt  ) {
 			// vehicles may need extra offset.
 			koord offset = repositioning_t::get_instance().get_offset(vt->get_desc()->get_name());
 			xpos += tile_raster_scale_x(offset.x, raster_width);
@@ -213,12 +216,37 @@ void obj_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 		xpos += tile_raster_scale_x(get_xoff(), raster_width);
 		ypos += tile_raster_scale_y(get_yoff(), raster_width);
 
+		// Determine if this vehicle should use its convoy's line color
+		uint8 line_colour = 0;
+		bool line_color_active = false;
+		if(  owner_n != PLAYER_UNOWNED  ) {
+			if(  vt  ) {
+				if(  convoi_t* cnv = vt->get_convoi()  ) {
+					linehandle_t line = cnv->get_line();
+					if(  line.is_bound()  ) {
+						line_colour = line->get_colour();
+						line_color_active = true;
+					}
+				}
+			}
+		}
+
 		const int start_ypos = ypos;
 		for(  int j=0;  image!=IMG_EMPTY;  ) {
 
 			if(  owner_n != PLAYER_UNOWNED  ) {
 				if(  obj_t::show_owner  ) {
 					display_blend( image, xpos, ypos, owner_n, color_idx_to_rgb(welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
+				}
+				else if(  line_color_active  ) {
+					// per-object live color substitution: each vehicle uses its own line color
+					if(  display_normal == display_img_aux  ) {
+						display_color_img_line( image, xpos, ypos, line_colour, owner_n, true, is_dirty  CLIP_NUM_PAR);
+					}
+					else {
+						// GUI viewport mode: use base-coord variant to match the viewport's coordinate system
+						display_base_img_line( image, xpos, ypos, line_colour, owner_n, true, is_dirty  CLIP_NUM_PAR);
+					}
 				}
 				else {
 					display_color( image, xpos, ypos, owner_n, true, is_dirty  CLIP_NUM_PAR);

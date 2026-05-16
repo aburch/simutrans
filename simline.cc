@@ -9,6 +9,7 @@
 #include "simworld.h"
 
 #include "utils/simstring.h"
+#include "dataobj/environment.h"
 #include "dataobj/schedule.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
@@ -45,7 +46,7 @@ simline_t::simline_t(player_t* player, linetype type)
 	sprintf(printname, "(%i) %s", self.get_id(), translator::translate("Line", welt->get_settings().get_name_language_id()));
 	name = printname;
 	memo = "";
-	colour = player->get_player_color1();
+	colour = player->get_player_color1() + env_t::gui_player_color_bright;
 
 	init_financial_history();
 	this->type = type;

@@ -287,6 +287,7 @@ static PIXVAL *rgbmap_current = 0;
  * 16 sets of 16 colors
  */
 static PIXVAL specialcolormap_day_night[256];
+static PIXVAL specialcolormap_day_night_for_line[256];
 
 
 /*
@@ -295,6 +296,7 @@ static PIXVAL specialcolormap_day_night[256];
  * 16 sets of 16 colors
  */
 PIXVAL specialcolormap_all_day[256];
+static PIXVAL specialcolormap_all_day_for_line[256];
 
 
 /*
@@ -1992,16 +1994,20 @@ static void calc_base_pal_from_night_shift(const int night)
 		const int B = (int)(special_pal[i*3 + 2] * B_night_multiplier);
 
 		specialcolormap_day_night[i] = get_system_color(R, G, B);
+		// darker variant used for line colors based on player color families
+		specialcolormap_day_night_for_line[i] = get_system_color(R*3/4, G*3/4, B*3/4);
 	}
 
 	// special light colors (actually, only non-darkening greys should be used)
 	for(i=0;  i<LIGHT_COUNT;  i++  ) {
 		specialcolormap_day_night[SPECIAL_COLOR_COUNT+i] = get_system_color( display_day_lights[i*3 + 0], display_day_lights[i*3 + 1], display_day_lights[i*3 + 2] );
+		specialcolormap_day_night_for_line[SPECIAL_COLOR_COUNT+i] = specialcolormap_day_night[SPECIAL_COLOR_COUNT+i];
 	}
 
 	// init with black for forbidden colors
 	for(i=SPECIAL_COLOR_COUNT+LIGHT_COUNT;  i<256;  i++  ) {
 		specialcolormap_day_night[i] = 0;
+		specialcolormap_day_night_for_line[i] = 0;
 	}
 
 	// default player colors
@@ -2162,7 +2168,7 @@ void register_image(image_t *image_in)
 			while(  runlen--  ) {
 				// get rgb components
 				PIXVAL s = *src++;
-				if(  s>=0x8000  &&  s<0x8010  ) {
+				if(  s>=0x8000  &&  s<0x8008  ) {
 					image->recode_flags |= FLAG_HAS_PLAYER_COLOR;
 				}
 			}
@@ -2417,6 +2423,99 @@ static inline void colorpixcopydaytime(PIXVAL* dest, const PIXVAL* src, const PI
 }
 #endif
 
+
+/**
+ * Copy pixel, replace player color using a local line-color ramp (thread-safe, no global state modified)
+ */
+static inline void colorpixcopy_line(PIXVAL* dest, const PIXVAL* src, const PIXVAL* const end, const PIXVAL line_col[8], const PIXVAL player_col2[8], const bool daynight)
+{
+	if (*src < 0x8020) {
+		while (src < end) {
+			const PIXVAL s = *src++;
+			if (s >= 0x8000 && s < 0x8008) {
+				*dest++ = line_col[s & 7];            // player color 1 → line color
+			} else if (s >= 0x8008 && s < 0x8010) {
+				*dest++ = player_col2[s & 7];         // player color 2 → owner's color 2
+			} else {
+				*dest++ = rgbmap_current[s];          // regular or special color
+			}
+		}
+	} else {
+		while (src < end) {
+			uint16 alpha = ((*src - 0x8020) % 31) + 1;
+			const uint16 idx = (*src++ - 0x8020) / 31;
+			if (idx < 16) {
+				// transparent player color 1 (idx 0-7) → line_col, color 2 (idx 8-15) → player_col2
+				const PIXVAL colval = (idx < 8) ? line_col[idx] : player_col2[idx & 7];
+#ifdef RGB555
+				if ((alpha & 7) == 0) {
+					alpha >>= 3;
+					*dest = alpha * ((colval >> 2) & TWO_OUT_15) + (4 - alpha) * ((*dest >> 2) & TWO_OUT_15);
+				} else {
+					const PIXVAL r_src = colval >> 10;
+					const PIXVAL g_src = (colval >> 5) & 0x1F;
+					const PIXVAL b_src = colval & 0x1F;
+					const PIXVAL r_dest = *dest >> 10;
+					const PIXVAL g_dest = (*dest >> 5) & 0x1F;
+					const PIXVAL b_dest = *dest & 0x1F;
+					*dest = ((r_dest + (((r_src - r_dest) * alpha) >> 5)) << 10)
+					       | ((g_dest + (((g_src - g_dest) * alpha) >> 5)) << 5)
+					       | (b_dest + (((b_src - b_dest) * alpha) >> 5));
+				}
+#else
+				if ((alpha & 7) == 0) {
+					alpha >>= 3;
+					*dest = alpha * ((colval >> 2) & TWO_OUT_16) + (4 - alpha) * ((*dest >> 2) & TWO_OUT_16);
+				} else {
+					const PIXVAL r_src = colval >> 11;
+					const PIXVAL g_src = (colval >> 5) & 0x3F;
+					const PIXVAL b_src = colval & 0x1F;
+					const PIXVAL r_dest = *dest >> 11;
+					const PIXVAL g_dest = (*dest >> 5) & 0x3F;
+					const PIXVAL b_dest = *dest & 0x1F;
+					*dest = ((r_dest + (((r_src - r_dest) * alpha) >> 5)) << 11)
+					       | ((g_dest + (((g_src - g_dest) * alpha) >> 5)) << 5)
+					       | (b_dest + (((b_src - b_dest) * alpha) >> 5));
+				}
+#endif
+			} else {
+				// transparent non-player color (idx 16+)
+				if ((alpha & 7) == 0) {
+					const PIXVAL colval = daynight ? transparent_map_day_night[idx] : transparent_map_all_day[idx];
+					alpha >>= 3;
+#ifdef RGB555
+					*dest = alpha * colval + (4 - alpha) * ((*dest >> 2) & TWO_OUT_15);
+#else
+					*dest = alpha * colval + (4 - alpha) * ((*dest >> 2) & TWO_OUT_16);
+#endif
+				} else {
+					const uint8* trans_rgb = (daynight ? transparent_map_day_night_rgb : transparent_map_all_day_rgb) + idx * 4;
+					const PIXVAL r_src = *trans_rgb++;
+					const PIXVAL g_src = *trans_rgb++;
+					const PIXVAL b_src = *trans_rgb;
+#ifdef RGB555
+					const PIXVAL r_dest = *dest >> 10;
+					const PIXVAL g_dest = (*dest >> 5) & 0x1F;
+					const PIXVAL b_dest = *dest & 0x1F;
+					const PIXVAL r = r_dest + (((r_src - r_dest) * alpha) >> 5);
+					const PIXVAL g = g_dest + (((g_src - g_dest) * alpha) >> 5);
+					const PIXVAL b = b_dest + (((b_src - b_dest) * alpha) >> 5);
+					*dest = (r << 10) | (g << 5) | b;
+#else
+					const PIXVAL r_dest = *dest >> 11;
+					const PIXVAL g_dest = (*dest >> 5) & 0x3F;
+					const PIXVAL b_dest = *dest & 0x1F;
+					const PIXVAL r = r_dest + (((r_src - r_dest) * alpha) >> 5);
+					const PIXVAL g = g_dest + (((g_src - g_dest) * alpha) >> 5);
+					const PIXVAL b = b_dest + (((b_src - b_dest) * alpha) >> 5);
+					*dest = (r << 11) | (g << 5) | b;
+#endif
+				}
+			}
+			dest++;
+		}
+	}
+}
 
 
 /**
@@ -2988,6 +3087,62 @@ static void display_color_img_wc_daytime(const PIXVAL* sp, scr_coord_val x, scr_
 
 
 /**
+ * Draw Image, replace player color using a local line-color ramp (thread-safe)
+ */
+static void display_color_img_wc_line(const PIXVAL* sp, scr_coord_val x, scr_coord_val y, scr_coord_val h, const PIXVAL line_col[8], const PIXVAL player_col2[8], const bool daynight  CLIP_NUM_DEF)
+{
+	PIXVAL* tp = textur + y * disp_width;
+	do {
+		int xpos = x;
+		uint16 runlen = *sp++;
+		do {
+			xpos += (runlen & ~TRANSPARENT_RUN);
+			runlen = (*sp++) & ~TRANSPARENT_RUN;
+			if (xpos + runlen > CR.clip_rect.x && xpos < CR.clip_rect.xx) {
+				const int left = (xpos >= CR.clip_rect.x ? 0 : CR.clip_rect.x - xpos);
+				const int len  = (CR.clip_rect.xx - xpos > runlen ? runlen : CR.clip_rect.xx - xpos);
+				colorpixcopy_line(tp + xpos + left, sp + left, sp + len, line_col, player_col2, daynight);
+			}
+			sp += runlen;
+			xpos += runlen;
+		} while ((runlen = *sp++));
+		tp += disp_width;
+	} while (--h);
+}
+
+
+/**
+ * Draw image with clipped polygons using a local line-color ramp (thread-safe)
+ */
+static void display_img_pc_line(scr_coord_val h, const scr_coord_val xp, const scr_coord_val yp, const PIXVAL* sp, const PIXVAL line_col[8], const PIXVAL player_col2[8], const bool daynight  CLIP_NUM_DEF)
+{
+	if (h > 0) {
+		PIXVAL* tp = textur + yp * disp_width;
+		init_ranges(yp  CLIP_NUM_PAR);
+		do {
+			int xpos = xp;
+			int runlen = *sp++;
+			int xmin, xmax;
+			get_xrange_and_step_y(xmin, xmax  CLIP_NUM_PAR);
+			do {
+				xpos += (runlen & ~TRANSPARENT_RUN);
+				runlen = *sp++;
+				runlen &= ~TRANSPARENT_RUN;
+				if (xmin < xmax && xpos + runlen > xmin && xpos < xmax) {
+					const int left = (xpos >= xmin ? 0 : xmin - xpos);
+					const int len  = (xmax - xpos >= runlen ? runlen : xmax - xpos);
+					colorpixcopy_line(tp + xpos + left, sp + left, sp + len, line_col, player_col2, daynight);
+				}
+				sp += runlen;
+				xpos += runlen;
+			} while ((runlen = *sp++));
+			tp += disp_width;
+		} while (--h);
+	}
+}
+
+
+/**
  * Draw Image, replaced player color
  */
 void display_color_img(const image_id n, scr_coord_val xp, scr_coord_val yp, sint8 player_nr_raw, const bool daynight, const bool dirty  CLIP_NUM_DEF)
@@ -3059,6 +3214,78 @@ void display_color_img(const image_id n, scr_coord_val xp, scr_coord_val yp, sin
 
 
 /**
+ * Draw image with a specific line color applied per-object, using live rendering.
+ * Unlike display_color_img, this does NOT use the pre-recoded image cache.
+ * It temporarily installs the line color into rgbmap and draws from raw zoom_data,
+ * then restores the original mapping — so different objects can each use their own color.
+ */
+void display_color_img_line(const image_id n, scr_coord_val xp, scr_coord_val yp, const uint8 col, const sint8 player_nr, const bool daynight, const bool dirty  CLIP_NUM_DEF)
+{
+	if(  n < anz_images  ) {
+		if(  (images[n].recode_flags & FLAG_HAS_PLAYER_COLOR) == 0  ) {
+			display_color_img( n, xp, yp, player_nr, daynight, dirty  CLIP_NUM_PAR );
+			return;
+		}
+		if(  (images[n].recode_flags & FLAG_REZOOM)  ) {
+			rezoom_img( n );
+		}
+
+		const scr_coord_val x = images[n].x + xp;
+		      scr_coord_val y = images[n].y + yp;
+		const scr_coord_val w = images[n].w;
+		      scr_coord_val h = images[n].h;
+		if(  h <= 0  ||  x >= CR.clip_rect.xx  ||  y >= CR.clip_rect.yy  ||  x + w <= CR.clip_rect.x  ||  y + h <= CR.clip_rect.y  ) {
+			return;
+		}
+
+		if(  dirty  ) {
+			mark_rect_dirty_wc( x, y, x + w - 1, y + h - 1 );
+		}
+
+		// build local line-color ramp (no global state modified)
+		// player-color-family-based line colors (col%8==0) use a darker palette to distinguish from player colors
+		const PIXVAL *const specmap = (col % 8 == 0)
+			? (daynight ? specialcolormap_day_night_for_line : specialcolormap_all_day_for_line)
+			: (daynight ? specialcolormap_day_night           : specialcolormap_all_day);
+		PIXVAL line_col[8];
+		for(  int i = 0;  i < 8;  i++  ) {
+			line_col[i] = specmap[(col/8)*8 + i];
+		}
+
+		// build local player color 2 ramp from owner's palette (thread-safe, no global rgbmap)
+		const PIXVAL *const specmap2 = daynight ? specialcolormap_day_night : specialcolormap_all_day;
+		PIXVAL player_col2[8];
+		const uint8 p2 = (player_nr >= 0 && player_nr < MAX_PLAYER_COUNT) ? player_nr : 0;
+		for(  int i = 0;  i < 8;  i++  ) {
+			player_col2[i] = specmap2[player_offsets[p2][1] + i];
+		}
+
+		const PIXVAL *sp = images[n].zoom_data != NULL ? images[n].zoom_data : images[n].base_data;
+
+		scr_coord_val yoff = clip_wh( &y, &h, CR.clip_rect.y, CR.clip_rect.yy );
+		if(  h > 0  ) {
+			while(  yoff  ) {
+				yoff--;
+				do {
+					++sp;
+					sp += (*sp) & (~TRANSPARENT_RUN);
+					sp++;
+				} while (  *sp  );
+				sp++;
+			}
+
+			if(  CR.number_of_clips > 0  ) {
+				display_img_pc_line(h, x, y, sp, line_col, player_col2, daynight  CLIP_NUM_PAR);
+			}
+			else {
+				display_color_img_wc_line(sp, x, y, h, line_col, player_col2, daynight  CLIP_NUM_PAR);
+			}
+		}
+	}
+}
+
+
+/**
  * draw unscaled images, replaces base color
  */
 void display_base_img(const image_id n, scr_coord_val xp, scr_coord_val yp, const sint8 player_nr, const bool daynight, const bool dirty  CLIP_NUM_DEF)
@@ -3122,6 +3349,75 @@ void display_base_img(const image_id n, scr_coord_val xp, scr_coord_val yp, cons
 	} // number ok
 }
 
+
+/**
+ * Draw Image using line color, using base image data when GUI viewport scale differs from game zoom.
+ * Parallel to display_base_img but substitutes player colors with line colors.
+ */
+void display_base_img_line(const image_id n, scr_coord_val xp, scr_coord_val yp, const uint8 col, const sint8 player_nr, const bool daynight, const bool dirty  CLIP_NUM_DEF)
+{
+	if(  base_tile_raster_width == tile_raster_width  ) {
+		// same scale: the zoomed-coord routine works correctly
+		display_color_img_line( n, xp, yp, col, player_nr, daynight, dirty  CLIP_NUM_PAR );
+		return;
+	}
+	if(  n < anz_images  ) {
+		if(  (images[n].recode_flags & FLAG_HAS_PLAYER_COLOR) == 0  ) {
+			// no player color in image: fall back to plain base rendering
+			display_base_img( n, xp, yp, player_nr, daynight, dirty  CLIP_NUM_PAR );
+			return;
+		}
+
+		const scr_coord_val x = images[n].base_x + xp;
+		      scr_coord_val y = images[n].base_y + yp;
+		const scr_coord_val w = images[n].base_w;
+		      scr_coord_val h = images[n].base_h;
+
+		if(  h <= 0  ||  x >= CR.clip_rect.xx  ||  y >= CR.clip_rect.yy  ||  x + w <= CR.clip_rect.x  ||  y + h <= CR.clip_rect.y  ) {
+			return;
+		}
+
+		if(  dirty  ) {
+			mark_rect_dirty_wc( x, y, x + w - 1, y + h - 1 );
+		}
+
+		const PIXVAL *const specmap = (col % 8 == 0)
+			? (daynight ? specialcolormap_day_night_for_line : specialcolormap_all_day_for_line)
+			: (daynight ? specialcolormap_day_night           : specialcolormap_all_day);
+		PIXVAL line_col[8];
+		for(  int i = 0;  i < 8;  i++  ) {
+			line_col[i] = specmap[(col/8)*8 + i];
+		}
+
+		const PIXVAL *const specmap2 = daynight ? specialcolormap_day_night : specialcolormap_all_day;
+		PIXVAL player_col2[8];
+		const uint8 p2 = (player_nr >= 0 && player_nr < MAX_PLAYER_COUNT) ? player_nr : 0;
+		for(  int i = 0;  i < 8;  i++  ) {
+			player_col2[i] = specmap2[player_offsets[p2][1] + i];
+		}
+
+		const PIXVAL *sp = images[n].base_data;
+
+		scr_coord_val yoff = clip_wh( &y, &h, CR.clip_rect.y, CR.clip_rect.yy );
+		if(  h > 0  ) {
+			while(  yoff  ) {
+				yoff--;
+				do {
+					sp++;
+					sp += (*sp) & (~TRANSPARENT_RUN);
+					sp++;
+				} while(  *sp  );
+				sp++;
+			}
+			if(  CR.number_of_clips > 0  ) {
+				display_img_pc_line( h, x, y, sp, line_col, player_col2, daynight  CLIP_NUM_PAR );
+			}
+			else {
+				display_color_img_wc_line( sp, x, y, h, line_col, player_col2, daynight  CLIP_NUM_PAR );
+			}
+		}
+	}
+}
 
 
 // Blends two colors
@@ -5398,6 +5694,7 @@ bool simgraph_init(scr_size window_size, sint16 full_screen)
 	player_day = 0;
 	display_day_night_shift(0);
 	memcpy(specialcolormap_all_day, specialcolormap_day_night, 256 * sizeof(PIXVAL));
+	memcpy(specialcolormap_all_day_for_line, specialcolormap_day_night_for_line, 256 * sizeof(PIXVAL));
 	memcpy(rgbmap_all_day, rgbmap_day_night, RGBMAPSIZE * sizeof(PIXVAL));
 	memcpy(transparent_map_all_day, transparent_map_day_night, lengthof(transparent_map_day_night) * sizeof(PIXVAL));
 	memcpy(transparent_map_all_day_rgb, transparent_map_day_night_rgb, lengthof(transparent_map_day_night_rgb) * sizeof(uint8));
