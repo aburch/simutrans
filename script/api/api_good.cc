@@ -90,6 +90,30 @@ static const goods_desc_t* good_get_desc(ware_t* ware)
 }
 
 
+static uint32 good_get_amount(ware_t* ware)
+{
+	return ware->menge;
+}
+
+
+static bool good_is_passenger(ware_t* ware)
+{
+	return ware->is_passenger();
+}
+
+
+static bool good_is_mail(ware_t* ware)
+{
+	return ware->is_mail();
+}
+
+
+static bool good_is_freight(ware_t* ware)
+{
+	return ware->is_freight();
+}
+
+
 void export_good(HSQUIRRELVM vm)
 {
 	/**
@@ -122,6 +146,30 @@ void export_good(HSQUIRRELVM vm)
 	 * @returns good_desc_x
 	 */
 	register_method(vm, &good_get_desc, "get_desc", true);
+
+	/**
+	 * Amount of goods in this packet.
+	 * @returns integer
+	 */
+	register_method(vm, &good_get_amount, "get_amount", true);
+
+	/**
+	 * Whether this goods packet carries passengers.
+	 * @returns bool
+	 */
+	register_method(vm, &good_is_passenger, "is_passenger", true);
+
+	/**
+	 * Whether this goods packet carries mail.
+	 * @returns bool
+	 */
+	register_method(vm, &good_is_mail, "is_mail", true);
+
+	/**
+	 * Whether this goods packet carries freight (neither passengers nor mail).
+	 * @returns bool
+	 */
+	register_method(vm, &good_is_freight, "is_freight", true);
 
 	end_class(vm);
 }
