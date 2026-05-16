@@ -124,26 +124,22 @@ void export_good(HSQUIRRELVM vm)
 	sq_settypetag(vm, -1, param<ware_t*>::tag());
 
 	/**
-	 * Destination halt of this goods packet.
-	 * @returns halt_x or null if no destination halt
+	 * @returns destination halt of this goods packet, or null if no destination halt
 	 */
 	register_method(vm, &good_get_destination, "get_destination", true);
 
 	/**
-	 * Transit halts for this goods packet (including the final destination halt).
-	 * @returns array of halt_x
+	 * @returns array of transit halts for this goods packet, including the final destination halt
 	 */
 	register_method(vm, &good_get_transit_halts, "get_transit_halts", true);
 
 	/**
-	 * Destination position of this goods packet (target tile coordinate).
-	 * @returns coord
+	 * @returns destination position of this goods packet (target tile coordinate)
 	 */
 	register_method(vm, &good_get_destination_pos, "get_destination_pos", true);
 
 	/**
-	 * Goods type descriptor of this goods packet.
-	 * @returns good_desc_x
+	 * @returns goods type descriptor of this goods packet
 	 */
 	register_method(vm, &good_get_desc, "get_desc", true);
 
