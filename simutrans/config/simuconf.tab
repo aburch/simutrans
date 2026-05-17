@@ -586,11 +586,41 @@ no_tree_climates = 130
 # 2: if humidity climate generation is enabled, distribute trees based on humidity (else use 1)
 #tree_distribution = 2
 
-# default groundwater on new maps
+################################# landscape stuff #################################
+# default groundwater (sea level) on new maps
 # groundwater = -2
+# max_mountain_height = 160
+# map_roughness = 4
+# winter_snowline = 7
+
+# climate hight = min, max
+# desert_height     = -3,0
+# tropic_height     = -3,0
+# mediterran_height = -2,1
+# temperate_height  =  0,8
+# tundra_height     =  7,9
+# rocky_height      =  8,10
+# arctic_height     = 10,13
+
+# and the ones for climates be humidity
+#climate_temperature_borders[0]=20
+#climate_temperature_borders[1]=15
+#climate_temperature_borders[2]=8
+#climate_temperature_borders[3]=0
+#climate_temperature_borders[4]=-10
+#desert_humidity = 65
+#tropic_humidity = 75
+#moisture_change_land = 1
+#moisture_change_water = 1
+
+# which climate generator preferred (only heights and humidity at the moment)
+#climate_generator = humidity;
+
+# relative size of a climate patch (best not to touch)
+#patch_size_percentage = 10
 
 # maximum height level for lake creation (-128 or below ground water: no lakes)
-lake_height = 8
+#lake_height = 8
 
 ###################################time stuff###################################
 

@@ -27,6 +27,7 @@
 #include "translator.h"
 
 #include "../tpl/minivec_tpl.h"
+#include "../descriptor/ground_desc.h"
 
 
 #define NEVER 0xFFFFU
@@ -1283,7 +1284,48 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 		tree_distribution = no_trees ? TREE_DIST_NONE : TREE_DIST_RANDOM;
 	}
 
+	// landscape stuff
 	groundwater       = contents.get_int_clamped("groundwater", groundwater, -128, 127);
+	max_mountain_height = (double)contents.get_int_clamped( "max_mountain_height", (int)max_mountain_height, 0, 1000 );
+	map_roughness       = (double)(contents.get_int_clamped( "map_roughness", (int)(map_roughness *20.0 + 0.5)-8, 0, 10 ) +8) / 20.0;
+	winter_snowline     = contents.get_int_clamped("winter_snowline", winter_snowline, groundwater, 127);
+
+	// maximum size (w or h) of climate area relative to the original patch (min is 5 tiles, maximu 100m, hardcoded in simworld.cc)
+	patch_size_percentage = contents.get_int_clamped("patch_size_percentage", patch_size_percentage, 0, 100);
+
+	// all cimate height
+	for( int i = desert_climate; i < MAX_CLIMATES; i++ ) {
+		char name[ 32 ];
+		sprintf( name, "%s_height", ground_desc_t::get_climate_name_from_bit( (climate)(i) ) );
+		const char *command = contents.get( name );
+		int c1, c2;
+		if( sscanf( command, "%i,%i", &c1, &c2 ) == 2 ) {
+			if (c1 <= c2 && c1 >= groundwater && c2 < 127 ) {
+				climate_borders[i][0] = c1;
+				climate_borders[i][1] = c2;
+			}
+		}
+	}
+
+	// other humidity climate related
+	for (int i = 0; i < 5; i++) {
+		char str[128];
+		sprintf(str, "climate_temperature_borders[%d]", i);
+		climate_temperature_borders[i] = contents.get_int(str, climate_temperature_borders[i]);
+	}
+	desert_humidity = contents.get_int_clamped("desert_humidity", desert_humidity, 0, 100);
+	tropic_humidity = contents.get_int_clamped("tropic_humidity", tropic_humidity, 0, 100);
+	moisture        = contents.get_int_clamped("moisture_change_land", moisture, -5, 5);
+	moisture_water  = contents.get_int_clamped("moisture_change_water", moisture_water, -5, 5);
+
+	// which climate generator preferred (the maps one does not work yet ...)
+	if (const char* cl = contents.get("climate_generator")) {
+		climate_generator = HEIGHT_BASED;
+		if (tstrcasestr(cl, "humidity)")) {
+			climate_generator = HUMIDITY_BASED;
+		}
+	}
+
 	tree_distribution = contents.get_int_clamped( "tree_distribution", tree_distribution, TREE_DIST_NONE, TREE_DIST_COUNT-1 );
 	lake_height       = contents.get_int("no_lakes", 1 )==0 ? -128 : lake_height;
 	lake_height       = contents.get_int_clamped("lake_height", lake_height, groundwater, 127 );
