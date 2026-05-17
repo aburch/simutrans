@@ -522,8 +522,11 @@ bool translator::load(const string &path_to_pakset)
 		dr_chdir( env_t::data_dir );
 	}
 
-	// use english if available
+	// use english if available, otherwise fall back to first loaded language
 	current_langinfo = get_lang_by_iso("en");
+	if(  current_langinfo == NULL  ) {
+		current_langinfo = langs;
+	}
 
 	// it's all ok
 	return true;
