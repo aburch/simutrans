@@ -418,6 +418,7 @@ void karte_t::destroy()
 		dbg->fatal( "karte_t::destroy()","Map cannot be cleanly destroyed in any rotation!" );
 	}
 
+	route_cache.clear();
 	goods_in_game.clear();
 
 	DBG_MESSAGE("karte_t::destroy()", "label clear");
