@@ -54,6 +54,7 @@ struct route_cache_t {
 		}
 	};
 
+private:
 	static const size_t MAX_ROUTES_PER_ENTRY = 4;
 
 	typedef std::unordered_map<key_t, entry_t, key_hash> route_map_t;
@@ -63,6 +64,7 @@ struct route_cache_t {
 	// Outer key: linehandle_t, Middle key: schedule entry index, Inner key: route key
 	line_map_t map;
 
+public:
 	route_t* find(linehandle_t line, uint8 schedule_entry, koord3d start, koord3d ziel,
 	              sint32 max_speed_kmh, uint16 convoy_length, bool need_electric);
 
@@ -75,6 +77,9 @@ struct route_cache_t {
 
 	// Erase all cache entries for a given line
 	void remove_line(linehandle_t line);
+
+	// Erase all cache entries
+	void clear() { map.clear(); }
 };
 
 #endif
