@@ -746,7 +746,7 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 		}
 	}
 
-	warn_fail = "";
+	warn_fail = NULL;
 	bool fundament = to->get_typ()==grund_t::fundament;
 
 	// now check way specific stuff
@@ -1469,7 +1469,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 		// already there?
 		if (ziel.is_contained(gr_pos)) {
 			// we added a target to the closed list: we are finished
-			warn_fail = "";
+			warn_fail = NULL;
 			break;
 		}
 		// route costs too high => abort
