@@ -593,7 +593,7 @@ no_tree_climates = 130
 # map_roughness = 4
 # winter_snowline = 7
 
-# climate hight = min, max
+# climate height = min, max
 # desert_height     = -3,0
 # tropic_height     = -3,0
 # mediterran_height = -2,1
@@ -614,7 +614,7 @@ no_tree_climates = 130
 #moisture_change_water = 1
 
 # which climate generator preferred (only heights and humidity at the moment)
-#climate_generator = humidity;
+#climate_generator = humidity
 
 # relative size of a climate patch (best not to touch)
 #patch_size_percentage = 10
