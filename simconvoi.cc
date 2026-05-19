@@ -2859,6 +2859,8 @@ void convoi_t::vorfahren()
 		}
 		if (!at_dest) {
 			state = CAN_START;
+			// Vehicles already occupy route tiles; ensure reservation covers them on reload.
+			set_next_reservation_index(front()->get_route_index());
 
 			// to advance more smoothly
 			sint32 restart_speed = -1;
