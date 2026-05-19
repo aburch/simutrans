@@ -274,9 +274,17 @@ struct haltestelle_t::cargo_queue_t {
 			if (iter == end_iterator()) {
 				return iterator(cargos.end());
 			}
-			// Erase from the index tables.
-			zwischenziel_index[iter.it->zwischenziel_id].erase(iter.it->zwischenziel_iter);
-			ziel_index[iter.it->ziel_id].erase(iter.it->ziel_iter);
+			// Erase from the index tables; purge map entries if now empty.
+			auto& zw_list = zwischenziel_index[iter.it->zwischenziel_id];
+			zw_list.erase(iter.it->zwischenziel_iter);
+			if (zw_list.empty()) {
+				zwischenziel_index.erase(iter.it->zwischenziel_id);
+			}
+			auto& ziel_list = ziel_index[iter.it->ziel_id];
+			ziel_list.erase(iter.it->ziel_iter);
+			if (ziel_list.empty()) {
+				ziel_index.erase(iter.it->ziel_id);
+			}
 
 			// Erase from cargos and return next iterator
 			return iterator(cargos.erase(iter.it));
