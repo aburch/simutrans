@@ -572,8 +572,13 @@ void pumpe_t::finish_rd()
 			fab = fabrik_t::get_fab(get_pos().get_2d());
 		}
 		if(  fab  ) {
-			// only add when factory there
-			fab->add_transformer_connected(this);
+			// only add when factory there and not already connected
+			if(  !fab->is_transformer_connected()  ) {
+				fab->add_transformer_connected(this);
+			}
+			else {
+				fab = NULL;
+			}
 		}
 	}
 
@@ -900,7 +905,8 @@ void senke_t::finish_rd()
 
 	assert(get_net());
 
-	if(  fab==NULL  ) {
+	bool fab_found = (fab != NULL);
+	if(  !fab_found  ) {
 		if(welt->lookup(get_pos())->ist_karten_boden()) {
 			// on surface, check around
 			fab = leitung_t::suche_fab_4(get_pos().get_2d());
@@ -910,12 +916,18 @@ void senke_t::finish_rd()
 			fab = fabrik_t::get_fab(get_pos().get_2d());
 		}
 		if(  fab  ) {
-			fab->add_transformer_connected(this);
+			if(  !fab->is_transformer_connected()  ) {
+				fab_found = true;
+				fab->add_transformer_connected(this);
+			}
+			else {
+				fab = NULL;
+			}
 		}
 	}
 
-	// If no factory found, check if inside city limits
-	if(city==NULL && fab==NULL) {
+	// If no factory found (not just fab==NULL, which also covers "already connected"), check if inside city limits
+	if(city==NULL && !fab_found) {
 		const koord k = get_pos().get_2d();
 		stadt_t *found_city = welt->find_nearest_city(k);
 		if(found_city != NULL) {
