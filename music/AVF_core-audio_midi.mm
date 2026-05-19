@@ -15,7 +15,6 @@
 
 static int            midi_number = -1;
 static NSString      *midi_filenames[MAX_MIDI];
-static int            nowPlaying  = -1;
 static AVMIDIPlayer  *current_player = nil;
 
 
@@ -49,7 +48,6 @@ void dr_play_midi(int const key)
 	if (current_player) {
 		[current_player prepareToPlay];
 		[current_player play: ^{}];
-		nowPlaying = key;
 	}
 	else {
 		dbg->warning("dr_play_midi()", "AVFoundation: Failed to create player for key %d", key);
@@ -63,7 +61,6 @@ void dr_stop_midi()
 		[current_player stop];
 		current_player = nil;
 	}
-	nowPlaying = -1;
 }
 
 
