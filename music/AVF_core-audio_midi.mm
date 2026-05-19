@@ -13,77 +13,80 @@
 #import <AVFoundation/AVFoundation.h>
 
 
-static int   nowPlaying    = -1;  // the number of the track currently being played
-
-static NSMutableArray* players;
+static int            midi_number = -1;
+static NSString      *midi_filenames[MAX_MIDI];
+static int            nowPlaying  = -1;
+static AVMIDIPlayer  *current_player = nil;
 
 
 void dr_set_midi_volume(int const vol)
 {
-	// Not supportd by AVMIDIPlayer
+	// Not supported by AVMIDIPlayer
 }
 
 
 int dr_load_midi(char const* const filename)
 {
-	NSURL* const url = [NSURL fileURLWithPath: [NSString stringWithUTF8String: filename]];
-	AVMIDIPlayer*  const player = [[AVMIDIPlayer alloc] initWithContentsOfURL:url soundBankURL: nil error: nil];
-	if (player) {
-		[player prepareToPlay];
-		[players addObject: player];
+	if (midi_number < MAX_MIDI - 1) {
+		const int i = midi_number + 1;
+		midi_filenames[i] = [NSString stringWithUTF8String: filename];
+		midi_number = i;
 	}
-	return [players count] - 1;
+	return midi_number;
 }
 
 
 void dr_play_midi(int const key)
 {
-	// Play the file referenced by the supplied key.
-	AVMIDIPlayer* const player = [players objectAtIndex: key];
-	double duration = [player duration];
-	double currentPosition = [player currentPosition];
-	if (currentPosition >= duration) {
-		[player setCurrentPosition: 0.0];
+	dr_stop_midi();
+
+	if (key < 0 || key > midi_number || midi_filenames[key] == nil) {
+		return;
 	}
-	try {
-		[player play: ^{}];
-	} catch (NSException *e) {
-		dbg->warning("dr_play_midi()", "AVFoundation: Error playing midi");
+
+	NSURL *url = [NSURL fileURLWithPath: midi_filenames[key]];
+	current_player = [[AVMIDIPlayer alloc] initWithContentsOfURL: url soundBankURL: nil error: nil];
+	if (current_player) {
+		[current_player prepareToPlay];
+		[current_player play: ^{}];
+		nowPlaying = key;
 	}
-	nowPlaying = key;
+	else {
+		dbg->warning("dr_play_midi()", "AVFoundation: Failed to create player for key %d", key);
+	}
 }
 
 
 void dr_stop_midi()
 {
-	if(  nowPlaying!= -1  ) {
-		// We assume the 'nowPlaying' key holds the most recently started track.
-		AVMIDIPlayer* const player = [players objectAtIndex: nowPlaying];
-		[player stop];
+	if (current_player) {
+		[current_player stop];
+		current_player = nil;
 	}
+	nowPlaying = -1;
 }
 
 
 sint32 dr_midi_pos()
 {
-	if (nowPlaying == -1) {
+	if (current_player == nil) {
 		return -1;
 	}
-	float const rate = [[players objectAtIndex: nowPlaying] rate];
-	return rate > 0 ? 0 : -1;
+	return [current_player rate] > 0 ? 0 : -1;
 }
 
 
 void dr_destroy_midi()
 {
-	if (nowPlaying != -1) {
-		dr_stop_midi();
+	dr_stop_midi();
+	for (int i = 0; i <= midi_number; i++) {
+		midi_filenames[i] = nil;
 	}
+	midi_number = -1;
 }
 
 
 bool dr_init_midi()
 {
-	players = [NSMutableArray arrayWithCapacity: MAX_MIDI];
 	return true;
 }
