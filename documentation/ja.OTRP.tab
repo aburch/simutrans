@@ -83,6 +83,12 @@ coupled (loading)
 連結運転中(停車中)
 driving
 運転中
+suspended
+抑止中
+Suspend this convoy
+この編成をこの場で抑止します(信号等の予約を保ったまま停車し続けます)
+Suspension
+抑止
 #------Convoy coupling related stuff------
 #------増解結関連のエントリ------
 Reset coupling
@@ -125,6 +131,10 @@ try coupling convoy not enter here
 連結試行時の進入禁止
 remove signal
 この信号を撤去する
+allow reverse passage
+信号の逆向き通行を許可
+Allow reverse passage for convoys
+列車が信号を逆向きに通過可能になります(逆向きに通行する場合は信号をチェックしません)
 release back
 後ろを解放
 A convoy waits for other convoy to couple.
