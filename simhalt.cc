@@ -92,6 +92,7 @@ struct halt_waiting_goods_t {
 
 	halt_waiting_goods_t(const ware_t& w, uint32 t) : goods(w), arrived_time(t) {}
     halt_waiting_goods_t() : arrived_time(INVALID_CARGO_ARRIVED_TIME) {}
+    halt_waiting_goods_t(const halt_waiting_goods_t& o) : goods(o.goods), arrived_time(o.arrived_time) {}
 };
 
 
@@ -194,18 +195,23 @@ struct haltestelle_t::cargo_queue_t {
 
 		class zwischenziel_iterator {
 		private:
+			item_iterator_list *list_ptr;
 			item_iterator_list::iterator list_iter;
 			halthandle_t zwischenziel;
 
 		public:
-			zwischenziel_iterator() = default;
-			zwischenziel_iterator(item_iterator_list::iterator iter, halthandle_t id) : list_iter(iter), zwischenziel(id) {}
+			zwischenziel_iterator() : list_ptr(nullptr) {}
+			zwischenziel_iterator(item_iterator_list *ptr, item_iterator_list::iterator iter, halthandle_t id)
+				: list_ptr(ptr), list_iter(iter), zwischenziel(id) {}
+
+			bool valid() const { return list_ptr != nullptr && list_iter != list_ptr->end(); }
 
 			cargo_item_t& operator*() { return (*list_iter)->cargo; }
 			cargo_item_t* operator->() { return &((*list_iter)->cargo); }
 
 			bool operator==(const zwischenziel_iterator& other) const {
-				return zwischenziel == other.zwischenziel && list_iter == other.list_iter;
+				if (list_ptr == nullptr && other.list_ptr == nullptr) return zwischenziel == other.zwischenziel;
+				return zwischenziel == other.zwischenziel && list_ptr == other.list_ptr && list_iter == other.list_iter;
 			}
 			bool operator!=(const zwischenziel_iterator& other) const { return !(*this == other); }
 
@@ -220,7 +226,7 @@ struct haltestelle_t::cargo_queue_t {
 			}
 
 			halthandle_t get_zwischenziel() const { return zwischenziel; }
-			uint64 get_storage_index() const { return (*(list_iter))->index; }
+			uint64 get_storage_index() const { return (*list_iter)->index; }
 
 			friend struct cargo_queue_t;
 		};
@@ -232,16 +238,11 @@ struct haltestelle_t::cargo_queue_t {
 		const_iterator end_iterator() const { return const_iterator(cargos.end()); }
 
 		zwischenziel_iterator zwischenziel_begin(halthandle_t zwischenziel) {
-			auto& list = zwischenziel_index[zwischenziel.get_id()];
-			if (list.empty()) {
-				return zwischenziel_iterator(list.end(), zwischenziel);
+			auto it = zwischenziel_index.find(zwischenziel.get_id());
+			if (it == zwischenziel_index.end() || it->second.empty()) {
+				return zwischenziel_iterator(nullptr, {}, zwischenziel);
 			}
-			return zwischenziel_iterator(list.begin(), zwischenziel);
-		}
-
-		zwischenziel_iterator zwischenziel_end(halthandle_t zwischenziel) {
-			auto& list = zwischenziel_index[zwischenziel.get_id()];
-			return zwischenziel_iterator(list.end(), zwischenziel);
+			return zwischenziel_iterator(&it->second, it->second.begin(), zwischenziel);
 		}
 
 		void append(const cargo_item_t& item) {
@@ -273,25 +274,43 @@ struct haltestelle_t::cargo_queue_t {
 			if (iter == end_iterator()) {
 				return iterator(cargos.end());
 			}
-			// Erase from the index tables.
-			zwischenziel_index[iter.it->zwischenziel_id].erase(iter.it->zwischenziel_iter);
-			ziel_index[iter.it->ziel_id].erase(iter.it->ziel_iter);
+			// Erase from the index tables; purge map entries if now empty.
+			auto& zw_list = zwischenziel_index[iter.it->zwischenziel_id];
+			zw_list.erase(iter.it->zwischenziel_iter);
+			if (zw_list.empty()) {
+				zwischenziel_index.erase(iter.it->zwischenziel_id);
+			}
+			auto& ziel_list = ziel_index[iter.it->ziel_id];
+			ziel_list.erase(iter.it->ziel_iter);
+			if (ziel_list.empty()) {
+				ziel_index.erase(iter.it->ziel_id);
+			}
 
 			// Erase from cargos and return next iterator
 			return iterator(cargos.erase(iter.it));
 		}
 
 		zwischenziel_iterator erase(const zwischenziel_iterator& iter) {
-			halthandle_t zwischenziel = iter.zwischenziel;
-			if (iter == zwischenziel_end(zwischenziel)) {
-				return zwischenziel_end(zwischenziel);
+			if (!iter.valid()) {
+				return iter;
 			}
 			// Make a local copy of the item here since it will be removed from cargos.
 			item_t item_copy = **iter.list_iter;
-			cargos.erase(*iter.list_iter); // Erase from cargos
-			ziel_index[item_copy.ziel_id].erase(item_copy.ziel_iter);
-			auto next_itr = zwischenziel_index[item_copy.zwischenziel_id].erase(iter.list_iter);
-			return zwischenziel_iterator(next_itr, zwischenziel);
+			cargos.erase(*iter.list_iter);
+			// Erase from ziel_index; purge map entry if now empty.
+			auto& ziel_list = ziel_index[item_copy.ziel_id];
+			ziel_list.erase(item_copy.ziel_iter);
+			if (ziel_list.empty()) {
+				ziel_index.erase(item_copy.ziel_id);
+			}
+			// Erase from zwischenziel_index; purge map entry if now empty.
+			auto& zw_list = zwischenziel_index[item_copy.zwischenziel_id];
+			auto next_itr = zw_list.erase(iter.list_iter);
+			if (zw_list.empty()) {
+				zwischenziel_index.erase(item_copy.zwischenziel_id);
+				return zwischenziel_iterator(nullptr, {}, iter.zwischenziel);
+			}
+			return zwischenziel_iterator(&zw_list, next_itr, iter.zwischenziel);
 		}
 
 		// Updates the storage internal index of the given iterator.
@@ -300,8 +319,12 @@ struct haltestelle_t::cargo_queue_t {
 			const uint32 ziel_id = iter->get()->goods.get_ziel().get_id();
 			if(  iter.it->ziel_id!=ziel_id  ) {
 				// Ziel changed
-				// Remove from old index
-				ziel_index[iter.it->ziel_id].erase(iter.it->ziel_iter);
+				// Remove from old index; purge map entry if now empty.
+				auto& old_ziel_list = ziel_index[iter.it->ziel_id];
+				old_ziel_list.erase(iter.it->ziel_iter);
+				if (old_ziel_list.empty()) {
+					ziel_index.erase(iter.it->ziel_id);
+				}
 				// Add to new index
 				iter.it->ziel_id = ziel_id;
 				item_iterator_list& ziel_itr_list = ziel_index[ziel_id];
@@ -313,8 +336,12 @@ struct haltestelle_t::cargo_queue_t {
 			const uint32 zwischenziel_id = iter->get()->goods.get_zwischenziel().get_id();
 			if(  iter.it->zwischenziel_id!=zwischenziel_id  ) {
 				// Zwischenziel changed
-				// Remove from old index
-				zwischenziel_index[iter.it->zwischenziel_id].erase(iter.it->zwischenziel_iter);
+				// Remove from old index; purge map entry if now empty.
+				auto& old_zw_list = zwischenziel_index[iter.it->zwischenziel_id];
+				old_zw_list.erase(iter.it->zwischenziel_iter);
+				if (old_zw_list.empty()) {
+					zwischenziel_index.erase(iter.it->zwischenziel_id);
+				}
 				// Add to new index
 				iter.it->zwischenziel_id = zwischenziel_id;
 				item_iterator_list& zwischenziel_itr_list = zwischenziel_index[zwischenziel_id];
@@ -2700,7 +2727,7 @@ void haltestelle_t::fetch_goods_nearest_first(slist_tpl<ware_t> &load, const goo
 	for(  uint32 i=0; i < destination_halts.get_count();  i++  ) {
 		halthandle_t plan_halt = destination_halts[i];
 
-		for( cargo_queue_t::zwischenziel_iterator iter = wares->zwischenziel_begin(plan_halt);  iter != wares->zwischenziel_end(plan_halt);) {
+		for( cargo_queue_t::zwischenziel_iterator iter = wares->zwischenziel_begin(plan_halt);  iter.valid();) {
 			ware_t& goods = iter->get()->goods;
 			if(goods.menge==0) {
 				iter = wares->erase(iter);
@@ -2751,7 +2778,7 @@ void haltestelle_t::fetch_goods_FIFO(slist_tpl<ware_t> &load, const goods_desc_t
 	search_route_for_invalid_zwischenziel_goods(wares);
 
 	auto increment_while_zwischenziel_is_overcrowded = [&](cargo_queue_t::zwischenziel_iterator& iter) {
-		while(iter != wares->zwischenziel_end(iter.get_zwischenziel())) {
+		while(iter.valid()) {
 			ware_t& goods = (*iter)->goods;
 			const bool is_ware_to_overcrowded_halt = welt->get_settings().is_avoid_overcrowding()  &&
 				goods.get_zwischenziel()->is_overcrowded(goods.get_index())  &&
@@ -2776,16 +2803,16 @@ void haltestelle_t::fetch_goods_FIFO(slist_tpl<ware_t> &load, const goods_desc_t
 	while(requested_amount > 0) {
 		// Pick the goods whose storage index is the earliest across all destinations.
 		cargo_queue_t::zwischenziel_iterator first_item_itr = std::min_element(
-			dest_cargo_item_map.begin(), 
+			dest_cargo_item_map.begin(),
 			dest_cargo_item_map.end(),
 			[&](const auto& a, const auto& b) {
 				// Compare by storage index
-				uint64 storage_index_a = a.second == wares->zwischenziel_end(a.second.get_zwischenziel()) ? UINT64_MAX : a.second.get_storage_index();
-				uint64 storage_index_b = b.second == wares->zwischenziel_end(b.second.get_zwischenziel()) ? UINT64_MAX : b.second.get_storage_index();
+				uint64 storage_index_a = a.second.valid() ? a.second.get_storage_index() : UINT64_MAX;
+				uint64 storage_index_b = b.second.valid() ? b.second.get_storage_index() : UINT64_MAX;
 				return storage_index_a < storage_index_b;
 			}
 		)->second;
-		if(first_item_itr == wares->zwischenziel_end(first_item_itr.get_zwischenziel())) {
+		if(!first_item_itr.valid()) {
 			// no more goods for these destination halts
 			break;
 		}
@@ -2829,7 +2856,7 @@ vector_tpl<halthandle_t> goods_zwischenziels;
 			continue;
 		}
 		// Needs rerouting
-		for(cargo_queue_t::zwischenziel_iterator itr = wares->zwischenziel_begin(zwischenziel); itr != wares->zwischenziel_end(zwischenziel);)
+		for(cargo_queue_t::zwischenziel_iterator itr = wares->zwischenziel_begin(zwischenziel); itr.valid();)
 		{
 			search_route_resumable(itr->get()->goods);
 			if(  itr->get()->goods.get_ziel().is_bound()  ) {
