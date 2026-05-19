@@ -78,6 +78,7 @@ signal(s)
 	end_table();
 
 	bt_two_ways.init( button_t::square_state, translator::translate("allow reverse passage") );
+	bt_two_ways.set_tooltip(translator::translate("Allow reverse passage for convoys"));
 	bt_two_ways.add_listener(this);
 	bt_two_ways.pressed = signal->get_two_ways();
 	bt_two_ways.enable( ribi_t::is_single(signal->get_dir()) );
