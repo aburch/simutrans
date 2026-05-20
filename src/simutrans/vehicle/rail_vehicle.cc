@@ -246,27 +246,40 @@ bool rail_vehicle_t::is_target(const grund_t* gr, const grund_t* prev_gr) const
 					// signal/one way sign wrong direction
 					return false;
 				}
+				// make sure that we are at the end of the platform or usable area
+				const bool needs_electric = cnv != NULL && cnv->needs_electrification();
 				grund_t* to;
-				// end of stop: Is it long enough?
-				uint16 tiles = cnv->get_tile_length();
+				if (gr->get_neighbour(to, get_waytype(), ribi)) {
+					weg_t* w = to->get_weg(get_waytype());
+					if (to->get_halt() == target_halt) {
+						// not end of platform yet
+						// the following line would allow for more than one train on a platform, if there is a signal!
+//						if (!w->has_signal()  &&  w->get_max_speed() > 0  &&  (!needs_electric || w->is_electrified())) {
+						if (w->get_max_speed() > 0  &&  (!needs_electric || w->is_electrified())) {
+							// and we can go further
+							return false;
+						}
+					}
+				}
 				// check for electrifiction needed? (we have checked this tile on route already)
-				const bool needs_electric = cnv != NULL  &&  cnv->needs_electrification();
-				while (tiles > 1) {
-					weg_t* w = gr->get_weg(get_waytype());
+				// end of stop: Is it long enough?
+				sint16 tiles = cnv->get_tile_length();
+				while (true) {
+					schiene_t* w = dynamic_cast<schiene_t*>(gr->get_weg(get_waytype()));
 
 					// check electrification or illegal tracks (i.e. city walls with speed equals zero)
-					if (w->get_max_speed() == 0  ||  (needs_electric && !w->is_electrified())) {
-						return false;
+					if (w->get_max_speed() == 0 || (needs_electric && !w->is_electrified())) {
+						return (tiles <= 1);
 					}
-					// signal or sign?
-					if(w->get_ribi_maske() & ribi  &&  (w->has_signal() || w->has_sign())) {
+					if (w->is_reserved()) {
+						// only one train per platform (unless there are signals)
 						return false;
 					}
 					if (!gr->get_neighbour(to, get_waytype(), ribi_t::backward(ribi)) || to->get_halt() != target_halt) {
-						return false;
+						return (tiles <= 1);
 					}
 					gr = to;
-					tiles --;
+					tiles--;
 				}
 				return true;
 			}
