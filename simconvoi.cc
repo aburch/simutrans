@@ -5594,7 +5594,6 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 				}
 			}
 		}
-		delete route;
 		DBG_MESSAGE("shortest route has ", "%i hops", shortest_route->get_count()-1);
 		find_depot_route = !shortest_route->empty();
 	}
@@ -5604,6 +5603,9 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 			info->route_search_finished();
 		}
 	}
+	// we teleport convoys, so we do not use route.
+	delete route;
+	delete shortest_route;
 	// if route to a depot has been found, update the convoi's schedule
 	if(  find_depot_route  ) {
 		if( !depot_already_know ) {
@@ -5626,7 +5628,6 @@ const char* convoi_t::send_to_depot_immediately(bool local)
 	else {
 		txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
 	}
-	delete shortest_route;
 
 	return txt;
 }
@@ -5683,6 +5684,7 @@ const char* convoi_t::send_to_specific_depot(koord3d depot_pos, bool immediate, 
 		// Route-based: insert the depot as the next schedule stop
 		route_t *route = new route_t();
 		if(  !v->calc_route(get_pos(), depot_pos, 50, route)  ) {
+			delete route;
 			return "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
 		}
 		delete route;
