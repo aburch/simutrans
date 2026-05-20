@@ -220,6 +220,7 @@ bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, int rotation)
 			case 'n':
 				// nature/empty
 				if (!gr->ist_natur()) return false;
+				if (!gr->kann_alle_obj_entfernen(NULL)) return false;
 				break;
 			case 'U':
 				// unbuildable for road
@@ -2309,8 +2310,8 @@ class building_place_with_road_finder: public building_placefinder_t
 						return false;
 					}
 					if (  0 <= x  &&  x < w-1  &&  0 <= y  &&  y < h-1  ) {
-						// inside: nothing on top like elevated monorails?
-						if(  gr->get_leitung()!=NULL  ||  welt->lookup(gr->get_pos()+koord3d(0,0,1)  )!=NULL) {
+						// inside: nothing on top like elevated monorails and not powerlines etc.?
+						if(  gr->kann_alle_obj_entfernen(NULL)  ||  welt->lookup(gr->get_pos()+koord3d(0,0,1))  ) {
 							// something on top (monorail or powerlines)
 							return false;
 						}
