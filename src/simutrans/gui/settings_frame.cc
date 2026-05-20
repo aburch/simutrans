@@ -113,7 +113,11 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *comp, value_t )
 			sets->parse_simuconf( simuconf );
 			sets->parse_colours( simuconf );
 		}
-		dr_chdir(  env_t::user_dir  );
+		dr_chdir(env_t::user_dir);
+		if (simuconf.open(env_t::pak_name+"config/simuconf.tab")) {
+			sets->parse_simuconf(simuconf);
+			sets->parse_colours(simuconf);
+		}
 		if(simuconf.open("simuconf.tab")) {
 			sets->parse_simuconf( simuconf );
 			sets->parse_colours( simuconf );

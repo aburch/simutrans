@@ -14,6 +14,7 @@
 	ADD: (makie) more settings for inital climates in simuconf.tab
 	FIX: (janry) admin packets only read or write for admin tool/server
 	FIX: drive again to the end of the platform after choose signal selection
+	FIX: pak specific config in user_dir/PAK_NAM/config/simuconf.tab
 
 
 Release of 124.4.1 (r11930 on 18-Apr-2026):

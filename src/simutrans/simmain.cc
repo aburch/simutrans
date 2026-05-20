@@ -1084,6 +1084,32 @@ int simu_main(int argc, char** argv)
 		simuconf.close();
 	}
 
+	// now find the pak specific tab file ...
+	obj_conf = string(env_t::user_dir) + env_t::pak_name + "config" + PATH_SEPARATOR + "simuconf.tab";
+	if (simuconf.open(obj_conf.c_str())) {
+		env_t::default_settings.set_way_height_clearance(0);
+		uint8 show_month = env_t::env_t::show_month;
+
+		dbg->message("simu_main()", "Parsing %s", obj_conf.c_str());
+		env_t::default_settings.parse_simuconf(simuconf);
+		env_t::default_settings.parse_colours(simuconf);
+
+		if (show_month != env_t::show_month) {
+			dbg->warning("Parsing simuconf.tab", "Pakset %s defines show_month will be ignored!", env_t::pak_name.c_str());
+		}
+		env_t::show_month = show_month;
+
+		pak_diagonal_multiplier = env_t::default_settings.get_pak_diagonal_multiplier();
+		pak_height_conversion_factor = env_t::pak_height_conversion_factor;
+		pak_tile_height = TILE_HEIGHT_STEP;
+
+		if (env_t::default_settings.get_way_height_clearance() == 0) {
+			// ok, set default as conversion factor
+			env_t::default_settings.set_way_height_clearance(pak_height_conversion_factor);
+		}
+		simuconf.close();
+	}
+
 	// and parse again the user settings
 	obj_conf = string(env_t::user_dir) + "simuconf.tab";
 	if (simuconf.open(obj_conf.c_str())) {
