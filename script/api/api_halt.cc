@@ -14,6 +14,10 @@
 #include "../api_function.h"
 #include "../../simhalt.h"
 #include "../../simworld.h"
+#include "../../simline.h"
+#include "../../simconvoi.h"
+#include "../../vehicle/simvehicle.h"
+#include "../../linehandle_t.h"
 
 halthandle_t get_halt_from_koord3d(koord3d pos, const player_t *player ); // api_schedule.cc, interfaces haltestelle_t::get_halt
 
@@ -30,25 +34,51 @@ namespace script_api {
 	}
 
 	SQInteger param<haltestelle_t::connection_t>::push(HSQUIRRELVM vm, haltestelle_t::connection_t const& v)
-	{
-		sq_newtable(vm);
+    {
+        sq_newtable(vm);
+        int table_idx = sq_gettop(vm);
 
-		sq_pushstring(vm, "halt", -1);
-		param<halthandle_t>::push(vm, v.halt);
-		sq_newslot(vm, -3, false);
+        sq_pushstring(vm, "halt", -1);
+        int top_before_halt = sq_gettop(vm);
+        param<halthandle_t>::push(vm, v.halt);
+        if (sq_gettop(vm) == top_before_halt) {
+            sq_pushnull(vm);
+        }
+        sq_newslot(vm, table_idx, false);
 
-		sq_pushstring(vm, "weight", -1);
-		sq_pushinteger(vm, world()->tick_to_divided_time(v.weight));
-		sq_newslot(vm, -3, false);
+        sq_pushstring(vm, "weight", -1);
+        sq_pushinteger(vm, world()->tick_to_divided_time(v.weight));
+        sq_newslot(vm, table_idx, false);
 
-		sq_pushstring(vm, "line", -1);
-		std::visit([&](const auto& t) {
-			param<decltype(t)>::push(vm, t); 
-		}, v.best_weight_traveler);
-		sq_newslot(vm, -3, false);
+        sq_pushstring(vm, "line", -1);
+        int top_before_line = sq_gettop(vm);
 
-		return 1;
-	}
+        struct TravelerVisitor {
+            HSQUIRRELVM vm;
+            void operator()(linehandle_t const& line) const {
+                if (line.is_bound()) {
+                    param<linehandle_t>::push(vm, line);
+                }
+            }
+            void operator()(convoihandle_t const& convoy) const {
+                if (convoy.is_bound()) {
+                    param<convoihandle_t>::push(vm, convoy);
+                }
+            }
+        };
+
+        TravelerVisitor visitor{ vm };
+        std::visit(visitor, v.best_weight_traveler);
+
+        if (sq_gettop(vm) == top_before_line) {
+            sq_pushnull(vm);
+        }
+        sq_newslot(vm, table_idx, false);
+
+        sq_settop(vm, table_idx);
+
+        return 1;
+    }
 };
 
 #ifdef SQAPI_DOC
