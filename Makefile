@@ -270,7 +270,6 @@ ifdef KUTA_REVISION
   endif
 endif
 
-
 CFLAGS   += -Wall -Wextra -Wcast-qual -Wpointer-arith -Wcast-align $(FLAGS) -Wconversion
 CCFLAGS  += -ansi -Wstrict-prototypes -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
 
@@ -299,6 +298,7 @@ SOURCES += boden/wege/runway.cc
 SOURCES += boden/wege/schiene.cc
 SOURCES += boden/wege/strasse.cc
 SOURCES += boden/wege/weg.cc
+SOURCES += dataobj/convoi_template.cc
 SOURCES += dataobj/crossing_logic.cc
 SOURCES += dataobj/environment.cc
 SOURCES += dataobj/freelist.cc

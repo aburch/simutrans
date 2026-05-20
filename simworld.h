@@ -23,6 +23,7 @@
 #include "dataobj/loadsave.h"
 #include "dataobj/rect.h"
 #include "dataobj/route_cache.h"
+#include "dataobj/convoi_template.h"
 
 #include "utils/checklist.h"
 #include "utils/sha1_hash.h"
@@ -279,6 +280,8 @@ private:
 	 * Array containing the factories.
 	 */
 	slist_tpl<fabrik_t *> fab_list;
+
+	vector_tpl<convoi_template_t> convoy_templates;
 
 	/**
 	 * Stores a list of goods produced by factories currently in the game;
@@ -1522,6 +1525,9 @@ public:
 	void add_convoi(convoihandle_t);
 	void rem_convoi(convoihandle_t);
 	vector_tpl<convoihandle_t> const& convoys() const { return convoi_array; }
+
+	void load_convoy_templates();
+	const vector_tpl<convoi_template_t>& get_convoy_templates() const { return convoy_templates; }
 
 	/**
 	 * To access the cities array.

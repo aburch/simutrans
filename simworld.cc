@@ -539,6 +539,12 @@ void karte_t::rem_convoi(convoihandle_t const cnv)
 }
 
 
+void karte_t::load_convoy_templates()
+{
+	convoi_template_load(env_t::pak_dir, env_t::default_settings.get_with_private_paks(), convoy_templates);
+}
+
+
 void karte_t::add_city(stadt_t *s)
 {
 	settings.set_city_count(settings.get_city_count() + 1);
