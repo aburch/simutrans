@@ -58,3 +58,14 @@ jobs:
         chmod +x run-automated-tests.sh
         ulimit -St 600 # 10 minutes ought to be enough for anybody.
         ./run-automated-tests.sh
+    - name: Run NWC protocol e2e suite
+      # Black-box wire-protocol tests: spawn a headless server, send
+      # one hand-rolled packet, parse the reply.  Pins NWC_AUTH_PLAYER
+      # / NWC_TOOL / NWC_SERVICE request and reply shapes and acts as
+      # a regression tripwire for the network security class.  Same
+      # ASAN/UBSAN config as the scenario suite — a sanitizer hit
+      # fails the job loudly.
+      run: |
+        export ASAN_OPTIONS="print_stacktrace=1 abort_on_error=1 detect_leaks=0"
+        export UBSAN_OPTIONS="print_stacktrace=1 abort_on_error=1"
+        python3 -m unittest discover -v -s tools/nwc_protocol_test -t .
