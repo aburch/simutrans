@@ -7009,7 +7009,7 @@ void karte_t::change_time_multiplier(sint32 delta)
 		if(time_multiplier<=0) {
 			time_multiplier = 1;
 		}
-		if(step_mode!=NORMAL) {
+		if(  !env_t::networkmode  &&  step_mode!=NORMAL  ) {
 			step_mode = NORMAL;
 			reset_timer();
 		}
