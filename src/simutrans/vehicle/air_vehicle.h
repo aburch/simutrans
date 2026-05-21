@@ -50,6 +50,8 @@ protected:
 
 	void enter_tile(grund_t*) OVERRIDE;
 
+	void leave_tile() OVERRIDE;
+
 	bool block_reserver( uint32 start, uint32 end, bool reserve ) const;
 
 	// find a route and reserve the stop position

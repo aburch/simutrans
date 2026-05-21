@@ -469,9 +469,12 @@ bool air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) con
 		return false;
 	}
 
+	bool clear_take_off = start<=takeoff;
+
 	for(  uint32 i=start;  success  &&  i<end  &&  i<route->get_count();  i++) {
 
 		grund_t *gr = welt->lookup(route->at(i));
+
 		runway_t *sch1 = gr ? (runway_t *)gr->get_weg(air_wt) : NULL;
 		if(  !sch1  ) {
 			if(reserve) {
@@ -492,10 +495,23 @@ bool air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) con
 				start_now = true;
 				sch1->add_convoi_reservation(cnv->self);
 				if(  !sch1->reserve(cnv->self,ribi_t::none)  ) {
-					// unsuccessful => must un-reserve all
-					success = false;
-					end = i;
-					break;
+					if (clear_take_off) {
+						// we check if the runway is really reserved
+						if (air_vehicle_t *v = gr->find<air_vehicle_t>()) {
+							if (v->get_flying_state() <= departing) {
+								// unsuccessful => must un-reserve all
+								success = false;
+								end = i;
+								break;
+							}
+						}
+					}
+					else {
+						// unsuccessful => must un-reserve all
+						success = false;
+						end = i;
+						break;
+					}
 				}
 				// end of runway?
 				if(  i > start  &&  (ribi_t::is_single( sch1->get_ribi_unmasked() )  ||  sch1->get_desc()->get_styp() != type_runway)   ) {
@@ -561,8 +577,8 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		if(  route_index > 1  ) {
 			for(  uint8 i = 1;  i<gr->obj_count();  i++  ) {
 				obj_t *obj = gr->obj_bei(i);
-				// we drive through non leading vehicels for now ...
-				if(  obj->get_typ() == obj_t::air_vehicle  &&  ((air_vehicle_t*)obj)->get_convoi()!=cnv  ) {
+				// we drive through other planes not taxiing for now ...
+				if(  obj->get_typ() == obj_t::air_vehicle  &&  ((air_vehicle_t*)obj)->get_convoi()!=cnv  &&  ((air_vehicle_t*)obj)->get_flying_state()==taxiing) {
 					restart_speed = 0;
 					return false;
 				}
@@ -973,6 +989,22 @@ void air_vehicle_t::hop(grund_t* gr)
 	// friction factors and speed limit may have changed
 	// TODO use the same logic as in vehicle_t::hop
 	cnv->must_recalc_data();
+}
+
+
+// some less acidentally reserved tiles
+void air_vehicle_t::leave_tile()
+{
+	vehicle_t::leave_tile();
+	if (state == taxiing  &&  cnv) {
+		if (grund_t* gr = welt->lookup(get_pos())) {
+			if(weg_t *w=gr->get_weg(air_wt)) {
+				if (w->get_desc()->get_styp() != type_runway) {
+					((runway_t*)w)->unreserve(cnv->self);
+				}
+			}
+		}
+	}
 }
 
 

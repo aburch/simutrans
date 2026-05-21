@@ -197,7 +197,7 @@ void leitung_t::replace(powernet_t* new_net)
 		leitung_t* current = todo_stack.back();
 		todo_stack.pop_back();
 
-		// Double-check just in case it was modified while waiting in the stack
+		// lready processed => next
 		if (current->get_net() == new_net) {
 			continue;
 		}
