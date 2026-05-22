@@ -7009,7 +7009,7 @@ void karte_t::change_time_multiplier(sint32 delta)
 		if(time_multiplier<=0) {
 			time_multiplier = 1;
 		}
-		if(step_mode!=NORMAL) {
+		if(  !env_t::networkmode  &&  step_mode!=NORMAL  ) {
 			step_mode = NORMAL;
 			reset_timer();
 		}
@@ -7357,7 +7357,7 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 					// already waiting longer than how far we're ahead, so set wait time shorter to the time ahead.
 					next_step_time = (sint64)timems - frame_timediff;
 			}
-			else if(  nwcid == NWC_CHECK  ) {
+			else {
 					// gentle slowing down
 					*ms_difference = timediff;
 				}
@@ -7369,7 +7369,7 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 					next_step_time = timems;
 					*ms_difference = frame_timediff;
 				}
-				else if(  nwcid == NWC_CHECK  ) {
+				else {
 					// gentle catching up
 					*ms_difference = timediff;
 				}
