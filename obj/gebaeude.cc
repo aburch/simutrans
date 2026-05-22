@@ -374,6 +374,10 @@ image_id gebaeude_t::get_image() const
 	if(env_t::hide_buildings!=0  &&  tile->has_image()) {
 		// opaque houses
 		if (is_city_building()) {
+			if (env_t::hide_with_transparency) {
+				// transparent mode: building shape is drawn by get_outline_image(); no basement here
+				return IMG_EMPTY;
+			}
 			if (skinverwaltung_t::construction_site->get_count() == 1) {
 				// only one kind of construction site?
 				return skinverwaltung_t::construction_site->get_image_id(0);
