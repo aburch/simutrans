@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the Simutrans project under the Artistic License.
  * (see LICENSE.txt)
  */
@@ -40,6 +40,10 @@
 #include "../descriptor/goods_desc.h"
 #include "../descriptor/intro_dates.h"
 #include "../bauer/vehikelbauer.h"
+#if CONVOI_TEMPLATE
+#include "../dataobj/convoi_template.h"
+#include <vector>
+#endif
 #include "../dataobj/schedule.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
@@ -63,6 +67,330 @@ static int sort_by_action;
 
 bool depot_frame_t::show_retired_vehicles = false;
 bool depot_frame_t::show_all = false;
+
+
+#if CONVOI_TEMPLATE
+class gui_template_panel_t : public gui_action_creator_t, public gui_component_t {
+public:
+	struct entry_t {
+		const convoi_template_t *tmpl;
+		std::vector<const vehicle_desc_t *> descs;
+		std::vector<const vehicle_desc_t *> compact; // descs with nulls removed
+		scr_coord_val row_h;
+		// stats for sorting
+		sint64 cost;
+		sint64 run_cost;
+		sint32 min_speed;
+		uint32 total_capacity;
+		const goods_desc_t *primary_goods;
+		uint32 veh_count;
+		bool all_electric;        // true if every vehicle in this template is electric
+		bool internally_valid;    // true if all originally-adjacent non-null pairs can connect
+		bool compacted_valid;     // true if all pairs adjacent after null-compaction can connect
+		bool mixed_waytype;       // true if the template contains vehicles of different waytypes
+		waytype_t tmpl_waytype;  // common waytype of all vehicles; invalid_wt if mixed
+	};
+
+private:
+	vector_tpl<entry_t> all_entries;
+	vector_tpl<entry_t> entries;
+	sint8 player_nr;
+	sint32 last_hovered_idx;
+	scr_coord_val cell_w;
+	scr_coord_val cell_h;
+	int cur_month_now;
+	waytype_t depot_wt;
+	waytype_t depot_sec_wt;
+
+	static bool compare_entries(const entry_t &a, const entry_t &b, int sort_mode) {
+		switch (sort_mode) {
+			case vehicle_builder_t::sb_capacity:
+				if (a.total_capacity != b.total_capacity) return a.total_capacity < b.total_capacity;
+				break;
+			case vehicle_builder_t::sb_price:
+				if (a.cost != b.cost) return a.cost < b.cost;
+				break;
+			case vehicle_builder_t::sb_cost:
+				if (a.run_cost != b.run_cost) return a.run_cost < b.run_cost;
+				break;
+			case vehicle_builder_t::sb_cost_per_unit: {
+				if (a.total_capacity == 0 && b.total_capacity == 0) break;
+				if (a.total_capacity == 0) return false;
+				if (b.total_capacity == 0) return true;
+				sint64 ra = a.run_cost * 1000 / (sint64)a.total_capacity;
+				sint64 rb = b.run_cost * 1000 / (sint64)b.total_capacity;
+				if (ra != rb) return ra < rb;
+				break;
+			}
+			case vehicle_builder_t::sb_speed:
+				if (a.min_speed != b.min_speed) return a.min_speed < b.min_speed;
+				break;
+			case vehicle_builder_t::sb_freight: {
+				const char *fa = a.primary_goods ? (a.primary_goods->get_catg() == 0 ? a.primary_goods->get_name() : a.primary_goods->get_catg_name()) : "";
+				const char *fb = b.primary_goods ? (b.primary_goods->get_catg() == 0 ? b.primary_goods->get_name() : b.primary_goods->get_catg_name()) : "";
+				int c = strcmp(fa, fb);
+				if (c != 0) return c < 0;
+				break;
+			}
+			case vehicle_builder_t::sb_length:
+				if (a.veh_count != b.veh_count) return a.veh_count < b.veh_count;
+				break;
+			default: // sb_name and unsupported modes
+				break;
+		}
+		return strcmp(translator::translate(a.tmpl->name.c_str()), translator::translate(b.tmpl->name.c_str())) < 0;
+	}
+
+public:
+	gui_template_panel_t() : player_nr(0), last_hovered_idx(-1), cell_w(32), cell_h(32), cur_month_now(0), depot_wt(invalid_wt), depot_sec_wt(invalid_wt) {}
+
+	void init(const vector_tpl<convoi_template_t> &templates, sint8 onr, const depot_t *dep) {
+		player_nr = onr;
+		cell_w = dep->get_x_grid() * get_base_tile_raster_width() / 64 + 4
+		       - dep->get_grid_dx() * get_base_tile_raster_width() / 64 / 2;
+		cell_h = dep->get_y_grid() * get_base_tile_raster_width() / 64 + 6;
+		depot_wt     = dep->get_waytype();
+		depot_sec_wt = dep->get_secondary_waytype();
+		all_entries.clear();
+		for (uint i = 0; i < (uint)templates.get_count(); i++) {
+			entry_t e;
+			e.tmpl = &templates[i];
+			e.cost = 0;
+			e.run_cost = 0;
+			e.min_speed = 0;
+			e.total_capacity = 0;
+			e.primary_goods = NULL;
+			e.veh_count = 0;
+			e.all_electric = false;
+			bool any_speed = false;
+			bool has_non_electric = false;
+			const uint8 veh_count = (uint8)std::min(templates[i].vehicles.size(), (size_t)255u);
+			for (uint8 j = 0; j < veh_count; j++) {
+				const vehicle_desc_t *desc = vehicle_builder_t::get_info(templates[i].vehicles[j].c_str());
+				if (!desc) {
+					dbg->error("gui_template_panel_t::init", "Convoy template \"%s\" (%s): vehicle[%u] \"%s\" not found.",
+						templates[i].name.c_str(), templates[i].source_file.c_str(), j, templates[i].vehicles[j].c_str());
+				}
+				e.descs.push_back(desc);
+				if (desc) {
+					e.cost += desc->get_price();
+					e.run_cost += desc->get_running_cost();
+					if (!any_speed || desc->get_topspeed() < e.min_speed) {
+						e.min_speed = desc->get_topspeed();
+						any_speed = true;
+					}
+					if (desc->get_capacity() > 0) {
+						e.total_capacity += desc->get_capacity();
+						if (!e.primary_goods) e.primary_goods = desc->get_freight_type();
+					}
+					if (desc->get_engine_type() != vehicle_desc_t::electric) {
+						has_non_electric = true;
+					}
+					e.veh_count++;
+				}
+			}
+			e.all_electric = (e.veh_count > 0) && !has_non_electric;
+			bool mixed_waytype = false;
+			waytype_t first_wt = invalid_wt;
+			for (uint j = 0; j < (uint)e.descs.size(); j++) {
+				if (e.descs[j]) {
+					waytype_t wt = e.descs[j]->get_waytype();
+					if (first_wt == invalid_wt) {
+						first_wt = wt;
+					} else if (wt != first_wt) {
+						mixed_waytype = true;
+						break;
+					}
+				}
+			}
+			e.mixed_waytype = mixed_waytype;
+			e.tmpl_waytype  = mixed_waytype ? invalid_wt : first_wt;
+			if (mixed_waytype) {
+				dbg->error("gui_template_panel_t::init", "Convoy template \"%s\" (%s) contains vehicles of mixed waytypes.",
+					templates[i].name.c_str(), templates[i].source_file.c_str());
+			}
+			if (e.veh_count == 0) {
+				dbg->error("gui_template_panel_t::init", "Convoy template \"%s\" (%s) has no valid vehicles (all descriptors missing).",
+					templates[i].name.c_str(), templates[i].source_file.c_str());
+			}
+			bool internally_valid = true;
+			for (int j = 0; j + 1 < (int)e.descs.size(); j++) {
+				const vehicle_desc_t *cur  = e.descs[j];
+				const vehicle_desc_t *next = e.descs[j + 1];
+				if (cur && next && (!cur->can_lead(next) || !next->can_follow(cur))) {
+					internally_valid = false;
+					break;
+				}
+			}
+			e.internally_valid = internally_valid;
+			// Check compacted validity: after removing nulls, can all adjacent pairs connect?
+			bool compacted_valid = true;
+			const vehicle_desc_t *prev_non_null = NULL;
+			for (uint j = 0; j < (uint)e.descs.size(); j++) {
+				const vehicle_desc_t *d = e.descs[j];
+				if (d) {
+					if (prev_non_null && (!prev_non_null->can_lead(d) || !d->can_follow(prev_non_null))) {
+						compacted_valid = false;
+						break;
+					}
+					prev_non_null = d;
+				}
+			}
+			e.compacted_valid = compacted_valid;
+			for (size_t j = 0; j < e.descs.size(); j++) {
+				if (e.descs[j]) e.compact.push_back(e.descs[j]);
+			}
+			e.row_h = LINESPACE + max(cell_h, (scr_coord_val)16) + 4;
+			all_entries.append(e);
+		}
+		refresh("", vehicle_builder_t::sb_name);
+	}
+
+	// boundary_veh: the vehicle at the front (is_insert) or back (!is_insert) of the current convoy.
+	// Pass NULL to skip compatibility filtering (new convoy or show_all/allow_invalid).
+	// target_wt: when not invalid_wt, only templates with exactly this waytype are shown.
+	void refresh(const char *name_filter, int sort_mode,
+	             const vehicle_desc_t *boundary_veh = NULL, bool is_insert = false,
+	             bool weg_electrified = true, bool show_all_flag = false,
+	             int month_now = 0, bool show_retired = false,
+	             waytype_t target_wt = invalid_wt) {
+		cur_month_now = month_now;
+		entries.clear();
+		for (uint i = 0; i < (uint)all_entries.get_count(); i++) {
+			const entry_t &e = all_entries[i];
+			if (e.veh_count == 0) continue;
+			if (e.tmpl_waytype == invalid_wt) continue; // mixed or no vehicles found
+			if (e.tmpl_waytype != depot_wt && (depot_sec_wt == invalid_wt || e.tmpl_waytype != depot_sec_wt)) continue;
+			if (target_wt != invalid_wt && e.tmpl_waytype != target_wt) continue;
+			// Timeline filter: future vehicles are always hidden;
+			// retired vehicles are hidden unless show_retired is true.
+			if (month_now > 0) {
+				bool has_future = false, has_retired = false;
+				for (uint j = 0; j < (uint)e.descs.size(); j++) {
+					const vehicle_desc_t *desc = e.descs[j];
+					if (desc) {
+						if (desc->is_future(month_now)) { has_future = true; break; }
+						if (desc->is_retired(month_now)) has_retired = true;
+					}
+				}
+				if (has_future) continue;
+				if (has_retired && !show_retired) continue;
+			}
+			if (!show_all_flag && (!e.internally_valid || !e.compacted_valid)) {
+				continue;
+			}
+			if (!weg_electrified && e.all_electric) {
+				continue;
+			}
+			if (name_filter && name_filter[0] != 0) {
+				if (!utf8caseutf8(e.tmpl->name.c_str(), name_filter) && !utf8caseutf8(translator::translate(e.tmpl->name.c_str()), name_filter)) {
+					continue;
+				}
+			}
+			if (boundary_veh != NULL) {
+				// Find the template vehicle adjacent to the existing convoy
+				const vehicle_desc_t *tmpl_adj = NULL;
+				if (is_insert) {
+					// Last non-null template vehicle connects to convoy front
+					for (int j = (int)e.descs.size() - 1; j >= 0; j--) {
+						if (e.descs[j]) { tmpl_adj = e.descs[j]; break; }
+					}
+					if (!tmpl_adj || !(tmpl_adj->can_lead(boundary_veh) && boundary_veh->can_follow(tmpl_adj))) {
+						continue;
+					}
+				} else {
+					// First non-null template vehicle connects to convoy back
+					for (uint j = 0; j < (uint)e.descs.size(); j++) {
+						if (e.descs[j]) { tmpl_adj = e.descs[j]; break; }
+					}
+					if (!tmpl_adj || !(tmpl_adj->can_follow(boundary_veh) && boundary_veh->can_lead(tmpl_adj))) {
+						continue;
+					}
+				}
+			}
+			entries.append(e);
+		}
+		std::sort(entries.begin(), entries.end(), [sort_mode](const entry_t &a, const entry_t &b) {
+			return compare_entries(a, b, sort_mode);
+		});
+		recalc_size();
+	}
+
+	void recalc_size() {
+		scr_coord_val total_h = 0;
+		for (uint i = 0; i < (uint)entries.get_count(); i++) {
+			total_h += entries[i].row_h;
+		}
+		set_size(scr_size(max(get_size().w, (scr_coord_val)100), total_h));
+	}
+
+	sint32 get_count() const { return (sint32)entries.get_count(); }
+	sint32 get_hovered_index() const { return last_hovered_idx; }
+	const entry_t* get_entry(sint32 idx) const {
+		return (idx >= 0 && (uint32)idx < entries.get_count()) ? &entries[idx] : NULL;
+	}
+
+	scr_size get_min_size() const OVERRIDE { return get_size(); }
+	scr_size get_max_size() const OVERRIDE { return get_size(); }
+
+	void draw(scr_coord offset) OVERRIDE {
+		offset += get_pos();
+		const int mx = get_mouse_x();
+		const int my = get_mouse_y();
+		last_hovered_idx = -1;
+		clip_dimension const clip = display_get_clip_wh();
+		scr_coord_val y = offset.y;
+		for (uint i = 0; i < (uint)entries.get_count(); i++) {
+			const entry_t &e = entries[i];
+			const scr_coord_val rh = e.row_h;
+			const bool hovered = (mx >= offset.x && mx < offset.x + get_size().w && my >= y && my < y + rh
+			                      && my >= clip.y && my < clip.yy);
+			if (hovered) {
+				last_hovered_idx = (sint32)i;
+				display_fillbox_wh_clip_rgb(offset.x, y, get_size().w, rh, SYSCOL_LIST_BACKGROUND_SELECTED_NF, true);
+			}
+			display_proportional_clip_rgb(offset.x + D_H_SPACE, y + 1, translator::translate(e.tmpl->name.c_str()), ALIGN_LEFT, SYSCOL_TEXT, true);
+			scr_coord_val xpos = offset.x + 2;
+			const scr_coord_val bar_y = y + LINESPACE + cell_h - 5;
+			const std::vector<const vehicle_desc_t *> &compact = e.compact;
+			const uint cn = (uint)compact.size();
+			for (uint j = 0; j < cn; j++) {
+				const vehicle_desc_t *desc = compact[j];
+				if (desc->get_base_image() != IMG_EMPTY) {
+					scr_coord_val ix, iy, iw, ih;
+					display_get_base_image_offset(desc->get_base_image(), &ix, &iy, &iw, &ih);
+					display_base_img(desc->get_base_image(), xpos - ix + 2, y + LINESPACE - iy + (cell_h - ih) - 6, player_nr, false, true);
+				}
+				// lcolor: connection from previous compacted vehicle, or terminal if first
+				PIXVAL lc = (j == 0)
+					? color_idx_to_rgb(desc->can_follow(NULL) ? COL_GREEN : COL_YELLOW)
+					: color_idx_to_rgb((compact[j-1]->can_lead(desc) && desc->can_follow(compact[j-1])) ? COL_GREEN : COL_RED);
+				// rcolor: connection to next compacted vehicle, or terminal if last
+				PIXVAL rc = (j == cn - 1)
+					? color_idx_to_rgb(desc->can_lead(NULL) ? COL_GREEN : COL_YELLOW)
+					: color_idx_to_rgb((desc->can_lead(compact[j+1]) && compact[j+1]->can_follow(desc)) ? COL_GREEN : COL_RED);
+				// Green bars turn blue for retired vehicles
+				if (cur_month_now > 0 && desc->is_retired(cur_month_now)) {
+					if (lc == color_idx_to_rgb(COL_GREEN)) lc = gui_theme_t::gui_color_obsolete;
+					if (rc == color_idx_to_rgb(COL_GREEN)) rc = gui_theme_t::gui_color_obsolete;
+				}
+				display_fillbox_wh_clip_rgb(xpos + 1,          bar_y, cell_w / 2 - 1,          4, lc, true);
+				display_fillbox_wh_clip_rgb(xpos + cell_w / 2, bar_y, cell_w - cell_w / 2 - 1, 4, rc, true);
+				xpos += cell_w;
+			}
+			y += rh;
+		}
+	}
+
+	bool infowin_event(event_t const *ev) OVERRIDE {
+		if (IS_LEFTCLICK(ev) && last_hovered_idx >= 0) {
+			call_listeners((long)last_hovered_idx);
+			return true;
+		}
+		return false;
+	}
+};
+#endif // CONVOI_TEMPLATE
 
 depot_frame_t::depot_frame_t(depot_t* depot) :
 	gui_frame_t("", NULL),
@@ -93,6 +421,10 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	scrolly_tram_waggons(&tram_waggons),
 	line_selector(line_scrollitem_t::compare),
 	lb_vehicle_filter("Filter:", SYSCOL_TEXT, gui_label_t::right)
+#if CONVOI_TEMPLATE
+	,template_panel(NULL)
+	,scrolly_template(NULL)
+#endif
 {
 	if (depot) {
 		init(depot);
@@ -380,6 +712,9 @@ depot_frame_t::~depot_frame_t()
 	clear_ptr_vector(tram_electrics_vec);
 	clear_ptr_vector(tram_loks_vec);
 	clear_ptr_vector(tram_waggons_vec);
+#if CONVOI_TEMPLATE
+	delete template_panel;
+#endif
 }
 
 
