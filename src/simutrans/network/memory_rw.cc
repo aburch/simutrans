@@ -54,7 +54,7 @@ void memory_rw_t::rdwr_byte(uint8 &c)
 void memory_rw_t::rdwr_bool(bool &i)
 {
 	// only read i on saving
-	uint8 b = !is_loading()  ||  i;
+	uint8 b = is_loading()  ||  i;
 	rdwr_byte(b);
 	i = b!=0;
 }
