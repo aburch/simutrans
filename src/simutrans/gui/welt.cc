@@ -39,6 +39,9 @@
 #include "../display/simgraph.h"
 
 #include "../sys/simsys.h"
+
+#include "../tool/simmenu.h"
+
 #include "../utils/simstring.h"
 #include "../utils/simrandom.h"
 
@@ -462,115 +465,107 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 			inp_y_size.set_value(sets->get_size_y()); // can't change size with heightfield loaded
 		}
 	}
-	else if(comp==&inp_number_of_towns) {
-		sets->set_city_count( v.i );
-		city_density = sets->get_city_count() ? sqrt((double)sets->get_size_x()*sets->get_size_y()) / sets->get_city_count() : 0.0;
+	else if (comp == &inp_number_of_towns) {
+		sets->set_city_count(v.i);
+		city_density = sets->get_city_count() ? sqrt((double)sets->get_size_x() * sets->get_size_y()) / sets->get_city_count() : 0.0;
 	}
-	else if(comp==&inp_town_size) {
-		sets->set_mean_citizen_count( v.i );
+	else if (comp == &inp_town_size) {
+		sets->set_mean_citizen_count(v.i);
 	}
-	else if(comp==&inp_intercity_road_len) {
+	else if (comp == &inp_intercity_road_len) {
 		env_t::intercity_road_length = v.i;
-		inp_intercity_road_len.set_increment_mode( v.i>=1000 ? 100 : 20 );
+		inp_intercity_road_len.set_increment_mode(v.i >= 1000 ? 100 : 20);
 	}
-	else if(comp==&inp_other_industries) {
-		sets->set_factory_count( v.i );
-		industry_density = sets->get_factory_count() ? sqrt((double)sets->get_size_x()*sets->get_size_y()) / sets->get_factory_count() : 0.0;
+	else if (comp == &inp_other_industries) {
+		sets->set_factory_count(v.i);
+		industry_density = sets->get_factory_count() ? sqrt((double)sets->get_size_x() * sets->get_size_y()) / sets->get_factory_count() : 0.0;
 	}
-	else if(comp==&inp_tourist_attractions) {
-		sets->set_tourist_attractions( v.i );
-		attraction_density = sets->get_tourist_attractions() ? sqrt((double)sets->get_size_x()*sets->get_size_y()) / sets->get_tourist_attractions() : 0.0;
+	else if (comp == &inp_tourist_attractions) {
+		sets->set_tourist_attractions(v.i);
+		attraction_density = sets->get_tourist_attractions() ? sqrt((double)sets->get_size_x() * sets->get_size_y()) / sets->get_tourist_attractions() : 0.0;
 	}
-	else if(comp==&inp_intro_date) {
-		sets->set_starting_year( (sint16)(v.i) );
+	else if (comp == &inp_intro_date) {
+		sets->set_starting_year((sint16)(v.i));
 	}
-	else if(comp==&random_map) {
+	else if (comp == &random_map) {
 		knr = sim_async_rand(9999);
 		inp_map_number.set_value(knr);
 		sets->heightfield = "";
 		loaded_heightfield = false;
 	}
-	else if(comp==&load_map) {
+	else if (comp == &load_map) {
 		// load relief
 		loaded_heightfield = false;
 		sets->heightfield = "";
 		load_relief_frame_t* lrf = new load_relief_frame_t(sets);
-		create_win(lrf, w_info, magic_load_t );
+		create_win(lrf, w_info, magic_load_t);
 
-		const scr_coord new_pos{ (gfx->get_screen_size().w - lrf->get_windowsize().w-10), env_t::iconsize.h };
+		const scr_coord new_pos{ (gfx->get_screen_size().w - lrf->get_windowsize().w - 10), env_t::iconsize.h };
 		win_set_pos(lrf, new_pos);
 		knr = sets->get_map_number(); // otherwise using cancel would not show the normal generated map again
 	}
-	else if(comp==&use_intro_dates) {
+	else if (comp == &use_intro_dates) {
 		// 0,1 should force setting to new game as well. don't allow to change
 		// 2,3 allow to change
-		if(sets->get_use_timeline()&2) {
+		if (sets->get_use_timeline() & 2) {
 			// don't change bit1. bit1 affects loading saved game
-			sets->set_use_timeline( sets->get_use_timeline()^1 );
-			use_intro_dates.pressed = sets->get_use_timeline()&1;
+			sets->set_use_timeline(sets->get_use_timeline() ^ 1);
+			use_intro_dates.pressed = sets->get_use_timeline() & 1;
 		}
 	}
-	else if(comp==&use_beginner_mode) {
-		sets->beginner_mode = sets->get_beginner_mode()^1;
+	else if (comp == &use_beginner_mode) {
+		sets->beginner_mode = sets->get_beginner_mode() ^ 1;
 		use_beginner_mode.pressed = sets->get_beginner_mode();
 
 		beginner_price_factor.enable(use_beginner_mode.pressed);
 	}
-	else if(comp==&beginner_price_factor) {
-		sets->beginner_price_factor = 1000 + 10*beginner_price_factor.get_value();
+	else if (comp == &beginner_price_factor) {
+		sets->beginner_price_factor = 1000 + 10 * beginner_price_factor.get_value();
 	}
-	else if(comp==&open_setting_gui) {
-		gui_frame_t *sg = win_get_magic( magic_settings_frame_t );
-		if(  sg  ) {
-			destroy_win( sg );
+	else if (comp == &open_setting_gui) {
+		gui_frame_t* sg = win_get_magic(magic_settings_frame_t);
+		if (sg) {
+			destroy_win(sg);
 			open_setting_gui.pressed = false;
 		}
 		else {
-			create_win({ 10, 40 }, new settings_frame_t(sets), w_info, magic_settings_frame_t );
+			create_win({ 10, 40 }, new settings_frame_t(sets), w_info, magic_settings_frame_t);
 			open_setting_gui.pressed = true;
 		}
 	}
-	else if(comp==&open_climate_gui) {
-		gui_frame_t *climate_gui = win_get_magic( magic_climate );
-		if(  climate_gui  ) {
-			destroy_win( climate_gui );
+	else if (comp == &open_climate_gui) {
+		gui_frame_t* climate_gui = win_get_magic(magic_climate);
+		if (climate_gui) {
+			destroy_win(climate_gui);
 			open_climate_gui.pressed = false;
 		}
 		else {
-			climate_gui_t *cg = new climate_gui_t(sets);
-			const scr_coord_val xoff = min(win_get_pos(this).x + this->size.w, gfx->get_screen_size().w - cg->get_windowsize().w );
+			climate_gui_t* cg = new climate_gui_t(sets);
+			const scr_coord_val xoff = min(win_get_pos(this).x + this->size.w, gfx->get_screen_size().w - cg->get_windowsize().w);
 			const scr_coord_val yoff = win_get_pos(this).y;
-			create_win({ xoff, yoff }, cg, w_info, magic_climate );
+			create_win({ xoff, yoff }, cg, w_info, magic_climate);
 			open_climate_gui.pressed = true;
 		}
 	}
-	else if(comp==&start_game) {
+	else if (comp == &start_game) {
 		destroy_all_win(true);
-		welt->get_message()->clear();
-		create_win({ 200, 100 }, new news_img("Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->get_image_id(0)), w_info, magic_none);
+		if (!loaded_heightfield) {
+			env_t::default_settings.heightfield = "";
+		}
 		env_t::default_settings = *sets;
-		translator::set_language(translator::get_language());	// reset also ingame names
+		welt->get_message()->clear();
 		delete sets;
 		sets = NULL;
-		if(loaded_heightfield) {
-			welt->load_heightfield(&env_t::default_settings);
-		}
-		else {
-			env_t::default_settings.heightfield = "";
-			welt->init( &env_t::default_settings, 0 );
-		}
-		destroy_all_win(true);
-		welt->step_month( env_t::default_settings.get_starting_month() );
-		welt->set_pause(false);
 		// save setting ...
 		loadsave_t file;
-		if(  file.wr_open("default.sve",loadsave_t::binary,0,"settings only",SAVEGAME_VER_NR) == loadsave_t::FILE_STATUS_OK  ) {
+		chdir(env_t::user_dir);
+		if (file.wr_open("default.sve", loadsave_t::binary, 0, "settings only", SAVEGAME_VER_NR) == loadsave_t::FILE_STATUS_OK) {
 			// save default setting
 			env_t::default_settings.rdwr(&file);
-			env_t::default_settings.reset_after_global_settings_reload();
 			file.close();
 		}
-		welt->type_of_generation = karte_t::NEW_WORLD;
+		tool_t::simple_tool[TOOL_WORK_WORLD]->set_default_param("n");
+		welt->set_tool(tool_t::simple_tool[TOOL_WORK_WORLD], NULL);
 	}
 	else if(comp==&return_menu) {
 		destroy_all_win(true);

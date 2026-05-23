@@ -24,6 +24,7 @@
 #include "../network/network_cmd_ingame.h"
 #include "../network/network_socket_list.h"
 
+#include "../tool/simtool.h"
 #include "../utils/simstring.h"
 
 
@@ -34,39 +35,17 @@
 bool loadsave_frame_t::item_action(const char *filename)
 {
 	if(do_load) {
-		welt->switch_server( easy_server.pressed, true );
-		long start_load = dr_time();
-		if(  !welt->load(filename)  ) {
-			welt->switch_server( false, true );
-		}
-		else {
-			if (env_t::server) {
-				welt->announce_server(karte_t::SERVER_ANNOUNCE_HELLO);
-			}
-			welt->type_of_generation = karte_t::LOADED_WORLD;
-		}
-		DBG_MESSAGE( "loadsave_frame_t::item_action", "load world %li ms", dr_time() - start_load );
+		cbuffer_t param;
+		param.printf("l%c%s", easy_server.pressed+'0', filename);
+		tool_t::simple_tool[TOOL_WORK_WORLD]->set_default_param(param);
+		welt->set_tool(tool_t::simple_tool[TOOL_WORK_WORLD], NULL);
 	}
 	else {
-		// saving a game
-		if(  env_t::server  ||  socket_list_t::get_playing_clients() > 0  ) {
-			network_reset_server();
-#if 0
-// TODO: saving without kicking all clients off ...
-			// we have connected clients, so we do a sync
-			const uint32 new_map_counter = welt->generate_new_map_counter();
-			nwc_sync_t *nw_sync = new nwc_sync_t(welt->get_sync_steps() + 1, welt->get_map_counter(), -1, new_map_counter);
-			network_send_all(nw_sync, false);
-			// and now we need to copy the servergame to the map ...
-#endif
-		}
-		long start_save = dr_time();
-		welt->save( filename, false, env_t::savegame_version_str, false );
-		DBG_MESSAGE( "loadsave_frame_t::item_action", "save world %li ms", dr_time() - start_save );
-		welt->set_dirty();
-		welt->reset_timer();
+		cbuffer_t param;
+		param.printf("s%s", filename);
+		tool_t::simple_tool[TOOL_WORK_WORLD]->set_default_param(param);
+		welt->set_tool(tool_t::simple_tool[TOOL_WORK_WORLD], NULL);
 	}
-
 	return true;
 }
 
