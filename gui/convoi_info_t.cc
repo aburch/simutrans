@@ -357,7 +357,7 @@ void convoi_info_t::update_labels()
 		scroll_freight.set_size( scroll_freight.get_size() );
 	}
 
-	scroll_stops_list.set_size(  scr_size( scroll_stops_list.get_size().w,get_client_windowsize().h - scroll_stops_list.get_pos().y - D_MARGIN_BOTTOM )  );
+	scroll_stops_list.set_size(  scr_size( scroll_stops_list.get_size().w, switch_mode.get_size().h - scroll_stops_list.get_pos().y )  );
 
 	// realign container - necessary if strings changed length
 	container_top->set_size( container_top->get_size() );
