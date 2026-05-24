@@ -628,8 +628,8 @@ void haltestelle_t::set_permissions(uint16 perms)
 		// share player stops
 		permissions = perms | (1 << owner->get_player_nr());
 	}
-	if (rebuilt_schedule_registration(true,true)) {
-		 // we may no have more convois serving us
+	if (rebuilt_schedule_registration(old_perm & ~permissions, permissions & ~old_perm)) {
+		 // convois/lines changed
 		welt->set_schedule_counter();
 	}
 }
