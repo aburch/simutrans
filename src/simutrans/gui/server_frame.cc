@@ -503,29 +503,26 @@ bool server_frame_t::action_triggered (gui_action_creator_t *comp, value_t p)
 			// forbid joining?
 		}
 		env_t::nickname = nickname;
-		std::string filename = "net:";
+		const char *server = NULL;
 
 		// Prefer serverlist entry if one is selected
 		if (  serverlist.get_selection() >= 0  ) {
-			gfx->set_show_load_cursor(true);
-			filename += ((server_scrollitem_t*)serverlist.get_selected_item())->get_dns();
-			destroy_win( this );
-			welt->load( filename.c_str() );
-			welt->type_of_generation = karte_t::CLIENT_WORLD;
-			gfx->set_show_load_cursor(false);
+			server = ((server_scrollitem_t*)serverlist.get_selected_item())->get_dns();
 		}
 		// If we have a valid custom server entry, connect to that
 		else if (  custom_valid  ) {
-			gfx->set_show_load_cursor(true);
-			filename += newserver_name;
-			destroy_win( this );
-			welt->load( filename.c_str() );
-			welt->type_of_generation = karte_t::CLIENT_WORLD;
-			gfx->set_show_load_cursor(false);
+			server = newserver_name;
 		}
 		else {
 			dbg->error( "server_frame_t::action_triggered()", "join pressed without valid selection or custom server entry" );
 			join.disable();
+		}
+
+		if (  server  ) {
+			cbuffer_t param;
+			param.printf("l0net:%s", server);
+			tool_t::simple_tool[TOOL_WORK_WORLD]->set_default_param(param);
+			welt->set_tool(tool_t::simple_tool[TOOL_WORK_WORLD], NULL);
 		}
 	}
 	else if (  &find_mismatch == comp  ) {

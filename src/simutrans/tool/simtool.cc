@@ -8833,7 +8833,7 @@ bool tool_work_world_t::init(player_t*)
 			if (env_t::server) {
 				welt->announce_server(karte_t::SERVER_ANNOUNCE_HELLO);
 			}
-			welt->type_of_generation = karte_t::LOADED_WORLD;
+			welt->type_of_generation = strstart(filename, "net:") ? karte_t::CLIENT_WORLD : karte_t::LOADED_WORLD;
 			return true;
 		}
 	}
