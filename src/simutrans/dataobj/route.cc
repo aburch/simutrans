@@ -715,7 +715,7 @@ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, c
 		if(  halt.is_bound()  ) {
 
 			// first: find out how many tiles I am already in the station
-			for(  size_t i = route.get_count();  i-- != 0  &&  max_len != 0  &&  halt == haltestelle_t::get_halt(route[i], NULL);  --max_len) {
+			for(  size_t i = route.get_count();  i-- != 0  &&  max_len != 0  &&  halt == haltestelle_t::get_halt(route[i], NULL, false);  --max_len) {
 			}
 
 			// and now go forward, if possible

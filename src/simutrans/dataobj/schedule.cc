@@ -86,7 +86,7 @@ halthandle_t schedule_t::get_next_halt( player_t *player, halthandle_t halt ) co
 {
 	if(  entries.get_count()>1  ) {
 		for(  uint i=1;  i < entries.get_count();  i++  ) {
-			halthandle_t h = haltestelle_t::get_halt( entries[ (current_stop+i) % entries.get_count() ].pos, player );
+			halthandle_t h = haltestelle_t::get_halt( entries[ (current_stop+i) % entries.get_count() ].pos, player, get_waytype()==water_wt );
 			if(  h.is_bound()  &&  h != halt  ) {
 				return h;
 			}
@@ -103,7 +103,7 @@ halthandle_t schedule_t::get_prev_halt( player_t *player ) const
 {
 	if(  entries.get_count()>1  ) {
 		for(  uint i=1;  i < entries.get_count()-1u;  i++  ) {
-			halthandle_t h = haltestelle_t::get_halt( entries[ (current_stop+entries.get_count()-i) % entries.get_count() ].pos, player );
+			halthandle_t h = haltestelle_t::get_halt( entries[ (current_stop+entries.get_count()-i) % entries.get_count() ].pos, player, get_waytype()==water_wt );
 			if(  h.is_bound()  ) {
 				return h;
 			}
@@ -449,9 +449,10 @@ bool schedule_t::similar( const schedule_t *schedule, const player_t *player )
 	}
 	// now we have to check all entries: So we add all stops to a vector we will iterate over
 	vector_tpl<halthandle_t> halts;
+	bool water = get_waytype() == water_wt;
 	for(  uint8 idx = 0;  idx < this->entries.get_count();  idx++  ) {
 		koord3d p = this->entries[idx].pos;
-		halthandle_t halt = haltestelle_t::get_halt( p, player );
+		halthandle_t halt = haltestelle_t::get_halt( p, player, water);
 		if(  halt.is_bound()  ) {
 			halts.insert_unique_ordered( halt, HaltIdOrdering() );
 		}
@@ -459,7 +460,7 @@ bool schedule_t::similar( const schedule_t *schedule, const player_t *player )
 	vector_tpl<halthandle_t> other_halts;
 	for(  uint8 idx = 0;  idx < schedule->entries.get_count();  idx++  ) {
 		koord3d p = schedule->entries[idx].pos;
-		halthandle_t halt = haltestelle_t::get_halt( p, player );
+		halthandle_t halt = haltestelle_t::get_halt( p, player, water);
 		if(  halt.is_bound()  ) {
 			other_halts.insert_unique_ordered( halt, HaltIdOrdering() );
 		}
@@ -574,10 +575,10 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 }
 
 
-void schedule_t::gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* const player_, schedule_entry_t const& entry, int const max_chars)
+void schedule_t::gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* const player_, bool is_water, schedule_entry_t const& entry, int const max_chars)
 {
 	const char *p;
-	halthandle_t halt = haltestelle_t::get_halt(entry.pos, player_);
+	halthandle_t halt = haltestelle_t::get_halt(entry.pos, player_, is_water);
 	if(halt.is_bound()) {
 		p = halt->get_name();
 	}

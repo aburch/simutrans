@@ -196,15 +196,21 @@ halthandle_t haltestelle_t::get_halt_koord_index(koord k)
 /* we allow only for a single stop per grund
  * this will only return something if this stop belongs to same player or is public or its permissions allow access, or is a dock (when on water)
  */
-halthandle_t haltestelle_t::get_halt(const koord3d pos, const player_t *player )
+halthandle_t haltestelle_t::get_halt(const koord3d pos, const player_t *player, bool is_water )
 {
 	const grund_t *gr = welt->lookup(pos);
 	if(gr) {
-		if(gr->get_halt().is_bound()  &&  gr->get_halt()->can_use_halt(player)) {
-			return gr->get_halt();
+		if (gr->is_halt()) {
+			halthandle_t h = gr->get_halt();
+			if (h.is_bound()) {
+				if (h->can_use_halt(player)) {
+					return h;
+				}
+				return halthandle_t();
+			}
 		}
 		// no halt? => we do the water check
-		if(gr->is_water()) {
+		if(gr->is_water()  &&  is_water) {
 			// may catch bus stops close to water so we need to check type ...
 			const planquadrat_t *plan = welt->access(pos.get_2d());
 			const uint8 cnt = plan->get_haltlist_count();
@@ -1297,7 +1303,7 @@ sint32 haltestelle_t::rebuild_connections()
 
 		// find the index from which to start processing
 		uint8 start_index = 0;
-		while(  start_index < schedule->get_count()  &&  get_halt( schedule->entries[start_index].pos, owner ) != self  ) {
+		while(  start_index < schedule->get_count()  &&  get_halt( schedule->entries[start_index].pos, owner, true ) != self  ) {
 			++start_index;
 		}
 		++start_index; // the next index after self halt; it's okay to be out-of-range
@@ -1323,7 +1329,7 @@ sint32 haltestelle_t::rebuild_connections()
 		uint16 aggregate_weight = WEIGHT_WAIT;
 		for(  uint8 j=0;  j<schedule->get_count();  ++j  ) {
 
-			halthandle_t current_halt = get_halt(schedule->entries[(start_index+j)%schedule->get_count()].pos, owner );
+			halthandle_t current_halt = get_halt(schedule->entries[(start_index+j)%schedule->get_count()].pos, owner, schedule->get_waytype()==water_wt );
 			if(  !current_halt.is_bound()  ) {
 				// ignore way points
 				continue;
@@ -1388,18 +1394,52 @@ bool haltestelle_t::rebuilt_schedule_registration(bool full)
 	bool change = false;
 
 	if (full) {
-		// remove old connections
+		// remove all old connections
 		for (int i = registered_lines.get_count()-1; i >= 0; i--) {
-			if ((1 << registered_lines[i]->get_owner()->get_player_nr()) & ~permissions) {
+			linehandle_t l = registered_lines[i];
+			// wrong owner
+			if ((1 << l->get_owner()->get_player_nr()) & ~permissions) {
+				stale_lines.append_unique(l);
 				registered_lines.remove_at(i);
 				change = true;
+				continue;
+			}
+			// no convoys anymore
+			if (l->count_convoys() == 0) {
+				registered_lines.remove_at(i);
+				continue;
+			}
+			// now check for changed stops
+			bool water = l->get_schedule()->get_waytype() == water_wt;
+			for (schedule_entry_t const& k : l->get_schedule()->entries) {
+				if (get_halt(k.pos, l->get_owner(), water) == self) {
+					stale_lines.append_unique(l);
+					registered_lines.remove_at(i);
+					change = true;
+					break;
+				}
 			}
 		}
 		// remove old convois
 		for (int i = registered_convoys.get_count()-1; i >= 0; i--) {
+			// wrong owner
 			if ((1 << registered_convoys[i]->get_owner()->get_player_nr()) & ~permissions) {
+				stale_convois.append_unique(registered_convoys[i]);
 				registered_convoys.remove_at(i);
 				change = true;
+				continue;
+			}
+			// not stopping any more
+			if (const schedule_t* const schedule = registered_convoys[i]->get_schedule()) {
+				bool water = schedule->get_waytype() == water_wt;
+				for (schedule_entry_t const& k : schedule->entries) {
+					if (get_halt(k.pos, registered_convoys[i]->get_owner(), water) == self) {
+						stale_convois.append_unique(registered_convoys[i]);
+						registered_convoys.remove_at(i);
+						change = true;
+						break;
+					}
+				}
 			}
 		}
 	}
@@ -1413,8 +1453,9 @@ bool haltestelle_t::rebuilt_schedule_registration(bool full)
 				for (linehandle_t const j : check_line) {
 					// only add unknown lines
 					if (!registered_lines.is_contained(j) && j->count_convoys() > 0) {
+						bool water = j->get_schedule()->get_waytype() == water_wt;
 						for (schedule_entry_t const& k : j->get_schedule()->entries) {
-							if (get_halt(k.pos, player) == self) {
+							if (get_halt(k.pos, player, water) == self) {
 								registered_lines.append(j);
 								change = true;
 								break;
@@ -1431,8 +1472,9 @@ bool haltestelle_t::rebuilt_schedule_registration(bool full)
 		// only check lineless convoys which have matching ownership and which are not yet registered
 		if (!cnv->get_line().is_bound() && can_use_halt(cnv->get_owner()) && !registered_convoys.is_contained(cnv)) {
 			if (const schedule_t* const schedule = cnv->get_schedule()) {
+				bool water = schedule->get_waytype() == water_wt;
 				for (schedule_entry_t const& k : schedule->entries) {
-					if (get_halt(k.pos, cnv->get_owner()) == self) {
+					if (get_halt(k.pos, cnv->get_owner(), water) == self) {
 						registered_convoys.append(cnv);
 						change = true;
 						break;
@@ -3529,37 +3571,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	// needs to be done, if this was a dock
 	recalc_station_type();
 
-	// remove lines eventually
-	for(  size_t j = registered_lines.get_count();  j-- != 0;  ) {
-		bool ok = false;
-		for(schedule_entry_t const& k : registered_lines[j]->get_schedule()->entries  ) {
-			if(  get_halt(k.pos, registered_lines[j]->get_owner()) == self  ) {
-				ok = true;
-				break;
-			}
-		}
-		// need removal?
-		if(!ok) {
-			stale_lines.append_unique( registered_lines[j] );
-			registered_lines.remove_at(j);
-		}
-	}
-
-	// remove registered lineless convoys as well
-	for(  size_t j = registered_convoys.get_count();  j-- != 0;  ) {
-		bool ok = false;
-		for(schedule_entry_t const& k : registered_convoys[j]->get_schedule()->entries  ) {
-			if(  get_halt(k.pos, registered_convoys[j]->get_owner()) == self  ) {
-				ok = true;
-				break;
-			}
-		}
-		// need removal?
-		if(  !ok  ) {
-			stale_convois.append_unique( registered_convoys[j] );
-			registered_convoys.remove_at(j);
-		}
-	}
+	rebuilt_schedule_registration(true);
 
 	return true;
 }

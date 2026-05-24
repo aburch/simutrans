@@ -303,10 +303,11 @@ void line_management_gui_t::draw(scr_coord pos, scr_size size)
 		if(  line->get_schedule()->get_count() != old_halt_count  ) {
 			// update halt info
 			old_halt_count = line->get_schedule()->get_count();
+			bool allow_water = line->get_schedule()->get_waytype() == water_wt;
 			// fill haltestellen container with info of stops of the line
 			scrolly_halts.clear_elements();
 			for(schedule_entry_t const& i : line->get_schedule()->entries) {
-				halthandle_t const halt = haltestelle_t::get_halt(i.pos, player);
+				halthandle_t const halt = haltestelle_t::get_halt(i.pos, player, allow_water);
 				if(  halt.is_bound()  ) {
 					scrolly_halts.new_component<halt_list_stats_t>(halt);
 				}

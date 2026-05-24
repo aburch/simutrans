@@ -251,10 +251,10 @@ bool convoi_t::is_waypoint( koord3d ziel ) const
 	if (grund_t* gr = welt->lookup(ziel)) {
 		if (depot_t* dp = gr->get_depot()) {
 			// don't stop in other peoples depot
-			return !(dp->get_owner() == get_owner()  &&  fahr[0]  &&  dp->get_waytype() == fahr[0]->get_waytype());
+			return !(dp->get_owner() == owner  &&  fahr[0]  &&  dp->get_waytype() == fahr[0]->get_waytype());
 		}
 	}
-	return !haltestelle_t::get_halt(ziel,get_owner()).is_bound();
+	return !haltestelle_t::get_halt(ziel, owner, fahr[0]->get_waytype()==water_wt).is_bound();
 }
 
 
@@ -1048,7 +1048,7 @@ bool convoi_t::drive_to()
 
 		// avoid stopping mid-halt
 		if(  start==ziel  ) {
-			halthandle_t halt = haltestelle_t::get_halt(ziel,get_owner());
+			halthandle_t halt = haltestelle_t::get_halt(ziel, owner, fahr[0]->get_waytype() == water_wt);
 			if(  halt.is_bound()  &&  route.is_contained(start)  ) {
 				for(  uint32 i=route.index_of(start);  i<route.get_count();  i++  ) {
 					grund_t *gr = welt->lookup(route.at(i));
@@ -1229,11 +1229,11 @@ void convoi_t::step()
 				else {
 					// Schedule changed at station
 					// this station? then complete loading task else drive on
-					halthandle_t h = haltestelle_t::get_halt( get_pos(), get_owner() );
-					if(  h.is_bound()  &&  h==haltestelle_t::get_halt( schedule->get_current_entry().pos, get_owner() )  ) {
+					halthandle_t h = haltestelle_t::get_halt( get_pos(), owner, fahr[0]->get_waytype() == water_wt);
+					if(  h.is_bound()  &&  h==haltestelle_t::get_halt( schedule->get_current_entry().pos, owner, fahr[0]->get_waytype() == water_wt)  ) {
 						if (route.get_count() > 0) {
 							koord3d const& pos = route.back();
-							if (h == haltestelle_t::get_halt(pos, get_owner())) {
+							if (h == haltestelle_t::get_halt(pos, owner, fahr[0]->get_waytype() == water_wt)) {
 								state = get_pos() == pos ? LOADING : DRIVING;
 								break;
 							}
@@ -1309,7 +1309,7 @@ void convoi_t::step()
 				if(  v->can_enter_tile( restart_speed, 0 )  ) {
 					// can reserve new block => drive on
 					state = (steps_driven>=0) ? LEAVING_DEPOT : DRIVING;
-					if(haltestelle_t::get_halt(v->get_pos(),owner).is_bound()) {
+					if(haltestelle_t::get_halt(v->get_pos(), owner, fahr[0]->get_waytype() == water_wt).is_bound()) {
 						v->play_sound();
 					}
 				}
@@ -1634,7 +1634,7 @@ void convoi_t::ziel_erreicht()
 	}
 	else {
 		// no depot reached, check for stop!
-		halthandle_t halt = haltestelle_t::get_halt(schedule->get_current_entry().pos, owner);
+		halthandle_t halt = haltestelle_t::get_halt(schedule->get_current_entry().pos, owner, fahr[0]->get_waytype() == water_wt);
 		if (halt.is_bound() && gr->get_weg_ribi(v->get_waytype()) != 0) {
 			// seems to be a stop, so book the money for the trip
 			calc_gewinn();
@@ -2165,7 +2165,7 @@ void convoi_t::vorfahren()
 			sint32 restart_speed = -1;
 			if(  fahr[0]->can_enter_tile( restart_speed, 0 )  ) {
 				// can reserve new block => drive on
-				if(haltestelle_t::get_halt(k0,owner).is_bound()) {
+				if(haltestelle_t::get_halt(k0, owner, fahr[0]->get_waytype() == water_wt).is_bound()) {
 					fahr[0]->play_sound();
 				}
 				state = DRIVING;
@@ -2839,7 +2839,7 @@ void convoi_t::laden()
 	wait_lock = (WTT_LOADING*2)+(self.get_id())%1024;
 
 	// find station (ours or public)
-	halthandle_t halt = haltestelle_t::get_halt(schedule->get_current_entry().pos,owner);
+	halthandle_t halt = haltestelle_t::get_halt(schedule->get_current_entry().pos, owner, fahr[0]->get_waytype());
 	if(  halt.is_bound()  ) {
 		// queue for (un)loading, does (un)loading once per step
 		halt->request_loading( self );
@@ -2978,7 +2978,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		for (uint8 i = 1; i < count; i++) {
 			const uint8 wrap_i = (i + schedule->get_current_stop()) % count;
 
-			const halthandle_t plan_halt = haltestelle_t::get_halt(schedule->entries[wrap_i].pos, owner);
+			const halthandle_t plan_halt = haltestelle_t::get_halt(schedule->entries[wrap_i].pos, owner, fahr[0]->get_waytype());
 			if (plan_halt == halt) {
 				// we will come later here again ...
 				// the following halt is the same => there will never be a halt to serve
@@ -3439,8 +3439,8 @@ void convoi_t::set_update_line(linehandle_t l)
 // matches two halts; if the pos is not identical, maybe the halt still is the same
 bool convoi_t::matches_halt( const koord3d pos1, const koord3d pos2 )
 {
-	halthandle_t halt1 = haltestelle_t::get_halt(pos1, owner );
-	return pos1==pos2  ||  (halt1.is_bound()  &&  halt1==haltestelle_t::get_halt( pos2, owner ));
+	halthandle_t halt1 = haltestelle_t::get_halt(pos1, owner, fahr[0]->get_waytype());
+	return pos1==pos2  ||  (halt1.is_bound()  &&  halt1==haltestelle_t::get_halt( pos2, owner, fahr[0]->get_waytype()));
 }
 
 
@@ -3587,7 +3587,7 @@ void convoi_t::register_stops()
 {
 	if(  schedule  ) {
 		for(schedule_entry_t const& i : schedule->entries) {
-			halthandle_t const halt = haltestelle_t::get_halt(i.pos, get_owner());
+			halthandle_t const halt = haltestelle_t::get_halt(i.pos, owner, fahr[0]->get_waytype()==water_wt);
 			if(  halt.is_bound()  ) {
 				halt->add_convoy(self);
 			}
@@ -3603,7 +3603,7 @@ void convoi_t::unregister_stops()
 {
 	if(  schedule  ) {
 		for(schedule_entry_t const& i : schedule->entries) {
-			halthandle_t const halt = haltestelle_t::get_halt(i.pos, get_owner());
+			halthandle_t const halt = haltestelle_t::get_halt(i.pos, owner, schedule->get_waytype()==water_wt);
 			if(  halt.is_bound()  ) {
 				halt->remove_convoy(self);
 			}

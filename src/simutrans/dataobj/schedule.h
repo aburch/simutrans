@@ -209,7 +209,7 @@ public:
 	 * Append description of entry to buf.
 	 * If @p max_chars > 0 then append short version, without loading level and position.
 	 */
-	static void gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* player_, schedule_entry_t const& entry, int max_chars);
+	static void gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* player_, bool wt, schedule_entry_t const& entry, int max_chars);
 };
 
 

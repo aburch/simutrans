@@ -236,7 +236,7 @@ bool road_vehicle_t::choose_route(sint32 &restart_speed, ribi_t::ribi start_dire
 
 	// are we heading to a target?
 	route_t *rt = cnv->access_route();
-	target_halt = haltestelle_t::get_halt( rt->back(), get_owner() );
+	target_halt = haltestelle_t::get_halt( rt->back(), get_owner(), false );
 	if(  target_halt.is_bound()  ) {
 
 		// since convois can long than one tile, check is more difficult
@@ -554,7 +554,7 @@ void road_vehicle_t::set_convoi(convoi_t *c)
 		if(target  &&  leading  &&  c->get_route()->empty()) {
 			// reinitialize the target halt
 			const route_t *rt = cnv->get_route();
-			target_halt = haltestelle_t::get_halt( rt->back(), get_owner() );
+			target_halt = haltestelle_t::get_halt( rt->back(), get_owner(), false );
 			if(  target_halt.is_bound()  ) {
 				for(  uint32 i=0;  i<c->get_tile_length()  &&  i+1<rt->get_count();  i++  ) {
 					target_halt->reserve_position( welt->lookup( rt->at(rt->get_count()-i-1) ), cnv->self );

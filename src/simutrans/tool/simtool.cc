@@ -6899,7 +6899,7 @@ const char *tool_make_stop_public_t::move( player_t *player, uint16, koord3d p )
 const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 {
 	// target halt must exist
-	halthandle_t halt = haltestelle_t::get_halt(p,player);
+	halthandle_t halt = haltestelle_t::get_halt(p,player,false);
 	if (!halt.is_bound() && player == welt->get_public_player()) {
 		// public player can make halts of other players public
 		grund_t *gr = welt->lookup(p);
@@ -7060,7 +7060,7 @@ uint8 tool_merge_stop_t::is_valid_pos( player_t *player, const koord3d &pos, con
 	}
 
 	// check halt ownership
-	halthandle_t h = haltestelle_t::get_halt(pos,player);
+	halthandle_t h = haltestelle_t::get_halt(pos,player,false);
 	if(  h.is_bound()  ) {
 		//  allow to merge two public stops too
 		// so no need to check for ownership
@@ -7079,8 +7079,8 @@ uint8 tool_merge_stop_t::is_valid_pos( player_t *player, const koord3d &pos, con
 void tool_merge_stop_t::mark_tiles( player_t *player, const koord3d &start, const koord3d &end )
 {
 	// only seens when dragging
-	halt_be_merged_from = haltestelle_t::get_halt(start,player);
-	halt_be_merged_to = haltestelle_t::get_halt(end,player);
+	halt_be_merged_from = haltestelle_t::get_halt(start,player,false);
+	halt_be_merged_to = haltestelle_t::get_halt(end,player,false);
 	sint64 workcost = 0;
 	uint32 distance = 0x7FFFFFFFu;
 
@@ -7122,8 +7122,8 @@ void tool_merge_stop_t::mark_tiles( player_t *player, const koord3d &start, cons
 
 const char *tool_merge_stop_t::do_work( player_t *player, const koord3d &last_pos, const koord3d &pos)
 {
-	halt_be_merged_from = haltestelle_t::get_halt(pos,player);
-	halt_be_merged_to = haltestelle_t::get_halt(last_pos,player);
+	halt_be_merged_from = haltestelle_t::get_halt(pos,player,false);
+	halt_be_merged_to = haltestelle_t::get_halt(last_pos,player,false);
 	sint64 workcost = 0;
 	uint32 distance = 0x7FFFFFFFu;
 

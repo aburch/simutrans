@@ -336,7 +336,7 @@ void simline_t::register_stops(schedule_t * schedule)
 {
 DBG_DEBUG("simline_t::register_stops()", "%d schedule entries in schedule %p", schedule->get_count(),schedule);
 	for(schedule_entry_t const& i : schedule->entries) {
-		halthandle_t const halt = haltestelle_t::get_halt(i.pos, player);
+		halthandle_t const halt = haltestelle_t::get_halt(i.pos, player, schedule->get_waytype()==water_wt);
 		if(halt.is_bound()) {
 //DBG_DEBUG("simline_t::register_stops()", "halt not null");
 			halt->add_line(self);
@@ -358,7 +358,7 @@ void simline_t::unregister_stops()
 void simline_t::unregister_stops(schedule_t * schedule)
 {
 	for(schedule_entry_t const& i : schedule->entries) {
-		halthandle_t const halt = haltestelle_t::get_halt(i.pos, player);
+		halthandle_t const halt = haltestelle_t::get_halt(i.pos, player, schedule->get_waytype() == water_wt);
 		if(halt.is_bound()) {
 			halt->remove_line(self);
 		}

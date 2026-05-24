@@ -176,9 +176,9 @@ public:
 	static halthandle_t get_halt_koord_index(koord k);
 
 	/*
-	 * this will only return something if this stop belongs to same player or is public, or is a dock (when on water)
+	 * this will only return something if this stop belongs to same player or is public, or is a dock (when on water and allowed)
 	 */
-	static halthandle_t get_halt(const koord3d pos, const player_t *player );
+	static halthandle_t get_halt(const koord3d pos, const player_t *player, bool allow_water=true );
 
 	static const vector_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
 

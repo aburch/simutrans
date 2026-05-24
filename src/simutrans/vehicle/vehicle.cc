@@ -241,7 +241,7 @@ void vehicle_t::remove_stale_cargo()
 			if(  tmp.get_via_halt().is_bound()  ) {
 				// the original halt exists, but does we still go there?
 				for(schedule_entry_t const& i : cnv->get_schedule()->entries) {
-					if(  haltestelle_t::get_halt( i.pos, cnv->get_owner()) == tmp.get_via_halt()  ) {
+					if(  haltestelle_t::get_halt( i.pos, cnv->get_owner(), get_waytype()==water_wt) == tmp.get_via_halt()  ) {
 						found = true;
 						break;
 					}
@@ -253,7 +253,7 @@ void vehicle_t::remove_stale_cargo()
 				const int max_count = cnv->get_schedule()->entries.get_count();
 				for(  int i=0;  i<max_count;  i++  ) {
 					// try to unload on next stop
-					halthandle_t halt = haltestelle_t::get_halt( cnv->get_schedule()->entries[ (i+offset)%max_count ].pos, cnv->get_owner() );
+					halthandle_t halt = haltestelle_t::get_halt( cnv->get_schedule()->entries[ (i+offset)%max_count ].pos, cnv->get_owner(), get_waytype() == water_wt);
 					if(  halt.is_bound()  ) {
 						if(  halt->is_enabled(tmp.get_index())  ) {
 							// ok, lets change here, since goods are accepted here

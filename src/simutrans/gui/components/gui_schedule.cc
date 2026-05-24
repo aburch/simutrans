@@ -53,6 +53,7 @@ class gui_schedule_entry_t :
 {
 	schedule_entry_t entry;
 	bool is_current;
+	bool is_water;
 	uint number;
 	player_t* player;
 	gui_label_buf_t stop;
@@ -61,8 +62,9 @@ class gui_schedule_entry_t :
 	bool valid;
 
 public:
-	gui_schedule_entry_t(player_t* pl, schedule_entry_t e, uint n)
+	gui_schedule_entry_t(player_t* pl, schedule_entry_t e, uint n, bool is_w)
 	{
+		is_water = is_w;
 		player = pl;
 		entry  = e;
 		number = n;
@@ -99,9 +101,9 @@ public:
 	{
 		arrow.set_targetpos3d(entry.pos);
 		stop.buf().printf("%i) ", number+1);
-		schedule_t::gimme_stop_name(stop.buf(), welt, player, entry, -1);
+		schedule_t::gimme_stop_name(stop.buf(), welt, player, is_water, entry, -1);
 		stop.update();
-		if(  haltestelle_t::get_halt( entry.pos, player ).is_bound()  ) {
+		if(  haltestelle_t::get_halt( entry.pos, player, is_water ).is_bound()  ) {
 			if(  !entry.get_absolute_departures()  ) {
 				if (entry.minimum_loading > 0) {
 					if( entry.waiting_time > 0 ) {
@@ -296,7 +298,7 @@ public:
 			else {
 				for(uint i=0; i<schedule->entries.get_count(); i++) {
 
-					gui_schedule_entry_t* entry = new_component<gui_schedule_entry_t>(player, schedule->entries[i], i);
+					gui_schedule_entry_t* entry = new_component<gui_schedule_entry_t>(player, schedule->entries[i], i,schedule->get_waytype()==water_wt);
 					// mark double entries as invalid
 					bool valid =     (schedule->entries[i].pos != schedule->entries[ (i+1)                               % schedule->entries.get_count() ].pos)
 					             &&  (schedule->entries[i].pos != schedule->entries[ (i-1+schedule->entries.get_count()) % schedule->entries.get_count() ].pos);
@@ -559,7 +561,7 @@ void gui_schedule_t::update_selection()
 
 		const uint8 current_stop = schedule->get_current_stop();
 
-		if(  haltestelle_t::get_halt(schedule->entries[current_stop].pos, player).is_bound()  ) {
+		if(  haltestelle_t::get_halt(schedule->entries[current_stop].pos, player, schedule->get_waytype()==water_wt).is_bound()  ) {
 
 			cb_wait.set_visible(true);
 			if( schedule->entries[current_stop].get_absolute_departures() ) {
