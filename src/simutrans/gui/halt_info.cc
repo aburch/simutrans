@@ -572,7 +572,8 @@ void gui_halt_detail_t::update_connections( halthandle_t halt )
 	remove_all();
 	set_table_layout(2, 0);
 
-	new_component_span<gui_label_t>("Stopping permissions", 2);
+	gui_aligned_container_t *t = new gui_aligned_container_t(2, 0);
+	t->new_component_span<gui_label_t>("Stopping permissions", 2);
 	int how_many = 0;
 	halt_permissions = halt->get_permissions();
 	for (uint16 i = 0; i < MAX_PLAYER_COUNT; i++) {
@@ -587,18 +588,13 @@ void gui_halt_detail_t::update_connections( halthandle_t halt )
 			}
 			connected_players[i].init(button_t::square_automatic,pl->get_name());
 			connected_players[i].text_color = PLAYER_FLAG | gfx->palette_lookup(pl->get_player_color1() + env_t::gui_player_color_dark);
-			add_component(connected_players + i);
+			t->add_component(connected_players + i);
 			how_many++;
 		}
 		connected_players[i].pressed = halt_permissions & (1<<i);
 	}
-	if (how_many == 0) {
-		// just me active => do not show
-		remove_all();
-	}
-	else if (how_many & 1) {
-		// to not leave it uneven ..
-		new_component<gui_empty_t>();
+	if (how_many > 0) {
+		take_component(t, 2);
 	}
 
 	const slist_tpl<fabrik_t *> & fab_list = halt->get_fab_list();
