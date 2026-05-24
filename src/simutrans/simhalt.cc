@@ -1398,7 +1398,7 @@ bool haltestelle_t::rebuilt_schedule_registration(bool remove,bool add)
 		for (int i = registered_lines.get_count()-1; i >= 0; i--) {
 			linehandle_t l = registered_lines[i];
 			// wrong owner
-			if ((1 << l->get_owner()->get_player_nr()) & ~permissions) {
+			if (!can_use_halt(l->get_owner())) {
 				stale_lines.append_unique(l);
 				registered_lines.remove_at(i);
 				change = true;
@@ -1410,20 +1410,24 @@ bool haltestelle_t::rebuilt_schedule_registration(bool remove,bool add)
 				continue;
 			}
 			// now check for changed stops
-			bool water = l->get_schedule()->get_waytype() == water_wt;
+			const bool water = l->get_schedule()->get_waytype() == water_wt;
+			bool still_stops_here = false;
 			for (schedule_entry_t const& k : l->get_schedule()->entries) {
 				if (get_halt(k.pos, l->get_owner(), water) == self) {
-					stale_lines.append_unique(l);
-					registered_lines.remove_at(i);
-					change = true;
+					still_stops_here = true;
 					break;
 				}
+			}
+			if (!still_stops_here) {
+				stale_lines.append_unique(l);
+				registered_lines.remove_at(i);
+				change = true;
 			}
 		}
 		// remove old convois
 		for (int i = registered_convoys.get_count()-1; i >= 0; i--) {
 			// wrong owner
-			if ((1 << registered_convoys[i]->get_owner()->get_player_nr()) & ~permissions) {
+			if (!can_use_halt(registered_convoys[i]->get_owner())) {
 				stale_convois.append_unique(registered_convoys[i]);
 				registered_convoys.remove_at(i);
 				change = true;
@@ -1431,14 +1435,18 @@ bool haltestelle_t::rebuilt_schedule_registration(bool remove,bool add)
 			}
 			// not stopping any more
 			if (const schedule_t* const schedule = registered_convoys[i]->get_schedule()) {
-				bool water = schedule->get_waytype() == water_wt;
+				const bool water = schedule->get_waytype() == water_wt;
+				bool still_stops_here = false;
 				for (schedule_entry_t const& k : schedule->entries) {
 					if (get_halt(k.pos, registered_convoys[i]->get_owner(), water) == self) {
-						stale_convois.append_unique(registered_convoys[i]);
-						registered_convoys.remove_at(i);
-						change = true;
+						still_stops_here = true;
 						break;
 					}
+				}
+				if (!still_stops_here) {
+					stale_convois.append_unique(registered_convoys[i]);
+					registered_convoys.remove_at(i);
+					change = true;
 				}
 			}
 		}
