@@ -404,7 +404,7 @@ public:
 	 * registers all convois using the current permissions (full check also removes)
 	 * @return true if there was a change
 	 */
-	bool rebuilt_schedule_registration( bool full_check );
+	bool rebuilt_schedule_registration( bool remove_check, bool add_check );
 
 	/**
 	 * Rebuilds the list of connections to reachable halts
@@ -719,8 +719,7 @@ public:
 	 * will crash on NULL pointer, but no unowned convois ever ...
 	 * @return true if player is allowed to stop here
 	 */
-	inline bool haltestelle_t::can_use_halt(const player_t* player) const
-	{
+	inline bool can_use_halt(const player_t* player) const {
 		return player  &&  (permissions & (1 << player->get_player_nr()))!=0;
 	}
 

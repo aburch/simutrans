@@ -6769,14 +6769,6 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 						}
 						if(updated) {
 							schedule->make_valid();
-							// remove lineless convoy from old stop
-							if(  last_halt.is_bound()  ) {
-								last_halt->remove_convoy(cnv);
-							}
-							// register lineless convoy at new stop
-							if(  new_halt.is_bound()  ) {
-								new_halt->add_convoy(cnv);
-							}
 							if(  !schedule->is_editing_finished()  ) {
 								// schedule is not owned by schedule window ...
 								// ... thus we can set this schedule
@@ -6806,17 +6798,24 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 					// update line
 					if(updated) {
 						schedule->make_valid();
-						// remove line from old stop is needed at here
-						if(last_halt.is_bound()) {
-							last_halt->remove_line(line);
-						}
-						player->simlinemgmt.update_line(line);
 					}
 				}
 			}
 		}
-		// since factory connections may have changed
-		welt->set_schedule_counter();
+		if (new_halt != last_halt) {
+			// we handle it here to properly remove stale freight which could otherwise linger and cause wrong routing
+			bool changed = false;
+			if (last_halt.is_bound()) {
+				changed = last_halt->rebuilt_schedule_registration(true, false);
+			}
+			if (new_halt.is_bound()) {
+				changed |= new_halt->rebuilt_schedule_registration(false, true);
+			}
+			if (changed) {
+				// needs rerouting as something was newly assigned/removed
+				welt->set_schedule_counter();
+			}
+		}
 	}
 	return NULL;
 }

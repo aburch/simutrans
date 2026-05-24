@@ -171,7 +171,6 @@ target_sources(simutrans PRIVATE
 		src/simutrans/gui/pakinstaller.cc
 		src/simutrans/gui/pakselector.cc
 		src/simutrans/gui/password_frame.cc
-		src/simutrans/gui/permission_frame.cc
 		src/simutrans/gui/player_frame.cc
 		src/simutrans/gui/player_ranking_frame.cc
 		src/simutrans/gui/privatesign_info.cc

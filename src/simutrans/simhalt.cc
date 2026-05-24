@@ -628,7 +628,7 @@ void haltestelle_t::set_permissions(uint16 perms)
 		// share player stops
 		permissions = perms | (1 << owner->get_player_nr());
 	}
-	if (rebuilt_schedule_registration(true)) {
+	if (rebuilt_schedule_registration(true,true)) {
 		 // we may no have more convois serving us
 		welt->set_schedule_counter();
 	}
@@ -1389,11 +1389,11 @@ sint32 haltestelle_t::rebuild_connections()
 }
 
 
-bool haltestelle_t::rebuilt_schedule_registration(bool full)
+bool haltestelle_t::rebuilt_schedule_registration(bool remove,bool add)
 {
 	bool change = false;
 
-	if (full) {
+	if (remove) {
 		// remove all old connections
 		for (int i = registered_lines.get_count()-1; i >= 0; i--) {
 			linehandle_t l = registered_lines[i];
@@ -1444,40 +1444,42 @@ bool haltestelle_t::rebuilt_schedule_registration(bool full)
 		}
 	}
 
-	vector_tpl<linehandle_t> check_line;
-	// iterate over all lines (public halt: all lines, other: only player's lines)
-	for (uint8 i = 0; i < MAX_PLAYER_COUNT; i++) {
-		if (permissions & (1 << i)) {
-			if (player_t* player = welt->get_player(i)) {
-				player->simlinemgmt.get_lines(simline_t::line, &check_line);
-				for (linehandle_t const j : check_line) {
-					// only add unknown lines
-					if (!registered_lines.is_contained(j) && j->count_convoys() > 0) {
-						bool water = j->get_schedule()->get_waytype() == water_wt;
-						for (schedule_entry_t const& k : j->get_schedule()->entries) {
-							if (get_halt(k.pos, player, water) == self) {
-								registered_lines.append(j);
-								change = true;
-								break;
+	if (add) {
+		vector_tpl<linehandle_t> check_line;
+		// iterate over all lines (public halt: all lines, other: only player's lines)
+		for (uint8 i = 0; i < MAX_PLAYER_COUNT; i++) {
+			if (permissions & (1 << i)) {
+				if (player_t* player = welt->get_player(i)) {
+					player->simlinemgmt.get_lines(simline_t::line, &check_line);
+					for (linehandle_t const j : check_line) {
+						// only add unknown lines
+						if (!registered_lines.is_contained(j) && j->count_convoys() > 0) {
+							bool water = j->get_schedule()->get_waytype() == water_wt;
+							for (schedule_entry_t const& k : j->get_schedule()->entries) {
+								if (get_halt(k.pos, player, water) == self) {
+									registered_lines.append(j);
+									change = true;
+									break;
+								}
 							}
 						}
 					}
 				}
 			}
 		}
-	}
 
-	// iterate over all convoys
-	for (convoihandle_t const cnv : welt->convoys()) {
-		// only check lineless convoys which have matching ownership and which are not yet registered
-		if (!cnv->get_line().is_bound() && can_use_halt(cnv->get_owner()) && !registered_convoys.is_contained(cnv)) {
-			if (const schedule_t* const schedule = cnv->get_schedule()) {
-				bool water = schedule->get_waytype() == water_wt;
-				for (schedule_entry_t const& k : schedule->entries) {
-					if (get_halt(k.pos, cnv->get_owner(), water) == self) {
-						registered_convoys.append(cnv);
-						change = true;
-						break;
+		// iterate over all convoys
+		for (convoihandle_t const cnv : welt->convoys()) {
+			// only check lineless convoys which have matching ownership and which are not yet registered
+			if (!cnv->get_line().is_bound() && can_use_halt(cnv->get_owner()) && !registered_convoys.is_contained(cnv)) {
+				if (const schedule_t* const schedule = cnv->get_schedule()) {
+					bool water = schedule->get_waytype() == water_wt;
+					for (schedule_entry_t const& k : schedule->entries) {
+						if (get_halt(k.pos, cnv->get_owner(), water) == self) {
+							registered_convoys.append(cnv);
+							change = true;
+							break;
+						}
 					}
 				}
 			}
@@ -3487,7 +3489,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 	init_pos = tiles.front().grund->get_pos().get_2d();
 
 	// need to add lines or convois?
-	if (relink_factories  &&  rebuilt_schedule_registration(false)) {
+	if (relink_factories  &&  rebuilt_schedule_registration(false,true)) {
 		// we may more convois serving us
 		welt->set_schedule_counter();
 	}
@@ -3571,7 +3573,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	// needs to be done, if this was a dock
 	recalc_station_type();
 
-	rebuilt_schedule_registration(true);
+	rebuilt_schedule_registration(true,false);
 
 	return true;
 }
