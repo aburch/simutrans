@@ -170,6 +170,7 @@ const char* tool_t::id_to_string(uint16 id)
 			CASE_TO_STRING(TOOL_LOAD_SCENARIO);
 			CASE_TO_STRING(TOOL_DAY_NIGHT_TOGGLE);
 			CASE_TO_STRING(TOOL_WORK_WORLD);
+			CASE_TO_STRING(TOOL_HALT_PERMISSION);
 		}
 	}
 	else if (id & DIALOGE_TOOL) {
@@ -341,7 +342,8 @@ tool_t* create_simple_tool(int toolnr)
 	case TOOL_LOAD_SCENARIO:        tool = new tool_load_scenario_t();        break;
 	case TOOL_DAY_NIGHT_TOGGLE:     tool = new tool_day_night_toggle_t();     break;
 	case TOOL_SINGLE_WAY_TOOGLE:    tool = new tool_show_single_ways_t();     break;
-	case TOOL_WORK_WORLD:           tool = new tool_work_world_t();             break;
+	case TOOL_WORK_WORLD:           tool = new tool_work_world_t();           break;
+	case TOOL_HALT_PERMISSION:      tool = new tool_change_permission_t();    break;
 	case UNUSED_TOOL_ADD_MESSAGE: // fall-through - intended!!!111elf
 	case UNUSED_WKZ_PWDHASH_TOOL:
 		dbg->warning("create_simple_tool()", "Deprecated tool [%i] requested", toolnr);
@@ -1281,7 +1283,7 @@ void toolbar_last_used_t::clear()
 // currently only needed for last used tools
 void toolbar_last_used_t::append(tool_t* t, player_t* sp)
 {
-	static int exclude_from_adding[8] = {
+	static int exclude_from_adding[9] = {
 		TOOL_SCHEDULE_ADD | GENERAL_TOOL,
 		TOOL_SCHEDULE_INS | GENERAL_TOOL,
 		TOOL_CHANGE_CONVOI | SIMPLE_TOOL,
@@ -1289,7 +1291,8 @@ void toolbar_last_used_t::append(tool_t* t, player_t* sp)
 		TOOL_CHANGE_DEPOT | SIMPLE_TOOL,
 		UNUSED_WKZ_PWDHASH_TOOL | SIMPLE_TOOL,
 		TOOL_CHANGE_PLAYER | SIMPLE_TOOL,
-		TOOL_RENAME | SIMPLE_TOOL
+		TOOL_RENAME | SIMPLE_TOOL,
+		TOOL_HALT_PERMISSION | SIMPLE_TOOL
 	};
 
 	if (!sp || t->get_icon(sp) == IMG_EMPTY) {

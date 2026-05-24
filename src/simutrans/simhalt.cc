@@ -194,35 +194,26 @@ halthandle_t haltestelle_t::get_halt_koord_index(koord k)
 
 
 /* we allow only for a single stop per grund
- * this will only return something if this stop belongs to same player or is public, or is a dock (when on water)
+ * this will only return something if this stop belongs to same player or is public or its permissions allow access, or is a dock (when on water)
  */
 halthandle_t haltestelle_t::get_halt(const koord3d pos, const player_t *player )
 {
 	const grund_t *gr = welt->lookup(pos);
 	if(gr) {
-		if(gr->get_halt().is_bound()  &&  player_t::check_owner(player,gr->get_halt()->get_owner())  ) {
+		if(gr->get_halt().is_bound()  &&  gr->get_halt()->can_use_halt(player)) {
 			return gr->get_halt();
 		}
 		// no halt? => we do the water check
 		if(gr->is_water()) {
-			// may catch bus stops close to water ...
+			// may catch bus stops close to water so we need to check type ...
 			const planquadrat_t *plan = welt->access(pos.get_2d());
 			const uint8 cnt = plan->get_haltlist_count();
-			// first check for own stop
 			for(  uint8 i=0;  i<cnt;  i++  ) {
 				halthandle_t halt = plan->get_haltlist()[i];
-				if(  halt->get_owner()==player  &&  halt->get_station_type()&dock  ) {
+				if(  halt->can_use_halt(player)  &&  halt->get_station_type()&dock  ) {
 					return halt;
 				}
 			}
-			// then for public stop
-			for(  uint8 i=0;  i<cnt;  i++  ) {
-				halthandle_t halt = plan->get_haltlist()[i];
-				if(  halt->get_owner()==welt->get_public_player()  &&  halt->get_station_type()&dock  ) {
-					return halt;
-				}
-			}
-			// so: nothing found
 		}
 	}
 	return halthandle_t();
@@ -240,7 +231,6 @@ koord3d haltestelle_t::get_basis_pos3d() const
 	if (tiles.empty()) {
 		return koord3d::invalid;
 	}
-	//assert(tiles.front().grund->get_pos().get_2d() == init_pos);
 	return tiles.front().grund->get_pos();
 }
 
@@ -477,6 +467,8 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 	status_color = SYSCOL_TEXT_UNUSED;
 	last_status_color = gfx->palette_lookup(COL_PURPLE);
 	last_bar_count = 0;
+	last_permissions = 0;
+	last_player_count = 0;
 
 	reconnect_counter = welt->get_schedule_counter()-1;
 
@@ -519,6 +511,7 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 	last_bar_count = 0;
 
 	init_financial_history();
+	set_permissions(0);
 }
 
 
@@ -586,7 +579,7 @@ haltestelle_t::~haltestelle_t()
 	delete[] halt_served_this_step;
 
 	// routes may have changed without this station ...
-	verbinde_fabriken();
+	reconnect_factories();
 }
 
 
@@ -613,9 +606,27 @@ void haltestelle_t::rotate90( const sint16 y_size )
 	}
 
 	// re-linking factories
-	verbinde_fabriken();
+	reconnect_factories();
 }
 
+
+// add other players to share
+void haltestelle_t::set_permissions(uint16 perms)
+{
+	uint16 old_perm = permissions;
+	if (!owner || owner->is_public_service()) {
+		// old style public stops
+		permissions = 0xFFFF;
+	}
+	else {
+		// share player stops
+		permissions = perms | (1 << owner->get_player_nr());
+	}
+	if (rebuilt_schedule_registration(true)) {
+		 // we may no have more convois serving us
+		welt->set_schedule_counter();
+	}
+}
 
 
 const char* haltestelle_t::get_name() const
@@ -1179,9 +1190,9 @@ bool haltestelle_t::connect_factory(fabrik_t *fab)
 }
 
 
-void haltestelle_t::verbinde_fabriken()
+void haltestelle_t::reconnect_factories()
 {
-	// unlink all
+	// unlink all (because the processing order may change with additional tiles)
 	for(fabrik_t* const f : fab_list) {
 		f->unlink_halt(self);
 	}
@@ -1370,6 +1381,71 @@ sint32 haltestelle_t::rebuild_connections()
 	}
 	return connections_searched;
 }
+
+
+bool haltestelle_t::rebuilt_schedule_registration(bool full)
+{
+	bool change = false;
+
+	if (full) {
+		// remove old connections
+		for (int i = registered_lines.get_count()-1; i >= 0; i--) {
+			if ((1 << registered_lines[i]->get_owner()->get_player_nr()) & ~permissions) {
+				registered_lines.remove_at(i);
+				change = true;
+			}
+		}
+		// remove old convois
+		for (int i = registered_convoys.get_count()-1; i >= 0; i--) {
+			if ((1 << registered_convoys[i]->get_owner()->get_player_nr()) & ~permissions) {
+				registered_convoys.remove_at(i);
+				change = true;
+			}
+		}
+	}
+
+	vector_tpl<linehandle_t> check_line;
+	// iterate over all lines (public halt: all lines, other: only player's lines)
+	for (uint8 i = 0; i < MAX_PLAYER_COUNT; i++) {
+		if (permissions & (1 << i)) {
+			if (player_t* player = welt->get_player(i)) {
+				player->simlinemgmt.get_lines(simline_t::line, &check_line);
+				for (linehandle_t const j : check_line) {
+					// only add unknown lines
+					if (!registered_lines.is_contained(j) && j->count_convoys() > 0) {
+						for (schedule_entry_t const& k : j->get_schedule()->entries) {
+							if (get_halt(k.pos, player) == self) {
+								registered_lines.append(j);
+								change = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// iterate over all convoys
+	for (convoihandle_t const cnv : welt->convoys()) {
+		// only check lineless convoys which have matching ownership and which are not yet registered
+		if (!cnv->get_line().is_bound() && can_use_halt(cnv->get_owner()) && !registered_convoys.is_contained(cnv)) {
+			if (const schedule_t* const schedule = cnv->get_schedule()) {
+				for (schedule_entry_t const& k : schedule->entries) {
+					if (get_halt(k.pos, cnv->get_owner()) == self) {
+						registered_convoys.append(cnv);
+						change = true;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	return change;
+}
+
+
 
 
 void haltestelle_t::rebuild_linked_connections()
@@ -2566,6 +2642,9 @@ void haltestelle_t::change_owner( player_t *player )
 
 	// now finally change owner
 	owner = player;
+	// Old player is still allowed to serve this stop, no breaking networks
+	// Should not matter as stops can only be made public (for now)
+	set_permissions(permissions);
 	rebuild_connections();
 	rebuild_linked_connections();
 	rebuild_connected_components();
@@ -2616,7 +2695,7 @@ void haltestelle_t::merge_halt( halthandle_t halt_merged )
 
 		// transfer tiles to us
 		halt_merged->rem_grund(gr);
-		add_grund(gr);
+		add_grund(gr, tiles_to_join.empty());	// just reconnect on last tile to merge
 	}
 
 	assert(!halt_merged->existiert_in_welt());
@@ -2624,6 +2703,9 @@ void haltestelle_t::merge_halt( halthandle_t halt_merged )
 	// transfer goods
 	halt_merged->transfer_goods(self);
 	destroy(halt_merged);
+
+	// Allow everyone who could serve either halt to continue serving it
+	set_permissions(halt_merged->get_permissions() | permissions);
 
 	recalc_basis_pos();
 
@@ -2836,6 +2918,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	if(file->is_loading()) {
 		owner = welt->get_player_or_create(owner_n);
+		permissions = 0; /* will iterate later */
 		k.rdwr( file );
 		while(k!=koord3d::invalid) {
 			grund_t *gr = welt->lookup(k);
@@ -2961,13 +3044,23 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			financial_history[k][HALT_WALKED] = 0;
 		}
 	}
+
+	if (file->is_version_atleast(124, 5)) {
+		file->rdwr_short(permissions);
+		set_permissions(permissions);
+	}
+	else if (file->is_loading()) {
+		permissions = owner_n == 1 ? 0xFFFFu : (1 << owner_n);
+		set_permissions(permissions);
+	}
+
 }
 
 
 
 void haltestelle_t::finish_rd()
 {
-	verbinde_fabriken();
+	reconnect_factories();
 
 	stale_convois.clear();
 	stale_lines.clear();
@@ -3165,6 +3258,14 @@ void haltestelle_t::recalc_status()
  */
 void haltestelle_t::display_status(sint16 xpos, sint16 ypos)
 {
+	// Do we need to display permissions?
+	uint16 player_count = 0;
+	for(  uint16 i = 0;  i <	PLAYER_UNOWNED;  i++  ) {
+		if(  (permissions&(1<<i))  &&  welt->get_player(i)  &&  !welt->get_player(i)->is_public_service()  ) {
+			player_count += 1;
+		}
+	}
+ 
 	// ignore freight that cannot reach to this station
 	sint16 count = 0;
 	for(  uint16 i = 0;  i < goods_manager_t::get_count();  i++  ) {
@@ -3177,8 +3278,33 @@ void haltestelle_t::display_status(sint16 xpos, sint16 ypos)
 	}
 	ypos += -D_WAITINGBAR_WIDTH - LINESPACE/6;
 
-	if(  count != last_bar_count  ) {
-		// bars will shift x positions, mark entire station bar region dirty
+	bool players_dirty = false;
+	if(  permissions != last_permissions  ) {
+		if(  last_player_count  ) {
+			// erase old permissions display
+			const sint16 x = xpos - (last_player_count * 17 - gfx->get_tile_raster_width()) / 2;
+			gfx->mark_rect_dirty_wc( x, ypos, x + last_player_count * 17, ypos + D_WAITINGBAR_WIDTH );
+		}
+		last_permissions = permissions;
+		last_player_count = player_count;
+		players_dirty = true;
+	}
+	if(  player_count > 1  ) {
+		uint8 old_count = 0;
+		sint16 x = xpos - (player_count * 17 - gfx->get_tile_raster_width()) / 2;
+		for(  uint16 i = 0;  i <PLAYER_UNOWNED;  i++  ) {
+			if(  (permissions&(1<<i))  &&  welt->get_player(i)  &&  !welt->get_player(i)->is_public_service()  ) {
+				const PIXVAL color = gfx->palette_lookup(welt->get_player(i)->get_player_color1()+4);
+				gfx->draw_rect_clipped( x, ypos, 16, D_WAITINGBAR_WIDTH, color, false CLIP_NUM_DEFAULT);
+				x += 17;
+			}
+		}
+		ypos += -D_WAITINGBAR_WIDTH - 1;
+	}
+
+	if(  count != last_bar_count  ||  players_dirty  ) {
+		// bars will shift x positions, extra players may shift y positions,
+		// mark entire station bar region dirty
 		scr_coord_val max_bar_height = 0;
 		for(  sint16 i = 0;  i < last_bar_count;  i++  ) {
 			if(  last_bar_height[i] > max_bar_height  ) {
@@ -3299,47 +3425,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 
 	// since suddenly other factories may be connect to us too
 	if (relink_factories) {
-		verbinde_fabriken();
-	}
-
-	// check if we have to register line(s) and/or lineless convoy(s) which serve this halt
-	vector_tpl<linehandle_t> check_line(0);
-
-	// public halt: must iterate over all players lines / convoys
-	bool public_halt = get_owner() == welt->get_public_player();
-
-	uint8 const pl_min = public_halt ? 0                : get_owner()->get_player_nr();
-	uint8 const pl_max = public_halt ? MAX_PLAYER_COUNT : get_owner()->get_player_nr()+1;
-	// iterate over all lines (public halt: all lines, other: only player's lines)
-	for(  uint8 i=pl_min;  i<pl_max;  i++  ) {
-		if(  player_t *player = welt->get_player(i)  ) {
-			player->simlinemgmt.get_lines(simline_t::line, &check_line);
-			for(linehandle_t const j : check_line  ) {
-				// only add unknown lines
-				if(  !registered_lines.is_contained(j)  &&  j->count_convoys() > 0  ) {
-					for(schedule_entry_t const& k : j->get_schedule()->entries  ) {
-						if(  get_halt(k.pos, player) == self  ) {
-							registered_lines.append(j);
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-	// iterate over all convoys
-	for(convoihandle_t const cnv : welt->convoys()) {
-		// only check lineless convoys which have matching ownership and which are not yet registered
-		if(  !cnv->get_line().is_bound()  &&  (public_halt  ||  cnv->get_owner()==get_owner())  &&  !registered_convoys.is_contained(cnv)  ) {
-			if(  const schedule_t *const schedule = cnv->get_schedule()  ) {
-				for(schedule_entry_t const& k : schedule->entries) {
-					if (get_halt(k.pos, cnv->get_owner()) == self) {
-						registered_convoys.append(cnv);
-						break;
-					}
-				}
-			}
-		}
+		reconnect_factories();
 	}
 
 	// This entire loop is just for the assertion below.
@@ -3357,7 +3443,12 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 		dbg->error( "haltestelle_t::add_grund()", "no ground added to (%s)", gr->get_pos().get_str() );
 	}
 	init_pos = tiles.front().grund->get_pos().get_2d();
-	welt->set_schedule_counter();
+
+	// need to add lines or convois?
+	if (relink_factories  &&  rebuilt_schedule_registration(false)) {
+		// we may more convois serving us
+		welt->set_schedule_counter();
+	}
 
 	return true;
 }
@@ -3432,7 +3523,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 		}
 
 		// factory reach may have been changed ...
-		verbinde_fabriken();
+		reconnect_factories();
 	}
 
 	// needs to be done, if this was a dock

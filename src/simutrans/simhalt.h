@@ -21,6 +21,8 @@
 
 #include "dataobj/koord.h"
 
+#include "player/simplay.h"
+
 #include "tpl/inthashtable_tpl.h"
 
 #include "tpl/slist_tpl.h"
@@ -116,6 +118,8 @@ private:
 	void init_financial_history();
 
 	PIXVAL status_color, last_status_color;
+	uint16 last_permissions;
+	uint16 last_player_count;
 	sint16 last_bar_count;
 	vector_tpl<scr_coord_val> last_bar_height; // caches the last height of the station bar for each good type drawn in display_status(). used for dirty tile management
 	uint32 capacity[3]; // passenger, mail, goods
@@ -314,6 +318,11 @@ private:
 	static karte_ptr_t welt;
 
 	/**
+	 * What players are allowed to stop here
+	 */
+	uint16 permissions;
+
+	/**
 	 * What is that for a station (for the image)
 	 */
 	stationtyp station_type;
@@ -379,7 +388,7 @@ public:
 	 * sucht umliegende, erreichbare fabriken und baut daraus die
 	 * Fabrikliste auf.
 	 */
-	void verbinde_fabriken();
+	void reconnect_factories();
 
 	/**
 	 * Connects factory to this halt if not already connected and
@@ -390,6 +399,12 @@ public:
 	bool connect_factory(fabrik_t *fab);
 
 	void remove_fabriken(fabrik_t *fab);
+
+	/**
+	 * registers all convois using the current permissions (full check also removes)
+	 * @return true if there was a change
+	 */
+	bool rebuilt_schedule_registration( bool full_check );
 
 	/**
 	 * Rebuilds the list of connections to reachable halts
@@ -699,6 +714,23 @@ public:
 	const char *get_name() const;
 
 	void set_name(const char *name);
+
+	/**
+	 * will crash on NULL pointer, but no unowned convois ever ...
+	 * @return true if player is allowed to stop here
+	 */
+	inline bool haltestelle_t::can_use_halt(const player_t* player) const
+	{
+		return player  &&  (permissions & (1 << player->get_player_nr()))!=0;
+	}
+
+	/**
+	 * Sets permissions
+	 * Owner and public service are always allowed
+	 */
+	void set_permissions(uint16 perms);
+
+	uint16 get_permissions() const { return permissions; }
 
 	// create an unique name: better to be called with valid handle, although it will work without
 	char* create_name(koord k, char const* typ);

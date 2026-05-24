@@ -31,7 +31,7 @@ class karte_ptr_t;
 class zeiger_t;
 
 enum {
-	// general tools
+	// general tools (one click)
 	TOOL_QUERY=0,
 	TOOL_REMOVER,
 	TOOL_RAISE_LAND,
@@ -87,7 +87,7 @@ enum {
 };
 
 enum {
-	// simple one click tools
+	// simple no click tools
 	TOOL_PAUSE = 0,
 	TOOL_FASTFORWARD,
 	TOOL_SCREENSHOT,
@@ -133,6 +133,7 @@ enum {
 	TOOL_DAY_NIGHT_TOGGLE,
 	TOOL_SINGLE_WAY_TOOGLE,
 	TOOL_WORK_WORLD,
+	TOOL_HALT_PERMISSION,
 	SIMPLE_TOOL_COUNT,
 	SIMPLE_TOOL = 0x2000
 };

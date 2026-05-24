@@ -27,6 +27,7 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
 
+#include "../player/finance.h"
 #include "../player/simplay.h"
 
 #include "../vehicle/vehicle.h"
@@ -89,10 +90,13 @@ public:
 
 button_t gui_departure_board_t::absolute_times;
 
-
 // all connections
-class gui_halt_detail_t : public gui_aligned_container_t
+class gui_halt_detail_t : public gui_aligned_container_t, action_listener_t
 {
+	halthandle_t halt;
+	uint16 halt_permissions;
+	button_t connected_players[MAX_PLAYER_COUNT];
+
 	/**
 	 * Button to open line window
 	 */
@@ -176,10 +180,31 @@ public:
 
 	gui_halt_detail_t(halthandle_t h) : gui_aligned_container_t()
 	{
+		halt_permissions = 0;
+		for (uint16 i = 0; i < MAX_PLAYER_COUNT; i++) {
+			connected_players[i].pressed = 0;
+			connected_players[i].add_listener(this);
+		}
 		destination_counter = 0xFF;
 		cached_line_count = 0xFFFFFFFFul;
 		cached_convoy_count = 0xFFFFFFFFul;
 		update_connections(h);
+	}
+
+	bool action_triggered(gui_action_creator_t* , value_t )
+	{
+		// change permissions here
+		halt_permissions = 0;
+		for (uint16 i = 0; i < MAX_PLAYER_COUNT; i++) {
+			if (connected_players[i].pressed) {
+				halt_permissions |= 1 << i;
+			}
+		}
+		if (halt.is_bound()) {
+			// can be only triggered when current owner is visbile ...
+			halt->set_permissions(halt_permissions);
+		}
+		return false;
 	}
 
 	// will update if schedule or connection changed
@@ -524,13 +549,20 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 
 void gui_halt_detail_t::update_connections( halthandle_t halt )
 {
+	this->halt = halt;
 	if(  !halt.is_bound()  ) {
 		// first call, or invalid handle
 		remove_all();
 		return;
 	}
 
-	if(  halt->get_reconnect_counter()==destination_counter  &&
+	// follow player change 
+	bool allow_change = halt->get_owner() == world()->get_active_player() || world()->get_active_player()->is_public_service();
+	for (uint16 i = 0; i < MAX_PLAYER_COUNT; i++) {
+		connected_players[i].enable(allow_change);
+	}
+
+	if(  halt->get_permissions()==halt_permissions  &&  halt->get_reconnect_counter()==destination_counter  &&
 		 halt->registered_lines.get_count()==cached_line_count  &&  halt->registered_convoys.get_count()==cached_convoy_count  ) {
 		// all current, so do nothing
 		return;
@@ -538,11 +570,40 @@ void gui_halt_detail_t::update_connections( halthandle_t halt )
 
 	// update connections from here
 	remove_all();
+	set_table_layout(2, 0);
+
+	new_component_span<gui_label_t>("Stopping permissions", 2);
+	int how_many = 0;
+	halt_permissions = halt->get_permissions();
+	for (uint16 i = 0; i < MAX_PLAYER_COUNT; i++) {
+		if (player_t *pl = world()->get_player(i)) {
+			if (i == 1 && !pl->get_finance()->has_convoi()) {
+				// only show public service when it owns convois ...
+				continue;
+			}
+			if (pl == halt->get_owner()) {
+				// owner is always allowed
+				continue;
+			}
+			connected_players[i].init(button_t::square_automatic,pl->get_name());
+			connected_players[i].text_color = PLAYER_FLAG | gfx->palette_lookup(pl->get_player_color1() + env_t::gui_player_color_dark);
+			add_component(connected_players + i);
+			how_many++;
+		}
+		connected_players[i].pressed = halt_permissions & (1<<i);
+	}
+	if (how_many == 0) {
+		// just me active => do not show
+		remove_all();
+	}
+	else if (how_many & 1) {
+		// to not leave it uneven ..
+		new_component<gui_empty_t>();
+	}
 
 	const slist_tpl<fabrik_t *> & fab_list = halt->get_fab_list();
 	slist_tpl<const goods_desc_t *> nimmt_an;
 
-	set_table_layout(2,0);
 	new_component_span<gui_label_t>("Fabrikanschluss", 2);
 
 	if (!fab_list.empty()) {

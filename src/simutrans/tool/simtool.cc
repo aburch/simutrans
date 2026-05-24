@@ -2505,6 +2505,7 @@ const char *tool_plant_groundobj_t::work( player_t *player, koord3d pos )
  * the following routines add waypoints/halts to a schedule
  * because we do not like to stop at AIs stop, but we still want to force the truck to use AI roads
  * So if there is a halt, then it must be either public or ours!
+ * (Except if permission has been explicitely granted.)
  */
 static const char *tool_schedule_insert_aux(karte_t *welt, player_t *player, koord3d pos, schedule_t *schedule, bool append)
 {
@@ -2536,7 +2537,7 @@ static const char *tool_schedule_insert_aux(karte_t *welt, player_t *player, koo
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
 		}
-		if(  bd->is_halt()  &&  !player_t::check_owner( player, bd->get_halt()->get_owner()) ) {
+		if(  bd->is_halt()  &&  !bd->get_halt()->can_use_halt(player)) {
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
 		// ok, now we have a valid ground
@@ -6650,7 +6651,7 @@ uint8 tool_stop_mover_t::is_valid_pos(  player_t *player, const koord3d &pos, co
 	}
 	// check halt ownership
 	halthandle_t h = haltestelle_t::get_halt(pos,player);
-	if(  h.is_bound()  &&  !player_t::check_owner( player, h->get_owner() )  ) {
+	if(  bd->is_halt()  &&  !h.is_bound()  ) {
 		error = "Das Feld gehoert\neinem anderen Spieler\n";
 		return 0;
 	}
@@ -8700,6 +8701,24 @@ bool tool_rename_t::init(player_t *player)
 	}
 	// we are only getting here, if we could not process this request
 	dbg->warning( "tool_rename_t::init", "could not perform (%s)", default_param );
+	return false;
+}
+
+
+bool tool_change_permission_t::init(player_t *player)
+{
+	uint16 id = 0, perms = 0;
+	const char *p = default_param;
+
+	id = atoi(p);
+	while(  *p>0  &&  *p++!=','  );
+	perms = atoi(p);
+
+	halthandle_t halt;
+	halt.set_id(id);
+	if(  halt.is_bound()  &&  player_t::check_owner(halt->get_owner(), player)  ) {
+		halt->set_permissions(perms);
+	}
 	return false;
 }
 

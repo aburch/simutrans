@@ -4524,7 +4524,10 @@ obj=button_text
 name=allow reverse passage
 note=button in signal info
 --
-
+obj=program_text
+name=Stopping permissions
+note=button in signal info
+--
 #obj=help_text
 #name=Lower values mean more local sounds
 #note=tooltip in sound frame

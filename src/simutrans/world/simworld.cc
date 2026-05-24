@@ -2526,7 +2526,7 @@ bool karte_t::rem_fab(fabrik_t *fab)
 				// first remove all the tiles that do not connect
 				plan->remove_from_haltlist( list[i] );
 				// then reconnect
-				list[i]->verbinde_fabriken();
+				list[i]->reconnect_factories();
 			}
 		}
 
