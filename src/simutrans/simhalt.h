@@ -720,7 +720,7 @@ public:
 	 * @return true if player is allowed to stop here
 	 */
 	inline bool can_use_halt(const player_t* player) const {
-		return player  &&  (permissions & (1 << player->get_player_nr()))!=0;
+		return !player || (permissions & (1 << player->get_player_nr()))!=0;
 	}
 
 	/**

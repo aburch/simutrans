@@ -612,7 +612,7 @@ void haltestelle_t::rotate90( const sint16 y_size )
 	}
 
 	// re-linking factories
-	reconnect_factories();
+	reconnect_factories(); 
 }
 
 
@@ -2752,12 +2752,12 @@ void haltestelle_t::merge_halt( halthandle_t halt_merged )
 
 	assert(!halt_merged->existiert_in_welt());
 
+	// Allow everyone who could serve either halt to continue serving it
+	set_permissions(halt_merged->get_permissions() | permissions);
+
 	// transfer goods
 	halt_merged->transfer_goods(self);
 	destroy(halt_merged);
-
-	// Allow everyone who could serve either halt to continue serving it
-	set_permissions(halt_merged->get_permissions() | permissions);
 
 	recalc_basis_pos();
 
