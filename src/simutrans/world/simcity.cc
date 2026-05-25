@@ -3932,6 +3932,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 			sint8 bridge_height;
 			const char* err = bridge_builder_t::can_build_bridge(NULL, bd->get_pos(), bd_next->get_pos(), bridge_height, bridge);
 			// if the river is navigable, we need a two hight slope, so we have to start on a flat tile
+			koord end = bd_next->get_pos().get_2d();
 			if (err) {
 
 				if(bd->get_grund_hang() != slope_t::flat  ||  bd_next->get_grund_hang() != slope_t::flat) {
@@ -3997,7 +3998,6 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 					}
 					bd->mark_image_dirty();
 
-					koord end = bd_next->get_pos().get_2d();
 					// update slope graphics on tile and tile in front
 					if (grund_t* bd_recalc = welt->lookup_kartenboden(end + koord(0, 1))) {
 						bd_recalc->check_update_underground();
@@ -4008,7 +4008,6 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 					if (grund_t* bd_recalc = welt->lookup_kartenboden(end + koord(1, 1))) {
 						bd_recalc->check_update_underground();
 					}
-					bd_next->mark_image_dirty();
 				}
 				else {
 					// err and not a good starting position
@@ -4016,7 +4015,6 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 				}
 			}
 			bridge_builder_t::build_bridge(NULL, bd->get_pos(), bd_next->get_pos(), zv, bridge_height, bridge, welt->get_city_road());
-			koord end = bd_next->get_pos().get_2d();
 			build_road( end+zv, NULL, false);
 			// try to build a house near the bridge end
 			uint32 old_count = buildings.get_count();
