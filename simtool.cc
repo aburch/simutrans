@@ -6937,6 +6937,10 @@ uint8 tool_link_factory_t::is_valid_pos( player_t *, const koord3d &pos, const c
 
 const char *tool_link_factory_t::do_work( player_t *, const koord3d &start, const koord3d &pos )
 {
+	if(  welt->get_settings().is_crossconnect_factories()  ) {
+		// crossconnect factories->we cannot edit connections
+		return "crossconnect_factories is enabled!";
+	}
 	fabrik_t *last_fab = fabrik_t::get_fab( start.get_2d() );
 	fabrik_t *fab = fabrik_t::get_fab( pos.get_2d() );
 
