@@ -1943,7 +1943,11 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player)
 				//crossing needed!
 				waytype_t w2 =  other->get_waytype();
 				const crossing_desc_t *cr_desc = crossing_logic_t::get_crossing( weg->get_waytype(), w2, weg->get_max_speed(), other->get_max_speed(), welt->get_timeline_year_month() );
-				if(cr_desc==0) {
+				if (!cr_desc  &&  w2 == water_wt) {
+					// special permit for water
+					cr_desc = crossing_logic_t::get_crossing(weg->get_waytype(), w2, 25, other->get_max_speed(), welt->get_timeline_year_month());
+				}
+				if (!cr_desc) {
 					dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", weg->get_waytype(), w2 );
 				}
 				crossing_t *cr = new crossing_t(obj_bei(0)->get_owner(), pos, cr_desc, ribi_t::is_straight_ns(get_weg(cr_desc->get_waytype(1))->get_ribi_unmasked()) );

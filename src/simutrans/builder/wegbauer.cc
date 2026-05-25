@@ -381,7 +381,11 @@ bool way_builder_t::check_crossing(const koord zv, const grund_t *bd, const way_
 	}
 
 	// crossing available and ribis ok
-	if(crossing_logic_t::get_crossing(wtyp, w->get_waytype(), desc ? desc->get_topspeed() : 0, w->get_max_speed(), welt->get_timeline_year_month())!=NULL) {
+	bool has_logic = crossing_logic_t::get_crossing(wtyp, w->get_waytype(), desc ? desc->get_topspeed() : 0, w->get_max_speed(), welt->get_timeline_year_month());
+	if (!has_logic  && w->get_waytype()==water_wt  &&  (!player  ||  player->is_public_service())) {
+		has_logic = crossing_logic_t::get_crossing(wtyp, w->get_waytype(), 25, w->get_max_speed(), welt->get_timeline_year_month());
+	}
+	if(has_logic) {
 		const ribi_t::ribi w_ribi = w->get_ribi_unmasked();
 
 		// it is our way we want to cross: can we build a crossing here?
