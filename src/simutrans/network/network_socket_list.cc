@@ -19,6 +19,12 @@ bool connection_info_t::operator==(const connection_info_t& other) const
 }
 
 
+socket_info_t::~socket_info_t()
+{
+	reset();
+}
+
+
 void socket_info_t::reset()
 {
 	delete packet;
@@ -415,6 +421,12 @@ void socket_list_t::rdwr(packet_t *p, vector_tpl<socket_info_t*> *list)
 	assert(p->is_saving()  ||  list!=&socket_list_t::list);
 	uint32 count = list->get_count();
 	p->rdwr_long(count);
+	// Each entry costs at least one byte on the wire (the state byte
+	// below); refuse a count beyond what the packet body can hold.
+	if (p->is_loading()  &&  count > MAX_PACKET_LEN - HEADER_SIZE) {
+		p->failed();
+		return;
+	}
 	for(uint32 i=0; i<count; i++) {
 		if (p->is_loading()) {
 			list->append(new socket_info_t());

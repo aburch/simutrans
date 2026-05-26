@@ -109,7 +109,14 @@ void nwc_auth_player_t::rdwr()
 
 nwc_service_t::~nwc_service_t()
 {
-	delete socket_info;
+	// vector_tpl<T*> only frees its own array, not the pointed-to
+	// elements.
+	if (socket_info) {
+		for (socket_info_t *si : *socket_info) {
+			delete si;
+		}
+		delete socket_info;
+	}
 	delete address_list;
 	free(text);
 }

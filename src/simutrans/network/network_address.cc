@@ -57,6 +57,12 @@ void address_list_t::rdwr(packet_t *packet)
 {
 	uint32 count = get_count();
 	packet->rdwr_long(count);
+	// Each entry costs 8 bytes on the wire (ip + mask); refuse a count
+	// beyond what the packet body can hold.
+	if (packet->is_loading()  &&  count > (MAX_PACKET_LEN - HEADER_SIZE) / 8) {
+		packet->failed();
+		return;
+	}
 	for(uint32 i=0; i<count; i++) {
 		if (packet->is_loading()) {
 			append(net_address_t());
