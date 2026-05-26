@@ -202,7 +202,10 @@ public:
 		}
 		if (halt.is_bound()) {
 			// can be only triggered when current owner is visbile ...
-			halt->set_permissions(halt_permissions);
+			cbuffer_t param;
+			param.printf("%u,%u", halt.get_id(), halt_permissions);
+			tool_t::simple_tool[TOOL_HALT_PERMISSION]->set_default_param(param);
+			world()->set_tool(tool_t::simple_tool[TOOL_HALT_PERMISSION], world()->get_active_player());
 		}
 		return false;
 	}
