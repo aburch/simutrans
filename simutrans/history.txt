@@ -18,6 +18,7 @@
 	FIX: (janry+prissi) new simple tool work_world for creation/loading/asaving maps to avoid doing this during a step which may lead to crashes
 	ADD: (nazalassa) permissions for halts, to let other players serve specific halts
 	CHG: public player with built furts across rivers even for faster roads as long as there is one with max_speed of at least 25 km/h for road
+	CHG: link factory tool inaccessible when factories are cross-connected by default
 
 
 Release of 124.4.1 (r11930 on 18-Apr-2026):

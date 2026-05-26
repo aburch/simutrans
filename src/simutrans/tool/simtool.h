@@ -586,9 +586,14 @@ private:
 class tool_link_factory_t : public two_click_tool_t {
 public:
 	tool_link_factory_t() : two_click_tool_t(TOOL_LINK_FACTORY | GENERAL_TOOL) {}
+	image_id get_icon(player_t*) const  OVERRIDE { return world()->get_settings().is_crossconnect_factories() ? IMG_EMPTY : icon; }
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Connect factory"); }
 	bool is_init_keeps_game_state() const OVERRIDE { return true; }
 private:
+	bool init(player_t*pl) OVERRIDE {
+		if (world()->get_settings().is_crossconnect_factories()) return false;
+		return two_click_tool_t::init(pl);
+	}
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE {}
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;

@@ -6332,6 +6332,11 @@ const char *tool_link_factory_t::do_work( player_t *, const koord3d &start, cons
 	fabrik_t *last_fab = fabrik_t::get_fab( start.get_2d() );
 	fabrik_t *fab = fabrik_t::get_fab( pos.get_2d() );
 
+	if (world()->get_settings().is_crossconnect_factories()) {
+		// make no sense when set
+		return "";
+	}
+
 	if(fab!=NULL  &&  last_fab!=NULL  &&  last_fab!=fab) {
 		// It's a factory
 		if(!is_ctrl_pressed()) {
