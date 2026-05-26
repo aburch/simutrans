@@ -59,21 +59,28 @@ network_command_t* network_command_t::read_from_packet(packet_t *p)
 		default:
 			dbg->warning("network_command_t::read_from_socket", "received unknown packet id %d", p->get_id());
 	}
-	if (nwc) {
-		if (!nwc->receive(p) ||  p->has_failed()) {
-			dbg->warning("network_command_t::read_from_packet", "error while reading cmd from packet");
-			delete nwc;
-			nwc = NULL;
-		}
-		else if (env_t::server) {
-			// The wire-supplied our_client_id is attacker-controlled.
-			// Identify the sender by its socket instead, so any later
-			// auth check (nwc_auth_player_t, nwc_chg_player_t,
-			// nwc_tool_t) reads the real slot and cannot be tricked
-			// into looking up someone else's player_unlocked bitmap
-			// or indexing past the socket list.
-			nwc->our_client_id = socket_list_t::get_client_id(p->get_sender());
-		}
+	if (nwc == NULL) {
+		// Unknown / unsupported wire id: free p before returning so a
+		// malicious peer can't drive the server out of memory by
+		// flooding it with junk-id packets (callers null out their
+		// packet pointer unconditionally after this returns, so they
+		// won't free it either).
+		delete p;
+		return NULL;
+	}
+	if (!nwc->receive(p) ||  p->has_failed()) {
+		dbg->warning("network_command_t::read_from_packet", "error while reading cmd from packet");
+		delete nwc;
+		nwc = NULL;
+	}
+	else if (env_t::server) {
+		// The wire-supplied our_client_id is attacker-controlled.
+		// Identify the sender by its socket instead, so any later
+		// auth check (nwc_auth_player_t, nwc_chg_player_t,
+		// nwc_tool_t) reads the real slot and cannot be tricked
+		// into looking up someone else's player_unlocked bitmap
+		// or indexing past the socket list.
+		nwc->our_client_id = socket_list_t::get_client_id(p->get_sender());
 	}
 	return nwc;
 }

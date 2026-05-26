@@ -46,12 +46,19 @@ network_command_t* network_command_t::read_from_packet(packet_t *p)
 		default:
 			dbg->warning("network_command_t::read_from_socket", "received unknown packet id %d", p->get_id());
 	}
-	if (nwc) {
-		if (!nwc->receive(p) ||  p->has_failed()) {
-			dbg->warning("network_command_t::read_from_packet", "error while reading cmd from packet");
-			delete nwc;
-			nwc = NULL;
-		}
+	if (nwc == NULL) {
+		// Unknown / unsupported wire id: free p before returning so a
+		// compromised server can't drive the admin tool out of memory
+		// by replying with junk-id packets (the caller in nettool's
+		// network_check_activity drops its packet pointer).  Same
+		// shape as the network_cmd_ingame.cc version.
+		delete p;
+		return NULL;
+	}
+	if (!nwc->receive(p) ||  p->has_failed()) {
+		dbg->warning("network_command_t::read_from_packet", "error while reading cmd from packet");
+		delete nwc;
+		nwc = NULL;
 	}
 	return nwc;
 }
