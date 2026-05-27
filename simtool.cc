@@ -7373,13 +7373,14 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 					grund_t *gr = welt->lookup(start_pos);
 					while(true) {
 						gr->get_neighbour(gr, wt, dir);
-						if(  !gr  ||  !gr->is_halt()  ||  !gr->get_weg(wt)  || (ribi=gr->get_weg_ribi_unmasked(wt))==0  ||  gr->get_pos()==last_pos  ) {
+						if(  !gr  ||  !gr->is_halt()  ||  gr->get_halt()!=last_halt  ||  !gr->get_weg(wt)  || (ribi=gr->get_weg_ribi_unmasked(wt))==0  ||  gr->get_pos()==last_pos  ) {
 							// maybe reach last tile
 							break;
 						}
 						const ribi_t::ribi new_dir = ribi & ~(ribi_t::backward(dir));
 						if( new_dir==0 ) {
-							// maybe reach last tile
+							// reached the far end of platform
+							start_pos = gr->get_pos();
 							break;
 						}
 						dir = new_dir;
@@ -7392,13 +7393,14 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 					while(true) {
 						old_platform.append(start_pos);
 						gr->get_neighbour(gr, wt, dir);
-						if(!gr  ||  !gr->is_halt()  ||  !gr->get_weg(wt)  || (ribi=gr->get_weg_ribi_unmasked(wt))==0  ||  gr->get_pos()==end_pos  ) {
+						if(!gr  ||  !gr->is_halt()  ||  gr->get_halt()!=last_halt  ||  !gr->get_weg(wt)  || (ribi=gr->get_weg_ribi_unmasked(wt))==0  ||  gr->get_pos()==end_pos  ) {
 							// maybe reach last tile
 							break;
 						}
 						const ribi_t::ribi new_dir = ribi & ~(ribi_t::backward(dir));
 						if( new_dir==0 ) {
-							// maybe reach last tile
+							// reached the near end of platform
+							old_platform.append(gr->get_pos());
 							break;
 						}
 						dir = new_dir;
