@@ -4452,7 +4452,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			return cnv->get_next_stop_index()>route_index;
 		}
 		// next check for signal
-		if(  sch1->has_signal()  ) {
+		if(  sch1->has_signal()  &&  cnv->get_reserved_tiles().get_count()<=3  ) {
 			if(  !is_signal_clear( next_block, restart_speed )  ) {
 				// only return false, if we are directly in front of the signal
 				return cnv->get_next_stop_index()>route_index;
