@@ -10,8 +10,10 @@
 #include <time.h>
 
 #include "savegame_frame.h"
+#include "components/gui_combobox.h"
 #include "../tpl/stringhashtable_tpl.h"
 #include <string>
+#include <vector>
 
 class loadsave_t;
 
@@ -34,8 +36,9 @@ private:
 
 	button_t easy_server; // only active on loading savegames
 	button_t previous_OTRP; // only active on loading savegames
-	button_t save_as_standard; // only active on saving savegames
 	button_t show_unused_addons; // show unused pak descriptors in current map
+	gui_combobox_t save_version_combo; // only active on saving savegames
+	std::vector<std::string> save_ver_labels; // backing storage for combo entry strings
 
 	static stringhashtable_tpl<sve_info_t *> cached_info;
 

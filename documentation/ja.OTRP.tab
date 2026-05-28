@@ -663,6 +663,8 @@ Electrified
 Convoi has been sent\nto the selected depot\nof appropriate type.\n
 編成は指定された\n車庫に向かいました.\n
 #------その他の翻訳------
+v%d (current version)
+v%d (現在のバージョン)
 Freight ton-kilo
 輸送量(人キロ/トンキロ)
 Rotate Building
