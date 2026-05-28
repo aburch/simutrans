@@ -21,10 +21,8 @@
 #include "components/action_listener.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_speedbar.h"
-#if CONVOI_TEMPLATE
 #include "components/gui_scrolled_list.h"
 #include "components/gui_container.h"
-#endif
 #include "../simtypes.h"
 #include "../utils/cbuffer_t.h"
 #include "../linehandle_t.h"
@@ -32,9 +30,7 @@
 
 class depot_t;
 class vehicle_desc_t;
-#if CONVOI_TEMPLATE
 class gui_template_panel_t;
-#endif
 
 
 /*
@@ -198,12 +194,10 @@ private:
 	gui_scrollpane_t scrolly_tram_loks;
 	gui_scrollpane_t scrolly_tram_waggons;
 
-#if CONVOI_TEMPLATE
 	/// Convoy template tab
 	gui_template_panel_t *template_panel;
 	gui_scrollpane_t scrolly_template;
 	gui_container_t cont_template_tab;
-#endif
 
 	/// contains the current translation of "<no schedule set>"
 	const char* no_schedule_text;

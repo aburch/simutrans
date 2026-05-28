@@ -42,10 +42,8 @@
 #include "../descriptor/goods_desc.h"
 #include "../descriptor/intro_dates.h"
 #include "../bauer/vehikelbauer.h"
-#if CONVOI_TEMPLATE
 #include "../dataobj/convoi_template.h"
 #include <vector>
-#endif
 #include "../dataobj/schedule.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
@@ -71,7 +69,6 @@ bool depot_frame_t::show_retired_vehicles = false;
 bool depot_frame_t::show_all = false;
 
 
-#if CONVOI_TEMPLATE
 class gui_template_panel_t : public gui_action_creator_t, public gui_component_t {
 public:
 	struct entry_t {
@@ -392,7 +389,6 @@ public:
 		return false;
 	}
 };
-#endif // CONVOI_TEMPLATE
 
 depot_frame_t::depot_frame_t(depot_t* depot) :
 	gui_frame_t("", NULL),
@@ -423,10 +419,8 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	scrolly_tram_waggons(&tram_waggons),
 	line_selector(line_scrollitem_t::compare),
 	lb_vehicle_filter("Filter:", SYSCOL_TEXT, gui_label_t::right)
-#if CONVOI_TEMPLATE
 	,template_panel(NULL)
 	,scrolly_template(NULL)
-#endif
 {
 	if (depot) {
 		init(depot);
@@ -602,7 +596,6 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	tram_waggons.set_player_nr(depot->get_owner_nr());
 	tram_waggons.add_listener(this);
 
-#if CONVOI_TEMPLATE
 	// Convoy template tab setup
 	if (welt->get_convoy_templates().empty()) {
 		welt->load_convoy_templates();
@@ -614,7 +607,6 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	scrolly_template.set_scrollbar_mode(scrollbar_t::show_disabled);
 	scrolly_template.set_size_corner(false);
 	cont_template_tab.add_component(&scrolly_template);
-#endif
 
 	tabs.add_listener(this);
 	add_component(&tabs);
@@ -729,9 +721,7 @@ depot_frame_t::~depot_frame_t()
 	clear_ptr_vector(tram_electrics_vec);
 	clear_ptr_vector(tram_loks_vec);
 	clear_ptr_vector(tram_waggons_vec);
-#if CONVOI_TEMPLATE
 	delete template_panel;
-#endif
 }
 
 
@@ -1090,7 +1080,6 @@ void depot_frame_t::layout(scr_size *size)
 	scrolly_tram_waggons.set_scroll_discrete_y(false);
 	scrolly_tram_waggons.set_size_corner(false);
 
-#if CONVOI_TEMPLATE
 	if (template_panel) {
 		const scr_coord_val template_content_h = PANEL_HEIGHT - TAB_HEADER_HEIGHT;
 		template_panel->set_size(scr_size(win_size.w, template_panel->get_size().h));
@@ -1098,7 +1087,6 @@ void depot_frame_t::layout(scr_size *size)
 		scrolly_template.set_size(scr_size(win_size.w, template_content_h));
 		cont_template_tab.set_size(scr_size(win_size.w, template_content_h));
 	}
-#endif
 
 	div_tabbottom.set_pos(scr_coord(0, PANEL_VSTART + PANEL_HEIGHT));
 	div_tabbottom.set_width(win_size.w);
@@ -1384,7 +1372,6 @@ void depot_frame_t::build_vehicle_lists()
 	}
 
 DBG_DEBUG("depot_frame_t::build_vehicle_lists()","finally %i passenger vehicle, %i  engines, %i good wagons",pas_vec.get_count(),loks_vec.get_count(),waggons_vec.get_count());
-#if CONVOI_TEMPLATE
 	if (template_panel) {
 		// Determine the boundary vehicle for template compatibility filtering.
 		// NULL means no filtering (new convoy, show_all, or allow_invalid mode).
@@ -1406,7 +1393,6 @@ DBG_DEBUG("depot_frame_t::build_vehicle_lists()","finally %i passenger vehicle, 
 		}
 		template_panel->refresh(name_filter_value, sort_by_action, tmpl_boundary_veh, tmpl_is_insert, weg_electrified, show_all, month_now, show_retired_vehicles, tmpl_target_wt);
 	}
-#endif
 	update_data();
 	update_tabs();
 }
@@ -1800,18 +1786,14 @@ void depot_frame_t::update_data()
 	vehicle_filter.set_selection(depot->selected_filter);
 
 	sort_by.clear_elements();
-#if CONVOI_TEMPLATE
 	// On the Templates tab, power/weight/intro/retire sort modes are not meaningful
 	const bool tmpl_tab_active = (tabs.get_aktives_tab() == &cont_template_tab);
-#endif
 	for(int i = 0; i < vehicle_builder_t::sb_length; i++) {
-#if CONVOI_TEMPLATE
 		if(  tmpl_tab_active
 		  && (i == vehicle_builder_t::sb_power || i == vehicle_builder_t::sb_weight
 		      || i == vehicle_builder_t::sb_intro_date || i == vehicle_builder_t::sb_retire_date)  ) {
 			continue; // not meaningful for convoy templates
 		}
-#endif
 		sort_by.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(vehicle_builder_t::vehicle_sort_by[i]), SYSCOL_TEXT);
 	}
 	if(  depot->selected_sort_by > sort_by.count_elements()  ) {
@@ -2273,7 +2255,6 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 		else if(  comp == &tabs  ) {
 			// Rebuild sort dropdown to add/remove modes that are meaningless on Templates tab.
 			// Reset forbidden sort selection exactly once, here on tab switch to Templates.
-#if CONVOI_TEMPLATE
 			if(  tabs.get_aktives_tab() == &cont_template_tab  ) {
 				using vb = vehicle_builder_t;
 				if(  depot->selected_sort_by == vb::sb_power || depot->selected_sort_by == vb::sb_weight
@@ -2281,17 +2262,14 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 					depot->selected_sort_by = vb::sb_name;
 				}
 			}
-#endif
 			update_data();
 		}
 		else if(  comp == &bt_veh_action  ) {
-#if CONVOI_TEMPLATE
 			if(  tabs.get_aktives_tab() == &cont_template_tab  ) {
 				// Only append/insert are valid when Templates tab is active
 				veh_action = (veh_action == va_append) ? va_insert : va_append;
 			}
 			else
-#endif
 			if(  veh_action == va_cancel_offset  ||  (get_base_tile_raster_width()!=128  &&  veh_action ==va_sell)  ) {
 				veh_action = va_append;
 			}
@@ -2404,7 +2382,6 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			}
 			return true;
 		}
-#if CONVOI_TEMPLATE
 		else if (comp == template_panel) {
 			if (veh_action == va_sell || veh_action == va_set_offset || veh_action == va_cancel_offset) {
 				return true;
@@ -2440,7 +2417,6 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			}
 			return true;
 		}
-#endif // CONVOI_TEMPLATE
 		else if(  comp == &child_convoi_selector  ) {
 			if( !cnv.is_bound() ) {
 				// this is not convoy.
@@ -2664,7 +2640,6 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 	else if (tab == &scrolly_tram_waggons)   lst = &tram_waggons;
 	else                                     lst = &waggons;
 
-#if CONVOI_TEMPLATE
 	if (tab == &cont_template_tab) {
 		// Show vehicle count in depot
 		{
@@ -2747,7 +2722,6 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 		txt_convoi_number.clear();
 		return;
 	}
-#endif // CONVOI_TEMPLATE
 
 	int x = get_mouse_x();
 	int y = get_mouse_y();
@@ -2963,13 +2937,11 @@ void depot_frame_t::update_tabs()
 		tabs.add_tab(&scrolly_pas, translator::translate( depot->get_passenger_name() ) );
 	}
 
-#if CONVOI_TEMPLATE
 	// Templates tab is not meaningful in sell/offset modes
 	if (template_panel && template_panel->get_count() > 0
 	    && veh_action != va_sell && veh_action != va_set_offset && veh_action != va_cancel_offset) {
 		tabs.add_tab(&cont_template_tab, translator::translate("Templates"));
 	}
-#endif
 
 	// Look, if there is our old tab present again (otherwise it will be 0 by tabs.clear()).
 	for(  uint8 i = 0;  i < tabs.get_count();  i++  ) {
