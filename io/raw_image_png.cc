@@ -14,6 +14,7 @@
 
 #include "../simmem.h"
 #include "../simdebug.h"
+#include "../sys/simsys.h"
 
 
 static std::string filename_;
@@ -167,7 +168,7 @@ bool raw_image_t::read_png(const char *fname)
 	// remember the file name for better error messages.
 	filename_ = fname;
 
-	FILE* file = fopen(fname, "rb");
+	FILE* file = dr_fopen(fname, "rb");
 
 	if (file) {
 		const bool ok = read_png_data(file);
@@ -188,7 +189,7 @@ bool raw_image_t::write_png(const char *file_name) const
 
 	png_structp png_ptr = NULL;
 	png_infop info_ptr = NULL;
-	FILE *fp = fopen(file_name, "wb");
+	FILE *fp = dr_fopen(file_name, "wb");
 	if (!fp) {
 		return false;
 	}

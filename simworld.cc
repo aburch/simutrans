@@ -1847,8 +1847,11 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	dbg->message("karte_t::enlarge_map()","heightfield name is %s",settings.heightfield.c_str());
 	if(  !settings.heightfield.empty()  ) {
 		// init from file
-		for(  sint16 y = 0;  y<=new_size_y;  y++  ) {
-			for(  sint16 x = (y>old_y) ? 0 : old_x+1;  x<=new_size_x;  x++  ) {
+		// h_field has new_size_x * new_size_y pixels; the grid has one extra row and column.
+		// The rightmost column is mirrored by the per-row copy below; the bottom row is
+		// mirrored by the memcpy below — so the inner loops must stay within h_field bounds.
+		for(  sint16 y = 0;  y<new_size_y;  y++  ) {
+			for(  sint16 x = (y>old_y) ? 0 : old_x+1;  x<new_size_x;  x++  ) {
 				grid_hgts[x + y*(cached_grid_size.x+1)] = h_field[x+(y*(sint32)cached_grid_size.x)]+1;
 			}
 			grid_hgts[cached_grid_size.x + y*(cached_grid_size.x+1)] = grid_hgts[cached_grid_size.x-1 + y*(cached_grid_size.x+1)];

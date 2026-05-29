@@ -84,6 +84,11 @@ bool raw_image_t::read_bmp(const char *filename)
 
 	bitmap_file_header_t bmp_header;
 
+	if (!file) {
+		dbg->warning("raw_image_t::read_bmp", "Cannot open bmp file '%s'", filename);
+		return false;
+	}
+
 	if (fread(&bmp_header, sizeof(bitmap_file_header_t), 1, file) != 1) {
 		dbg->warning("raw_image_t::read_bmp", "Malformed bmp file");
 		fclose(file);
@@ -395,7 +400,7 @@ bool raw_image_t::write_bmp(const char *filename) const
 	fheader.file_size            = endian(uint32(headers_size + gap1_size + image_data_size));
 
 	// now actually write the data
-	FILE *f = fopen(filename, "wb");
+	FILE *f = dr_fopen(filename, "wb");
 
 	if (!f) {
 		return false;
