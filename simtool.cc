@@ -6505,9 +6505,16 @@ const char *tool_build_house_t::work_on_ground( player_t *player, koord k )
 	// Place found...
 	if(hat_platz) {
 		player_t *gb_player = desc->is_city_building() ? NULL : welt->get_public_player();
+		sint32 old_won = (desc->is_city_building() && city) ? city->get_won() : 0;
+		sint32 old_arb = (desc->is_city_building() && city) ? city->get_arb() : 0;
 		gebaeude_t *gb = hausbauer_t::build(gb_player, k, rotation, desc, city);
 		if(gb) {
 			// building successful
+			if(  desc->is_city_building()  &&  city  ) {
+				// bev must grow with won/arb so population doesn't decrease
+				sint32 delta = (city->get_won() - old_won) + (city->get_arb() - old_arb);
+				city->adjust_bev_for_manual_build(delta / 2);
+			}
 			if(  desc->get_type()==building_desc_t::monument  &&  city  ) {
 				city->add_gebaeude_to_stadt(gb);
 			}

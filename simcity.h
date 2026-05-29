@@ -469,6 +469,10 @@ public:
 	uint32 get_inhabitants() const { return buildings.get_sum_weight()*6; }
 	sint32 get_unemployed() const { return bev - arb; }
 	sint32 get_homeless()   const { return bev - won; }
+	sint32 get_won() const { return won; }
+	sint32 get_arb() const { return arb; }
+	// Adjust bev after manually placing a city building, so population stays consistent.
+	void adjust_bev_for_manual_build(sint32 delta) { bev += delta; }
 
 	const char *get_name() const { return name; }
 	void set_name( const char *name );
