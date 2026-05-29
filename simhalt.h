@@ -342,11 +342,6 @@ private:
 	// Array with different categories that contains all waiting goods at this stop
 	cargo_queue_t** cargo;
 
-	// Array with different categories that contains the reference of
-	// waiting goods which haven't had a chance to be loaded yet.
-	// Valid only when TBGR is enabled.
-	std::vector<std::list<std::weak_ptr<halt_waiting_goods_t>>> fresh_cargo;
-
 	/**
 	 * Liste der angeschlossenen Fabriken
 	 */
