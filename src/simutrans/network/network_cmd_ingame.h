@@ -301,11 +301,11 @@ public:
 	// do some special checks
 	network_broadcast_world_command_t* clone(karte_t *) OVERRIDE;
 
-	uint8 cmd;
-	uint8 player_nr;
-	uint16 param;
-	bool scripted_call;
-	connection_info_t* pending_company_creator; // this client want to create new company (not sent)
+	uint8 cmd          = 0xFF;
+	uint8 player_nr    = 0xFF;
+	uint16 param       = 0;
+	bool scripted_call = false;
+	connection_info_t* pending_company_creator = NULL; // this client want to create new company (not sent)
 
 	/// store information about client that created a company
 	static connection_info_t* company_creator[PLAYER_UNOWNED];
