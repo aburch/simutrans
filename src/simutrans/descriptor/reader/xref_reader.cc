@@ -4,6 +4,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include "../../simdebug.h"
 #include "../xref_desc.h"
 #include "xref_reader.h"
@@ -13,22 +14,18 @@
 
 obj_desc_t *xref_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	char buf[4 + 1];
-	if (fread(buf, 1, 5, fp) != 5) {
+	if (node.size < 5) {
+		dbg->error("xref_reader_t::read_node", "node.size %u < 5", node.size);
 		return NULL;
 	}
+	node_body_t p(fp, node.size, get_type_name());
+	if (!p) return NULL;
 
 	const uint32 name_len = node.size - 4 - 1;
-	char *p = buf;
 	xref_desc_t* desc = new(name_len) xref_desc_t();
-
 	desc->type = static_cast<obj_type>(decode_uint32(p));
 	desc->fatal = (decode_uint8(p) != 0);
-
-	if (fread(desc->name, 1, name_len, fp) != name_len) {
-		delete desc;
-		return NULL;
-	}
+	memcpy(desc->name, p.read_bytes(name_len), name_len);
 
 //	PAKSET_INFO("xref_reader_t::read_node()", "%s",desc->get_text() );
 

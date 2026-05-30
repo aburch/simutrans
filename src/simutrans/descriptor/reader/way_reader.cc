@@ -14,7 +14,6 @@
 #include "way_reader.h"
 #include "../obj_node_info.h"
 #include "../../network/pakset_info.h"
-#include "../../tpl/array_tpl.h"
 
 
 void way_reader_t::register_obj(obj_desc_t *&data)
@@ -38,12 +37,9 @@ bool way_reader_t::successfully_loaded() const
 
 obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	array_tpl<char> desc_buf(node.size);
-	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
-		return NULL;
-	}
+	node_body_t p(fp, node.size, get_type_name());
+	if (!p) return NULL;
 
-	char *p = desc_buf.begin();
 	way_desc_t *desc = new way_desc_t;
 
 	const uint16 version = node.size==0 ? 0 : decode_uint16(p)&0x7FFFu;

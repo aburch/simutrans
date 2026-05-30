@@ -13,6 +13,7 @@
 #include "../objversion.h"
 #include "../../simdebug.h"
 #include "../../simtypes.h"
+#include "../../tpl/array_tpl.h"
 #include "../../dataobj/pakset_manager.h"
 
 
@@ -94,6 +95,148 @@ inline uint64 decode_uint64(char *&data)
 		static classname *instance() { return &the_instance; } \
 	private: \
 		static classname the_instance
+
+
+/// Owns one pak node's bytes and a bounds-checked cursor over them.
+/// decode_*(node_body_t&) overloads read through it.
+class node_body_t
+{
+public:
+	/// fread @p size bytes from @p fp; short read leaves a bool-false cursor.
+	node_body_t(FILE* fp, size_t size, const char* type_name)
+		: type_name_(type_name)
+	{
+		if (size > 0) {
+			if (size > buf_size) {
+				buf_size = size | 0x0FFF;
+				buf = (uint8*)realloc(buf,buf_size);
+			}
+			ptr = buf;
+			size_t n = fread(ptr, 1, size, fp);
+			if (n != size) {
+				dbg->fatal("node_body_t()", "Cannot read %lu (only %lu) for %s", size, n, type_name);
+			}
+			end = ptr + size;
+#if DEBUG
+			usage++;
+#endif
+		}
+		else {
+			dbg->fatal("node_body_t()", "Node of size 0 requested for %s", type_name);
+		}
+	}
+
+#if DEBUG
+	~node_body_t() {
+		usage--;
+		if (usage) {
+			dbg->fatal("node_body_t()", "is not reentrant for %s", type_name_);
+		}
+	}
+#endif
+
+	/// false on short fread.
+	explicit operator bool() const { return ptr != NULL; }
+
+	/// Bounds-checked `p += n`.
+	inline node_body_t& operator+=(size_t n) { ptr += n; return *this; }
+
+	/// Bounds-checked single-byte skip (`p++`); return value unused.
+	inline node_body_t& operator++(int) { ++ptr; return *this; }
+
+	void seek(size_t off)
+	{
+		if (buf + off > end) {
+			dbg->fatal("node_body_t()", "seek to offset %zu past buffer end %zu for %s", off, (size_t)(ptr-end), type_name_);
+		}
+		ptr = buf + off;
+	}
+
+	/// Bounds-checked: returns the cursor, then advances @p n bytes (tail reads).
+	char* read_bytes(size_t n)
+	{
+		if (ptr + n <= end) {
+			char* p = (char *)ptr;
+			ptr += n;
+			return p;
+		}
+		complain(n);
+		return 0;
+	}
+
+	inline uint8 read_uint8()
+	{
+		if (ptr < end) {
+			return *ptr++;
+		}
+		return complain(1);
+	}
+
+	inline uint16 read_uint16()
+	{
+		if (ptr+1 < end) {
+			uint16 v = (uint16)ptr[0] | (uint16)ptr[1] << 8;
+			ptr += 2;
+			return v;
+		}
+		return complain(2);
+	}
+
+	inline uint32 read_uint32()
+	{
+		if (ptr + 3 < end) {
+			const uint32 v =
+				(uint32)ptr[0]       |
+				(uint32)ptr[1] <<  8 |
+				(uint32)ptr[2] << 16 |
+				(uint32)ptr[3] << 24;
+			ptr += 4;
+			return v;
+		}
+		return complain(4);
+	}
+
+	inline uint64 read_uint64()
+	{
+		if (ptr + 3 < end) {
+			const uint64 v =
+				(uint64)(uint8)ptr[0] << 0 |
+				(uint64)(uint8)ptr[1] << 8 |
+				(uint64)(uint8)ptr[2] << 16 |
+				(uint64)(uint8)ptr[3] << 24 |
+				(uint64)(uint8)ptr[4] << 32 |
+				(uint64)(uint8)ptr[5] << 40 |
+				(uint64)(uint8)ptr[6] << 48 |
+				(uint64)(uint8)ptr[7] << 56;
+			ptr += 8;
+			return v;
+		}
+		return complain(8);
+	}
+
+private:
+	uint8 complain(size_t n) const
+	{
+		dbg->fatal("node_body_t()", "Requested read beyond buffer (%lu was %lu too much) for %s", n, (size_t)(end - ptr), type_name_);
+		return 0;
+	}
+
+#if DEBUG
+	static uint8 usage;
+#endif
+	static size_t buf_size;
+	static uint8* buf;
+	uint8* ptr;
+	uint8* end;
+	const char* type_name_;
+};
+
+/// decode_*(node_body_t&) overloads, chosen over the char*& ones by
+/// argument type so reader call sites stay `decode_uint16(p)`.
+inline uint8  decode_uint8(node_body_t& b)  { return b.read_uint8(); }
+inline uint16 decode_uint16(node_body_t& b) { return b.read_uint16(); }
+inline uint32 decode_uint32(node_body_t& b) { return b.read_uint32(); }
+inline uint64 decode_uint64(node_body_t& b) { return b.read_uint64(); }
 
 
 class obj_reader_t

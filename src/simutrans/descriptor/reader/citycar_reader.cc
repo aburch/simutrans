@@ -16,7 +16,6 @@
 
 #include "../../simdebug.h"
 #include "../../network/pakset_info.h"
-#include "../../tpl/array_tpl.h"
 
 
 void citycar_reader_t::register_obj(obj_desc_t *&data)
@@ -39,11 +38,8 @@ bool citycar_reader_t::successfully_loaded() const
 
 obj_desc_t * citycar_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	array_tpl<char> desc_buf(node.size);
-	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
-		return NULL;
-	}
-	char *p = desc_buf.begin();
+	node_body_t p(fp, node.size, get_type_name());
+	if (!p) return NULL;
 
 	// old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.

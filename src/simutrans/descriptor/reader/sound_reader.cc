@@ -11,7 +11,6 @@
 #include "../obj_node_info.h"
 
 #include "../../simdebug.h"
-#include "../../tpl/array_tpl.h"
 
 
 void sound_reader_t::register_obj(obj_desc_t *&data)
@@ -25,11 +24,8 @@ void sound_reader_t::register_obj(obj_desc_t *&data)
 
 obj_desc_t * sound_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	array_tpl<char> desc_buf(node.size);
-	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
-		return NULL;
-	}
-	char *p = desc_buf.begin();
+	node_body_t p(fp, node.size, get_type_name());
+	if (!p) return NULL;
 
 	const uint16 v = decode_uint16(p);
 	const int version = v & 0x8000 ? v & 0x7FFF : 0;
@@ -45,7 +41,7 @@ obj_desc_t * sound_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->nr = decode_uint16(p);
 		uint16 len = decode_uint16(p);
 		if(  len>0  ) {
-			desc->nr = desc->get_sound_id(p);
+			desc->nr = desc->get_sound_id(p.read_bytes(len));
 		}
 	}
 	else {

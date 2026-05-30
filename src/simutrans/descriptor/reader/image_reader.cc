@@ -16,7 +16,6 @@
 
 #include <zlib.h>
 #include "../../tpl/inthashtable_tpl.h"
-#include "../../tpl/array_tpl.h"
 
 
 // if without graphics backend, do not copy any pixel
@@ -28,16 +27,14 @@
 
 obj_desc_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	array_tpl<char> desc_buf(node.size);
-	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
-		return NULL;
-	}
-	char *p = desc_buf.begin()+6;
+	node_body_t p(fp, node.size, get_type_name());
+	if (!p) return NULL;
 
+	p.seek(6);
 	// always zero in old version, since length was always less than 65535
 	// because a node could not hold more data
 	uint8 version = decode_uint8(p);
-	p = desc_buf.begin();
+	p.seek(0);
 
 #if COLOUR_DEPTH != 0
 	image_t *desc = new image_t();
@@ -60,7 +57,7 @@ obj_desc_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		//PAKSET_INFO("image_t::read_node()","x,y=%d,%d  w,h=%d,%d, len=%i",desc->x,desc->y,desc->w,desc->h, desc->len);
 
 		uint16* dest = desc->data;
-		p = desc_buf.begin()+12;
+		p.seek(12);
 
 		if (desc->h > 0) {
 			for (uint i = 0; i < desc->len; i++) {

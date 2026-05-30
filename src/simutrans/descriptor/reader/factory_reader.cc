@@ -12,7 +12,6 @@
 #include "../factory_desc.h"
 #include "../xref_desc.h"
 #include "../../network/pakset_info.h"
-#include "../../tpl/array_tpl.h"
 
 #include "factory_reader.h"
 
@@ -41,11 +40,8 @@ uint16 rescale_probability(const uint16 p)
 
 obj_desc_t *factory_field_class_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	array_tpl<char> desc_buf(node.size);
-	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
-		return NULL;
-	}
-	char *p = desc_buf.begin();
+	node_body_t p(fp, node.size, get_type_name());
+	if (!p) return NULL;
 
 	uint16 v = decode_uint16(p);
 	field_class_desc_t *desc = new field_class_desc_t();
@@ -74,11 +70,8 @@ obj_desc_t *factory_field_class_reader_t::read_node(FILE *fp, obj_node_info_t &n
 
 obj_desc_t *factory_field_group_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	array_tpl<char> desc_buf(node.size);
-	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
-		return NULL;
-	}
-	char *p = desc_buf.begin();
+	node_body_t p(fp, node.size, get_type_name());
+	if (!p) return NULL;
 
 	uint16 v = decode_uint16(p);
 	field_group_desc_t *desc = new field_group_desc_t();
@@ -168,11 +161,8 @@ void factory_field_group_reader_t::register_obj(obj_desc_t *&data)
 
 obj_desc_t *factory_smoke_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	array_tpl<char> desc_buf(node.size);
-	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
-		return NULL;
-	}
-	char *p = desc_buf.begin();
+	node_body_t p(fp, node.size, get_type_name());
+	if (!p) return NULL;
 
 	sint16 x = decode_sint16(p);
 	sint16 y = decode_sint16(p);
@@ -194,16 +184,11 @@ obj_desc_t *factory_smoke_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 obj_desc_t *factory_supplier_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	array_tpl<char> desc_buf(node.size);
-	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
-		return NULL;
-	}
-	char *p = desc_buf.begin();
-
+	node_body_t p(fp, node.size, get_type_name());
+	if (!p) return NULL;
 
 	// old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.
-
 	const uint16 v = decode_uint16(p);
 	const int version = v & 0x8000 ? v & 0x7FFF : 0;
 
@@ -232,11 +217,8 @@ obj_desc_t *factory_supplier_reader_t::read_node(FILE *fp, obj_node_info_t &node
 
 obj_desc_t *factory_product_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	array_tpl<char> desc_buf(node.size);
-	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
-		return NULL;
-	}
-	char *p = desc_buf.begin();
+	node_body_t p(fp, node.size, get_type_name());
+	if (!p) return NULL;
 
 	// old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.
@@ -270,11 +252,8 @@ obj_desc_t *factory_product_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	array_tpl<char> desc_buf(node.size);
-	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
-		return NULL;
-	}
-	char *p = desc_buf.begin();
+	node_body_t p(fp, node.size, get_type_name());
+	if (!p) return NULL;
 
 	// old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.

@@ -17,7 +17,6 @@
 
 #include "../../builder/tunnelbauer.h"
 #include "../../network/pakset_info.h"
-#include "../../tpl/array_tpl.h"
 
 #include <cinttypes>
 
@@ -67,12 +66,11 @@ obj_desc_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		return desc;
 	}
 
-	array_tpl<char> desc_buf(node.size);
-	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
+	node_body_t p(fp, node.size, get_type_name());
+	if (!p) {
 		delete desc;
 		return NULL;
 	}
-	char *p = desc_buf.begin();
 
 	const uint16 v = decode_uint16(p);
 	const uint16 version = v & 0x8000 ? v & 0x7FFF : 0;
