@@ -198,7 +198,7 @@ public:
 
 	inline uint64 read_uint64()
 	{
-		if (ptr + 3 < end) {
+		if (ptr + 7 < end) {
 			const uint64 v =
 				(uint64)(uint8)ptr[0] << 0 |
 				(uint64)(uint8)ptr[1] << 8 |
