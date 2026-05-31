@@ -3,36 +3,72 @@
 <h1><strong>Kliamzonen Hilfe</strong></h1>
 
 <p>
-Dieser Dialog erscheint immer zusammen mit dem <a href="new_world.txt">Neue Welt</a> Dialog. Mit ihm können diverse Details zu den Klimazonen und Bergen der neuen Karte eingestellt werden.
+Dieser Dialog erscheint immer zusammen mit dem <a href="new_world.txt">Neue Welt</a> Dialog. Mit ihm können diverse Details zu den Klimazonen und Bergen einer neuen Karte eingestellt werden.
 </p>
 <p>
-· <em>Grundwasser:</em> Den Pegel des Grundwassers kannst Du von 0 bis 5 festlegen. Je niedriger der Pegel ist, desto mehr Land erscheint und umgekehrt. Die Vorgabe ist 4.
+· <em>Meereshöhe:</em> Die Vorgabe ist -2, es sind Werte von -40 bis 20 möglich. Je niedriger der Pegel ist, desto mehr Land erscheint und umgekehrt dehnen sich die Wasserflächen aus. Es kann noch 3 Ebenen tiefer (z.B. ein Tunnel) gebaut werden, jedoch nicht tiefer als -40. Je größere die von Meeren bedeckt Flächen sind, um so weniger Platz bleibt für Städte. Dann ist möglicherweise nur noch Transport mit Schiffen möglich. Achtung: Auch eine hohe "Maximale Seehöhe" (siehe Parameter weiter unten) kann zu meerähnlich großen Seen führen. 
 </p>
 <p>
-· <em>Berghöhe:</em> Der Maximalwert für die Höhe der höchsten Berge beträgt 320. Die Vorgabe ist 160.
+· <em>Berghöhe:</em> Die Vorgabe ist 160, es sind in Abhängigkeit der Bergigkeit (siehe nächsten Parameter) Werte zwischen 0 und 1000 möglich. Bei einer Berghöhe von 1000 und einer Bergigkeit von 0 erreichen die Berge bei einer hinreichend großen Karte eine Höhe von etwa Level 40. Zu hohe und steile Berge bieten wenig Platz für Städte und Industrien. 
 </p>
 <p>
-· <em>Bergigkeit:</em> Dieser Wert bestimmt, wieviel kleinere Hügel und Täler generiert werden. Mögliche Werte sind 0 bis 4. Die Vorgabe ist 2. Eine zu rauhe Karte wird eventuell nicht so viele Städte, Insdustrien oder Verbindungsstraßen erzeugen können, wie eingestellt.
-</p>
-
-<p>
-Im folgenden werden die Grenzen der Schneezone festgelegt. Im Laufe des Jahres sinkt und steigt die Schneegrenze in Simutrans entsprechend der gewählten Einstellung.
+· <em>Bergigkeit:</em> Legt die Rauheit des Geländes fest. Die Vorgabe ist 4, möglich sind in Abhängigkeit der Berghöhe Werte von 0 bis 10. Er bestimmt wie viele kleinere Hügel und Täler generiert werden. Eine zu hügelige Karte wird eventuell nicht so viele Städte, Industrien oder Verbindungsstraßen erzeugen können, wie eingestellt.
 </p>
 <p>
-· <em>Sommerschnee:</em> Ab dieser Höhe beginnt der ewige Schnee. Dort gibt es sehr wenige Städte, Industrien und Vegetation.
+· <em>Winterschnee:</em> Bis zu dieser Höhe herunter fällt im Winter Schnee. Im Laufe des Jahres sinkt bis zum Januar die Schneegrenze auf diesen Wert und steigt bis zum Juli wieder auf die Höhe des ewigen Eis (Gletscherzone). Der Wert hat keine Auswirkungen auf das Spiel sondern dient allein der Optik.
 </p>
 <p>
-· <em>Winterschnee:</em> Bis zu dieser Höhe fällt im Winter Schnee. Das hat keine Auswirkungen auf das Spiel sondern dient allein der Optik.
+· <em>Windrichtung:</em> Die vorherrschende Windrichtung. Dieser Parameter hat nur Auswirkungen wenn die Klimazonen nach Wetter berechnet werden. Dann können die Bäume entsprechend der Luftfeuchte (Regengebiete) verteilt werden.
 </p>
-
 <p>
-Im nächsten Block werden die Grenzen der einzelnen Klimazonen bestimmt. Diese werden in Höhenstufen ab Grundwasser gerechnet. Die Anzeige der Klimazonen geht von Null bis zur eingestellten Höhe. Höhere Klimazonen werden dabei von niedrigeren Klimazonen im unteren Bereich überdeckt. Du kannst also Wüste in Tundra und dann in Tropen übergehen lassen.<br>
-<strong>Achtung:</strong> <br>Gebäude, Industrien und Vegetation können bestimmten Klimazonen zugeordnet sein. In welchen Klimazonen was vorkommt, liegt in den Händen der Pakset- und Addon-Ersteller.
+Tabs: <em>Klima nach Höhe</em> / <em>Klima nach Wetter</em> Hier wird entschieden nach welcher Methode die Klimazonen berechnet werden und die Grenzen der einzelnen Klimazonen bestimmt. Es sind immer nur die sichtbaren Werte relevant für die Erstellung der neuen Karte.
 </p>
-
-<p>Ist die Schaltfläche <em>Keine Bäume</em> aktiviert, werden auf der neuen Karte keine Bäume generiert. 
-</p>
-
 <p>
-Als letztes können Parameter eingestellt werden, um die Erzeugung von Flüssen auf der neuen Karte zu beeinflussen.
+<strong>Klima nach Höhe</strong>
+</p>
+<p>
+· <em>Höhenwerte von bis:</em> Für jede Klimazone kann hier die Höhe in absoluten Level des Spiels angegeben werden. Mindesthöhe ist die Meereshöhe (siehe oben 1. Parameter) Maximalwert ist 127. Die Höhenbereiche dürfen sich überlappen. Die Reihenfolge der Klimazonen ist beliebig. Es darf also auf die Wüste Tundra und danach Tropenklima folgen. Achtung: Jede Höhenstufe sollte mindestens einer Klimazone zugeordnet sein, sonst sieht die Karte etwas seltsam aus. Je nach Pakset können Gebäude, Industrien und Vegetation bestimmten Klimazonen zugeordnet sein und werden dann nur in diesen Klimazonen gebaut. Der beginn der Gletscherzone / Polarklima ist die frühere Sommerschneegrenze. Ab hier herrscht immer Winter. In dieser Gletscherzone gibt es sehr wenige oder keine Städte, Industrien und Vegetation. Achtung: Manche Paksets benötigen eine gleichmäßige Verteilung aller Klimazonen auf die Kartenfläche für die Fabrikketten, da auch deren Fabriken abhängig von den Klimazone gebaut werden. 
+</p>
+<p>
+· <em>Größe Klimaregion:</em> Die Vorgabe ist 10%, es sind Werte von 0% bis 100% möglich. Dieser Wert wird nur relevant wenn sich die Klimaregionen überlappen. Dann beeinflusst der Wert die Größe der Überlappungszonen.
+</p>
+<p>
+<strong>Klima nach Wetter</strong>
+</p>
+<p>
+· <em>Anstieg über Land:</em> Die Vorgabe ist 1, es sind Werte von 0 bis 10 möglich. 
+</p>
+<p>
+· <em>Anstieg über Wasser:</em> Die Vorgabe ist 1, es sind Werte von 0 bis 10 möglich. 
+</p>
+<p>
+· <em>Feuchtigkeitsgrenzen:</em> Die Vorgabe ist 65% bis 75%, es sind Werte von 0% bis 100% möglich. 
+</p>
+<p>
+· <em>Temperaturgrenzen:</em> Die Vorgabe ist 20,15,8,0,-10, es sind Werte von -30 bis 30 möglich. An diesen 5 Temperaturgrenzen wechselt die Klimazone von Wüstenklima bis Polarklima. 
+</p>
+<p>
+· <em>Sommerschnee ab:</em> Ab dieser Höhe beginnt der ewige Schnee. Dort gibt es sehr wenige Städte, Industrien und Vegetation.
+</p>
+<p>
+<strong>Bäume, Seen, Flüsse</strong>
+</p>
+<p>
+· <em>Bäume:</em> Die Vorgabe ist "Zufällig", es sind "Keine", "Zufällig" und wenn die Klimazonen nach Wetter zugeordnet wird auch "Luftfeuchte" möglich. "Keine" bedeutet auf der neuen Karte wird kein einziger Baum generiert. <br>
+<it>Achtung: </it>Normal werden Holzfällerlager in Wäldern platziert. Wird jedoch hier "keine" angegeben werden Holzfällerlager beliebig auf der Karte platziert, auch dann wenn der Spieler inzwischen Wälder angelegt hat.<br>
+Auf großen Karten beanspruchen Bäume beim Rendern viel CPU Zeit. Verwenden Sie auf PCs mit langsamerer CPU oder wenig Arbeitsspeicher die Option "Keine".
+</p>
+<p>
+· <em>Maximale Seehöhe:</em> Die Vorgabe ist 8, es sind Werte von Meereshöhe (siehe 1. Wert oben) bis 127 möglich. <br>
+<it>Warnung:</it> Wird der Wert zu hoch gewählt können große Seen entstehen, die große Täler, oder weite Teile der Karte mit Wasser auffüllen.
+</p>
+<p>
+· <em>Anzahl Flüsse:</em> Die Vorgabe ist 16, es sind Werte von 0 bis 1000 möglich.<br>
+<it>Achtung: </it>Sollten sie vorhaben die Flüsse selbst zu zeichnen, dann geben sie hier mindestens eine 1 an. Da ansonsten das Programm annimmt, dass auf der Karte keine Flüsse vorhanden sind und Gebäude die an Flüssen stehen sollen einfach beliebig platziert. 
+</p>
+<p>
+· <em>min. Länge:</em> Die Vorgabe für die Mindestflusslänge ist 20, es sind Werte von 0 bis 16 Kacheln unter der maximalen Länge möglich. 
+</p>
+<p>
+· <em>max. Länge:</em> Die Vorgabe für die maximale Flusslänge ist 512, es sind Werte von der minimalen Länge plus 16 bis 1024 möglich. 
 </p>

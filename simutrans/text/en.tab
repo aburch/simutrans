@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: en English                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 11.03 2026                           #
+#                           Date Created: 31.05 2026                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -1393,6 +1393,8 @@ Status
 Stop status
 Step timeline one year
 Step time-line by a year.
+Stopping permissions
+Other player who can use this stop
 Strassendepot
 Garage
 Strassentunnel
@@ -1520,7 +1522,7 @@ Water
 Water
 Canal
 Water level
-Water level:
+Sea level:
 way %s cannot longer used:\n
 Way-type %s can no longer be used.\n
 way %s cannot longer used:\n%s\n

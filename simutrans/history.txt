@@ -1,3 +1,4 @@
+Release of 124.5 (r11992 on 31-May-2026):
 	FIX: (poppo) wayobj toll on other people's way and their removal
 	CHG: (Nazalassa) combobox only searchable if not fitting on screen, "Type to search ..." shown then
 	CHG: Stops get an orange/red status colour only when satisfaction (ratio of happy / (happy+unhappy)) is below 90/75%
@@ -15,10 +16,11 @@
 	FIX: (janry) admin packets only read or write for admin tool/server
 	FIX: drive again to the end of the platform after choose signal selection
 	FIX: pak specific config in user_dir/addons/PAK_NAM/config/simuconf.tab for reset extended settings
-	FIX: (janry+prissi) new simple tool work_world for creation/loading/asaving maps to avoid doing this during a step which may lead to crashes
+	FIX: (janry+prissi) new simple tool work_world for creation/loading/saving maps to avoid doing this during a step which may lead to crashes
 	ADD: (nazalassa) permissions for halts, to let other players serve specific halts
 	CHG: public player with built furts across rivers even for faster roads as long as there is one with max_speed of at least 25 km/h for road
 	CHG: link factory tool inaccessible when factories are cross-connected by default
+	CHG: (janry+prissi) pak loading with more checks against broken pak files and up to 33% faster
 
 
 Release of 124.4.1 (r11930 on 18-Apr-2026):

@@ -7,6 +7,6 @@ Mit <em>X</em> davor kannst du nicht mehr benötigte Scripte löschen.<br>
 Mit <em>OK</em> wird das neue Script Werkzeug gespeichert.<br>
 <br>
 Das abgespeicherte Werkzeug findest du im persönlichen Verzeichnissen <em>simutrans</em> in dem auch die gespeicherten Spielstände im Unterverzeichnis <em>save</em> zu finden sind. Bei Windows ist das in den "Eigene Dateien" zu finden. Bei Linux ist es (eventual versteckt) als "/home/[user]/.simutrans" zu finden.<br>
-Innerhalb diesem persönlichen Verzeichnis ist es in <em>simutrans/addons/</em>[Grafikset]<em>/tool/</em> gespeichert.<br>
+Innerhalb diesem persönlichen Verzeichnis ist es in <em>simutrans/addons/</em>[Pakset]<em>/tool/</em> gespeichert.<br>
 Das Script kann mit einem normalen Editor angeschaut und geändert werden. Der Aufbau ist recht einfach zu verstehen.<br>
 </p>

@@ -3,7 +3,7 @@
 <h1><strong>Landscape Settings</strong></h1>
 
 <p>
-The <strong>Landscape Settings</strong> window sets options for topographical and meteorological aspects of the game-world. It opens along with <a href="new_world.txt">Create a New Game</a> window.
+This window sets options for topographical and meteorological aspects of the game-world. It opens along with <a href="new_world.txt">Create a New Game</a> window.
 </p>
 
 <p>
@@ -11,86 +11,85 @@ To adjust each setting, click the arrow-buttons on the side of each option, or i
 </p>
 
 <p>
-<it>Map Options</it>
+· <em>Sea level</em> - Sets how high the Sea level is on the map. The default setting is -2 values ranging from -40 to 20 are possible. The lower the level, the more land appears. Conversely, higher values result in an expansion of sea surface and less land. Construction is possible up to 3 levels below the sea level (e.g., for tunnels), but never deeper than -40. The larger the areas covered by seas, the less space remains available for cities. In such cases, transport via ships may be the only feasible option. Note: A high "Maximum Sea Height" (see the parameter below) can also result in large, sea-like lakes.
 </p>
 
 <p>
-<em>Water level</em> - Sets how high the water is on the map (default -2). Higher values provide less land and more water bodies.
+· <em>Mountain height</em> - The default setting is 160; depending on the "Map roughness" setting (see the next parameter), values between 0 and 1000 are possible. With a Mountain Height of 1000 and a "Map roughness" of 0, mountains on a sufficiently large map will reach a height of approximately Level 40. Mountains that are excessively high and steep offer little space for cities and industries.
 </p>
 
 <p>
-<em>Mountain height</em> - Sets the maximum height of terrain.
+· <em>Map roughness</em> - Sets the roughness of the terrain. The default setting is 4. Depending on the "Mountain Height" parameter, values ranging from 0 to 10 are possible. This parameter determines the density of smaller hills and valleys, the rugged of the terrain generated on the map. A terrain that is too hilly may be unable to generate as many cities, industries, or connecting roads as specified in the settings.
 </p>
 
 <p>
-<em>Map roughness</em> - Sets the roughness of the terrain. A higher number creates more undulations in the coastal areas (they look more realistic). Very rough maps may not be able to generate as many cities, industries or roads as intended.<br><br>
-WARNING: Height levels larger that 33 should be avoided (they are not accesible by the player). More ground levels can be generated, if needed, by lowering the water level.
+· <em>Winter snowline</em> -  Snow falls during the winter season down to this specific elevation. Over the course of the year, the snow line descends to this value by January and rises back up to the level of the "eternal ice" (glacier zone) by July. This value has no  influence on gameplay mechanics and serves only visual purposes.
 </p>
 
 <p>
-<it>Snowline Options</it>
-<br>Snowline is the height on the map above which snow appears. During a year, the snowline in Simutrans varies according to the next settings.
+· <em>Wind direction</em> - The prevailing wind direction. This parameter only takes effect if climate zones are calculated based on weather patterns. In that case, trees can be distributed according to humidity levels (rainy areas).
 </p>
 
 <p>
-<em>Summer snowline</em> - The snowline during summer (eternal snow). This value is the highest terrain value selected in the climate options. <em>Arctic climate</em> begins from here.
+Tabs: <em>Climate from height</em> / <em>Climates from weather</em> - This is where you can decide which method is used to calculate the climate zones and determine the boundaries of each individual zone. Only the currently visible values are relevant for generating the new map.
 </p>
 
 <p>
-<em>Winter snowline</em> - Sets the minimum height of snowline in winter. To have snow appear in larger areas on the map, keep this value low.
+<strong>Climate from height</strong>
 </p>
 
 <p>
-<it>Climate Options</it>
-<br>Sets different climate types for the new map.<br><br>
-The value next to each climate type sets the height in the terrain map up to where the climate appears. Higher climate zones are covered by lower climate zones in the lower areas. To turn off a particular climate, set its value to the same as a climate further up in the list (or to water level in case of Desert).<br><br>
-NOTE: Buildings, industries and vegetation have been assigned specific climates by their creators.
+· <em>Elevation Range (From/To):</em> For each climate zone, you can specify the elevation range here using the game's absolute height levels. The minimum elevation is sea level (see the 1st parameter above); the maximum value is 127. Elevation ranges are permitted to overlap. The order of the climate zones is arbitrary; for instance, Tundra may follow Desert, and Tropical climate may follow that.<br>
+<it>Attention:</it> Every elevation level should be assigned to at least one climate zone; otherwise, the map may look somewhat strange. Depending on the Pakset in use, buildings, industries, and vegetation may be tied to specific climate zones and will therefore only be constructed within those zones. The start of the Glacier Zone (or Polar Climate) corresponds to the former "summer snow line." From this point upward, winter conditions prevail year-round. The Glacier Zone features very few, or no cities, industries, or vegetation. Note: Some Paksets require an even distribution of all climate zones across the map area to ensure proper functioning of factory chains, as the placement of their associated factories is also dependent on the specific climate zones.
 </p>
 
 <p>
-<em>Desert climate</em> - Very little precipitation, extremes in temperature. Very few trees. Flat landscape.
+· <em>Climate Region Size:</em> - The default setting is 10%; values from 0% to 100% are possible. This value becomes only relevant when climate regions overlap; in such cases, it influences the size of the resulting overlap zones.
 </p>
 
 <p>
-<em>Tropical climate</em> - Typical of non-arid areas around equator, constant high temperature at sea level and low elevations.
+<strong>Climates from weather</strong>
+</p>
+<p>
+· <em>Elevation Increase (Land)</em> - The default setting is 1; values from 0 to 10 are possible.
+</p>
+<p>
+· <em>Elevation Increase (Water)</em> - The default setting is 1; values from 0 to 10 are possible.
+</p>
+<p>
+· <em>Humidity Limits:</em> The default range is 65% to 75%; values from 0% to 100% are possible.
+</p>
+<p>
+· <em>Temperature Limits</em> - The default values are 20, 15, 8, 0, -10; values from -30 to 30 are possible. At these 5 temperature thresholds, the climate zone transitions from desert climates to polar climates.
+</p>
+<p>
+<em>Summer snowline</em> - The snowline during summer (eternal snow). The default is 32 possible values are from "Sea level" up to 127. <em>Arctic climate</em> begins from here. Very few cities, industries, or vegetation will appear in these areas.
 </p>
 
 <p>
-<em>Mediterranean climate</em> - Moderate changeable wet weather.
+<strong>Trees, Lakes, Rivers</strong>
 </p>
 
 <p>
-<em>Temperate climate</em> - Found in areas between tropics and polar caps, changing weather.
+· <em>Trees</em> - The default setting is "Random"; the available options are "None", "Random", and if climate zones are assigned based on weather "Humidity". "None" means that not a single tree will be generated on the new map. <br>
+<it>Attention: </it>Typically, logging camps are placed within forests; however, if "None" is selected here, logging camps will be placed anywhere on the map, even if the player has subsequently planted forests.<br>
+On big maps trees take up a lot of CPU time to render. Use "None" option on PCs with slower CPU or low RAM.
 </p>
 
 <p>
-<em>Tundra climate</em> - Low temperatures, edges of polar caps.
+<em>max. lake height</em> - The default is 8 values ranging from Sea Level (the 1st value listed above) up to 127 are possible. <br>
+<it>Warning:</it> If this value is set too high, large lakes may form, filling vast valleys and significant portions of the map with water.
 </p>
 
 <p>
-<em>Alpine (rocky) climate</em> - Dry climate, cold winters. 
+<em>Number of rivers</em> - The default setting is 16, values ranging from 0 to 1000 are possible. Sets the maximum number of rivers that can be generated and used in a terrain map. Narrow rivers cannot be navigated by boats or ships of any kind.<br>
+<it>Attention:</it> If you intend to draw the rivers yourself, enter a value of at least 1 here. Otherwise, the program will assume that there are no rivers on the map and will simply place buildings intended to be situated along rivers at random locations.
 </p>
 
 <p>
-<it>Other Options</it>
+<em>Min. length of rivers</em> - The default setting for the minimum river length is 20, values ranging from 0 to 16 tiles below the maximum length are possible. 
 </p>
 
 <p>
-<em>No trees</em> - Enable this option to prevent Simutrans from drawing trees. Trees take up CPU time to render. Use this option on PCs with slower CPU or low RAM.
-</p>
-
-<p>
-<em>Lakes</em> - Enable this option to let Simutrans create lakes throughout the map by filling some pits in the ground with water.
-</p>
-
-<p>
-<em>Number of rivers</em> - Sets the maximum number of rivers that can be generated and used in a terrain map. Narrow rivers cannot be navigated by boats or ships of any kind.
-</p>
-
-<p>
-<em>Min. length of rivers</em> - Sets the minimum length of rivers on the map (in tiles).
-</p>
-
-<p>
-<em>Max. length of rivers</em> - Sets the maximum length of rivers on the map (in tiles).
+<em>Max. length of rivers</em> - The default setting for the maximum river length is 512, values ranging from the minimum length plus 16 up to 1024 (in tiles) are possible.
 </p>

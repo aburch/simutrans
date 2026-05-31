@@ -1,6 +1,6 @@
 <title>List of all vehicle</title>
 
-<h1>List of all in the game Vehicle types </h1>
+<h1>List of all in the game Vehicle types</h1>
 <p>By default, all vehicles currently coming current and future will be shown. Show the future is also the real sense of this list. In the depots, the upcoming vehicles are not visible. The player can better plan for the future.
 </p>
 <p>

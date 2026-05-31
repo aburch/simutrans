@@ -7,9 +7,9 @@
 </p>
 <p>
 
-<strong>Convoy Details</strong> can be opened from the
+<strong>Convoy Details</strong> can be opened from the 
 <a href="convoiinfo.txt">
-Details</a> option-button in Convoy Information</strong>.
+Details</a> option-button in <strong>Convoy Information</strong>.
 <br>
 If not all vehicle-units are visible <a href="mouse.txt">re-size</a> <strong>Convoy Details</strong> or use the slider-bars to scroll.
 </p>
@@ -36,5 +36,5 @@ Information listed for each vehicle-units includes:<br>
 - <em>Power:</em> power generated (by motorised vehicle-units)<br>
 - <em>Friction:</em> current friction level<br>
 - <em>Max income:</em> Maximum possible income of this vehicle-unit based on type of item transported by this Convoy<br>
-- <em>items on board</em> amount and destination of items currently carried by this vehicle-unit.
+- <em>items on board:</em> amount and destination of items currently carried by this vehicle-unit.
 </p>

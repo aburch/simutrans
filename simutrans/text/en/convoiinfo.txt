@@ -87,7 +87,7 @@ The colours of lines on the graph correspond to the colours of the graph-option-
 Information shown includes quantity carried, capacity of Convoy, type of item, final destination and next transfer <a href="station.txt">stop</a>.<br>
 The option-button (which changes its name with your selection) sorts the list of items (passengers, mail, and goods) carried:<br>
  - <em>destination:</em> sorts items by assigned name of final destination <a href="station.txt">stop</a>, alphanumerically by ASCII-code order (capital letters before lower case letters).<br>
- - <em>amount:</em> sorts items carried by quantity in descending order.
+ - <em>amount:</em> sorts items carried by quantity in descending order.<br>
  - <em>via (detail):</em> sorts items carried by assigned name of first transfer <a href="station.txt">stop</a>, alphanumerically by ASCII-code order (capital letters before lower case letters).<br>
  - <em>via (amount):</em> sorts items carried by quantity headed to first transfer <a href="station.txt">stop</a>.<br>
  - <em>via (owner):</em> sorts items carried by quantity by the owner of the next <a href="station.txt">stop</a>.<br>

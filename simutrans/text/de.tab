@@ -12,13 +12,15 @@ Prop-Latin1.bdf
 #                             Language: de Deutsch                             #
 #                                Encoding: UTF-8                               #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 11.03 2026                           #
+#                           Date Created: 31.05 2026                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
 #__________________________________button_text__________________________________
 Absolute times
 Abfahrtszeiten als Datum im Monat
+allow reverse passage
+Freie Durchfahrt in Gegenrichtung
 AMBIENT_SOUND
 Umgebungsgeräusche
 CASH_SOUND
@@ -2129,6 +2131,8 @@ steam
 Dampf
 Step timeline one year
 Jahr überspringen
+Stopping permissions
+Spieler, die auch hier halten dürfen
 Stops
 Haltestellen
 Storage
