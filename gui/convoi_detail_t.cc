@@ -22,6 +22,8 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/environment.h"
 
+#include "../sys/simsys.h"
+
 #include "../player/simplay.h"
 
 #include "../utils/simstring.h"
@@ -241,7 +243,7 @@ void convoi_detail_t::init(convoihandle_t cnv)
 			new_component<gui_fill_t>();
 
 			copy_convoi_button.init(button_t::roundbox| button_t::flexible, "Copy Convoi");
-			copy_convoi_button.set_tooltip("Copy this convoi");
+			copy_convoi_button.set_tooltip(translator::translate("Copy this convoi (ctrl pressed: copy vehicle list as template format to clipboard)"));
 			copy_convoi_button.add_listener(this);
 			add_component(&copy_convoi_button);
 		}
@@ -430,7 +432,19 @@ bool convoi_detail_t::action_triggered(gui_action_creator_t *comp,value_t /* */)
 			return true;
 		}
 		else if(comp==&copy_convoi_button) {
-			welt->set_copy_convoi(cnv);
+			if(  event_get_last_control_shift() == 2  ) {
+				// Ctrl+click: copy vehicle list as convoy template format to system clipboard
+				welt->set_copy_convoi(cnv);
+				cbuffer_t buf;
+				for(  uint16 i = 0;  i < cnv->get_vehicle_count();  i++  ) {
+					buf.printf("vehicle[%u]=%s\n", i, cnv->get_vehikel(i)->get_desc()->get_name());
+				}
+				if(  buf.len() > 0  ) {
+					dr_copy(buf, buf.len());
+				}
+			} else {
+				welt->set_copy_convoi(cnv);
+			}
 			return true;
 		}
 		else if(comp==&trade_convoi_button) {

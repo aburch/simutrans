@@ -418,8 +418,8 @@ Full Get on/off Time
 Always use maximum boarding and alighting time, regardless of boardings and alightings.
 乗降数に関わらず、常に最大乗降時間を使用します
 #------運行中編成のコピー------
-Copy this convoi
-この編成をコピーします
+Copy this convoi (ctrl pressed: copy vehicle list as template format to clipboard)
+この編成をコピーします（ctrlキーを押すと編成をテンプレート書式でクリップボードにコピーします）
 Paste Convoi
 編成を貼り付け
 Paste the copied convoi
