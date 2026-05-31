@@ -81,12 +81,7 @@ obj_desc_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->imageid = IMG_EMPTY;
 
 		skip_reading_pixels_if_no_graphics;
-		uint16* dest = desc->data;
-		if (desc->h > 0) {
-			for (uint i = 0; i < desc->len; i++) {
-				*dest++ = decode_uint16(p);
-			}
-		}
+		p.read_uint16_block(desc->data, desc->len);
 	}
 	else if(version==3) {
 		desc->x = decode_sint16(p);
@@ -99,12 +94,7 @@ obj_desc_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->imageid = IMG_EMPTY;
 
 		skip_reading_pixels_if_no_graphics;
-		uint16* dest = desc->data;
-		if (desc->h > 0) {
-			for (uint i = 0; i < desc->len; i++) {
-				*dest++ = decode_uint16(p);
-			}
-		}
+		p.read_uint16_block(desc->data, desc->len);
 	}
 	else {
 		dbg->fatal( "image_reader_t::read_node()", "Cannot handle too new node version %i", version );

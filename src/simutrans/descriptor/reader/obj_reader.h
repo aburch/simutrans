@@ -104,8 +104,8 @@ class node_body_t
 public:
 	/// fread @p size bytes from @p fp; short read leaves a bool-false cursor.
 	node_body_t(FILE* fp, size_t size, const char* type_name)
-		: type_name_(type_name)
 	{
+		type_name_ = type_name;
 		if (size > 0) {
 			if (size > buf_size) {
 				buf_size = size | 0x0FFF;
@@ -162,6 +162,20 @@ public:
 		}
 		complain(n);
 		return 0;
+	}
+
+	void read_uint16_block(uint16 *dest, size_t n)
+	{
+		uint8* cpy_end = ptr + 2 * n;
+		if (cpy_end <= end) {
+			while (ptr < cpy_end) {
+				uint16 v = *ptr++;
+				v |= (uint16)*ptr++ << 8;
+				*dest++ = v;
+			}
+			return;
+		}
+		complain(2*n);
 	}
 
 	inline uint8 read_uint8()
@@ -226,9 +240,9 @@ private:
 #endif
 	static size_t buf_size;
 	static uint8* buf;
-	uint8* ptr;
-	uint8* end;
-	const char* type_name_;
+	static uint8* ptr;
+	static uint8* end;
+	static const char* type_name_;
 };
 
 /// decode_*(node_body_t&) overloads, chosen over the char*& ones by
