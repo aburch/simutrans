@@ -52,6 +52,7 @@ roadsign_t::roadsign_t(loadsave_t *file) : obj_t ()
 {
 	image = foreground_image = IMG_EMPTY;
 	preview = false;
+	choose_sign_flag = 0; // must initialize before rdwr(): old save formats use bitwise-OR on this field
 	rdwr(file);
 	if(desc) {
 		/* if more than one state, we will switch direction and phase for traffic lights
@@ -712,6 +713,10 @@ void roadsign_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(flag8);
 		if(  file->is_loading()  ) {
 			choose_sign_flag = flag8;
+			if(  file->get_OTRP_version()<=52  ) {
+				// stop_before_check was added in v53
+				set_stop_before_check(false);
+			}
 		}
 	}
 	else if(file->get_OTRP_version()>=22) {
