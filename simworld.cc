@@ -521,6 +521,8 @@ void karte_t::destroy()
 
 assert( depot_t::get_depot_list().empty() );
 
+	convoy_templates.clear();
+
 	DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 	destroying = false;
 }

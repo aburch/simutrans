@@ -596,10 +596,8 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	tram_waggons.set_player_nr(depot->get_owner_nr());
 	tram_waggons.add_listener(this);
 
-	// Convoy template tab setup
-	if (welt->get_convoy_templates().empty()) {
-		welt->load_convoy_templates();
-	}
+	// Convoy template tab setup: always reload to pick up any new .tab files
+	welt->load_convoy_templates();
 	template_panel = new gui_template_panel_t();
 	template_panel->init(welt->get_convoy_templates(), (sint8)depot->get_owner_nr(), depot);
 	template_panel->add_listener(this);
