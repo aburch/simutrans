@@ -16,6 +16,10 @@ pacman -S --noconfirm $MINGW_PACKAGE_PREFIX-SDL2
 # optional for installer:
 pacman -S --noconfirm $MINGW_PACKAGE_PREFIX-nsis
 
+pacman -S --noconfirm $MINGW_PACKAGE_PREFIX-miniupnpc
+exit 0
+
+# That should be not longer needed 
 rm -rf master.zip
 wget https://github.com/miniupnp/miniupnp/archive/master.zip
 unzip -o master.zip

@@ -1,4 +1,4 @@
-Release of 124.5 (r11992 on 31-May-2026):
+Release of 124.5 (r11993 on 31-May-2026):
 	FIX: (poppo) wayobj toll on other people's way and their removal
 	CHG: (Nazalassa) combobox only searchable if not fitting on screen, "Type to search ..." shown then
 	CHG: Stops get an orange/red status colour only when satisfaction (ratio of happy / (happy+unhappy)) is below 90/75%
