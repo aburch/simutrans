@@ -4149,8 +4149,11 @@ bool rail_vehicle_t::is_priority_signal_clear(signal_t *sig, uint16 next_block, 
 		if(  next_signal == route_t::INVALID_INDEX  ||  cnv->get_route()->at(next_signal) == cnv->get_route()->back()  ||  is_signal_clear( next_signal, restart_speed, call_by_step )  ) {
 			// ok, end of route => we can go
 			sig->set_state( roadsign_t::STATE_GREEN );
-			cnv->set_next_stop_index( min( next_signal, next_crossing ) );
-
+			// do not shorten next_stop_index set by recursive call (e.g. longblock signal)
+			// unless a crossing requires stopping before the next signal
+			if(  next_crossing <= next_signal  ||  cnv->get_next_stop_index() <= next_signal + 1  ) {
+				cnv->set_next_stop_index( min( next_signal, next_crossing ) );
+			}
 			return true;
 		}
 
