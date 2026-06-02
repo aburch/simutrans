@@ -3026,6 +3026,15 @@ void convoi_t::rdwr(loadsave_t *file)
 			s = LOADING;
 		}
 		file->rdwr_enum(s);
+	} else if(  !file->is_loading()  &&  file->get_OTRP_version()<55  ) {
+		// we add SUSPENSION and SUSPENSION_LOADING in v55.
+		states s = state;
+		if(  s==SUSPENSION  ) {
+			s = EDIT_SCHEDULE;
+		} else if(  s==SUSPENSION_LOADING  ) {
+			s = LOADING;
+		}
+		file->rdwr_enum(s);
 	} else {
 		// just read/write state
 		file->rdwr_enum(state);
