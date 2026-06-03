@@ -692,7 +692,7 @@ public:
 	/**
 	 * Draws some nice colored bars giving some status information
 	 */
-	void display_status(sint16 xpos, sint16 ypos);
+	void display_status(sint16 xpos, sint16 ypos, bool show_below);
 
 	/**
 	 * Crossconnects all factories

@@ -1734,27 +1734,33 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 	if( env_t::show_factory_storage_bar ) {
 		if( gebaeude_t *gb=find<gebaeude_t>() ) {
 			if(  fabrik_t* fab = gb->get_fabrik()  ) {
-				if( env_t::show_factory_storage_bar == 1  &&  welt->get_zeiger()->get_pos() == get_pos() ) {
-					const sint16 raster_tile_width = gfx->get_tile_raster_width();
-					const char* text = fab->get_name();
-					const int width = gfx->calc_text_width(text) + 7;
-					sint16 new_xpos = xpos - (width-raster_tile_width)/2;
-					sint16 new_ypos = ypos + 5;
-//					display_text_label( new_xpos, new_ypos, text, fab->get_owner(), dirty );
-					// ... and status
-					fab->display_status( xpos, new_ypos );
-					win_set_tooltip( { new_xpos, ypos }, fab->get_name(), NULL, NULL );
+				if( env_t::show_factory_storage_bar == 1) {
+					if (welt->get_zeiger()->get_pos() == get_pos()) {
+						const sint16 raster_tile_width = gfx->get_tile_raster_width();
+						const char* text = fab->get_name();
+						const int width = gfx->calc_text_width(text) + 7;
+						sint16 new_xpos = xpos - (width - raster_tile_width) / 2;
+						sint16 new_ypos = ypos + 5;
+						//  display_text_label( new_xpos, new_ypos, text, fab->get_owner(), dirty );
+						// ... and status
+						fab->display_status(xpos, new_ypos, false);
+						win_set_tooltip({ new_xpos, ypos }, fab->get_name(), NULL, NULL);
+					}
 				}
 				else if(  gb->get_first_tile() == gb  ) {
 					if(  env_t::show_factory_storage_bar == 3  ||  (env_t::show_factory_storage_bar == 2  &&  fab->is_within_players_network( welt->get_active_player() ))  ) {
+						sint16 show_below = get_flag(has_text) ? (LINESPACE*8)/7 : 0;
 						// name of factory
 						const char* text = fab->get_name();
 						const sint16 raster_tile_width = gfx->get_tile_raster_width();
 						const sint16 width = gfx->calc_text_width(text) + 7;
 						sint16 new_xpos = xpos - (width-raster_tile_width)/2;
-						display_text_label( new_xpos, ypos, text, fab->get_owner(), dirty );
+						if (!show_below  ||  strcmp(text, get_text()) != 0) {
+							display_text_label(new_xpos, ypos + show_below, text, fab->get_owner(), dirty);
+							show_below *= 2;
+						}
 						// ... and status
-						fab->display_status( xpos, ypos );
+						fab->display_status(xpos, ypos + show_below, show_below);
 					}
 				}
 			}
