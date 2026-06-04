@@ -21,6 +21,7 @@
 #include "minimap.h"
 #include "components/gui_button_to_chart.h"
 #include "components/gui_image.h"
+#include "components/gui_scrollpane.h"
 
 #include "../display/simgraph.h"
 
@@ -288,9 +289,9 @@ void city_info_t::init()
 	gui_label_buf_t *lb_pax = container_factories.new_component<gui_label_buf_t>();
 	lb_pax->buf().printf(translator::translate("Connected Factories"));
 	lb_pax->update();
-	container_factories.add_component(&all_factories);
+	container_factories.new_component<gui_scrollpane_t>(&all_factories);
 	all_factories.set_table_layout(7,0);
-	all_factories.set_margin(scr_size(0,0), scr_size(0,D_V_SPACE));
+	all_factories.set_margin(scr_size(0,0), scr_size(D_H_SPACE,D_V_SPACE));
 	const vector_tpl<stadt_t::factory_entry_t> & fab_list = city->get_target_factories_for_pax().get_entries();
 	if(!fab_list.empty()){
 		FOR(vector_tpl<stadt_t::factory_entry_t>, const& e, fab_list) {
