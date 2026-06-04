@@ -173,7 +173,7 @@ public:
 			memcpy(dest, ptr, 2 * n);
 			ptr = cpy_end;
 #else
-			uint8* p;
+			uint8* p = ptr;
 			while (ptr < cpy_end) {
 				uint16 v = *p++;
 				v |= (uint16)*p++ << 8;
