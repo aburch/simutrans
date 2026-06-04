@@ -495,7 +495,7 @@ class tool_build_station_t : public two_click_tool_t {
 	const char *tool_station_building_aux(player_t *, bool, koord3d, const building_desc_t *, sint8 rotation );
 	const char *tool_station_dock_aux(player_t *, koord3d, const building_desc_t * );
 	const char *tool_station_flat_dock_aux(player_t *, koord3d, const building_desc_t *, sint8 );
-	const char *tool_station_aux(player_t *, koord3d, const building_desc_t *, waytype_t, const char *halt_suffix );
+	const char *tool_station_aux(player_t *, koord3d, const building_desc_t *, waytype_t, const char *halt_suffix, halthandle_t master_halt = halthandle_t());
 	const building_desc_t *get_desc( sint8 &rotation ) const;
 
   public:
@@ -510,7 +510,7 @@ class tool_build_station_t : public two_click_tool_t {
 	bool is_init_network_safe() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
 
-	char const* process(player_t*, koord3d) ;
+	char const* process(player_t*, koord3d, halthandle_t master_halt = halthandle_t());
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE {return 2;};

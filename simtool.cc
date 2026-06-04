@@ -257,13 +257,68 @@ void open_error_msg_win(const char* error)
 /**
  * sucht Haltestelle um Umkreis +1/-1 um (pos, b, h)
  * extended to search first in our direction
+ * v55_5 update: search method
+ * 1. same way
+ * 2. same ground (up/down)
+ * 3. same height but not same way
+ * 4. different height, different koord but nearby
  */
 static halthandle_t suche_nahe_haltestelle(player_t *player, karte_t *welt, koord3d pos, sint16 b=1, sint16 h=1)
 {
 	koord k(pos.get_2d());
 
-	// any other ground with a valid stop here?
 	halthandle_t my_halt;
+
+	grund_t *bd = welt->lookup(pos);
+	if(  bd==NULL  ) {
+		bd = welt->lookup_kartenboden(k);
+	}
+
+	const sint16 ref_z = pos.z;
+
+	// For bridge approach (slope) tiles, prioritise the bridge deck height in all
+	// neighbour scans so the halt on the flat span is found before any same-height
+	// ground halt.  A gentle slope puts the deck one level up; a steep slope two.
+	sint16 scan_z = ref_z;
+	if(  bd  &&  bd->ist_bruecke()  ) {
+		const sint8 slope = bd->get_grund_hang();
+		if(  slope == slope_t::north  ||  slope == slope_t::west
+		  || slope == slope_t::east   ||  slope == slope_t::south  ) {
+			scan_z = ref_z + 1;
+		}
+		else if(  slope == 8  ||  slope == 24  ||  slope == 56  ||  slope == 72  ) {
+			scan_z = ref_z + 2;
+		}
+	}
+
+	// first we try to connect to a stop straight in our direction; otherwise our station may break during construction
+	if(  bd->hat_wege()  ) {
+		ribi_t::ribi ribi = bd->get_weg_nr(0)->get_ribi_unmasked();
+		halthandle_t ribi_approach_halt;
+		for(  int i=0;  i<4;  i++ ) {
+			if(  ribi_t::nesw[i] & ribi ) {
+				if(  planquadrat_t* plan=welt->access(k+koord::nesw[i])  ) {
+					grund_t *ngr = plan->get_boden_in_hoehe( scan_z );
+					if(  ngr  ) {
+						my_halt = ngr->get_halt();
+						if(  my_halt.is_bound()  &&  (player == NULL  ||  player == my_halt->get_owner())  ) {
+							if(  ngr->ist_bruecke()  &&  ngr->get_grund_hang() != slope_t::flat  ) {
+								if(  !ribi_approach_halt.is_bound()  ) ribi_approach_halt = my_halt;
+							}
+							else {
+								return my_halt;
+							}
+						}
+					}
+				}
+			}
+		}
+		if(  ribi_approach_halt.is_bound()  ) {
+			return ribi_approach_halt;
+		}
+	}
+
+	// any other ground with a valid stop here?
 	if(  planquadrat_t* plan=welt->access(pos.get_2d())  ) {
 		my_halt = plan->get_halt( player );
 		if(  my_halt.is_bound()  ) {
@@ -271,33 +326,46 @@ static halthandle_t suche_nahe_haltestelle(player_t *player, karte_t *welt, koor
 		}
 	}
 
-	grund_t *bd = welt->lookup(pos);
-	if(  bd==NULL  ) {
-		bd = welt->lookup_kartenboden(k);
-	}
-
-	// first we try to connect to a stop straight in our direction; otherwise our station may break during construction
-	if(  bd->hat_wege()  ) {
-		ribi_t::ribi ribi = bd->get_weg_nr(0)->get_ribi_unmasked();
-		for(  int i=0;  i<4;  i++ ) {
-			if(  ribi_t::nesw[i] & ribi ) {
-				if(  planquadrat_t* plan=welt->access(k+koord::nesw[i])  ) {
-					my_halt = plan->get_halt( player );
-					if(  my_halt.is_bound()  ) {
-						return my_halt;
+	// Search at scan_z height first (bridge deck for approach tiles, ref_z otherwise).
+	// Within this scan, prefer halts on flat tiles over halts on bridge approach slopes
+	// so that a nearby flat ground halt is chosen over an adjacent approach halt.
+	halthandle_t approach_halt_at_scan_z; // deferred fallback
+	for(  sint16 y=-1;  y<=h;  y++  ) {
+		for(  sint16 x=-1;  x<=b;  (x==-1 && y>-1 && y<h) ? x=b:x++  ) {
+			if(  planquadrat_t* plan=welt->access(k+koord(x,y))  ) {
+				grund_t *gr = plan->get_boden_in_hoehe( scan_z );
+				if(  gr  ) {
+					my_halt = gr->get_halt();
+					if(  my_halt.is_bound()  &&  (player == NULL  ||  player == my_halt->get_owner())  ) {
+						if(  gr->ist_bruecke()  &&  gr->get_grund_hang() != slope_t::flat  ) {
+							// approach slope tile — defer in favour of any flat-tile halt
+							if(  !approach_halt_at_scan_z.is_bound()  ) {
+								approach_halt_at_scan_z = my_halt;
+							}
+						}
+						else {
+							return my_halt;
+						}
 					}
 				}
 			}
 		}
 	}
+	if(  approach_halt_at_scan_z.is_bound()  ) {
+		return approach_halt_at_scan_z;
+	}
 
-	// now just search all neighbours
+	// then search other heights (for approach tiles this includes ref_z = ground level)
 	for(  sint16 y=-1;  y<=h;  y++  ) {
 		for(  sint16 x=-1;  x<=b;  (x==-1 && y>-1 && y<h) ? x=b:x++  ) {
 			if(  planquadrat_t* plan=welt->access(k+koord(x,y))  ) {
-				my_halt = plan->get_halt( player );
-				if(  my_halt.is_bound()  ) {
-					return my_halt;
+				for(  uint8 i=0;  i<plan->get_boden_count();  i++  ) {
+					grund_t *gr = plan->get_boden_bei(i);
+					if(  gr->get_hoehe() == scan_z  ) { continue; } // already checked
+					my_halt = gr->get_halt();
+					if(  my_halt.is_bound()  &&  (player == NULL  ||  player == my_halt->get_owner())  ) {
+						return my_halt;
+					}
 				}
 			}
 		}
@@ -4817,7 +4885,7 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 		}
 	}
 
-	if(!halt.is_bound()) {
+	if(!halt.is_bound()  &&  !is_shift_pressed()) {
 		halt = suche_nahe_haltestelle(player, welt, welt->lookup_kartenboden(k)->get_pos() );
 	}
 	bool neu = !halt.is_bound();
@@ -5039,7 +5107,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 
 	DBG_MESSAGE("tool_station_flat_dock_aux()","building dock from square (%d,%d) to (%d,%d) layout=%i", k.x, k.y, last_k.x, last_k.y, layout );
 
-	if(!halt.is_bound()) {
+	if(!halt.is_bound()  &&  !is_shift_pressed()) {
 		halt = suche_nahe_haltestelle(player, welt, welt->lookup_kartenboden(k)->get_pos() );
 	}
 	bool neu = !halt.is_bound();
@@ -5083,7 +5151,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 }
 
 // build all types of stops but sea harbours
-const char *tool_build_station_t::tool_station_aux(player_t *player, koord3d pos, const building_desc_t *desc, waytype_t wegtype, const char *type_name )
+const char *tool_build_station_t::tool_station_aux(player_t *player, koord3d pos, const building_desc_t *desc, waytype_t wegtype, const char *type_name, halthandle_t master_halt)
 {
 	koord k = pos.get_2d();
 DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", desc->get_name(), k.x, k.y, wegtype);
@@ -5272,7 +5340,13 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 		}
 	}
 	else {
-		halt = suche_nahe_haltestelle(player,welt,bd->get_pos());
+		if(  master_halt.is_bound()  ) {
+			// Area-one-halt mode: force all new tiles to join the master halt.
+			halt = master_halt;
+		}
+		else if(  !is_shift_pressed()  ) {
+			halt = suche_nahe_haltestelle(player,welt,bd->get_pos());
+		}
 	}
 
 	// seems everything ok, lets build
@@ -5535,7 +5609,7 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 {
 	return two_click_tool_t::work( player, pos );
 }
-const char *tool_build_station_t::process( player_t *player, koord3d pos )
+const char *tool_build_station_t::process( player_t *player, koord3d pos, halthandle_t master_halt )
 {
 	const grund_t *gr = welt->lookup(pos);
 	if(!gr) {
@@ -5573,20 +5647,20 @@ const char *tool_build_station_t::process( player_t *player, koord3d pos )
 		case building_desc_t::generic_stop: {
 			switch(desc->get_extra()) {
 				case road_wt:
-					msg = tool_build_station_t::tool_station_aux(player, pos, desc, road_wt, "H");
+					msg = tool_build_station_t::tool_station_aux(player, pos, desc, road_wt, "H", master_halt);
 					break;
 				case track_wt:
 				case monorail_wt:
 				case maglev_wt:
 				case narrowgauge_wt:
 				case tram_wt:
-					msg = tool_build_station_t::tool_station_aux(player, pos, desc, (waytype_t)desc->get_extra(), "BF");
+					msg = tool_build_station_t::tool_station_aux(player, pos, desc, (waytype_t)desc->get_extra(), "BF", master_halt);
 					break;
 				case water_wt:
-					msg = tool_build_station_t::tool_station_aux(player, pos, desc, water_wt, "Dock");
+					msg = tool_build_station_t::tool_station_aux(player, pos, desc, water_wt, "Dock", master_halt);
 					break;
 				case air_wt:
-					msg = tool_build_station_t::tool_station_aux(player, pos, desc, air_wt, "Airport");
+					msg = tool_build_station_t::tool_station_aux(player, pos, desc, air_wt, "Airport", master_halt);
 					break;
 			}
 			break;
@@ -5651,7 +5725,91 @@ const char *tool_build_station_t::do_work( player_t *player, const koord3d &star
 		return NULL; //TODO: set proper error message when gr is not available.
 	}
 
-	// double click
+	// Area mode with ONE shared new stop (shift+ctrl).
+	// Tiles with no halt join the master halt; tiles with an existing halt only
+	// get their building descriptor updated (halt membership is preserved).
+	if(  is_shift_pressed()  &&  is_ctrl_pressed()  ) {
+		halthandle_t area_master_halt; // local — valid only during this loop
+
+		int dx2 = (start.x <= end.x) ? 1 : -1;
+		int dy2 = (start.y <= end.y) ? 1 : -1;
+		const char *error = NULL;
+		sint32 start_z = start.z; // we compare to this start height. but this value could be changed if there is a bridge approach.
+		const grund_t *start_gr = welt->lookup(start);
+		if(  !start_gr  ) { return NULL; } //TODO: set proper error message when gr is not
+		// bridge approach check
+		if(  start_gr->ist_bruecke()  ) {
+			const sint8 slope = start_gr->get_grund_hang();
+			if(  slope == slope_t::north  ||  slope == slope_t::west
+				|| slope == slope_t::east   ||  slope == slope_t::south  ) {
+				start_z += 1;
+			}
+			else if(  slope == 8  ||  slope == 24  ||  slope == 56  ||  slope == 72  ) {
+				start_z += 2;
+			}
+		}
+
+
+		for(  sint16 kx = start.x;  kx != end.x + dx2;  kx += dx2  ) {
+			for(  sint16 ky = start.y;  ky != end.y + dy2;  ky += dy2  ) {
+				planquadrat_t *plan = welt->access( koord(kx, ky) );
+				if(  !plan  ) { continue; }
+
+				// Iterate every tile in the stack (ground, bridge spans, tunnels …).
+				// process() / tool_station_aux() already rejects non-flat and invalid
+				// tiles, so slope approach tiles fail harmlessly while flat bridge
+				// decks succeed.  This is the only way to reach bridge tiles, because
+				// lookup_kartenboden() returns the natural ground tile, not the bridge
+				// span above it.
+				for(  unsigned b = 0;  b < plan->get_boden_count();  b++  ) {
+					grund_t *gr = plan->get_boden_bei(b);
+					if(  !gr  ) { continue; }
+
+					const koord3d tile_pos = gr->get_pos();
+					// Mirror the ctrl-only bridge height logic: bridge approaches sit
+					// one or two levels below the bridge deck (start.z), flat bridge
+					// spans are at start.z, everything else must be at start.z.
+					sint32 expected_z = start_z;
+					if(  gr->ist_bruecke()  ) {
+						const sint8 slope = gr->get_grund_hang();
+						if(  slope == slope_t::north  ||  slope == slope_t::west
+						  || slope == slope_t::east   ||  slope == slope_t::south  ) {
+							expected_z = start_z - 1;
+						}
+						else if(  slope == 8  ||  slope == 24  ||  slope == 56  ||  slope == 72  ) {
+							expected_z = start_z - 2;
+						}
+					}
+					if(  tile_pos.z != expected_z  ) { continue; }
+					const halthandle_t tile_halt = gr->get_halt();
+
+					// If this tile belongs to a different halt and the master is
+					// already established, pass an empty handle so tool_station_aux
+					// follows the upgrade-in-place path (keeping the existing halt).
+					const bool foreign_halt = tile_halt.is_bound()
+						&&  area_master_halt.is_bound()
+						&&  tile_halt != area_master_halt;
+
+					if(  foreign_halt  ) {
+						const char *e = process( player, tile_pos, halthandle_t() );
+						if(  !error  ) { error = e; }
+					}
+					else {
+						const char *e = process( player, tile_pos, area_master_halt );
+						if(  !error  ) { error = e; }
+						// Capture the master halt from the first tile that got one.
+						if(  !area_master_halt.is_bound()  ) {
+							area_master_halt = haltestelle_t::get_halt( tile_pos, player );
+						}
+					}
+				}
+			}
+		}
+
+		return error;
+	}
+
+	// double click (ctrl only) — each tile gets its own or nearest halt
 	koord wh, nw;
 	wh.x = abs(end.x-start.x)+1;
 	wh.y = abs(end.y-start.y)+1;
