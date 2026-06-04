@@ -5741,7 +5741,7 @@ void air_vehicle_t::enter_tile(grund_t* gr)
 air_vehicle_t::air_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : vehicle_t()
 {
 	rdwr_from_convoi(file);
-	calc_altitude_level( desc->get_topspeed() );
+	calc_altitude_level( desc?desc->get_topspeed():kmh_to_speed(300) );
 
 	if(  file->is_loading()  ) {
 		static const vehicle_desc_t *last_desc = NULL;
