@@ -167,12 +167,20 @@ public:
 	void read_uint16_block(uint16 *dest, size_t n)
 	{
 		uint8* cpy_end = ptr + 2 * n;
+		// normal one
 		if (cpy_end <= end) {
+#ifndef BIG_ENDIAN
+			memcpy(dest, ptr, 2 * n);
+			ptr = cpy_end;
+#else
+			uint8* p;
 			while (ptr < cpy_end) {
-				uint16 v = *ptr++;
-				v |= (uint16)*ptr++ << 8;
+				uint16 v = *p++;
+				v |= (uint16)*p++ << 8;
 				*dest++ = v;
 			}
+			ptr = p;
+#endif
 			return;
 		}
 		complain(2*n);

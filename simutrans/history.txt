@@ -1,3 +1,7 @@
+	FIX: If factory status label were always on, then factories with stops (like oil rigg and fish swarm) the halt status clashed with factory status. Moreover, the factory name could differ from stop name, so both needs to be show then
+	CHG: using memcpy for image loading (when possible) reduces loading time of paks again
+
+
 Release of 124.5 (r11993 on 31-May-2026):
 	FIX: (poppo) wayobj toll on other people's way and their removal
 	CHG: (Nazalassa) combobox only searchable if not fitting on screen, "Type to search ..." shown then
