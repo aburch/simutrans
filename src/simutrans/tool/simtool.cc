@@ -3493,7 +3493,7 @@ image_id tool_wayremover_t::get_icon(player_t *) const
 
 waytype_t tool_wayremover_t::get_waytype() const
 {
-	return default_param ? (waytype_t)atoi(default_param) : invalid_wt;
+	return strempty(default_param) ? invalid_wt: (waytype_t)atoi(default_param);
 }
 
 class electron_t : public test_driver_t {
@@ -5834,7 +5834,7 @@ image_id tool_build_depot_t::get_icon(player_t *player) const
 
 bool tool_build_depot_t::init( player_t *player )
 {
-	if (default_param == NULL) {
+	if (strempty(default_param)) {
 		return false;
 	}
 
@@ -5931,7 +5931,7 @@ const char *tool_build_depot_t::work( player_t *player, koord3d pos )
  */
 bool tool_build_house_t::init( player_t * )
 {
-	if (default_param && strlen(default_param) < 3) {
+	if (!strempty(default_param) && strlen(default_param) < 3) {
 		return false;
 	}
 
@@ -5973,7 +5973,7 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 		return "";
 	}
 	int rotation;
-	if(  !default_param || default_param[1]=='#'  ) {
+	if(  strempty(default_param) || default_param[1]=='#'  ) {
 		rotation = simrand(desc->get_all_layouts());
 	}
 	else if(  default_param[1]=='A'  ) {
@@ -6002,7 +6002,7 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 		climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : desc->get_allowed_climate_bits();
 
 		bool hat_platz = welt->square_is_free( k, desc->get_x(rotation), desc->get_y(rotation), NULL, cl );
-		if(!hat_platz  &&  size.y!=size.x  &&  desc->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#'  ||  default_param[1]=='A')) {
+		if(!hat_platz  &&  size.y!=size.x  &&  desc->get_all_layouts()>1  &&  (strempty(default_param)  ||  default_param[1]=='#'  ||  default_param[1]=='A')) {
 			// try other rotation too ...
 			rotation = (rotation+1) % desc->get_all_layouts();
 			hat_platz = welt->square_is_free( k, desc->get_x(rotation), desc->get_y(rotation), NULL, cl );
@@ -6060,23 +6060,38 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 	}
 
 	const factory_desc_t *fab = NULL;
+	int rotation = -1;
+	bool ignore_climates = false;
+	sint32 initial_prod = -1;
 	if (!strempty(default_param)) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
 		fab = factory_builder_t::get_desc(c);
+		if (!fab) {
+			return "";
+		}
+		// process ignore climates switch
+		ignore_climates = default_param[0] == '1';
+		// find out rotation (# for random)
+		if (default_param[1] != '#') {
+			rotation = (default_param[1] - '0') % fab->get_building()->get_all_layouts();
+		}
+		// prodution value
+		if (default_param[2] != ',') {
+			initial_prod = welt->inverse_scale_with_month_length(atol(default_param + 2));
+		}
 	}
 	else {
 		fab = factory_builder_t::get_random_consumer( false, (climate_bits)(1 << welt->get_climate( pos.get_2d() )), welt->get_timeline_year_month() );
+		if (!fab) {
+			return "";
+		}
 	}
 
-	if(fab==NULL) {
-		return "";
+	if (rotation == -1) {
+		rotation = simrand(fab->get_building()->get_all_layouts() - 1);
 	}
-	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % fab->get_building()->get_all_layouts() : simrand(fab->get_building()->get_all_layouts()-1);
 	koord size = fab->get_building()->get_size(rotation);
-
-	// process ignore climates switch
-	bool ignore_climates = default_param  &&  default_param[0]=='1';
 	climate_bits cl = ignore_climates ? ALL_CLIMATES : fab->get_building()->get_allowed_climate_bits();
 
 	bool hat_platz = false;
@@ -6103,11 +6118,6 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 
 	if(hat_platz) {
 		// eventually adjust production
-		sint32 initial_prod = -1;
-		if (!strempty(default_param)) {
-			initial_prod = welt->inverse_scale_with_month_length( atol(default_param+2) );
-		}
-
 		koord3d build_pos = gr->get_pos();
 		int count = factory_builder_t::build_link(NULL, fab, initial_prod, rotation, &build_pos, welt->get_public_player(), 10000, ignore_climates);
 

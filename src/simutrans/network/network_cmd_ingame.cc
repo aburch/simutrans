@@ -1117,6 +1117,13 @@ void nwc_tool_t::rdwr()
 	packet->rdwr_short(tool_id);
 	packet->rdwr_short(wt);
 	packet->rdwr_str(default_param);
+	if(  packet->is_loading()  &&  default_param == NULL  ) {
+		// rdwr_str yields a NULL plainstring for a len==0 wire string, and the
+		// wire can't tell an empty param from "no param" anyway. Normalise to ""
+		// so tools never see a NULL here; they treat "" and NULL identically
+		// (the strempty() guards in simtool).
+		default_param = "";
+	}
 	packet->rdwr_bool(init);
 	packet->rdwr_long(tool_client_id);
 	packet->rdwr_byte(flags);

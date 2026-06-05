@@ -22,6 +22,7 @@
 
 #include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
+#include "../utils/simstring.h"
 
 #include "../display/viewport.h"
 
@@ -145,7 +146,7 @@ public:
 	bool is_init_keeps_game_state() const OVERRIDE { return true; }
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
 	char const* work(player_t* const player, koord3d const k) OVERRIDE { return tool_set_slope_work(player, k, default_param ? atoi(default_param) : 0, old_slope_compatibility_mode); }
-	bool init(player_t*) OVERRIDE { return default_param != NULL; }
+	bool init(player_t*) OVERRIDE { return !strempty(default_param); }
 };
 
 class tool_restoreslope_t : public tool_t {

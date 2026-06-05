@@ -17,17 +17,10 @@ function test_building_build_house_invalid_param()
 		ASSERT_EQUAL(command_x(tool_build_house).work(pl, coord3d(-1, 1, 0)), "")
 	}
 
-	// empty default_param: error
+	// empty default_param: now treated like no param (random attraction).
+	// (0,0,0) has no suitable ground, so it reports that rather than erroring.
 	{
-		local error_caught = false
-		try {
-			ASSERT_EQUAL(command_x(tool_build_house).work(pl, coord3d(0, 0, 0), ""), null)
-		}
-		catch (e) {
-			error_caught = true
-			ASSERT_EQUAL(e, "Error during initializing tool")
-		}
-		ASSERT_TRUE(error_caught)
+		ASSERT_EQUAL(command_x(tool_build_house).work(pl, coord3d(0, 0, 0), ""), "No suitable ground!")
 	}
 
 	// Invalid default_param: error
