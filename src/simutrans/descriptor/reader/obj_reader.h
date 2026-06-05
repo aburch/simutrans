@@ -122,7 +122,8 @@ public:
 #endif
 		}
 		else {
-			dbg->fatal("node_body_t()", "Node of size 0 requested for %s", type_name);
+			end = ptr = buf;
+			dbg->error("node_body_t()", "Node of size 0 requested for %s", type_name);
 		}
 	}
 
