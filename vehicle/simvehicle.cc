@@ -3281,7 +3281,7 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 			next_lane = 0;
 		}
 		//decide if overtaking convoi should go back to the traffic lane.
-		if(  cnv->get_tiles_overtaking() == 1  &&  str->get_overtaking_mode() <= oneway_mode  ){
+		if(  str  &&  cnv->get_tiles_overtaking() == 1  &&  str->get_overtaking_mode() <= oneway_mode  ){
 			vehicle_base_t* v = NULL;
 			if(  cnv->get_lane_affinity() == 1  ||  (v = other_lane_blocked())!=NULL  ||  str->is_reserved_by_others(this, false, pos_prev, pos_next)  ){
 				//lane change denied
@@ -3314,7 +3314,7 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 		if(  cnv->get_yielding_quit_index() <= route_index  ) {
 			cnv->quit_yielding_lane();
 		}
-		if(  str->get_overtaking_mode() == inverted_mode  ) {
+		if(  str  &&  str->get_overtaking_mode() == inverted_mode  ) {
 			cnv->set_tiles_overtaking(1);
 		}
 		cnv->set_next_cross_lane(false); // since this convoi moved...
@@ -3334,7 +3334,7 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 			grund_t* prev_gr = welt->lookup(pos_prev);
 			if(  prev_gr  ){
 				strasse_t* prev_str = (strasse_t*)prev_gr->get_weg(road_wt);
-				if(  (prev_str  &&  (prev_str->get_overtaking_mode()<=oneway_mode  &&  str->get_overtaking_mode()>oneway_mode  &&  str->get_overtaking_mode()<inverted_mode))  ||  str->get_overtaking_mode()==prohibited_mode  ){
+				if(  str  &&  ((prev_str  &&  (prev_str->get_overtaking_mode()<=oneway_mode  &&  str->get_overtaking_mode()>oneway_mode  &&  str->get_overtaking_mode()<inverted_mode))  ||  str->get_overtaking_mode()==prohibited_mode)  ){
 					cnv->set_tiles_overtaking(0);
 				}
 			}
