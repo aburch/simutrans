@@ -27,6 +27,7 @@ include("tests/test_scenario")
 include("tests/test_sign")
 include("tests/test_start_signal")
 include("tests/test_stop_before_check_signal")
+include("tests/test_longblock_signal")
 include("tests/test_slope")
 include("tests/test_terraform")
 include("tests/test_transport")
@@ -232,6 +233,15 @@ all_tests <- [
 	test_stop_before_check_longblock_signal_convoy_stops,
 	test_stop_before_check_choose_signal_convoy_stops,
 	test_stop_before_check_false_convoy_does_not_stop,
+	test_longblock_open_no_prefix_signal,
+	test_longblock_blocked_no_prefix_signal,
+	test_longblock_open_pre_signal,
+	test_longblock_blocked_pre_signal,
+	test_longblock_open_priority_signal,
+	test_longblock_blocked_priority_signal,
+	test_longblock_blocked_priority_priority_long,
+	test_longblock_blocked_priority_pre_long,
+	test_longblock_blocked_pre_priority_long,
 	test_trees_plant_single_invalid_param,
 	test_way_tunnel_build_straight,
 	test_schedule_entry_maximum_load,

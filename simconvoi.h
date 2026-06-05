@@ -323,6 +323,7 @@ private:
 	 * This holds coordinates reserved by this convoy.
 	 * Used when reservation is triggered by longblocksignal.
 	 * @author THLeaderH
+	 * from v55_5, we add/remove tiles by front vehicle!
 	 */
 	vector_tpl<koord3d> reserved_tiles;
 

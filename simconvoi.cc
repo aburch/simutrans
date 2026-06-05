@@ -309,7 +309,7 @@ void convoi_t::unreserve_route()
  */
 void convoi_t::reserve_route()
 {
-	if(  reserved_tiles.get_count()>0  &&  anz_vehikel>0  ) {
+	if(  !is_coupled()  &&  reserved_tiles.get_count()>0  &&  anz_vehikel>0  ) {
 		// reservation is controlled by reserved_tiles
 		for(  uint32 idx = 0;  idx < reserved_tiles.get_count();  idx++  ) {
 			if(  grund_t *gr = welt->lookup( reserved_tiles[idx] )  ) {
@@ -318,12 +318,21 @@ void convoi_t::reserve_route()
 				}
 			}
 		}
+		// only front vehicle treats reserved_tiles, other convoy-on tiles should be reserved now! 
+		for(  int idx = max(1u, find_most_child_convoi()->back()->get_route_index()) - 1;  idx < front()->get_route_index()-1  &&  idx < (int)route.get_count();  idx++  ) {
+			if(  grund_t *gr = welt->lookup( route.at(idx) )  ) {
+				if(  schiene_t *sch = obj_cast<schiene_t>(gr->get_weg( front()->get_waytype() ))  ) {
+					unreserve_pos(route.at(idx));
+					sch->reserve( self, ribi_type( route.at(max(1u,idx)-1u), route.at(min(route.get_count()-1u,idx+1u)) ) );
+				}
+			}
+		}
 	}
 	else if(  !route.empty()  &&  anz_vehikel>0  &&  (is_waiting()  ||  state==DRIVING  ||  state==LEAVING_DEPOT)  ){
 		// reservation is controlled by next_reservation_index.
 		// Start one step back so the rear car's current tile is also reserved with
 		// the correct ribi direction (individual loading only uses ribi_t::none).
-		for(  int idx = max(1u, back()->get_route_index()) - 1;  idx < next_reservation_index  &&  idx < (int)route.get_count();  idx++  ) {
+		for(  int idx = max(1u, find_most_child_convoi()->back()->get_route_index()) - 1;  idx < next_reservation_index  &&  idx < (int)route.get_count();  idx++  ) {
 			if(  grund_t *gr = welt->lookup( route.at(idx) )  ) {
 				if(  schiene_t *sch = obj_cast<schiene_t>(gr->get_weg( front()->get_waytype() ))  ) {
 					sch->reserve( self, ribi_type( route.at(max(1u,idx)-1u), route.at(min(route.get_count()-1u,idx+1u)) ) );
@@ -1632,6 +1641,7 @@ void convoi_t::step()
 			break;
 
 		case NO_ROUTE:
+			clear_reserved_tiles();
 			unset_convoi_coupling_in_progress();
 			// stuck vehicles
 			if (schedule->empty()) {
@@ -2906,17 +2916,30 @@ void convoi_t::vorfahren()
 void convoi_t::clear_reserved_tile_if_not_matching_route()
 {
 	if(  get_reserved_tiles().get_count()==0 || route.get_count()==0  ) {
-		// this convoy does not have reserved_tile
 		return;
 	}
-	// check the new route to the next stop is match as reserved_tiles
-	for( uint16 i=1; i<min(get_route()->get_count(),get_reserved_tiles().get_count()); i++ ) {
-		if( route.at(i) != reserved_tiles[i]  ) {
+	dbg->message("convoi_t::clear_reserved_tile_if_not_matching_route()","reserved tile from %i,%i,%i, route from %i,%i,%i, count: %i vs %i",
+		reserved_tiles[0].x, reserved_tiles[0].y, (int)reserved_tiles[0].z,
+		route.at(0).x, route.at(0).y, (int)route.at(0).z,
+		reserved_tiles.get_count(), route.get_count());
+	// reserved_tiles[i] corresponds to route[i+1]:
+	// route[0] (the departure stop) is never added to reserved_tiles by block_reserver
+	// because it starts from next_block+1 and target_rt from index 1, both skipping route[0].
+	// So reserved_tiles must cover route[1..end], i.e. at least route.get_count()-1 entries.
+	if( get_reserved_tiles().get_count() < route.get_count() - 1 ) {
+		clear_reserved_tiles();
+		return;
+	}
+	// check reserved_tiles[i] == route[i+1]
+	for( uint16 i=0; i<min(get_route()->get_count()-1, get_reserved_tiles().get_count()); i++ ) {
+		if( route.at(i+1) != get_reserved_tiles()[i]  ) {
+			dbg->warning("convoi_t::clear_reserved_tile_if_not_matching_route()","invalid reserved_tile found: %i,%i,%i vs %i,%i,%i",
+				reserved_tiles[i].x, reserved_tiles[i].y, (int)reserved_tiles[i].z,
+				route.at(i+1).x, route.at(i+1).y, (int)route.at(i+1).z);
 			clear_reserved_tiles();
 			return;
 		}
 	}
-	return;
 }
 
 
@@ -5885,6 +5908,7 @@ void convoi_t::set_next_cross_lane(bool n) {
 
 
 void convoi_t::clear_reserved_tiles(){
+	dbg->message("convoi_t::clear_reserved_tiles()","%s clear its reserved tiles",get_name());
 	if(  reserved_tiles.get_count()==0  ) {
 		// nothing to do.
 		return;
@@ -5893,7 +5917,7 @@ void convoi_t::clear_reserved_tiles(){
 	for(  sint32 i=route.get_count()-1;  i>=0;  i--  ) {
 		if(  reserved_tiles.is_contained(route.at(i))  ) {
 			// set next_reservation_index
-			set_next_reservation_index(i);
+			set_next_reservation_index(i+1);
 			break;
 		}
 	}

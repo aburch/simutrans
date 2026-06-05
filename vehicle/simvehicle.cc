@@ -3775,26 +3775,10 @@ bool rail_vehicle_t::check_longblock_signal(signal_t *sig, uint16 next_block, si
 	if(  next_signal != route_t::INVALID_INDEX  ) {
 		// success, and there is a signal before end of route => finished
 		sig->set_state( roadsign_t::STATE_GREEN );
+		cnv->clear_reserved_tiles();
 		cnv->set_next_stop_index( min( next_crossing, next_signal ) );
 		return true;
 	}
-
-	// now we have to maintain reservation with reserved_tiles, that is slower than using next_reservation_index
-	// copy all tiles that are already reserved
-	bool add_pos = false;
-	vector_tpl<koord3d> tiles_convoy_on;
-	for(  uint16 i=0;  i<cnv->get_vehicle_count();  i++  ) {
-		tiles_convoy_on.append_unique(cnv->get_vehikel(i)->get_pos());
-	}
-	for(  uint16 i=0;  i<next_block+1  &&  i<cnv->get_route()->get_count();  i++  ) {
-		if(  !add_pos  &&  tiles_convoy_on.is_contained(cnv->get_route()->at(i))  ) {
-			add_pos = true;
-		}
-		if(  add_pos  ) {
-			cnv->reserve_pos(cnv->get_route()->at(i));
-		}
-	}
-
 	// now we can use the route search array
 	// (route until end is already reserved at this point!)
 	schedule_t* schedule = cnv->get_schedule();
@@ -4146,13 +4130,20 @@ bool rail_vehicle_t::is_priority_signal_clear(signal_t *sig, uint16 next_block, 
 	uint16 next_signal, next_crossing;
 
 	if(  block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false )  ) {
-		if(  next_signal == route_t::INVALID_INDEX  ||  cnv->get_route()->at(next_signal) == cnv->get_route()->back()  ||  is_signal_clear( next_signal, restart_speed, call_by_step )  ) {
+		if(  next_signal == route_t::INVALID_INDEX  ||  cnv->get_route()->at(next_signal) == cnv->get_route()->back()  ) {
 			// ok, end of route => we can go
 			sig->set_state( roadsign_t::STATE_GREEN );
 			// do not shorten next_stop_index set by recursive call (e.g. longblock signal)
 			// unless a crossing requires stopping before the next signal
-			if(  next_crossing <= next_signal  ||  cnv->get_next_stop_index() <= next_signal + 1  ) {
-				cnv->set_next_stop_index( min( next_signal, next_crossing ) );
+			cnv->set_next_stop_index( min( next_signal, next_crossing ) );
+			return true;
+		}
+		if(  is_signal_clear( next_signal, restart_speed, call_by_step )  ) {
+			// ok, the next signal is clear
+			sig->set_state( roadsign_t::STATE_GREEN );
+			// Only shorten next_stop_index when a crossing requires an earlier stop.
+			if(  next_crossing < cnv->get_next_stop_index() - 1  ) {
+				cnv->set_next_stop_index( next_crossing );
 			}
 			return true;
 		}
@@ -4165,17 +4156,16 @@ bool rail_vehicle_t::is_priority_signal_clear(signal_t *sig, uint16 next_block, 
 			restart_speed = -1;
 
 			return false;
-		} 
+		}
 		// when we reached here, the way after the last signal is not free though the way before is => we can still go
-		if(  cnv->get_next_stop_index()<=next_signal+1  ) {
+		if(  cnv->get_next_reservation_index()<=next_signal+1  ) {
 			// only show third aspect on last signal of cascade
+			cnv->set_next_stop_index(next_signal);
 			sig->set_state( roadsign_t::STATE_YELLOW );
 		}
 		else {
 			sig->set_state( roadsign_t::STATE_GREEN );
 		}
-		cnv->set_next_stop_index( min( next_signal, next_crossing ) );
-
 		return true;
 	}
 
@@ -4455,7 +4445,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			return cnv->get_next_stop_index()>route_index;
 		}
 		// next check for signal
-		if(  sch1->has_signal()  &&  cnv->get_reserved_tiles().get_count()<=3  ) {
+		if(  sch1->has_signal()  ) {
 			if(  !is_signal_clear( next_block, restart_speed )  ) {
 				// only return false, if we are directly in front of the signal
 				return cnv->get_next_stop_index()>route_index;
@@ -4536,10 +4526,6 @@ bool rail_vehicle_t::block_reserver(const route_t *route, uint16 start_index, ui
 			if(  !sch1->reserve( cnv->self, ribi_type( route->at(max(1u,i)-1u), route->at(min(route->get_count()-1u,i+1u)) ) )  ) {
 				success = false;
 			}
-			else if(  use_vector  ){
-				// use reserved_tiles instead of next_reservation_index to hold reservations.
-				cnv->reserve_pos(pos);
-			}
 			if (gr->has_two_ways()) {
 				// we may need to reserve the other way as well
 				if (schiene_t* sch0 = dynamic_cast<schiene_t*>(gr->get_weg_nr(gr->get_weg_nr(0) == sch1))) {
@@ -4548,6 +4534,10 @@ bool rail_vehicle_t::block_reserver(const route_t *route, uint16 start_index, ui
 						success = false;
 					}
 				}
+			}
+			if(  success  &&  use_vector  ){
+				// use reserved_tiles instead of next_reservation_index to hold reservations.
+				cnv->reserve_pos(pos);
 			}
 			if(next_crossing_index==route_t::INVALID_INDEX  &&  gr->get_crossing()) {
 				next_crossing_index = i;
@@ -4783,7 +4773,7 @@ void rail_vehicle_t::leave_tile()
 					}
 				}
 				if(  cnv  ) {
-					// If reservation is controlled by next_reservation_index, this does nothing.
+					// for treat reservation safely
 					cnv->get_most_parent_convoi()->unreserve_pos(get_pos());
 				}
 				if (gr->has_two_ways()) {
@@ -4809,6 +4799,10 @@ void rail_vehicle_t::leave_tile()
 						sig->set_state(  roadsign_t::STATE_RED );
 					}
 				}
+			}
+			if(  cnv  ) {
+				// If reservation is controlled by next_reservation_index, this does nothing.
+				cnv->get_most_parent_convoi()->unreserve_pos(get_pos());
 			}
 		}
 	}
