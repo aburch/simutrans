@@ -1382,7 +1382,7 @@ void dr_fatal_notify(char const* const msg)
 #endif
 
 #ifdef __ANDROID__
-	dbg->error(__FUNCTION__, msg);
+	dbg->error(__FUNCTION__, "%s", msg);
 #endif
 }
 

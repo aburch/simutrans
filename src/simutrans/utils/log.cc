@@ -13,6 +13,7 @@
 #endif
 
 #include "log.h"
+#include "cbuffer.h"
 #include "../simdebug.h"
 #include "../sys/simsys.h"
 
@@ -37,7 +38,6 @@
 
 #ifdef __ANDROID__
 #  include <android/log.h>
-#  include "cbuffer.h"
 #  define  LOG_TAG    "com.simutrans"
 #endif
 
@@ -51,35 +51,21 @@ void log_t::pakset(const char* who, const char* format, ...)
 	if (env_t::pakset_debug) {
 		va_list argptr;
 		va_start(argptr, format);
-
-		if (log) {                             /* only log when a log */
-			fprintf(log, "%s", who); /* is already open */
-			vfprintf(log, format, argptr);
-			fprintf(log, "\n");
-
-			if (force_flush) {
-				fflush(log);
-			}
-		}
+		cbuffer_t msg;
+		msg.vprintf(format, argptr);
 		va_end(argptr);
 
-		va_start(argptr, format);
-		if (tee) {                             /* only log when a log */
-			fprintf(tee, "%s", who); /* is already open */
-			vfprintf(tee, format, argptr);
-			fprintf(tee, "\n");
+		if (log) {
+			fprintf(log, "%s%s\n", who, (const char *)msg);
+			if (force_flush) fflush(log);
 		}
-		va_end(argptr);
-
+		if (tee) {
+			fprintf(tee, "%s%s\n", who, (const char *)msg);
+		}
 #ifdef SYSLOG
-		va_start(argptr, format);
 		if (syslog) {
-			// Replace with dynamic memory allocation
-			char buffer[4096];
-			sprintf(buffer, "%s%s", who, format);
-			vsyslog(LOG_INFO, buffer, argptr);
+			::syslog(LOG_INFO, "%s%s", who, (const char *)msg);
 		}
-		va_end(argptr);
 #endif
 	}
 #else
@@ -97,43 +83,24 @@ void log_t::debug(const char *who, const char *format, ...)
 	if(log_debug  &&  debuglevel >= log_t::LEVEL_DEBUG) {
 		va_list argptr;
 		va_start(argptr, format);
-
-		if( log ) {                           /* only log when a log */
-			fprintf(log ,"Debug: %s:\t",who); /* is already open */
-			vfprintf(log, format, argptr);
-			fprintf(log,"\n");
-
-			if( force_flush ) {
-				fflush(log);
-			}
-		}
+		cbuffer_t msg;
+		msg.vprintf(format, argptr);
 		va_end(argptr);
 
-		va_start(argptr, format);
-		if( tee ) {                           /* only log when a log */
-			fprintf(tee, "Debug: %s:\t",who); /* is already open */
-			vfprintf(tee, format, argptr);
-			fprintf(tee,"\n");
+		if (log) {
+			fprintf(log, "Debug: %s:\t%s\n", who, (const char *)msg);
+			if (force_flush) fflush(log);
 		}
-		va_end(argptr);
-
+		if (tee) {
+			fprintf(tee, "Debug: %s:\t%s\n", who, (const char *)msg);
+		}
 #ifdef SYSLOG
-		va_start( argptr, format );
-		if (  syslog  ) {
-			// Replace with dynamic memory allocation
-			char buffer[4096];
-			sprintf( buffer, "Debug: %s\t%s", who, format );
-			vsyslog( LOG_DEBUG, buffer, argptr );
+		if (syslog) {
+			::syslog(LOG_DEBUG, "Debug: %s\t%s", who, (const char *)msg);
 		}
-		va_end( argptr );
 #endif
-
 #ifdef __ANDROID__
-		va_start(argptr, format);
-		cbuffer_t buffer;
-		buffer.printf("Debug: %s\t%s", who, format);
-		__android_log_vprint(ANDROID_LOG_DEBUG, LOG_TAG, buffer, argptr);
-		va_end( argptr );
+		__android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, "Debug: %s\t%s", who, (const char *)msg);
 #endif
 	}
 }
@@ -147,43 +114,24 @@ void log_t::message(const char *who, const char *format, ...)
 	if(debuglevel >= log_t::LEVEL_MSG) {
 		va_list argptr;
 		va_start(argptr, format);
-
-		if( log ) {                             /* only log when a log */
-			fprintf(log ,"Message: %s:\t",who); /* is already open */
-			vfprintf(log, format, argptr);
-			fprintf(log,"\n");
-
-			if( force_flush ) {
-				fflush(log);
-			}
-		}
+		cbuffer_t msg;
+		msg.vprintf(format, argptr);
 		va_end(argptr);
 
-		va_start(argptr, format);
-		if( tee ) {                             /* only log when a log */
-			fprintf(tee, "Message: %s:\t",who); /* is already open */
-			vfprintf(tee, format, argptr);
-			fprintf(tee,"\n");
+		if (log) {
+			fprintf(log, "Message: %s:\t%s\n", who, (const char *)msg);
+			if (force_flush) fflush(log);
 		}
-		va_end(argptr);
-
+		if (tee) {
+			fprintf(tee, "Message: %s:\t%s\n", who, (const char *)msg);
+		}
 #ifdef SYSLOG
-		va_start( argptr, format );
-		if (  syslog  ) {
-			// Replace with dynamic memory allocation
-			char buffer[4096];
-			sprintf( buffer, "Message: %s\t%s", who, format );
-			vsyslog( LOG_INFO, buffer, argptr );
+		if (syslog) {
+			::syslog(LOG_INFO, "Message: %s\t%s", who, (const char *)msg);
 		}
-		va_end( argptr );
 #endif
-
 #ifdef __ANDROID__
-		va_start(argptr, format);
-		cbuffer_t buffer;
-		buffer.printf("Message: %s\t%s", who, format);
-		__android_log_vprint(ANDROID_LOG_INFO, LOG_TAG, buffer, argptr);
-		va_end( argptr );
+		__android_log_print(ANDROID_LOG_INFO, LOG_TAG, "Message: %s\t%s", who, (const char *)msg);
 #endif
 	}
 }
@@ -197,43 +145,24 @@ void log_t::warning(const char *who, const char *format, ...)
 	if(debuglevel >= log_t::LEVEL_WARN) {
 		va_list argptr;
 		va_start(argptr, format);
-
-		if( log ) {                             /* only log when a log */
-			fprintf(log ,"Warning: %s:\t",who); /* is already open */
-			vfprintf(log, format, argptr);
-			fprintf(log,"\n");
-
-			if( force_flush ) {
-				fflush(log);
-			}
-		}
+		cbuffer_t msg;
+		msg.vprintf(format, argptr);
 		va_end(argptr);
 
-		va_start(argptr, format);
-		if( tee ) {                             /* only log when a log */
-			fprintf(tee, "Warning: %s:\t",who); /* is already open */
-			vfprintf(tee, format, argptr);
-			fprintf(tee,"\n");
+		if (log) {
+			fprintf(log, "Warning: %s:\t%s\n", who, (const char *)msg);
+			if (force_flush) fflush(log);
 		}
-		va_end(argptr);
-
+		if (tee) {
+			fprintf(tee, "Warning: %s:\t%s\n", who, (const char *)msg);
+		}
 #ifdef SYSLOG
-		va_start( argptr, format );
-		if (  syslog  ) {
-			// Replace with dynamic memory allocation
-			char buffer[4096];
-			sprintf( buffer, "Warning: %s\t%s", who, format );
-			vsyslog( LOG_WARNING, buffer, argptr );
+		if (syslog) {
+			::syslog(LOG_WARNING, "Warning: %s\t%s", who, (const char *)msg);
 		}
-		va_end( argptr );
 #endif
-
 #ifdef __ANDROID__
-		va_start(argptr, format);
-		cbuffer_t buffer;
-		buffer.printf("Debug: %s\t%s", who, format);
-		__android_log_vprint(ANDROID_LOG_WARN, LOG_TAG, buffer, argptr);
-		va_end( argptr );
+		__android_log_print(ANDROID_LOG_WARN, LOG_TAG, "Warning: %s\t%s", who, (const char *)msg);
 #endif
 	}
 }
@@ -247,50 +176,28 @@ void log_t::error(const char *who, const char *format, ...)
 	if(debuglevel >= log_t::LEVEL_ERROR) {
 		va_list argptr;
 		va_start(argptr, format);
-
-		if( log ) {                           /* only log when a log */
-			fprintf(log ,"ERROR: %s:\t",who); /* is already open */
-			vfprintf(log, format, argptr);
-			fprintf(log,"\n");
-
-			if( force_flush ) {
-				fflush(log);
-			}
-
-			fprintf(log ,"For help with this error or to file a bug report please see the Simutrans forum:\n");
-			fprintf(log ,"https://forum.simutrans.com\n");
-		}
+		cbuffer_t msg;
+		msg.vprintf(format, argptr);
 		va_end(argptr);
 
-		va_start(argptr, format);
-		if( tee ) {                           /* only log when a log */
-			fprintf(tee, "ERROR: %s:\t",who); /* is already open */
-			vfprintf(tee, format, argptr);
-			fprintf(tee,"\n");
+		static const char forum_hint[] =
+			"For help with this error or to file a bug report please see the Simutrans forum:\n"
+			"https://forum.simutrans.com\n";
 
-			fprintf(tee ,"For help with this error or to file a bug report please see the Simutrans forum:\n");
-			fprintf(tee ,"https://forum.simutrans.com\n");
+		if (log) {
+			fprintf(log, "ERROR: %s:\t%s\n%s", who, (const char *)msg, forum_hint);
+			if (force_flush) fflush(log);
 		}
-		va_end(argptr);
-
+		if (tee) {
+			fprintf(tee, "ERROR: %s:\t%s\n%s", who, (const char *)msg, forum_hint);
+		}
 #ifdef SYSLOG
-		va_start( argptr, format );
-		if (  syslog  ) {
-
-			// Replace with dynamic memory allocation
-			char buffer[4096];
-			sprintf( buffer, "ERROR: %s\t%s", who, format );
-			vsyslog( LOG_ERR, buffer, argptr );
+		if (syslog) {
+			::syslog(LOG_ERR, "ERROR: %s\t%s", who, (const char *)msg);
 		}
-		va_end( argptr );
 #endif
-
 #ifdef __ANDROID__
-		va_start(argptr, format);
-		cbuffer_t buffer;
-		buffer.printf("ERROR: %s\t%s", who, format);
-		__android_log_vprint(ANDROID_LOG_ERROR, LOG_TAG, buffer, argptr);
-		va_end( argptr );
+		__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, "ERROR: %s\t%s", who, (const char *)msg);
 #endif
 	}
 }
@@ -303,19 +210,18 @@ void log_t::fatal(const char* who, const char* format, ...)
 {
 	va_list argptr;
 	va_start(argptr, format);
+	cbuffer_t msg;
+	msg.vprintf(format, argptr);
+	va_end(argptr);
 
-	static char formatbuffer[512];
-	sprintf(formatbuffer,
+	char buffer[8192];
+	snprintf(buffer, sizeof(buffer),
 		"FATAL ERROR: %s - %s\n"
 		"Aborting program execution ...\n"
 		"\n"
 		"For help with this error or to file a bug report please see the Simutrans forum at\n"
 		"https://forum.simutrans.com\n",
-		who, format);
-
-	static char buffer[8192];
-	vsprintf(buffer, formatbuffer, argptr);
-	va_end(argptr);
+		who, (const char *)msg);
 
 	custom_fatal(buffer);
 }
@@ -337,7 +243,7 @@ void log_t::custom_fatal(char *buffer)
 
 #ifdef SYSLOG
 	if (  syslog  ) {
-		::syslog( LOG_ERR, buffer );
+		::syslog( LOG_ERR, "%s", buffer );
 	}
 #endif
 
@@ -397,24 +303,16 @@ void log_t::custom_fatal(char *buffer)
 void log_t::vmessage(const char *what, const char *who, const char *format, va_list args )
 {
 	if(debuglevel >= LEVEL_ERROR) {
-		va_list args2;
-		va_copy(args2, args);
+		cbuffer_t msg;
+		msg.vprintf(format, args);
 
-		if( log ) {                               /* only log when a log */
-			fprintf(log ,"%s: %s:\t", what, who); /* is already open */
-			vfprintf(log, format, args);
-			fprintf(log,"\n");
-
-			if( force_flush ) {
-				fflush(log);
-			}
+		if (log) {
+			fprintf(log, "%s: %s:\t%s\n", what, who, (const char *)msg);
+			if (force_flush) fflush(log);
 		}
-		if( tee ) {                              /* only log when a log */
-			fprintf(tee,"%s: %s:\t", what, who); /* is already open */
-			vfprintf(tee, format, args2);
-			fprintf(tee,"\n");
+		if (tee) {
+			fprintf(tee, "%s: %s:\t%s\n", what, who, (const char *)msg);
 		}
-		va_end(args2);
 	}
 }
 
@@ -476,7 +374,7 @@ log_t::log_t( const char *logfilename, bool force_flush, bool log_debug, bool lo
 		}
 #ifdef SYSLOG
 		if (  syslog  ) {
-			::syslog( LOG_NOTICE, greeting );
+			::syslog( LOG_NOTICE, "%s", greeting );
 		}
 #else
 		(void)syslogtag;

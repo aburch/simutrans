@@ -65,6 +65,7 @@ target_sources(makeobj PRIVATE
 	../simutrans/simio.cc
 	../simutrans/simdebug.cc
 	../simutrans/simmem.cc
+	../simutrans/utils/cbuffer.cc
 	../simutrans/utils/simstring.cc
 	../simutrans/utils/searchfolder.cc
 )

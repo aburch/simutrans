@@ -81,6 +81,7 @@ SHARED_SOURCES += ../simutrans/network/network_packet.cc
 SHARED_SOURCES += ../simutrans/network/network_socket_list.cc
 SHARED_SOURCES += ../simutrans/simdebug.cc
 SHARED_SOURCES += ../simutrans/simmem.cc
+SHARED_SOURCES += ../simutrans/utils/cbuffer.cc
 SHARED_SOURCES += ../simutrans/utils/simstring.cc
 SHARED_SOURCES += ../simutrans/utils/fetchopt.cc
 SHARED_SOURCES += ../simutrans/utils/sha1.cc

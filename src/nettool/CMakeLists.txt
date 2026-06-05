@@ -34,6 +34,7 @@ target_sources(nettool PRIVATE
 	../simutrans/network/network_socket_list.cc
 	../simutrans/simdebug.cc
 	../simutrans/simmem.cc
+	../simutrans/utils/cbuffer.cc
 	../simutrans/utils/simstring.cc
 	../simutrans/utils/fetchopt.cc
 	../simutrans/utils/sha1.cc
