@@ -321,7 +321,8 @@ loadsave_t::file_status_t loadsave_t::rd_open(const char *filename_utf8)
 	else if(  finfo.version == INVALID_FILE_VERSION  ) {
 		return FILE_STATUS_ERR_NO_VERSION;
 	}
-	else if(  finfo.version > (SIM_LOADABLE_MAJOR*1000 + SIM_LOADABLE_MINOR)  ) {
+	else if(  finfo.version > (SIM_LOADABLE_MAJOR*1000 + SIM_LOADABLE_MINOR)
+	       || finfo.OTRP_version > OTRP_VERSION_MAJOR  ) {
 		/*
 		 * Reading future versions will almost certainly lead to exceptions; so we close here.
 		 * It would be nice to give a detailed message what failed (like the fatal error does)

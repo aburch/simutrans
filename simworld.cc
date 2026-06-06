@@ -5144,7 +5144,9 @@ bool karte_t::load(const char *filename)
 
 	if(file.rd_open(name) != loadsave_t::FILE_STATUS_OK) {
 
-		if(  file.get_version_int()==0  ||  file.get_version_int()>loadsave_t::int_version(LOADGAME_VER_NR, NULL ).version  ) {
+		if(  file.get_version_int()==0
+		  || file.get_version_int()>loadsave_t::int_version(LOADGAME_VER_NR, NULL ).version
+		  || file.get_OTRP_version()>loadsave_t::int_version(LOADGAME_VER_NR, NULL ).OTRP_version  ) {
 			dbg->warning("karte_t::load()", translator::translate("WRONGSAVE") );
 			create_win( new news_img("WRONGSAVE"), w_info, magic_none );
 		}

@@ -664,7 +664,7 @@ int simu_main(int argc, char** argv)
 		if(  settings_file.rd_open("settings.xml") == loadsave_t::FILE_STATUS_OK  )  {
 			loadsave_t::combined_version v = loadsave_t::int_version(SAVEGAME_VER_NR, NULL );
 			if(  settings_file.get_version_int()>v.version  ||  settings_file.get_OTRP_version()>v.OTRP_version  ) {
-				// too new => remove it
+				// too new => skip it, run with default values
 				settings_file.close();
 			}
 			else if(  settings_file.is_version_atleast(120, 6)  &&  settings_file.get_OTRP_version()==0  ) {
