@@ -113,7 +113,10 @@
  * Using these constants assues a valid and correct text identifier is choosen.
  */
 
-
+ /**
+  * Message returned when a player cannot modify the field due to wrong ownership
+  */
+static const char* const NOTICE_WRONG_OWNER = "Das Feld gehoert\neinem anderen Spieler\n";
 
 /**
  * Message returned when a player cannot afford to complete an action.
@@ -625,9 +628,10 @@ DBG_MESSAGE("tool_remover()",  "removing roadsign at (%s)", pos.get_str());
 DBG_MESSAGE("tool_remover()", "bound=%i",halt.is_bound());
 	if (gr->is_halt()  &&  halt.is_bound()  &&  fabrik_t::get_fab(k)==NULL  &&  type == obj_t::undefined) {
 		// halt and not a factory (oil rig etc.)
-		const player_t* owner = halt->get_owner();
-		if(  player_t::check_owner( owner, player )  ) {
-			return haltestelle_t::remove(player, gr->get_pos());
+		if (gebaeude_t* gb = gr->find<gebaeude_t>()) {
+			if (player_t::check_owner(gb->get_owner(), player)) {
+				return haltestelle_t::remove(player, gr->get_pos());
+			}
 		}
 	}
 
@@ -7073,7 +7077,7 @@ uint8 tool_merge_stop_t::is_valid_pos( player_t *player, const koord3d &pos, con
 		return 0;
 	}
 
-	// check halt ownership
+	// check halt ownership automatically
 	halthandle_t h = haltestelle_t::get_halt(pos,player,false);
 	if(  h.is_bound()  ) {
 		//  allow to merge two public stops too
@@ -7085,8 +7089,8 @@ uint8 tool_merge_stop_t::is_valid_pos( player_t *player, const koord3d &pos, con
 		}
 	}
 
-	// not a halt at all ...
-	error = NOTICE_UNSUITABLE_GROUND;
+	// not a halt at all or wrong owner
+	error = bd->is_halt() ? NOTICE_WRONG_OWNER: NOTICE_UNSUITABLE_GROUND;
 	return 0;
 }
 
@@ -7103,12 +7107,13 @@ void tool_merge_stop_t::mark_tiles( player_t *player, const koord3d &start, cons
 		win_set_static_tooltip( NULL );
 	}
 
+#if 0
 	// check ownership
 	if (!halt_be_merged_from->get_owner()->is_public_service() || halt_be_merged_from->get_owner() != halt_be_merged_to->get_owner()) {
 		win_set_static_tooltip( "Das Feld gehoert\neinem anderen Spieler\n" );
 		return;
 	}
-
+#endif
 	for(haltestelle_t::tile_t const& i : halt_be_merged_from->get_tiles()) {
 		for(haltestelle_t::tile_t const& j : halt_be_merged_to->get_tiles()) {
 			uint32 dist = koord_distance( i.grund->get_pos(), j.grund->get_pos() );
@@ -7146,10 +7151,12 @@ const char *tool_merge_stop_t::do_work( player_t *player, const koord3d &last_po
 		return NULL;
 	}
 
+#if 0
 	// check ownership
 	if(!player->is_public_service()  &&  halt_be_merged_from->get_owner() != halt_be_merged_to->get_owner()) {
 		return "Das Feld gehoert\neinem anderen Spieler\n";
 	}
+#endif
 
 	for(haltestelle_t::tile_t const& i : halt_be_merged_from->get_tiles()) {
 		for(haltestelle_t::tile_t const& j : halt_be_merged_to->get_tiles()) {
@@ -7176,6 +7183,14 @@ const char *tool_merge_stop_t::do_work( player_t *player, const koord3d &last_po
 	}
 	else {
 		return "Too far away to merge stations!";
+	}
+
+	// make we merge to the other
+	if (halt_be_merged_to->get_owner() == player) {
+		// if not, swap them ...
+		halthandle_t h = halt_be_merged_to;
+		halt_be_merged_to = halt_be_merged_from;
+		halt_be_merged_from = h;
 	}
 
 	// and now just do it ...

@@ -303,6 +303,12 @@ koord haltestelle_t::get_next_pos( koord start ) const
  */
 void haltestelle_t::recalc_basis_pos()
 {
+	if (tiles.empty()) {
+		set_name(NULL);
+		owners = 0;
+		return;
+	}
+
 	sint64 cent_x = 0, cent_y = 0, cent_z = 0;
 	uint64 level_sum;
 	level_sum = 0;
@@ -315,9 +321,15 @@ void haltestelle_t::recalc_basis_pos()
 		}
 	}
 
+	owners = 0;
 	for (tile_t const& i : tiles) {
 		if (has_above && i.grund->ist_im_tunnel()) {
 			// use overground tiles only for center calculation unless its all tunnel
+			if (gebaeude_t* const gb = i.grund->find<gebaeude_t>()) {
+				if (gb->get_owner_nr() != PLAYER_UNOWNED) {
+					owners |= 1 << gb->get_owner_nr();
+				}
+			}
 			continue;
 		}
 		if (gebaeude_t* const gb = i.grund->find<gebaeude_t>()) {
@@ -327,6 +339,16 @@ void haltestelle_t::recalc_basis_pos()
 			cent_y += gb->get_pos().y * lv;
 			cent_z += gb->get_pos().z * lv;
 			level_sum += lv;
+			if (gb->get_owner_nr() != PLAYER_UNOWNED) {
+				owners |= 1 << gb->get_owner_nr();
+			}
+		}
+	}
+
+	if (owners && (owners & (owners - 1)) == 0) {
+		// only one owner -> use color from first tile ...
+		if (owners != 1<<owner->get_player_nr()) {
+			owner = welt->get_player(log2((uint32)owners));
 		}
 	}
 
@@ -392,7 +414,7 @@ DBG_MESSAGE("haltestelle_t::remove()","removing segment from %d,%d,%d", pos.x, p
 	halt->mark_unmark_coverage(false);
 
 	// only try to remove connected buildings, when still in list to avoid infinite loops
-	if(  halt->rem_grund(bd)  ) {
+	if(  halt->rem_grund(bd,player)  ) {
 		// remove station building?
 		gebaeude_t* gb = bd->find<gebaeude_t>();
 		if(gb) {
@@ -481,6 +503,7 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 	enables = NOT_ENABLED;
 
 	old_sort_mode = 255;
+	owners = 0;
 
 	rdwr(file);
 
@@ -502,6 +525,7 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 
 	this->init_pos = k;
 	owner = player;
+	owners = 0;
 
 	enables = NOT_ENABLED;
 	// force total re-routing
@@ -626,7 +650,7 @@ void haltestelle_t::set_permissions(uint16 perms)
 	}
 	else {
 		// share player stops
-		permissions = perms | (1 << owner->get_player_nr());
+		permissions = perms | owners;
 	}
 	if (rebuilt_schedule_registration(old_perm & ~permissions, permissions & ~old_perm)) {
 		 // convois/lines changed
@@ -2717,7 +2741,7 @@ void haltestelle_t::merge_halt( halthandle_t halt_merged )
 		return;
 	}
 
-	halt_merged->change_owner( owner );
+	// we do no longer change ownership as we allow for dual owners
 
 	// take the name from the larger halt
 	if (get_capacity(0) + get_capacity(1) + get_capacity(2) < halt_merged->get_capacity(0) + halt_merged->get_capacity(1) + halt_merged->get_capacity(2)) {
@@ -2746,20 +2770,22 @@ void haltestelle_t::merge_halt( halthandle_t halt_merged )
 		grund_t *gr = tiles_to_join.remove_first().grund;
 
 		// transfer tiles to us
-		halt_merged->rem_grund(gr);
+		halt_merged->rem_grund(gr, halt_merged->get_owner());
 		add_grund(gr, tiles_to_join.empty());	// just reconnect on last tile to merge
 	}
 
 	assert(!halt_merged->existiert_in_welt());
 
-	// Allow everyone who could serve either halt to continue serving it
-	set_permissions(halt_merged->get_permissions() | permissions);
+	// also recalculates ownerships
+	recalc_basis_pos();
 
 	// transfer goods
 	halt_merged->transfer_goods(self);
-	destroy(halt_merged);
 
-	recalc_basis_pos();
+	// Allow everyone who could serve either halt to continue serving it
+	set_permissions(halt_merged->get_permissions() | permissions);
+
+	destroy(halt_merged);
 
 	// also rebuild our connections
 	recalc_station_type();
@@ -2827,7 +2853,16 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 				capacity[2] = capacity[1] = capacity[0];
 			}
 		}
+		if (gb && gb->get_owner_nr() != PLAYER_UNOWNED) {
+			owners |= 1 << gb->get_owner_nr();
+			permissions |= owners;
+		}
 		return;
+	}
+
+	if (gb && gb->get_owner_nr() != PLAYER_UNOWNED) {
+		owners |= 1 << gb->get_owner_nr();
+		permissions |= owners;
 	}
 
 	if(  desc==NULL  ) {
@@ -3507,7 +3542,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 
 
 
-bool haltestelle_t::rem_grund(grund_t *gr)
+bool haltestelle_t::rem_grund(grund_t *gr, player_t *pl_)
 {
 	// namen merken
 	if(!gr) {
@@ -3518,6 +3553,17 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	if (i == tiles.end()) {
 		// was not part of station => do nothing
 		dbg->error("haltestelle_t::rem_grund()","removed illegal ground from halt");
+		return false;
+	}
+
+	if (gebaeude_t* gb = gr->find<gebaeude_t>()) {
+		if (pl_  &&  !player_t::check_owner(gb->get_owner(), pl_)) {
+			// wrong owner!
+			return false;
+		}
+	}
+	else {
+		dbg->error("haltestelle_t::rem_grund", "Ground at %s has not building but is part of a stop", gr->get_pos().get_fullstr());
 		return false;
 	}
 

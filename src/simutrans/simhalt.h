@@ -323,6 +323,11 @@ private:
 	uint16 permissions;
 
 	/**
+	 * What players own parts of this station?
+	 */
+	uint16 owners;
+
+	/**
 	 * What is that for a station (for the image)
 	 */
 	stationtyp station_type;
@@ -588,7 +593,7 @@ public:
 	 * @param relink_factories if true call verbinde_fabriken, if not true take care of factory connections yourself
 	 */
 	bool add_grund(grund_t *gb, bool relink_factories = true);
-	bool rem_grund(grund_t *gb);
+	bool rem_grund(grund_t *gb, player_t *pl);
 
 	uint32 get_capacity(uint8 typ) const { return capacity[typ]; }
 

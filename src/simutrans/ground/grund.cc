@@ -487,7 +487,7 @@ grund_t::~grund_t()
 	set_text(NULL);
 
 	if(flags&is_halt_flag) {
-		get_halt()->rem_grund(this);
+		get_halt()->rem_grund(this,NULL);
 	}
 }
 

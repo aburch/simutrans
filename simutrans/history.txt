@@ -1,5 +1,6 @@
 	FIX: If factory status label were always on, then factories with stops (like oil rigg and fish swarm) the halt status clashed with factory status. Moreover, the factory name could differ from stop name, so both needs to be show then
 	CHG: using memcpy for image loading (when possible) reduces loading time of paks again
+	ADD: merge stop tool allows to merge with the stop of another player that has set sharing permissions without giving up building and way ownership
 
 
 Release of 124.5 (r11993 on 31-May-2026):
