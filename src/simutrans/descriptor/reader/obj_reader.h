@@ -170,12 +170,12 @@ public:
 		uint8* cpy_end = ptr + 2 * n;
 		// normal one
 		if (cpy_end <= end) {
-#ifndef BIG_ENDIAN
+#ifndef SIM_BIG_ENDIAN
 			memcpy(dest, ptr, 2 * n);
 			ptr = cpy_end;
 #else
 			uint8* p = ptr;
-			while (ptr < cpy_end) {
+			while (p < cpy_end) {
 				uint16 v = *p++;
 				v |= (uint16)*p++ << 8;
 				*dest++ = v;
