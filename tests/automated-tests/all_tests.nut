@@ -41,6 +41,7 @@ include("tests/test_wayobj")
 include("tests/test_schedule")
 include("tests/test_road_api")
 include("tests/test_road_choose")
+include("tests/test_priority_signal")
 
 
 
@@ -233,6 +234,7 @@ all_tests <- [
 	test_stop_before_check_longblock_signal_convoy_stops,
 	test_stop_before_check_choose_signal_convoy_stops,
 	test_stop_before_check_false_convoy_does_not_stop,
+	test_priority_signal_reserve,
 	test_longblock_open_no_prefix_signal,
 	test_longblock_blocked_no_prefix_signal,
 	test_longblock_open_pre_signal,

@@ -4451,13 +4451,14 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 	}
 
-	// we re-check priority signals because priority signals can change their states during running
+	// When the block reservation is not required by the logic above, we re-check priority signals because priority signals can change their states during running
 	// AVOID RELEASE THEIR OWN RESERVATIONS, WE DO NOT CALL IF ALREADY CALLED LONGBLOCK,CHOOSE,and GUIDE.
-	if(  cnv->is_reservation_empty() && cnv->get_next_reservation_index()<cnv->get_route()->get_count()-1 && !target_halt.is_bound() && cnv->get_next_coupling_index()==route_t::INVALID_INDEX  ) {
+	if(  signal_to_check==route_t::INVALID_INDEX  &&  cnv->is_reservation_empty() && cnv->get_next_reservation_index()<cnv->get_route()->get_count()-1 && !target_halt.is_bound() && cnv->get_next_coupling_index()==route_t::INVALID_INDEX  ) {
 		// check 3 tiles from here
 		// we do not need to check signal on the last tile of the route
 		for( uint16 advance_i=0; advance_i<=3&&(route_index+advance_i<cnv->get_route()->get_count()-1); advance_i++  ) {
-			koord3d block_pos=cnv->get_route()->at(route_index+advance_i);
+			const uint16 target_index = max(route_index - 1, 0) + advance_i;
+			koord3d block_pos = cnv->get_route()->at(target_index);
 			grund_t *gr_next_block = welt->lookup(block_pos);
 			const schiene_t *sch1 = gr_next_block ? (schiene_t *)gr_next_block->get_weg( get_waytype() ) : NULL;
 			if(sch1==NULL) {
@@ -4471,7 +4472,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					const roadsign_desc_t *enter_desc = enter_sig->get_desc();
 					if(  enter_desc->is_priority_signal()  ||  enter_desc->is_pre_signal()  ) {
 						// we need to re-check this signal.
-						signal_to_check = route_index+advance_i;
+						signal_to_check = target_index;
 						break;
 					}
 				}
