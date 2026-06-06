@@ -401,7 +401,13 @@ void export_convoy(HSQUIRRELVM vm)
 	 */
 	register_method(vm, convoy_is_schedule_editor_open, "is_schedule_editor_open", true);
 	/**
-	 * @returns returns the number of station tiles covered by the convoy.
+	 * Get the current internal state of the convoy.
+	 * (e.g. 5 is NO_ROUTE, 6 is DRIVING, 8 is WAITING_FOR_CLEARANCE)
+	 * @returns the state of the convoy
+	 */
+	register_method(vm, &convoi_t::get_state, "get_state");
+	/**
+	 * @returns length of convoy in tiles
 	 */
 	register_method(vm, &convoi_t::get_tile_length, "get_tile_length");
 	/**
