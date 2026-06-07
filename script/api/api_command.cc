@@ -519,6 +519,41 @@ call_tool_init set_signal_advance_to_end(player_t* pl, koord3d pos, int val)
 	return call_tool_init(TOOL_CHANGE_ROADSIGN | SIMPLE_TOOL, (const char*)buf, 0, pl);
 }
 
+call_tool_init set_signal_guide_signal(player_t* pl, koord3d pos, int val)
+{
+	cbuffer_t buf;
+	buf.printf("%hi,%hi,%hi,%hi,s", (sint16)pos.x, (sint16)pos.y, (sint16)pos.z, (sint16)val);
+	return call_tool_init(TOOL_CHANGE_ROADSIGN | SIMPLE_TOOL, (const char*)buf, 0, pl);
+}
+
+call_tool_init set_signal_choose_signal(player_t* pl, koord3d pos, int val)
+{
+	cbuffer_t buf;
+	buf.printf("%hi,%hi,%hi,%hi,o", (sint16)pos.x, (sint16)pos.y, (sint16)pos.z, (sint16)val);
+	return call_tool_init(TOOL_CHANGE_ROADSIGN | SIMPLE_TOOL, (const char*)buf, 0, pl);
+}
+
+call_tool_init set_signal_skip_default_route(player_t* pl, koord3d pos, int val)
+{
+	cbuffer_t buf;
+	buf.printf("%hi,%hi,%hi,%hi,d", (sint16)pos.x, (sint16)pos.y, (sint16)pos.z, (sint16)val);
+	return call_tool_init(TOOL_CHANGE_ROADSIGN | SIMPLE_TOOL, (const char*)buf, 0, pl);
+}
+
+call_tool_init set_signal_length_based(player_t* pl, koord3d pos, int val)
+{
+	cbuffer_t buf;
+	buf.printf("%hi,%hi,%hi,%hi,l", (sint16)pos.x, (sint16)pos.y, (sint16)pos.z, (sint16)val);
+	return call_tool_init(TOOL_CHANGE_ROADSIGN | SIMPLE_TOOL, (const char*)buf, 0, pl);
+}
+
+call_tool_init set_signal_margin_length(player_t* pl, koord3d pos, int val)
+{
+	cbuffer_t buf;
+	buf.printf("%hi,%hi,%hi,%hi,m", (sint16)pos.x, (sint16)pos.y, (sint16)pos.z, (sint16)val);
+	return call_tool_init(TOOL_CHANGE_ROADSIGN | SIMPLE_TOOL, (const char*)buf, 0, pl);
+}
+
 call_tool_init set_signal_two_ways(player_t* pl, koord3d pos, int val)
 {
 	cbuffer_t buf;
@@ -728,15 +763,59 @@ void export_commands(HSQUIRRELVM vm)
 	 */
 	STATIC register_method(vm, set_signal_start_signal, "set_start_signal", false, true);
 	/**
-	 * Set or clear the "advance to end" flag of a choose signal.
-	 * When set, trains routed to this choose signal will try to advance to the end of the platform.
-	 * @param pl  player who owns the signal
-	 * @param pos position of the signal tile
-	 * @param val 1 to enable, 0 to disable
-	 * @returns null on success, an error string otherwise
+	 * Sets "advance to end" flag on a choose signal.
+	 * @param pl player executing the command
+	 * @param pos position of signal
+	 * @param val new state of the flag
+	 * @returns null if successful, an error string otherwise
 	 * @typemask string(player_x, coord3d, int)
 	 */
 	STATIC register_method(vm, set_signal_advance_to_end, "set_advance_to_end", false, true);
+	/**
+	 * Sets "require parent convoy to enter" (guide signal) flag on a signal.
+	 * @param pl player executing the command
+	 * @param pos position of signal
+	 * @param val new state of the flag
+	 * @returns null if successful, an error string otherwise
+	 * @typemask string(player_x, coord3d, int)
+	 */
+	STATIC register_method(vm, set_signal_guide_signal, "set_guide_signal", false, true);
+	/**
+	 * Sets "choose signal" flag on a signal.
+	 * @param pl player executing the command
+	 * @param pos position of signal
+	 * @param val new state of the flag
+	 * @returns null if successful, an error string otherwise
+	 * @typemask string(player_x, coord3d, int)
+	 */
+	STATIC register_method(vm, set_signal_choose_signal, "set_choose_signal", false, true);
+	/**
+	 * Sets "skip default route" flag on a choose signal.
+	 * @param pl player executing the command
+	 * @param pos position of signal
+	 * @param val new state of the flag
+	 * @returns null if successful, an error string otherwise
+	 * @typemask string(player_x, coord3d, int)
+	 */
+	STATIC register_method(vm, set_signal_skip_default_route, "set_skip_default_route", false, true);
+	/**
+	 * Sets "length based" flag on a choose signal.
+	 * @param pl player executing the command
+	 * @param pos position of signal
+	 * @param val new state of the flag
+	 * @returns null if successful, an error string otherwise
+	 * @typemask string(player_x, coord3d, int)
+	 */
+	STATIC register_method(vm, set_signal_length_based, "set_length_based", false, true);
+	/**
+	 * Sets "margin length" on a choose signal.
+	 * @param pl player executing the command
+	 * @param pos position of signal
+	 * @param val new margin length
+	 * @returns null if successful, an error string otherwise
+	 * @typemask string(player_x, coord3d, int)
+	 */
+	STATIC register_method(vm, set_signal_margin_length, "set_margin_length", false, true);
 	/**
 	 * Set or clear the "allow reverse passage" (two ways) flag of a signal.
 	 * When set (true), trains coming from the reverse direction are allowed to pass the signal.

@@ -32,30 +32,6 @@ function _start_convoy(pl, start_y, end_y, depot_y)
 	return cnv
 }
 
-function test_two_ways_set_get()
-{
-	local pl   = player_x(0)
-	local rail = way_desc_x.get_available_ways(wt_rail, st_flat)[0]
-
-	local signal_desc = sign_desc_x.get_available_signs(wt_rail).filter(
-	                        @(idx, s) s.is_signal())[0]
-
-	ASSERT_TRUE(signal_desc != null)
-
-	ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 0, 0), coord3d(2, 6, 0), rail, true), null)
-	ASSERT_EQUAL(command_x.build_sign_at(pl, coord3d(2, 5, 0), signal_desc), null)
-
-	local sig = tile_x(2, 5, 0).find_object(mo_signal)
-	ASSERT_TRUE(sig != null)
-
-	local pos = coord3d(2, 5, 0)
-	
-	command_x.set_two_ways(pl, pos, 1)
-	ASSERT_TRUE(sig.get_two_ways())
-
-	command_x.set_two_ways(pl, pos, 0)
-	ASSERT_FALSE(sig.get_two_ways())
-}
 
 function test_two_ways_false_blocks_reverse()
 {

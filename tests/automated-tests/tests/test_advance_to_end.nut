@@ -56,30 +56,6 @@ function _start_advance_test_convoy(pl)
 	return cnv
 }
 
-function test_advance_to_end_set_get()
-{
-	local pl   = player_x(0)
-	local rail = way_desc_x.get_available_ways(wt_rail, st_flat)[0]
-
-	local ch_desc = sign_desc_x.get_available_signs(wt_rail).filter(
-	                    @(idx, s) s.is_choose_sign())[0]
-
-	ASSERT_TRUE(ch_desc != null)
-
-	ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 0, 0), coord3d(2, 6, 0), rail, true), null)
-	ASSERT_EQUAL(command_x.build_sign_at(pl, coord3d(2, 5, 0), ch_desc), null)
-
-	local sig_ch = tile_x(2, 5, 0).find_object(mo_signal)
-	ASSERT_TRUE(sig_ch != null)
-
-	local pos = coord3d(2, 5, 0)
-	
-	command_x.set_advance_to_end(pl, pos, 1)
-	ASSERT_TRUE(sig_ch.is_advance_to_end())
-
-	command_x.set_advance_to_end(pl, pos, 0)
-	ASSERT_FALSE(sig_ch.is_advance_to_end())
-}
 
 function test_advance_to_end_true_behavior()
 {

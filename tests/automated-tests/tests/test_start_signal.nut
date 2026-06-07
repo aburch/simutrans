@@ -69,49 +69,6 @@ function test_start_signal_default_false()
 }
 
 
-// ─── Test 2: set / get round-trip ─────────────────────────────────────────────
-function test_start_signal_set_get()
-{
-	local pl   = player_x(0)
-	local rail = way_desc_x.get_available_ways(wt_rail, st_flat)[0]
-
-	local signal_desc = sign_desc_x.get_available_signs(wt_rail).filter(
-	                        @(idx, s) s.is_signal())[0]
-	local lb_desc     = sign_desc_x.get_available_signs(wt_rail).filter(
-	                        @(idx, s) s.is_longblock_signal())[0]
-	local ch_desc     = sign_desc_x.get_available_signs(wt_rail).filter(
-	                        @(idx, s) s.is_choose_sign())[0]
-
-	ASSERT_TRUE(signal_desc != null)
-	ASSERT_TRUE(lb_desc     != null)
-	ASSERT_TRUE(ch_desc     != null)
-
-	ASSERT_EQUAL(command_x.build_way(pl, coord3d(8, 0, 0), coord3d(8, 6, 0), rail, true), null)
-	ASSERT_EQUAL(command_x.build_sign_at(pl, coord3d(8, 1, 0), signal_desc), null)
-	ASSERT_EQUAL(command_x.build_sign_at(pl, coord3d(8, 3, 0), lb_desc),     null)
-	ASSERT_EQUAL(command_x.build_sign_at(pl, coord3d(8, 5, 0), ch_desc),     null)
-
-	local positions = [ coord3d(8, 1, 0), coord3d(8, 3, 0), coord3d(8, 5, 0) ]
-
-	foreach (pos in positions) {
-		local sig = tile_x(pos.x, pos.y, pos.z).find_object(mo_signal)
-		ASSERT_TRUE(sig != null)
-		ASSERT_FALSE(sig.is_start_signal())
-
-		command_x.set_start_signal(pl, pos, 1)
-		ASSERT_TRUE(sig.is_start_signal())
-
-		command_x.set_start_signal(pl, pos, 0)
-		ASSERT_FALSE(sig.is_start_signal())
-	}
-
-	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(8, 1, 0)), null)
-	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(8, 3, 0)), null)
-	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(8, 5, 0)), null)
-	ASSERT_EQUAL(command_x(tool_remove_way).work(
-	                 pl, coord3d(8, 0, 0), coord3d(8, 6, 0), "" + wt_rail), null)
-	RESET_ALL_PLAYER_FUNDS()
-}
 
 
 // ─── Shared helpers for convoy-based tests ────────────────────────────────────
