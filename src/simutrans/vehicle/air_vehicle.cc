@@ -572,15 +572,56 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		return true;
 	}
 
-	if(  route_index < takeoff  &&  route_index > 1  &&  takeoff<cnv->get_route()->get_count()-1  ) {
+	if (route_index <= 1) {
+		// check if not airplanes coming my way on the way to the runway. If free then leave the stop
+		const route_t& rt = *(cnv->get_route());
+		koord3d lastlast = rt[0];
+		for (int r = 2; r < rt.get_count(); r++) {
+			ribi_t::dir us = ribi_t::get_dir(ribi_t::backward(ribi_type(rt[r-2]-rt[r])));
+			if (grund_t* gr = welt->lookup(rt[r])) {
+				if (weg_t* rw = gr->get_weg(air_wt)) {
+					if (rw->get_desc()->get_styp() == type_runway) {
+						// free to runway => on we go
+						break;
+					}
+					// no yet runway
+					for (uint8 i = 1; i < gr->obj_count(); i++) {
+						obj_t* obj = gr->obj_bei(i);
+						// we drive through other planes not taxiing for now ...
+						if (obj->get_typ() == obj_t::air_vehicle) {
+							air_vehicle_t* other = (air_vehicle_t*)obj;
+							if (other->get_flying_state() == taxiing && other->get_direction() == us) {
+								// one plane taxiing into our direction => wait
+								restart_speed = 0;
+								return false;	// cannot start
+							}
+						}
+					}
+					continue;
+					// still on taxiway
+				}
+			}
+			// no ground, no runway => finish
+			break;
+		}
+		// ok
+	}
+
+	if(  route_index < takeoff  &&  route_index > 1  &&  takeoff<cnv->get_route()->get_count()-1  && get_flying_state() == taxiing) {
 		// check, if tile occupied by a plane on ground
 		if(  route_index > 1  ) {
 			for(  uint8 i = 1;  i<gr->obj_count();  i++  ) {
 				obj_t *obj = gr->obj_bei(i);
 				// we drive through other planes not taxiing for now ...
-				if(  obj->get_typ() == obj_t::air_vehicle  &&  ((air_vehicle_t*)obj)->get_convoi()!=cnv  &&  ((air_vehicle_t*)obj)->get_flying_state()==taxiing) {
-					restart_speed = 0;
-					return false;
+				if (obj->get_typ() == obj_t::air_vehicle && ((air_vehicle_t*)obj)->get_convoi() != cnv) {
+					air_vehicle_t* other = (air_vehicle_t*)obj;
+					if (other->get_flying_state() == taxiing || other->get_flying_state() == departing) {
+						if (other->get_direction() && get_direction()) {
+							// abotu same direction
+							restart_speed = 0;
+							return false;
+						}
+					}
 				}
 			}
 		}
