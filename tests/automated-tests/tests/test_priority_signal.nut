@@ -49,6 +49,7 @@ function test_priority_signal_reserve()
 	// Train A
 	depot.append_vehicle(pl, convoy_x(0), vehicle_desc_x("1Diesellokomotive"))
 	local cnvA = depot.get_convoy_list()[0]
+	depot.append_vehicle(pl, cnvA, vehicle_desc_x("AdlerPersonenwagen"))
 	cnvA.change_schedule(pl, schedule_x(wt_rail, [
 		schedule_entry_x(coord3d(1, 4, 0), 100, 0), // A
 		schedule_entry_x(coord3d(2, 9, 0), 0, 0), // B
@@ -76,23 +77,21 @@ function test_priority_signal_reserve()
 	depot.start_all_convoys(pl)
 
 
-	// Train B spawns after A leaves depot. Train B goes to priority signal 1, then reserves up to Train A.
-	// We wait until Train B reaches y=3 (just before Train A)
+	// Train B spawns after A leaves depot and stops at priority signal 1.
 	for (local i=0; i<2000; i++) {
-		if (cnvB.get_pos().y == 3) break;
+		if (cnvB.get_pos().x == 1 && cnvB.get_pos().y == 2 && cnvB.is_waiting()) break;
 		sleep()
 	}
 
-	ASSERT_EQUAL(cnvB.get_pos().y, 3)
+	ASSERT_EQUAL(cnvB.get_pos().x, 1)
+	ASSERT_EQUAL(cnvB.get_pos().y, 2)
+	ASSERT_TRUE(cnvB.is_waiting())
 
 
-	// Now B has reserved up to y=3.
-	// Change A's schedule to 0% load so it departs to B.
-	cnvA.change_schedule(pl, schedule_x(wt_rail, [
-		schedule_entry_x(coord3d(1, 4, 0), 0, 0), // A
-		schedule_entry_x(coord3d(2, 9, 0), 0, 0), // B
-		schedule_entry_x(coord3d(1, 14, 0), 0, 0)  // C
-	]))
+	// Advance A's schedule from Station A to Station B so it departs.
+	local schedA = cnvA.get_schedule()
+	schedA.current = 1
+	cnvA.change_schedule(pl, schedA)
 	
 
 	// A should depart and go to B (y=9).
