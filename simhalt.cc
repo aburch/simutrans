@@ -452,6 +452,7 @@ struct haltestelle_t::cargo_queue_t {
 			cargos.clear();
 			zwischenziel_index.clear();
 			ziel_index.clear();
+			fresh_index.clear();
 		}
 
 		// Sets all zwischenziels of the waiting items in the storage
