@@ -49,6 +49,7 @@
 #include "../tpl/inthashtable_tpl.h"
 
 #include "../utils/cbuffer.h"
+#include "../utils/simrandom.h"	// for log2
 
 #include "../vehicle/pedestrian.h"
 
@@ -127,28 +128,6 @@ const char *grund_t::get_text() const
 		assert(result);
 	}
 	return result;
-}
-
-
-const player_t* grund_t::get_label_owner() const
-{
-	const player_t* player = NULL;
-	// if this ground belongs to a halt, the color should reflect the halt owner, not the ground owner!
-	// Now, we use the color of label_t owner
-	if(is_halt()  &&  find<label_t>()==NULL) {
-		// only halt label
-		const halthandle_t halt = get_halt();
-		player=halt->get_owner();
-	}
-	// else color according to current owner
-	else if(obj_bei(0)) {
-		player = obj_bei(0)->get_owner(); // for cityhall
-		const label_t* l = find<label_t>();
-		if(l) {
-			player = l->get_owner();
-		}
-	}
-	return player;
 }
 
 
@@ -1676,28 +1655,71 @@ void grund_t::display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is
 
 
 // display text label in player colors using different styles set by env_t::show_names
-void display_text_label(sint16 xpos, sint16 ypos, const char* text, const player_t *player, bool dirty)
+void grund_t::display_text_label(sint16 xpos, sint16 ypos, const char* text, const uint16 players_bit, bool dirty)
 {
-	switch( env_t::show_names >> 2 ) {
-		case 0: {
-			const PIXVAL bg_color = player ? gfx->palette_lookup(player->get_player_color1()+4) : SYSCOL_TEXT_HIGHLIGHT;
-			gfx->draw_textbox3d_clipped( xpos, ypos, bg_color, gfx->palette_lookup(COL_BLACK), text, dirty CLIP_NUM_DEFAULT);
-			break;
+	player_t* players[16];
+	uint16 num_players = 0;
+	players[0] = NULL;
+	for (uint16 i = 0; i < MAX_PLAYER_COUNT; i++) {
+		if ((1 << i) & players_bit) {
+			players[num_players++] = welt->get_player(i);
 		}
-		case 1: {
-			const PIXVAL text_color = player ? gfx->palette_lookup(player->get_player_color1()+7) : SYSCOL_TEXT_HIGHLIGHT;
-			gfx->draw_text_outlined(xpos, ypos, text_color, gfx->palette_lookup(COL_BLACK), text, dirty);
-			break;
-		}
-		case 2: {
-			const PIXVAL dark   = player ? gfx->palette_lookup(player->get_player_color1()+2) : SYSCOL_TEXT_HIGHLIGHT;
-			const PIXVAL normal = player ? gfx->palette_lookup(player->get_player_color1()+4) : SYSCOL_TEXT_HIGHLIGHT;
-			const PIXVAL bright = player ? gfx->palette_lookup(player->get_player_color1()+6) : SYSCOL_TEXT_HIGHLIGHT;
+	}
 
-			gfx->draw_text_outlined( xpos + LINESPACE + D_H_SPACE, ypos,   gfx->palette_lookup(COL_YELLOW), gfx->palette_lookup(COL_BLACK), text, dirty );
-			gfx->draw_box3d_clipped( xpos,                         ypos,   LINESPACE,   LINESPACE,   dark, PLAYER_FLAG|bright );
-			gfx->draw_rect(          xpos+1,                       ypos+1, LINESPACE-2, LINESPACE-2, normal, dirty );
-			break;
+	if (num_players <= 1) {
+		player_t* player = players[0];
+		switch (env_t::show_names >> 2) {
+			case 0: {
+					const PIXVAL bg_color = player ? gfx->palette_lookup(player->get_player_color1() + 4) : SYSCOL_TEXT_HIGHLIGHT;
+					gfx->draw_textbox3d_clipped(xpos, ypos, bg_color, gfx->palette_lookup(COL_BLACK), text, dirty CLIP_NUM_DEFAULT);
+					break;
+				}
+			case 1: {
+					const PIXVAL text_color = player ? gfx->palette_lookup(player->get_player_color1() + 7) : SYSCOL_TEXT_HIGHLIGHT;
+					gfx->draw_text_outlined(xpos, ypos, text_color, gfx->palette_lookup(COL_BLACK), text, dirty);
+					break;
+				}
+			case 2: {
+					const PIXVAL dark = player ? gfx->palette_lookup(player->get_player_color1() + 2) : SYSCOL_TEXT_HIGHLIGHT;
+					const PIXVAL normal = player ? gfx->palette_lookup(player->get_player_color1() + 4) : SYSCOL_TEXT_HIGHLIGHT;
+					const PIXVAL bright = player ? gfx->palette_lookup(player->get_player_color1() + 6) : SYSCOL_TEXT_HIGHLIGHT;
+
+					gfx->draw_text_outlined(xpos + LINESPACE + D_H_SPACE, ypos, gfx->palette_lookup(COL_YELLOW), gfx->palette_lookup(COL_BLACK), text, dirty);
+					gfx->draw_box3d_clipped(xpos, ypos, LINESPACE, LINESPACE, dark, PLAYER_FLAG | bright);
+					gfx->draw_rect(xpos + 1, ypos + 1, LINESPACE - 2, LINESPACE - 2, normal, dirty);
+					break;
+				}
+		}
+	}
+	else {
+		const int vpadding = (env_t::show_names >> 2) == 1 ? 1 : LINESPACE / 7;
+		const int h = vpadding * 2 + LINESPACE;
+		for (int i = 0; i < num_players; i++) {
+			PUSH_CLIP_FIT(xpos, ypos - vpadding + (i*h)/num_players, 1000, h / num_players + 1);
+			player_t* player = players[i];
+			switch (env_t::show_names >> 2) {
+				case 0: {
+					const PIXVAL bg_color = player ? gfx->palette_lookup(player->get_player_color1() + 4) : SYSCOL_TEXT_HIGHLIGHT;
+					gfx->draw_textbox3d_clipped(xpos, ypos, bg_color, gfx->palette_lookup(COL_BLACK), text, dirty CLIP_NUM_DEFAULT);
+					break;
+				}
+				case 1: {
+					const PIXVAL text_color = player ? gfx->palette_lookup(player->get_player_color1() + 7) : SYSCOL_TEXT_HIGHLIGHT;
+					gfx->draw_text_outlined(xpos, ypos, text_color, gfx->palette_lookup(COL_BLACK), text, dirty);
+					break;
+				}
+				case 2: {
+					const PIXVAL dark = player ? gfx->palette_lookup(player->get_player_color1() + 2) : SYSCOL_TEXT_HIGHLIGHT;
+					const PIXVAL normal = player ? gfx->palette_lookup(player->get_player_color1() + 4) : SYSCOL_TEXT_HIGHLIGHT;
+					const PIXVAL bright = player ? gfx->palette_lookup(player->get_player_color1() + 6) : SYSCOL_TEXT_HIGHLIGHT;
+
+					gfx->draw_text_outlined(xpos + LINESPACE + D_H_SPACE, ypos, gfx->palette_lookup(COL_YELLOW), gfx->palette_lookup(COL_BLACK), text, dirty);
+					gfx->draw_box3d_clipped(xpos, ypos, LINESPACE, LINESPACE, dark, PLAYER_FLAG | bright);
+					gfx->draw_rect(xpos + 1, ypos + 1 + (i*(LINESPACE-2))/num_players, LINESPACE - 2, (LINESPACE-2)/num_players +1, normal, dirty);
+					break;
+				}
+			}
+			POP_CLIP()
 		}
 	}
 }
@@ -1711,15 +1733,29 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 #endif
 	// marker/station text
 	if(  get_flag(has_text)  ) {
+		
 		if(  env_t::show_names & 1  ) {
 			const char *text = get_text();
 			const sint16 raster_tile_width = gfx->get_tile_raster_width();
 			const int width = gfx->calc_text_width(text) + 7;
 			int new_xpos = xpos - (width-raster_tile_width)/2;
 
-			const player_t* owner = get_label_owner();
-
-			display_text_label(new_xpos, ypos, text, owner, dirty);
+			// if this ground belongs to a halt, the color should reflect the halt owner(s)
+			uint16 players = 0;
+			if (is_halt() && find<label_t>() == NULL) {
+				// only halt label
+				const halthandle_t halt = get_halt();
+				players = halt->get_owners();
+			}
+			// else color according to current owner
+			else if (obj_bei(0)) {
+				players = 1 << obj_bei(0)->get_owner_nr(); // for cityhall
+				const label_t* l = find<label_t>();
+				if (l) {
+					players = 1 << l->get_owner_nr();
+				}
+			}
+			display_text_label(new_xpos, ypos, text, players, dirty);
 		}
 
 		// display station waiting information/status
@@ -1756,7 +1792,7 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 						const sint16 width = gfx->calc_text_width(text) + 7;
 						sint16 new_xpos = xpos - (width-raster_tile_width)/2;
 						if (!show_below  ||  strcmp(text, get_text()) != 0) {
-							display_text_label(new_xpos, ypos + show_below, text, fab->get_owner(), dirty);
+							display_text_label(new_xpos, ypos + show_below, text, 1 << fab->get_owner()->get_player_nr(), dirty);
 							show_below *= 2;
 						}
 						// ... and status

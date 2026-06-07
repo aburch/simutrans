@@ -341,9 +341,6 @@ public:
 	*/
 	void open_info_window();
 
-	/// @returns player that owns the label to show it in player's colors
-	const player_t* get_label_owner() const;
-
 	/**
 	 * Sets the label text (by copying it)
 	 * @param text the new text, or NULL to remove the existing text
@@ -595,6 +592,9 @@ public:
 	 * @param CLIP_NUM_DEF
 	 */
 	void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, const uint8 start_offset  CLIP_NUM_DEF) const;
+
+	// display text label in player colors
+	static void display_text_label(sint16 xpos, sint16 ypos, const char* text, const uint16 player, bool dirty);
 
 	/**
 	 * overlay with signs, good levels and station coverage

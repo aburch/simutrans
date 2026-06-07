@@ -736,6 +736,8 @@ public:
 
 	uint16 get_permissions() const { return permissions; }
 
+	uint16 get_owners() const { return owners; }
+
 	// create an unique name: better to be called with valid handle, although it will work without
 	char* create_name(koord k, char const* typ);
 

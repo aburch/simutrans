@@ -25,9 +25,6 @@
 #include "loadfont_frame.h"
 #include "simwin.h"
 
-// display text label in player colors
-void display_text_label(sint16 xpos, sint16 ypos, const char* text, const player_t *player, bool dirty); // grund.cc
-
 enum {
 	IDBTN_SCROLL_INVERSE,
 	IDBTN_IGNORE_NUMLOCK,
@@ -69,11 +66,8 @@ public:
 	void draw(scr_coord offset) OVERRIDE
 	{
 		scr_coord p = pos + offset;
-
-		const player_t* player = welt->get_active_player();
 		const char *text = get_text_pointer();
-
-		display_text_label(p.x, p.y, text, player, true);
+		grund_t::display_text_label(p.x, p.y, text, 1 << welt->get_active_player_nr(), true);
 	}
 
 	scr_size get_min_size() const OVERRIDE
