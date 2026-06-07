@@ -5610,6 +5610,12 @@ const char *tool_build_station_t::move( player_t *player, uint16 buttonstate, ko
 			nwc_tool_t *nwc = new nwc_tool_t(player, this, pos, welt->get_steps(), welt->get_map_counter(), false);
 			network_send_server(nwc);
 		}
+		else if(  is_shift_pressed()  ) {
+			// Shift+drag: call process() directly per tile so each tile
+			// independently hits the shift path in tool_station_aux()
+			// (no nearby-halt search → new halt per tile).
+			result = process( player, pos );
+		}
 		else {
 			result = work( player, pos );
 		}
