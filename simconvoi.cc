@@ -318,11 +318,19 @@ void convoi_t::reserve_route()
 				}
 			}
 		}
-		// only front vehicle treats reserved_tiles, other convoy-on tiles should be reserved now! 
+		// only front vehicle treats reserved_tiles, other convoy-on tiles release.
 		for(  int idx = max(1u, find_most_child_convoi()->back()->get_route_index()) - 1;  idx < front()->get_route_index()-1  &&  idx < (int)route.get_count();  idx++  ) {
 			if(  grund_t *gr = welt->lookup( route.at(idx) )  ) {
 				if(  schiene_t *sch = obj_cast<schiene_t>(gr->get_weg( front()->get_waytype() ))  ) {
 					unreserve_pos(route.at(idx));
+				}
+			}
+		}
+		// then, reserve route from back convoy's tile to reserved tiles.
+		for(  int idx = max(1u, find_most_child_convoi()->back()->get_route_index()) - 1; idx < (int)route.get_count(); idx++ ) {
+			if(  is_reservation_empty() || route.at(idx)==reserved_tiles[0]  ) break;// reach first reserved tiles.
+			if(  grund_t *gr = welt->lookup( route.at(idx) )  ) {
+				if(  schiene_t *sch = obj_cast<schiene_t>(gr->get_weg( front()->get_waytype() ))  ) {
 					sch->reserve( self, ribi_type( route.at(max(1u,idx)-1u), route.at(min(route.get_count()-1u,idx+1u)) ) );
 				}
 			}
