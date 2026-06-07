@@ -809,6 +809,31 @@ void export_map_objects(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &roadsign_t::is_advance_to_end, "is_advance_to_end");
 	/**
+	 * Get "require parent convoy to enter" (guide signal) flag of a signal.
+	 * @returns true if the flag is set
+	 */
+	register_method(vm, &roadsign_t::is_guide_signal, "is_guide_signal");
+	/**
+	 * Get "choose signal" flag of a signal.
+	 * @returns true if the flag is set
+	 */
+	register_method(vm, &roadsign_t::is_choose_signal, "is_choose_signal");
+	/**
+	 * Get "skip default route" flag of a choose signal.
+	 * @returns true if the flag is set
+	 */
+	register_method(vm, &roadsign_t::is_skip_default_route, "is_skip_default_route");
+	/**
+	 * Get "length based" flag of a choose signal.
+	 * @returns true if the flag is set
+	 */
+	register_method(vm, &roadsign_t::is_length_based, "is_length_based");
+	/**
+	 * Get margin length of a choose signal.
+	 * @returns margin length in tiles
+	 */
+	register_method(vm, &roadsign_t::get_margin_length, "get_margin_length");
+	/**
 	 * Get "allow reverse passage" (two ways) flag of a signal.
 	 * When true, trains coming from the reverse direction are allowed to pass the signal.
 	 * @returns true if the flag is set
