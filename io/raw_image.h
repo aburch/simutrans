@@ -11,6 +11,7 @@
 
 #include <cassert>
 #include <stdio.h>
+#include <string>
 
 
 /**
@@ -72,6 +73,8 @@ public:
 
 	/// @returns true on success
 	bool write_png(const char *filename) const;
+	/// Write a PNG image to memory.
+	bool write_png(std::string &data) const;
 	bool write_bmp(const char *filename) const;
 	bool write_ppm(const char *filename) const;
 
