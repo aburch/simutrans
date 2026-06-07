@@ -340,7 +340,7 @@ static grund_t *tool_intern_koord_to_weg_grund(player_t *player, karte_t *welt, 
 	// tram
 	if(wt==tram_wt) {
 		weg_t *way = gr->get_weg(track_wt);
-		if (way  &&  way->get_desc()->get_styp() == type_tram &&  way->get_removal_error(player)==NULL) {
+		if (way  &&  way->get_desc()->get_styp() == type_tram  &&  way->get_removal_error(player)==NULL) {
 			return gr;
 		}
 		else {
@@ -348,11 +348,11 @@ static grund_t *tool_intern_koord_to_weg_grund(player_t *player, karte_t *welt, 
 		}
 	}
 
-
 	// has some rail or monorail?
 	if(  !gr->hat_weg(wt)  ) {
 		return NULL;
 	}
+
 	// check for ownership
 	if(gr->get_weg(wt)->get_removal_error(player)!=NULL){
 		// the way owner is not me, but we must check wayobj owner in some cases:

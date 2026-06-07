@@ -3556,15 +3556,12 @@ bool haltestelle_t::rem_grund(grund_t *gr, player_t *pl_)
 		return false;
 	}
 
+	// hausbauer calls remove tile after removing the buiding, so there might be nothing on it ...
 	if (gebaeude_t* gb = gr->find<gebaeude_t>()) {
 		if (pl_  &&  !player_t::check_owner(gb->get_owner(), pl_)) {
 			// wrong owner!
 			return false;
 		}
-	}
-	else {
-		dbg->error("haltestelle_t::rem_grund", "Ground at %s has not building but is part of a stop", gr->get_pos().get_fullstr());
-		return false;
 	}
 
 	// first tile => remove name from this tile ...
