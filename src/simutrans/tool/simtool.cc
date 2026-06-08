@@ -8846,7 +8846,7 @@ bool tool_work_world_t::init(player_t*)
 		destroy_all_win(true);
 		welt->type_of_generation = karte_t::NEW_WORLD;
 		env_t::default_settings.reset_after_global_settings_reload();
-		return true;
+		return false;	// unsafe tools must return false even on success!
 	}
 	else if (what == 'l') {
 		destroy_all_win(true);
@@ -8864,7 +8864,7 @@ bool tool_work_world_t::init(player_t*)
 				welt->announce_server(karte_t::SERVER_ANNOUNCE_HELLO);
 			}
 			welt->type_of_generation = strstart(filename, "net:") ? karte_t::CLIENT_WORLD : karte_t::LOADED_WORLD;
-			return true;
+			return false;	// unsafe tools must return false even on success!
 		}
 	}
 	else if (what == 's') {
@@ -8886,7 +8886,7 @@ bool tool_work_world_t::init(player_t*)
 		DBG_MESSAGE("loadsave_frame_t::item_action", "save world %li ms", dr_time() - start_save);
 		welt->set_dirty();
 		welt->reset_timer();
-		return true;
+		return false;	// unsafe tools must return false even on success!
 	}
 	return false;
 }
