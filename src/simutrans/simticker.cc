@@ -157,6 +157,7 @@ void ticker::draw()
 
 		// mark everything at the bottom as dirty to clear also tooltips and compass
 		gfx->mark_rect_dirty_wc(0, env_t::menupos == MENU_BOTTOM ? 0 : start_y - 128, screen.w, start_y + 128 + TICKER_HEIGHT);
+		redraw();
 		return;
 	}
 	if (dx_since_last_draw <=0) {
@@ -205,7 +206,7 @@ void ticker::redraw()
 	gfx->draw_rect(0, start_y, screen.w, TICKER_HEIGHT, SYSCOL_TICKER_BACKGROUND, true);
 	for(node & n : list) {
 		if (n.xpos < screen.w) {
-			gfx->draw_text_clipped(n.xpos, start_y + TICKER_V_SPACE, n.msg, ALIGN_LEFT, n.color, true);
+			gfx->draw_text_clipped(n.xpos, start_y + TICKER_V_SPACE, n.msg, ALIGN_LEFT, n.get_player_color(welt), true);
 		}
 	}
 }
