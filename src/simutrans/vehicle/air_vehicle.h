@@ -97,6 +97,9 @@ public:
 
 	flight_state get_flying_state() const { return state; }
 
+	// returns true if same takeoff position or can be ignored during taxing to takeoff
+	bool is_same_takeoff(koord3d other_takeoff) const;
+
 	// image: when flying empty, on ground the plane
 	image_id get_image() const OVERRIDE {return !is_on_ground() ? IMG_EMPTY : image;}
 

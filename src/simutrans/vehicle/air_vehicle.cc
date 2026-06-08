@@ -494,7 +494,25 @@ bool air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) con
 			if(reserve) {
 				start_now = true;
 				sch1->add_convoi_reservation(cnv->self);
-				if(  !sch1->reserve(cnv->self,ribi_t::none)  ) {
+				bool can_reserve_this = sch1->reserve(cnv->self, ribi_t::none);
+				if (can_reserve_this) {
+					// check of airplanes
+					for (uint8 i = 1; i < gr->obj_count(); i++) {
+						obj_t* obj = gr->obj_bei(i);
+						// we drive through other planes not taxiing for now ...
+						if (obj->get_typ() == obj_t::air_vehicle) {
+							air_vehicle_t* other = (air_vehicle_t*)obj;
+							if (other->get_convoi()!=cnv && other->is_on_ground()) {
+								// other airplane on the runway
+								can_reserve_this = false;
+								sch1->unreserve(cnv->self);
+								sch1->remove_convoi_reservation(cnv->self);
+								break;
+							}
+						}
+					}
+				}
+				if(!can_reserve_this) {
 					if (clear_take_off) {
 						// we check if the runway is really reserved
 						if (air_vehicle_t *v = gr->find<air_vehicle_t>()) {
@@ -558,6 +576,23 @@ bool air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) con
 }
 
 
+bool air_vehicle_t::is_same_takeoff(koord3d other_takeoff) const
+{
+	if (state == taxiing) {
+		if (cnv) {
+			const route_t& rt = *(cnv->get_route());
+			if (rt.get_count() > takeoff) {
+				// we can test for same
+				return rt[takeoff] == other_takeoff;
+			}
+		}
+	}
+	// not taking off => will drive through me
+	return true;
+}
+
+
+
 // handles all the decisions on the ground an in the air
 bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uint8)
 {
@@ -575,34 +610,35 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 	if (route_index <= 1) {
 		// check if not airplanes coming my way on the way to the runway. If free then leave the stop
 		const route_t& rt = *(cnv->get_route());
-		koord3d lastlast = rt[0];
-		for (int r = 2; r < rt.get_count(); r++) {
-			ribi_t::dir us = ribi_t::get_dir(ribi_t::backward(ribi_type(rt[r-2]-rt[r])));
-			if (grund_t* gr = welt->lookup(rt[r])) {
-				if (weg_t* rw = gr->get_weg(air_wt)) {
-					if (rw->get_desc()->get_styp() == type_runway) {
-						// free to runway => on we go
-						break;
-					}
-					// no yet runway
-					for (uint8 i = 1; i < gr->obj_count(); i++) {
-						obj_t* obj = gr->obj_bei(i);
-						// we drive through other planes not taxiing for now ...
-						if (obj->get_typ() == obj_t::air_vehicle) {
-							air_vehicle_t* other = (air_vehicle_t*)obj;
-							if (other->get_flying_state() == taxiing && other->get_direction() == us) {
-								// one plane taxiing into our direction => wait
-								restart_speed = 0;
-								return false;	// cannot start
+		if (takeoff < rt.get_count()) {
+			koord3d our_takeoff = rt[takeoff];
+			for (int r = 1; r < rt.get_count(); r++) {
+				if (grund_t* gr = welt->lookup(rt[r])) {
+					if (weg_t* rw = gr->get_weg(air_wt)) {
+						if (rw->get_desc()->get_styp() == type_runway) {
+							// free to runway => on we go
+							break;
+						}
+						// no yet runway
+						for (uint8 i = 1; i < gr->obj_count(); i++) {
+							obj_t* obj = gr->obj_bei(i);
+							// we drive through other planes not taxiing for now ...
+							if (obj->get_typ() == obj_t::air_vehicle) {
+								air_vehicle_t* other = (air_vehicle_t*)obj;
+								if (!other->is_same_takeoff(our_takeoff)) {
+									// one plane taxiing to other takeoff => wait to avoid blocking
+									restart_speed = 0;
+									return false;	// cannot start
+								}
 							}
 						}
+						continue;
+						// still on taxiway
 					}
-					continue;
-					// still on taxiway
 				}
+				// no ground, no runway => finish
+				break;
 			}
-			// no ground, no runway => finish
-			break;
 		}
 		// ok
 	}
