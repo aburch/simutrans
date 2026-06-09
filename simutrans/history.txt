@@ -2,6 +2,7 @@
 	CHG: using memcpy for image loading (when possible) reduces loading time of paks again
 	ADD: merge stop tool allows to merge with the stop of another player that has set sharing permissions without giving up building and way ownership
 	ADD: Indicate multiple stop ownership by colour bands of station name
+	FIX: again tunnel building in full underground mode
 
 
 Release of 124.5 (r11993 on 31-May-2026):
