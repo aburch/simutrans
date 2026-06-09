@@ -365,7 +365,7 @@ chat_frame_t::chat_frame_t() :
 	set_resizemode(diagonal_resize);
 	reactivate_input = true;
 
-	last_count = 0;
+	last_count = 0x7FFFFFFF;
 	reset_min_windowsize();
 }
 
@@ -479,6 +479,10 @@ void chat_frame_t::fill_list()
 		cont_chat_log[chat_mode].new_component<gui_chat_balloon_t>(i, width);
 		prev_poster = i->sender;
 		prev_company = i->player_nr;
+	}
+	if(cont_chat_log[chat_mode].get_count()==0) {
+		// empty dummy item
+		cont_chat_log[chat_mode].new_component <gui_scrolled_list_t::const_text_scrollitem_t>("",COL_BROWN);
 	}
 
 	cont_chat_log[chat_mode].show_bottom();
