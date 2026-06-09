@@ -11,8 +11,6 @@
 
 #include "simobj.h"
 
-#include "way/schiene.h"
-
 /**
  * Signals for rail tracks.
  *
@@ -36,23 +34,6 @@ public:
 	void show_info() OVERRIDE;
 
 	void calc_image() OVERRIDE;
-
-	image_id get_image() const OVERRIDE {
-		if (foreground_image == IMG_EMPTY && schiene_t::show_reservations) {
-			return IMG_EMPTY;
-		}
-		return image;
-	}
-
-	/**
-	* For the front image hiding vehicles (show also for reservation)
-	*/
-	image_id get_front_image() const OVERRIDE {
-		if (foreground_image == IMG_EMPTY && schiene_t::show_reservations) {
-			return image;
-		}
-		return foreground_image;
-	}
 };
 
 #endif
