@@ -3296,6 +3296,7 @@ gebaeude_t* stadt_t::build_city_house(koord3d base_pos, const building_desc_t* h
 	}
 
 	// if new building is smaller than old one => convert remaining tiles
+	uint16 max_level = level;
 	for (int x = 0; x < min_size.x; x++) {
 		for (int y = 0; y < min_size.y; y++) {
 			if (x < h->get_x(rotation) && y < h->get_y(rotation)) {
@@ -3308,35 +3309,42 @@ gebaeude_t* stadt_t::build_city_house(koord3d base_pos, const building_desc_t* h
 
 			switch (oldgb->get_tile()->get_desc()->get_type()) {
 				case building_desc_t::city_res:
-					won -= level * 10;
-					hr = hausbauer_t::get_residential(level, welt->get_timeline_year_month(), welt->get_climate(kpos), cl, 1, 1, exclude_desc);
-					won += hr->get_level();
+					hr = hausbauer_t::get_residential(max_level, welt->get_timeline_year_month(), welt->get_climate(kpos), cl, 1, 1, exclude_desc);
 					break;
 				case building_desc_t::city_com:
-					arb -= level * 20;
-					hr = hausbauer_t::get_commercial(level, welt->get_timeline_year_month(), welt->get_climate(kpos), cl, 1, 1, exclude_desc);
-					arb += hr->get_level() * 20;
+					hr = hausbauer_t::get_commercial(max_level, welt->get_timeline_year_month(), welt->get_climate(kpos), cl, 1, 1, exclude_desc);
 					break;
 				case building_desc_t::city_ind:
-					arb -= level * 20;
-					hr = hausbauer_t::get_industrial(level, welt->get_timeline_year_month(), welt->get_climate(kpos), cl, 1, 1, exclude_desc);
-					arb += hr->get_level() * 20;
+					hr = hausbauer_t::get_industrial(max_level, welt->get_timeline_year_month(), welt->get_climate(kpos), cl, 1, 1, exclude_desc);
 					break;
-
 				default:
 					assert(false);
 					break;
 			}
-			// for now we just remove it to avoid half buildings left
-			exclude_desc->append(hr);
-			oldgb->set_tile(hr->get_tile(0), true);
-			gr->calc_image();
-			update_gebaeude_from_stadt(oldgb);
-			switch (hr->get_type()) {
-				case building_desc_t::city_res: won += hr->get_level() * 10; break;
-				case building_desc_t::city_com: arb += hr->get_level() * 20; break;
-				case building_desc_t::city_ind: arb += hr->get_level() * 20; break;
-				default: break;
+			if (hr) {
+				// for now we just remove it to avoid half buildings left
+				exclude_desc->append(hr);
+				oldgb->set_tile(hr->get_tile(0), true);
+				gr->calc_image();
+				update_gebaeude_from_stadt(oldgb);
+				switch (hr->get_type()) {
+					case building_desc_t::city_res: won += hr->get_level() * 10; break;
+					case building_desc_t::city_com: arb += hr->get_level() * 20; break;
+					case building_desc_t::city_ind: arb += hr->get_level() * 20; break;
+					default: break;
+				}
+			}
+			else {
+				// nothing found => try next building with higher level and make this nature again.
+				max_level += level;
+				// cannot use remove_gebaeude_from_stadt(oldgb) since it will try to remove all tiles!
+				buildings.remove(oldgb);
+				oldgb->set_stadt(NULL);
+				delete oldgb;
+				planquadrat_t* pl = welt->access_nocheck(gr->get_pos().get_2d());
+				boden_t* bd = new boden_t(gr->get_pos(), slope_t::flat);
+				bd->take_obj_from(gr);
+				pl->kartenboden_setzen(bd); // will delete gr
 			}
 		}
 	}
