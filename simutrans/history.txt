@@ -3,6 +3,8 @@
 	ADD: merge stop tool allows to merge with the stop of another player that has set sharing permissions without giving up building and way ownership
 	ADD: Indicate multiple stop ownership by colour bands of station name
 	FIX: again tunnel building in full underground mode
+	FIX: citybuildings of level 1 were actually level zero due to makeobj substracting 1 on loading.
+	FIX: correct citysize again after renovation.
 
 
 Release of 124.5 (r11993 on 31-May-2026):

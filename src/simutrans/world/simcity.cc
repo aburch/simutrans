@@ -593,6 +593,8 @@ static bool compare_gebaeude_pos(const gebaeude_t* a, const gebaeude_t* b)
 // this function adds houses to the city house list
 void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 {
+	// ordered is only used during threded loading to have a consistent order among clients
+	// later the order is the same since the game runs in sync on server and client
 	static vector_tpl<grund_t*> gb_tiles;
 	if (gb != NULL) {
 		uint16 level = gb->get_tile()->get_desc()->get_level()+1;
@@ -3348,7 +3350,7 @@ gebaeude_t* stadt_t::build_city_house(koord3d base_pos, const building_desc_t* h
 			}
 		}
 	}
-
+	recalc_city_size();
 	return org;
 }
 

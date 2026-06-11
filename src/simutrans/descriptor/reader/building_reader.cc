@@ -186,6 +186,11 @@ void building_reader_t::register_obj(obj_desc_t *&data)
 		l >>= 1;
 	}
 
+	if (desc->is_city_building()) {
+		// since makeobj substracted one
+		desc->level++;
+	}
+
 	if(  desc->allow_underground == 255  ) {
 		// only old stops were allowed underground
 		desc->allow_underground = desc->type==building_desc_t::generic_stop ? 2 : 0;
