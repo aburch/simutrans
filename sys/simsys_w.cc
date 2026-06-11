@@ -53,6 +53,11 @@ extern char **__argv;
 static const LPCWSTR WINDOW_CLASS_NAME = L"Simu";
 
 static volatile HWND hwnd;
+// The IME context originally associated with the window. While no text input
+// field is focused, the IME is detached from the window (see dr_stop_textinput)
+// so that Japanese input does not eat keyboard shortcuts. It is re-attached
+// while editing a text field (see dr_start_textinput).
+static HIMC default_himc = NULL;
 static sint16 fullscreen = WINDOWED;
 static bool is_not_top = false;
 static MSG msg;
@@ -160,6 +165,12 @@ static void create_window(DWORD const ex_style, DWORD const style, int const x, 
 	hwnd = CreateWindowExW(ex_style, WINDOW_CLASS_NAME, wSIM_TITLE, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
 
 	delete[] wSIM_TITLE;
+
+	// Detach the IME from the window initially. No text input field is focused
+	// at startup, so the IME (e.g. Japanese conversion mode) must not consume
+	// keystrokes that are meant as keyboard shortcuts. The context is remembered
+	// so it can be re-attached while editing a text field.
+	default_himc = ImmAssociateContext( hwnd, NULL );
 
 	ShowWindow(hwnd, SW_SHOW);
 	SetTimer( hwnd, 0, 1111, NULL ); // HACK: so windows thinks we are not dead when processing a timer every 1111 ms ...
@@ -951,13 +962,26 @@ void dr_sleep(uint32 millisec)
 
 void dr_start_textinput()
 {
+	// A text input field gained focus: re-attach the IME so the user can type
+	// (and use Japanese conversion) inside the field.
+	if(  default_himc  ) {
+		ImmAssociateContext( hwnd, default_himc );
+	}
 }
 
 void dr_stop_textinput()
 {
 	HIMC immcx = ImmGetContext( hwnd );
-	ImmNotifyIME( immcx, NI_COMPOSITIONSTR, CPS_CANCEL, 0 );
-	ImmReleaseContext( hwnd, immcx );
+	if(  immcx  ) {
+		ImmNotifyIME( immcx, NI_COMPOSITIONSTR, CPS_CANCEL, 0 );
+		ImmReleaseContext( hwnd, immcx );
+	}
+	// No text input field is focused any more: detach the IME so Japanese input
+	// mode does not swallow keystrokes meant as keyboard shortcuts.
+	HIMC old = ImmAssociateContext( hwnd, NULL );
+	if(  old  &&  !default_himc  ) {
+		default_himc = old;
+	}
 }
 
 void dr_notify_input_pos(int x, int y)
