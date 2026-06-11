@@ -58,6 +58,10 @@ static volatile HWND hwnd;
 // so that Japanese input does not eat keyboard shortcuts. It is re-attached
 // while editing a text field (see dr_start_textinput).
 static HIMC default_himc = NULL;
+// Whether a text input field currently has focus. The window may be recreated
+// (e.g. on fullscreen restore) while editing, so create_window() uses this to
+// decide whether to re-attach the IME to the freshly created window.
+static bool textinput_focused = false;
 static sint16 fullscreen = WINDOWED;
 static bool is_not_top = false;
 static MSG msg;
@@ -166,11 +170,20 @@ static void create_window(DWORD const ex_style, DWORD const style, int const x, 
 
 	delete[] wSIM_TITLE;
 
-	// Detach the IME from the window initially. No text input field is focused
-	// at startup, so the IME (e.g. Japanese conversion mode) must not consume
-	// keystrokes that are meant as keyboard shortcuts. The context is remembered
-	// so it can be re-attached while editing a text field.
+	// Detach the IME from the window initially and remember its context. No text
+	// input field is focused at startup, so the IME (e.g. Japanese conversion
+	// mode) must not consume keystrokes that are meant as keyboard shortcuts.
+	// The context is remembered so it can be re-attached while editing a text
+	// field.
 	default_himc = ImmAssociateContext( hwnd, NULL );
+
+	// This function is also called to recreate the window on fullscreen restore
+	// (see WM_ACTIVATE). If a text input field is focused at that point, the GUI
+	// will not call dr_start_textinput() again (focus state is unchanged), so
+	// re-attach the IME here to keep Japanese input working in the new window.
+	if(  textinput_focused  &&  default_himc  ) {
+		ImmAssociateContext( hwnd, default_himc );
+	}
 
 	ShowWindow(hwnd, SW_SHOW);
 	SetTimer( hwnd, 0, 1111, NULL ); // HACK: so windows thinks we are not dead when processing a timer every 1111 ms ...
@@ -964,6 +977,7 @@ void dr_start_textinput()
 {
 	// A text input field gained focus: re-attach the IME so the user can type
 	// (and use Japanese conversion) inside the field.
+	textinput_focused = true;
 	if(  default_himc  ) {
 		ImmAssociateContext( hwnd, default_himc );
 	}
@@ -978,6 +992,7 @@ void dr_stop_textinput()
 	}
 	// No text input field is focused any more: detach the IME so Japanese input
 	// mode does not swallow keystrokes meant as keyboard shortcuts.
+	textinput_focused = false;
 	HIMC old = ImmAssociateContext( hwnd, NULL );
 	if(  old  &&  !default_himc  ) {
 		default_himc = old;
