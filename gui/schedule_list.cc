@@ -52,7 +52,7 @@
 #include "depot_picker.h"
 
 
-static const char *cost_type[MAX_LINE_COST] =
+static const char *cost_type[schedule_list_gui_t::MAX_LINE_COST_GUI] =
 {
 	"Free Capacity",
 	"Transported",
@@ -63,10 +63,11 @@ static const char *cost_type[MAX_LINE_COST] =
 	"Distance",
 	"Maxspeed",
 	"Road toll",
-	"Freight ton-kilo"
+	"Freight ton-kilo",
+	"Avg. density" // not recorded in financial_history
 };
 
-const uint8 cost_type_color[MAX_LINE_COST] =
+const uint8 cost_type_color[schedule_list_gui_t::MAX_LINE_COST_GUI] =
 {
 	COL_FREE_CAPACITY,
 	COL_TRANSPORTED,
@@ -77,7 +78,8 @@ const uint8 cost_type_color[MAX_LINE_COST] =
 	COL_DISTANCE,
 	COL_MAXSPEED,
 	COL_TOLL,
-	COL_TONKILO
+	COL_TONKILO,
+	COL_TRANSPORT_DENSITY // not recorded in financial_history
 };
 
 static uint8 tabs_to_lineindex[9];
@@ -392,7 +394,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	add_component(&chart);
 
 	// add filter buttons
-	for(  int i=0;  i<MAX_LINE_COST;  i++  ) {
+	for(  int i=0;  i<MAX_LINE_COST_GUI;  i++  ) {
 		filterButtons[i].init(button_t::box_state,cost_type[i],scr_coord(0,0), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 		filterButtons[i].add_listener(this);
 		filterButtons[i].background_color = color_idx_to_rgb(cost_type_color[i]);
@@ -605,7 +607,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 	}
 	else {
 		if(  line.is_bound()  ) {
-			for(  int i=0;  i<MAX_LINE_COST;  i++  ) {
+			for(  int i=0;  i<MAX_LINE_COST_GUI;  i++  ) {
 				if(  comp == &filterButtons[i]  ) {
 					filterButtons[i].pressed ^= 1;
 					if(  filterButtons[i].pressed  ) {
@@ -766,7 +768,7 @@ void schedule_list_gui_t::set_windowsize(scr_size size)
 
 	int rest_width = get_windowsize().w-RIGHT_COLUMN_OFFSET-D_MARGIN_RIGHT;
 	int button_per_row = max(1, (rest_width+D_H_SPACE)/(D_BUTTON_WIDTH+D_H_SPACE));
-	int button_rows = MAX_LINE_COST/button_per_row + ((MAX_LINE_COST%button_per_row)!=0);
+	int button_rows = MAX_LINE_COST_GUI/button_per_row + ((MAX_LINE_COST_GUI%button_per_row)!=0);
 
 	scrolly_convois.set_size( scr_size(rest_width+D_MARGIN_RIGHT, get_client_windowsize().h-scrolly_convois.get_pos().y) );
 	scrolly_haltestellen.set_size( scr_size(RIGHT_COLUMN_OFFSET, get_client_windowsize().h-scrolly_haltestellen.get_pos().y) );
@@ -778,7 +780,7 @@ void schedule_list_gui_t::set_windowsize(scr_size size)
 	bt_colour_line.set_size(scr_size(rest_width-D_BUTTON_WIDTH - D_H_SPACE, D_EDIT_HEIGHT));
 
 	int y = D_MARGIN_TOP + SCL_HEIGHT-D_V_SPACE-(button_rows*(D_BUTTON_HEIGHT+D_V_SPACE));
-	for(  int i=0;  i<MAX_LINE_COST;  i++  ) {
+	for(  int i=0;  i<MAX_LINE_COST_GUI;  i++  ) {
 		filterButtons[i].set_pos( scr_coord(RIGHT_COLUMN_OFFSET+(i%button_per_row)*(D_BUTTON_WIDTH+D_H_SPACE), y+(i/button_per_row)*(D_BUTTON_HEIGHT+D_V_SPACE))  );
 	}
 }
@@ -884,6 +886,19 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 				chart.show_curve(i);
 			}
 		}
+		// transport density (ton-kilo / distance): computed dynamically, not recorded in financial_history; curve index is MAX_LINE_COST, outside the saved range
+		{
+			const sint64 *history = new_line->get_finance_history();
+			for(  int month=0; month<MAX_MONTHS; month++  ) {
+				sint64 distance = history[month * MAX_LINE_COST + LINE_DISTANCE];
+				sint64 tonkilo  = history[month * MAX_LINE_COST + LINE_TONKILO];
+				transport_density_history[month] = (distance > 0) ? tonkilo / distance : 0;
+			}
+		}
+		chart.add_curve(color_idx_to_rgb(COL_TRANSPORT_DENSITY), transport_density_history, 1, 0, MAX_MONTHS, STANDARD, filterButtons[MAX_LINE_COST].pressed, true, 0);
+		if(  filterButtons[MAX_LINE_COST].pressed  ) {
+			chart.show_curve(MAX_LINE_COST);
+		}
 		chart.set_visible(true);
 
 		// has this line a single running convoy?
@@ -920,7 +935,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		bt_copy_data.disable();
 		bt_show_journey_time.disable();
 		bt_goods_waiting_time.disable();
-		for(  int i=0; i<MAX_LINE_COST; i++  )  {
+		for(  int i=0; i<MAX_LINE_COST_GUI; i++  )  {
 			chart.hide_curve(i);
 		}
 		chart.set_visible(true);
