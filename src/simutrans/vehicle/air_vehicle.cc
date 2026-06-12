@@ -607,7 +607,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		return true;
 	}
 
-	if (route_index <= 1) {
+	if (route_index <= 1  &&  is_on_ground()) {
 		// check if not airplanes coming my way on the way to the runway. If free then leave the stop
 		const route_t& rt = *(cnv->get_route());
 		if (takeoff < rt.get_count()) {
