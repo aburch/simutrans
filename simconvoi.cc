@@ -2825,8 +2825,8 @@ void convoi_t::vorfahren()
 				else {
 					train_length += 1;
 				}
+				train_length = max(1,train_length);
 			}
-			train_length = max(1,train_length);
 
 			// now advance all convoi until it is completely on the track
 			fahr[0]->set_leading(false); // switches off signal checks ...
