@@ -93,6 +93,7 @@ public:
 	depot_picker_t(convoihandle_t cnv, bool teleport);
 	/// Open picker to teleport all convoys of a line to a chosen depot
 	depot_picker_t(linehandle_t line, waytype_t wt, player_t *owner);
+	~depot_picker_t();
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 	bool has_min_sizer() const OVERRIDE { return true; }
