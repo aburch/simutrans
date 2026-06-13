@@ -493,15 +493,19 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 	// When coupled, the convoy is not allowed to depart alone!
 	convoihandle_t p_c = find_parent_convoy_in_depot(cnv);
 	if( p_c.is_bound() ) {
-		static cbuffer_t buf;
-		buf.clear();
-		buf.printf( translator::translate("Vehicle %s is coupled convoy, so it cannot depart alone!"), cnv->get_name() );
-		create_win( new news_img(buf), w_time_delete, magic_none);
+		if (local_execution) {
+			static cbuffer_t buf;
+			buf.clear();
+			buf.printf( translator::translate("Vehicle %s is coupled convoy, so it cannot depart alone!"), cnv->get_name() );
+			create_win( new news_img(buf), w_time_delete, magic_none);
+		}
 		return false;
 	}
 	if (!cnv->get_schedule()) {
 		dbg->warning("depot_t::start_convoi()","No schedule for convoi.");
-		create_win( new news_img("Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n"), w_time_delete, magic_none);
+		if (local_execution) {
+			create_win( new news_img("Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n"), w_time_delete, magic_none);
+		}
 		return false;
 	}
 	// If this convoy has only 1 stop:another depot, teleport to there.
@@ -631,10 +635,12 @@ bool depot_t::can_start_convoi(convoihandle_t cnv, bool local_execution)
 				const schedule_entry_t c = child_cnv->get_schedule()->get_current_entry();
 				if(  t.pos!=c.pos  ) {
 					// the next stop is different!->false
-					static cbuffer_t buf;
-					buf.clear();
-					buf.printf( translator::translate("Vehicle %s will couple with vehicle %s, but the next stop positions are different!"), cnv->get_name(), child_cnv->get_name() );
-					create_win( new news_img(buf), w_time_delete, magic_none);
+					if (local_execution) {
+						static cbuffer_t buf;
+						buf.clear();
+						buf.printf( translator::translate("Vehicle %s will couple with vehicle %s, but the next stop positions are different!"), cnv->get_name(), child_cnv->get_name() );
+						create_win( new news_img(buf), w_time_delete, magic_none);
+					}
 					return false;
 				}
 				// check child convoy can depot?
