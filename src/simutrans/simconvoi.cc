@@ -2398,13 +2398,17 @@ void convoi_t::rdwr(loadsave_t *file)
 					state = INITIAL;
 				}
 				// add to blockstrecke
-				if(schiene_t* sch = dynamic_cast<schiene_t*>(gr->get_weg(v->get_waytype()))) {
-					sch->reserve(self,ribi_t::none);
-				}
-				// add to crossing
-				if(crossing_t *cr = gr->get_crossing()) {
-					cr->finish_rd();	// add crossing logic if needed (as finish_rd() was not yet processed
-					cr->add_to_crossing(v);
+				if (v->get_waytype() != air_wt) {
+					// only for no airplanes, they are not allowed to cross
+					if (schiene_t* sch = dynamic_cast<schiene_t*>(gr->get_weg(v->get_waytype()))) {
+						sch->reserve(self, ribi_t::none);
+					}
+
+					// add to crossing
+					if (crossing_t* cr = gr->get_crossing()) {
+						cr->finish_rd();	// add crossing logic if needed (as finish_rd() was not yet processed
+						cr->add_to_crossing(v);
+					}
 				}
 				if(  gr->obj_count()>253  ) {
 					dbg->warning( "convoi_t::rdwr()", "cannot put vehicle on ground at (%s)", gr->get_pos().get_str() );
