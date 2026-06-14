@@ -16,8 +16,9 @@
 /**
  * A class for Message/news window.
  */
-class news_window : public base_infowin_t
+class news_window : public base_infowin_t, private action_listener_t
 {
+	button_t copy_to_clipboard;
 public:
 	FLAGGED_PIXVAL get_titlecolor() const OVERRIDE { return color; }
 
@@ -26,20 +27,16 @@ protected:
 
 private:
 	FLAGGED_PIXVAL color;
+	bool action_triggered(gui_action_creator_t *comp, value_t extra) OVERRIDE;
 };
 
 /**
  * Displays fatal error message.
  */
-class fatal_news : public news_window, private action_listener_t
+class fatal_news : public news_window
 {
-	button_t copy_to_clipboard;
-
 public:
 	fatal_news(const char* text);
-
-private:
-	bool action_triggered(gui_action_creator_t *comp, value_t extra) OVERRIDE;
 };
 
 
