@@ -2257,9 +2257,9 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 		markers[ halt_id ] = current_marker;
 	}
 
-	uint16 const max_transfers = welt->get_settings().get_max_transfers();
-	uint16 const max_hops      = welt->get_settings().get_max_hops();
-	uint16 allocation_pointer = 0;
+	uint32 const max_transfers = welt->get_settings().get_max_transfers();
+	uint32 const max_hops      = welt->get_settings().get_max_hops();
+	uint32 allocation_pointer = 0;
 	uint32 best_destination_weight = UINT32_MAX; // best weight among all destinations
 
 	open_list.clear();
