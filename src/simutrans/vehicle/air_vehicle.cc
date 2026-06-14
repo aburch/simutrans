@@ -765,6 +765,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 			if (grund_t* gr = target_halt->get_reserved(cnv->self)) {
 				if (gr->get_pos() == cnv->get_route()->back()) {
 					target_halt->reserve_position(gr, cnv->self);
+					state = taxiing;
 					// we have alread a valid route
 					return true;
 				}

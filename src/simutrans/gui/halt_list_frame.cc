@@ -294,8 +294,9 @@ void halt_list_frame_t::sort_list()
 	haltestelle_t::stationtyp current_type = tabs.get_active_tab_stationtype();
 
 	scrolly->clear_elements();
+	uint16 player_flag = 1 << m_player->get_player_nr();
 	for(halthandle_t const halt : haltestelle_t::get_alle_haltestellen()) {
-		if (halt->get_owner() != m_player) {
+		if ((halt->get_owners() & player_flag) == 0) {
 			continue;
 		}
 		if (name_filter[0] != 0  &&  !utf8caseutf8(halt->get_name(), name_filter)) {

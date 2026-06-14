@@ -560,7 +560,7 @@ void gui_halt_detail_t::update_connections( halthandle_t halt )
 	}
 
 	// follow player change 
-	bool allow_change = halt->get_owner() == world()->get_active_player() || world()->get_active_player()->is_public_service();
+	bool allow_change = (halt->get_owners() & (1 << world()->get_active_player_nr()))!=0  ||  world()->get_active_player()->is_public_service();
 	for (uint16 i = 0; i < MAX_PLAYER_COUNT; i++) {
 		connected_players[i].enable(allow_change);
 	}

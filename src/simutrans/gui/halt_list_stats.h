@@ -20,6 +20,26 @@
 class gui_halt_type_images_t;
 
 
+// colorbox for shared ownership
+class gui_owners_t : public gui_component_t
+{
+protected:
+	uint16 num_players;
+	uint16 player_mask;
+
+public:
+	void set_owners(uint16 m);
+
+	gui_owners_t() { set_owners(0); }
+
+	void draw(scr_coord offset) OVERRIDE;
+
+	scr_size get_min_size() const { return scr_size(num_players * LINESPACE - 4, LINESPACE); }
+
+	scr_size get_max_size() const { return get_min_size(); }
+};
+
+
 class halt_list_stats_t : public gui_aligned_container_t, public gui_scrolled_list_t::scrollitem_t
 {
 private:
@@ -28,6 +48,7 @@ private:
 public:
 	gui_label_buf_t label_name, label_cargo;
 	gui_image_t img_enabled[3];
+	gui_owners_t  owners;
 	gui_halt_type_images_t *img_types;
 	gui_colorbox_t indicator;
 	button_t gotopos;

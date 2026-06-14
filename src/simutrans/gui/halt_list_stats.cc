@@ -26,6 +26,41 @@
 
 
 static karte_ptr_t welt;
+
+
+void gui_owners_t::set_owners(uint16 mask)
+{
+	// draw ownership
+	player_mask = mask;
+	num_players = 0;
+	for (uint16 i = 0; i < MAX_PLAYER_COUNT; i++) {
+		if ((1 << i) & player_mask) {
+			num_players++;
+		}
+	}
+	set_visible(num_players != 0);
+}
+
+void gui_owners_t::draw(scr_coord offset)
+{
+	// only show if there are more than on player
+	if (num_players > 1) {
+		scr_coord pos = get_pos() + offset;
+		pos.y += 2;
+		uint16 last_player = 0;
+		for (uint16 i = 0; i < num_players; i++) {
+			while (player_mask && (1 << last_player) == 0) {
+				last_player++;
+			}
+			gfx->draw_rect_clipped(pos.x, pos.y, LINESPACE-4, LINESPACE-4, gfx->palette_lookup(welt->get_player(last_player)->get_player_color1() + 3), true CLIP_NUM_DEFAULT);
+			pos.x += LINESPACE-4;
+			last_player++;
+		}
+	}
+
+}
+
+
 /**
  * Events are notified to GUI components via this method
  */
@@ -62,13 +97,15 @@ halt_list_stats_t::halt_list_stats_t(halthandle_t h)
 	gotopos.set_targetpos3d(halt->get_basis_pos3d());
 	add_component(&gotopos);
 
-	add_table(2,1);
+	add_table(3,1);
 	{
 		add_component(&label_name);
 		label_name.buf().append(halt->get_name());
 		label_name.update();
 
 		img_types = new_component<gui_halt_type_images_t>(halt);
+
+		add_component(&owners);
 	}
 	end_table();
 
@@ -120,6 +157,9 @@ void halt_list_stats_t::draw(scr_coord offset)
 	halt->get_short_freight_info( label_cargo.buf() );
 	label_cargo.update();
 
+	owners.set_owners(halt->get_owners());
+
 	set_size(get_size());
+
 	gui_aligned_container_t::draw(offset);
 }
