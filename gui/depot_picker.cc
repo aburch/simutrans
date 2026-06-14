@@ -5,6 +5,7 @@
 
 #include "depot_picker.h"
 #include "gui_theme.h"
+#include "minimap.h"
 
 #include "../player/simplay.h"
 #include "../vehicle/simvehicle.h"
@@ -268,6 +269,7 @@ bool depot_picker_t::action_triggered(gui_action_creator_t *comp, value_t)
 void depot_picker_t::fill_list()
 {
 	scrolly.clear_elements();
+	vector_tpl<koord> positions;
 
 	FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
 		if (depot->get_owner() != owner || !depot->can_accept_waytype(wt)) {
@@ -280,6 +282,7 @@ void depot_picker_t::fill_list()
 				continue;
 			}
 		}
+		positions.append(depot->get_pos().get_2d());
 		if (cnv.is_bound()) {
 			scrolly.new_component<depot_picker_item_t>(depot, cnv, teleport);
 		}
@@ -289,4 +292,16 @@ void depot_picker_t::fill_list()
 	}
 	scrolly.sort(0);
 	scrolly.set_size(scrolly.get_size());
+
+	if (minimap_t *mm = minimap_t::get_instance()) {
+		mm->set_highlighted_depots(positions);
+	}
+}
+
+
+depot_picker_t::~depot_picker_t()
+{
+	if (minimap_t *mm = minimap_t::get_instance()) {
+		mm->clear_highlighted_depots();
+	}
 }

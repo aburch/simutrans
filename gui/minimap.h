@@ -184,6 +184,8 @@ private:
 	vector_tpl<halthandle_t> route_search_transfer_halts;
 	halthandle_t route_search_from_halt, route_search_dest_halt;
 
+	vector_tpl<koord> highlighted_depot_positions;
+
 public:
 	scr_coord map_to_screen_coord(const koord &k) const;
 
@@ -291,6 +293,12 @@ public:
 
 	void add_route_halt(halthandle_t halt) { route_search_highlighted_halts.append_unique(halt); }
 	void add_transfer_halt(halthandle_t halt) { route_search_transfer_halts.append_unique(halt); }
+
+	void set_highlighted_depots(const vector_tpl<koord> &positions) {
+		highlighted_depot_positions.clear();
+		for (koord const& k : positions) { highlighted_depot_positions.append(k); }
+	}
+	void clear_highlighted_depots() { highlighted_depot_positions.clear(); }
 	void set_from_dest_halt(halthandle_t from_halt, halthandle_t dest_halt) {
 		if (  from_halt.is_bound() && dest_halt.is_bound()  ) {
 			route_search_from_halt = from_halt;

@@ -10077,7 +10077,7 @@ bool tool_change_traffic_light_t::init( player_t *player )
  * p:set start signal(do not start from stops if this flag is true)
  * 
  */
-bool tool_change_roadsign_t::init( player_t* )
+bool tool_change_roadsign_t::init( player_t *player )
 {
 	sint16 x, y, z, inst;
 	char target;
@@ -10243,7 +10243,7 @@ bool tool_change_roadsign_t::init( player_t* )
 		// two_ways: allow convoys to pass the signal from the reverse direction
 		if(  grund_t *gr = welt->lookup(pos)  ) {
 			if(  signal_t *sig = gr->find<signal_t>()  ) {
-				if(  player_t::check_owner(sig->get_owner(), welt->get_active_player())  ) {
+				if(  player_t::check_owner(sig->get_owner(), player)  ) {
 					sig->set_two_ways(inst != 0);
 					signal_info_t* signal_info_win = (signal_info_t*)win_get_magic((ptrdiff_t)sig);
 					if(  signal_info_win  ) {

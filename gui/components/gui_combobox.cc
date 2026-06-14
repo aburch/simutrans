@@ -359,7 +359,9 @@ void gui_combobox_t::set_size(scr_size size)
 	closed_size = size;
 	gui_component_t::set_size( size );
 
-	droplist.request_size(scr_size(this->size.w, droplist.get_size().h));
+	if(  droplist.get_size().w != this->size.w  ) {
+		droplist.request_size(scr_size(this->size.w, droplist.get_size().h));
+	}
 
 	textinp.set_size( scr_size( size.w - bt_prev.get_size().w - bt_next.get_size().w - D_H_SPACE, closed_size.h ) );
 	set_pos(get_pos());

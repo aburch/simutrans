@@ -495,9 +495,10 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 	route_show_button.pressed = is_route_show;
 	route_show_button.enable();
 
+	// update layout before rendering so upper section width matches current window size
+	set_windowsize(size);
 	// all gui stuff set => display it
 	gui_frame_t::draw(pos, size);
-	set_windowsize(size);
 }
 
 

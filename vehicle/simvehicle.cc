@@ -1968,7 +1968,8 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 			// nothing to show
 			return;
 		}
-		grund_t const* const gr = cnv->get_route()?welt->lookup(cnv->get_route()->back()):NULL;
+		const route_t* const route = cnv->get_route();
+		grund_t const* const gr = route->get_count() > 0 ? welt->lookup(route->back()) : NULL;
 		const float conversion_ratio = (float)world()->get_settings().get_spacing_shift_divisor()/world()->ticks_per_world_month;
 
 		

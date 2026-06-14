@@ -1883,13 +1883,16 @@ void minimap_t::draw(scr_coord pos)
 
 	if(  mode & MAP_DEPOT  ) {
 		FOR(  slist_tpl<depot_t*>,  const d,  depot_t::get_depot_list()  ) {
-			if(  d->get_owner() == world->get_active_player()  ) {
-				scr_coord depot_pos = map_to_screen_coord( d->get_pos().get_2d() );
-				depot_pos = depot_pos + pos;
-				// offset of one to avoid
-				static uint8 depot_typ_to_color[19]={ COL_ORANGE, COL_YELLOW, COL_RED, 0, 0, 0, 0, 0, 0, COL_PURPLE, COL_DARK_RED, COL_DARK_ORANGE, 0, 0, 0, 0, 0, 0, COL_LIGHT_RED };
-				display_filled_circle_rgb( depot_pos.x, depot_pos.y, 4, color_idx_to_rgb(depot_typ_to_color[d->get_typ() - obj_t::bahndepot]) );
-				display_circle_rgb( depot_pos.x, depot_pos.y, 4, color_idx_to_rgb(COL_BLACK) );
+			scr_coord depot_pos = map_to_screen_coord( d->get_pos().get_2d() );
+			depot_pos = depot_pos + pos;
+			// offset of one to avoid
+			const bool has_filter = !highlighted_depot_positions.empty();
+			const bool highlighted = !has_filter || highlighted_depot_positions.is_contained(d->get_pos().get_2d());
+			const sint16 r = highlighted ? 4 : 2;
+			display_filled_circle_rgb( depot_pos.x, depot_pos.y, r, color_idx_to_rgb(d->get_owner()->get_player_color1()+4) );
+			display_circle_rgb( depot_pos.x, depot_pos.y, r, color_idx_to_rgb(COL_BLACK) );
+			if(  highlighted && has_filter  ) {
+				display_circle_rgb( depot_pos.x, depot_pos.y, r + 3, color_idx_to_rgb(COL_WHITE) );
 			}
 		}
 	}
@@ -2029,6 +2032,40 @@ void minimap_t::draw(scr_coord pos)
 			scr_coord p = map_to_screen_coord( stadt->get_pos() );
 			p += pos;
 			display_proportional_clip_rgb( p.x, p.y, name, ALIGN_LEFT, col, true );
+		}
+	}
+
+	// draw depot names on top so they are not erased by vehicles
+	if(  mode & MAP_DEPOT  ) {
+		const bool has_filter = !highlighted_depot_positions.empty();
+		FOR(  slist_tpl<depot_t*>,  const d,  depot_t::get_depot_list()  ) {
+			if(  has_filter && !highlighted_depot_positions.is_contained(d->get_pos().get_2d())  ) {
+				continue;
+			}
+			scr_coord p = map_to_screen_coord( d->get_pos().get_2d() );
+			p += pos;
+
+			// resolve waytype icon
+			const skin_desc_t *wt_skin = NULL;
+			switch(  d->get_waytype()  ) {
+				case track_wt:        wt_skin = skinverwaltung_t::zughaltsymbol;          break;
+				case water_wt:        wt_skin = skinverwaltung_t::schiffshaltsymbol;      break;
+				case road_wt:         wt_skin = skinverwaltung_t::autohaltsymbol;         break;
+				case air_wt:          wt_skin = skinverwaltung_t::airhaltsymbol;          break;
+				case monorail_wt:     wt_skin = skinverwaltung_t::monorailhaltsymbol;     break;
+				case tram_wt:         wt_skin = skinverwaltung_t::tramhaltsymbol;         break;
+				case maglev_wt:       wt_skin = skinverwaltung_t::maglevhaltsymbol;       break;
+				case narrowgauge_wt:  wt_skin = skinverwaltung_t::narrowgaugehaltsymbol;  break;
+				default: break;
+			}
+			const image_id icon_img = (wt_skin ? wt_skin->get_image_id(0) : IMG_EMPTY);
+			scr_coord_val icon_xoff = 0, icon_yoff = 0, icon_xw = 12, icon_yw = 12;
+			if(  icon_img != IMG_EMPTY  ) {
+				display_get_image_offset(icon_img, &icon_xoff, &icon_yoff, &icon_xw, &icon_yw);
+				display_color_img(icon_img, p.x + 6 - icon_xoff, p.y - icon_yoff - icon_yw / 2, d->get_owner()->get_player_nr(), false, true);
+			}
+			const scr_coord_val name_x = p.x + 6 + (icon_img != IMG_EMPTY ? icon_xw + 2 : 0);
+			display_proportional_clip_rgb( name_x, p.y - LINESPACE / 2, d->get_name(), ALIGN_LEFT, color_idx_to_rgb(COL_WHITE), true );
 		}
 	}
 }

@@ -1488,6 +1488,8 @@ dbg->message("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_
 	else if(  comp == &name_filter_input  ) {
 		if(  strcmp(old_schedule_filter,schedule_filter)  ) {
 			init_line_selector();
+			init_next_line_selector();
+			init_departure_slot_group_selector();
 			strcpy(old_schedule_filter,schedule_filter);
 		}
 	}
@@ -1534,7 +1536,7 @@ void schedule_gui_t::init_line_selector()
 	line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("<no line>"), SYSCOL_TEXT ) ;
 
 	FOR(  vector_tpl<linehandle_t>, const line,  lines  ) {
-		if(  !*schedule_filter  ||  utf8caseutf8(line->get_name(), schedule_filter)  ) {
+		if(  !*schedule_filter  ||  utf8caseutf8(line->get_name(), schedule_filter)  ||  (new_line.is_bound() && new_line==line)  ) {
 			if(  env_t::show_line_colors  ) {
 				line_selector.new_component<line_color_line_scroll_item_t>(line);
 			}
@@ -1635,7 +1637,7 @@ void schedule_gui_t::init_departure_slot_group_selector()
 			if(  line->get_schedule()->get_departure_slot_group_id() != line  ) {
 				continue;
 			}
-			if(!*schedule_filter  ||  utf8caseutf8(line->get_name(), schedule_filter)) {
+			if(!*schedule_filter  ||  utf8caseutf8(line->get_name(), schedule_filter)  ||  schedule->get_departure_slot_group_id() == line) {
 				if(  player == this->player &&  schedule->matches(world(), line->get_schedule())  ) {
 					this_schedule_index = departure_slot_group_selector.count_elements();
 				}

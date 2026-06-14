@@ -123,6 +123,8 @@ private:
 	bool is_shown_convoy_coupled;
 	// When this flag is true, this convoy will be teleported to another depot set in schedule.
 	bool is_teleport_to_another_depot;
+	// cached value of (active_player == depot_owner) from the previous draw() call; used to detect player switches
+	bool last_action_allowed;
 
 	button_t bt_obsolete;
 	button_t bt_show_all;

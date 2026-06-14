@@ -202,8 +202,9 @@ void gui_chart_t::draw(scr_coord offset)
 				}
 				else if(  c.type==PERCENT  ) {
 					display_tmp = tmp*0.01;
-					tmp /= 100;  // 0..100
-					y_off = (long)((double)tmp * chart_size.h / 100.0);
+					tmp /= 100;
+					if(  tmp > 100  ) { tmp = 100; }
+					y_off = (long)(tmp/scale);
 				}
 				else if(  c.type!=0  ) {
 					display_tmp = tmp*0.01;
@@ -309,11 +310,24 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, double *scale, char *c
 						max_suffix = c.suffix;
 					}
 				}
-				else if(  c.type==2 || !env_t::show_yen ) {
+				else if(  c.type==2  ) {
+					tmp /= 100;
+					if (min > tmp) {
+						min = tmp;
+						precision = c.precision;
+						min_suffix = c.suffix;
+					}
+					if (max < 100) {
+						max = 100;
+						precision = c.precision;
+						max_suffix = c.suffix;
+					}
+				}
+				else if(  !env_t::show_yen  ) {
 					tmp /= 100;
 					precision = 0;
 					if (min > tmp) {
-						min = tmp ;
+						min = tmp;
 						precision = c.precision;
 						min_suffix = c.suffix;
 					}
