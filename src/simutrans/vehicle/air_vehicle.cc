@@ -146,81 +146,63 @@ bool air_vehicle_t::is_target(const grund_t *gr,const grund_t *) const
  */
 bool air_vehicle_t::find_route_to_stop_position()
 {
-	if(target_halt.is_bound()) {
-//DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","bound! (cnv %i)",cnv->self.get_id());
-		return true; // already searched with success
-	}
-
 	// check for skipping circle
-	route_t *rt=cnv->access_route();
-
-//DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","can approach? (cnv %i)",cnv->self.get_id());
-
-	grund_t const* const last = welt->lookup(rt->back());
-	target_halt = last ? last->get_halt() : halthandle_t();
-	if(!target_halt.is_bound()) {
-		return true; // no halt to search
+	route_t* rt = cnv->access_route();
+	if (grund_t const* const last = welt->lookup(rt->back())) {
+		if (!last->is_halt()) {
+			return true; // no halt to search
+		}
+		target_halt = last->get_halt();
+		target_halt->unreserve_position(NULL, cnv->self);
+	}
+	else {
+		// no ground here: go on search for route ,,,
+		return true;
 	}
 
 	// then: check if the search point is still on a runway (otherwise just proceed)
 	grund_t const* const target = welt->lookup(rt->at(search_for_stop));
 	if(target==NULL  ||  !target->hat_weg(air_wt)) {
 		target_halt = halthandle_t();
-		block_reserver( search_for_stop, 0xFFFFu, false ); // unreserve all tiles
-		DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","no runway found at (%s)",rt->at(search_for_stop).get_str());
+		DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","no runway found at target (%s)",rt->at(search_for_stop).get_str());
 		return true; // no runway any more ...
 	}
 
-	// is our target occupied?
-//	DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","state %i",state);
-	if(!target_halt->find_free_position(air_wt,cnv->self,obj_t::air_vehicle)  ) {
+	// calculate route to free position:
+	assert(cnv->is_waiting());
+
+	// now search a route
+//DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","some free: find route from index %i",suchen);
+	route_t target_rt;
+	flight_state prev_state = state;
+	state = looking_for_parking;
+	if(!target_rt.find_route( welt, rt->at(search_for_stop), this, 500, ribi_t::all, welt->get_settings().get_max_choose_route_steps() )) {
+DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found no route to free halt position");
+
+		// just make sure, that there is a route at all, otherwise start route search again
+		for(  uint32 i=search_for_stop;  i<rt->get_count();  i++  ) {
+			grund_t const* const target = welt->lookup( rt->at( i ) );
+			if(  target == NULL  ||  !target->hat_weg( air_wt )  ) {
+				DBG_MESSAGE( "aircraft_t::find_route_to_stop_position()", "no runway found at (%s)", rt->at( search_for_stop ).get_str() );
+				get_convoi()->set_state(convoi_t::ROUTING_1);
+				block_reserver( search_for_stop, 0xFFFFu, false ); // unreserve all tiles
+				return false; // find new route
+			}
+		}
+
+		// wait for free stop
 		target_halt = halthandle_t();
-		DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","no free position found!");
+		state = prev_state;
 		return false;
 	}
-	else {
-		// calculate route to free position:
+	state = taxiing_to_halt;
 
-		// if we fail, we will wait in a step, much more simulation friendly
-		// and the route finder is not re-entrant!
-		if(!cnv->is_waiting()) {
-			target_halt = halthandle_t();
-			return false;
-		}
-
-		// now search a route
-//DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","some free: find route from index %i",suchen);
-		route_t target_rt;
-		flight_state prev_state = state;
-		state = looking_for_parking;
-		if(!target_rt.find_route( welt, rt->at(search_for_stop), this, 500, ribi_t::all, welt->get_settings().get_max_choose_route_steps() )) {
-DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found no route to free one");
-
-			// just make sure, that there is a route at all, otherwise start route search again
-			for(  uint32 i=search_for_stop;  i<rt->get_count();  i++  ) {
-				grund_t const* const target = welt->lookup( rt->at( i ) );
-				if(  target == NULL  ||  !target->hat_weg( air_wt )  ) {
-					DBG_MESSAGE( "aircraft_t::find_route_to_stop_position()", "no runway found at (%s)", rt->at( search_for_stop ).get_str() );
-					get_convoi()->set_state(convoi_t::ROUTING_1);
-					block_reserver( search_for_stop, 0xFFFFu, false ); // unreserve all tiles
-					return false; // find new route
-				}
-			}
-
-			// circle slowly another round ...
-			target_halt = halthandle_t();
-			state = prev_state;
-			return false;
-		}
-		state = prev_state;
-
-		// now reserve our choice ...
-		target_halt->reserve_position(welt->lookup(target_rt.back()), cnv->self);
-		//DBG_MESSAGE("aircraft_t::find_route_to_stop_position()", "found free stop near %i,%i,%i", target_rt.back().x, target_rt.back().y, target_rt.back().z);
-		rt->remove_koord_from(search_for_stop);
-		rt->append( &target_rt );
-		return true;
-	}
+	// now reserve our choice ...
+	target_halt->reserve_position(welt->lookup(target_rt.back()), cnv->self);
+	//DBG_MESSAGE("aircraft_t::find_route_to_stop_position()", "found free stop near %i,%i,%i", target_rt.back().x, target_rt.back().y, target_rt.back().z);
+	rt->remove_koord_from(search_for_stop);
+	rt->append( &target_rt );
+	return true;
 }
 
 
@@ -499,7 +481,7 @@ bool air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) con
 					// check of airplanes
 					for (uint8 i = 1; i < gr->obj_count(); i++) {
 						obj_t* obj = gr->obj_bei(i);
-						// we drive through other planes not taxiing for now ...
+						// only reservere, if no other airplanes there
 						if (obj->get_typ() == obj_t::air_vehicle) {
 							air_vehicle_t* other = (air_vehicle_t*)obj;
 							if (other->get_convoi()!=cnv && other->is_on_ground()) {
@@ -609,41 +591,53 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 
 	if (is_flying()) {
 		// check for another circle ...
-		if (route_index == (touchdown - 3)) {
+		if (!target_halt.is_bound()  &&  (route_index+3 == touchdown  ||  route_index+16+3 == touchdown)) {
+			grund_t* gr_free = NULL;
 			if (grund_t* gr = welt->lookup(cnv->get_route()->back())) {
-				if (gr->is_halt()) {
-					// no free stop => circle further
-					if (!gr->get_halt()->find_free_position(air_wt, cnv->self, air_vehicle)) {
-						route_index -= 16;
-						return true;
+				target_halt = gr->get_halt();
+				if (target_halt.is_bound()) {
+					gr_free = target_halt->get_reserved(cnv->self);
+					if(gr_free) {
+						dbg->error("air_vehicle_t::can_enter_tile()", "cnv %i flying but resevered", cnv->self.get_id());
+						target_halt->unreserve_position(NULL, cnv->self);
+					}
+					else {
+						// no free stop => circle further
+						gr_free = gr->get_halt()->find_free_position(air_wt, cnv->self, air_vehicle);
+						if (!gr_free) {
+							goto circling;
+						}
 					}
 				}
 			}
 			if (!block_reserver(touchdown, search_for_stop + 1, true)) {
-				route_index -= 16;
-				return true;
+				goto circling;
+			}
+			if (target_halt.is_bound()) {
+				if (!target_halt->reserve_position(gr_free, cnv->self)) {
+					// should never happen
+					assert(false);
+				}
+				//dbg->warning("air_vehicle_t::can_enter_tile()", "cnv %i reserved %s", cnv->self.get_id(), gr_free->get_pos().get_fullstr());
+			}
+			if (route_index + 16 + 3 == touchdown) {
+				route_index += 16;
 			}
 			state = landing;
 			return true;
-		}
-
-		if (route_index == touchdown - 16 - 3 && state != circling) {
-			// just check, if the end of runway is free; we will wait there
-			if (block_reserver(touchdown, search_for_stop + 1, true)) {
-				route_index += 16;
-				// can land => set landing height
-				state = landing;
+		circling:
+			if (route_index + 3 == touchdown) {
+				route_index -= 16;
 			}
 			else {
-				// circle slowly next round
-				state = circling;
 				cnv->must_recalc_data();
 				if (leading) {
 					cnv->must_recalc_data_front();
 				}
 			}
+			target_halt = halthandle_t();
+			state = circling;
 		}
-
 		return true;
 	}
 
@@ -765,10 +759,21 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 
 //DBG_MESSAGE("aircraft_t::can_enter_tile()","index %i<>%i",route_index,touchdown);
 
-	if(route_index==search_for_stop  &&  state==landing  &&  !target_halt.is_bound()) {
+	if(route_index==search_for_stop  &&  state==landing) {
 
-		// if we fail, we will wait in a step, much more simulation friendly
-		// and the route finder is not re-entrant!
+		if (target_halt.is_bound()) {
+			if (grund_t* gr = target_halt->get_reserved(cnv->self)) {
+				if (gr->get_pos() == cnv->get_route()->back()) {
+					target_halt->reserve_position(gr, cnv->self);
+					// we have alread a valid route
+					return true;
+				}
+			}
+			// we need route search to go where we have revered a tile
+		}
+
+		// we must wait in a step:
+		// The route finder is not re-entrant!
 		if(!cnv->is_waiting()) {
 			return false;
 		}
@@ -779,6 +784,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 			state = taxiing;
 			return true;
 		}
+
 		restart_speed = 0;
 		return false;
 	}
@@ -787,10 +793,13 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		state = taxiing;
 	}
 
-	if(state == taxiing  &&  gr->is_halt()  &&  gr->find<air_vehicle_t>()) {
-		// the next step is a parking position. We do not enter, if occupied!
-		restart_speed = 0;
-		return false;
+	if (is_on_ground() && gr->is_halt()) {
+		if (gr->find<air_vehicle_t>()) {
+			// the next step is a parking position. We do not enter, if occupied!
+			restart_speed = 0;
+			return false;
+		}
+		target_halt->unreserve_position(NULL, cnv->self);
 	}
 
 	return true;
@@ -1106,7 +1115,10 @@ void air_vehicle_t::leave_tile()
 	vehicle_t::leave_tile();
 	if (state == taxiing  &&  cnv) {
 		if (grund_t* gr = welt->lookup(get_pos())) {
-			if(weg_t *w=gr->get_weg(air_wt)) {
+			if (gr->is_halt()) {
+				gr->get_halt()->unreserve_position(NULL, cnv->self);
+			}
+			if (weg_t* w = gr->get_weg(air_wt)) {
 				if (w->get_desc()->get_styp() != type_runway) {
 					((runway_t*)w)->unreserve(cnv->self);
 				}

@@ -3666,24 +3666,21 @@ const grund_t *haltestelle_t::find_matching_position(const waytype_t w) const
 
 
 
-/* checks, if there is an unoccupied loading bay for this kind of thing
- */
-bool haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,const obj_t::typ d) const
+grund_t *haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,const obj_t::typ d) const
 {
 	// iterate over all tiles
 	for(tile_t const& i : tiles) {
 		if (i.reservation == cnv || !i.reservation.is_bound()) {
 			// not reserved
 			grund_t* const gr = i.grund;
-			assert(gr);
 			// found a stop for this waytype but without object d ...
 			if(gr->hat_weg(w)  &&  gr->suche_obj(d)==NULL) {
 				// not occupied
-				return true;
+				return gr;
 			}
 		}
 	}
-	return false;
+	return NULL;
 }
 
 
@@ -3717,20 +3714,56 @@ bool haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 }
 
 
-/** frees a reserved  position (caution: railblocks work differently!
- */
-bool haltestelle_t::unreserve_position(grund_t *gr, convoihandle_t cnv)
+/** frees a reserved  position (caution: railblocks work differently!  */
+int haltestelle_t::unreserve_position(grund_t *gr, convoihandle_t cnv)
 {
-	slist_tpl<tile_t>::iterator i = std::find(tiles.begin(), tiles.end(), gr);
-	if (i != tiles.end()) {
-		if (i->reservation == cnv) {
-			i->reservation = convoihandle_t();
-			return true;
+	if (gr) {
+		// unreserve only this tile
+		slist_tpl<tile_t>::iterator i = std::find(tiles.begin(), tiles.end(), gr);
+		if (i != tiles.end()) {
+			if (i->reservation == cnv) {
+				i->reservation = convoihandle_t();
+				return 1;
+			}
 		}
+		DBG_MESSAGE("haltestelle_t::unreserve_position()", "failed for %i", this->self.get_id());
 	}
-DBG_MESSAGE("haltestelle_t::unreserve_position()","failed for gr=%p",gr);
+	else {
+		// unreserve all matching tile
+		int j = 0;
+		for( tile_t &i : tiles) {
+			if (i.reservation == cnv) {
+				i.reservation = convoihandle_t();
+				j++;
+			}
+		}
+		return j;
+	}
 	return false;
 }
+
+
+convoihandle_t haltestelle_t::get_reserved(const grund_t* gr) const
+{
+	for (tile_t const& i : tiles) {
+		if (gr == i.grund) {
+			return i.reservation;
+		}
+	}
+	return convoihandle_t();
+}
+
+
+grund_t* haltestelle_t::get_reserved(convoihandle_t c) const
+{
+	for (tile_t const& i : tiles) {
+		if (i.reservation==c) {
+			return i.grund;
+		}
+	}
+	return NULL;
+}
+
 
 
 /** can a convoi reserve this position?

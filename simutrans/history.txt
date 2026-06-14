@@ -5,6 +5,8 @@
 	FIX: again tunnel building in full underground mode
 	FIX: citybuildings of level 1 were actually level zero due to makeobj substracting 1 on loading.
 	FIX: correct citysize again after renovation.
+	CHG: reserved tile for way choose of non-trains (road and air) will not be shown in green when reservation display is on
+	CHG: very much overhauled airplane state machine: Should give much fewer deadlocks (no landing and blockign runway with not free stop, not leaving bay when plane comign in my direction for take off)
 
 
 Release of 124.5 (r11993 on 31-May-2026):

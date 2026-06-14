@@ -248,7 +248,6 @@ public:
 private:
 	slist_tpl<tile_t> tiles;
 
-
 	/**
 	 * Stores information about link to cargo network of a certain category
 	 */
@@ -671,22 +670,31 @@ public:
 
 	/**
 	 * checks, if there is an unoccupied loading bay for this kind of thing
+	 * @return unresevered matching tile or zero
 	 */
-	bool find_free_position(const waytype_t w ,convoihandle_t cnv,const obj_t::typ d) const;
+	grund_t *find_free_position(const waytype_t w ,convoihandle_t cnv,const obj_t::typ d) const;
 
 	/**
-	 * reserves a position (caution: railblocks work differently!
+	 * reserves a position (caution: railblocks work differently!)
+	 * NULL for gr will unreserve all reserved tiles
+	 * @return number of reserved tiles
 	 */
 	bool reserve_position(grund_t *gr,convoihandle_t cnv);
 
 	/**
 	 * frees a reserved  position (caution: railblocks work differently!
 	 */
-	bool unreserve_position(grund_t *gr, convoihandle_t cnv);
+	int unreserve_position(grund_t *gr, convoihandle_t cnv);
 
 	/** true, if this can be reserved
 	 */
 	bool is_reservable(const grund_t *gr, convoihandle_t cnv) const;
+
+	///  returns convoihandle for this tile
+	convoihandle_t get_reserved(const grund_t* gr) const;
+
+	///  returns first grund for this convoi
+	grund_t *get_reserved(convoihandle_t c) const;
 
 	/**
 	 * @param[out] buf Goods description text

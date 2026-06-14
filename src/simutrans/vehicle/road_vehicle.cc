@@ -92,9 +92,7 @@ bool road_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, r
 	// free target reservation
 	if(leading   &&  previous_direction!=ribi_t::none  &&  cnv  &&  target_halt.is_bound() ) {
 		// now reserve our choice (beware: might be longer than one tile!)
-		for(  uint32 length=0;  length<cnv->get_tile_length()  &&  length+1<cnv->get_route()->get_count();  length++  ) {
-			target_halt->unreserve_position( welt->lookup( cnv->get_route()->at( cnv->get_route()->get_count()-length-1) ), cnv->self );
-		}
+		target_halt->unreserve_position( NULL, cnv->self );
 	}
 	target_halt = halthandle_t(); // no block reserved
 	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, cnv->get_tile_length() );

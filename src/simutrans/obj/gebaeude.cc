@@ -21,6 +21,7 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../gui/headquarter_info.h"
 #include "../world/simworld.h"
 #include "simobj.h"
+#include "way/schiene.h"
 #include "../simconst.h"
 #include "../simfab.h"
 #include "../display/simimg.h"
@@ -461,6 +462,14 @@ void gebaeude_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 					gfx->draw_blend(ground, xpos, ypos, owner_n, gfx->palette_lookup(welt->get_player(owner_n)->get_player_color1() + 2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
 				}
 				else {
+					if (schiene_t::show_reservations && tile->get_desc()->is_transport_building()) {
+						if (grund_t* gr = welt->lookup(get_pos())) {
+							if (gr->is_halt() && gr->get_halt()->get_reserved(gr).is_bound()) {
+								gfx->draw_blend(ground, xpos, ypos, owner_n, gfx->palette_lookup(COL_GREEN) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, true  CLIP_NUM_PAR);
+								return;
+							}
+						}
+					}
 					gfx->draw_color(ground, xpos, ypos, owner_n, true, is_dirty  CLIP_NUM_PAR);
 				}
 			}

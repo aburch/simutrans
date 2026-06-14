@@ -638,6 +638,11 @@ void grund_t::info(cbuffer_t& buf) const
 		buf.printf("\ncanal ribi: %i", ((const wasser_t*)this)->get_canal_ribi());
 	}
 	buf.printf("\ndraw_as_obj= %i",(flags&draw_as_obj)!=0);
+	if (this_halt.is_bound()) {
+		if (this_halt->get_reserved(this).is_bound()) {
+			buf.printf("\nhalt %i reserevd by convoi %i", this_halt->get_init_pos(), this_halt->get_reserved(this).get_id());
+		}
+	}
 #endif
 }
 
