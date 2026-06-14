@@ -226,6 +226,9 @@ function test_rail_reroute_with_line_stale_cache()
 	_rr_build_infra(pl, rail, station_desc)
 	local line = _rr_create_line(pl)
 
+	// Route cache is off by default; enable it so the tests exercise that path.
+	settings.set_use_route_cache(true)
+
 	debug.set_game_speed(5)
 
 	// cnv1: populate line cache with the upper (short) route.
@@ -257,6 +260,7 @@ function test_rail_reroute_with_line_stale_cache()
 	local reached_stop2 = _rr_wait_for_stop2(cnv2)
 
 	debug.set_game_speed(1)
+	settings.set_use_route_cache(false)
 	if (cnv2.is_valid()) { cnv2.destroy(pl); sleep(); sleep() }
 	_rr_remove_infra(pl)
 
@@ -283,6 +287,9 @@ function test_rail_reroute_with_line_mid_travel()
 
 	_rr_build_infra(pl, rail, station_desc)
 	local line = _rr_create_line(pl)
+
+	// Route cache is off by default; enable it so the tests exercise that path.
+	settings.set_use_route_cache(true)
 
 	debug.set_game_speed(5)
 
@@ -312,6 +319,7 @@ function test_rail_reroute_with_line_mid_travel()
 	local reached_stop2 = _rr_wait_for_stop2(cnv2)
 
 	debug.set_game_speed(1)
+	settings.set_use_route_cache(false)
 	if (cnv2.is_valid()) { cnv2.destroy(pl); sleep(); sleep() }
 	_rr_remove_infra(pl)
 
