@@ -1102,6 +1102,37 @@ void settings_t::rdwr(loadsave_t *file)
 		if (file->is_version_atleast(124, 4)||file->get_OTRP_version()>=54) {
 			file->rdwr_long(cst_kw_per_credit);
 		}
+		if(  file->get_OTRP_version() >= 56  ) {
+			// network clients must use the server's values; others always use simuconf.tab
+			// (parse_simuconf has already set the field, so non-clients just skip reading)
+			const bool use_local = !env_t::networkmode  ||  env_t::server;
+			if(  use_local  ) {
+				// write local simuconf.tab values so the server can sync them to clients
+				// on load, skip reading so the parse_simuconf values remain
+				if(  file->is_saving()  ) {
+					for(uint8 d = 0; d < 8; d++) {
+						for(uint8 i = 0; i < 3; i++) {
+							file->rdwr_byte(reverse_base_offsets[d][i]);
+						}
+					}
+				} else {
+					// skip the 24 bytes in the stream
+					for(uint8 d = 0; d < 8; d++) {
+						for(uint8 i = 0; i < 3; i++) {
+							sint8 dummy;
+							file->rdwr_byte(dummy);
+						}
+					}
+				}
+			} else {
+				for(uint8 d = 0; d < 8; d++) {
+					for(uint8 i = 0; i < 3; i++) {
+						file->rdwr_byte(reverse_base_offsets[d][i]);
+					}
+				}
+			}
+		}
+		// v<56: values were never saved; parse_simuconf already set them from simuconf.tab
 		// otherwise the default values of the last one will be used
 	}
 	// sometimes broken savegames could have no legal direction for take off ...
@@ -1214,12 +1245,12 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 		vector_tpl<int> temp_offset = contents.get_ints(buf);
 		if (temp_offset.get_count()>=3) {
 			for(uint8 i=0; i<3; i++) {
-				env_t::reverse_base_offsets[d_idx][i] = temp_offset[i];
+				reverse_base_offsets[d_idx][i] = temp_offset[i];
 			}
 		} else {
 			for(uint8 i=0; i<3; i++) {
-				env_t::reverse_base_offsets[d_idx][i] = 0;
-			}			
+				reverse_base_offsets[d_idx][i] = 0;
+			}
 		}
 	}
 	// setting default reverse or not when next direction is opposite

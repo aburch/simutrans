@@ -713,6 +713,3 @@ sint8 env_t::driveleft_base_offsets[8][2];
 // the reading method is in setting_t, and these parameters are used in vehicle_t.
 sint8 env_t::overtaking_base_offsets[8][2];
 
-// Graphical offsets for reverseing vehicles
-// the reading method is in setting_t, and these parameters are used in vehicle_t.
-sint8 env_t::reverse_base_offsets[8][3];

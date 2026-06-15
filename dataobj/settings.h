@@ -384,6 +384,10 @@ private:
 	// can unload cargo even if stop length is too short
 	bool allow_unload_longer_convoy;
 
+	// Graphical and step offsets for reversing vehicles
+	// [direction][offset]: direction order matches ribi_t::dir, offsets are {x, y, length_steps}
+	sint8 reverse_base_offsets[8][3];
+
 public:
 	/* the big cost section */
 	sint32 maint_building; // normal building
@@ -770,6 +774,8 @@ public:
 	bool is_default_reverse() const {return default_reverse;}
 	// allow unload longer convoy
 	bool is_allow_unload_longer_convoy() const { return allow_unload_longer_convoy; }
+	// get reverse base offsets for a given direction
+	const sint8* get_reverse_base_offsets(uint8 dir) const { return reverse_base_offsets[dir]; }
 
 	bool is_using_route_cache() const { return use_route_cache; }
 };
