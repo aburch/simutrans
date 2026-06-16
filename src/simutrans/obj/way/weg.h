@@ -58,7 +58,8 @@ public:
 		HAS_WAYOBJ     = 1 << 4,
 		HAS_CROSSING   = 1 << 5,
 		IS_DIAGONAL    = 1 << 6, // marker for diagonal image
-		IS_SNOW        = 1 << 7  // marker, if above snowline currently
+		IS_SNOW        = 1 << 7,  // marker, if above snowline currently
+		IS_CLOSE_DIAGONALS = 3 << 8  // marker for two diagonals on one track, not crsiing, could be either vertical 1 or horizontal 2 (0 for none)
 	};
 
 private:
@@ -90,7 +91,7 @@ private:
 	/**
 	* flags like walkway, electrification, road sings
 	*/
-	uint8 flags;
+	uint16 flags;
 
 	/**
 	* max speed; could not be taken for desc, since other object may modify the speed
@@ -275,6 +276,7 @@ public:
 	inline bool has_wayobj() const {return flags&HAS_WAYOBJ; }
 	inline bool is_crossing() const {return flags&HAS_CROSSING; }
 	inline bool is_diagonal() const {return flags&IS_DIAGONAL; }
+	inline uint8 is_close_diagonal() const { return (flags >> 8) & 03; }
 	inline bool is_snow() const {return flags&IS_SNOW; }
 
 	// this is needed during a change from crossing to tram track
@@ -293,6 +295,8 @@ public:
 	image_id get_front_image() const OVERRIDE {return foreground_image;}
 
 	FLAGGED_PIXVAL get_outline_colour() const OVERRIDE;
+
+	void display(int xpos, int ypos  CLIP_NUM_DEF) const OVERRIDE;
 
 	/*
 	 * to show single tile

@@ -201,7 +201,29 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		}
 
 		// testing all four possible directions
-		const ribi_t::ribi ribi =  tdriver->get_ribi(gr)  &  ( ~ribi_t::reverse_single(tmp->ribi_from) );
+		ribi_t::ribi ribi =  tdriver->get_ribi(gr);
+
+
+		// test for close diagonals
+		if (ribi_t::all == ribi) {
+			if (weg_t* w = gr->get_weg(wegtyp)) {
+				// close diagonals: only certain directions allowed, depending from where we came
+				if (w->is_close_diagonal()) {
+					if (w->is_close_diagonal() == 2) {
+						// vertical E->N N->E or W->S S->W
+						ribi &= (ribi_t::northeast & tmp->ribi_from) ? ribi_t::southwest : ribi_t::northeast;
+					}
+					else {
+						// vertical E->S S->E or W->N N->W
+						ribi &= (ribi_t::southeast & tmp->ribi_from) ? ribi_t::northwest : ribi_t::southeast;
+					}
+					marker.unmark(gr); // we might visit this tile again. (Since two single track leading to here)
+				}
+			}
+		}
+		// don't go where I had been already
+		ribi &= ~ribi_t::reverse_single(tmp->ribi_from);
+
 		for(  int r=0;  r<4;  r++  ) {
 			// a way goes here, and it is not marked (i.e. in the closed list)
 			grund_t* to = NULL;
@@ -326,6 +348,9 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	 */
 	const bool use_jps     = tdriver->get_waytype()==water_wt;
 
+	// close diagonals only for ways on roads and tracks
+	const bool check_close_diagonals = !(use_jps || tdriver->get_waytype() == air_wt);
+
 	bool ziel_erreicht=false;
 
 	// memory in static list ...
@@ -396,8 +421,27 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 		uint32 topnode_f = !queue.empty() ? queue.front()->f : max_cost;
 
-		const ribi_t::ribi way_ribi =  tdriver->get_ribi(gr);
+		ribi_t::ribi way_ribi =  tdriver->get_ribi(gr);
 		// testing all four possible directions
+
+		// test for close diagonals
+		if (check_close_diagonals  &&  ribi_t::all == way_ribi) {
+			if (weg_t* w = gr->get_weg(wegtyp)) {
+				// close diagonals: only certain directions allowed, depending from where we came
+				if (w->is_close_diagonal()) {
+					if (w->is_close_diagonal()==2) {
+						// vertical E->N N->E or W->S S->W
+						way_ribi = (ribi_t::northeast & tmp->ribi_from) ? ribi_t::southwest : ribi_t::northeast;
+					}
+					else {
+						// vertical E->S S->E or W->N N->W
+						way_ribi = (ribi_t::southeast & tmp->ribi_from) ? ribi_t::northwest : ribi_t::southeast;
+					}
+					marker.unmark(gr); // we might visit this tile again. (Since two single track leading to here)
+				}
+			}
+		}
+
 		// mask direction we came from
 		const ribi_t::ribi ribi =  way_ribi  &  ( ~ribi_t::reverse_single(tmp->ribi_from) )  &  tmp->jps_ribi;
 

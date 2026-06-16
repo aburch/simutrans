@@ -425,6 +425,10 @@ bool weg_t::check_season(const bool calc_only_season_change)
 		return true;
 	}
 
+	if(  is_close_diagonal()  ) {
+		// double diagonals
+		set_images(image_diagonal, is_close_diagonal() == 1 ? ribi_t::northsouth : ribi_t::eastwest, snow);
+	}
 	if(  is_diagonal()  ) {
 		set_images( image_diagonal, ribi, snow );
 	}
@@ -518,11 +522,25 @@ void weg_t::calc_image()
 			set_images(image_slope, hang, snow);
 		}
 		else if (ribi_t::is_threeway(ribi)) {
-			set_images(image_switch, ribi, snow, has_switched());
+			if (ribi_t::all == ribi && desc->has_diagonal_image()) {
+				check_diagonal();
+			}
+			if (!is_close_diagonal()) {
+				set_images(image_switch, ribi, snow, has_switched());
+			}
+			else {
+				if (desc->has_close_diagonal_image()) {
+					set_images(image_diagonal, is_close_diagonal() == 1 ? ribi_t::northsouth : ribi_t::eastwest, snow);
+				}
+				else {
+					set_images(image_diagonal, is_close_diagonal() == 1 ? ribi_t::northwest : ribi_t::southwest, snow);
+				}
+			}
 		}
 		else if (!ribi_t::is_twoway(ribi)) {
+			// essentiall end tiles ... and no ribi tiles
 			set_images(image_flat, ribi, snow);
-			// nide foreground in stations and depots
+			// nice foreground in stations and depots
 			if (foreground_image != IMG_EMPTY) {
 				if (from->is_halt()) {
 					// no foreground in stations
@@ -611,11 +629,11 @@ void weg_t::calc_image()
 void weg_t::check_diagonal()
 {
 	bool diagonal = false;
-	flags &= ~IS_DIAGONAL;
+	flags &= ~(IS_DIAGONAL|IS_CLOSE_DIAGONALS);
 
 	const ribi_t::ribi ribi = get_ribi_unmasked();
-	if(  !ribi_t::is_bend(ribi)  ) {
-		// This is not a curve, it can't be a diagonal
+	if (!ribi_t::is_bend(ribi)  &&  ribi_t::all != ribi) {
+		// every second tile on a close diagonal is a fourway tile
 		return;
 	}
 
@@ -624,6 +642,33 @@ void weg_t::check_diagonal()
 
 	ribi_t::ribi r1 = ribi_t::none;
 	ribi_t::ribi r2 = ribi_t::none;
+
+	if (ribi_t::all == ribi) {
+		ribi_t::ribi r[4], r0=0;
+		uint8 non_bent = 0;
+		for (uint8 i = 0; i < 4; i++) {
+			if (!from->get_neighbour(to, get_waytype(), ribi_t::nesw[i])) {
+				dbg->error("weg_t::is_diagonal", "4way ribi not connected at %s", get_pos().get_fullstr());
+				return;
+			}
+			r[i] = to->get_weg_ribi_unmasked(get_waytype());
+			if (!ribi_t::is_bend(r[i])) {
+				// only one entry point
+				if (non_bent++) {
+					return;
+				}
+			}
+		}
+		if (r[0] == r[1] || r[2] == r[3]) {
+			flags |= 2 << 8;
+		}
+		else {
+			flags |= 1 << 8;
+		}
+		return;
+	}
+
+	// from now bends:
 
 	// get the ribis of the ways that connect to us
 	// r1 will be 45 degree clockwise ribi (eg northeast->east), r2 will be anticlockwise ribi (eg northeast->north)
@@ -635,8 +680,13 @@ void weg_t::check_diagonal()
 		r2 = to->get_weg_ribi_unmasked(get_waytype());
 	}
 
-	// diagonal if r1 or r2 are our reverse and neither one is 90 degree rotation of us
-	diagonal = (r1 == ribi_t::backward(ribi) || r2 == ribi_t::backward(ribi)) && r1 != ribi_t::rotate90l(ribi) && r2 != ribi_t::rotate90(ribi);
+	if (ribi_t::is_threeway(r1) && ribi_t::is_threeway(r2)) {
+		diagonal = true;
+	}
+	else {
+		// diagonal if r1 or r2 are our reverse and neither one is 90 degree rotation of us
+		diagonal = (r1 == ribi_t::backward(ribi) || r2 == ribi_t::backward(ribi)) && r1 != ribi_t::rotate90l(ribi) && r2 != ribi_t::rotate90(ribi);
+	}
 
 	if(  diagonal  ) {
 		flags |= IS_DIAGONAL;
@@ -686,4 +736,23 @@ FLAGGED_PIXVAL weg_t::get_outline_colour() const
 	}
 
 	return 0;
+}
+
+void weg_t::display(int xpos, int ypos CLIP_NUM_DEF) const
+{
+	if (is_close_diagonal() && !desc->has_close_diagonal_image()) {
+		image_id image = desc->get_diagonal_image_id(is_close_diagonal() == 1 ? ribi_t::southeast : ribi_t::northeast, is_snow());
+		if (get_owner_nr() != PLAYER_UNOWNED) {
+			if (obj_t::show_owner) {
+				gfx->draw_blend(image, xpos, ypos, get_owner_nr(), gfx->palette_lookup(get_owner()->get_player_color1() + 2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, get_flag(dirty)  CLIP_NUM_PAR);
+			}
+			else {
+				gfx->draw_color(image, xpos, ypos, get_owner_nr(), true, get_flag(dirty)  CLIP_NUM_PAR);
+			}
+		}
+		else {
+			gfx->draw_normal(image, xpos, ypos, 0, true, get_flag(dirty)  CLIP_NUM_PAR);
+		}
+	}
+	obj_t::display(xpos, ypos CLIP_NUM_PAR);
 }

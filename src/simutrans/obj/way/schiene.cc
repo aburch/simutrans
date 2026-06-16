@@ -26,7 +26,7 @@ bool schiene_t::show_reservations = false;
 
 schiene_t::schiene_t() : weg_t()
 {
-	reserved = convoihandle_t();
+	reserved2 = reserved = convoihandle_t();
 
 	if (schiene_t::default_schiene) {
 		set_desc(schiene_t::default_schiene);
@@ -39,7 +39,7 @@ schiene_t::schiene_t() : weg_t()
 
 schiene_t::schiene_t(loadsave_t *file) : weg_t()
 {
-	reserved = convoihandle_t();
+	reserved2 = reserved = convoihandle_t();
 	rdwr(file);
 }
 
@@ -47,9 +47,12 @@ schiene_t::schiene_t(loadsave_t *file) : weg_t()
 void schiene_t::cleanup(player_t *)
 {
 	// removes reservation
-	if(reserved.is_bound()) {
-		set_ribi(ribi_t::none);
+	set_ribi(ribi_t::none);
+	if (reserved.is_bound()) {
 		reserved->suche_neue_route();
+	}
+	if (reserved2.is_bound()) {
+		reserved2->suche_neue_route();
 	}
 }
 
@@ -79,7 +82,18 @@ void schiene_t::info(cbuffer_t & buf) const
  */
 bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir  )
 {
-	if(can_reserve(c)) {
+	if (is_close_diagonal()) {
+		convoihandle_t& r = (is_close_diagonal() == 2 && (dir & ribi_t::southeast)) || (is_close_diagonal() == 1 && (dir & ribi_t::northeast)) ? reserved : reserved2;
+		if (r.is_bound() && r != c) {
+			return false;
+		}
+		r = c;
+		if (schiene_t::show_reservations) {
+			set_flag(obj_t::dirty);
+		}
+		return true;
+	}
+	else if(can_reserve(c)) {
 		reserved = c;
 		/* for threeway and fourway switches we may need to alter graphic, if
 		 * direction is a diagonal (i.e. on the switching part)
@@ -96,9 +110,24 @@ bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir  )
 			set_flag( obj_t::dirty );
 		}
 		return true;
+		
 	}
 	// reserve anyway ...
 	return false;
+}
+
+
+/**
+ * releases previous reservation: On normal tiles => release all
+ */
+bool schiene_t::unreserve(vehicle_t *v)
+{
+	if (is_close_diagonal()) {
+		if (v && v->get_convoi()) {
+			return unreserve(v->get_convoi()->self);
+		}
+	}
+	return unreserve(reserved);
 }
 
 
@@ -113,6 +142,13 @@ bool schiene_t::unreserve(convoihandle_t c)
 		reserved = convoihandle_t();
 		if(schiene_t::show_reservations) {
 			set_flag( obj_t::dirty );
+		}
+		return true;
+	}
+	if (reserved2.is_bound()  &&  reserved2 == c) {
+		reserved2 = convoihandle_t();
+		if (schiene_t::show_reservations) {
+			set_flag(obj_t::dirty);
 		}
 		return true;
 	}

@@ -20,10 +20,11 @@ class vehicle_t;
 class schiene_t : public weg_t
 {
 protected:
-	/**
-	* Bound when this block was successfully reserved by the convoi
-	*/
+	// bound when reserved by convoi
 	convoihandle_t reserved;
+
+	// only used for closed_diagonals
+	convoihandle_t reserved2;
 
 public:
 	static const way_desc_t *default_schiene;
@@ -47,12 +48,19 @@ public:
 	/**
 	* true, if this rail can be reserved
 	*/
-	bool can_reserve(convoihandle_t c) const { return !reserved.is_bound()  ||  c==reserved; }
+	bool can_reserve(convoihandle_t c) const {
+		if (is_close_diagonal()) {
+			return (!reserved.is_bound() || c == reserved)  ||  (!reserved2.is_bound() || c == reserved2);
+		}
+		return !reserved.is_bound()  ||  c==reserved;
+	}
 
 	/**
 	* true, if this rail can be reserved
 	*/
-	bool is_reserved() const { return reserved.is_bound(); }
+	bool is_reserved() const {
+		return reserved.is_bound();
+	}
 
 	/**
 	* true, then this rail was reserved
@@ -67,7 +75,7 @@ public:
 	/**
 	* releases previous reservation
 	*/
-	bool unreserve( vehicle_t *) { return unreserve(reserved); }
+	bool unreserve(vehicle_t*);
 
 	/* called before deletion;
 	 * last chance to unreserve tiles ...

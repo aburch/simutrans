@@ -182,7 +182,13 @@ public:
 			return IMG_EMPTY;
 		}
 		const uint16 n = image_list_base_index(season, front) + 2;
-		return get_child<image_list_t>(n)->get_image_id(ribi / 3 - 1);
+		if (ribi_t::is_bend(ribi)) {
+			return get_child<image_list_t>(n)->get_image_id(ribi / 3 - 1);
+		}
+		else {
+			// close diagonal graphics
+			return get_child<image_list_t>(n)->get_image_id(ribi_t::is_straight_ns(ribi)+4);
+		}
 	}
 
 	bool has_double_slopes() const {
@@ -193,6 +199,14 @@ public:
 	bool has_diagonal_image() const {
 		return get_child<image_list_t>(4)->get_image_id(0) != IMG_EMPTY
 		||     get_child<image_list_t>(image_list_base_index(false, true)+2)->get_image_id(0) != IMG_EMPTY;
+	}
+
+	bool has_close_diagonal_image() const {
+		if (has_diagonal_image()) {
+			return get_child<image_list_t>(4)->get_image_id(4) != IMG_EMPTY
+				|| get_child<image_list_t>(image_list_base_index(false, true) + 2)->get_image_id(5) != IMG_EMPTY;
+		}
+		return false;
 	}
 
 	bool has_switch_image() const {
