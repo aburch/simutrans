@@ -3189,8 +3189,13 @@ void convoi_t::rdwr(loadsave_t *file)
 					state = INITIAL;
 				}
 				// add to blockstrecke
-				if(schiene_t* sch = dynamic_cast<schiene_t*>(gr->get_weg(v->get_waytype()))) {
-					sch->reserve(self,ribi_t::none);
+				// air vehicles manage all tile reservations via block_reserver in
+				// set_convoi; reserving the occupied tile here would permanently lock
+				// taxiway tiles (which have no leave_tile unreservation path)
+				if(v->get_waytype() != air_wt) {
+					if(schiene_t* sch = dynamic_cast<schiene_t*>(gr->get_weg(v->get_waytype()))) {
+						sch->reserve(self,ribi_t::none);
+					}
 				}
 				// add to crossing
 				if(crossing_t *cr = gr->get_crossing()) {

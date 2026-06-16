@@ -5578,6 +5578,11 @@ bool air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) con
 		else {
 			// we un-reserve also nonexistent tiles! (may happen during deletion)
 			if(reserve) {
+				// never reserve taxiway tiles — stop here without reserving
+				if(  sch1->get_desc()->get_styp() != type_runway  ) {
+					end = i;
+					break;
+				}
 				start_now = true;
 				sch1->add_convoi_reservation(cnv->self);
 				if(  !sch1->reserve(cnv->self,ribi_t::none)  ) {
@@ -5586,8 +5591,8 @@ bool air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) con
 					end = i;
 					break;
 				}
-				// end of runway?
-				if(  i > start  &&  (ribi_t::is_single( sch1->get_ribi_unmasked() )  ||  sch1->get_desc()->get_styp() != type_runway)   ) {
+				// end of runway by single ribi?
+				if(  i > start  &&  ribi_t::is_single( sch1->get_ribi_unmasked() )  ) {
 					end = i;
 					break;
 				}
@@ -5601,7 +5606,9 @@ bool air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) con
 
 	// un-reserve if not successful
 	if(  !success  &&  reserve  ) {
-		for(  uint32 i=start;  i<end;  i++  ) {
+		// Use i<=end so that tile 'end' (where reserve() failed) also gets its
+		// add_convoi_reservation() entry removed via runway_t::unreserve().
+		for(  uint32 i=start;  i<=end;  i++  ) {
 			grund_t *gr = welt->lookup(route->at(i));
 			if (gr) {
 				runway_t* sch1 = (runway_t *)gr->get_weg(air_wt);
@@ -5622,6 +5629,22 @@ bool air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) con
 						break;
 					}
 					sch1->add_convoi_reservation( cnv->self );
+				}
+			}
+		}
+	}
+
+	// When unreserving the takeoff section (end < touchdown), the landing runway
+	// tiles were never visited by the main loop, so their load-balancing
+	// reservations added during the original takeoff must be removed here.
+	if(  !reserve  &&  end<touchdown  ) {
+		for(  uint32 i=touchdown;  i<route->get_count();  i++  ) {
+			if(  grund_t *gr = welt->lookup(route->at(i))  ) {
+				if(  runway_t* sch1 = (runway_t *)gr->get_weg(air_wt)  ) {
+					if(  sch1->get_desc()->get_styp()!=type_runway  ) {
+						break;
+					}
+					sch1->remove_convoi_reservation( cnv->self );
 				}
 			}
 		}
@@ -5857,10 +5880,10 @@ void air_vehicle_t::set_convoi(convoi_t *c)
 		}
 		if (!r.empty()) {
 			// free runway reservation
-			if(route_index>=takeoff  &&  route_index<touchdown-4  ) {
-				block_reserver( 0, touchdown-4, false );
+			if(  state==departing  ||  (state==taxiing  &&  route_index>=takeoff)  ) {
+				block_reserver( takeoff, takeoff+100, false );
 			}
-			else if(route_index>=touchdown-1  &&  state!=taxiing) {
+			else if(  state==landing  ) {
 				block_reserver( touchdown, search_for_stop+1, false );
 			}
 		}
@@ -5878,16 +5901,22 @@ void air_vehicle_t::set_convoi(convoi_t *c)
 					target_halt->reserve_position(target,cnv->self);
 				}
 			}
-			// restore reservation
-			if(  grund_t *gr = welt->lookup(get_pos())  ) {
-				if(  weg_t *weg = gr->get_weg(air_wt)  ) {
-					if(  weg->get_desc()->get_styp()==type_runway  ) {
-						// but only if we are on a runway ...
-						if(  route_index>=takeoff  &&  route_index<touchdown-21  &&  state!=flying  ) {
+			// restore runway reservation by state
+			if(  state==departing  ) {
+				block_reserver( takeoff, takeoff+100, true );
+			}
+			else if(  state==landing  ) {
+				block_reserver( touchdown, search_for_stop+1, true );
+			}
+			else if(  state==taxiing  &&  route_index>=takeoff  ) {
+				// brief window: state is still taxiing but route_index has advanced to
+				// takeoff because the vehicle hopped onto the runway-start tip tile
+				// (reservation was already acquired when entering that tile; state
+				// transitions to departing on the very next tick)
+				if(  grund_t *gr = welt->lookup(get_pos())  ) {
+					if(  weg_t *weg = gr->get_weg(air_wt)  ) {
+						if(  weg->get_desc()->get_styp()==type_runway  ) {
 							block_reserver( takeoff, takeoff+100, true );
-						}
-						else if(  route_index>=touchdown-1  &&  state!=taxiing  ) {
-							block_reserver( touchdown, search_for_stop+1, true );
 						}
 					}
 				}
