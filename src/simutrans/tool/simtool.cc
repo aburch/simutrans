@@ -6840,6 +6840,7 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 					// update line
 					if(updated) {
 						schedule->make_valid();
+						player->simlinemgmt.update_line(line);
 					}
 				}
 			}
