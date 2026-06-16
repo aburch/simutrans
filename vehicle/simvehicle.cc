@@ -3416,6 +3416,17 @@ void road_vehicle_t::unreserve_all_tiles() {
 	reserving_tiles.clear();
 }
 
+void road_vehicle_t::unreserve_target_halt()
+{
+	if(  leading  &&  previous_direction!=ribi_t::none  &&  cnv  &&  target_halt.is_bound()  ) {
+		const route_t *rt = cnv->get_route();
+		for(  uint32 length=0;  length<cnv->get_tile_length()  &&  length+1<rt->get_count();  length++  ) {
+			target_halt->unreserve_position( welt->lookup( rt->at( rt->get_count()-length-1 ) ), cnv->self );
+		}
+	}
+	target_halt = halthandle_t();
+}
+
 road_vehicle_t::~road_vehicle_t() {
 	// unreserve tiles before this vehicle is disposed.
 	unreserve_all_tiles();
