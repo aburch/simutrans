@@ -1277,6 +1277,19 @@ public:
 	bool is_work_network_safe() const OVERRIDE { return true; }
 };
 
+class tool_follow_convoi_underground_t : public tool_t {
+public:
+	tool_follow_convoi_underground_t() : tool_t(TOOL_FOLLOW_CONVOI_UNDERGROUND | SIMPLE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Toggle convoy following underground mode"); }
+	bool init( player_t * ) OVERRIDE {
+		env_t::follow_convoi_underground = (env_t::follow_convoi_underground + 1) % grund_t::ugm_count;
+		welt->set_dirty();
+		return false;
+	}
+	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_work_network_safe() const OVERRIDE { return true; }
+};
+
 class tool_show_ribi_t : public tool_t {
 public:
 	tool_show_ribi_t() : tool_t(TOOL_SHOW_RIBI| SIMPLE_TOOL) {}

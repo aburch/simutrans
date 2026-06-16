@@ -167,8 +167,9 @@ public:
 	enum _underground_modes {
 		ugm_none = 0, // normal view
 		ugm_all  = 1, // everything underground visible, grid for grounds
-		ugm_level= 2  // overground things visible if their height  <= underground_level
+		ugm_level= 2, // overground things visible if their height  <= underground_level
 		              // underground things visible if their height == underground_level
+		ugm_count
 	};
 	static uint8 underground_mode;
 	static sint8 underground_level;
