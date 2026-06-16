@@ -8406,7 +8406,24 @@ const char *tool_pipette_t::work(player_t *pl, koord3d pos)
 				}
 				return err;
 			}
-			welt->set_tool(way_builder, pl);
+			if (tool_build_way_t* wbt = dynamic_cast<tool_build_way_t*>(way_builder)) {
+				weg_t* way = gr->get_weg_nr(1);
+				int mode = (int)twoway_mode, flag = 0, hf = 0;
+				int vo = way->get_vehicle_offset() * 2 + (way->get_vehicle_offset_mode() ? 1 : 0);
+				if (strasse_t* str = dynamic_cast<strasse_t*>(way)) {
+					mode = (int)str->get_overtaking_mode();
+					flag = (int)str->get_street_flag();
+				}
+				param_str.clear();
+				param_str.printf("%s,%d,%d,%d,%d", way->get_desc()->get_name(), mode, flag, hf, vo);
+				const char* orig = wbt->get_default_param(NULL);
+				wbt->set_default_param(param_str);
+				welt->set_tool(way_builder, pl);
+				wbt->set_default_param(orig);
+			}
+			else {
+				welt->set_tool(way_builder, pl);
+			}
 			return NULL;
 		}
 		return "Not allowed to copy object.";
@@ -8428,7 +8445,24 @@ const char *tool_pipette_t::work(player_t *pl, koord3d pos)
 				}
 				return err;
 			}
-			welt->set_tool(way_builder, pl);
+			if (tool_build_way_t* wbt = dynamic_cast<tool_build_way_t*>(way_builder)) {
+				weg_t* way = gr->get_weg_nr(0);
+				int mode = (int)twoway_mode, flag = 0, hf = 0;
+				int vo = way->get_vehicle_offset() * 2 + (way->get_vehicle_offset_mode() ? 1 : 0);
+				if (strasse_t* str = dynamic_cast<strasse_t*>(way)) {
+					mode = (int)str->get_overtaking_mode();
+					flag = (int)str->get_street_flag();
+				}
+				param_str.clear();
+				param_str.printf("%s,%d,%d,%d,%d", way->get_desc()->get_name(), mode, flag, hf, vo);
+				const char* orig = wbt->get_default_param(NULL);
+				wbt->set_default_param(param_str);
+				welt->set_tool(way_builder, pl);
+				wbt->set_default_param(orig);
+			}
+			else {
+				welt->set_tool(way_builder, pl);
+			}
 			return NULL;
 		}
 		return "Not allowed to copy object.";
