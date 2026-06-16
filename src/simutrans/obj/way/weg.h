@@ -49,19 +49,6 @@ public:
 	*/
 	static const slist_tpl <weg_t *> & get_alle_wege();
 
-	enum {
-		HAS_SIDEWALK   = 1 << 0, // only roads
-		HAS_SWITCHED   = 1 << 0, // only rails
-		IS_ELECTRIFIED = 1 << 1,
-		HAS_SIGN       = 1 << 2,
-		HAS_SIGNAL     = 1 << 3,
-		HAS_WAYOBJ     = 1 << 4,
-		HAS_CROSSING   = 1 << 5,
-		IS_DIAGONAL    = 1 << 6, // marker for diagonal image
-		IS_SNOW        = 1 << 7,  // marker, if above snowline currently
-		IS_CLOSE_DIAGONALS = 3 << 8  // marker for two diagonals on one track, not crsiing, could be either vertical 1 or horizontal 2 (0 for none)
-	};
-
 private:
 	/**
 	* array for statistical values
@@ -88,10 +75,17 @@ private:
 	*/
 	uint8 ribi_maske:4;
 
-	/**
-	* flags like walkway, electrification, road sings
-	*/
-	uint16 flags;
+	// former flags
+	uint8 close_diagonal_state : 2; // 0=no, 1=horizontal, 2=vertical
+	uint8 diagonal_flag : 1;
+	uint8 switch_state : 2; // 0=undefined, 1=sw or nw, 2=other
+	uint8 show_flag : 1;
+	uint8 sidewalk_flag : 1;
+	uint8 electrified_flag : 1;
+	uint8 sign_flag : 1;
+	uint8 signal_flag : 1;
+	uint8 wayobj_flag : 1;
+	uint8 crossing_flag : 1;
 
 	/**
 	* max speed; could not be taken for desc, since other object may modify the speed
@@ -148,7 +142,7 @@ public:
 	 * switch images are set in schiene_t::reserve
 	 * needed by tunnel mouths
 	 */
-	void set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw = false);
+	void set_images(image_type typ, uint8 ribi, bool snow, uint8 switch_nw = 0);
 
 	/**
 	 * Called whenever the season or snowline height changes
@@ -262,31 +256,31 @@ public:
 	void count_sign();
 
 	/* flag query routines */
-	void set_gehweg(const bool yesno) { flags = (yesno ? flags | HAS_SIDEWALK : flags & ~HAS_SIDEWALK); }
-	inline bool hat_gehweg() const { return flags & HAS_SIDEWALK; }
+	void set_gehweg(const bool yesno) { sidewalk_flag = yesno; }
+	inline bool hat_gehweg() const { return sidewalk_flag; }
 
-	void set_switched(const bool yesno) { flags = (yesno ? flags | HAS_SWITCHED : flags & ~HAS_SWITCHED); }
-	inline bool has_switched() const { return flags & HAS_SWITCHED; }
+	void set_switched(const bool ne_se) { switch_state = 1+ ne_se; }
+	inline uint8 get_switched() const { return switch_state; }
 
-	void set_electrify(bool janein) {janein ? flags |= IS_ELECTRIFIED : flags &= ~IS_ELECTRIFIED;}
-	inline bool is_electrified() const {return flags&IS_ELECTRIFIED; }
+	void set_electrify(bool janein) { electrified_flag = janein; }
+	inline bool is_electrified() const {return electrified_flag; }
 
-	inline bool has_sign() const {return flags&HAS_SIGN; }
-	inline bool has_signal() const {return flags&HAS_SIGNAL; }
-	inline bool has_wayobj() const {return flags&HAS_WAYOBJ; }
-	inline bool is_crossing() const {return flags&HAS_CROSSING; }
-	inline bool is_diagonal() const {return flags&IS_DIAGONAL; }
-	inline uint8 is_close_diagonal() const { return (flags >> 8) & 03; }
-	inline bool is_snow() const {return flags&IS_SNOW; }
+	inline bool has_sign() const {return sign_flag; }
+	inline bool has_signal() const {return signal_flag; }
+	inline bool has_wayobj() const {return wayobj_flag; }
+	inline bool is_crossing() const {return crossing_flag; }
+	inline bool is_diagonal() const {return diagonal_flag; }
+	inline uint8 is_close_diagonal() const { return close_diagonal_state; }
+	inline bool is_snow() const {return show_flag; }
 
 	// this is needed during a change from crossing to tram track
-	void clear_crossing() { flags &= ~HAS_CROSSING; }
+	void clear_crossing() { crossing_flag = false; }
 
 	/**
 	 * Clear the has-sign flag when roadsign or signal got deleted.
 	 * As there is only one of signal or roadsign on the way we can safely clear both flags.
 	 */
-	void clear_sign_flag() { flags &= ~(HAS_SIGN | HAS_SIGNAL); }
+	void clear_sign_flag() {sign_flag = signal_flag = 0; }
 
 	inline void set_image( image_id b ) { image = b; }
 	image_id get_image() const OVERRIDE {return image;}

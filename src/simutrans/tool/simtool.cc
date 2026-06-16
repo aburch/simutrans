@@ -5288,7 +5288,7 @@ const char *tool_rotate_building_t::work( player_t *player, koord3d pos )
 		for (uint i=0; i < 2; i++) {
 			if (weg_t* w =gr->get_weg_nr(i)) {
 				if (w->get_waytype()!=road_wt  &&  ribi_t::is_threeway(w->get_ribi_unmasked())) {
-					bool sw = w->has_switched();
+					bool sw = w->get_switched();
 					w->set_switched(!sw);
 					w->set_images(weg_t::image_switch, w->get_ribi_unmasked(), w->is_snow(), !sw);
 					gr->mark_image_dirty();

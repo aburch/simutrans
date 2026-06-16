@@ -176,7 +176,16 @@ void weg_t::init()
 	desc = 0;
 	init_statistics();
 	alle_wege.insert(this);
-	flags = 0;
+	close_diagonal_state = 0;
+	diagonal_flag = 0;
+	switch_state = 0;
+	show_flag = 0;
+	sidewalk_flag = 0;
+	electrified_flag = 0;
+	sign_flag = 0;
+	signal_flag = 0;
+	wayobj_flag = 0;
+	crossing_flag = 0;
 	image = IMG_EMPTY;
 	foreground_image = IMG_EMPTY;
 }
@@ -244,7 +253,7 @@ void weg_t::rdwr(loadsave_t *file)
 	file->rdwr_byte(dummy8);
 	if(  file->is_loading()  ) {
 		ribi = dummy8 & 15; // before: high bits was maske
-		ribi_maske = 0; // maske will be restored by signal/roadsing
+		ribi_maske = 0; // maske will be restored by signal/roadsign
 	}
 
 	uint16 dummy16=max_speed;
@@ -252,11 +261,11 @@ void weg_t::rdwr(loadsave_t *file)
 	max_speed=dummy16;
 
 	if(  file->is_version_atleast(89, 0)  ) {
-		dummy8 = flags;
+		dummy8 = sidewalk_flag;
 		file->rdwr_byte(dummy8);
 		if(  file->is_loading()  ) {
 			// all other flags are restored afterwards
-			flags = dummy8 & HAS_SIDEWALK;
+			sidewalk_flag = dummy8 & 1;
 		}
 	}
 
@@ -318,6 +327,9 @@ void weg_t::rotate90()
 	obj_t::rotate90();
 	ribi = ribi_t::rotate90( ribi );
 	ribi_maske = ribi_t::rotate90( ribi_maske );
+	if (close_diagonal_state) {
+		close_diagonal_state ^= 3;
+	}
 }
 
 
@@ -328,14 +340,14 @@ void weg_t::rotate90()
 void weg_t::count_sign()
 {
 	// Either only sign or signal please ...
-	flags &= ~(HAS_SIGN|HAS_SIGNAL|HAS_CROSSING);
+	sign_flag = signal_flag = crossing_flag = 0;
 	const grund_t *gr=welt->lookup(get_pos());
 	if(gr) {
 		uint8 i = 1;
 		// if there is a crossing, the start index is at least three ...
 		if(const crossing_t* cr = gr->get_crossing()) {
 			max_speed = desc->get_topspeed(); // reset max_speed
-			flags |= HAS_CROSSING;
+			crossing_flag = 1;
 			i = 3;
 			const sint32 top_speed = cr->get_desc()->get_maxspeed( cr->get_desc()->get_waytype(0)==get_waytype() ? 0 : 1);
 			max_speed = min(max_speed, top_speed);
@@ -347,14 +359,14 @@ void weg_t::count_sign()
 			if(  roadsign_t const* const sign = obj_cast<roadsign_t>(obj)  ) {
 				if(  sign->get_desc()->get_wtyp() == get_desc()->get_wtyp()  ) {
 					// here is a sign ...
-					flags |= HAS_SIGN;
+					sign_flag = 1;
 					return;
 				}
 			}
 			if(  signal_t const* const signal = obj_cast<signal_t>(obj)  ) {
 				if(  signal->get_desc()->get_wtyp() == get_desc()->get_wtyp()  ) {
 					// here is a signal ...
-					flags |= HAS_SIGNAL;
+					signal_flag = 1;
 					return;
 				}
 			}
@@ -363,7 +375,7 @@ void weg_t::count_sign()
 }
 
 
-void weg_t::set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw)
+void weg_t::set_images(image_type typ, uint8 ribi, bool snow, uint8 switch_nw)
 {
 	switch(typ) {
 		case image_flat:
@@ -376,8 +388,17 @@ void weg_t::set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw)
 			set_foreground_image( desc->get_slope_image_id( (slope_t::type)ribi, snow, true ) );
 			break;
 		case image_switch:
-			set_image( desc->get_switch_image_id(ribi, snow, switch_nw) );
-			set_foreground_image( desc->get_switch_image_id(ribi, snow, switch_nw, true) );
+			if (!switch_nw) {
+				// still undecided: use default image
+				set_image(desc->get_image_id(ribi, snow));
+				set_foreground_image(desc->get_image_id(ribi, snow, true));
+				if (image != IMG_EMPTY || foreground_image != IMG_EMPTY) {
+					break;
+				}
+				switch_nw = 1; // no default???
+			}
+			set_image( desc->get_switch_image_id(ribi, snow, switch_nw-1) );
+			set_foreground_image( desc->get_switch_image_id(ribi, snow, switch_nw-1, true) );
 			break;
 		case image_diagonal:
 			set_image( desc->get_diagonal_image_id(ribi, snow) );
@@ -407,17 +428,12 @@ bool weg_t::check_season(const bool calc_only_season_change)
 
 	// use snow image if above snowline and above ground
 	bool snow = (gr->ist_karten_boden()  ||  !gr->ist_tunnel())  &&  (get_pos().z  + gr->get_weg_yoff()/TILE_HEIGHT_STEP >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate);
-	bool old_snow = (flags&IS_SNOW) != 0;
-	if(  !(snow ^ old_snow)  ) {
+	if(  !(snow ^ show_flag)  ) {
 		// season is not changing ...
 		return true;
 	}
-
-	// set snow flake
-	flags &= ~IS_SNOW;
-	if(  snow  ) {
-		flags |= IS_SNOW;
-	}
+	// set new snow state
+	show_flag = snow;
 
 	slope_t::type hang = gr->get_weg_hang();
 	if(  hang != slope_t::flat  ) {
@@ -433,7 +449,7 @@ bool weg_t::check_season(const bool calc_only_season_change)
 		set_images( image_diagonal, ribi, snow );
 	}
 	else if(  ribi_t::is_threeway( ribi )  &&  desc->get_waytype()!=road_wt  ) {
-		set_images(image_switch, ribi, snow, has_switched());
+		set_images(image_switch, ribi, snow, get_switched());
 	}
 	else {
 		// level track
@@ -511,10 +527,7 @@ void weg_t::calc_image()
 	else {
 		// use snow image if above snowline and above ground
 		bool snow = (from->ist_karten_boden()  ||  !from->ist_tunnel())  &&  (get_pos().z + from->get_weg_yoff()/TILE_HEIGHT_STEP >= welt->get_snowline() || welt->get_climate( get_pos().get_2d() ) == arctic_climate  );
-		flags &= ~IS_SNOW;
-		if(  snow  ) {
-			flags |= IS_SNOW;
-		}
+		show_flag = snow;
 
 		slope_t::type hang = from->get_weg_hang();
 		if(hang != slope_t::flat) {
@@ -526,7 +539,7 @@ void weg_t::calc_image()
 				check_diagonal();
 			}
 			if (!is_close_diagonal()) {
-				set_images(image_switch, ribi, snow, has_switched());
+				set_images(image_switch, ribi, snow, get_switched());
 			}
 			else {
 				if (desc->has_close_diagonal_image()) {
@@ -629,7 +642,7 @@ void weg_t::calc_image()
 void weg_t::check_diagonal()
 {
 	bool diagonal = false;
-	flags &= ~(IS_DIAGONAL|IS_CLOSE_DIAGONALS);
+	diagonal_flag = close_diagonal_state = 0;
 
 	const ribi_t::ribi ribi = get_ribi_unmasked();
 	if (!ribi_t::is_bend(ribi)  &&  ribi_t::all != ribi) {
@@ -660,10 +673,10 @@ void weg_t::check_diagonal()
 			}
 		}
 		if (r[0] == r[1] || r[2] == r[3]) {
-			flags |= 2 << 8;
+			close_diagonal_state = 2;
 		}
 		else {
-			flags |= 1 << 8;
+			close_diagonal_state = 1;
 		}
 		return;
 	}
@@ -687,10 +700,7 @@ void weg_t::check_diagonal()
 		// diagonal if r1 or r2 are our reverse and neither one is 90 degree rotation of us
 		diagonal = (r1 == ribi_t::backward(ribi) || r2 == ribi_t::backward(ribi)) && r1 != ribi_t::rotate90l(ribi) && r2 != ribi_t::rotate90(ribi);
 	}
-
-	if(  diagonal  ) {
-		flags |= IS_DIAGONAL;
-	}
+	diagonal_flag = diagonal;
 }
 
 
