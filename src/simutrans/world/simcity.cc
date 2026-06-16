@@ -3220,7 +3220,7 @@ bool stadt_t::check_ground_tile_for_house(grund_t *gr, sint8 zpos) const
 // much faster to use our own routine and also preserves the bookeeping
 gebaeude_t* stadt_t::build_city_house(koord3d base_pos, const building_desc_t* h, uint8 rotation, uint32 cl, vector_tpl<const building_desc_t *> *exclude_desc)
 {
-	bool recalc_foundations = false;;
+	bool recalc_foundations = false;
 
 	koord min_size(0, 0);
 	sint16 level = 1;

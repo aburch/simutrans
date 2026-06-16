@@ -297,7 +297,7 @@ static void write_ground_at(player_t* pl, cbuffer_t& buf, const koord3d pos, con
 // we only write bridges inside the marked area (ignoring ownership)
 static void write_command_bridges(player_t*, cbuffer_t& buf, const koord start, const koord end, const koord3d origin)
 {
-	vector_tpl<koord3d> all_bridgepos;;
+	vector_tpl<koord3d> all_bridgepos;
 	karte_t* welt = world();
 	for (sint16 x = start.x; x <= end.x; x++) {
 		for (sint16 y = start.y; y <= end.y; y++) {

@@ -205,8 +205,8 @@ grund_t* viewport_t::get_ground_on_screen_coordinate(scr_coord screen_pos, sint3
 		const int base_i = (screen_pos.x/2 + screen_pos.y   + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP),rw1))/2;
 		const int base_j = (screen_pos.y   - screen_pos.x/2 + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP),rw1))/2;
 
-		found_i = (base_i + i_off) / rw4;;
-		found_j = (base_j + j_off) / rw4;;
+		found_i = (base_i + i_off) / rw4;
+		found_j = (base_j + j_off) / rw4;
 
 		gr = world->lookup(koord3d(found_i,found_j,hgt));
 		if (gr != NULL) {

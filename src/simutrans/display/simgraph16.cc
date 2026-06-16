@@ -4849,7 +4849,7 @@ static bool simgraph16_take_screenshot(const scr_rect &area)
 static void simgraph16_set_image_procs(bool is_global)
 {
 	if(  is_global  ) {
-		g_simgraph16.draw_normal = simgraph16_draw_img_aux;;
+		g_simgraph16.draw_normal = simgraph16_draw_img_aux;
 		g_simgraph16.draw_color  = simgraph16_draw_color_img;
 		g_simgraph16.draw_blend  = simgraph16_draw_rezoomed_img_blend;
 		g_simgraph16.draw_alpha  = simgraph16_draw_rezoomed_img_alpha;

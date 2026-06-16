@@ -59,7 +59,7 @@ void gui_tab_panel_t::set_size(scr_size size)
 			required_size.h = max( required_size.h, LINESPACE + D_V_SPACE );
 		}
 		else if( i.img ) {
-			i.width = max( 2 + i.img->get_pic()->w, D_H_SPACE*2+IMG_WIDTH );;
+			i.width = max( 2 + i.img->get_pic()->w, D_H_SPACE*2+IMG_WIDTH );
 			required_size.h = max( required_size.h, i.img->get_pic()->h + D_V_SPACE );
 		}
 		else {
