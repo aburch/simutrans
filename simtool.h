@@ -519,15 +519,16 @@ class tool_build_station_t : public two_click_tool_t {
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE {return 2;};
 };
 
-class tool_rotate_building_t : public tool_t {
+class tool_rotate_building_t : public two_click_tool_t {
 private:
-	const char *tool_rotate_platform(koord3d);
-	const char *tool_rotate_building(koord3d);
+	const char *rotate_building_at(player_t*, koord3d);
+	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
+	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
+	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
 
 public:
-	tool_rotate_building_t() : tool_t(TOOL_ROTATE_BUILDING | GENERAL_TOOL) {}
+	tool_rotate_building_t() : two_click_tool_t(TOOL_ROTATE_BUILDING | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Rotate Building"); }
-	char const* work(player_t *, koord3d) OVERRIDE;
 	bool is_init_network_safe() const OVERRIDE { return true; }
 };
 

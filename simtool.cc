@@ -5874,7 +5874,7 @@ const char *tool_build_station_t::do_work( player_t *player, const koord3d &star
 
 
 
-const char *tool_rotate_building_t::work( player_t *player, koord3d pos )
+const char *tool_rotate_building_t::rotate_building_at( player_t *player, koord3d pos )
 {
 	const grund_t *gr = welt->lookup(pos);
 	if(!gr) {
@@ -5942,6 +5942,79 @@ const char *tool_rotate_building_t::work( player_t *player, koord3d pos )
 				koord k = gr->get_pos().get_2d()-gb_tiles.front()->get_pos().get_2d();
 				const building_tile_desc_t* tile = desc->get_tile( newlayout, k.x, k.y );
 				gb_part->set_tile( tile, false );
+			}
+		}
+	}
+	return NULL;
+}
+
+
+uint8 tool_rotate_building_t::is_valid_pos( player_t *, const koord3d &, const char *&, const koord3d & )
+{
+	// 1 = single click works, 2 = can start/end area drag, 3 = both
+	// With ctrl held: forces area selection; without ctrl: single click
+	return 3;
+}
+
+
+void tool_rotate_building_t::mark_tiles( player_t *, const koord3d &start, const koord3d &end )
+{
+	koord k1, k2;
+	k1.x = start.x < end.x ? start.x : end.x;
+	k1.y = start.y < end.y ? start.y : end.y;
+	k2.x = start.x + end.x - k1.x;
+	k2.y = start.y + end.y - k1.y;
+	koord k;
+	for(  k.x = k1.x;  k.x <= k2.x;  k.x++  ) {
+		for(  k.y = k1.y;  k.y <= k2.y;  k.y++  ) {
+			grund_t *gr = welt->lookup_kartenboden( k );
+			if(  !gr  ) { continue; }
+
+			zeiger_t *marker = new zeiger_t( gr->get_pos(), NULL );
+
+			const uint8 grund_hang = gr->get_grund_hang();
+			const uint8 weg_hang   = gr->get_weg_hang();
+			const uint8 hang = max( corner_sw(grund_hang), corner_sw(weg_hang) ) +
+			                   3 * max( corner_se(grund_hang), corner_se(weg_hang) ) +
+			                   9 * max( corner_ne(grund_hang), corner_ne(weg_hang) ) +
+			                   27 * max( corner_nw(grund_hang), corner_nw(weg_hang) );
+			uint8 back_hang = (hang % 3) + 3 * ((uint8)(hang / 9)) + 27;
+			marker->set_foreground_image( ground_desc_t::marker->get_image( grund_hang % 27 ) );
+			marker->set_image( ground_desc_t::marker->get_image( back_hang ) );
+
+			marker->mark_image_dirty( marker->get_image(), 0 );
+			gr->obj_add( marker );
+			marked.insert( marker );
+		}
+	}
+}
+
+
+const char *tool_rotate_building_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
+{
+	if(  end == koord3d::invalid  ) {
+		return rotate_building_at( player, start );
+	}
+
+	koord k1, k2;
+	k1.x = start.x < end.x ? start.x : end.x;
+	k1.y = start.y < end.y ? start.y : end.y;
+	k2.x = start.x + end.x - k1.x;
+	k2.y = start.y + end.y - k1.y;
+
+	// collect unique buildings to avoid rotating multi-tile buildings multiple times
+	vector_tpl<gebaeude_t*> processed;
+	koord k;
+	for(  k.x = k1.x;  k.x <= k2.x;  k.x++  ) {
+		for(  k.y = k1.y;  k.y <= k2.y;  k.y++  ) {
+			const grund_t *gr = welt->lookup_kartenboden( k );
+			if(  gr  ) {
+				if(  gebaeude_t* gb = gr->find<gebaeude_t>()  ) {
+					if(  !processed.is_contained( gb )  ) {
+						processed.append( gb );
+						rotate_building_at( player, gr->get_pos() );
+					}
+				}
 			}
 		}
 	}
