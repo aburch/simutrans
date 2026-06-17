@@ -578,10 +578,6 @@ bool nwc_auth_player_t::execute(karte_t *welt)
 				}
 			}
 			else if (player_nr < PLAYER_UNOWNED) {
-				// players with public service player access always pass password checks
-				if(  info.is_player_unlocked(1)  ) {
-					info.unlock_player(player_nr);
-				}
 				// check password
 				else if (welt->get_player(player_nr)->access_password_hash() == hash) {
 
