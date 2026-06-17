@@ -673,9 +673,17 @@ void weg_t::check_diagonal()
 			}
 		}
 		if (r[0] == r[1] || r[2] == r[3]) {
+			if (r[0] + r[2] != ribi_t::all  &&  r[1] + r[3] != ribi_t::all) {
+				// entry and exist not parallel => crossing
+				return;
+			}
 			close_diagonal_state = 2;
 		}
 		else {
+			if (r[0] + r[1] != ribi_t::all  &&  r[2] + r[3] != ribi_t::all) {
+				// entry and exist not parallel => crossing
+				return;
+			}
 			close_diagonal_state = 1;
 		}
 		return;
