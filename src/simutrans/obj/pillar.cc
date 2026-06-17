@@ -107,11 +107,9 @@ void pillar_t::rdwr(loadsave_t *file)
 		if(desc==0) {
 			if(strstr(s,"ail")) {
 				desc = bridge_builder_t::get_desc("ClassicRail");
-				dbg->warning("pillar_t::rdwr()","Unknown bridge %s replaced by ClassicRail",s);
 			}
 			else if(strstr(s,"oad")) {
 				desc = bridge_builder_t::get_desc("ClassicRoad");
-				dbg->warning("pillar_t::rdwr()","Unknown bridge %s replaced by ClassicRoad",s);
 			}
 		}
 		asymmetric = desc && desc->has_pillar_asymmetric();

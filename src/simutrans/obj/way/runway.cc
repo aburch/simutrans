@@ -68,7 +68,6 @@ void runway_t::rdwr(loadsave_t *file)
 						dbg->fatal("runway_t::rdwr()", "No runway available");
 					}
 				}
-				dbg->warning("runway_t::rdwr()", "Unknown runway %s replaced by %s (old_max_speed %i)", bname, desc->get_name(), old_max_speed);
 			}
 		}
 		if(old_max_speed>0) {

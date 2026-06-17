@@ -970,7 +970,6 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 		}
 		if(desc==NULL) {
 			pakset_manager_t::add_missing_paks( s, MISSING_VEHICLE );
-			dbg->warning("vehicle_t::rdwr_from_convoi()","no vehicle pak for '%s' search for something similar", s);
 		}
 	}
 

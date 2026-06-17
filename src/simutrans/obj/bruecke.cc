@@ -133,7 +133,7 @@ void bruecke_t::rdwr(loadsave_t *file)
 
 	if(file->is_loading()) {
 		if (!s) {
-			dbg->fatal("bruecke_t::rdwr", "No bridge name for bridge at (%s)", get_pos().get_str());
+			dbg->fatal("bruecke_t::rdwr", "No bridge name for bridge");
 		}
 
 		desc = bridge_builder_t::get_desc(s);
@@ -141,8 +141,7 @@ void bruecke_t::rdwr(loadsave_t *file)
 			desc = bridge_builder_t::get_desc(translator::compatibility_name(s));
 		}
 		if(desc==NULL) {
-			dbg->warning( "bruecke_t::rdwr", "Unknown bridge \"%s\" at (%s) will be replaced with best match!", s, get_pos().get_str() );
-			pakset_manager_t::add_missing_paks( s, MISSING_BRIDGE );
+			pakset_manager_t::add_missing_paks(s, MISSING_BRIDGE);
 		}
 		free(const_cast<char *>(s));
 

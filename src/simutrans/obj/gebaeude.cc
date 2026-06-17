@@ -986,7 +986,6 @@ void gebaeude_t::rdwr(loadsave_t *file)
 						break;
 
 					default:
-						dbg->warning("gebaeude_t::rwdr", "description %s for building at %d,%d not found (will be removed)!", buf, get_pos().x, get_pos().y);
 						pakset_manager_t::add_missing_paks( buf, MISSING_BUILDING );
 				}
 			}

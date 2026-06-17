@@ -1176,14 +1176,12 @@ void fabrik_t::rdwr(loadsave_t *file)
 	else {
 		char s[256];
 		file->rdwr_str(s, lengthof(s));
-DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		desc = factory_builder_t::get_desc(s);
 		if(  desc==NULL  ) {
 			//  maybe it was only renamed?
 			desc = factory_builder_t::get_desc(translator::compatibility_name(s));
 		}
 		if(  desc==NULL  ) {
-			dbg->warning( "fabrik_t::rdwr()", "Pak-file for factory '%s' missing!", s );
 			// we continue loading even if desc==NULL
 			pakset_manager_t::add_missing_paks( s, MISSING_FACTORY );
 		}

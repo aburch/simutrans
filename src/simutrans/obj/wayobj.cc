@@ -167,9 +167,6 @@ void wayobj_t::rdwr(loadsave_t *file)
 					dbg->warning("wayobj_t::rwdr", "description %s for wayobj_t at %d,%d not found, will be removed!", bname, get_pos().x, get_pos().y );
 					pakset_manager_t::add_missing_paks( bname, MISSING_WAYOBJ );
 				}
-				else {
-					dbg->warning("wayobj_t::rwdr", "wayobj %s at %d,%d replaced by %s", bname, get_pos().x, get_pos().y, desc->get_name() );
-				}
 			}
 		}
 	}
