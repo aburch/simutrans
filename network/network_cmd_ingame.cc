@@ -579,7 +579,7 @@ bool nwc_auth_player_t::execute(karte_t *welt)
 			}
 			else if (player_nr < PLAYER_UNOWNED) {
 				// check password
-				else if (welt->get_player(player_nr)->access_password_hash() == hash) {
+				if (welt->get_player(player_nr)->access_password_hash() == hash) {
 
 					dbg->message("nwc_auth_player_t::execute","unlock plnr = %d at our_client_id = %d", player_nr, our_client_id);
 
