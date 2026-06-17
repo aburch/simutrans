@@ -2154,7 +2154,7 @@ uint8 haltestelle_t::last_search_ware_catg_idx = 255;
  * if USE_ROUTE_SLIST_TPL is defined, the list template will be used.
  * However, this is about 50% slower.
  */
-int haltestelle_t::search_route( const halthandle_t *const start_halts, const uint16 start_halt_count, const bool no_routing_over_overcrowding, ware_t &ware, ware_t *const return_ware )
+int haltestelle_t::search_route( const halthandle_t *const start_halts, const uint32 start_halt_count, const bool no_routing_over_overcrowding, ware_t &ware, ware_t *const return_ware )
 {
 	const uint8 ware_catg_idx = ware.get_desc()->get_catg_index();
 	const uint8 ware_idx = ware.get_desc()->get_index();
@@ -2178,7 +2178,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 			halthandle_t halt = halt_list[h];
 			if(  halt.is_bound()  &&  halt->is_enabled(ware_catg_idx)  ) {
 				// check if this is present in the list of start halts
-				for(  uint16 s=0;  s<start_halt_count;  ++s  ) {
+				for(  uint32 s=0;  s<start_halt_count;  ++s  ) {
 					if(  halt==start_halts[s]  ) {
 						// destination halt is also a start halt -> within walking distance
 						ware.set_ziel( start_halts[s] );

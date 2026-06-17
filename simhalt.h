@@ -606,7 +606,7 @@ public:
 	 *
 	 * if avoid_overcrowding is set, a valid route in only found when there is no overflowing stop in between
 	 */
-	static int search_route( const halthandle_t *const start_halts, const uint16 start_halt_count, const bool no_routing_over_overcrowding, ware_t &ware, ware_t *const return_ware=NULL );
+	static int search_route( const halthandle_t *const start_halts, const uint32 start_halt_count, const bool no_routing_over_overcrowding, ware_t &ware, ware_t *const return_ware=NULL );
 
 	/**
 	 * A separate version of route searching code for re-calculating routes
