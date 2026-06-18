@@ -196,24 +196,23 @@ const char *wayobj_t::get_removal_error(const player_t *player)
 }
 
 
-void wayobj_t::finish_rd()
+bool wayobj_t::finish_rd()
 {
+	const waytype_t wt = (desc->get_wtyp() == tram_wt) ? track_wt : desc->get_wtyp();
+	weg_t* weg = welt->lookup(get_pos())->get_weg(wt);
+	if (!weg) {
+		// no way for wayobj => delete
+		dbg->error("wayobj_t::finish_rd()", "ground at %s has no way!",get_pos().get_fullstr());
+		return true;
+	}
+
 	// (re)set dir
 	if(dir==dir_unknown) {
-		const waytype_t wt = (desc->get_wtyp()==tram_wt) ? track_wt : desc->get_wtyp();
-		weg_t *w=welt->lookup(get_pos())->get_weg(wt);
-		if(w) {
-			dir = w->get_ribi_unmasked();
-		}
-		else {
-			dir = ribi_t::all;
-		}
+		dir = weg->get_ribi_unmasked();
 	}
 
 	// electrify a way if we are a catenary
 	if(desc->is_overhead_line()) {
-		const waytype_t wt = (desc->get_wtyp()==tram_wt) ? track_wt : desc->get_wtyp();
-		weg_t *weg = welt->lookup(get_pos())->get_weg(wt);
 		if (wt == decoration_wt) {
 			weg_t *weg2 = welt->lookup(get_pos())->get_weg_nr(1);
 			if (weg2) {
@@ -223,21 +222,17 @@ void wayobj_t::finish_rd()
 				}
 			}
 		}
-		if(weg) {
-			// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
-			weg->set_electrify(true);
-			if(weg->get_max_speed()>desc->get_topspeed()) {
-				weg->set_max_speed(desc->get_topspeed());
-			}
-		}
-		else {
-			dbg->warning("wayobj_t::finish_rd()","ground was not a way!");
+		// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
+		weg->set_electrify(true);
+		if(weg->get_max_speed()>desc->get_topspeed()) {
+			weg->set_max_speed(desc->get_topspeed());
 		}
 	}
 
 	if(get_owner()) {
 		player_t::add_maintenance(get_owner(), desc->get_maintenance(), desc->get_wtyp());
 	}
+	return false;
 }
 
 

@@ -223,10 +223,11 @@ void road_user_t::rdwr(loadsave_t *file)
 	weg_next &= 65535;
 }
 
-void road_user_t::finish_rd()
+bool road_user_t::finish_rd()
 {
 	calc_height(NULL);
 	calc_image();
+	return false;
 }
 
 

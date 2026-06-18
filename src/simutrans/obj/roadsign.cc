@@ -143,14 +143,22 @@ void roadsign_t::set_dir(ribi_t::ribi dir)
 	this->dir = dir;
 	if (!preview) {
 		weg_t *weg = welt->lookup(get_pos())->get_weg(desc->get_wtyp()!=tram_wt ? desc->get_wtyp() : track_wt);
-		if(  desc->get_wtyp()!=track_wt  &&  desc->get_wtyp()!=monorail_wt  &&  desc->get_wtyp()!=maglev_wt  &&  desc->get_wtyp()!=narrowgauge_wt  ) {
-			weg->count_sign();
-		}
 		if(desc->is_single_way()  ||  (desc->is_signal_type() && !get_two_ways())) {
-			// set mask, if it is a single way ...
-			weg->count_sign();
-			weg->set_ribi_maske(calc_mask());
-DBG_MESSAGE("roadsign_t::set_dir()","ribi %i",dir);
+			if (!ribi_t::is_threeway(weg->get_ribi_unmasked())) {
+				// set mask, if it is a single way ...
+				weg->set_ribi_maske(calc_mask());
+			}
+			else {
+				weg->set_ribi_maske(ribi_t::none);
+				if (desc->is_signal_type()) {
+					dbg->warning("roadsign_t::set_dir()", "Signal on threeway at %s. Will not mask directions!", get_pos().get_fullstr());
+				}
+				else {
+					dbg->error("roadsign_t::set_dir()", "Single way sign %s on crossroad at %s wll be removed!", get_name(), get_pos().get_fullstr());
+					desc = NULL;
+					return;
+				}
+			}
 		}
 	}
 
@@ -166,8 +174,9 @@ DBG_MESSAGE("roadsign_t::set_dir()","ribi %i",dir);
 	foreground_image = IMG_EMPTY;
 	calc_image();
 
-	if (preview)
+	if (preview) {
 		this->dir = olddir;
+	}
 }
 
 
@@ -234,7 +243,7 @@ void roadsign_t::calc_image()
 
 	// vertical offset of the signal positions
 	const grund_t *gr=welt->lookup(get_pos());
-	if(gr==NULL) {
+	if(gr==NULL  ||  desc==NULL) {
 		return;
 	}
 
@@ -474,6 +483,10 @@ void roadsign_t::calc_image()
 // only used for traffic light: change the current state
 sync_result roadsign_t::sync_step(uint32 /*delta_t*/)
 {
+	if (!desc) {
+		// some illegal sign ...
+		return SYNC_DELETE;
+	}
 	if(  desc->is_private_way()  ) {
 		uint8 image = 1-(dir&1);
 		if(  (1<<welt->get_active_player_nr()) & get_player_mask()  ) {
@@ -666,25 +679,29 @@ void roadsign_t::rdwr(loadsave_t *file)
 
 void roadsign_t::cleanup(player_t *player)
 {
-	player_t::book_construction_costs(player, -desc->get_price(), get_pos().get_2d(), get_waytype());
+	if (desc) {
+		player_t::book_construction_costs(player, -desc->get_price(), get_pos().get_2d(), get_waytype());
+	}
 }
 
 
-void roadsign_t::finish_rd()
+bool roadsign_t::finish_rd()
 {
 	grund_t *gr=welt->lookup(get_pos());
 	if(  gr==NULL  ||  !gr->hat_weg(desc->get_wtyp()!=tram_wt ? desc->get_wtyp() : track_wt)  ) {
-		dbg->error("roadsign_t::finish_rd", "way/ground missing at (%i,%i); roadsign ignored", get_pos().x, get_pos().y);
+		dbg->error("roadsign_t::finish_rd", "way/ground missing at (%s); roadsign ignored", get_pos().get_fullstr());
+		desc = NULL;
 	}
 	else {
 		// after loading restore directions
 		set_dir(dir);
-
-		weg_t *way = gr->get_weg(desc->get_wtyp()!=tram_wt ? desc->get_wtyp() : track_wt);
-		way->count_sign();
-
-		player_t::add_maintenance(this->get_owner(), desc->get_maintenance(), way->get_waytype());
+		if (desc) {
+			weg_t* way = gr->get_weg(desc->get_wtyp() != tram_wt ? desc->get_wtyp() : track_wt);
+			way->count_sign();
+			player_t::add_maintenance(this->get_owner(), desc->get_maintenance(), way->get_waytype());
+		}
 	}
+	return desc == 0;
 }
 
 

@@ -84,7 +84,7 @@ public:
 
 	const char *get_removal_error(const player_t *player) OVERRIDE;
 
-	void finish_rd() OVERRIDE;
+	bool finish_rd() OVERRIDE;
 
 	// specific for wayobj
 	void set_dir(ribi_t::ribi d) { dir = d; calc_image(); }

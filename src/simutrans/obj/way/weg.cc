@@ -1,3 +1,4 @@
+
 /*
  * This file is part of the Simutrans project under the Artistic License.
  * (see LICENSE.txt)
@@ -727,12 +728,13 @@ void weg_t::new_month()
 
 
 // correct speed and maintenance
-void weg_t::finish_rd()
+bool weg_t::finish_rd()
 {
 	player_t *player = get_owner();
 	if(  player  &&  desc  ) {
 		player_t::add_maintenance( player,  desc->get_maintenance(), desc->get_finance_waytype() );
 	}
+	return desc==NULL;
 }
 
 

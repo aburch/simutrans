@@ -258,8 +258,9 @@ public:
 
 	/**
 	 * Called after the world is completely loaded from savegame
+	 * return true to be removed
 	 */
-	virtual void finish_rd() {}
+	virtual bool finish_rd() { return false; }
 
 	/**
 	 * @return position

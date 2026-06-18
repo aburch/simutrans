@@ -127,11 +127,12 @@ void baum_t::rdwr(loadsave_t *file)
 }
 
 
-void baum_t::finish_rd()
+bool baum_t::finish_rd()
 {
 	if(get_xoff()==-128) {
 		calc_off(welt->lookup( get_pos())->get_grund_hang());
 	}
+	return false;
 }
 
 

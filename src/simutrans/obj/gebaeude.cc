@@ -1040,7 +1040,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 }
 
 
-void gebaeude_t::finish_rd()
+bool gebaeude_t::finish_rd()
 {
 	player_t::add_maintenance(get_owner(), tile->get_desc()->get_maintenance(welt), tile->get_desc()->get_finance_waytype());
 
@@ -1086,6 +1086,7 @@ void gebaeude_t::finish_rd()
 		}
 #endif
 	}
+	return false;
 }
 
 

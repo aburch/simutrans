@@ -162,7 +162,7 @@ public:
 	 * add buildings to towns if needed
 	 * may repair broken buildings if REPAIR_MULTITILE_BUILD is set
 	 */
-	void finish_rd() OVERRIDE;
+	bool finish_rd() OVERRIDE;
 
 	/**
 	 * @returns pointer to first tile of a multi-tile building.

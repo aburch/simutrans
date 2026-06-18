@@ -4013,7 +4013,10 @@ void karte_t::plans_finish_rd( sint16 x_min, sint16 x_max, sint16 y_min, sint16 
 				for(  int n = 0;  n < gr->obj_count();  n++  ) {
 					obj_t *obj = gr->obj_bei(n);
 					if(obj) {
-						obj->finish_rd();
+						if (obj->finish_rd()) {
+							delete obj;
+							n--;
+						}
 					}
 				}
 				if(  load_version<=111000  &&  gr->ist_natur()  ) {

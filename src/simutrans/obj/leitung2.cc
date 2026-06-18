@@ -361,7 +361,7 @@ void leitung_t::info(cbuffer_t & buf) const
 }
 
 
-void leitung_t::finish_rd()
+bool leitung_t::finish_rd()
 {
 #ifdef MULTI_THREAD
 	pthread_mutex_lock( &verbinde_mutex );
@@ -379,6 +379,7 @@ void leitung_t::finish_rd()
 	assert(gr); (void)gr;
 
 	player_t::add_maintenance(get_owner(), get_maintenance(), powerline_wt);
+	return false;
 }
 
 void leitung_t::rdwr(loadsave_t *file)
@@ -561,7 +562,7 @@ void pumpe_t::rdwr(loadsave_t * file)
 }
 
 
-void pumpe_t::finish_rd()
+bool pumpe_t::finish_rd()
 {
 	leitung_t::finish_rd();
 
@@ -576,10 +577,11 @@ void pumpe_t::finish_rd()
 			// underground, check directly above
 			fab = fabrik_t::get_fab(get_pos().get_2d());
 		}
-		if(  fab  ) {
-			// only add when factory there
-			fab->add_transformer_connected(this);
+		if (!fab) {
+			dbg->error("senke_t::finish_rd()", "No factory near transformer at %s.", get_pos().get_fullstr());
+			return true;
 		}
+		fab->add_transformer_connected(this);
 	}
 
 #ifdef MULTI_THREAD
@@ -591,6 +593,7 @@ void pumpe_t::finish_rd()
 	set_image(skinverwaltung_t::pumpe->get_image_id(0));
 	is_crossing = false;
 #endif
+	return false;
 }
 
 
@@ -823,7 +826,7 @@ void senke_t::rdwr(loadsave_t *file)
 	}
 }
 
-void senke_t::finish_rd()
+bool senke_t::finish_rd()
 {
 	leitung_t::finish_rd();
 
@@ -838,9 +841,11 @@ void senke_t::finish_rd()
 			// underground, check directly above
 			fab = fabrik_t::get_fab(get_pos().get_2d());
 		}
-		if(  fab  ) {
-			fab->add_transformer_connected(this);
+		if (!fab) {
+			dbg->error("senke_t::finish_rd()", "No factory near transformer at %s.", get_pos().get_fullstr());
+			return true;
 		}
+		fab->add_transformer_connected(this);
 	}
 
 #ifdef MULTI_THREAD
@@ -851,6 +856,7 @@ void senke_t::finish_rd()
 #ifdef MULTI_THREAD
 	pthread_mutex_unlock( &calc_image_mutex );
 #endif
+	return false;
 }
 
 void senke_t::info(cbuffer_t & buf) const

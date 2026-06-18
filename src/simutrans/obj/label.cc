@@ -70,7 +70,7 @@ label_t::~label_t()
 }
 
 
-void label_t::finish_rd()
+bool label_t::finish_rd()
 {
 #ifdef MULTI_THREAD
 	pthread_mutex_lock( &add_label_mutex );
@@ -86,6 +86,7 @@ void label_t::finish_rd()
 #ifdef MULTI_THREAD
 	pthread_mutex_unlock( &add_label_mutex );
 #endif
+	return false;
 }
 
 

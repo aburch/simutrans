@@ -298,7 +298,7 @@ public:
 	image_id get_outline_image() const OVERRIDE { return image; }
 
 	// correct maintenance
-	void finish_rd() OVERRIDE;
+	bool finish_rd() OVERRIDE;
 } GCC_PACKED;
 
 #endif

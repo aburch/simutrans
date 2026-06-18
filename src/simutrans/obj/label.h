@@ -21,7 +21,7 @@ public:
 	label_t(koord3d pos, player_t *player, const char *text);
 	~label_t();
 
-	void finish_rd() OVERRIDE;
+	bool finish_rd() OVERRIDE;
 
 	void show_info() OVERRIDE;
 

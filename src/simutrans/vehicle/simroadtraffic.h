@@ -63,7 +63,7 @@ public:
 	void rdwr(loadsave_t *file) OVERRIDE;
 
 	// finalizes direction
-	void finish_rd() OVERRIDE;
+	bool finish_rd() OVERRIDE;
 
 	// we allow to remove all cars etc.
 	const char *get_removal_error(const player_t *) OVERRIDE { return NULL; }

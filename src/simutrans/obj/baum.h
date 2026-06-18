@@ -83,7 +83,7 @@ public:
 	void rdwr(loadsave_t *file) OVERRIDE;
 
 	/// @copydoc obj_t::finish_rd
-	void finish_rd() OVERRIDE;
+	bool finish_rd() OVERRIDE;
 
 	/// @copydoc obj_t::get_image
 	image_id get_image() const OVERRIDE;

@@ -169,7 +169,7 @@ void bruecke_t::rdwr(loadsave_t *file)
 
 
 // correct speed and maintenance
-void bruecke_t::finish_rd()
+bool bruecke_t::finish_rd()
 {
 	grund_t *gr = welt->lookup(get_pos());
 	if(desc==NULL) {
@@ -180,6 +180,7 @@ void bruecke_t::finish_rd()
 			}
 			if(desc==NULL) {
 				dbg->fatal("bruecke_t::finish_rd()", "Unknown bridge for type %x at (%s)", weg->get_waytype(), get_pos().get_str() );
+				return true;
 			}
 		}
 		else {
@@ -190,6 +191,7 @@ void bruecke_t::finish_rd()
 			}
 			if(desc==NULL) {
 				dbg->fatal("bruecke_t::finish_rd()", "No powerline bridge to build bridge type at (%s)", get_pos().get_str() );
+				return true;
 			}
 		}
 	}
@@ -217,6 +219,7 @@ void bruecke_t::finish_rd()
 			img = desc->get_start( gr->get_grund_hang() );
 		}
 	}
+	return false;
 }
 
 

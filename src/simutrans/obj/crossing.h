@@ -103,7 +103,7 @@ public:
 
 	void rdwr(loadsave_t *file) OVERRIDE;
 
-	void finish_rd() OVERRIDE;
+	bool finish_rd() OVERRIDE;
 };
 
 #endif
