@@ -429,6 +429,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 
 		bt_reverse_default.init(button_t::square_state, "Reverse by Default");
 		bt_reverse_default.set_tooltip(translator::translate("When the next destination is in the opposite direction, it will automatically reverse."));
+		bt_reverse_default.pressed = schedule->is_reverse_default();
 		bt_reverse_default.add_listener(this);
 		add_component(&bt_reverse_default);
 		add_component(&sp_schedule_reverse_settings);
