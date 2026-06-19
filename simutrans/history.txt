@@ -8,6 +8,8 @@
 	CHG: reserved tile for way choose of non-trains (road and air) will not be shown in green when reservation display is on
 	CHG: very much overhauled airplane state machine: Should give much fewer deadlocks (no landing and blockign runway with not free stop, not leaving bay when plane comign in my direction for take off)
 	CHG: direction switches will first display the undefined graphic (if there)
+	FIX: close diagonal preview and some diagonal images after building
+	FIX: (Nazalassa) only send chat when hitting RETURN
 
 
 Release of 124.5 (r11993 on 31-May-2026):
