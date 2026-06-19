@@ -265,12 +265,14 @@ public:
 	void set_electrify(bool janein) { electrified_flag = janein; }
 	inline bool is_electrified() const {return electrified_flag; }
 
+	inline void set_close_diagonal(uint8 n) { close_diagonal_state = n&3; }
+	inline uint8 is_close_diagonal() const { return close_diagonal_state; }
+
 	inline bool has_sign() const {return sign_flag; }
 	inline bool has_signal() const {return signal_flag; }
 	inline bool has_wayobj() const {return wayobj_flag; }
 	inline bool is_crossing() const {return crossing_flag; }
 	inline bool is_diagonal() const {return diagonal_flag; }
-	inline uint8 is_close_diagonal() const { return close_diagonal_state; }
 	inline bool is_snow() const {return show_flag; }
 
 	// this is needed during a change from crossing to tram track

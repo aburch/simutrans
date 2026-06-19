@@ -2948,8 +2948,59 @@ void tool_build_way_t::mark_tiles(player_t* player, const koord3d& start, const 
 			if (gr->get_weg_hang()) {
 				way->set_image(desc->get_slope_image_id(gr->get_weg_hang(), 0));
 			}
-			else if (desc->get_wtyp() != powerline_wt && ribi_t::is_bend(zeige) && desc->has_diagonal_image()) {
-				way->set_image(desc->get_diagonal_image_id(zeige, 0));
+			else if (desc->get_wtyp() != powerline_wt && (ribi_t::is_bend(zeige)
+				        || (ribi_t::all == zeige && ribi_t::is_bend(bauigel.get_route().get_ribi(j))))
+				     && desc->has_diagonal_image()
+				) {
+				if (ribi_t::all == zeige) {
+
+					// a little more effor to find out if diagonal
+					ribi_t::ribi r[4], r0 = 0;
+					uint8 non_bent = 0;
+					for (uint8 i = 0; i < 4; i++) {
+						r[i] = 0;
+						koord3d testpos = pos + koord::nesw[i];
+						if (j > 0  &&  testpos == bauigel.get_route()[j-1]) {
+							// use ribi from bauigel
+							r[i]= bauigel.get_route().get_ribi(j-1);
+						}
+						else if (j < bauigel.get_count()  &&  testpos == bauigel.get_route()[j+1]) {
+							// use ribi from bauigel
+							r[i] = bauigel.get_route().get_ribi(j+1);
+						}
+						else {
+							if (grund_t* gr = welt->lookup(testpos)) {
+								r[i] = gr->get_weg_ribi_unmasked(desc->get_wtyp());
+							}
+						}
+						if (!ribi_t::is_bend(r[i])) {
+							// only one entry point
+							non_bent++;
+						}
+					}
+					way->set_image(desc->get_image_id(zeige, 0));
+					if (non_bent < 2) {
+						if (r[0] == r[1] || r[2] == r[3]) {
+							if (r[0] + r[2] != ribi_t::all && r[1] + r[3] != ribi_t::all) {
+								// entry and exist not parallel => crossing
+							}
+							else {
+								way->set_image(desc->get_diagonal_image_id(bauigel.get_route().get_ribi(j),0));
+							}
+						}
+						else {
+							if (r[0] + r[1] != ribi_t::all && r[2] + r[3] != ribi_t::all) {
+								// entry and exist not parallel => crossing
+							}
+							else {
+								way->set_image(desc->get_diagonal_image_id(bauigel.get_route().get_ribi(j),0));
+							}
+						}
+					}
+				}
+				else {
+					way->set_image(desc->get_diagonal_image_id(zeige, 0));
+				}
 			}
 			else {
 				way->set_image(desc->get_image_id(zeige, 0));
