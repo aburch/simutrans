@@ -5964,27 +5964,33 @@ void tool_rotate_building_t::mark_tiles( player_t *, const koord3d &start, const
 	k1.y = start.y < end.y ? start.y : end.y;
 	k2.x = start.x + end.x - k1.x;
 	k2.y = start.y + end.y - k1.y;
+	const sint16 z1 = min( start.z, end.z );
+	const sint16 z2 = max( start.z, end.z );
 	koord k;
 	for(  k.x = k1.x;  k.x <= k2.x;  k.x++  ) {
 		for(  k.y = k1.y;  k.y <= k2.y;  k.y++  ) {
-			grund_t *gr = welt->lookup_kartenboden( k );
-			if(  !gr  ) { continue; }
+			const planquadrat_t *pl = welt->access( k );
+			if(  !pl  ) { continue; }
+			for(  unsigned i = 0;  i < pl->get_boden_count();  i++  ) {
+				grund_t *gr = pl->get_boden_bei( i );
+				if(  gr->get_hoehe() < z1  ||  gr->get_hoehe() > z2  ) { continue; }
 
-			zeiger_t *marker = new zeiger_t( gr->get_pos(), NULL );
+				zeiger_t *marker = new zeiger_t( gr->get_pos(), NULL );
 
-			const uint8 grund_hang = gr->get_grund_hang();
-			const uint8 weg_hang   = gr->get_weg_hang();
-			const uint8 hang = max( corner_sw(grund_hang), corner_sw(weg_hang) ) +
-			                   3 * max( corner_se(grund_hang), corner_se(weg_hang) ) +
-			                   9 * max( corner_ne(grund_hang), corner_ne(weg_hang) ) +
-			                   27 * max( corner_nw(grund_hang), corner_nw(weg_hang) );
-			uint8 back_hang = (hang % 3) + 3 * ((uint8)(hang / 9)) + 27;
-			marker->set_foreground_image( ground_desc_t::marker->get_image( grund_hang % 27 ) );
-			marker->set_image( ground_desc_t::marker->get_image( back_hang ) );
+				const uint8 grund_hang = gr->get_grund_hang();
+				const uint8 weg_hang   = gr->get_weg_hang();
+				const uint8 hang = max( corner_sw(grund_hang), corner_sw(weg_hang) ) +
+				                   3 * max( corner_se(grund_hang), corner_se(weg_hang) ) +
+				                   9 * max( corner_ne(grund_hang), corner_ne(weg_hang) ) +
+				                   27 * max( corner_nw(grund_hang), corner_nw(weg_hang) );
+				uint8 back_hang = (hang % 3) + 3 * ((uint8)(hang / 9)) + 27;
+				marker->set_foreground_image( ground_desc_t::marker->get_image( grund_hang % 27 ) );
+				marker->set_image( ground_desc_t::marker->get_image( back_hang ) );
 
-			marker->mark_image_dirty( marker->get_image(), 0 );
-			gr->obj_add( marker );
-			marked.insert( marker );
+				marker->mark_image_dirty( marker->get_image(), 0 );
+				gr->obj_add( marker );
+				marked.insert( marker );
+			}
 		}
 	}
 }
@@ -6001,14 +6007,19 @@ const char *tool_rotate_building_t::do_work( player_t *player, const koord3d &st
 	k1.y = start.y < end.y ? start.y : end.y;
 	k2.x = start.x + end.x - k1.x;
 	k2.y = start.y + end.y - k1.y;
+	const sint16 z1 = min( start.z, end.z );
+	const sint16 z2 = max( start.z, end.z );
 
 	// collect unique buildings to avoid rotating multi-tile buildings multiple times
 	vector_tpl<gebaeude_t*> processed;
 	koord k;
 	for(  k.x = k1.x;  k.x <= k2.x;  k.x++  ) {
 		for(  k.y = k1.y;  k.y <= k2.y;  k.y++  ) {
-			const grund_t *gr = welt->lookup_kartenboden( k );
-			if(  gr  ) {
+			const planquadrat_t *pl = welt->access( k );
+			if(  !pl  ) { continue; }
+			for(  unsigned i = 0;  i < pl->get_boden_count();  i++  ) {
+				const grund_t *gr = pl->get_boden_bei( i );
+				if(  gr->get_hoehe() < z1  ||  gr->get_hoehe() > z2  ) { continue; }
 				if(  gebaeude_t* gb = gr->find<gebaeude_t>()  ) {
 					if(  !processed.is_contained( gb )  ) {
 						processed.append( gb );
