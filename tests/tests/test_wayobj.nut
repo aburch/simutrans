@@ -104,10 +104,10 @@ function test_wayobj_build_disconnected()
 
 	{
 		ASSERT_EQUAL(remover.work(pl, coord3d(3, 1, 0), coord3d(3, 5, 0), "" + wt_rail), null)
-		ASSERT_TRUE(tile_x(3, 1, 0).find_object(mo_wayobj) == null)
-		ASSERT_TRUE(tile_x(3, 5, 0).find_object(mo_wayobj) == null)
-		ASSERT_TRUE(tile_x(4, 1, 0).find_object(mo_wayobj) != null)
-		ASSERT_TRUE(tile_x(4, 5, 0).find_object(mo_wayobj) != null)
+		ASSERT_TRUE(tile_x(2, 1, 0).find_object(mo_wayobj) == null)
+		ASSERT_TRUE(tile_x(2, 5, 0).find_object(mo_wayobj) == null)
+		ASSERT_TRUE(tile_x(3, 1, 0).find_object(mo_wayobj) != null)
+		ASSERT_TRUE(tile_x(3, 5, 0).find_object(mo_wayobj) != null)
 	}
 
 	// clean up
