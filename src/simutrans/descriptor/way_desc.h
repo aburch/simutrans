@@ -58,9 +58,15 @@ private:
 	sint8 number_of_seasons;
 
 	/// if true front_images lists exists as nodes
-	bool front_images;
+	bool front_images : 1;
 
-	bool clip_below; // only relevant for elevated ways
+	bool clip_below : 1; // only relevant for elevated ways
+
+	// cached to not travese the list for each of those
+	bool diagonals : 1;
+	bool close_diagonals : 1;
+	bool double_slopes : 1;
+	bool switches : 1;
 
 	/**
 	 * calculates index of image list for flat ways
@@ -181,38 +187,25 @@ public:
 		if (front  &&  !front_images) {
 			return IMG_EMPTY;
 		}
+		assert(ribi_t::is_bend(ribi));
 		const uint16 n = image_list_base_index(season, front) + 2;
-		if (ribi_t::is_bend(ribi)) {
-			return get_child<image_list_t>(n)->get_image_id(ribi / 3 - 1);
+		return get_child<image_list_t>(n)->get_image_id(ribi / 3 - 1);
+	}
+
+	image_id get_close_diagonal_image_id(uint8 nr, uint8 season, bool front = false) const
+	{
+		if (front && !front_images) {
+			return IMG_EMPTY;
 		}
-		else {
-			// close diagonal graphics
-			return get_child<image_list_t>(n)->get_image_id(ribi_t::is_straight_ns(ribi)+4);
-		}
+		const uint16 n = image_list_base_index(season, front) + 2;
+		return get_child<image_list_t>(n)->get_image_id(4+nr);
 	}
 
-	bool has_double_slopes() const {
-		return get_child<image_list_t>(3)->get_count() > 4
-		||     get_child<image_list_t>(image_list_base_index(false, true) + 1)->get_count() > 4;
-	}
-
-	bool has_diagonal_image() const {
-		return get_child<image_list_t>(4)->get_image_id(0) != IMG_EMPTY
-		||     get_child<image_list_t>(image_list_base_index(false, true)+2)->get_image_id(0) != IMG_EMPTY;
-	}
-
-	bool has_close_diagonal_image() const {
-		if (has_diagonal_image()) {
-			return get_child<image_list_t>(4)->get_image_id(4) != IMG_EMPTY
-				|| get_child<image_list_t>(image_list_base_index(false, true) + 2)->get_image_id(5) != IMG_EMPTY;
-		}
-		return false;
-	}
-
-	bool has_switch_image() const {
-		return get_child<image_list_t>(2)->get_count() > 16
-		||     get_child<image_list_t>(image_list_base_index(false, true))->get_count() > 16;
-	}
+	// quick query functions
+	bool has_double_slopes() const { return double_slopes; 	}
+	bool has_diagonal_image() const { return diagonals; }
+	bool has_close_diagonal_image() const { return close_diagonals; }
+	bool has_switch_image() const {	return switches; }
 
 	/* true, if this tile is to be drawn as a normal thing */
 	bool is_draw_as_obj() const { return draw_as_obj; }

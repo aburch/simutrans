@@ -5,10 +5,11 @@
 	FIX: again tunnel building in full underground mode
 	FIX: citybuildings of level 1 were actually level zero due to makeobj substracting 1 on loading.
 	FIX: correct citysize again after renovation.
-	CHG: reserved tile for way choose of non-trains (road and air) will not be shown in green when reservation display is on
+	CHG: reserved tile for way choose of non-trains (road and air) will now be shown in green when reservation display is on
 	CHG: very much overhauled airplane state machine: Should give much fewer deadlocks (no landing and blockign runway with not free stop, not leaving bay when plane comign in my direction for take off)
 	CHG: direction switches will first display the undefined graphic (if there)
-	FIX: close diagonal preview and some diagonal images after building
+	ADD: close diagonal became possible including trains passing in different directions.
+	ADD: Including handling of wayobj (as with ways, define diagonal[close1] for close diagonal image)
 	FIX: (Nazalassa) only send chat when hitting RETURN
 
 

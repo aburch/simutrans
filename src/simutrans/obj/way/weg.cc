@@ -544,7 +544,7 @@ void weg_t::calc_image()
 			}
 			else {
 				if (desc->has_close_diagonal_image()) {
-					set_images(image_diagonal, is_close_diagonal() == 1 ? ribi_t::northsouth : ribi_t::eastwest, snow);
+					set_images(image_diagonal, is_close_diagonal() == 1+4, snow);
 				}
 				else {
 					set_images(image_diagonal, is_close_diagonal() == 1 ? ribi_t::northwest : ribi_t::southwest, snow);

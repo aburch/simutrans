@@ -38,6 +38,9 @@ private:
 	 */
 	uint8 own_wtyp;
 
+	bool diagonals : 1;
+	bool close_diagonals : 1;
+
 public:
 
 	bool is_overhead_line() const { return (waytype_t)own_wtyp == overheadlines_wt; }
@@ -45,6 +48,7 @@ public:
 	// way objects can have a front and a backimage, unlike ways ...
 	image_id get_front_image_id(ribi_t::ribi ribi) const { return get_child<image_list_t>(2)->get_image_id(ribi); }
 
+	/* not used!!!*/
 	image_id get_crossing_image_id(ribi_t::ribi ribi, bool nw, bool front = false) const
 	{
 		if(  front  &&  !get_child<image_list_t>(2)->get_count()  ) {
@@ -147,31 +151,30 @@ public:
 
 	image_id get_front_diagonal_image_id(ribi_t::ribi ribi) const
 	{
-		if(!ribi_t::is_bend(ribi)) {
-			return IMG_EMPTY;
-		}
+		assert(ribi_t::is_bend(ribi));
 		return get_child<image_list_t>(6)->get_image_id(ribi / 3 - 1);
 	}
 
 	image_id get_back_diagonal_image_id(ribi_t::ribi ribi) const
 	{
-		if(!ribi_t::is_bend(ribi)) {
-			return IMG_EMPTY;
-		}
+		assert(ribi_t::is_bend(ribi));
 		return get_child<image_list_t>(7)->get_image_id(ribi / 3 - 1);
 	}
 
-	bool has_diagonal_image() const {
-		if (get_child<image_list_t>(4)->get_image(0)) {
-			// has diagonal fontimage
-			return true;
-		}
-		if (get_child<image_list_t>(5)->get_image(0)) {
-			// or diagonal back image
-			return true;
-		}
-		return false;
+	image_id get_front_close_diagonal_image_id(uint8 nr) const
+	{
+		assert(nr < 2);
+		return get_child<image_list_t>(6)->get_image_id(4 + nr);
 	}
+
+	image_id get_back_close_diagonal_image_id(uint8 nr) const
+	{
+		assert(nr < 2);
+		return get_child<image_list_t>(7)->get_image_id(4 + nr);
+	}
+
+	bool has_diagonal_image() const { return diagonals; }
+	bool has_close_diagonal_image() const { return close_diagonals; }
 
 	/**
 	* Skin: cursor (index 0) and icon (index 1)

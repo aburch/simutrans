@@ -4051,6 +4051,7 @@ void tool_build_wayobj_t::mark_tiles( player_t* player, const koord3d &start, co
 	}
 }
 
+
 const char *tool_build_wayobj_t::do_work( player_t* player, const koord3d &start, const koord3d &end )
 {
 	route_t verbindung;
@@ -4078,14 +4079,22 @@ const char *tool_build_wayobj_t::do_work( player_t* player, const koord3d &start
 				if(  obj  &&  obj->get_typ()==obj_t::wayobj  ) {
 					wayobj_t *wo = static_cast<wayobj_t *>(obj);
 					if(  wo->get_waytype() == wt  ) {
-						// only remove matching waytype
-						const char *err = wo->get_removal_error( player );
-						if( !err ) {
-							wo->cleanup( player );
-							delete wo;
+						uint8 dir = ~r.get_ribi(i);
+						dir &= wo->get_dir();
+						if (dir == 0) {
+							// only remove matching waytype
+							const char* err = wo->get_removal_error(player);
+							if (!err) {
+								wo->cleanup(player);
+								delete wo;
+							}
+							else {
+								break;
+							}
 						}
 						else {
-							break;
+							wo->set_dir(dir);
+							wo->calc_cached_image();
 						}
 					}
 				}

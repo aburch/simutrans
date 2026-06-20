@@ -608,6 +608,11 @@ void grund_t::info(cbuffer_t& buf) const
 				buf.append("Has sidewalk (cityroad)\n\n");
 			}
 #endif
+#if MSG_LEVEL >= 4
+			if (wayobj_t* wo = get_wayobj(get_weg_nr(0)->get_waytype())) {
+				buf.printf("Wayobj ribi %d\n\n", wo->get_dir());
+			}
+#endif
 			// second way
 			if(flags&has_way2) {
 				//translator::get_obj_info(buf, get_weg_nr(0)->get_name()) // might get too long ...
@@ -1913,7 +1918,9 @@ bool grund_t::weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi)
 							wayobj_t *wo2 = next_gr->get_wayobj( wegtyp );
 							if( wo2 ) {
 								wo->set_dir( wo->get_dir() | ribi_t::nesw[i] );
+								wo->calc_cached_image();
 								wo2->set_dir( wo2->get_dir() | ribi_t::backward(ribi_t::nesw[i]) );
+								wo2->calc_cached_image();
 							}
 						}
 					}
@@ -2022,7 +2029,6 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 	if(weg!=NULL) {
 
 		weg->mark_image_dirty(get_image(), 0);
-
 		if(ribi_rem) {
 			ribi_t::ribi ribi = weg->get_ribi();
 			grund_t *to;
@@ -2193,7 +2199,7 @@ bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t:
 				}
 			}
 			else if (signal_t* const signal = obj_cast<signal_t>(obj)) {
-				// signal: not on crossings => remove all
+				// signal: not on crossings => can remove all
 				if (signal->get_desc()->get_wtyp() == wt) {
 					costs -= signal->get_desc()->get_price();
 					delete signal;
@@ -2201,11 +2207,12 @@ bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t:
 			}
 			else if (wayobj_t* const wayobj = obj_cast<wayobj_t>(obj)) {
 				// wayobj: check dir
-				if (add == ribi_t::none && wayobj->get_desc()->get_wtyp() == wt) {
-					uint8 new_dir=wayobj->get_dir()&add;
+				if (wayobj->get_desc()->get_wtyp() == wt) {
+					uint8 new_dir = wayobj->get_dir() & add;
 					if(new_dir) {
 						// just change dir
 						wayobj->set_dir(new_dir);
+						wayobj->calc_image();
 					}
 					else {
 						costs -= wayobj->get_desc()->get_price();
