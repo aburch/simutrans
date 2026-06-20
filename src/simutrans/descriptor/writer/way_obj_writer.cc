@@ -111,14 +111,10 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 		back_list.append(str2);
 	}
 	// close diagonals
-	str = obj.get("frontdiagonal[close1]");
-	front_list.append(str);
-	str = obj.get("frontdiagonal[close2]");
-	front_list.append(str);
-	str = obj.get("backdiagonal[close1]");
-	back_list.append(str);
-	str = obj.get("backdiagonal[close2]");
-	back_list.append(str);
+	front_list.append(obj.get("frontdiagonal[close1]"));
+	front_list.append(obj.get("frontdiagonal[close2]"));
+	back_list.append(obj.get("backdiagonal[close1]"));
+	back_list.append(obj.get("backdiagonal[close2]"));
 	imagelist_writer_t::instance()->write_obj(outfp, node, front_list);
 	imagelist_writer_t::instance()->write_obj(outfp, node, back_list);
 
