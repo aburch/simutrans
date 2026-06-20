@@ -129,8 +129,7 @@ wayobj_t::~wayobj_t()
 			if( ribi_t::nesw[i] & get_dir() ) {
 				grund_t *next_gr;
 				if( gr->get_neighbour( next_gr, desc->get_wtyp(), ribi_t::nesw[i] ) ) {
-					wayobj_t *wo2 = next_gr->get_wayobj( desc->get_wtyp() );
-					if( wo2 ) {
+					if(wayobj_t *wo2 = next_gr->get_wayobj( desc->get_wtyp() )) {
 						wo2->mark_image_dirty( wo2->get_front_image(), 0 );
 						wo2->mark_image_dirty( wo2->get_image(), 0 );
 						wo2->set_dir( wo2->get_dir() & ~ribi_t::backward(ribi_t::nesw[i]) );
@@ -395,7 +394,7 @@ void wayobj_t::calc_cached_image()
 
 void wayobj_t::display(int xpos, int ypos CLIP_NUM_DEF) const
 {
-	if (close_diagonal) {
+	if (close_diagonal && dir != ribi_t::all) {
 		image_id image = desc->get_back_diagonal_image_id(close_diagonal == 1 ? ribi_t::northwest : ribi_t::southwest);
 		if (get_owner_nr() != PLAYER_UNOWNED) {
 			if (obj_t::show_owner) {
@@ -419,7 +418,7 @@ void wayobj_t::display_after(int xpos, int ypos, const sint8 clip_num) const
 void wayobj_t::display_after(int xpos, int ypos, bool is_global) const
 #endif
 {
-	if (close_diagonal) {
+	if (close_diagonal && dir != ribi_t::all) {
 		image_id image = desc->get_front_diagonal_image_id(close_diagonal == 1 ? ribi_t::northwest : ribi_t::southwest);
 		if (image != IMG_EMPTY) {
 			const int raster_width = gfx->get_current_tile_raster_width();
