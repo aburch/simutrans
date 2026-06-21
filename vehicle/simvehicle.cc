@@ -5901,6 +5901,7 @@ void air_vehicle_t::set_convoi(convoi_t *c)
 					target_halt->reserve_position(target,cnv->self);
 				}
 			}
+			dbg->message("air_vehicle_t::set_convoi()","set %s, takeoff %i, touchdown %i", cnv->get_name(), takeoff, touchdown);
 			// restore runway reservation by state
 			if(  state==departing  ) {
 				block_reserver( takeoff, takeoff+100, true );
@@ -5908,7 +5909,7 @@ void air_vehicle_t::set_convoi(convoi_t *c)
 			else if(  state==landing  ) {
 				block_reserver( touchdown, search_for_stop+1, true );
 			}
-			else if(  state==taxiing  &&  route_index>=takeoff  ) {
+			else if(  state==taxiing  &&  route_index>=takeoff  &&  route_index<touchdown  ) {
 				// brief window: state is still taxiing but route_index has advanced to
 				// takeoff because the vehicle hopped onto the runway-start tip tile
 				// (reservation was already acquired when entering that tile; state
