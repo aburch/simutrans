@@ -3,18 +3,13 @@
  * (see LICENSE.txt)
  */
 
-#include <string.h>
-
 #include "monorailboden.h"
 
 #include "../simworld.h"
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/environment.h"
-#include "../dataobj/translator.h"
 #include "wege/weg.h"
-#include "../descriptor/way_desc.h"
-#include "../utils/cbuffer_t.h"
 
 
 
