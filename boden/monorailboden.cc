@@ -12,7 +12,6 @@
 #include "wege/weg.h"
 
 
-
 monorailboden_t::monorailboden_t(koord3d pos,slope_t::type slope) : grund_t(pos)
 {
 	this->slope = slope;
