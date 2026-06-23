@@ -66,14 +66,3 @@ void monorailboden_t::calc_image_internal(const bool calc_only_snowline_change)
 		}
 	}
 }
-
-void monorailboden_t::info(cbuffer_t & buf) const
-{
-	const weg_t *monorail = find<weg_t>();
-	if(monorail  &&  monorail->get_desc()) {
-		const way_desc_t *desc = monorail->get_desc();
-		buf.append(translator::translate(desc->get_name()));
-		buf.append("\n");
-	}
-	grund_t::info(buf);
-}

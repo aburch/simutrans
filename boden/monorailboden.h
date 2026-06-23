@@ -27,9 +27,6 @@ public:
 
 	/// @coypdoc grund_t::get_typ
 	typ get_typ() const OVERRIDE { return monorailboden; }
-	
-	/// @copydoc boden_t::info
-	void info(cbuffer_t & buf) const OVERRIDE;
 };
 
 #endif
