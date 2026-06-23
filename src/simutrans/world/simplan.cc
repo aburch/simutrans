@@ -652,7 +652,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 			image_id img = overlay_img(gr);
 
 			for(int halt_count = 0; halt_count < halt_list_count; halt_count++) {
-				const FLAGGED_PIXVAL transparent = PLAYER_FLAG | OUTLINE_FLAG | gfx->palette_lookup(halt_list[halt_count]->get_owner()->get_player_color1() + 4);
+				const FLAGGED_PIXVAL transparent = PLAYER_FLAG | OUTLINE_FLAG | gfx->palette_lookup(halt_list[halt_count]->get_player_color() + 4);
 				gfx->draw_img_blend( img, xpos, ypos, transparent | TRANSPARENT25_FLAG, 0, 0);
 			}
 /*
@@ -680,7 +680,8 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 			const sint16 off = (raster_tile_width>>5);
 			// suitable start search
 			for (size_t h = halt_list_count; h-- != 0;) {
-				gfx->draw_rect_clipped(x - h * off, y + h * off, r, r, PLAYER_FLAG | gfx->palette_lookup(halt_list[h]->get_owner()->get_player_color1() + 4), kartenboden_dirty CLIP_NUM_DEFAULT);
+				// ### MULTI COLOR BOX ###
+				gfx->draw_rect_clipped(x - h * off, y + h * off, r, r, PLAYER_FLAG | gfx->palette_lookup(halt_list[h]->get_player_color() + 4), kartenboden_dirty CLIP_NUM_DEFAULT);
 			}
 		}
 	}
@@ -706,7 +707,7 @@ halthandle_t planquadrat_t::get_halt(player_t *player) const
 {
 	for(  uint8 i=0;  i < get_boden_count();  i++  ) {
 		halthandle_t my_halt = get_boden_bei(i)->get_halt();
-		if(  my_halt.is_bound()  &&  (player == NULL  ||  player == my_halt->get_owner())  ) {
+		if(  my_halt.is_bound()  &&  (player == NULL  ||  my_halt->can_use_halt(player))  ) {
 			return my_halt;
 		}
 	}

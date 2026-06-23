@@ -125,6 +125,16 @@ player_t *obj_t::get_owner() const
 }
 
 
+// true if one can change this object
+bool obj_t::check_owner(const player_t* player) const
+{
+	if (owner_n!=PLAYER_UNOWNED  &&  player  &&  !player->is_public_service()) {
+		return player->get_player_nr() == owner_n;
+	}
+	return true;
+}
+
+
 /* the only general info we can give is the name
  * we want to format it nicely,
  * with two linebreaks at the end => thus the little extra effort
@@ -159,12 +169,10 @@ bool obj_t::has_managed_lifecycle() const {
 // returns NULL, if removal is allowed
 const char *obj_t::get_removal_error(const player_t *player)
 {
-	if(owner_n==PLAYER_UNOWNED  ||  welt->get_player(owner_n) == player  ||  welt->get_public_player() == player) {
+	if (check_owner(player)) {
 		return NULL;
 	}
-	else {
-		return "Der Besitzer erlaubt das Entfernen nicht";
-	}
+	return "Der Besitzer erlaubt das Entfernen nicht";
 }
 
 

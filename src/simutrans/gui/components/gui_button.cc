@@ -308,7 +308,7 @@ bool button_t::infowin_event(const event_t *ev)
 			if(  type & AUTOMATIC_BIT  ) {
 				pressed = !pressed;
 			}
-			call_listeners( (long)0 );
+			call_listeners( (long)pressed );
 			return true;
 		}
 	}

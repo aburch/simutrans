@@ -468,7 +468,7 @@ void wayobj_t::extend_wayobj(koord3d pos, player_t *new_owner, ribi_t::ribi dir,
 		wayobj_t *existing_wayobj = gr->get_wayobj( desc->get_wtyp() );
 		if( existing_wayobj ) {
 			const bool is_speed_ok = existing_wayobj->get_desc()->get_topspeed() < desc->get_topspeed() || !keep_existing_faster_way;
-			const bool is_owner_ok = player_t::check_owner(new_owner, existing_wayobj->get_owner()) || new_owner == welt->get_public_player();
+			const bool is_owner_ok = existing_wayobj->check_owner(new_owner);
 
 			if(  is_speed_ok  &&  is_owner_ok &&  existing_wayobj->get_desc() != desc) {
 				// replace slower by faster if desired

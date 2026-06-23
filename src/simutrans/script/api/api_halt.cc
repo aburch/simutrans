@@ -91,7 +91,7 @@ call_tool_init halt_set_name(halthandle_t halt, const char* name)
 	if (!halt.is_bound()) {
 		return "Invalid halt provided";
 	}
-	return command_rename(halt->get_owner(), 'h', halt.get_id(), name);
+	return command_rename(halt->get_first_owner(), 'h', halt.get_id(), name);
 }
 
 
@@ -192,7 +192,13 @@ void export_halt(HSQUIRRELVM vm)
 	 * Station owner.
 	 * @returns owner
 	 */
-	register_method(vm, &haltestelle_t::get_owner, "get_owner");
+	register_method(vm, &haltestelle_t::get_first_owner, "get_owner");
+
+	/**
+	 * Station owner.
+	 * @returns owner
+	 */
+	register_method(vm, &haltestelle_t::get_owners, "get_owners");
 
 	/**
 	 * compare classes using metamethods

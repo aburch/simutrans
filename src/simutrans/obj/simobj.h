@@ -104,6 +104,9 @@ public:
 	 */
 	player_t *get_owner() const;
 
+	/// returns true if modifiable by current player
+	bool check_owner(const player_t *) const;
+
 	/**
 	 * routines to set, clear, get bit flags
 	 */

@@ -360,7 +360,7 @@ static void write_command_halt(player_t* pl, cbuffer_t& buf, const koord start, 
 			if (planquadrat_t* plan = welt->access(x, y)) {
 				for (uint8 i = 0; i < plan->get_boden_count(); i++) {
 					halthandle_t h = plan->get_boden_bei(i)->get_halt();
-					if (h.is_bound()  &&  (h->get_owner()==pl  ||  h->get_owner()->get_player_nr()==PLAYER_PUBLIC_NR)) {
+					if (h.is_bound()  &&  h->can_use_halt(pl)) {
 						all_halt.append_unique(h);
 					}
 				}

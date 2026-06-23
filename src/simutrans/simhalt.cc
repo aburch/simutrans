@@ -345,13 +345,6 @@ void haltestelle_t::recalc_basis_pos()
 		}
 	}
 
-	if (owners && (owners & (owners - 1)) == 0) {
-		// only one owner -> use color from first tile ...
-		if (owners != 1<<owner->get_player_nr()) {
-			owner = welt->get_player(log2((uint32)owners));
-		}
-	}
-
 	koord3d cent;
 	cent = koord3d((sint16)(cent_x / level_sum), (sint16)(cent_y / level_sum), (sint8)(cent_z / level_sum));
 	if (!welt->lookup(cent)) {
@@ -415,9 +408,8 @@ DBG_MESSAGE("haltestelle_t::remove()","removing segment from %d,%d,%d", pos.x, p
 
 	// only try to remove connected buildings, when still in list to avoid infinite loops
 	if(  halt->rem_grund(bd,player)  ) {
-		// remove station building?
-		gebaeude_t* gb = bd->find<gebaeude_t>();
-		if(gb) {
+		// remove station building? (ownership was checked)
+		if(gebaeude_t* gb = bd->find<gebaeude_t>()) {
 			DBG_MESSAGE("haltestelle_t::remove()",  "removing building" );
 			hausbauer_t::remove( player, gb );
 			bd = NULL; // no need to recalc image
@@ -429,10 +421,9 @@ DBG_MESSAGE("haltestelle_t::remove()","removing segment from %d,%d,%d", pos.x, p
 	}
 
 	if(!halt->existiert_in_welt()) {
-DBG_DEBUG("haltestelle_t::remove()","remove last");
 		// all deleted?
 DBG_DEBUG("haltestelle_t::remove()","destroy");
-		haltestelle_t::destroy( halt );
+		delete halt.get_rep();
 	}
 	else {
 		halt->recalc_basis_pos();
@@ -458,13 +449,31 @@ halthandle_t haltestelle_t::create(loadsave_t *file)
 }
 
 
-/**
- * Station destruction method.
- */
-void haltestelle_t::destroy(halthandle_t const halt)
+// deletion of all tiles unless shared station
+void haltestelle_t::destroy(halthandle_t const halt, player_t* pl)
 {
-	delete halt.get_rep();
+	if (halt->get_owners() == (1 << pl->get_player_nr())) {
+		delete halt.get_rep();
+		return;
+	}
+
+	// now we know its a partial delete
+	slist_tpl<tile_t>to_remove;
+	for (tile_t const& i : halt->get_tiles()) {
+		if (gebaeude_t* gb = i.grund->find<gebaeude_t>()) {
+			if (pl == gb->get_owner()) {
+				to_remove.append(i);
+			}
+		}
+	}
+
+	assert(to_remove.get_count() != halt->get_tiles().get_count());
+
+	while (!to_remove.empty()) {
+		halt->rem_grund(to_remove.remove_first().grund, pl);
+	}
 }
+
 
 
 /**
@@ -476,7 +485,7 @@ void haltestelle_t::destroy_all()
 {
 	while (!alle_haltestellen.empty()) {
 		halthandle_t halt = alle_haltestellen.back();
-		destroy(halt);
+		delete halt.get_rep();
 	}
 	delete all_koords;
 	all_koords = NULL;
@@ -513,7 +522,7 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 }
 
 
-haltestelle_t::haltestelle_t(koord k, player_t* player)
+haltestelle_t::haltestelle_t(koord k, player_t* )
 {
 	self = halthandle_t(this);
 	assert( !alle_haltestellen.is_contained(self) );
@@ -523,8 +532,7 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 
 	last_loading_step = welt->get_steps();
 
-	this->init_pos = k;
-	owner = player;
+	init_pos = k;
 	owners = 0;
 
 	enables = NOT_ENABLED;
@@ -644,18 +652,45 @@ void haltestelle_t::rotate90( const sint16 y_size )
 void haltestelle_t::set_permissions(uint16 perms)
 {
 	uint16 old_perm = permissions;
-	if (!owner || owner->is_public_service()) {
+	if (owners==(1<<PLAYER_PUBLIC_NR)) {
 		// old style public stops
 		permissions = 0xFFFF;
 	}
 	else {
 		// share player stops
-		permissions = perms | owners;
+		permissions = perms | owners | (1 << PLAYER_PUBLIC_NR);
 	}
 	if (rebuilt_schedule_registration(old_perm & ~permissions, permissions & ~old_perm)) {
 		 // convois/lines changed
 		welt->set_schedule_counter();
 	}
+}
+
+
+// returns the first player in the list
+player_t* haltestelle_t::get_first_owner() const
+{
+	if (!owners) {
+		return NULL;
+	}
+	else {
+		if ((owners & (owners - 1)) == 0) {
+			// single owner
+			return welt->get_player(log2((uint32)owners));
+		}
+		// multiple owners: use public
+		return welt->get_player(PLAYER_PUBLIC_NR);
+	}
+}
+
+
+// returns the first player in the list
+uint8 haltestelle_t::get_player_color() const
+{
+	if (!owners) {
+		return NULL;
+	}
+	return get_first_owner()->get_player_color1();
 }
 
 
@@ -1044,7 +1079,7 @@ void haltestelle_t::request_loading( convoihandle_t cnv )
 
 bool haltestelle_t::has_available_network(const player_t* player, uint8 catg_index) const
 {
-	if(!player_t::check_owner( player, owner )) {
+	if (!can_use_halt(player)) {
 		return false;
 	}
 	if(  catg_index != goods_manager_t::INDEX_NONE  &&  !is_enabled(catg_index)  ) {
@@ -1103,10 +1138,10 @@ bool haltestelle_t::step(uint8 what, sint16 &units_remaining)
  */
 void haltestelle_t::new_month()
 {
-	if(  welt->get_active_player()==owner  &&  status_color==gfx->palette_lookup(COL_RED)  ) {
+	if(  ((1<<welt->get_active_player_nr())&owners)  &&  status_color==gfx->palette_lookup(COL_RED)  ) {
 		cbuffer_t buf;
 		buf.printf( translator::translate("%s\nis crowded."), get_name() );
-		welt->get_message()->add_message(buf, get_basis_pos3d(),message_t::full|message_t::EXPIRE_AFTER_ONE_MONTH_MSG, PLAYER_FLAG|owner->get_player_nr(), IMG_EMPTY );
+		welt->get_message()->add_message(buf, get_basis_pos3d(),message_t::full|message_t::EXPIRE_AFTER_ONE_MONTH_MSG, PLAYER_FLAG|welt->get_active_player_nr(), IMG_EMPTY );
 		enables &= (PAX|POST|WARE);
 	}
 
@@ -2640,11 +2675,6 @@ sint64 haltestelle_t::calc_maintenance() const
 // changes this to a public transfer exchange stop
 void haltestelle_t::change_owner( player_t *player )
 {
-	// check if already public
-	if(  owner == player  ) {
-		return;
-	}
-
 	// process every tile of stop
 	slist_tpl<halthandle_t> joining;
 	for(tile_t const& i : tiles) {
@@ -2672,7 +2702,7 @@ void haltestelle_t::change_owner( player_t *player )
 			if(  weg_t *w=gr->get_weg_nr(j)  ) {
 				// change ownership of way...
 				player_t *wplayer = w->get_owner();
-				if(  owner==wplayer  ) {
+				if(  wplayer!=player) {
 					w->set_owner( player );
 					w->set_flag(obj_t::dirty);
 					sint64 cost = w->get_desc()->get_maintenance();
@@ -2686,7 +2716,7 @@ void haltestelle_t::change_owner( player_t *player )
 					player_t::add_maintenance( wplayer, -cost, financetype);
 					player_t::add_maintenance( player, cost, financetype);
 					// multiplayer notification message
-					if(  owner != welt->get_public_player()  &&  env_t::networkmode  &&  !has_been_announced  ) {
+					if(  player != welt->get_public_player()  &&  env_t::networkmode  &&  !has_been_announced  ) {
 						cbuffer_t buf;
 						buf.printf( translator::translate("(%s) now public way."), w->get_pos().get_str() );
 						welt->get_message()->add_message( buf, w->get_pos(), message_t::ai, PLAYER_FLAG|player->get_player_nr(), IMG_EMPTY );
@@ -2702,7 +2732,7 @@ void haltestelle_t::change_owner( player_t *player )
 		for(  uint8 i = 1;  i < gr->obj_count();  i++  ) {
 			if(  wayobj_t *const wo = obj_cast<wayobj_t>(gr->obj_bei(i))  ) {
 				player_t *woplayer = wo->get_owner();
-				if(  owner==woplayer  ) {
+				if(  player==woplayer  ) {
 					sint64 const cost = wo->get_desc()->get_maintenance();
 					// change ownership
 					wo->set_owner( player );
@@ -2716,14 +2746,12 @@ void haltestelle_t::change_owner( player_t *player )
 		}
 	}
 
-	// now finally change owner
-	owner = player;
 	// Old player is still allowed to serve this stop, no breaking networks
 	// Should not matter as stops can only be made public (for now)
-	set_permissions(permissions);
 	rebuild_connections();
 	rebuild_linked_connections();
 	rebuild_connected_components();
+	set_permissions(permissions);
 
 	// tell the world of it ...
 	if(  player == welt->get_public_player()  &&  env_t::networkmode  ) {
@@ -2770,7 +2798,7 @@ void haltestelle_t::merge_halt( halthandle_t halt_merged )
 		grund_t *gr = tiles_to_join.remove_first().grund;
 
 		// transfer tiles to us
-		halt_merged->rem_grund(gr, halt_merged->get_owner());
+		halt_merged->rem_grund(gr, NULL);
 		add_grund(gr, tiles_to_join.empty());	// just reconnect on last tile to merge
 	}
 
@@ -2785,7 +2813,7 @@ void haltestelle_t::merge_halt( halthandle_t halt_merged )
 	// Allow everyone who could serve either halt to continue serving it
 	set_permissions(halt_merged->get_permissions() | permissions);
 
-	destroy(halt_merged);
+	delete halt_merged.get_rep();
 
 	// also rebuild our connections
 	recalc_station_type();
@@ -2965,7 +2993,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t h( file, "haltestelle_t" );
 
-	sint32 owner_n;
+	sint32 owner_n = owners;
 	koord3d k;
 
 	// will restore halthandle_t after loading
@@ -2987,10 +3015,6 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if(file->is_saving()) {
-		owner_n = welt->sp2num( owner );
-	}
-
 	if(file->is_version_less(99, 8)) {
 		init_pos.rdwr( file );
 	}
@@ -3004,7 +3028,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	}
 
 	if(file->is_loading()) {
-		owner = welt->get_player_or_create(owner_n);
+		owners = owner_n;
 		permissions = 0; /* will iterate later */
 		k.rdwr( file );
 		while(k!=koord3d::invalid) {
@@ -3558,7 +3582,7 @@ bool haltestelle_t::rem_grund(grund_t *gr, player_t *pl_)
 
 	// hausbauer calls remove tile after removing the buiding, so there might be nothing on it ...
 	if (gebaeude_t* gb = gr->find<gebaeude_t>()) {
-		if (pl_  &&  !player_t::check_owner(gb->get_owner(), pl_)) {
+		if (pl_  &&  !gb->check_owner(pl_)) {
 			// wrong owner!
 			return false;
 		}

@@ -1,3 +1,4 @@
+
 /*
  * This file is part of the Simutrans project under the Artistic License.
  * (see LICENSE.txt)
@@ -911,7 +912,8 @@ bool minimap_t::calc_map_pixel(const grund_t *gr)
 	case MAP_OWNER:
 		// show ownership
 		if (gr->is_halt()) {
-			set_map_color(k, gfx->palette_lookup(gr->get_halt()->get_owner()->get_player_color1() + 3));
+			// needs fixing!!!
+			set_map_color(k, gfx->palette_lookup(gr->get_halt()->get_player_color() + 3));
 			return true;
 		}
 		else if (weg_t* weg = gr->get_weg_nr(0)) {
@@ -975,7 +977,8 @@ void minimap_t::calc_map_pixel(const koord k)
 			for (int i = 0; i < plan->get_haltlist_count(); i++) {
 				halthandle_t halt = plan->get_haltlist()[i];
 				if (halt->get_pax_enabled() && !halt->get_pax_connections().empty()) {
-					set_map_color(k, gfx->palette_lookup(halt->get_owner()->get_player_color1() + 3));
+					// need fixing!!!
+					set_map_color(k, gfx->palette_lookup(halt->get_player_color() + 3));
 					return;
 				}
 			}
@@ -987,7 +990,8 @@ void minimap_t::calc_map_pixel(const koord k)
 			for (int i = 0; i < plan->get_haltlist_count(); i++) {
 				halthandle_t halt = plan->get_haltlist()[i];
 				if (halt->get_mail_enabled() && !halt->get_mail_connections().empty()) {
-					set_map_color(k, gfx->palette_lookup(halt->get_owner()->get_player_color1() + 3));
+					// need fixing!!!
+					set_map_color(k, gfx->palette_lookup(halt->get_player_color() + 3));
 					return;
 				}
 			}
@@ -1602,7 +1606,8 @@ void minimap_t::draw(scr_coord pos)
 		}
 		else {
 			const int stype = station->get_station_type();
-			color = gfx->palette_lookup(station->get_owner()->get_player_color1()+3);
+			// needs fixing
+			color = gfx->palette_lookup(station->get_first_owner()->get_player_color1()+3);
 
 			// invalid=0, loadingbay=1, railstation = 2, dock = 4, busstop = 8, airstop = 16, monorailstop = 32, tramstop = 64, maglevstop=128, narrowgaugestop=256
 			if(  stype > 0  ) {
@@ -1629,7 +1634,8 @@ void minimap_t::draw(scr_coord pos)
 					if(  (stype>>type)&1  ) {
 						image_id img = skinverwaltung_t::station_type->get_image_id(type);
 						if(  img!=IMG_EMPTY  ) {
-							gfx->draw_color_img( img, temp_stop.x+diagonal_dist+4+(icon/2)*12, temp_stop.y+diagonal_dist+4+(icon&1)*12, station->get_owner()->get_player_nr(), false, false CLIP_NUM_DEFAULT);
+							// needs fixing!!!
+							gfx->draw_color_img( img, temp_stop.x+diagonal_dist+4+(icon/2)*12, temp_stop.y+diagonal_dist+4+(icon&1)*12, station->get_first_owner()->get_player_nr(), false, false CLIP_NUM_DEFAULT);
 							icon++;
 						}
 					}
@@ -1773,7 +1779,8 @@ void minimap_t::draw(scr_coord pos)
 	if(  display_station.is_bound()  ) {
 		scr_coord temp_stop = map_to_screen_coord( display_station->get_basis_pos() );
 		temp_stop = temp_stop + pos;
-		gfx->draw_textbox3d_clipped( temp_stop.x + 10, temp_stop.y + 7, gfx->palette_lookup(display_station->get_owner()->get_player_color1()+3), gfx->palette_lookup(COL_WHITE), display_station->get_name(), false CLIP_NUM_DEFAULT);
+		grund_t::display_text_label(temp_stop.x + 10, temp_stop.y + 7, display_station->get_name(), display_station->get_owners(), true);
+//		gfx->draw_textbox3d_clipped( temp_stop.x + 10, temp_stop.y + 7, gfx->palette_lookup(display_station->get_owner()->get_player_color1()+3), gfx->palette_lookup(COL_WHITE), display_station->get_name(), false CLIP_NUM_DEFAULT);
 	}
 
 	// zoom/resize "selection box" in map

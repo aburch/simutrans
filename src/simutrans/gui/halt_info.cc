@@ -95,7 +95,7 @@ class gui_halt_detail_t : public gui_aligned_container_t, action_listener_t
 {
 	halthandle_t halt;
 	uint16 halt_permissions;
-	button_t connected_players[MAX_PLAYER_COUNT];
+	button_t connected_players[MAX_PLAYER_COUNT], all, none;
 
 	/**
 	 * Button to open line window
@@ -181,6 +181,8 @@ public:
 	gui_halt_detail_t(halthandle_t h) : gui_aligned_container_t()
 	{
 		halt_permissions = 0;
+		all.add_listener(this);
+		none.add_listener(this);
 		for (uint16 i = 0; i < MAX_PLAYER_COUNT; i++) {
 			connected_players[i].pressed = 0;
 			connected_players[i].add_listener(this);
@@ -191,13 +193,21 @@ public:
 		update_connections(h);
 	}
 
-	bool action_triggered(gui_action_creator_t* , value_t )
+	bool action_triggered(gui_action_creator_t* b, value_t state)
 	{
-		// change permissions here
-		halt_permissions = 0;
-		for (uint16 i = 0; i < MAX_PLAYER_COUNT; i++) {
-			if (connected_players[i].pressed) {
-				halt_permissions |= 1 << i;
+		if (b == &all  &&  state.i == 1) {
+			halt_permissions = 0xFFFF;
+		}
+		else if (b == &none  &&  state.i == 1) {
+			halt_permissions = 0;
+		}
+		else {
+			// change permissions here
+			halt_permissions = 0;
+			for (uint16 i = 0; i < MAX_PLAYER_COUNT; i++) {
+				if (connected_players[i].pressed) {
+					halt_permissions |= 1 << i;
+				}
 			}
 		}
 		if (halt.is_bound()) {
@@ -320,7 +330,12 @@ void halt_info_t::init(halthandle_t halt)
 {
 	this->halt = halt;
 	set_name(halt->get_name());
-	set_owner(halt->get_owner() );
+	if ((1 << welt->get_active_player_nr()) & halt->get_owners()) {
+		set_owner(welt->get_active_player());
+	}
+	else {
+		set_owner(halt->get_first_owner());
+	}
 
 	set_table_layout(1,0);
 
@@ -454,7 +469,7 @@ halt_info_t::~halt_info_t()
 		buf.printf( "h%u,%s", halt.get_id(), edit_name );
 		tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
 		tool->set_default_param( buf );
-		welt->set_tool( tool, halt->get_owner() );
+		welt->set_tool( tool, welt->get_active_player() );
 		// since init always returns false, it is safe to delete immediately
 		delete tool;
 	}
@@ -559,10 +574,13 @@ void gui_halt_detail_t::update_connections( halthandle_t halt )
 		return;
 	}
 
-	// follow player change 
-	bool allow_change = (halt->get_owners() & (1 << world()->get_active_player_nr()))!=0  ||  world()->get_active_player()->is_public_service();
+	// which can be changed?
+	uint16 allow_change = (1 << world()->get_active_player_nr()) & halt->get_owners() ? allow_change = ~halt->get_owners() : 0;
+	if (world()->get_active_player()->is_public_service()) {
+		allow_change = 0xFFFF;
+	}
 	for (uint16 i = 0; i < MAX_PLAYER_COUNT; i++) {
-		connected_players[i].enable(allow_change);
+		connected_players[i].enable((1 << i) & allow_change);
 	}
 
 	if(  halt->get_permissions()==halt_permissions  &&  halt->get_reconnect_counter()==destination_counter  &&
@@ -575,31 +593,41 @@ void gui_halt_detail_t::update_connections( halthandle_t halt )
 	remove_all();
 	set_table_layout(2, 0);
 
-	gui_aligned_container_t *t = new gui_aligned_container_t(2, 0);
-	t->new_component_span<gui_label_t>("Stopping permissions", 2);
-	int how_many = 0;
-	halt_permissions = halt->get_permissions();
-	for (uint16 i = 0; i < MAX_PLAYER_COUNT; i++) {
-		if (player_t *pl = world()->get_player(i)) {
-			if (pl->is_public_service() && !pl->get_finance()->has_convoi()) {
-				// only show public service when it owns convois ...
-				continue;
+	if (halt->get_owners() != (1 << PLAYER_PUBLIC_NR)) { // not only owned by public service => can be changed
+		gui_aligned_container_t* t = new gui_aligned_container_t(2, 0);
+		t->new_component_span<gui_label_t>("Stopping permissions", 2);
+		int how_many = 0;
+		halt_permissions = halt->get_permissions();
+		all.init(button_t::square_automatic, "All");
+		all.pressed = halt_permissions == 0xFFFFu && halt_permissions == 0xFFFDu; // since publiuc player cannot own convois, it does not need permissions
+		t->add_component(&all);
+		none.init(button_t::square_automatic, "Owner(s) only");
+		none.pressed = halt_permissions == halt->get_owners();
+		t->add_component(&none);
+		for (uint16 i = 0; i < MAX_PLAYER_COUNT; i++) {
+			if (player_t* pl = world()->get_player(i)) {
+				if (pl->is_public_service() && !pl->get_finance()->has_convoi()) {
+					// only show public service when it owns convois ...
+					continue;
+				}
+				if ((1 << i) & halt->get_owners()) {
+					// do not add this button
+					continue;
+				}
+				connected_players[i].init(button_t::square_automatic, pl->get_name());
+				connected_players[i].text_color = PLAYER_FLAG | gfx->palette_lookup(pl->get_player_color1() + env_t::gui_player_color_dark);
+				t->add_component(connected_players + i);
+				how_many++;
 			}
-			if (pl == halt->get_owner()) {
-				// owner is always allowed
-				continue;
-			}
-			connected_players[i].init(button_t::square_automatic,pl->get_name());
-			connected_players[i].text_color = PLAYER_FLAG | gfx->palette_lookup(pl->get_player_color1() + env_t::gui_player_color_dark);
-			t->add_component(connected_players + i);
-			how_many++;
+			connected_players[i].pressed = halt_permissions & (1 << i);
 		}
-		connected_players[i].pressed = halt_permissions & (1<<i);
+		if (how_many > 0) {
+			take_component(t, 2);
+		}
+		else {
+			delete t;
+		}
 	}
-	if (how_many > 0) {
-		take_component(t, 2);
-	}
-
 	const slist_tpl<fabrik_t *> & fab_list = halt->get_fab_list();
 	slist_tpl<const goods_desc_t *> nimmt_an;
 
@@ -1030,7 +1058,7 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp, value_t )
 			buf.printf( "h%u,%s", halt.get_id(), edit_name );
 			tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
 			tool->set_default_param( buf );
-			welt->set_tool( tool, halt->get_owner() );
+			welt->set_tool( tool, welt->get_active_player() );
 			// since init always returns false, it is safe to delete immediately
 			delete tool;
 		}

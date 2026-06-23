@@ -1715,8 +1715,8 @@ void stadt_t::new_month( bool recalc_destinations )
 
 				if(  grund_t* gr = welt->lookup_kartenboden(k)  ) {
 					if(  weg_t* w = gr->get_weg(road_wt)  ) {
-						// do not spawn on privte roads or if there is already a car
-						if(  ribi_t::is_twoway(w->get_ribi_unmasked())  &&  player_t::check_owner(NULL,w->get_owner())  &&  gr->find<private_car_t>() == NULL  ) {
+						// do not spawn on private roads or if there is already a car
+						if(  ribi_t::is_twoway(w->get_ribi_unmasked())  &&  w->get_owner()==NULL  &&  gr->find<private_car_t>() == NULL  ) {
 							private_car_t* vt = new private_car_t(gr, koord::invalid);
 							gr->obj_add(vt);
 							number_of_cars--;
@@ -4147,7 +4147,7 @@ void stadt_t::build()
 		// try to find a public owned building
 		for (uint8 i = 0; i < 4; i++) {
 			gebaeude_t* gb = pick_any(buildings);
-			if (player_t::check_owner(gb->get_owner(), NULL)) {
+			if (gb->get_owner()==NULL) {
 				if (gb->get_tile()->get_offset() != koord(0, 0)) {
 					// go to tile origin to make sure we replace all tiles of a multitle building
 					grund_t* gr = welt->lookup_kartenboden(gb->get_pos().get_2d() - gb->get_tile()->get_offset());

@@ -2729,7 +2729,7 @@ void way_builder_t::build_road()
 				||  (player_builder!=NULL  &&  weg->get_removal_error(player_builder)!=NULL)
 				||  (gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0)
 				||  (gr->has_two_ways()  &&  gr->get_weg_nr(1)->get_removal_error(player_builder)!=NULL) // do not replace public roads crossing rails of other players
-				||  (gr->get_halt().is_bound()  && !check_owner(gr->get_halt()->get_owner(), player_builder))
+				||  (gr->get_halt().is_bound()  && !gr->get_halt()->can_use_halt(player_builder))
 				) {
 				//nothing to be done
 			}

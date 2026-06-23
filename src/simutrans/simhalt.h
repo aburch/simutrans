@@ -197,10 +197,8 @@ public:
 	*/
 	static bool remove(player_t *player, koord3d pos);
 
-	/**
-	 * Station destruction method.
-	 */
-	static void destroy(halthandle_t);
+	// destroys all tiles of the player. If nothing left, destroys the halt
+	static void destroy(halthandle_t,player_t*);
 
 	/**
 	 * destroys all stations
@@ -313,7 +311,7 @@ private:
 	 */
 	slist_tpl<fabrik_t *> fab_list;
 
-	player_t *owner;
+//	player_t *owner;
 	static karte_ptr_t welt;
 
 	/**
@@ -426,7 +424,7 @@ public:
 
 	void rotate90( const sint16 y_size );
 
-	player_t *get_owner() const {return owner;}
+//	player_t *get_owner() const {return owner;}
 
 	// just for info so far
 	sint64 calc_maintenance() const;
@@ -744,7 +742,12 @@ public:
 
 	uint16 get_permissions() const { return permissions; }
 
+	player_t* get_first_owner() const;
 	uint16 get_owners() const { return owners; }
+	bool is_owner(player_t* pl) const { return (pl && (1 << pl->get_player_nr()) & owners); }
+
+	// return the owner color for single stops and grey for shared ones
+	uint8 get_player_color() const;
 
 	// create an unique name: better to be called with valid handle, although it will work without
 	char* create_name(koord k, char const* typ);

@@ -484,32 +484,18 @@ void player_t::ai_bankrupt()
 	// remove headquarters pos
 	headquarter_pos = koord::invalid;
 
-	// remove all stops
-	// first generate list of our stops
-	slist_tpl<halthandle_t> halt_list;
-	for(halthandle_t const halt : haltestelle_t::get_alle_haltestellen()) {
-		if(  halt->get_owner()==this  ) {
-			halt_list.append(halt);
-		}
-	}
-	// ... and destroy them
-	while (!halt_list.empty()) {
-		halthandle_t h = halt_list.remove_first();
-		haltestelle_t::destroy( h );
-	}
-
-	// transfer all ways in public stops belonging to me to no one
-	for(halthandle_t const halt : haltestelle_t::get_alle_haltestellen()) {
-		if(  halt->get_owner()==welt->get_public_player()  ) {
+	// transfer all ways in stops with my permission
+	for (halthandle_t const halt : haltestelle_t::get_alle_haltestellen()) {
+		if (halt->can_use_halt(this)) {
 			// only concerns public stops tiles
-			for(haltestelle_t::tile_t const& i : halt->get_tiles()) {
+			for (haltestelle_t::tile_t const& i : halt->get_tiles()) {
 				grund_t const* const gr = i.grund;
-				for(  uint8 wnr=0;  wnr<2;  wnr++  ) {
-					weg_t *w = gr->get_weg_nr(wnr);
+				for (uint8 wnr = 0; wnr < 2; wnr++) {
+					weg_t* w = gr->get_weg_nr(wnr);
 					// make public
-					if(  w  &&  w->get_owner()==this  ) {
+					if (w && w->get_owner() == this) {
 						// tunnels and bridges are handled later? (logic needs to be checked for correct maintenance costs)
-						if (!gr->ist_bruecke()  &&  !gr->ist_tunnel()) {
+						if (!gr->ist_bruecke() && !gr->ist_tunnel()) {
 							sint32 const costs = w->get_desc()->get_maintenance();
 							waytype_t const wt = w->get_desc()->get_finance_waytype();
 							player_t::add_maintenance(this, -costs, wt);
@@ -520,6 +506,19 @@ void player_t::ai_bankrupt()
 				}
 			}
 		}
+	}
+
+	// remove me from all
+	slist_tpl<halthandle_t> halt_list;
+	for(halthandle_t const halt : haltestelle_t::get_alle_haltestellen()) {
+		if(  halt->get_owners()&&(1<<player_nr)  ) {
+			halt_list.append(halt);
+		}
+	}
+	// ... and destroy them
+	while (!halt_list.empty()) {
+		halthandle_t h = halt_list.remove_first();
+		haltestelle_t::destroy( h, this );
 	}
 
 	// deactivate active tool (remove dummy grounds)

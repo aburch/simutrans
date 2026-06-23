@@ -252,15 +252,14 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 		}
 
 		else if(  sort_mode == by_via_owner  ) {
-			// player sort mode merges packets which next stop is owned by the
-			// same player
-			player_t* owner = ware.get_next_halt()->get_owner();
+			// player sort mode merges packets which next stop that has at least one of same player permitting to stop (ignoring public player)
+			uint16 permissions = ware.get_next_halt()->get_owners() & ~(1 << PLAYER_PUBLIC_NR);
 			for(  uint32 i=0;  i<pos;  i++  ) {
 				ware_t& wi = wlist[i];
-				if(  wi.get_index()==ware.get_index()  &&  wi.get_next_halt().is_bound()  &&  wi.get_next_halt()->get_owner() == owner  ) {
+				if(  wi.get_index()==ware.get_index()  &&  wi.get_next_halt().is_bound()  &&  wi.get_next_halt()->get_permissions() & permissions) {
 					ware_t::goods_amount_t const remaining_amount = wi.add_goods(ware.amount);
 					if(  remaining_amount > 0  ) {
-						// reached goods amount limit, have to discard amount and track category totals separatly
+						// reached goods amount limit, have to discard amount and track category totals separately
 						if(  categories_goods_amount_lost == NULL  ) {
 							categories_goods_amount_lost = new uint64[256](); // this should be tied to a category index limit constant
 						}
@@ -341,7 +340,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			// special mode: simply retrieve player name
 			if(  sortby == by_via_owner  ) {
 				if(  via_halt.is_bound()  ) {
-					buf.append(via_halt->get_owner()->get_name());
+					buf.append(via_halt->get_first_owner()->get_name());
 				}
 				else {
 					buf.append(name);

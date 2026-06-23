@@ -47,14 +47,11 @@ void gui_owners_t::draw(scr_coord offset)
 	if (num_players > 1) {
 		scr_coord pos = get_pos() + offset;
 		pos.y += 2;
-		uint16 last_player = 0;
-		for (uint16 i = 0; i < num_players; i++) {
-			while (player_mask && (1 << last_player) == 0) {
-				last_player++;
+		for (uint16 i = 0; i < MAX_PLAYER_COUNT; i++) {
+			if(welt->get_player(i)  &&  (player_mask & (1 << i))!=0) {
+				gfx->draw_rect_clipped(pos.x, pos.y, LINESPACE-4, LINESPACE-4, gfx->palette_lookup(welt->get_player(i)->get_player_color1() + 3), true CLIP_NUM_DEFAULT);
+				pos.x += LINESPACE-4;
 			}
-			gfx->draw_rect_clipped(pos.x, pos.y, LINESPACE-4, LINESPACE-4, gfx->palette_lookup(welt->get_player(last_player)->get_player_color1() + 3), true CLIP_NUM_DEFAULT);
-			pos.x += LINESPACE-4;
-			last_player++;
 		}
 	}
 

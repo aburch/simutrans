@@ -301,7 +301,7 @@ bool bridge_builder_t::is_monorail_junction(koord3d pos, player_t *player, const
 		if(  gr2->get_typ() == grund_t::monorailboden  ) {
 			// now check if our way
 			if(  obj_t *o = gr2->obj_bei(0)  ) {
-				if(  !player_t::check_owner(o->get_owner(),player)  ) {
+				if(  !o->check_owner(player)  ) {
 					// not our way
 					error_msg = "Das Feld gehoert\neinem anderen Spieler\n";
 					return false;
@@ -1171,7 +1171,7 @@ const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytyp
 		// can we delete everything there?
 		msg = from->kann_alle_obj_entfernen(player);
 
-		if(msg != NULL  ||  (from->get_halt().is_bound()  &&  from->get_halt()->get_owner()!=player)) {
+		if(msg != NULL  ||  (from->get_halt().is_bound()  &&  from->get_halt()->get_first_owner()!=player)) {
 			simachievements_t::set_achievement(ACH_TOOL_REMOVE_BUSY_BRIDGE);
 			return "Die Bruecke ist nicht frei!\n";
 		}
