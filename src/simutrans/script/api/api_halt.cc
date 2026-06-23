@@ -14,6 +14,7 @@
 #include "../api_function.h"
 #include "../../simhalt.h"
 #include "../../world/simworld.h"
+#include "../../tool/simmenu.h"
 
 halthandle_t get_halt_from_koord3d(koord3d pos, const player_t *player ); // api_schedule.cc, interfaces haltestelle_t::get_halt
 
@@ -92,6 +93,17 @@ call_tool_init halt_set_name(halthandle_t halt, const char* name)
 		return "Invalid halt provided";
 	}
 	return command_rename(halt->get_first_owner(), 'h', halt.get_id(), name);
+}
+
+
+call_tool_init halt_set_permissions(halthandle_t halt, uint16 new_permission)
+{
+	if (!halt.is_bound()) {
+		return "Invalid halt provided";
+	}
+	cbuffer_t buf;
+	buf.printf("%u,%u", halt.get_id(), new_permission);
+	return call_tool_init(TOOL_HALT_PERMISSION | SIMPLE_TOOL, buf.get_str(), 0, welt->get_public_player());
 }
 
 
@@ -177,11 +189,13 @@ void export_halt(HSQUIRRELVM vm)
 	 * @returns if object is still valid.
 	 */
 	export_is_valid<const haltestelle_t*>(vm); //register_function("is_valid")
+
 	/**
 	 * Station name.
 	 * @returns name
 	 */
 	register_method(vm, &haltestelle_t::get_name, "get_name");
+
 	/**
 	 * Sets station name.
 	 * @ingroup rename_func
@@ -189,16 +203,35 @@ void export_halt(HSQUIRRELVM vm)
 	register_method(vm, &halt_set_name, "set_name", true);
 
 	/**
-	 * Station owner.
+	 * Station owner. (Obsolete, sations may have more owners)
 	 * @returns owner
 	 */
 	register_method(vm, &haltestelle_t::get_first_owner, "get_owner");
 
 	/**
-	 * Station owner.
-	 * @returns owner
+	 * Station owners.
+	 * @returns owner as bitmask
 	 */
 	register_method(vm, &haltestelle_t::get_owners, "get_owners");
+
+	/**
+	 * Can marge or exchange goods at this stop
+	 * @ param player to be tested
+	 * @returns true
+	 */
+	register_method(vm, &haltestelle_t::can_use_halt, "can_use_halt");
+
+	/**
+	 * Which players can merge/exchange goods here?
+	 * @returns allowed players as bitmask
+	 */
+	register_method(vm, &haltestelle_t::get_permissions, "get_permissions");
+
+	/**
+	 * Sets which players can merge/exchange goods here
+	 * @param players as bitmask
+	 */
+	register_method(vm, &halt_set_permissions, "set_permissions");
 
 	/**
 	 * compare classes using metamethods

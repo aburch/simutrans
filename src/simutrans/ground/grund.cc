@@ -2146,14 +2146,9 @@ bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t:
 		const koord here = pos.get_2d();
 
 		// stops
-		if (flags & is_halt_flag) {
-			// non (fundation) or two ways on it => leave it
-			bool remove_halt = get_typ()!=boden  &&  (flags&has_way2)==0;
-
-			if (remove_halt) {
-				if (!haltestelle_t::remove(player, pos)) {
-					return false;
-				}
+		if (is_halt() && !has_two_ways()) {
+			if (!haltestelle_t::remove(player, pos)) {
+				return false;
 			}
 		}
 		// remove ribi from canals to sea level

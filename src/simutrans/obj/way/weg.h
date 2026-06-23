@@ -134,6 +134,7 @@ public:
 		image_flat,
 		image_slope,
 		image_diagonal,
+		image_close_diagonal,
 		image_switch
 	};
 

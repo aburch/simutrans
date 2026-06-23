@@ -5267,7 +5267,7 @@ const char *tool_rotate_building_t::work( player_t *player, koord3d pos )
 
 	if(  gebaeude_t* gb = gr->find<gebaeude_t>()  ) {
 
-		if(  gb->check_owner(player)  ) {
+		if(  !gb->check_owner(player)  ) {
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
 
@@ -8815,7 +8815,7 @@ bool tool_change_permission_t::init(player_t *player)
 
 	halthandle_t halt;
 	halt.set_id(id);
-	if(  halt.is_bound()  &&  player!=0  &&  (player->is_public_service()  ||  (1<<player->get_player_nr()) & halt->get_owners())  ) {
+	if(  halt.is_bound()  &&  player!=0  &&  (player->is_public_service()  ||  halt->is_owner(player))  ) {
 		halt->set_permissions(perms);
 	}
 	return false;

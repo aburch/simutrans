@@ -68,6 +68,26 @@ bool world_remove_player(karte_t *welt, player_t *player)
 }
 
 
+bool world_create_player(karte_t* welt, uint8 nr, uint8 type)
+{
+	if (welt->get_player(nr) != NULL) {
+		return false;
+	}
+	// first test
+	bool ok = welt->change_player_tool(karte_t::new_player, nr, type, true /*unlocked*/, false /*exec*/);
+	if (!ok) {
+		return false;
+	}
+	// now call - will not have immediate effect in network games
+	welt->call_change_player_tool(karte_t::new_player, nr, type, true /*scripted*/);
+	if (type == 1) {
+		// human needs actiivation
+		welt->call_change_player_tool(karte_t::toggle_player_active, nr, 1, true /*scripted*/);
+	}
+	return true;
+}
+
+
 uint32 world_generate_goods(karte_t *welt, koord from, koord to, const goods_desc_t *desc, uint32 count)
 {
 	if (count == 0 || count >= 1<<23) {
@@ -273,6 +293,18 @@ void export_world(HSQUIRRELVM vm, bool scenario)
 		* @returns whether operation was successful
 		*/
 		STATIC register_method(vm, &world_remove_player, "remove_player", true);
+
+		/**
+		* create a new player company if the slot nr is free
+		*
+		* In network games, there will be a delay between the call to this function and creation of a new company.
+		*
+		* @param nr of new player to be created
+		* @param type of new player to be created; only 1 (huma) or 2 (ai) will work
+		* @ingroup scen_only
+		* @returns whether operation was successful
+		*/
+		STATIC register_method(vm, &world_create_player, "create_player", true);
 
 		/**
 		 * Generates goods (passengers, mail or freight) that want to travel from @p from to @p to.
