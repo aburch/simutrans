@@ -308,7 +308,7 @@ void weg_t::info(cbuffer_t & buf) const
 	}
 	if(  !g->ist_tunnel() && !g->ist_bruecke()  ) {
 		// other cases, we already append way name.
-		buf.printf(translator::translate(desc->get_name()));
+		buf.printf("%s",translator::translate(desc->get_name()));
 		buf.printf("\n");
 	}
 	obj_t::info(buf);
