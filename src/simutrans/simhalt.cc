@@ -658,7 +658,7 @@ void haltestelle_t::set_permissions(uint16 perms)
 	}
 	else {
 		// share player stops
-		permissions = perms | owners | (1 << PLAYER_PUBLIC_NR);
+		permissions = perms | owners;
 	}
 	if (rebuilt_schedule_registration(old_perm & ~permissions, permissions & ~old_perm)) {
 		 // convois/lines changed
@@ -2745,13 +2745,20 @@ void haltestelle_t::change_owner( player_t *player )
 			}
 		}
 	}
+	owners = 1 << player->get_player_nr();
+	if (permissions & (permissions - 1)) {
+		// multiple permissions
+		set_permissions(permissions);
+	}
+	else {
+		set_permissions(owners);
+	}
 
 	// Old player is still allowed to serve this stop, no breaking networks
 	// Should not matter as stops can only be made public (for now)
 	rebuild_connections();
 	rebuild_linked_connections();
 	rebuild_connected_components();
-	set_permissions(permissions);
 
 	// tell the world of it ...
 	if(  player == welt->get_public_player()  &&  env_t::networkmode  ) {

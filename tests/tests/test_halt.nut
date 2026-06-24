@@ -510,25 +510,95 @@ function test_halt_build_multi_player()
 {
 	local pl = player_x(0)
 	local public_pl = player_x(1)
+
+	// create another player
+	world.create_player(2,1)
+	local pl2 = player_x(2)
+	ASSERT_EQUAL(pl2.is_valid(), true)
+	ASSERT_EQUAL(pl2.is_active(), true)
+
 	local road_desc = way_desc_x.get_available_ways(wt_road, st_flat)[0]
 	local pax_halt  = building_desc_x.get_available_stations(building_desc_x.station, wt_road, good_desc_x.passenger)[0]
 
 	{
-		ASSERT_EQUAL(command_x.build_way(pl, coord3d(4, 4, 0), coord3d(3, 4, 0), road_desc, true), null)
+		ASSERT_EQUAL(command_x.build_way(public_pl, coord3d(4, 4, 0), coord3d(3, 4, 0), road_desc, true), null)
 		ASSERT_EQUAL(command_x(tool_build_station).work(pl,        coord3d(4, 4, 0), pax_halt.get_name()), null)
-		ASSERT_EQUAL(command_x(tool_build_station).work(public_pl, coord3d(3, 4, 0), pax_halt.get_name()), null)
+		ASSERT_EQUAL(command_x(tool_build_station).work(pl2, coord3d(3, 4, 0), pax_halt.get_name()), null)
 
-		ASSERT_TRUE(halt_x.get_halt(coord3d(3, 4, 0), pl) != null)
-		ASSERT_EQUAL(halt_x.get_halt(coord3d(4, 4, 0), public_pl), null)
+		ASSERT_TRUE(halt_x.get_halt(coord3d(4, 4, 0), pl) != null)
+		ASSERT_TRUE(halt_x.get_halt(coord3d(3, 4, 0), pl) == null)
 
 		local my_halt = halt_x.get_halt(coord3d(4, 4, 0), pl)
-		local pub_halt = halt_x.get_halt(coord3d(3, 4, 0), public_pl)
+		local my2_halt = halt_x.get_halt(coord3d(3, 4, 0), pl2)
 		ASSERT_TRUE(my_halt != null)
+		ASSERT_TRUE(my2_halt != null)
+
+		ASSERT_TRUE(my_halt.get_name() != my2_halt.get_name())
+		ASSERT_EQUAL(my_halt.get_tile_list().len(), 1)
+		ASSERT_EQUAL(my2_halt.get_tile_list().len(), 1)
+
+		ASSERT_EQUAL(command_x(tool_remove_way).work(public_pl, coord3d(4, 4, 0), coord3d(3, 4, 0), "" + wt_road), null)
+	}
+
+	// now joint by tool
+	{
+		ASSERT_EQUAL(command_x.build_way(public_pl, coord3d(4, 4, 0), coord3d(3, 4, 0), road_desc, true), null)
+		ASSERT_EQUAL(command_x(tool_build_station).work(pl,        coord3d(4, 4, 0), pax_halt.get_name()), null)
+		local my_halt = halt_x.get_halt(coord3d(4, 4, 0), pl)
+		ASSERT_TRUE(my_halt != null)
+		ASSERT_FALSE(my_halt.can_use_halt(pl2))
+		
+		// now building second halt => should autojoin
+		ASSERT_EQUAL(command_x(tool_build_station).work(pl2, coord3d(3, 4, 0), pax_halt.get_name()), null)
+		local my_halt2 = halt_x.get_halt(coord3d(3, 4, 0), pl2)
+		ASSERT_TRUE(my_halt2 != null)
+		ASSERT_FALSE(my_halt2.can_use_halt(pl))
+
+		ASSERT_TRUE(my_halt.get_name() != my_halt2.get_name())
+		ASSERT_EQUAL(my_halt.get_tile_list().len(), 1)
+		ASSERT_EQUAL(my_halt2.get_tile_list().len(), 1)
+		
+		my_halt.set_permissions(my_halt,4+1);
+		ASSERT_EQUAL(my_halt.get_permissions(), 5)
+		ASSERT_TRUE(my_halt.can_use_halt(pl2))
+
+		local mergehalt  = command_x(tool_merge_stop)
+		ASSERT_EQUAL(mergehalt.work(pl2, coord3d(4, 4, 0), coord3d(3, 4, 0), ""), null)
+
+		// since the halthandle may have become invalid after merge
+		my_halt = halt_x.get_halt(coord3d(4, 4, 0), pl)
+		ASSERT_TRUE(my_halt != null)
+		my_halt2 = halt_x.get_halt(coord3d(3, 4, 0), pl2)
+		ASSERT_TRUE(my_halt2 != null)
+
+		ASSERT_TRUE(my_halt.get_name() == my_halt2.get_name())
+		ASSERT_EQUAL(my_halt.get_tile_list().len(), 2)
+		ASSERT_EQUAL(my_halt2.get_tile_list().len(), 2)
+
+		ASSERT_EQUAL(command_x(tool_remove_way).work(public_pl, coord3d(4, 4, 0), coord3d(3, 4, 0), "" + wt_road), null)
+	}
+
+	// now autojoing
+	{
+		ASSERT_EQUAL(command_x.build_way(public_pl, coord3d(4, 4, 0), coord3d(3, 4, 0), road_desc, true), null)
+		ASSERT_EQUAL(command_x(tool_build_station).work(pl,        coord3d(4, 4, 0), pax_halt.get_name()), null)
+		local my_halt = halt_x.get_halt(coord3d(4, 4, 0), pl)
+		ASSERT_TRUE(my_halt != null)
+		my_halt.set_permissions(my_halt,4+1);
+		ASSERT_EQUAL(my_halt.get_permissions(), 5)
+		ASSERT_TRUE(my_halt.can_use_halt(pl2))
+
+		// now building second halt => should autojoin
+		ASSERT_EQUAL(command_x(tool_build_station).work(pl2, coord3d(3, 4, 0), pax_halt.get_name()), null)
+		local pub_halt = halt_x.get_halt(coord3d(3, 4, 0), pl)
 		ASSERT_TRUE(pub_halt != null)
 
-		ASSERT_TRUE(my_halt.get_name() != pub_halt.get_name())
+		ASSERT_TRUE(my_halt.get_name() == pub_halt.get_name())
+		ASSERT_EQUAL(my_halt.get_tile_list().len(), 2)
+		ASSERT_EQUAL(pub_halt.get_tile_list().len(), 2)
+
+		world.remove_player(pl2)
 		ASSERT_EQUAL(my_halt.get_tile_list().len(), 1)
-		ASSERT_EQUAL(pub_halt.get_tile_list().len(), 1)
 
 		ASSERT_EQUAL(command_x(tool_remove_way).work(public_pl, coord3d(4, 4, 0), coord3d(3, 4, 0), "" + wt_road), null)
 	}

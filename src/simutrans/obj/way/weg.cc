@@ -666,7 +666,8 @@ void weg_t::check_diagonal()
 		uint8 non_bent = 0;
 		for (uint8 i = 0; i < 4; i++) {
 			if (!from->get_neighbour(to, get_waytype(), ribi_t::nesw[i])) {
-				dbg->error("weg_t::is_diagonal", "4way ribi not connected at %s", get_pos().get_fullstr());
+				// only happend during construction of ways
+				dbg->warning("weg_t::is_diagonal", "4way ribi not connected at %s", get_pos().get_fullstr());
 				return;
 			}
 			r[i] = to->get_weg_ribi_unmasked(get_waytype());

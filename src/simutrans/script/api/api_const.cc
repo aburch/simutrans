@@ -102,7 +102,7 @@ void export_global_constants(HSQUIRRELVM vm)
 	enum_slot(vm, "tool_set_climate", TOOL_SET_CLIMATE | GENERAL_TOOL);
 	/// rotate a building
 	enum_slot(vm, "tool_rotate_building", TOOL_ROTATE_BUILDING | GENERAL_TOOL);
-	/// merge two stops
+	/// merge two stops (if allowed)
 	enum_slot(vm, "tool_merge_stop", TOOL_MERGE_STOP | GENERAL_TOOL);
 	/// scripted tool (one-click)
 	enum_slot(vm, "tool_exec_script", TOOL_EXEC_SCRIPT | GENERAL_TOOL);

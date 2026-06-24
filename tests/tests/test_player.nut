@@ -60,6 +60,15 @@ function test_player_isactive()
 	ASSERT_EQUAL(nonexist.is_valid(), false)
 	ASSERT_EQUAL(nonexist.is_active(), false)
 
+	world.create_player(2,1)
+	local nowexist = player_x(2)
+	ASSERT_EQUAL(nowexist.is_valid(), true)
+	ASSERT_EQUAL(nowexist.is_active(), true)
+	
+	world.remove_player(nowexist)
+	ASSERT_EQUAL(nowexist.is_valid(), false)
+	ASSERT_EQUAL(nowexist.is_active(), false)
+
 	RESET_ALL_PLAYER_FUNDS()
 }
 

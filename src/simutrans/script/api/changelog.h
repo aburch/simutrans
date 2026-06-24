@@ -7,6 +7,12 @@
 
 /** @page changelog Changelog
  *
+ * - Added @ref halt_x::get_owners
+ * - Added @ref halt_x::get_permissions
+ * - Added @ref halt_x::set_permissions
+ * - Added @ref halt_x::can_use_halt
+ * - Added @ref world_x::create_player
+ *
  * @section api-trunk Current trunk
  *
  * - Added @ref command_x::grid_lower, @ref command_x::grid_raise
