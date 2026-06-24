@@ -137,6 +137,7 @@ all_tests <- [
 	test_label,
 	test_player_cash,
 	test_player_isactive,
+	test_player_create,
 	test_player_headquarters,
 	test_player_name,
 	test_player_lines,

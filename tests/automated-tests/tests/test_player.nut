@@ -64,6 +64,53 @@ function test_player_isactive()
 }
 
 
+function test_player_create()
+{
+	local human = player_x(2)
+	local goods_ai = player_x(3)
+	local passenger_ai = player_x(4)
+	local scripted_ai = player_x(5)
+	local invalid_type = player_x(6)
+	local last_slot = player_x(14)
+
+	ASSERT_FALSE(human.is_valid())
+	ASSERT_FALSE(goods_ai.is_valid())
+	ASSERT_FALSE(passenger_ai.is_valid())
+	ASSERT_FALSE(scripted_ai.is_valid())
+	ASSERT_FALSE(invalid_type.is_valid())
+	ASSERT_FALSE(last_slot.is_valid())
+
+	ASSERT_TRUE(world.create_player(2, 1))
+	ASSERT_TRUE(human.is_valid())
+	ASSERT_EQUAL(human.get_type(), 1)
+
+	ASSERT_TRUE(world.create_player(3, 2))
+	ASSERT_TRUE(goods_ai.is_valid())
+	ASSERT_EQUAL(goods_ai.get_type(), 2)
+
+	ASSERT_TRUE(world.create_player(4, 3))
+	ASSERT_TRUE(passenger_ai.is_valid())
+	ASSERT_EQUAL(passenger_ai.get_type(), 3)
+
+	ASSERT_TRUE(world.create_player(5, 4))
+	ASSERT_TRUE(scripted_ai.is_valid())
+	ASSERT_EQUAL(scripted_ai.get_type(), 4)
+
+	ASSERT_TRUE(world.create_player(14, 1))
+	ASSERT_TRUE(last_slot.is_valid())
+	ASSERT_EQUAL(last_slot.get_type(), 1)
+
+	ASSERT_FALSE(world.create_player(2, 1))
+	ASSERT_FALSE(world.create_player(-1, 1))
+	ASSERT_FALSE(world.create_player(0, 1))
+	ASSERT_FALSE(world.create_player(1, 1))
+	ASSERT_FALSE(world.create_player(15, 1))
+	ASSERT_FALSE(world.create_player(6, 0))
+	ASSERT_FALSE(world.create_player(6, 5))
+	ASSERT_FALSE(invalid_type.is_valid())
+}
+
+
 function test_player_headquarters()
 {
 	local pl = player_x(0)
@@ -128,4 +175,3 @@ function test_player_lines()
 	// clean up
 	RESET_ALL_PLAYER_FUNDS()
 }
-
