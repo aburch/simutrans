@@ -5901,7 +5901,6 @@ void air_vehicle_t::set_convoi(convoi_t *c)
 					target_halt->reserve_position(target,cnv->self);
 				}
 			}
-			dbg->message("air_vehicle_t::set_convoi()","set %s, takeoff %i, touchdown %i", cnv->get_name(), takeoff, touchdown);
 			// restore runway reservation by state
 			if(  state==departing  ) {
 				block_reserver( takeoff, takeoff+100, true );
