@@ -644,6 +644,12 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 	if (state == taxiing) {
 		// enforce on ground for taxiing
 		flying_height = 0;
+
+		if (gr->is_halt()  &&  gr->find<air_vehicle_t>()) {
+			// the next step is a parking position. We do not enter, if occupied!
+			restart_speed = 0;
+			return false;
+		}
 	}
 
 
@@ -794,15 +800,6 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		state = taxiing;
 	}
 
-	if (is_on_ground() && gr->is_halt()) {
-		if (gr->find<air_vehicle_t>()) {
-			// the next step is a parking position. We do not enter, if occupied!
-			restart_speed = 0;
-			return false;
-		}
-		target_halt->unreserve_position(NULL, cnv->self);
-	}
-
 	return true;
 }
 
@@ -820,6 +817,10 @@ void air_vehicle_t::enter_tile(grund_t* gr)
 			if (leading) {
 				w->book(1, WAY_STAT_CONVOIS);
 			}
+		}
+
+		if (gr->is_halt()) {
+			gr->get_halt()->unreserve_position(NULL, cnv->self);
 		}
 	}
 }
@@ -897,27 +898,25 @@ void air_vehicle_t::set_convoi(convoi_t *c)
 		bool target=(bool)cnv;
 		vehicle_t::set_convoi(c);
 		if(leading) {
-			if(target) {
+			if(target  &&  route_index+3>touchdown) {
 				// reinitialize the target halt
-				grund_t* const target=welt->lookup(cnv->get_route()->back());
-				target_halt = target->get_halt();
-				if(target_halt.is_bound()) {
-					target_halt->reserve_position(target,cnv->self);
-				}
-			}
-			// restore reservation
-			if(  grund_t *gr = welt->lookup(get_pos())  ) {
-				if(  weg_t *weg = gr->get_weg(air_wt)  ) {
-					if(  weg->get_desc()->get_styp()==type_runway  ) {
-						// but only if we are on a runway ...
-						if(  route_index>=takeoff  &&  route_index<touchdown-21  &&  state!=flying  ) {
-							block_reserver( takeoff, takeoff+100, true );
-						}
-						else if(  route_index>=touchdown-1  &&  state!=taxiing  ) {
-							block_reserver( touchdown, search_for_stop+1, true );
+				if (get_pos() != cnv->get_route()->back()) {
+					// but only if not already arrived ...
+					grund_t* const target = welt->lookup(cnv->get_route()->back());
+					target_halt = target->get_halt();
+					if (target_halt.is_bound()) {
+						if (!target_halt->reserve_position(target, cnv->self)) {
+							dbg->warning("air_vehicle_t::set_convoi()", "Could not restore reservation for convoi %d at %s.", cnv->self.get_id(), target->get_pos().get_fullstr());
 						}
 					}
+					if (route_index + 3 >= touchdown && state != taxiing) {
+						block_reserver(touchdown, search_for_stop + 1, true);
+					}
 				}
+			}
+			// restore reservation for takeoff
+			else if(  route_index>=takeoff  &&  route_index<touchdown-21  &&  state!=flying  ) {
+				block_reserver(takeoff, takeoff + 100, true);
 			}
 		}
 	}
