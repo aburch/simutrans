@@ -667,6 +667,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 
 	if (route_index <= 1  &&  is_on_ground()) {
 		// check if not airplanes coming my way on the way to the runway. If free then leave the stop
+		// but we leave the stop if already a plane wants to enter it
 		const route_t& rt = *(cnv->get_route());
 		if (takeoff < rt.get_count()) {
 			koord3d our_takeoff = rt[takeoff];
@@ -680,9 +681,13 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 						// no yet runway
 						for (uint8 i = 1; i < gr->obj_count(); i++) {
 							obj_t* obj = gr->obj_bei(i);
-							// we drive through other planes not taxiing for now ...
+							// we drive through other planes after landing
 							if (obj->get_typ() == obj_t::air_vehicle) {
 								air_vehicle_t* other = (air_vehicle_t*)obj;
+								if (other->is_taxiing_to_stop()) {
+									// we drive through vehicles going to parking
+									continue;
+								}
 								if (!other->is_same_takeoff(our_takeoff)) {
 									// one plane taxiing to other takeoff => wait to avoid blocking
 									restart_speed = 0;
@@ -902,11 +907,38 @@ void air_vehicle_t::set_convoi(convoi_t *c)
 				// reinitialize the target halt
 				if (get_pos() != cnv->get_route()->back()) {
 					// but only if not already arrived ...
-					grund_t* const target = welt->lookup(cnv->get_route()->back());
+					grund_t* target = welt->lookup(cnv->get_route()->back());
 					target_halt = target->get_halt();
 					if (target_halt.is_bound()) {
 						if (!target_halt->reserve_position(target, cnv->self)) {
-							dbg->warning("air_vehicle_t::set_convoi()", "Could not restore reservation for convoi %d at %s.", cnv->self.get_id(), target->get_pos().get_fullstr());
+							if (route_index < looking_for_parking) {
+								// just reverve another location
+								target = target_halt->find_free_position(air_wt, cnv->self, obj_t::air_vehicle);
+								if (!target) {
+									dbg->error("air_vehicle_t::set_convoi()", "Could not restore reservation for convoi %d at %s.", cnv->self.get_id(), get_pos().get_fullstr());
+								}
+							}
+							else {
+								// already taxiing to stop position
+								convoihandle_t other_cnv = target_halt->get_reserved(target);
+								if (!other_cnv.is_bound()  ||  other_cnv->is_unloading()) {
+									dbg->error("air_vehicle_t::set_convoi()", "Could not restore reservation for convoi %d at %s.", cnv->self.get_id(), get_pos().get_fullstr());
+								}
+								else {
+									air_vehicle_t* v = dynamic_cast<air_vehicle_t *>(other_cnv->get_vehicle(0));
+									if (v && v->is_taxiing_to_stop()) {
+										// to avoid eternal loop
+										dbg->error("air_vehicle_t::set_convoi()", "Could not restore reservation for convoi %d at %s.", cnv->self.get_id(), get_pos().get_fullstr());
+									}
+									else {
+										// assume other convoi is still not searching for stop
+										dbg->warning("air_vehicle_t::set_convoi()", "take reservation from convoi %d for convoi %d at %s.", other_cnv.get_id(), cnv->self.get_id(), get_pos().get_fullstr());
+										target_halt->unreserve_position(target, other_cnv); // delte old reservation
+										target_halt->reserve_position(target, cnv->self); // now we reserve this spot
+										v->set_convoi(other_cnv.get_rep()); // let other convoi search for reservation again
+									}
+								}
+							}
 						}
 					}
 					if (route_index + 3 >= touchdown && state != taxiing) {

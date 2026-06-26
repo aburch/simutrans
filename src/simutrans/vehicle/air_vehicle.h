@@ -126,7 +126,9 @@ public:
 
 	const char *get_removal_error(const player_t *player) OVERRIDE;
 
-	bool is_flying() const OVERRIDE { return !is_on_ground(); }
+	bool is_flying() const { return !is_on_ground(); }
+
+	bool is_taxiing_to_stop() const { return route_index >= looking_for_parking; }
 };
 
 #endif

@@ -54,6 +54,7 @@
 #include "tpl/binary_heap_tpl.h"
 
 #include "vehicle/vehicle.h"
+#include "vehicle/air_vehicle.h"
 #include "vehicle/pedestrian.h"
 
 
@@ -3701,13 +3702,24 @@ grund_t *haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,
 {
 	// iterate over all tiles
 	for(tile_t const& i : tiles) {
-		if (i.reservation == cnv || !i.reservation.is_bound()) {
+		if (i.reservation == cnv) {
+			// already reserved
+			return i.grund;
+		}
+		if (!i.reservation.is_bound()) {
 			// not reserved
 			grund_t* const gr = i.grund;
 			// found a stop for this waytype but without object d ...
-			if(gr->hat_weg(w)  &&  gr->suche_obj(d)==NULL) {
-				// not occupied
-				return gr;
+			if (gr->hat_weg(w)) {
+				obj_t* o = gr->suche_obj(d);
+				if( o == NULL) {
+					// not occupied
+					return gr;
+				}
+				else if(w==air_wt&& ((air_vehicle_t *)o)->is_flying()) {
+					// ignore airplanes flying
+					return gr;
+				}
 			}
 		}
 	}
@@ -3731,11 +3743,22 @@ bool haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 			if(gr) {
 				// found a stop for this waytype but without object d ...
 				vehicle_t const& v = *cnv->front();
-				if (gr->hat_weg(v.get_waytype()) && !gr->suche_obj(v.get_typ())) {
-					// not occupied
+				if (gr->hat_weg(v.get_waytype())) {
+					if (!gr->suche_obj(v.get_typ())) {
+						// not occupied
 //DBG_MESSAGE("haltestelle_t::reserve_position()","success for gr=%i,%i cnv=%d",gr->get_pos().x,gr->get_pos().y,cnv.get_id());
-					i->reservation = cnv;
-					return true;
+						i->reservation = cnv;
+						return true;
+					}
+					else if (v.get_waytype() == air_wt) {
+						if (air_vehicle_t* v = gr->find<air_vehicle_t>()) {
+							if (v->is_flying()) {
+								//DBG_MESSAGE("haltestelle_t::reserve_position()","success for gr=%i,%i cnv=%d",gr->get_pos().x,gr->get_pos().y,cnv.get_id());
+								i->reservation = cnv;
+								return true;
+							}
+						}
+					}
 				}
 			}
 		}
