@@ -53,6 +53,7 @@ function test_factory_build_pp()
 		ASSERT_EQUAL(factory.get_transformer(), null)
 		ASSERT_EQUAL(factory.get_field_count(), 0)
 		ASSERT_EQUAL(factory.get_min_field_count(), 0)
+		ASSERT_EQUAL(factory.get_target_cities().len(), 0)
 
 		ASSERT_TRUE(factory.input.len() == 0)
 		ASSERT_TRUE(factory.output.len() == 0)
@@ -62,6 +63,23 @@ function test_factory_build_pp()
 		// and remove factory; only public player can remove them
 		ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(3, 4, 0)), "Der Besitzer erlaubt das Entfernen nicht")
 		ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(3, 4, 0)), null)
+	}
+
+	// now with city
+	{
+		ASSERT_EQUAL(command_x(tool_add_city).work(public_pl, coord3d(7, 8, 0)), null)
+		local city = city_x(7,8)
+		ASSERT_TRUE(city != null)
+		ASSERT_EQUAL(build_factory(public_pl, coord3d(3, 4, 0), 0, 1, 1024, "Aufwindkraftwerk"), null)
+		local factory = factory_x(3, 4)
+		ASSERT_EQUAL(factory.get_target_cities().len(), 1)
+		ASSERT_TRUE(factory.get_target_cities()[0].get_name()==city.get_name())
+
+		// and remove
+		ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(3, 4, 0)), null)
+		ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(7, 8, 0)), null)
+		// remove street
+		ASSERT_EQUAL(command_x(tool_remove_way).work(pl, tile_x(6, 9, 0), tile_x(8, 9, 0), "" + wt_road), null)
 	}
 
 	RESET_ALL_PLAYER_FUNDS()
