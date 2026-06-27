@@ -5908,7 +5908,7 @@ void air_vehicle_t::set_convoi(convoi_t *c)
 			else if(  state==landing  ) {
 				block_reserver( touchdown, search_for_stop+1, true );
 			}
-			else if(  state==taxiing  &&  route_index>=takeoff  ) {
+			else if(  state==taxiing  &&  route_index>=takeoff  &&  route_index<touchdown  ) {
 				// brief window: state is still taxiing but route_index has advanced to
 				// takeoff because the vehicle hopped onto the runway-start tip tile
 				// (reservation was already acquired when entering that tile; state
