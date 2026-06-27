@@ -302,6 +302,15 @@ void append_platform_length_string_if_needed(cbuffer_t & buf, const weg_t* weg) 
 
 void weg_t::info(cbuffer_t & buf) const
 {
+	grund_t *g = welt->lookup(get_pos());
+	if(!g) {
+		return;
+	}
+	if(  !g->ist_tunnel() && !g->ist_bruecke()  ) {
+		// other cases, we already append way name.
+		buf.printf("%s",translator::translate(desc->get_name()));
+		buf.printf("\n");
+	}
 	obj_t::info(buf);
 
 	buf.printf("%s %u%s", translator::translate("Max. speed:"), max_speed, translator::translate("km/h\n"));
