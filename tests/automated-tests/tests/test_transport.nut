@@ -152,17 +152,17 @@ function test_transport_pax_valid_route()
 }
 
 
-function run_transport_fifo_load_order_case(first_come_first_serve, expected_b_waiting, expected_c_waiting)
+function run_transport_fifo_load_order_case(first_come_first_serve, time_based_routing, expected_b_waiting, expected_c_waiting)
 {
 	local pl = player_x(0)
 	local pax = good_desc_x.passenger
 	local old_first_come_first_serve = settings.get_first_come_first_serve()
 	local old_time_based_routing = settings.get_time_based_routing_enabled(pax)
 	settings.set_first_come_first_serve(first_come_first_serve)
-	settings.set_time_based_routing_enabled(pax, false)
+	settings.set_time_based_routing_enabled(pax, time_based_routing)
 
 	ASSERT_EQUAL(settings.get_first_come_first_serve(), first_come_first_serve)
-	ASSERT_FALSE(settings.get_time_based_routing_enabled(pax))
+	ASSERT_EQUAL(settings.get_time_based_routing_enabled(pax), time_based_routing)
 
 	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(4, 3, 0), coord3d(4, 15, 0), "cobblestone_road"), null)
 	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 4, 0), "BusStop"), null)
@@ -227,9 +227,13 @@ function run_transport_fifo_load_order_case(first_come_first_serve, expected_b_w
 
 function test_transport_fifo_load_order()
 {
+	debug.set_game_speed(5)
 	local amount = vehicle_desc_x("Buessig").get_capacity()
-	run_transport_fifo_load_order_case(false, 0, amount)
-	run_transport_fifo_load_order_case(true, amount, 0)
+	run_transport_fifo_load_order_case(false, false, 0, amount)
+	run_transport_fifo_load_order_case(true, false, amount, 0)
+	run_transport_fifo_load_order_case(false, true, amount, 0)
+	run_transport_fifo_load_order_case(true, true, amount, 0)
+	debug.set_game_speed(1)
 }
 
 
