@@ -216,7 +216,7 @@ private:
 	uint16 product_count;
 	uint8 fields; // only if there are any ...
 	uint16 pax_level;
-	bool electricity_producer;
+	uint8 electricity_producer=0xFF;//0=no, 1=yes, 0xFF=unknown
 	uint16 expand_probability;
 	uint16 expand_minimum;
 	uint16 expand_range;
