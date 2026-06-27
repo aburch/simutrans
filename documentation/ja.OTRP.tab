@@ -580,7 +580,7 @@ advance_to_end
 reverse_by_default
 折り返し時に車両を自動で反転(reverse_by_default)
 first_come_first_serve
-到着順に乗車する(first_come_first_serve)
+すべて到着順に乗車する(first_come_first_serve)
 use_old_friction
 古い勾配の摩擦係数を使用(use_old_friction)
 allow_unload_longer_convoy

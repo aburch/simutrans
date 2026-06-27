@@ -750,6 +750,8 @@ public:
 	void set_advance_to_end(bool b) { advance_to_end = b; }
 
 	bool get_first_come_first_serve() const { return first_come_first_serve; }
+	bool get_first_come_first_serve(uint8 goods_catg_index) const
+		{ return first_come_first_serve || get_time_based_routing_enabled(goods_catg_index); }
 	uint32 get_waiting_limit_for_first_come_first_serve() const 
 		{ return waiting_limit_for_first_come_first_serve; }
 

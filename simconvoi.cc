@@ -4462,7 +4462,7 @@ void convoi_t::hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_ste
 
 uint16 convoi_t::fetch_goods_and_load(vehicle_t* vehicle, const halthandle_t halt, const vector_tpl<halthandle_t> destination_halts, uint32 requested_amount) {
 	slist_tpl<ware_t> fetched_goods;
-	if(  welt->get_settings().get_first_come_first_serve()  ) {
+	if(  welt->get_settings().get_first_come_first_serve(vehicle->get_cargo_type()->get_catg_index())  ) {
 		halt->fetch_goods_FIFO(fetched_goods, vehicle->get_cargo_type(), requested_amount, destination_halts);
 	} else {
 		halt->fetch_goods_nearest_first(fetched_goods, vehicle->get_cargo_type(), requested_amount, destination_halts);
