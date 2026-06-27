@@ -114,6 +114,11 @@ bool display_snapshot(const scr_rect &)
 	return false;
 }
 
+bool display_snapshot_png(const scr_rect &, std::string &)
+{
+	return false;
+}
+
 void display_get_image_offset(image_id image, scr_coord_val *xoff, scr_coord_val *yoff, scr_coord_val *xw, scr_coord_val *yw)
 {
 	if(  image < 2  ) {

@@ -417,11 +417,7 @@ std::string mcp_server_t::dispatch(mcp_connection_t   *c,
 			pending_scripts.push_back(new mcp_pending_t{pending_vm, c, id_json});
 			return "";
 		}
-		// wrap in MCP content array
-		std::string escaped_result = json_escape(result_json);
-		std::string content = "{\"content\":[{\"type\":\"text\",\"text\":\""
-		                    + escaped_result + "\"}]}";
-		return make_response(id_json, content);
+		return make_response(id_json, result_json);
 	}
 
 	// --- unknown method ---
