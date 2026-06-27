@@ -2258,7 +2258,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 	}
 
 	sint32 const max_transfers = welt->get_settings().get_max_transfers();
-	uint32 const max_hops      = static_cast<uint32>(welt->get_settings().get_max_hops());
+	uint32 const max_hops      = (uint32)welt->get_settings().get_max_hops();
 	uint32 allocation_pointer = 0;
 	uint32 best_destination_weight = UINT32_MAX; // best weight among all destinations
 
@@ -2548,7 +2548,7 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
 	}
 
 	sint32 const max_transfers = welt->get_settings().get_max_transfers();
-	uint32 const max_hops      = static_cast<uint32>(welt->get_settings().get_max_hops());
+	uint32 const max_hops      = (uint32)welt->get_settings().get_max_hops();
 
 	static uint32 allocation_pointer;
 	if (!resume_search) {
