@@ -476,7 +476,7 @@ bool air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) con
 			if(reserve) {
 				start_now = true;
 				sch1->add_convoi_reservation(cnv->self);
-				bool can_reserve_this = sch1->reserve(cnv->self, ribi_t::none);
+				bool can_reserve_this = sch1->reserve(cnv->self, i);
 				if (can_reserve_this) {
 					// check of airplanes
 					for (uint8 i = 1; i < gr->obj_count(); i++) {

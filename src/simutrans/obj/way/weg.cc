@@ -255,6 +255,10 @@ void weg_t::rdwr(loadsave_t *file)
 	if(  file->is_loading()  ) {
 		ribi = dummy8 & 15; // before: high bits was maske
 		ribi_maske = 0; // maske will be restored by signal/roadsign
+		if (ribi == ribi_t::all) {
+			// will be recaluclated later but may be needed for loading convois
+			close_diagonal_state = 1;
+		}
 	}
 
 	uint16 dummy16=max_speed;
@@ -551,7 +555,7 @@ void weg_t::calc_image()
 					set_images(image_close_diagonal, is_close_diagonal(), snow);
 				}
 				else {
-					set_images(image_diagonal, is_close_diagonal() == 1 ? ribi_t::northwest : ribi_t::southwest, snow);
+					set_images(image_diagonal, is_close_diagonal() == 1 ? ribi_t::southeast : ribi_t::northeast, snow);
 				}
 			}
 		}
@@ -766,7 +770,7 @@ FLAGGED_PIXVAL weg_t::get_outline_colour() const
 void weg_t::display(int xpos, int ypos CLIP_NUM_DEF) const
 {
 	if (is_close_diagonal() && !desc->has_close_diagonal_image()) {
-		image_id image = desc->get_diagonal_image_id(is_close_diagonal() == 1 ? ribi_t::southeast : ribi_t::northeast, is_snow());
+		image_id image = get_desc()->get_diagonal_image_id(is_close_diagonal() == 1 ? ribi_t::northwest : ribi_t::southwest, is_snow());
 		if (get_owner_nr() != PLAYER_UNOWNED) {
 			if (obj_t::show_owner) {
 				gfx->draw_blend(image, xpos, ypos, get_owner_nr(), gfx->palette_lookup(get_owner()->get_player_color1() + 2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, get_flag(dirty)  CLIP_NUM_PAR);
@@ -777,6 +781,15 @@ void weg_t::display(int xpos, int ypos CLIP_NUM_DEF) const
 		}
 		else {
 			gfx->draw_normal(image, xpos, ypos, 0, true, get_flag(dirty)  CLIP_NUM_PAR);
+		}
+
+		const FLAGGED_PIXVAL transparent = get_outline_colour();
+		if (transparent) {
+			// transparency?
+			if (TRANSPARENT_FLAGS & transparent) {
+				// only transparent outline
+				gfx->draw_blend(image, xpos, ypos, get_owner_nr(), transparent, 0, get_flag(dirty)  CLIP_NUM_PAR);
+			}
 		}
 	}
 	obj_t::display(xpos, ypos CLIP_NUM_PAR);

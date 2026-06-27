@@ -26,6 +26,8 @@ protected:
 	// only used for closed_diagonals
 	convoihandle_t reserved2;
 
+	ribi_t::ribi enter, enter2;
+
 public:
 	static const way_desc_t *default_schiene;
 
@@ -65,7 +67,7 @@ public:
 	/**
 	* true, then this rail was reserved
 	*/
-	bool reserve(convoihandle_t c, ribi_t::ribi dir);
+	bool reserve(convoihandle_t c, uint32 route_index);
 
 	/**
 	* releases previous reservation
@@ -89,6 +91,9 @@ public:
 
 	void rdwr(loadsave_t *file) OVERRIDE;
 
+	// may need to swap reservations
+	void rotate90() OVERRIDE;
+
 	/**
 	 * if a function return here a value with TRANSPARENT_FLAGS set
 	 * then a transparent outline with the color form the lower 8 Bit is drawn
@@ -99,6 +104,8 @@ public:
 	 * to show reservations if needed
 	 */
 	image_id get_outline_image() const OVERRIDE { return weg_t::get_image(); }
+
+	void display(int xpos, int ypos  CLIP_NUM_DEF) const OVERRIDE;
 };
 
 

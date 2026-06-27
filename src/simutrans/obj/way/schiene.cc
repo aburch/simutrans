@@ -17,6 +17,7 @@
 
 #include "../../descriptor/way_desc.h"
 #include "../../builder/wegbauer.h"
+#include "../../player/simplay.h"
 
 #include "schiene.h"
 
@@ -27,6 +28,7 @@ bool schiene_t::show_reservations = false;
 schiene_t::schiene_t() : weg_t()
 {
 	reserved2 = reserved = convoihandle_t();
+	enter = enter2 = 0;
 
 	if (schiene_t::default_schiene) {
 		set_desc(schiene_t::default_schiene);
@@ -40,6 +42,8 @@ schiene_t::schiene_t() : weg_t()
 schiene_t::schiene_t(loadsave_t *file) : weg_t()
 {
 	reserved2 = reserved = convoihandle_t();
+	enter = enter2 = 0;
+
 	rdwr(file);
 }
 
@@ -80,14 +84,24 @@ void schiene_t::info(cbuffer_t & buf) const
 /**
  * true, if this rail can be reserved
  */
-bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir  )
+bool schiene_t::reserve(convoihandle_t c, uint32 index )
 {
 	if (is_close_diagonal()) {
-		convoihandle_t& r = (is_close_diagonal() == 2 && (dir & ribi_t::southeast)) || (is_close_diagonal() == 1 && (dir & ribi_t::northeast)) ? reserved : reserved2;
+		// get entry direction
+		ribi_t::ribi from = ribi_type(c->get_route()->at(index-1), get_pos());
+		bool use2 = (is_close_diagonal() == 2 && (from & ribi_t::northeast)) || (is_close_diagonal() == 1 && (from & ribi_t::southeast));
+		convoihandle_t& r = use2 ? reserved2 : reserved;
+		convoihandle_t& r_other = use2 ? reserved : reserved2;
+		if (r_other == c) {
+			// may happen during rotations that we are rereved on the other track ...
+			r_other = convoihandle_t();
+			(use2 ? enter : enter2) = 0;
+		}
 		if (r.is_bound() && r != c) {
 			return false;
 		}
 		r = c;
+		(use2 ? enter2 : enter) = from;
 		if (schiene_t::show_reservations) {
 			set_flag(obj_t::dirty);
 		}
@@ -99,12 +113,16 @@ bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir  )
 		 * direction is a diagonal (i.e. on the switching part)
 		 * and there are switching graphics
 		 */
-		if(  ribi_t::is_threeway(get_ribi_unmasked())  &&  ribi_t::is_bend(dir)  &&  get_desc()->has_switch_image()  ) {
-			mark_image_dirty( get_image(), 0 );
-			mark_image_dirty( get_front_image(), 0 );
-			set_switched((dir == ribi_t::northeast || dir == ribi_t::southwest));
-			set_images(image_switch, get_ribi_unmasked(), is_snow(), get_switched() );
-			set_flag( obj_t::dirty );
+		if(  index > 1  &&  ribi_t::is_threeway(get_ribi_unmasked())  &&  get_desc()->has_switch_image()  ) {
+			route_t const& rt = *c->get_route();
+			ribi_t::ribi dir = ribi_type(rt[index - 1], get_pos());
+			if (ribi_t::is_bend(dir)) {
+				mark_image_dirty(get_image(), 0);
+				mark_image_dirty(get_front_image(), 0);
+				set_switched((dir == ribi_t::northeast || dir == ribi_t::southwest));
+				set_images(image_switch, get_ribi_unmasked(), is_snow(), get_switched());
+				set_flag(obj_t::dirty);
+			}
 		}
 		if(schiene_t::show_reservations) {
 			set_flag( obj_t::dirty );
@@ -138,15 +156,17 @@ bool schiene_t::unreserve(vehicle_t *v)
 bool schiene_t::unreserve(convoihandle_t c)
 {
 	// is this tile reserved by us?
-	if(reserved.is_bound()  &&  reserved==c) {
+	if(reserved==c) {
 		reserved = convoihandle_t();
+		enter = 0;
 		if(schiene_t::show_reservations) {
 			set_flag( obj_t::dirty );
 		}
 		return true;
 	}
-	if (reserved2.is_bound()  &&  reserved2 == c) {
+	if (reserved2 == c) {
 		reserved2 = convoihandle_t();
+		enter2 = 0;
 		if (schiene_t::show_reservations) {
 			set_flag(obj_t::dirty);
 		}
@@ -206,14 +226,68 @@ void schiene_t::rdwr(loadsave_t *file)
 }
 
 
+void schiene_t::rotate90()
+{
+	weg_t::rotate90();
+	if (is_close_diagonal()) {
+		// it is unfourtunately not straight forward to swap the reservations ...
+		bool swap = false;
+		// bool use2 = (is_close_diagonal() == 2 && (from & ribi_t::northeast)) || (is_close_diagonal() == 1 && (from & ribi_t::southeast));
+		if (enter) {
+			swap = (is_close_diagonal() == 2 && (enter & ribi_t::northeast)) || (is_close_diagonal() == 1 && (enter & ribi_t::southeast));
+		}
+		else if (enter2) {
+			swap = (is_close_diagonal() == 2 && (enter2 & ribi_t::northeast)) || (is_close_diagonal() == 1 && (enter2 & ribi_t::southeast));
+		}
+		if (swap) {
+			// needs to swap convoi handles
+			convoihandle_t tmp = reserved2;
+			reserved2 = reserved;
+			reserved = tmp;
+			ribi_t::ribi t = enter2;
+			enter2 = enter;
+			enter = t;
+		}
+	}
+}
+
+
 FLAGGED_PIXVAL schiene_t::get_outline_colour() const
 {
 	if (env_t::show_single_ways  &&  ribi_t::is_single(get_ribi_unmasked())) {
-		return TRANSPARENT75_FLAG | OUTLINE_FLAG | gfx->palette_lookup(COL_RED);
+		return TRANSPARENT75_FLAG | OUTLINE_FLAG | gfx->palette_lookup(COL_YELLOW);
 	}
 	if (show_reservations  &&  reserved.is_bound()) {
 		return TRANSPARENT75_FLAG | OUTLINE_FLAG | gfx->palette_lookup(COL_RED);
 	}
-
+	if (show_reservations  &&  is_close_diagonal()  &&  get_desc()->has_close_diagonal_image() && reserved2.is_bound()) {
+		return TRANSPARENT75_FLAG | OUTLINE_FLAG | gfx->palette_lookup(COL_RED);
+	}
 	return 0;
+}
+
+
+void schiene_t::display(int xpos, int ypos CLIP_NUM_DEF) const
+{
+	if (is_close_diagonal() && !get_desc()->has_close_diagonal_image()) {
+		image_id image = get_desc()->get_diagonal_image_id(is_close_diagonal() == 1 ? ribi_t::northwest : ribi_t::southwest, is_snow());
+		if (get_owner_nr() != PLAYER_UNOWNED) {
+			if (obj_t::show_owner) {
+				gfx->draw_blend(image, xpos, ypos, get_owner_nr(), gfx->palette_lookup(get_owner()->get_player_color1() + 2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, get_flag(dirty)  CLIP_NUM_PAR);
+			}
+			else {
+				gfx->draw_color(image, xpos, ypos, get_owner_nr(), true, get_flag(dirty)  CLIP_NUM_PAR);
+			}
+		}
+		else {
+			gfx->draw_normal(image, xpos, ypos, 0, true, get_flag(dirty)  CLIP_NUM_PAR);
+		}
+
+		if (show_reservations  &&  reserved2.is_bound()) {
+			// transparent outline for second way
+			gfx->draw_blend(image, xpos, ypos, get_owner_nr(), TRANSPARENT75_FLAG | OUTLINE_FLAG | gfx->palette_lookup(COL_RED), 0, get_flag(dirty)  CLIP_NUM_PAR);
+		}
+	}
+
+	obj_t::display(xpos, ypos CLIP_NUM_PAR);
 }
