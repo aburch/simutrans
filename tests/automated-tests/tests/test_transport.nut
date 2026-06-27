@@ -152,6 +152,87 @@ function test_transport_pax_valid_route()
 }
 
 
+function run_transport_fifo_load_order_case(first_come_first_serve, expected_b_waiting, expected_c_waiting)
+{
+	local pl = player_x(0)
+	local pax = good_desc_x.passenger
+	local old_first_come_first_serve = settings.get_first_come_first_serve()
+	local old_time_based_routing = settings.get_time_based_routing_enabled(pax)
+	settings.set_first_come_first_serve(first_come_first_serve)
+	settings.set_time_based_routing_enabled(pax, false)
+
+	ASSERT_EQUAL(settings.get_first_come_first_serve(), first_come_first_serve)
+	ASSERT_FALSE(settings.get_time_based_routing_enabled(pax))
+
+	ASSERT_EQUAL(command_x(tool_build_way).work(pl, coord3d(4, 3, 0), coord3d(4, 15, 0), "cobblestone_road"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 4, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 8, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 12, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x(tool_build_station).work(pl, coord3d(4, 13, 0), "BusStop"), null)
+	ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 15, 0), building_desc_x("CarDepot")), null)
+
+	local halt_a = halt_x.get_halt(coord3d(4, 12, 0), pl)
+	local halt_b = halt_x.get_halt(coord3d(4, 8, 0), pl)
+	local halt_c = halt_x.get_halt(coord3d(4, 4, 0), pl)
+	local bus_desc = vehicle_desc_x("Buessig")
+	local amount = bus_desc.get_capacity()
+	ASSERT_TRUE(amount > 0)
+
+	ASSERT_EQUAL(pl.create_line(wt_road), true)
+	local line_list = pl.get_line_list()
+	local line = line_list[line_list.get_count() - 1]
+	line.change_schedule(pl, create_simple_schedule(wt_road, [ coord3d(4, 12, 0), coord3d(4, 8, 0), coord3d(4, 4, 0) ]))
+
+	local depot = depot_x(4, 15, 0)
+	depot.append_vehicle(pl, convoy_x(0), bus_desc)
+	local cnv = depot.get_convoy_list()[0]
+	cnv.set_line(pl, line)
+	depot.start_all_convoys(pl)
+
+	sleep()
+	sleep()
+
+	ASSERT_EQUAL(world.generate_goods(coord(3, 12), coord(3, 4), pax, amount), 1)
+	ASSERT_EQUAL(world.generate_goods(coord(3, 12), coord(3, 8), pax, amount), 1)
+	ASSERT_EQUAL(halt_a.waiting[0], amount * 2)
+	ASSERT_EQUAL(halt_a.get_freight_to_halt(pax, halt_b), amount)
+	ASSERT_EQUAL(halt_a.get_freight_to_halt(pax, halt_c), amount)
+
+	while (halt_a.departed[0] < amount) {
+		sleep()
+	}
+
+	ASSERT_EQUAL(halt_a.departed[0], amount)
+	ASSERT_EQUAL(halt_a.waiting[0], amount)
+	ASSERT_EQUAL(halt_a.get_freight_to_halt(pax, halt_b), expected_b_waiting)
+	ASSERT_EQUAL(halt_a.get_freight_to_halt(pax, halt_c), expected_c_waiting)
+	ASSERT_EQUAL(halt_a.get_freight_to_dest(pax, coord3d(3, 8, 0)), expected_b_waiting)
+	ASSERT_EQUAL(halt_a.get_freight_to_dest(pax, coord3d(3, 4, 0)), expected_c_waiting)
+
+	// clean up
+	settings.set_first_come_first_serve(old_first_come_first_serve)
+	settings.set_time_based_routing_enabled(pax, old_time_based_routing)
+	cnv.destroy(pl)
+	sleep()
+	sleep()
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 4, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 8, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 12, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 13, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 15, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(4, 3, 0), coord3d(4, 15, 0), "" + wt_road), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_transport_fifo_load_order()
+{
+	local amount = vehicle_desc_x("Buessig").get_capacity()
+	run_transport_fifo_load_order_case(false, 0, amount)
+	run_transport_fifo_load_order_case(true, amount, 0)
+}
+
+
 function test_transport_mail_valid_route()
 {
 	local pl = player_x(0)
