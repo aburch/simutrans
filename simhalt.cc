@@ -2547,10 +2547,10 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
 		return;
 	}
 
-	uint16 const max_transfers = welt->get_settings().get_max_transfers();
-	uint16 const max_hops      = welt->get_settings().get_max_hops();
+	uint32 const max_transfers = welt->get_settings().get_max_transfers();
+	uint32 const max_hops      = welt->get_settings().get_max_hops();
 
-	static uint16 allocation_pointer;
+	static uint32 allocation_pointer;
 	if (!resume_search) {
 		// initialise the origin node
 		allocation_pointer = 1u;
