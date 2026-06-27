@@ -561,6 +561,10 @@ bool air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) con
 bool air_vehicle_t::is_same_takeoff(koord3d other_takeoff) const
 {
 	if (state == taxiing) {
+		if (route_index >= search_for_stop) {
+			// we ignore vehicles taxiing to stops
+			return true;
+		}
 		if (cnv) {
 			const route_t& rt = *(cnv->get_route());
 			if (rt.get_count() > takeoff) {
@@ -684,10 +688,6 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 							// we drive through other planes after landing
 							if (obj->get_typ() == obj_t::air_vehicle) {
 								air_vehicle_t* other = (air_vehicle_t*)obj;
-								if (other->is_taxiing_to_stop()) {
-									// we drive through vehicles going to parking
-									continue;
-								}
 								if (!other->is_same_takeoff(our_takeoff)) {
 									// one plane taxiing to other takeoff => wait to avoid blocking
 									restart_speed = 0;

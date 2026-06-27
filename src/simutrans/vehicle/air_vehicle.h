@@ -128,7 +128,7 @@ public:
 
 	bool is_flying() const { return !is_on_ground(); }
 
-	bool is_taxiing_to_stop() const { return route_index >= looking_for_parking; }
+	bool is_taxiing_to_stop() const { return route_index >= search_for_stop; }
 };
 
 #endif

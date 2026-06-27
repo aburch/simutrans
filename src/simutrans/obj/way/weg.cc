@@ -509,6 +509,9 @@ void weg_t::calc_image()
 	grund_t *to;
 	image_id old_image = image;
 
+	close_diagonal_state = 0;
+	diagonal_flag = 0;
+
 	if(  from==NULL  ||  desc==NULL  ) {
 		// no ground, in tunnel
 		set_image(IMG_EMPTY);
