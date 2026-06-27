@@ -1801,9 +1801,16 @@ sint32 haltestelle_t::rebuild_connections()
 		// because it depends on the routing configuration for the goods category.
 		sint32 aggregate_weight_rc; // weight by route cost. WEIGHT_HALT + WEIGHT_WAIT * (stops count)
 		sint32 aggregate_weight_jt; // weight by journey time. (average goods waiting time) + (median journey time)
-
 		// the journey time of the first entry contains the stopping time at the starting point, which should be excluded.
-		aggregate_weight_jt = estimated_waiting_ticks(schedule, start_index-1) - start_entry.get_median_convoy_stopping_time();
+		const auto calc_initial_journey_weight = [&](uint8 entry_index) -> sint32 {
+			const sint64 waiting_ticks = estimated_waiting_ticks(schedule, entry_index);
+			const sint64 stopping_ticks = schedule->at(entry_index).get_median_convoy_stopping_time();
+			const sint64 initial_weight = waiting_ticks - stopping_ticks;
+			// Using negative weight breaks Dijkstra.
+			return initial_weight > 0 ? (sint32)initial_weight : 0;
+		};
+
+		aggregate_weight_jt = calc_initial_journey_weight(start_index-1);
 		aggregate_weight_rc = WEIGHT_WAIT;
 
 		bool no_load_section = start_entry.is_no_load() || start_entry.is_temp_load();
@@ -1829,7 +1836,7 @@ sint32 haltestelle_t::rebuild_connections()
 					}
 				}
 				// reset aggregate weight
-				aggregate_weight_jt = estimated_waiting_ticks(schedule, current_entry_index) - current_entry.get_median_convoy_stopping_time();
+				aggregate_weight_jt = calc_initial_journey_weight(current_entry_index);
 				aggregate_weight_rc = WEIGHT_WAIT;
 			 	force_transfer_search |= (current_entry.is_unload_all()  ||  current_entry.is_no_load()  ||  current_entry.is_no_unload()  ||  current_entry.is_temp_load()  ||  current_entry.is_temp_unload_all());
 				// If loading is allowed at somewhere by here, we still need to connect the further halts.
