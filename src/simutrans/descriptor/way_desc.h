@@ -173,13 +173,11 @@ public:
 			default:
 				return IMG_EMPTY;
 		}
-		image_id slope_img = get_child<image_list_t>(n)->get_image_id(nr);
-		if(  nr > 3  &&  slope_img == IMG_EMPTY  &&  get_child<image_list_t>(n)->get_count()<=4  ) {
+		if (!double_slopes) {
 			// hack for old ways without double height images to use single slope images for both
-			nr -= 4;
-			slope_img = get_child<image_list_t>(n)->get_image_id(nr);
+			nr &= 3;
 		}
-		return slope_img;
+		return get_child<image_list_t>(n)->get_image_id(nr);
 	}
 
 	image_id get_diagonal_image_id(ribi_t::ribi ribi, uint8 season, bool front = false) const

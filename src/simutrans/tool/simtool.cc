@@ -3019,7 +3019,7 @@ void tool_build_way_t::mark_tiles(player_t* player, const koord3d& start, const 
 /* city road construction */
 const way_desc_t* tool_build_cityroad::get_desc() const
 {
-	return welt->get_city_road();
+	return stadt_t::city_road;
 }
 
 

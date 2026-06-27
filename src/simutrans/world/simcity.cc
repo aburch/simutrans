@@ -107,6 +107,9 @@ static sint16 ind_neighbour_score[] = { -8, 0,  8 };
 static sint16 com_neighbour_score[] = {  1, 8,  1 };
 static sint16 res_neighbour_score[] = {  8, 0, -8 };
 
+// current city road
+const way_desc_t* stadt_t::city_road = NULL;
+
 /**
  * Rule data structure
  * maximum 7x7 rules
@@ -224,11 +227,11 @@ bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, int rotation)
 				break;
 			case 'U':
 				// unbuildable for road
-				if (!slope_t::is_way(gr->get_grund_hang())) return false;
+				if (!slope_t::is_way_double(gr->get_grund_hang(), city_road->has_double_slopes())) return false;
 				break;
 			case 'u':
 				// road may be buildable
-				if (slope_t::is_way(gr->get_grund_hang())) return false;
+				if (slope_t::is_way_double(gr->get_grund_hang(), city_road->has_double_slopes())) return false;
 				break;
 			case 't':
 				// here is a stop/extension building
@@ -2672,7 +2675,7 @@ void stadt_t::check_bau_townhall(bool new_town, const building_desc_t* desc, sin
 		if (umziehen  &&  alte_str != koord::invalid  &&  townhall_road != koord::invalid) {
 			// Strasse vom ehemaligen Rathaus zum neuen verlegen.
 			way_builder_t bauer(NULL);
-			bauer.init_builder(way_builder_t::strasse | way_builder_t::terraform_flag, welt->get_city_road());
+			bauer.init_builder(way_builder_t::strasse | way_builder_t::terraform_flag, city_road);
 			bauer.calc_route(welt->lookup_kartenboden(alte_str)->get_pos(), welt->lookup_kartenboden(townhall_road)->get_pos());
 			bauer.build();
 		}
@@ -2936,20 +2939,22 @@ static koord const area3x3[] = {
 bool update_city_street(koord pos)
 {
 // !!! We should take the bulding size into consideration, missing!!!
-	const way_desc_t* cr = world()->get_city_road();
 	for(  int i=0;  i<8;  i++  ) {
 		koord check_pos = pos + neighbors[i];
 		if(  grund_t *gr = world()->lookup_kartenboden(check_pos)) {
 			if(  weg_t* const weg = gr->get_weg(road_wt)  ) {
 				// Check if any changes are needed.
-				if(  !weg->hat_gehweg()  ||  weg->get_desc() != cr  ) {
+				if(  !weg->hat_gehweg()  ||  weg->get_desc() != stadt_t::city_road) {
 					player_t *sp = weg->get_owner();
 					if(  sp  ){
 						player_t::add_maintenance(sp, -weg->get_desc()->get_maintenance(), road_wt);
 						weg->set_owner(NULL); // make public
 					}
 					weg->set_gehweg(true);
-					weg->set_desc(cr);
+					if (slope_t::is_way_double(gr->get_weg_hang(), stadt_t::city_road)) {
+						// only set description on double height tiles if we have an image for them
+						weg->set_desc(stadt_t::city_road);
+					}
 					gr->calc_image();
 					minimap_t::get_instance()->calc_map_pixel(check_pos);
 					return true; // update only one road per renovation
@@ -3795,7 +3800,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 							// not already sucessful
 
 							slope_t::type this_slope = bd->get_grund_hang();
-							if ((slope_t::is_way(this_slope) &&
+							if ((slope_t::is_way_double(this_slope,city_road->has_double_slopes()) &&
 								(bd->get_hoehe() == target_h && (this_slope == slope_t::flat ||
 									(ribi_type(this_slope) & ribi_t::northwest & ribi_t::nesw[r]) != 0)))
 								|| (((ribi_type(this_slope) & ribi_t::southeast & ribi_t::nesw[r]) != 0)  &&  target_h == bd->get_hoehe() + slope_t::max_diff(this_slope))
@@ -3804,6 +3809,8 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 
 							}
 							else {
+								// TODO: first try to make slope one level douwn/up by terraforming
+								
 								// slopes do not match, and we have not yet connected
 								// try to level the land
 								if (welt->can_flatten_tile(NULL, k, target_h, true)) {
@@ -3862,13 +3869,13 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 						}
 					}
 
-					if (slope_t::is_way(bd->get_grund_hang())) {
+					if (slope_t::is_way_double(bd->get_grund_hang(),city_road->has_double_slopes())) {
 						if (!connection_roads) {
 							// now all slopes should be correct, we can build
 
 							// city roads should not belong to any player => so we can ignore any construction costs ...
 							strasse_t* weg = new strasse_t();
-							weg->set_desc(welt->get_city_road());
+							weg->set_desc(city_road);
 							weg->set_gehweg(true);
 							bd->neuen_weg_bauen(weg, ribi_t::nesw[r], player_);
 							bd->calc_image();
@@ -3895,14 +3902,14 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 		}
 	}
 
-	if (!slope_t::is_way(bd->get_weg_hang())) {
+	if (!slope_t::is_way_double(bd->get_weg_hang(),city_road->has_double_slopes())) {
 		// not a way slope => could not even connect with terraform
 		return false;
 	}
 
 	if (!bd->hat_weg(road_wt)  &&  forced) {
 		strasse_t* weg = new strasse_t();
-		weg->set_desc(welt->get_city_road());
+		weg->set_desc(city_road);
 		weg->set_gehweg(true);
 		bd->neuen_weg_bauen(weg, ribi_t::none, player_);
 		bd->calc_image();
@@ -3915,7 +3922,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 		grund_t *bd_next = welt->lookup_kartenboden( k + zv );
 		if(bd_next  &&  (bd_next->is_water()  ||  (bd_next->hat_weg(water_wt)  &&  bd_next->get_weg(water_wt)->get_desc()->get_styp()== type_river))) {
 			// ok there is a river
-			const bridge_desc_t *bridge = bridge_builder_t::find_bridge(road_wt, welt->get_city_road()->get_topspeed(), welt->get_timeline_year_month() );
+			const bridge_desc_t *bridge = bridge_builder_t::find_bridge(road_wt, city_road->get_topspeed(), welt->get_timeline_year_month() );
 			if(  bridge==NULL  ) {
 				// does not have a bridge available ...
 				return false;
@@ -4024,7 +4031,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 					return false;
 				}
 			}
-			bridge_builder_t::build_bridge(NULL, bd->get_pos(), bd_next->get_pos(), zv, bridge_height, bridge, welt->get_city_road());
+			bridge_builder_t::build_bridge(NULL, bd->get_pos(), bd_next->get_pos(), zv, bridge_height, bridge, city_road);
 			build_road( end+zv, NULL, false);
 			// try to build a house near the bridge end
 			uint32 old_count = buildings.get_count();
@@ -4086,7 +4093,7 @@ bool stadt_t::test_and_build_cityroad(koord start, koord end)
 	}
 	// now all slopes should be correct, we can build
 	way_builder_t bauigel(NULL);
-	bauigel.init_builder(way_builder_t::strasse | way_builder_t::terraform_flag, welt->get_city_road(), NULL, NULL);
+	bauigel.init_builder(way_builder_t::strasse | way_builder_t::terraform_flag, city_road, NULL, NULL);
 	bauigel.set_build_sidewalk(true);
 	if (bauigel.calc_straight_route(welt->lookup_kartenboden(start)->get_pos(), welt->lookup_kartenboden(end)->get_pos())) {
 		return false;

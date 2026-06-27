@@ -21,6 +21,7 @@ class building_desc_t;
 class karte_ptr_t;
 class player_t;
 class rule_t;
+class way_desc_t;
 
 
 #define MAX_CITY_HISTORY_YEARS  (12) // number of years to keep history
@@ -133,6 +134,9 @@ public:
 	 * only written for networkgames
 	 */
 	static void cityrules_rdwr(loadsave_t *file);
+
+	//  current city road; can change monthly
+	static const way_desc_t* city_road;
 
 	static uint32 get_industry_increase();
 	static void set_industry_increase(uint32 ind_increase);

@@ -3047,7 +3047,8 @@ void karte_t::recalc_average_speed()
 		average_speed[typ] = vehicle_builder_t::get_speedbonus( this->get_timeline_year_month(), i==4 ? air_wt : (waytype_t)i );
 	}
 
-//	DBG_MESSAGE("karte_t::recalc_average_speed()","");
+	//  DBG_MESSAGE("karte_t::new_month()", "Month %d has started", last_month);
+	//	DBG_MESSAGE("karte_t::recalc_average_speed()","");
 	if(use_timeline()) {
 		for(int i=road_wt; i<=air_wt; i++) {
 			const char *vehicle_type=NULL;
@@ -3109,19 +3110,18 @@ void karte_t::recalc_average_speed()
 
 		// city road (try to use always a timeline)
 		if (way_desc_t const* city_road_test = settings.get_city_road_type(current_month) ) {
-			city_road = city_road_test;
+			stadt_t::city_road = city_road_test;
 		}
 		else {
-			DBG_MESSAGE("karte_t::new_month()","Month %d has started", last_month);
-			city_road = way_builder_t::weg_search(road_wt,50,get_timeline_year_month(),type_flat);
+			stadt_t::city_road = way_builder_t::weg_search(road_wt,50,get_timeline_year_month(),type_flat);
 		}
 		weg_t::set_cityroad_speedlimit(settings.get_city_road_speed_limit(get_timeline_year_month() / 12));
 	}
 	else {
 		// defaults
-		city_road = settings.get_city_road_type(0);
-		if(city_road==NULL) {
-			city_road = way_builder_t::weg_search(road_wt,50,0,type_flat);
+		stadt_t::city_road = settings.get_city_road_type(0);
+		if(stadt_t::city_road==NULL) {
+			stadt_t::city_road = way_builder_t::weg_search(road_wt,50,0,type_flat);
 		}
 		weg_t::set_cityroad_speedlimit(50);
 	}
