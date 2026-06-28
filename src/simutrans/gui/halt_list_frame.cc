@@ -13,6 +13,8 @@
 #include "../simhalt.h"
 #include "../simware.h"
 #include "../simfab.h"
+#include "../simline.h"
+#include "../simconvoi.h"
 #include "../utils/unicode.h"
 #include "simwin.h"
 #include "../descriptor/skin_desc.h"
@@ -178,29 +180,64 @@ halt_list_frame_t::~halt_list_frame_t()
 }
 
 
-static bool passes_filter_special(haltestelle_t const& s)
+static bool passes_filter_special(halthandle_t s, uint16 player_nr)
 {
+	bool ok = true;
+
 	if (!halt_list_frame_t::get_filter(halt_list_frame_t::spezial_filter)) return true;
 
 	if (halt_list_frame_t::get_filter(halt_list_frame_t::ueberfuellt_filter)) {
-		PIXVAL const color = s.get_status_farbe();
+		PIXVAL const color = s->get_status_farbe();
 		if (color == gfx->palette_lookup(COL_RED) || color == gfx->palette_lookup(COL_ORANGE)) {
-			return true; // overcrowded
+			 ok = true; // overcrowded
+		}
+		else {
+			return false;
 		}
 	}
 
-	if (halt_list_frame_t::get_filter(halt_list_frame_t::ohneverb_filter)) {
+	if (halt_list_frame_t::get_filter(halt_list_frame_t::owner_filter)) {
+		if (s->get_owners() & (1<<player_nr)) {
+			// I am an owner
+		}
+		else {
+			return false;
+		}
+	}
+
+	if (halt_list_frame_t::get_filter(halt_list_frame_t::shared_filter)) {
+		uint16 permissions = s->get_permissions();
+		if (permissions & (permissions - 1) == 0) {
+			// only one permission
+			return false;
+		}
+	}
+
+	if (halt_list_frame_t::get_filter(halt_list_frame_t::notconnected_filter)) {
 		for (uint8 i = 0; i < goods_manager_t::get_max_catg_index(); ++i) {
-			if (!s.get_connections(i).empty()) return false; // only display stations with NO connection
+			if (!s->get_connections(i).empty()) return false; // only stations with absolutely NO connection
 		}
-		return true;
+		uint16 permissions = s->get_permissions();
+		if (permissions & (permissions - 1)) {
+			// Shared stop => must check all connections
+			for (linehandle_t const& l : s->registered_lines) {
+				if (l->get_owner()->get_player_nr() == player_nr) {
+					return false;
+				}
+			}
+			for (convoihandle_t const& cnv : s->registered_convoys) {
+				if (cnv->get_owner()->get_player_nr() == player_nr) {
+					return false;
+				}
+			}
+		}
 	}
 
-	return false;
+	return ok;
 }
 
 
-static bool passes_filter_out(haltestelle_t const& s)
+static bool passes_filter_out(halthandle_t s)
 {
 	if (!halt_list_frame_t::get_filter(halt_list_frame_t::ware_ab_filter)) return true;
 
@@ -215,16 +252,16 @@ static bool passes_filter_out(haltestelle_t const& s)
 		if (!halt_list_frame_t::get_ware_filter_ab(ware)) continue;
 
 		if (ware == goods_manager_t::passengers) {
-			if (s.get_pax_enabled()) return true;
+			if (s->get_pax_enabled()) return true;
 		}
 		else if (ware == goods_manager_t::mail) {
-			if (s.get_mail_enabled()) return true;
+			if (s->get_mail_enabled()) return true;
 		}
 		else if (ware != goods_manager_t::none) {
 			// Sigh - a doubly nested loop per halt
 			// Fortunately the number of factories and their number of outputs
 			// is limited (usually 1-2 factories and 0-1 outputs per factory)
-			for(fabrik_t* const f : s.get_fab_list()) {
+			for(fabrik_t* const f : s->get_fab_list()) {
 				for(ware_production_t const& j : f->get_output()) {
 					if (j.get_typ() == ware) return true;
 				}
@@ -236,7 +273,7 @@ static bool passes_filter_out(haltestelle_t const& s)
 }
 
 
-static bool passes_filter_in(haltestelle_t const& s)
+static bool passes_filter_in(halthandle_t s)
 {
 	if (!halt_list_frame_t::get_filter(halt_list_frame_t::ware_an_filter)) return true;
 	/*
@@ -250,16 +287,16 @@ static bool passes_filter_in(haltestelle_t const& s)
 		if (!halt_list_frame_t::get_ware_filter_an(ware)) continue;
 
 		if (ware == goods_manager_t::passengers) {
-			if (s.get_pax_enabled()) return true;
+			if (s->get_pax_enabled()) return true;
 		}
 		else if (ware == goods_manager_t::mail) {
-			if (s.get_mail_enabled()) return true;
+			if (s->get_mail_enabled()) return true;
 		}
 		else if (ware != goods_manager_t::none) {
 			// Sigh - a doubly nested loop per halt
 			// Fortunately the number of factories and their number of outputs
 			// is limited (usually 1-2 factories and 0-1 outputs per factory)
-			for(fabrik_t* const f : s.get_fab_list()) {
+			for(fabrik_t* const f : s->get_fab_list()) {
 				for(ware_production_t const& j : f->get_input()) {
 					if (j.get_typ() == ware) return true;
 				}
@@ -275,9 +312,9 @@ static bool passes_filter_in(haltestelle_t const& s)
  * Check all filters for one halt.
  * returns true, if it is not filtered away.
  */
-static bool passes_filter(haltestelle_t const& s)
+static bool passes_filter(halthandle_t s,uint16 player_nr)
 {
-	if (!passes_filter_special(s)) return false;
+	if (!passes_filter_special(s, player_nr)) return false;
 	if (!passes_filter_out(s))     return false;
 	if (!passes_filter_in(s))      return false;
 	return true;
@@ -296,7 +333,7 @@ void halt_list_frame_t::sort_list()
 	scrolly->clear_elements();
 	uint16 player_flag = 1 << m_player->get_player_nr();
 	for(halthandle_t const halt : haltestelle_t::get_alle_haltestellen()) {
-		if ((halt->get_owners() & player_flag) == 0) {
+		if (!halt->can_use_halt(m_player)) {
 			continue;
 		}
 		if (name_filter[0] != 0  &&  !utf8caseutf8(halt->get_name(), name_filter)) {
@@ -306,7 +343,7 @@ void halt_list_frame_t::sort_list()
 		if (current_type != 0  &&  (halt->get_station_type() & current_type) == 0) {
 			continue;
 		}
-		if(  passes_filter(*halt.get_rep())  ) {
+		if(  passes_filter(halt, m_player->get_player_nr())  ) {
 			scrolly->new_component<halt_list_stats_t>(halt);
 		}
 	}

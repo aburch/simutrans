@@ -66,7 +66,7 @@ private:
 	 * some tables for the main attributes of each button.
 	 */
 	enum {
-		FILTER_BUTTONS = 5
+		FILTER_BUTTONS = 7
 	};
 
 	static halt_list_frame_t::filter_flag_t filter_buttons_types[FILTER_BUTTONS];

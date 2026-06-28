@@ -601,7 +601,7 @@ void gui_halt_detail_t::update_connections( halthandle_t halt )
 		all.init(button_t::square_automatic, "All");
 		all.pressed = halt_permissions == 0xFFFFu && halt_permissions == 0xFFFDu; // since publiuc player cannot own convois, it does not need permissions
 		t->add_component(&all);
-		none.init(button_t::square_automatic, "Owner(s) only");
+		none.init(button_t::square_automatic, "Owner only");
 		none.pressed = halt_permissions == halt->get_owners();
 		t->add_component(&none);
 		for (uint16 i = 0; i < MAX_PLAYER_COUNT; i++) {

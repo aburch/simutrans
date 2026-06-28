@@ -474,6 +474,11 @@ bool air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) con
 		else {
 			// we un-reserve also nonexistent tiles! (may happen during deletion)
 			if(reserve) {
+				if (sch1->get_desc()->get_styp() != type_runway) {
+					// end of runway
+					end = i - 1;
+					break;
+				}
 				start_now = true;
 				sch1->add_convoi_reservation(cnv->self);
 				bool can_reserve_this = sch1->reserve(cnv->self, i);
@@ -497,8 +502,10 @@ bool air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) con
 				if(!can_reserve_this) {
 					if (clear_take_off) {
 						// we check if the runway is really reserved
-						if (air_vehicle_t *v = gr->find<air_vehicle_t>()) {
-							if (v->get_flying_state() <= departing) {
+						convoihandle_t other_cnv = sch1->get_reserved_convoi();
+						if (other_cnv.is_bound()) {
+							air_vehicle_t* v = (air_vehicle_t*)(other_cnv->get_vehicle(0));
+							if (v->get_flying_state() != flying && v->get_flying_state() != circling) {
 								// unsuccessful => must un-reserve all
 								success = false;
 								end = i;
@@ -512,11 +519,6 @@ bool air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) con
 						end = i;
 						break;
 					}
-				}
-				// end of runway?
-				if(  i > start  &&  (ribi_t::is_single( sch1->get_ribi_unmasked() )  ||  sch1->get_desc()->get_styp() != type_runway)   ) {
-					end = i;
-					break;
 				}
 			}
 			else {
@@ -593,8 +595,9 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		return true;
 	}
 
+	// if we have to cirle longet ...
 	if (is_flying()) {
-		// check for another circle ...
+		// check for another circle or proceed to langing?
 		if (!target_halt.is_bound()  &&  (route_index+3 == touchdown  ||  route_index+16+3 == touchdown)) {
 			grund_t* gr_free = NULL;
 			if (grund_t* gr = welt->lookup(cnv->get_route()->back())) {
@@ -656,14 +659,14 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		}
 	}
 
-
-	// not flying but no taxiway/runway
 	runway_t* rw = (runway_t*)gr->get_weg(air_wt);
-	if (rw == NULL) {
+	if(rw==NULL) {
+		// not flying but no taxiway/runway
 		if (state == departing) {
 			// next: flying
 			return true;
 		}
+		block_reserver(0, route_index, false);
 		cnv->suche_neue_route();
 		restart_speed = 0;
 		return false;
@@ -733,10 +736,17 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		// next tile a runway => then reserve
 		if (rw->get_desc()->get_styp() == type_runway) {
 			// try to reserve the runway
-			if (!block_reserver(takeoff, takeoff + 100, true)) {
+			if (!block_reserver(route_index, takeoff + 100, true)) {
 				// runway already blocked ...
 				restart_speed = 0;
 				return false;
+			}
+		}
+		else if (grund_t * gr_cur = welt->lookup(get_pos())) {
+			// again leaving runway?
+			if (gr_cur->hat_weg(air_wt) && gr_cur->get_weg(air_wt)->get_desc()->get_styp() == type_runway) {
+				// unreserve runway
+				block_reserver(0, route_index, false);
 			}
 		}
 
@@ -1039,7 +1049,8 @@ void air_vehicle_t::hop(grund_t* gr)
 			) {
 				state = flying;
 				new_friction = 1;
-				block_reserver( takeoff, touchdown-1, false );
+				// we unreserve all the route as we may go T shape runways
+				block_reserver( 0, touchdown-1, false );
 				flying_height = h_cur - h_next;
 				target_height = h_cur+TILE_HEIGHT_STEP*3;
 			}

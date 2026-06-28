@@ -15,7 +15,9 @@ const char *halt_list_filter_frame_t::filter_buttons_text[FILTER_BUTTONS] = {
 	"hlf_chk_waren_annahme",
 	"hlf_chk_waren_abgabe",
 	"hlf_chk_overflow",
-	"hlf_chk_keine_verb"
+	"hlf_chk_keine_verb",
+	"Owner only",
+	"Shared only"
 };
 
 halt_list_frame_t::filter_flag_t halt_list_filter_frame_t::filter_buttons_types[FILTER_BUTTONS] = {
@@ -23,7 +25,9 @@ halt_list_frame_t::filter_flag_t halt_list_filter_frame_t::filter_buttons_types[
 	halt_list_frame_t::ware_an_filter,
 	halt_list_frame_t::ware_ab_filter,
 	halt_list_frame_t::ueberfuellt_filter,
-	halt_list_frame_t::ohneverb_filter
+	halt_list_frame_t::notconnected_filter,
+	halt_list_frame_t::owner_filter,
+	halt_list_frame_t::shared_filter
 };
 
 
@@ -36,12 +40,12 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(player_t *player, halt_list_f
 
 	// init buttons
 	for(  int i=0;  i<FILTER_BUTTONS;  i++  ) {
-		filter_buttons[i].init(button_t::square, filter_buttons_text[i]);
+		filter_buttons[i].init(button_t::square_state, filter_buttons_text[i]);
+		filter_buttons[i].pressed = main_frame->get_filter(filter_buttons_types[i]);
 		filter_buttons[i].add_listener(this);
 	}
 
 	set_table_layout( 1, 0 );
-
 	tabs.add_tab( &special_filter, translator::translate( filter_buttons_text[0] ) );
 	tabs.add_tab( &accepts_filter, translator::translate( filter_buttons_text[1] ) );
 	tabs.add_tab( &sends_filter, translator::translate( filter_buttons_text[2] ) );
@@ -54,9 +58,12 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(player_t *player, halt_list_f
 
 		special_filter.new_component<gui_empty_t>();
 		special_filter.add_component(filter_buttons + 3);
-
 		special_filter.new_component<gui_empty_t>();
 		special_filter.add_component(filter_buttons + 4);
+		special_filter.new_component<gui_empty_t>();
+		special_filter.add_component(filter_buttons + 5);
+		special_filter.new_component<gui_empty_t>();
+		special_filter.add_component(filter_buttons + 6);
 	}
 
 	// second columns: accepted cargo types
@@ -135,11 +142,12 @@ halt_list_filter_frame_t::~halt_list_filter_frame_t()
 /**
  * This method is called if an action is triggered
  */
-bool halt_list_filter_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
+bool halt_list_filter_frame_t::action_triggered( gui_action_creator_t *comp,value_t )
 {
 	for (int i = 0; i < FILTER_BUTTONS; i++) {
 		if (comp == filter_buttons + i) {
-			main_frame->set_filter(filter_buttons_types[i], !main_frame->get_filter(filter_buttons_types[i]));
+			filter_buttons[i].pressed ^= 1;
+			main_frame->set_filter(filter_buttons_types[i], filter_buttons[i].pressed);
 			main_frame->sort_list();
 			return true;
 		}
@@ -196,8 +204,9 @@ void halt_list_filter_frame_t::ware_item_triggered(const goods_desc_t *ware_ab, 
 
 void halt_list_filter_frame_t::draw(scr_coord pos, scr_size size)
 {
+	/**
 	for(int i = 0; i < FILTER_BUTTONS; i++) {
 		filter_buttons[i].pressed = main_frame->get_filter(filter_buttons_types[i]);
-	}
+	}*/
 	gui_frame_t::draw(pos, size);
 }
