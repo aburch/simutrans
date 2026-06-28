@@ -11,6 +11,7 @@
 	ADD: close diagonal became possible including trains passing in different directions.
 	ADD: Including handling of wayobj (as with ways, define diagonal[close1] for close diagonal image)
 	FIX: (Nazalassa) only send chat when hitting RETURN
+	ADD: Filter halt list also for permissions and shared ownership
 
 
 Release of 124.5 (r11993 on 31-May-2026):

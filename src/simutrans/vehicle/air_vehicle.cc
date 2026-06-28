@@ -921,7 +921,7 @@ void air_vehicle_t::set_convoi(convoi_t *c)
 					target_halt = target->get_halt();
 					if (target_halt.is_bound()) {
 						if (!target_halt->reserve_position(target, cnv->self)) {
-							if (route_index < looking_for_parking) {
+							if (route_index < search_for_stop) {
 								// just reverve another location
 								target = target_halt->find_free_position(air_wt, cnv->self, obj_t::air_vehicle);
 								if (!target) {
@@ -930,8 +930,10 @@ void air_vehicle_t::set_convoi(convoi_t *c)
 							}
 							else {
 								// already taxiing to stop position
+								flying_height = 0;
 								convoihandle_t other_cnv = target_halt->get_reserved(target);
 								if (!other_cnv.is_bound()  ||  other_cnv->is_unloading()) {
+									air_vehicle_t* v = target->find<air_vehicle_t>();
 									dbg->error("air_vehicle_t::set_convoi()", "Could not restore reservation for convoi %d at %s.", cnv->self.get_id(), get_pos().get_fullstr());
 								}
 								else {
@@ -949,6 +951,12 @@ void air_vehicle_t::set_convoi(convoi_t *c)
 									}
 								}
 							}
+						}
+					}
+					else {
+						// on last route tile => if not flying we are on the ground ...
+						if (state != flying) {
+							flying_height = 0;
 						}
 					}
 					if (route_index + 3 >= touchdown && state != taxiing) {
