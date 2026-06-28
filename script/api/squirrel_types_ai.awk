@@ -376,7 +376,7 @@ BEGIN {
 	export_types_ai["world::is_coord_valid"] = "bool(coord)"
 	export_types_ai["world::find_nearest_city"] = "city_x(coord)"
 	export_types_ai["world::get_season"] = "integer()"
-	export_types_ai["world::open_dialog_tool"] = "bool(integer)"
+	export_types_ai["gui::open_dialog_tool"] = "bool(integer)"
 	export_types_ai["integer::get_player"] = "player_x()"
 	export_types_ai["world::get_time"] = "time_ticks_x()"
 	export_types_ai["world::get_citizens"] = "array<integer>()"

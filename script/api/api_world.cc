@@ -86,28 +86,6 @@ bool world_create_player(karte_t *welt, sint32 player_nr, sint32 player_type)
 }
 
 
-bool world_open_dialog_tool(karte_t *welt, sint32 tool_nr)
-{
-	if (tool_nr < 0  ||  tool_nr >= DIALOGE_TOOL_COUNT) {
-		return false;
-	}
-
-	player_t *player = welt->get_active_player();
-	if (player == NULL) {
-		return false;
-	}
-
-	tool_t *tool = create_tool((uint16)tool_nr | DIALOGE_TOOL);
-	if (tool == NULL) {
-		return false;
-	}
-
-	welt->set_tool(tool, player);
-	delete tool;
-	return true;
-}
-
-
 uint32 world_generate_goods(karte_t *welt, koord from, koord to, const goods_desc_t *desc, uint32 count)
 {
 	if (count == 0 || count >= 1<<23) {
@@ -358,14 +336,6 @@ void export_world(HSQUIRRELVM vm, bool scenario)
 		 */
 		STATIC register_method(vm, &world_generate_goods, "generate_goods", true);
 	}
-	/**
-	* Opens a dialog tool for the active player.
-	*
-	* @param tool_nr dialog tool number, for example DIALOG_MINIMAP = 2
-	* @returns whether the dialog tool request was accepted
-	*/
-	STATIC register_method(vm, &world_open_dialog_tool, "open_dialog_tool", true);
-
 	/**
 	 * Returns player number @p pl. If player does not exist, returns null.
 	 * @param pl player number

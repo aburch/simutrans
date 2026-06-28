@@ -106,6 +106,27 @@ void_t set_zoom(uint8 val)
 	return void_t();
 }
 
+bool open_dialog_tool(sint32 tool_nr)
+{
+	if (tool_nr < 0  ||  tool_nr >= DIALOGE_TOOL_COUNT) {
+		return false;
+	}
+
+	player_t *player = welt->get_active_player();
+	if (player == NULL) {
+		return false;
+	}
+
+	tool_t *tool = create_tool((uint16)tool_nr | DIALOGE_TOOL);
+	if (tool == NULL) {
+		return false;
+	}
+
+	welt->set_tool(tool, player);
+	delete tool;
+	return true;
+}
+
 static void create_bounds_slot(HSQUIRRELVM vm, const char *name, scr_coord pos, scr_size size, SQInteger table_idx = -1)
 {
 	sq_pushstring(vm, name, -1);
@@ -427,6 +448,14 @@ void export_gui(HSQUIRRELVM vm, bool scenario)
 	* @param zoom Zoom factor to set.
 	*/
 	STATIC register_method(vm, &set_zoom, "set_zoom");
+
+	/**
+	* Opens a dialog tool for the active player.
+	*
+	* @param tool_nr dialog tool number, for example DIALOG_MINIMAP = 2
+	* @returns whether the dialog tool request was accepted
+	*/
+	STATIC register_method(vm, &open_dialog_tool, "open_dialog_tool");
 
 	/**
 	* Get snapshots of currently open GUI windows.
