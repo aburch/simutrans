@@ -71,6 +71,8 @@ function test_gui_accessibility_windows_and_components()
 		ASSERT_EQUAL(typeof(c.screen_bounds.w), "integer")
 		ASSERT_EQUAL(typeof(c.screen_bounds.h), "integer")
 		ASSERT_EQUAL(typeof(c.children), "array")
+		ASSERT_TRUE(c.screen_bounds.x >= target_window.client_bounds.x)
+		ASSERT_TRUE(c.screen_bounds.y >= target_window.client_bounds.y)
 	}
 
 	ASSERT_EQUAL(gui.get_window_components(-1), null)

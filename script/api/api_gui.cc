@@ -347,10 +347,10 @@ static SQInteger get_window_components(HSQUIRRELVM vm)
 
 	sq_newarray(vm, 0);
 	uint32 next_id = 0;
-	const scr_coord win_pos = win_get_pos(win);
+	const scr_coord component_offset = win_get_pos(win) + scr_coord(0, win->has_title() ? D_TITLEBAR_HEIGHT : 0);
 	const vector_tpl<gui_component_t *> &components = win->get_components();
 	for (uint32 i = 0; i < components.get_count(); i++) {
-		push_accessible_component(vm, components[i], win_pos, next_id);
+		push_accessible_component(vm, components[i], component_offset, next_id);
 		sq_arrayappend(vm, -2);
 	}
 	return 1;
