@@ -159,5 +159,14 @@ void export_settings(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &set_time_based_routing_enabled, "set_time_based_routing_enabled", true);
 
+	/// @returns true if route cache is enabled
+	register_method(vm, &settings_t::is_using_route_cache, "is_using_route_cache");
+
+	/**
+	 * Enables or disables the route cache for line convoys.
+	 * @param b true to enable route caching
+	 */
+	register_method(vm, &settings_t::set_use_route_cache, "set_use_route_cache");
+
 	end_class(vm);
 }

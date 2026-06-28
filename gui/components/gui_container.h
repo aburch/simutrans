@@ -90,6 +90,16 @@ public:
 	// FIXME
 	scr_size get_min_size() const OVERRIDE { return get_size(); }
 	scr_size get_max_size() const OVERRIDE { return get_size(); }
+
+	const char *get_accessibility_role() const OVERRIDE { return "container"; }
+	const vector_tpl<gui_component_t *>& get_components() const { return components; }
+	void get_accessibility_children(vector_tpl<gui_component_t *> &children) const OVERRIDE
+	{
+		for (uint32 i = 0; i < components.get_count(); i++) {
+			children.append(components[i]);
+		}
+	}
+	scr_coord get_accessibility_child_screen_offset(gui_component_t *) OVERRIDE { return get_pos(); }
 };
 
 #endif

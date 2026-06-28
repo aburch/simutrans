@@ -231,6 +231,8 @@ public:
 	void set_focus( gui_component_t *c ) { gui_aligned_container_t::set_focus(c); }
 
 	gui_component_t *get_focus() OVERRIDE { return gui_aligned_container_t::get_focus(); }
+
+	const vector_tpl<gui_component_t *>& get_components() const { return gui_aligned_container_t::get_components(); }
 };
 
 #endif

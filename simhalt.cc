@@ -1801,9 +1801,16 @@ sint32 haltestelle_t::rebuild_connections()
 		// because it depends on the routing configuration for the goods category.
 		sint32 aggregate_weight_rc; // weight by route cost. WEIGHT_HALT + WEIGHT_WAIT * (stops count)
 		sint32 aggregate_weight_jt; // weight by journey time. (average goods waiting time) + (median journey time)
-
 		// the journey time of the first entry contains the stopping time at the starting point, which should be excluded.
-		aggregate_weight_jt = estimated_waiting_ticks(schedule, start_index-1) - start_entry.get_median_convoy_stopping_time();
+		const auto calc_initial_journey_weight = [&](uint8 entry_index) -> sint32 {
+			const sint64 waiting_ticks = estimated_waiting_ticks(schedule, entry_index);
+			const sint64 stopping_ticks = schedule->at(entry_index).get_median_convoy_stopping_time();
+			const sint64 initial_weight = waiting_ticks - stopping_ticks;
+			// Using negative weight breaks Dijkstra.
+			return initial_weight > 0 ? (sint32)initial_weight : 0;
+		};
+
+		aggregate_weight_jt = calc_initial_journey_weight(start_index-1);
 		aggregate_weight_rc = WEIGHT_WAIT;
 
 		bool no_load_section = start_entry.is_no_load() || start_entry.is_temp_load();
@@ -1829,7 +1836,7 @@ sint32 haltestelle_t::rebuild_connections()
 					}
 				}
 				// reset aggregate weight
-				aggregate_weight_jt = estimated_waiting_ticks(schedule, current_entry_index) - current_entry.get_median_convoy_stopping_time();
+				aggregate_weight_jt = calc_initial_journey_weight(current_entry_index);
 				aggregate_weight_rc = WEIGHT_WAIT;
 			 	force_transfer_search |= (current_entry.is_unload_all()  ||  current_entry.is_no_load()  ||  current_entry.is_no_unload()  ||  current_entry.is_temp_load()  ||  current_entry.is_temp_unload_all());
 				// If loading is allowed at somewhere by here, we still need to connect the further halts.
@@ -2154,7 +2161,7 @@ uint8 haltestelle_t::last_search_ware_catg_idx = 255;
  * if USE_ROUTE_SLIST_TPL is defined, the list template will be used.
  * However, this is about 50% slower.
  */
-int haltestelle_t::search_route( const halthandle_t *const start_halts, const uint16 start_halt_count, const bool no_routing_over_overcrowding, ware_t &ware, ware_t *const return_ware )
+int haltestelle_t::search_route( const halthandle_t *const start_halts, const uint32 start_halt_count, const bool no_routing_over_overcrowding, ware_t &ware, ware_t *const return_ware )
 {
 	const uint8 ware_catg_idx = ware.get_desc()->get_catg_index();
 	const uint8 ware_idx = ware.get_desc()->get_index();
@@ -2178,7 +2185,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 			halthandle_t halt = halt_list[h];
 			if(  halt.is_bound()  &&  halt->is_enabled(ware_catg_idx)  ) {
 				// check if this is present in the list of start halts
-				for(  uint16 s=0;  s<start_halt_count;  ++s  ) {
+				for(  uint32 s=0;  s<start_halt_count;  ++s  ) {
 					if(  halt==start_halts[s]  ) {
 						// destination halt is also a start halt -> within walking distance
 						ware.set_ziel( start_halts[s] );
@@ -2257,9 +2264,9 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 		markers[ halt_id ] = current_marker;
 	}
 
-	uint16 const max_transfers = welt->get_settings().get_max_transfers();
-	uint16 const max_hops      = welt->get_settings().get_max_hops();
-	uint16 allocation_pointer = 0;
+	sint32 const max_transfers = welt->get_settings().get_max_transfers();
+	uint32 const max_hops      = (uint32)welt->get_settings().get_max_hops();
+	uint32 allocation_pointer = 0;
 	uint32 best_destination_weight = UINT32_MAX; // best weight among all destinations
 
 	open_list.clear();
@@ -2547,10 +2554,10 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
 		return;
 	}
 
-	uint16 const max_transfers = welt->get_settings().get_max_transfers();
-	uint16 const max_hops      = welt->get_settings().get_max_hops();
+	sint32 const max_transfers = welt->get_settings().get_max_transfers();
+	uint32 const max_hops      = (uint32)welt->get_settings().get_max_hops();
 
-	static uint16 allocation_pointer;
+	static uint32 allocation_pointer;
 	if (!resume_search) {
 		// initialise the origin node
 		allocation_pointer = 1u;

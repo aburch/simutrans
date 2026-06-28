@@ -20,6 +20,10 @@ news_window::news_window(const char* text, FLAGGED_PIXVAL title_color) :
 {
 	buf.clear();
 	buf.append(translator::translate(text));
+	copy_to_clipboard.init(button_t::roundbox, "Copy to clipboard");
+	copy_to_clipboard.add_listener( this );
+	copy_to_clipboard.set_focusable(false);
+	add_component(&copy_to_clipboard);
 
 	// adjust positions, sizes, and window-size
 	recalc_size();
@@ -28,17 +32,12 @@ news_window::news_window(const char* text, FLAGGED_PIXVAL title_color) :
 fatal_news::fatal_news(const char* text) :
 	news_window(text, env_t::default_window_title_color)
 {
-	copy_to_clipboard.init(button_t::roundbox, "Copy to clipboard");
-	copy_to_clipboard.add_listener( this );
-	copy_to_clipboard.set_focusable(false);
-	add_component(&copy_to_clipboard);
-
 	textarea.set_width(display_get_width()/2);
 	recalc_size();
 }
 
 
-bool fatal_news::action_triggered(gui_action_creator_t *comp, value_t)
+bool news_window::action_triggered(gui_action_creator_t *comp, value_t)
 {
 	if (comp == &copy_to_clipboard) {
 		dr_copy(buf, buf.len());

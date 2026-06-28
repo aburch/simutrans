@@ -103,6 +103,8 @@ public:
 	 */
 	char *get_text() const { return text; }
 	const char *get_composition() const { return composition.get_str(); }
+	const char *get_accessibility_role() const OVERRIDE { return "textinput"; }
+	const char *get_accessibility_text() const OVERRIDE { return get_text(); }
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

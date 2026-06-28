@@ -775,6 +775,7 @@ public:
 	bool is_allow_unload_longer_convoy() const { return allow_unload_longer_convoy; }
 
 	bool is_using_route_cache() const { return use_route_cache; }
+	void set_use_route_cache(bool b) { use_route_cache = b; }
 };
 
 #endif

@@ -5822,28 +5822,18 @@ void simgraph_resize(scr_size new_window_size)
 /**
  * Take Screenshot
  */
-bool display_snapshot( const scr_rect &area )
+static raw_image_t *capture_snapshot(const scr_rect &area)
 {
-	if (access(SCREENSHOT_PATH_X, W_OK) == -1) {
-		return false; // directory not accessible
-	}
-
-	static int number = 0;
-	char filename[80];
-
-	// find the first not used screenshot image
-	do {
-		sprintf(filename, SCREENSHOT_PATH_X "simscr%02d.png", number++);
-	} while (access(filename, W_OK) != -1);
-
-	// now save the screenshot
 	scr_rect clipped_area = area;
 	clipped_area.clip(scr_rect(0, 0, disp_actual_width, disp_height));
+	if (clipped_area.w <= 0 || clipped_area.h <= 0) {
+		return NULL;
+	}
 
-	raw_image_t img(clipped_area.w, clipped_area.h, raw_image_t::FMT_RGB888);
+	raw_image_t *img = new raw_image_t(clipped_area.w, clipped_area.h, raw_image_t::FMT_RGB888);
 
 	for (scr_coord_val y = 0; y < clipped_area.h; ++y) {
-		uint8 *dst = img.access_pixel(0, y);
+		uint8 *dst = img->access_pixel(0, y);
 		const PIXVAL *row = textur + (clipped_area.x + 0) + (clipped_area.y + y) * disp_width;
 
 		for (scr_coord_val x = 0; x < clipped_area.w; ++x) {
@@ -5861,5 +5851,44 @@ bool display_snapshot( const scr_rect &area )
 		}
 	}
 
-	return img.write_png(filename);
+	return img;
+}
+
+
+bool display_snapshot_png(const scr_rect &area, std::string &png_data)
+{
+	raw_image_t *img = capture_snapshot(area);
+	if (img == NULL) {
+		png_data.clear();
+		return false;
+	}
+
+	const bool ok = img->write_png(png_data);
+	delete img;
+	return ok;
+}
+
+
+bool display_snapshot(const scr_rect &area)
+{
+	if (access(SCREENSHOT_PATH_X, W_OK) == -1) {
+		return false; // directory not accessible
+	}
+
+	static int number = 0;
+	char filename[80];
+
+	// find the first not used screenshot image
+	do {
+		sprintf(filename, SCREENSHOT_PATH_X "simscr%02d.png", number++);
+	} while (access(filename, W_OK) != -1);
+
+	raw_image_t *img = capture_snapshot(area);
+	if (img == NULL) {
+		return false;
+	}
+
+	const bool ok = img->write_png(filename);
+	delete img;
+	return ok;
 }

@@ -266,6 +266,11 @@ void display_poll_event(event_t* const ev)
 		// We have a queued (injected programatically) event, return it.
 		event_t *elem = queued_events.remove_first();
 		*ev = *elem;
+		control_shift_state = (int)ev->ev_key_mod;
+		if(  ev->ev_class==EVENT_CLICK  ) {
+			cx = ev->cx;
+			cy = ev->cy;
+		}
 		delete elem;
 		return ;
 	}

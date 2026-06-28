@@ -16,6 +16,7 @@ include("tests/test_dir")
 include("tests/test_factory")
 include("tests/test_convoy_cargo")
 include("tests/test_good")
+include("tests/test_gui_accessibility")
 include("tests/test_groundobj")
 include("tests/test_halt")
 include("tests/test_headquarters")
@@ -45,6 +46,7 @@ include("tests/test_road_api")
 include("tests/test_road_choose")
 include("tests/test_priority_signal")
 include("tests/test_otrp_signal_options")
+include("tests/test_reroute_reservation")
 
 all_tests <- [
 	test_building_build_house_invalid_param,
@@ -101,6 +103,7 @@ all_tests <- [
 	test_convoy_cargo_loaded,
 	test_good_is_interchangeable,
 	test_good_speed_bonus,
+	test_gui_accessibility_windows_and_components,
 	test_groundobj_build_invalid_param,
 	test_groundobj_build_invalid_pos,
 	test_groundobj_build_random,
@@ -138,6 +141,7 @@ all_tests <- [
 	test_player_cash,
 	test_player_isactive,
 	test_player_create,
+	test_gui_open_dialog_tool_invalid,
 	test_player_headquarters,
 	test_player_name,
 	test_player_lines,
@@ -275,7 +279,10 @@ all_tests <- [
 	test_road_choose_stop_behind_twoway_mode,
 	test_road_choose_stop_behind_loading_only_mode,
 	test_road_choose_stop_behind_inverted_mode,
-	test_road_choose_no_stop_behind_prohibited_mode
+	test_road_choose_no_stop_behind_prohibited_mode,
+	test_rail_reroute_no_line,
+	test_rail_reroute_with_line_stale_cache,
+	test_rail_reroute_with_line_mid_travel
 ]
 
 

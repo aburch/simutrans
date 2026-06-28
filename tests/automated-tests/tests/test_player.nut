@@ -111,6 +111,13 @@ function test_player_create()
 }
 
 
+function test_gui_open_dialog_tool_invalid()
+{
+	ASSERT_FALSE(gui.open_dialog_tool(-1))
+	ASSERT_FALSE(gui.open_dialog_tool(9999))
+}
+
+
 function test_player_headquarters()
 {
 	local pl = player_x(0)

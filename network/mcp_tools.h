@@ -29,7 +29,7 @@ std::string tools_list_json();
  *                       the VM is stored here instead of being deleted; the caller
  *                       must resume and eventually delete it.  The return value is ""
  *                       in this case (response will be sent asynchronously).
- * @return JSON-serialised result value, or "" when *out_pending_vm was set.
+ * @return JSON-serialised MCP CallToolResult, or "" when *out_pending_vm was set.
  */
 std::string tools_call(const std::string &name,
                        const std::string &args_json,

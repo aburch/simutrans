@@ -7,6 +7,7 @@
 #define GUI_COMPONENTS_GUI_SCROLLPANE_H
 
 
+#include "../../tpl/vector_tpl.h"
 #include "gui_component.h"
 #include "gui_scrollbar.h"
 
@@ -48,6 +49,23 @@ public:
 	gui_scrollpane_t(gui_component_t *comp, bool b_scroll_x = false, bool b_scroll_y = true);
 
 	void set_component(gui_component_t *comp) { this->comp = comp; }
+	gui_component_t *get_component() const { return comp; }
+	const char *get_accessibility_role() const OVERRIDE { return "scrollpane"; }
+	void add_accessibility_properties(accessibility_property_collector_t &collector) const OVERRIDE
+	{
+		collector.add("scroll_x", (sint32)get_scroll_x());
+		collector.add("scroll_y", (sint32)get_scroll_y());
+	}
+	void get_accessibility_children(vector_tpl<gui_component_t *> &children) const OVERRIDE
+	{
+		if (comp) {
+			children.append(comp);
+		}
+	}
+	scr_coord get_accessibility_child_screen_offset(gui_component_t *) OVERRIDE
+	{
+		return get_client().get_pos() - scr_coord(get_scroll_x(), get_scroll_y());
+	}
 
 	/**
 	* this is the maximum width a scrollbar requests as minimum size

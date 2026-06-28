@@ -15,6 +15,18 @@
 
 struct event_t;
 class karte_ptr_t;
+class gui_component_t;
+template<class T> class vector_tpl;
+
+class accessibility_property_collector_t
+{
+public:
+	virtual ~accessibility_property_collector_t() {}
+
+	virtual void add(const char *key, sint32 value) = 0;
+	virtual void add(const char *key, const char *value) = 0;
+	virtual void add(const char *key, bool value) = 0;
+};
 
 /**
  * Base class for all GUI components.
@@ -221,6 +233,12 @@ public:
 	 * @returns bounding box position and size.
 	 */
 	virtual scr_rect get_client( void ) { return scr_rect( pos, size ); }
+
+	virtual const char *get_accessibility_role() const { return "unknown"; }
+	virtual const char *get_accessibility_text() const { return NULL; }
+	virtual void add_accessibility_properties(accessibility_property_collector_t &) const {}
+	virtual void get_accessibility_children(vector_tpl<gui_component_t *> &) const {}
+	virtual scr_coord get_accessibility_child_screen_offset(gui_component_t *) { return pos; }
 
 	// remove margins around this GUI object
 	virtual bool is_marginless() const { return false; }

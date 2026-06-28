@@ -19,6 +19,47 @@
 
 static std::string filename_;
 
+static bool write_png_content(const raw_image_t &image, png_structp png_ptr, png_infop info_ptr)
+{
+	int color_type;
+
+	switch (image.get_format()) {
+	case raw_image_t::FMT_RGBA8888: color_type = PNG_COLOR_TYPE_RGBA; break;
+	case raw_image_t::FMT_RGB888:   color_type = PNG_COLOR_TYPE_RGB;  break;
+	case raw_image_t::FMT_GRAY8:    color_type = PNG_COLOR_TYPE_GRAY; break;
+	default:
+		dbg->error("raw_image_t::write_png", "Unsupported source format for writing png");
+		return false;
+	}
+
+#if PNG_LIBPNG_VER_MAJOR<=1  &&  PNG_LIBPNG_VER_MINOR<5
+	png_set_compression_level(png_ptr, Z_BEST_COMPRESSION);
+#endif
+
+	png_set_IHDR(png_ptr, info_ptr, image.get_width(), image.get_height(), 8,
+		color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
+		PNG_FILTER_TYPE_DEFAULT);
+	png_write_info(png_ptr, info_ptr);
+
+	for (uint32 y = 0; y < image.get_height(); ++y) {
+		const uint8 *row = image.access_pixel(0, y);
+		png_write_row(png_ptr, const_cast<png_bytep>(row));
+	}
+
+	png_write_end(png_ptr, info_ptr);
+	return true;
+}
+
+static void write_png_to_string(png_structp png_ptr, png_bytep data, png_size_t length)
+{
+	std::string *output = static_cast<std::string *>(png_get_io_ptr(png_ptr));
+	output->append(reinterpret_cast<const char *>(data), length);
+}
+
+static void flush_png_string(png_structp)
+{
+}
+
 
 bool raw_image_t::read_png_data(FILE *file)
 {
@@ -219,49 +260,43 @@ bool raw_image_t::write_png(const char *file_name) const
 	// assign file
 	png_init_io(png_ptr, fp);
 
-#if PNG_LIBPNG_VER_MAJOR<=1  &&  PNG_LIBPNG_VER_MINOR<5
-	/* set the zlib compression level */
-	png_set_compression_level( png_ptr, Z_BEST_COMPRESSION );
-#endif
-
-	// output header
-	int color_type;
-
-	switch (fmt) {
-	case FMT_RGBA8888: color_type = PNG_COLOR_TYPE_RGBA; break;
-	case FMT_RGB888:   color_type = PNG_COLOR_TYPE_RGB;  break;
-	case FMT_GRAY8:    color_type = PNG_COLOR_TYPE_GRAY; break;
-	default:
-		dbg->fatal( "raw_image_t::write_png", "Cannot write png file: Unupported source format" );
-	}
-
-	png_set_IHDR( png_ptr, info_ptr, width, height, 8, color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT );
-	png_write_info(png_ptr, info_ptr);
-
-	switch (fmt) {
-	case FMT_RGBA8888:
-	case FMT_RGB888:
-	case FMT_GRAY8:
-		{
-			for (uint32 y = 0; y < height; ++y) {
-				// hack to compile with old libpng versions that take a png_bytep instead of a png_const_bytep
-				const uint8 *row = access_pixel(0, y);
-				png_write_row(png_ptr, const_cast<png_bytep>(row));
-			}
-		}
-		break;
-
-	default:
-		dbg->error("raw_image_t::write_png", "Unsupported source format for writing png");
-		png_destroy_write_struct(&png_ptr, &info_ptr);
-		fclose( fp );
-		return false;
-	}
-
-	// free all
-	png_write_end(png_ptr, info_ptr);
+	const bool ok = write_png_content(*this, png_ptr, info_ptr);
 	png_destroy_write_struct(&png_ptr, &info_ptr);
 
 	fclose( fp );
-	return true;
+	return ok;
+}
+
+
+bool raw_image_t::write_png(std::string &output) const
+{
+	output.clear();
+
+	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	if (!png_ptr) {
+		return false;
+	}
+
+	png_infop info_ptr = png_create_info_struct(png_ptr);
+	if (!info_ptr) {
+		png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+		return false;
+	}
+
+#ifdef PNG_SETJMP_SUPPORTED
+	if (setjmp(png_jmpbuf(png_ptr))) {
+		dbg->error("raw_image_t::write_png", "fatal error writing PNG to memory");
+		png_destroy_write_struct(&png_ptr, &info_ptr);
+		output.clear();
+		return false;
+	}
+#endif
+
+	png_set_write_fn(png_ptr, &output, write_png_to_string, flush_png_string);
+	const bool ok = write_png_content(*this, png_ptr, info_ptr);
+	png_destroy_write_struct(&png_ptr, &info_ptr);
+	if (!ok) {
+		output.clear();
+	}
+	return ok;
 }

@@ -13,6 +13,7 @@
 #include "../api_function.h"
 #include "../../simworld.h"
 #include "../../simversion.h"
+#include "../../simmenu.h"
 #include "../../player/simplay.h"
 #include "../../obj/gebaeude.h"
 #include "../../obj/label.h"

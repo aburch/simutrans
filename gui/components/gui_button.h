@@ -126,6 +126,8 @@ public:
 	enum type get_type() const { return this->type; }
 
 	const char * get_text() const {return text;}
+	const char *get_accessibility_role() const OVERRIDE { return "button"; }
+	const char *get_accessibility_text() const OVERRIDE { return get_text(); }
 
 	/**
 	 * Set the displayed text of the button

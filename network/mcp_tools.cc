@@ -4,15 +4,14 @@
  */
 
 /**
- * MCP tool: run_squirrel
+ * MCP tool implementations.
  *
- * A single tool that accepts arbitrary Squirrel script code and executes it
- * inside a dedicated script VM that has the full Simutrans scripting API
- * (ai_base) available.  The script should return a value; that value is
- * converted to a string and returned to the MCP client as {"result":"..."}.
+ * run_squirrel accepts arbitrary Squirrel script code and executes it inside a
+ * dedicated script VM that has the full Simutrans scripting API (ai_base)
+ * available. capture_screen returns the current display as MCP image content.
  *
- * A fresh VM is created for each call and destroyed afterwards, so no state
- * (global variables, defined functions, etc.) leaks between invocations.
+ * A fresh VM is created for each run_squirrel call and destroyed afterwards,
+ * so no state (global variables, defined functions, etc.) leaks between calls.
  */
 
 #include "mcp_tools.h"
@@ -25,6 +24,7 @@
 #include "../script/script.h"
 #include "../script/script_loader.h"
 #include "../dataobj/environment.h"
+#include "../display/simgraph.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/plainstring.h"
 #include "../simconst.h"
@@ -38,6 +38,32 @@
 static std::string jesc(const std::string &s) { return mcp_server_t::json_escape(s); }
 static std::string jstr(const std::string &s)  { return "\"" + jesc(s) + "\""; }
 static std::string jstr(const char *s)          { return s ? jstr(std::string(s)) : "null"; }
+
+static std::string text_content(const std::string &text)
+{
+	return "{\"content\":[{\"type\":\"text\",\"text\":" + jstr(text) + "}]}";
+}
+
+static std::string base64_encode(const std::string &data)
+{
+	static const char chars[] =
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	std::string encoded;
+	encoded.reserve(((data.size() + 2) / 3) * 4);
+
+	for (size_t i = 0; i < data.size(); i += 3) {
+		const uint32 a = (uint8)data[i];
+		const uint32 b = i + 1 < data.size() ? (uint8)data[i + 1] : 0;
+		const uint32 c = i + 2 < data.size() ? (uint8)data[i + 2] : 0;
+		const uint32 value = (a << 16) | (b << 8) | c;
+
+		encoded += chars[(value >> 18) & 0x3F];
+		encoded += chars[(value >> 12) & 0x3F];
+		encoded += i + 1 < data.size() ? chars[(value >> 6) & 0x3F] : '=';
+		encoded += i + 2 < data.size() ? chars[value & 0x3F] : '=';
+	}
+	return encoded;
+}
 
 
 // ---------------------------------------------------------------------------
@@ -101,6 +127,19 @@ static std::string tool_run_squirrel(const std::string &code, int player_nr,
 	return result_json;
 }
 
+static std::string tool_capture_screen()
+{
+	std::string png_data;
+	const scr_rect screen_area(0, 0, display_get_width(), display_get_height());
+	if (!display_snapshot_png(screen_area, png_data)) {
+		return text_content("{\"error\":\"failed to capture the Simutrans screen\"}");
+	}
+
+	return "{\"content\":[{\"type\":\"image\",\"data\":"
+		+ jstr(base64_encode(png_data))
+		+ ",\"mimeType\":\"image/png\"}]}";
+}
+
 
 // ---------------------------------------------------------------------------
 // Tool registry
@@ -128,6 +167,12 @@ static const tool_def_t TOOL_DEFS[] = {
 		                   "\"description\":\"Player context index (0-15), default 1\"}"
 		 "},"
 		 "\"required\":[\"code\"]}"
+	},
+	{
+		"capture_screen",
+		"Capture the current Simutrans window as a PNG image. "
+		"Use this to inspect the actual on-screen game view and GUI state.",
+		"{\"type\":\"object\",\"properties\":{},\"additionalProperties\":false}"
 	}
 };
 static const int NUM_TOOLS = sizeof(TOOL_DEFS) / sizeof(TOOL_DEFS[0]);
@@ -170,10 +215,14 @@ std::string mcp_tools::tools_call(const std::string &name,
 		else if (pending_vm) {
 			// Caller doesn't support async — treat as error
 			delete pending_vm;
-			return "{\"error\":\"script suspended but caller does not support async\"}";
+			return text_content("{\"error\":\"script suspended but caller does not support async\"}");
 		}
-		return result;
+		return text_content(result);
 	}
 
-	return "{\"error\":\"unknown tool: " + jesc(name) + "\"}";
+	if (name == "capture_screen") {
+		return tool_capture_screen();
+	}
+
+	return text_content("{\"error\":\"unknown tool: " + jesc(name) + "\"}");
 }
