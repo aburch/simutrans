@@ -12,6 +12,7 @@
 
 #include "../../simmesg.h"
 #include "../../simmenu.h"
+#include "../../simevent.h"
 #include "../../simworld.h"
 #include "../../dataobj/scenario.h"
 #include "../../display/viewport.h"
@@ -356,6 +357,64 @@ static SQInteger get_window_components(HSQUIRRELVM vm)
 	return 1;
 }
 
+static unsigned int get_mouse_key_mod(HSQUIRRELVM vm, SQInteger shift_index, SQInteger ctrl_index)
+{
+	const SQInteger top = sq_gettop(vm);
+	const bool shift = top >= shift_index ? param<bool>::get(vm, shift_index) : false;
+	const bool ctrl = top >= ctrl_index ? param<bool>::get(vm, ctrl_index) : false;
+	return (shift ? SIM_MOD_SHIFT : SIM_MOD_NONE) | (ctrl ? SIM_MOD_CTRL : SIM_MOD_NONE);
+}
+
+static void queue_left_mouse_event(event_class_t event_class, sint32 mx, sint32 my, sint32 cx, sint32 cy, int button_state, unsigned int key_mod)
+{
+	event_t *event = new event_t(event_class);
+	event->ev_code = MOUSE_LEFTBUTTON;
+	event->mx = mx;
+	event->my = my;
+	event->cx = cx;
+	event->cy = cy;
+	event->button_state = button_state;
+	event->ev_key_mod = key_mod;
+	queue_event(event);
+}
+
+static SQInteger click(HSQUIRRELVM vm)
+{
+	const SQInteger top = sq_gettop(vm);
+	if(  top < 3  ||  top > 5  ) {
+		return sq_raise_error(vm, "Expected gui.click(x, y, [shift], [ctrl])");
+	}
+
+	const sint32 x = param<sint32>::get(vm, 2);
+	const sint32 y = param<sint32>::get(vm, 3);
+	const unsigned int key_mod = get_mouse_key_mod(vm, 4, 5);
+
+	queue_left_mouse_event(EVENT_CLICK, x, y, x, y, MOUSE_LEFTBUTTON, key_mod);
+	queue_left_mouse_event(EVENT_RELEASE, x, y, x, y, 0, key_mod);
+
+	return SQ_OK;
+}
+
+static SQInteger drag(HSQUIRRELVM vm)
+{
+	const SQInteger top = sq_gettop(vm);
+	if(  top < 5  ||  top > 7  ) {
+		return sq_raise_error(vm, "Expected gui.drag(from_x, from_y, to_x, to_y, [shift], [ctrl])");
+	}
+
+	const sint32 from_x = param<sint32>::get(vm, 2);
+	const sint32 from_y = param<sint32>::get(vm, 3);
+	const sint32 to_x = param<sint32>::get(vm, 4);
+	const sint32 to_y = param<sint32>::get(vm, 5);
+	const unsigned int key_mod = get_mouse_key_mod(vm, 6, 7);
+
+	queue_left_mouse_event(EVENT_CLICK, from_x, from_y, from_x, from_y, MOUSE_LEFTBUTTON, key_mod);
+	queue_left_mouse_event(EVENT_DRAG, to_x, to_y, from_x, from_y, MOUSE_LEFTBUTTON, key_mod);
+	queue_left_mouse_event(EVENT_RELEASE, to_x, to_y, from_x, from_y, 0, key_mod);
+
+	return SQ_OK;
+}
+
 void export_gui(HSQUIRRELVM vm, bool scenario)
 {
 	/**
@@ -476,5 +535,27 @@ void export_gui(HSQUIRRELVM vm, bool scenario)
 	* @typemask array<gui_component_x> (integer)
 	*/
 	register_function(vm, get_window_components, "get_window_components", 2, ".i");
+
+	/**
+	* Simulate a left mouse click at the given screen coordinates.
+	*
+	* @param x x coordinate on screen.
+	* @param y y coordinate on screen.
+	* @param shift true to click with shift pressed.
+	* @param ctrl true to click with ctrl pressed.
+	*/
+	register_function(vm, click, "click", -3, ".iibb");
+
+	/**
+	* Simulate a left mouse drag from one screen coordinate to another.
+	*
+	* @param from_x start x coordinate on screen.
+	* @param from_y start y coordinate on screen.
+	* @param to_x end x coordinate on screen.
+	* @param to_y end y coordinate on screen.
+	* @param shift true to drag with shift pressed.
+	* @param ctrl true to drag with ctrl pressed.
+	*/
+	register_function(vm, drag, "drag", -5, ".iiiibb");
 	end_class(vm);
 }
