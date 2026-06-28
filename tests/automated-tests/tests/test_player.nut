@@ -111,10 +111,10 @@ function test_player_create()
 }
 
 
-function test_world_open_dialog_tool_invalid()
+function test_gui_open_dialog_tool_invalid()
 {
-	ASSERT_FALSE(world.open_dialog_tool(-1))
-	ASSERT_FALSE(world.open_dialog_tool(9999))
+	ASSERT_FALSE(gui.open_dialog_tool(-1))
+	ASSERT_FALSE(gui.open_dialog_tool(9999))
 }
 
 

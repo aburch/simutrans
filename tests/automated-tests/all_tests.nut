@@ -16,6 +16,7 @@ include("tests/test_dir")
 include("tests/test_factory")
 include("tests/test_convoy_cargo")
 include("tests/test_good")
+include("tests/test_gui_accessibility")
 include("tests/test_groundobj")
 include("tests/test_halt")
 include("tests/test_headquarters")
@@ -102,6 +103,7 @@ all_tests <- [
 	test_convoy_cargo_loaded,
 	test_good_is_interchangeable,
 	test_good_speed_bonus,
+	test_gui_accessibility_windows_and_components,
 	test_groundobj_build_invalid_param,
 	test_groundobj_build_invalid_pos,
 	test_groundobj_build_random,
@@ -139,7 +141,7 @@ all_tests <- [
 	test_player_cash,
 	test_player_isactive,
 	test_player_create,
-	test_world_open_dialog_tool_invalid,
+	test_gui_open_dialog_tool_invalid,
 	test_player_headquarters,
 	test_player_name,
 	test_player_lines,

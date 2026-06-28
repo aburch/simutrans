@@ -69,6 +69,8 @@ public:
 	 * returns the pointer (i.e. for freeing untranslated contents)
 	 */
 	const char * get_text_pointer() const { return text; }
+	const char *get_accessibility_role() const OVERRIDE { return "label"; }
+	const char *get_accessibility_text() const OVERRIDE { return get_text_pointer(); }
 
 	/**
 	 * returns the tooltip pointer (i.e. for freeing untranslated contents)
