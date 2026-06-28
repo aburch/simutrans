@@ -9,6 +9,7 @@
  *
  * @section api-trunk Current trunk
  *
+ * - Added @ref world::open_dialog_tool to open dialog tools
  * - Added @ref world::create_player to create player companies (scenario only)
  * - Added @ref command_x::grid_lower, @ref command_x::grid_raise
  * - Added @ref settings::has_double_slopes, @ref settings::get_way_height_clearance

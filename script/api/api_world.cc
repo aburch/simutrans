@@ -13,6 +13,7 @@
 #include "../api_function.h"
 #include "../../simworld.h"
 #include "../../simversion.h"
+#include "../../simmenu.h"
 #include "../../player/simplay.h"
 #include "../../obj/gebaeude.h"
 #include "../../obj/label.h"
@@ -81,6 +82,28 @@ bool world_create_player(karte_t *welt, sint32 player_nr, sint32 player_type)
 	}
 	// This will not have an immediate effect in network games.
 	welt->call_change_player_tool(karte_t::new_player, (uint8)player_nr, (uint16)player_type, true /*scripted*/);
+	return true;
+}
+
+
+bool world_open_dialog_tool(karte_t *welt, sint32 tool_nr)
+{
+	if (tool_nr < 0  ||  tool_nr >= DIALOGE_TOOL_COUNT) {
+		return false;
+	}
+
+	player_t *player = welt->get_active_player();
+	if (player == NULL) {
+		return false;
+	}
+
+	tool_t *tool = create_tool((uint16)tool_nr | DIALOGE_TOOL);
+	if (tool == NULL) {
+		return false;
+	}
+
+	welt->set_tool(tool, player);
+	delete tool;
 	return true;
 }
 
@@ -335,6 +358,14 @@ void export_world(HSQUIRRELVM vm, bool scenario)
 		 */
 		STATIC register_method(vm, &world_generate_goods, "generate_goods", true);
 	}
+	/**
+	* Opens a dialog tool for the active player.
+	*
+	* @param tool_nr dialog tool number, for example DIALOG_MINIMAP = 2
+	* @returns whether the dialog tool request was accepted
+	*/
+	STATIC register_method(vm, &world_open_dialog_tool, "open_dialog_tool", true);
+
 	/**
 	 * Returns player number @p pl. If player does not exist, returns null.
 	 * @param pl player number
