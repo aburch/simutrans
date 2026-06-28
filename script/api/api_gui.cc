@@ -16,6 +16,7 @@
 #include "../../dataobj/scenario.h"
 #include "../../display/viewport.h"
 #include "../../gui/simwin.h"
+#include "../../gui/gui_frame.h"
 #include "../../player/simplay.h"
 
 #include "../../dataobj/environment.h"
@@ -103,6 +104,235 @@ void_t set_zoom(uint8 val)
 	set_zoom_factor_safe(val);
 	welt->get_viewport()->metrics_updated();
 	return void_t();
+}
+
+static void create_bounds_slot(HSQUIRRELVM vm, const char *name, scr_coord pos, scr_size size, SQInteger table_idx = -1)
+{
+	sq_pushstring(vm, name, -1);
+	sq_newtableex(vm, 4);
+	create_slot(vm, "x", (SQInteger)pos.x);
+	create_slot(vm, "y", (SQInteger)pos.y);
+	create_slot(vm, "w", (SQInteger)size.w);
+	create_slot(vm, "h", (SQInteger)size.h);
+	sq_newslot(vm, table_idx > 0 ? table_idx : -3, false);
+}
+
+#ifdef SQAPI_DOC
+	/**
+	 * Rectangle in screen pixels.
+	 */
+	class gui_bounds_x {
+		public:
+			/**
+			 * Left coordinate.
+			 */
+			integer x;
+			/**
+			 * Top coordinate.
+			 */
+			integer y;
+			/**
+			 * Width.
+			 */
+			integer w;
+			/**
+			 * Height.
+			 */
+			integer h;
+	};
+
+	/**
+	 * Snapshot of an open GUI window returned by @ref gui::get_windows.
+	 */
+	class gui_window_x {
+		public:
+			/**
+			 * Window id to pass to @ref gui::get_window_components.
+			 */
+			integer id;
+			/**
+			 * Stacking order. Higher array indices are closer to the front.
+			 */
+			integer z_order;
+			/**
+			 * True if this is the top window.
+			 */
+			bool top;
+			/**
+			 * Window title, or an empty string if no title is available.
+			 */
+			string title;
+			/**
+			 * True if the window has a title bar.
+			 */
+			bool has_title;
+			/**
+			 * Full window bounds in screen pixels.
+			 */
+			gui_bounds_x bounds;
+			/**
+			 * Client area bounds in screen pixels.
+			 */
+			gui_bounds_x client_bounds;
+	};
+
+	/**
+	 * Snapshot of a GUI component returned by @ref gui::get_window_components.
+	 */
+	class gui_component_x {
+		public:
+			/**
+			 * Component id, unique within one component snapshot.
+			 */
+			integer id;
+			/**
+			 * Component role, such as "button", "label", "textinput", "container", or "scrollpane".
+			 */
+			string role;
+			/**
+			 * True if the component is visible.
+			 */
+			bool visible;
+			/**
+			 * True if the component can receive focus.
+			 */
+			bool focusable;
+			/**
+			 * True if the component currently has focus.
+			 */
+			bool focused;
+			/**
+			 * Bounds relative to the parent component.
+			 */
+			gui_bounds_x bounds;
+			/**
+			 * Bounds in screen pixels.
+			 */
+			gui_bounds_x screen_bounds;
+			/**
+			 * Text exposed by the component. Only present when the component has text.
+			 */
+			string text;
+			/**
+			 * Child component snapshots.
+			 */
+			array<gui_component_x> children;
+			/**
+			 * Horizontal scroll position. Only present on scrollpane components.
+			 */
+			integer scroll_x;
+			/**
+			 * Vertical scroll position. Only present on scrollpane components.
+			 */
+			integer scroll_y;
+	};
+#endif
+
+class squirrel_accessibility_property_collector_t : public accessibility_property_collector_t
+{
+private:
+	HSQUIRRELVM vm;
+	SQInteger table_idx;
+
+public:
+	squirrel_accessibility_property_collector_t(HSQUIRRELVM vm, SQInteger table_idx) : vm(vm), table_idx(table_idx) {}
+
+	void add(const char *key, sint32 value) OVERRIDE { create_slot(vm, key, value, false, table_idx); }
+	void add(const char *key, const char *value) OVERRIDE { create_slot(vm, key, value, false, table_idx); }
+	void add(const char *key, bool value) OVERRIDE { create_slot(vm, key, value, false, table_idx); }
+};
+
+static void push_accessible_component(HSQUIRRELVM vm, gui_component_t *comp, scr_coord offset, uint32 &next_id)
+{
+	const uint32 id = next_id++;
+	const scr_coord pos = comp->get_pos();
+	const scr_size size = comp->get_size();
+	const scr_coord screen_pos = offset + pos;
+
+	sq_newtable(vm);
+	const SQInteger table_idx = sq_gettop(vm);
+	create_slot(vm, "id", (SQInteger)id, false, table_idx);
+	create_slot(vm, "role", comp->get_accessibility_role(), false, table_idx);
+	create_slot(vm, "visible", comp->is_visible(), false, table_idx);
+	create_slot(vm, "focusable", comp->is_focusable(), false, table_idx);
+	create_slot(vm, "focused", win_get_focus() == comp, false, table_idx);
+	create_bounds_slot(vm, "bounds", pos, size, table_idx);
+	create_bounds_slot(vm, "screen_bounds", screen_pos, size, table_idx);
+
+	if (const char *text = comp->get_accessibility_text()) {
+		create_slot(vm, "text", text, false, table_idx);
+	}
+
+	squirrel_accessibility_property_collector_t collector(vm, table_idx);
+	comp->add_accessibility_properties(collector);
+
+	sq_pushstring(vm, "children", -1);
+	sq_newarray(vm, 0);
+	vector_tpl<gui_component_t *> children;
+	comp->get_accessibility_children(children);
+	for (uint32 i = 0; i < children.get_count(); i++) {
+		gui_component_t *child = children[i];
+		push_accessible_component(vm, child, offset + comp->get_accessibility_child_screen_offset(child), next_id);
+		sq_arrayappend(vm, -2);
+	}
+	sq_newslot(vm, table_idx, false);
+
+	sq_settop(vm, table_idx);
+}
+
+static SQInteger get_windows(HSQUIRRELVM vm)
+{
+	sq_newarray(vm, 0);
+	const uint32 count = win_get_open_count();
+	for (uint32 i = 0; i < count; i++) {
+		gui_frame_t *win = win_get_index(i);
+		if (!win) {
+			continue;
+		}
+
+		const scr_coord pos = win_get_pos(win);
+		const scr_size size = win->get_windowsize();
+		const scr_size client_size = win->get_client_windowsize();
+		const scr_coord client_pos(pos.x, pos.y + (win->has_title() ? D_TITLEBAR_HEIGHT : 0));
+
+		sq_newtable(vm);
+		const SQInteger table_idx = sq_gettop(vm);
+		create_slot(vm, "id", (SQInteger)i, false, table_idx);
+		create_slot(vm, "z_order", (SQInteger)i, false, table_idx);
+		create_slot(vm, "top", win_get_top() == win, false, table_idx);
+		create_slot(vm, "title", win->get_name() ? win->get_name() : "", false, table_idx);
+		create_slot(vm, "has_title", win->has_title(), false, table_idx);
+		create_bounds_slot(vm, "bounds", pos, size, table_idx);
+		create_bounds_slot(vm, "client_bounds", client_pos, client_size, table_idx);
+		sq_arrayappend(vm, -2);
+	}
+	return 1;
+}
+
+static SQInteger get_window_components(HSQUIRRELVM vm)
+{
+	SQInteger window_id;
+	sq_getinteger(vm, 2, &window_id);
+	if (window_id < 0 || (uint32)window_id >= win_get_open_count()) {
+		sq_pushnull(vm);
+		return 1;
+	}
+
+	gui_frame_t *win = win_get_index((uint32)window_id);
+	if (!win) {
+		sq_pushnull(vm);
+		return 1;
+	}
+
+	sq_newarray(vm, 0);
+	uint32 next_id = 0;
+	const scr_coord win_pos = win_get_pos(win);
+	const vector_tpl<gui_component_t *> &components = win->get_components();
+	for (uint32 i = 0; i < components.get_count(); i++) {
+		push_accessible_component(vm, components[i], win_pos, next_id);
+		sq_arrayappend(vm, -2);
+	}
+	return 1;
 }
 
 void export_gui(HSQUIRRELVM vm, bool scenario)
@@ -197,5 +427,25 @@ void export_gui(HSQUIRRELVM vm, bool scenario)
 	* @param zoom Zoom factor to set.
 	*/
 	STATIC register_method(vm, &set_zoom, "set_zoom");
+
+	/**
+	* Get snapshots of currently open GUI windows.
+	*
+	* Each entry contains id, z_order, top, title, has_title, bounds, and client_bounds.
+	* Pass the id to @ref gui::get_window_components to inspect the components in that window.
+	* @typemask array<gui_window_x> ()
+	*/
+	register_function(vm, get_windows, "get_windows", 1, ".");
+
+	/**
+	* Get snapshots of components in the given GUI window.
+	*
+	* Components are returned as a tree. Each component has role, bounds, screen_bounds,
+	* visible, focusable, focused, children, and optional text fields.
+	* @param window_id id property of a window snapshot returned by @ref gui::get_windows.
+	* @returns array of @ref gui_component_x, or null if window_id is invalid.
+	* @typemask array<gui_component_x> (integer)
+	*/
+	register_function(vm, get_window_components, "get_window_components", 2, ".i");
 	end_class(vm);
 }
