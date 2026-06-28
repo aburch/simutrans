@@ -404,6 +404,7 @@ BEGIN {
 	export_types_scenario["world::find_nearest_city"] = "city_x(coord)"
 	export_types_scenario["world::get_season"] = "integer()"
 	export_types_scenario["world::create_player"] = "bool(integer, integer)"
+	export_types_scenario["world::open_dialog_tool"] = "bool(integer)"
 	export_types_scenario["world::remove_player"] = "bool(player_x)"
 	export_types_scenario["world::generate_goods"] = "integer(coord, coord, good_desc_x, integer)"
 	export_types_scenario["integer::get_player"] = "player_x()"

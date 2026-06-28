@@ -139,6 +139,7 @@ all_tests <- [
 	test_player_cash,
 	test_player_isactive,
 	test_player_create,
+	test_world_open_dialog_tool_invalid,
 	test_player_headquarters,
 	test_player_name,
 	test_player_lines,
