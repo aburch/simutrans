@@ -453,7 +453,7 @@ halthandle_t haltestelle_t::create(loadsave_t *file)
 // deletion of all tiles unless shared station
 void haltestelle_t::destroy(halthandle_t const halt, player_t* pl)
 {
-	if (halt->get_owners() == (1 << pl->get_player_nr())) {
+	if (!pl  ||  halt->get_owners() == (1 << pl->get_player_nr())) {
 		delete halt.get_rep();
 		return;
 	}

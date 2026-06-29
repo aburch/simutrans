@@ -933,8 +933,19 @@ void air_vehicle_t::set_convoi(convoi_t *c)
 								flying_height = 0;
 								convoihandle_t other_cnv = target_halt->get_reserved(target);
 								if (!other_cnv.is_bound()  ||  other_cnv->is_unloading()) {
-									air_vehicle_t* v = target->find<air_vehicle_t>();
-									dbg->error("air_vehicle_t::set_convoi()", "Could not restore reservation for convoi %d at %s.", cnv->self.get_id(), get_pos().get_fullstr());
+									// lloading bay occupied
+									dbg->error("air_vehicle_t::set_convoi()", "Could not restore reservation for convoi %d at %s => search new stops.", cnv->self.get_id(), get_pos().get_fullstr());
+									// stop position occupied => try to find a route to a free stop
+									target = target_halt->find_free_position(air_wt, cnv->self, obj_t::air_vehicle);
+									if (!target) {
+										dbg->error("air_vehicle_t::set_convoi()", "Nothign free at all for convoi %d at %s.", cnv->self.get_id(), get_pos().get_fullstr());
+									}
+									else {
+										state = looking_for_parking;
+										search_for_stop = route_index;
+										cnv->set_state(convoi_t::WAITING_FOR_CLEARANCE);
+										bool b = find_route_to_stop_position();
+									}
 								}
 								else {
 									air_vehicle_t* v = dynamic_cast<air_vehicle_t *>(other_cnv->get_vehicle(0));
