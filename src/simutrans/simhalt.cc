@@ -3001,7 +3001,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t h( file, "haltestelle_t" );
 
-	sint32 owner_n = owners;
+	sint32 owner_n = owners ? get_first_owner()->get_player_nr() : PLAYER_UNOWNED;
 	koord3d k;
 
 	// will restore halthandle_t after loading
@@ -3036,8 +3036,9 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	}
 
 	if(file->is_loading()) {
-		owners = owner_n;
-		permissions = 0; /* will iterate later */
+		// owners will be restored when loading tiles
+		owners = 0;
+		permissions = 0;
 		k.rdwr( file );
 		while(k!=koord3d::invalid) {
 			grund_t *gr = welt->lookup(k);
@@ -3052,16 +3053,17 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				dbg->warning( "haltestelle_t::rdwr()", "bound to ground twice at (%i,%i)!", k.x, k.y );
 			}
 			// now check, if there is a building -> we allow no longer ground without building!
-			const gebaeude_t* gb = gr->find<gebaeude_t>();
-			const building_desc_t *desc=gb?gb->get_tile()->get_desc():NULL;
-			if(desc) {
+			if(const gebaeude_t* gb = gr->find<gebaeude_t>()) {
 				add_grund( gr, false /*do not relink factories now*/ );
+				owners |= 1<< gb->get_owner_nr();
 				// verbinde_fabriken will be called in finish_rd
 			}
 			else {
 				dbg->warning("haltestelle_t::rdwr()", "will no longer add ground without building at %s!", k.get_str() );
 			}
 			k.rdwr( file );
+
+			set_permissions(permissions);
 		}
 	}
 	else {
@@ -3166,19 +3168,15 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	if (file->is_version_atleast(124, 5)) {
 		file->rdwr_short(permissions);
-		set_permissions(permissions);
 	}
-	else if (file->is_loading()) {
-		permissions = owner_n == 1 ? 0xFFFFu : (1 << owner_n);
-		set_permissions(permissions);
-	}
-
 }
 
 
 
 void haltestelle_t::finish_rd()
 {
+	set_permissions(permissions);
+
 	reconnect_factories();
 
 	stale_convois.clear();
@@ -3253,8 +3251,7 @@ void haltestelle_t::finish_rd()
 		}
 	}
 
-	// no need to recalc status here, as this is done in haltestelle_t::end_load_game
-	// (after convois have been loaded)
+	// probably moving name position?
 	recalc_basis_pos();
 
 	reconnect_counter = welt->get_schedule_counter()-1;
