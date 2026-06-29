@@ -67,6 +67,8 @@ void export_global_constants(HSQUIRRELVM vm)
 	enum_slot(vm, "tool_build_station", TOOL_BUILD_STATION | GENERAL_TOOL);
 	/// build signals and road signs
 	enum_slot(vm, "tool_build_roadsign", TOOL_BUILD_ROADSIGN | GENERAL_TOOL);
+	/// remove signals
+	enum_slot(vm, "tool_remove_signal", TOOL_REMOVE_SIGNAL | GENERAL_TOOL);
 	/// build depot
 	enum_slot(vm, "tool_build_depot", TOOL_BUILD_DEPOT | GENERAL_TOOL);
 	/// build city houses

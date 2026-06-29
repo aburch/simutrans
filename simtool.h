@@ -786,12 +786,18 @@ private:
 };
 
 // removes signal from tile
-class tool_remove_signal_t : public tool_t {
+class tool_remove_signal_t : public two_click_tool_t {
 public:
-	tool_remove_signal_t() : tool_t(TOOL_REMOVE_SIGNAL | GENERAL_TOOL) {}
+	tool_remove_signal_t() : two_click_tool_t(TOOL_REMOVE_SIGNAL | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("remove signal"); }
-	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_safe() const OVERRIDE { return true; }
+private:
+	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
+	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
+	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE { return 2; }
+	image_id get_marker_image() const OVERRIDE;
+	bool calc_route(route_t&, player_t*, koord3d const&, koord3d const&);
+	bool remove_signal(player_t*, koord3d const&);
 };
 
 // removes station or stop from tile
