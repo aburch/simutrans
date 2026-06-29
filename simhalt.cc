@@ -2994,8 +2994,9 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware)
 {
 	// merge cargos only when "load nearest first" policy is applied.
 	const settings_t &settings = world()->get_settings();
-	const bool* wefl = waiting_amount_exceeds_FIFO_limit.access(ware.get_desc()->get_catg_index());
-	if(  settings.get_first_come_first_serve()  &&  (wefl==NULL  ||  !*wefl)  ) {
+	const uint8 goods_catg_index = ware.get_desc()->get_catg_index();
+	const bool* wefl = waiting_amount_exceeds_FIFO_limit.access(goods_catg_index);
+	if(  settings.get_first_come_first_serve(goods_catg_index)  &&  (wefl==NULL  ||  !*wefl)  ) {
 		return false;
 	}
 
