@@ -567,6 +567,9 @@ private:
 	// a helper function for convoi_t::vorfahren(), check reserved_tiles
 	void clear_reserved_tile_if_not_matching_route();
 
+	// a helper function for convoi_t::vorfahren(), check the convoy run same direction, CALL BEFORE RESET THE POSITION.
+	bool go_same_direction_check_for_middle_convoys(const route_t* const &r) const;
+
 	// total length is enough than this length->coupling cancel
 	bool cease_coupling_due_to_length_over;
 

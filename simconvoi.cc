@@ -2706,7 +2706,18 @@ void convoi_t::vorfahren()
 	c = self;
 	while(  c.is_bound()  ) {
 		// the back vehicles position is set.
-		if (c->reversing_needed^((world()->get_settings().is_default_reverse()||get_schedule()->is_reverse_default())&&env_t::reversible_waytype(front()->get_waytype())&&front()->get_waytype()!=water_wt&&!go_same_direction)){
+		bool need_reverse_each_convoy = go_same_direction;
+		if(  c->is_coupled()&&(go_same_direction^using_last_car_steps)  ) {
+			// the front convoy go back but last convoy go same direction:
+			// we need to check the exact direction for each convoy!
+			if(  !c->get_coupling_convoi().is_bound()  ) {
+				// we already calculated:
+				need_reverse_each_convoy = using_last_car_steps;
+			} else {
+				need_reverse_each_convoy = c->go_same_direction_check_for_middle_convoys(get_route());
+			}
+		}
+		if (c->reversing_needed^((world()->get_settings().is_default_reverse()||get_schedule()->is_reverse_default())&&env_t::reversible_waytype(front()->get_waytype())&&front()->get_waytype()!=water_wt&&!need_reverse_each_convoy)){
 			c->reverse_vehicles_at_halt_if_needed();
 		}
 		// reset uncouple done flag
@@ -2908,6 +2919,25 @@ void convoi_t::vorfahren()
 	wait_lock = 0;
 	INT_CHECK("simconvoi 711");
 	reversing_needed = false;
+}
+
+// a helper function for convoi_t::vorfahren()
+// we only use this function BEFORE RESET VEHICLES POSITION
+// Here, THEY DO NOT KNOW THE ROUTE!
+bool convoi_t::go_same_direction_check_for_middle_convoys(const route_t* const &r) const
+{
+	if(  r->get_count()<2  ) {
+		return true;
+	}
+	const koord3d k = front()->get_pos();
+	ribi_t::ribi next_dir = ribi_t::all;
+	for(uint16 i=0; i<r->get_count()-1; i++) {
+		if(r->at(i)==k) {
+			next_dir = front()->calc_direction(r->at(i),r->at(i+1));
+			break;
+		}
+	}
+	return (alte_richtung&next_dir)>0;
 }
 
 // a helper function for convoi_t::vorfahren()
