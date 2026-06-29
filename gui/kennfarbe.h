@@ -30,6 +30,8 @@ class farbengui_t : public gui_frame_t, action_listener_t
 		choose_color_button_t* player_color_1[28];
 		choose_color_button_t* player_color_2[28];
 
+		button_t bt_all_line_color_change;
+
 	public:
 		farbengui_t(player_t *player_);
 

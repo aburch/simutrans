@@ -9351,6 +9351,7 @@ bool tool_change_convoi_t::init( player_t *player )
  * 'd' : delete line
  * 'g' : apply new schedule to line [schedule follows]
  * 'o' : change colour of line
+ * 'O' : change colour of all lines
  * 't' : trims away convois on all lines of linetype with this default parameter
  * 'u' : unite all lineless convois with similar schedules
  * 'w' : change withdraw
@@ -9668,6 +9669,19 @@ bool tool_change_line_t::init( player_t *player )
 			{
 				uint8 n_colour = atoi(p);
 				line->set_colour(n_colour);
+			}
+			break;
+
+		case 'O': // change all line colors
+			{
+				if(!player) {
+					return false;
+				}
+				vector_tpl<linehandle_t> lines;
+				player->simlinemgmt.get_lines(simline_t::line, &lines);
+				FOR(vector_tpl<linehandle_t>, const l, lines) {
+					l->set_colour(player->get_player_color1()+env_t::gui_player_color_bright);
+				}
 			}
 			break;
 	}

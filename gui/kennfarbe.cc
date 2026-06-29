@@ -149,6 +149,10 @@ farbengui_t::farbengui_t(player_t *player_) :
 	player_color_2[player->get_player_color2()/8]->pressed = true;
 	end_table();
 
+	bt_all_line_color_change.init(button_t::roundbox, "Change line color as current player color");
+	bt_all_line_color_change.add_listener(this);
+	add_component(&bt_all_line_color_change);
+
 	reset_min_windowsize();
 }
 
@@ -196,6 +200,20 @@ bool farbengui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			// since init always returns false, it is save to delete immediately
 			delete w;
 			return true;
+		}
+
+		if(comp==&bt_all_line_color_change) {
+			if(  player==welt->get_active_player() && !player->is_locked()  ) {
+				cbuffer_t buf;
+				buf.printf( "O,%i,%i", 0, player->get_player_nr());
+				tool_t* w = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
+				w->set_default_param(buf);
+				world()->set_tool( w, player );
+
+				delete w;
+
+				return true;
+			}
 		}
 
 	}
