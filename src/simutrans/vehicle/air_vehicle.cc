@@ -921,7 +921,7 @@ void air_vehicle_t::set_convoi(convoi_t *c)
 					target_halt = target->get_halt();
 					if (target_halt.is_bound()) {
 						if (!target_halt->reserve_position(target, cnv->self)) {
-							if (route_index < search_for_stop) {
+							if (route_index <= search_for_stop) {
 								// just reverve another location
 								target = target_halt->find_free_position(air_wt, cnv->self, obj_t::air_vehicle);
 								if (!target) {
@@ -945,6 +945,9 @@ void air_vehicle_t::set_convoi(convoi_t *c)
 										search_for_stop = route_index;
 										cnv->set_state(convoi_t::WAITING_FOR_CLEARANCE);
 										bool b = find_route_to_stop_position();
+										if (b) {
+											search_for_stop = 0;
+										}
 									}
 								}
 								else {
