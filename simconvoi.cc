@@ -5022,7 +5022,7 @@ void convoi_t::register_stops()
 	if(  schedule  ) {
 		FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->get_entries()) {
 			halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, get_owner(), front()->get_waytype());
-			if(  halt.is_bound()  ) {
+			if(  halt.is_bound()&&!i.is_pass_stop()  ) {
 				halt->add_convoy(self);
 			}
 		}

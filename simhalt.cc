@@ -4378,7 +4378,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 				// only add unknown lines
 				if(  !registered_lines.is_contained(j)  &&  j->count_convoys() > 0  ) {
 					FOR(  minivec_tpl<schedule_entry_t>, const& k, j->get_schedule()->get_entries()  ) {
-						if(  get_stoppable_halt(k.pos, player, j->get_schedule()->get_waytype()) == self  ) {
+						if(  (get_stoppable_halt(k.pos, player, j->get_schedule()->get_waytype()) == self)  &&  !k.is_pass_stop()  ) {
 							registered_lines.append(j);
 							break;
 						}
@@ -4393,7 +4393,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 		if(  !cnv->get_line().is_bound()  &&  (public_halt  ||  cnv->get_owner()==get_owner())  &&  !registered_convoys.is_contained(cnv)  ) {
 			if(  const schedule_t *const schedule = cnv->get_schedule()  ) {
 				FOR(  minivec_tpl<schedule_entry_t>, const& k, schedule->get_entries()  ) {
-					if (get_stoppable_halt(k.pos, cnv->get_owner(), schedule->get_waytype()) == self) {
+					if (  (get_stoppable_halt(k.pos, cnv->get_owner(), schedule->get_waytype()) == self)  &&  !k.is_pass_stop()  ) {
 						registered_convoys.append(cnv);
 						break;
 					}
@@ -4502,7 +4502,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	for(  size_t j = registered_lines.get_count();  j-- != 0;  ) {
 		bool ok = false;
 		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_lines[j]->get_schedule()->get_entries()  ) {
-			if(  get_stoppable_halt(k.pos, registered_lines[j]->get_owner(),registered_lines[j]->get_schedule()->get_waytype()) == self  ) {
+			if(  (get_stoppable_halt(k.pos, registered_lines[j]->get_owner(),registered_lines[j]->get_schedule()->get_waytype()) == self  )  &&  !k.is_pass_stop()  ) {
 				ok = true;
 				break;
 			}
@@ -4518,7 +4518,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	for(  size_t j = registered_convoys.get_count();  j-- != 0;  ) {
 		bool ok = false;
 		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_convoys[j]->get_schedule()->get_entries()  ) {
-			if(  get_stoppable_halt(k.pos, registered_convoys[j]->get_owner(),registered_convoys[j]->get_schedule()->get_waytype()) == self  ) {
+			if(  (get_stoppable_halt(k.pos, registered_convoys[j]->get_owner(),registered_convoys[j]->get_schedule()->get_waytype()) == self)  &&  !k.is_pass_stop()  ) {
 				ok = true;
 				break;
 			}

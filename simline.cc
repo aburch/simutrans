@@ -393,7 +393,7 @@ void simline_t::register_stops(schedule_t * schedule)
 DBG_DEBUG("simline_t::register_stops()", "%d schedule entries in schedule %p", schedule->get_count(),schedule);
 	FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->get_entries()) {
 		halthandle_t const halt = haltestelle_t::get_stoppable_halt(i.pos, player, schedule->get_waytype());
-		if(halt.is_bound()) {
+		if(halt.is_bound()&&!i.is_pass_stop()) {
 //DBG_DEBUG("simline_t::register_stops()", "halt not null");
 			halt->add_line(self);
 		}

@@ -251,7 +251,7 @@ void minimap_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints )
 		//cycle on stops
 		//try to read station's coordinates if there's a station at this schedule stop
 		halthandle_t station = haltestelle_t::get_stoppable_halt( cur.pos, cnv->get_owner(), schedule->get_waytype() );
-		if(  station.is_bound()  ) {
+		if(  station.is_bound()  &&  !cur.is_pass_stop()  ) {
 			stop_cache.append_unique( station );
 			temp_stop = station->get_basis_pos();
 			stops ++;
@@ -338,7 +338,7 @@ void minimap_t::add_to_schedule_cache_without_cnv( schedule_t* schedule, player_
 		//cycle on stops
 		//try to read station's coordinates if there's a station at this schedule stop
 		halthandle_t station = haltestelle_t::get_stoppable_halt( cur.pos, owner, schedule->get_waytype() );
-		if(  station.is_bound()  ) {
+		if(  station.is_bound()  &&  !cur.is_pass_stop()  ) {
 			if (  is_highlighted  ) route_search_highlighted_halts.append_unique(station);
 			stop_cache.append_unique( station );
 			temp_stop = station->get_basis_pos();
