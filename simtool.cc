@@ -8524,6 +8524,83 @@ bool tool_remove_halt_t::remove_halt(player_t* player, koord3d const &pos)
 	return player_t::check_owner(owner, player) && haltestelle_t::remove(player, gr->get_pos());
 }
 
+// removes a single city building tile; returns true if removal succeeded or tile had nothing to remove
+bool tool_remove_house_t::remove_house(player_t* player, koord3d const& pos)
+{
+	grund_t* gr = welt->lookup_kartenboden(pos.get_2d());
+	if (!gr || gr->get_pos().z != pos.z) {
+		return true;
+	}
+	gebaeude_t* gb = gr->find<gebaeude_t>();
+	if (!gb) {
+		return true;
+	}
+	gb = gb->get_first_tile();
+	const building_desc_t* desc = gb->get_tile()->get_desc();
+	// only city buildings (residential/commercial/industrial) — skip everything else silently
+	if (!desc->is_city_building()) {
+		return true;
+	}
+	// skip if there's a halt on this tile
+	if (gr->get_halt().is_bound()) {
+		return true;
+	}
+	const char* err = gb->is_deletable(player);
+	if (err) {
+		return false;
+	}
+	hausbauer_t::remove(player, gb);
+	return true;
+}
+
+char const* tool_remove_house_t::do_work(player_t* player, const koord3d& last_pos, const koord3d& pos)
+{
+	if (pos == koord3d::invalid) {
+		return remove_house(player, last_pos) ? NULL : "Das Feld gehoert\neinem anderen Spieler\n";
+	}
+	if (last_pos.z != pos.z) {
+		return NULL;
+	}
+	bool failed = false;
+	for (sint16 x = min(pos.x, last_pos.x); x <= max(pos.x, last_pos.x); x++) {
+		for (sint16 y = min(pos.y, last_pos.y); y <= max(pos.y, last_pos.y); y++) {
+			failed |= !remove_house(player, koord3d(x, y, pos.z));
+		}
+	}
+	return failed ? "Das Feld gehoert\neinem anderen Spieler\n" : NULL;
+}
+
+void tool_remove_house_t::mark_tiles(player_t*, koord3d const& start, koord3d const& end)
+{
+	if (start.z != end.z) {
+		return;
+	}
+	for (sint16 x = min(start.x, end.x); x <= max(start.x, end.x); x++) {
+		for (sint16 y = min(start.y, end.y); y <= max(start.y, end.y); y++) {
+			grund_t* gr = welt->lookup(koord3d(x, y, start.z));
+			if (!gr) { continue; }
+			zeiger_t* marker = new zeiger_t(gr->get_pos(), NULL);
+			const uint8 grund_hang = gr->get_grund_hang();
+			const uint8 weg_hang   = gr->get_weg_hang();
+			const uint8 hang = max(corner_sw(grund_hang), corner_sw(weg_hang))
+			                 + 3  * max(corner_se(grund_hang), corner_se(weg_hang))
+			                 + 9  * max(corner_ne(grund_hang), corner_ne(weg_hang))
+			                 + 27 * max(corner_nw(grund_hang), corner_nw(weg_hang));
+			uint8 back_hang = (hang % 3) + 3 * ((uint8)(hang / 9)) + 27;
+			marker->set_foreground_image(ground_desc_t::marker->get_image(grund_hang % 27));
+			marker->set_image(ground_desc_t::marker->get_image(back_hang));
+			marker->mark_image_dirty(marker->get_image(), 0);
+			gr->obj_add(marker);
+			marked.insert(marker);
+		}
+	}
+}
+
+image_id tool_remove_house_t::get_marker_image() const
+{
+	return cursor;
+}
+
 // only public player can copy public objects
 const char* tool_pipette_t::allow_tool_check(const obj_t* obj, const obj_desc_timelined_t *desc, const player_t* pl) const
 {

@@ -95,6 +95,8 @@ void export_global_constants(HSQUIRRELVM vm)
 	enum_slot(vm, "tool_make_stop_public", TOOL_MAKE_STOP_PUBLIC | GENERAL_TOOL);
 	/// remove way objects like overheadwires
 	enum_slot(vm, "tool_remove_wayobj", TOOL_REMOVE_WAYOBJ | GENERAL_TOOL);
+	/// remove city buildings (not factories, attractions, halts, or cityhalls)
+	enum_slot(vm, "tool_remove_house", TOOL_REMOVE_HOUSE | GENERAL_TOOL);
 	// not needed? enum__slot(vm, "tool_sliced_and_underground_view", TOOL_SLICED_AND_UNDERGROUND_VIEW | GENERAL_TOOL);
 	/// buy a house
 	enum_slot(vm, "tool_buy_house", TOOL_BUY_HOUSE | GENERAL_TOOL);

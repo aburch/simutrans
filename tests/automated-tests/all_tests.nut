@@ -47,6 +47,7 @@ include("tests/test_road_choose")
 include("tests/test_priority_signal")
 include("tests/test_otrp_signal_options")
 include("tests/test_reroute_reservation")
+include("tests/test_remove_house")
 
 all_tests <- [
 	test_building_build_house_invalid_param,
@@ -290,7 +291,9 @@ all_tests <- [
 	test_road_choose_no_stop_behind_prohibited_mode,
 	test_rail_reroute_no_line,
 	test_rail_reroute_with_line_stale_cache,
-	test_rail_reroute_with_line_mid_travel
+	test_rail_reroute_with_line_mid_travel,
+	test_remove_house_one_click,
+	test_remove_house_area,
 ]
 
 

@@ -817,6 +817,20 @@ private:
 	void add_marker(grund_t *);
 };
 
+// removes city buildings (not factories, attractions, halts, or cityhalls)
+class tool_remove_house_t : public two_click_tool_t {
+public:
+	tool_remove_house_t() : two_click_tool_t(TOOL_REMOVE_HOUSE | GENERAL_TOOL) { one_click = true; }
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("remove city building"); }
+	bool is_init_network_safe() const OVERRIDE { return true; }
+private:
+	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
+	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
+	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE { return 2; }
+	image_id get_marker_image() const OVERRIDE;
+	bool remove_house(player_t*, koord3d const&);
+};
+
 // internal tool: show error message at specific coordinate
 // used for scenario error messages send by server
 class tool_error_message_t : public tool_t {
