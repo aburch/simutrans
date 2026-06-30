@@ -1014,6 +1014,8 @@ public:
 
 	koord3d get_home_depot() { return home_depot; }
 
+	const char* get_home_depot_name();
+
 	/**
 	 * Sends convoi to nearest depot.
 	 * Has to be called synchronously on all clients in networkmode!

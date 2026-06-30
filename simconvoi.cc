@@ -3658,6 +3658,20 @@ void convoi_t::open_info_window()
 }
 
 
+const char* convoi_t::get_home_depot_name()
+{
+	grund_t* const g = welt->lookup(get_home_depot());
+	if(  !g  ) {
+		return "";
+	}
+	depot_t* const d = g->get_depot();
+	if(  !d  ) {
+		return "";
+	}
+	return d->get_name();
+}
+
+
 void convoi_t::info(cbuffer_t & buf) const
 {
 	const vehicle_t* v = fahr[0];

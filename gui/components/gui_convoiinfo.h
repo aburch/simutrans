@@ -26,8 +26,8 @@ private:
 	convoihandle_t cnv;
 
 	gui_speedbar_t filled_bar;
-	gui_label_t label_name, label_next_halt;
-	gui_label_buf_t label_line, label_profit;
+	gui_label_t label_name;
+	gui_label_buf_t label_line, label_profit, label_next_halt;
 	button_t pos_next_halt;
 	gui_aligned_container_t *container_next_halt;
 
