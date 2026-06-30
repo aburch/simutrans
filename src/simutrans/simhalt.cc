@@ -506,7 +506,6 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 	last_status_color = gfx->palette_lookup(COL_PURPLE);
 	last_bar_count = 0;
 	last_permissions = 0;
-	last_player_count = 0;
 
 	reconnect_counter = welt->get_schedule_counter()-1;
 
@@ -3399,19 +3398,20 @@ void haltestelle_t::display_status(sint16 xpos, sint16 ypos)
 	}
 	ypos += -D_WAITINGBAR_WIDTH - LINESPACE/6;
 
-	bool players_dirty = false;
-	if(  permissions != last_permissions  ) {
-		if(  last_player_count  ) {
-			// erase old permissions display
-			gfx->mark_rect_dirty_wc( xpos, ypos, xpos + gfx->get_tile_raster_width(), ypos + D_WAITINGBAR_WIDTH );
+	bool players_dirty = permissions != last_permissions;
+	if (permissions | last_permissions) {
+		const sint16 wo = (64 * LINESPACE) / 14;
+		const sint16 xo = xpos - (wo - gfx->get_tile_raster_width()) / 2;
+		if (players_dirty  &&  player_count <= 1) {
+			// one or less: will vanish
+			// => erase old permissions display
+			gfx->mark_rect_dirty_wc(xo, ypos, xo + wo, ypos + D_WAITINGBAR_WIDTH);
 		}
 		last_permissions = permissions;
-		last_player_count = player_count;
-		players_dirty = true;
-	}
-	if(  player_count > 1  ) {
-		gfx->draw_rect_colors_clipped( xpos, ypos-1, gfx->get_tile_raster_width(), D_WAITINGBAR_WIDTH, colors, player_count, true, players_dirty  CLIP_NUM_DEFAULT);
-		ypos += -D_WAITINGBAR_WIDTH - 3;
+		if (player_count > 1) {
+			gfx->draw_rect_colors_clipped(xo, ypos - 1, wo, D_WAITINGBAR_WIDTH, colors, player_count, true, players_dirty  CLIP_NUM_DEFAULT);
+			ypos += -D_WAITINGBAR_WIDTH - 3;
+		}
 	}
 
 	if(  count != last_bar_count  ||  players_dirty  ) {

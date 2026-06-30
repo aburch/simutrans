@@ -119,7 +119,6 @@ private:
 
 	PIXVAL status_color, last_status_color;
 	uint16 last_permissions;
-	uint16 last_player_count;
 	sint16 last_bar_count;
 	vector_tpl<scr_coord_val> last_bar_height; // caches the last height of the station bar for each good type drawn in display_status(). used for dirty tile management
 	uint32 capacity[3]; // passenger, mail, goods
