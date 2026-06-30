@@ -8395,49 +8395,110 @@ bool tool_remove_signal_t::remove_signal(player_t *player, koord3d const &pos)
 }
 
 
+void tool_remove_halt_t::add_marker(grund_t *gr)
+{
+	zeiger_t *marker = new zeiger_t(gr->get_pos(), NULL);
+	const uint8 grund_hang = gr->get_grund_hang();
+	const uint8 weg_hang   = gr->get_weg_hang();
+	const uint8 hang = max(corner_sw(grund_hang), corner_sw(weg_hang)) +
+	                   3 * max(corner_se(grund_hang), corner_se(weg_hang)) +
+	                   9 * max(corner_ne(grund_hang), corner_ne(weg_hang)) +
+	                   27 * max(corner_nw(grund_hang), corner_nw(weg_hang));
+	uint8 back_hang = (hang % 3) + 3 * ((uint8)(hang / 9)) + 27;
+	marker->set_foreground_image(ground_desc_t::marker->get_image(grund_hang % 27));
+	marker->set_image(ground_desc_t::marker->get_image(back_hang));
+	marker->mark_image_dirty(marker->get_image(), 0);
+	gr->obj_add(marker);
+	marked.insert(marker);
+}
+
+
+bool tool_remove_halt_t::calc_route(route_t &route, player_t *, koord3d const &start, koord3d const &end) const
+{
+	const grund_t *gr_start = welt->lookup(start);
+	if (!gr_start) { return false; }
+
+	waytype_t wt = invalid_wt;
+	if (weg_t *w = gr_start->get_weg_nr(0)) { wt = w->get_waytype(); }
+	if (wt == invalid_wt) { return false; }
+
+	if (start == end) {
+		route.clear();
+		route.append(start);
+		return true;
+	}
+
+	test_driver_t *test_driver = new way_checker_t(wt);
+	bool ok = route.calc_route(welt, start, end, test_driver, 0, 0);
+	delete test_driver;
+	return ok;
+}
+
+
 char const* tool_remove_halt_t::do_work(player_t *player, const koord3d &last_pos, const koord3d &pos)
 {
-	if(  pos==koord3d::invalid  ) {
-		// single tile removal
+	if(  pos == koord3d::invalid  ) {
+		// safety fallback: unreachable with is_valid_pos=2 but kept for robustness
 		return remove_halt(player, last_pos) ? NULL : "The station cannot be removed.";
 	}
 
-	// multiple tiles removal
-	if(  last_pos.z != pos.z  ) {
-		// allow only same height
-		return NULL;
-	}
-	bool failed_to_remove = false;
-	for(  sint16 x = min(pos.x, last_pos.x);  x <= max(pos.x, last_pos.x);  x++  ) {
-		for(  sint16 y = min(pos.y, last_pos.y);  y <= max(pos.y, last_pos.y);  y++  ) {
-			failed_to_remove |= !remove_halt(player, koord3d(x, y, pos.z));
+	if(  is_ctrl_pressed()  ) {
+		// ctrl (with or without shift): area removal with height range
+		const sint16 z1 = min(last_pos.z, pos.z);
+		const sint16 z2 = max(last_pos.z, pos.z);
+		bool failed = false;
+		for(  sint16 x = min(pos.x, last_pos.x);  x <= max(pos.x, last_pos.x);  x++  ) {
+			for(  sint16 y = min(pos.y, last_pos.y);  y <= max(pos.y, last_pos.y);  y++  ) {
+				const planquadrat_t *pl = welt->access(koord(x, y));
+				if(  !pl  ) { continue; }
+				for(  unsigned i = 0;  i < pl->get_boden_count();  i++  ) {
+					const grund_t *gr = pl->get_boden_bei(i);
+					if(  gr->get_hoehe() < z1  ||  gr->get_hoehe() > z2  ) { continue; }
+					failed |= !remove_halt(player, gr->get_pos());
+				}
+			}
 		}
+		return failed ? "Some stations cannot be removed." : NULL;
 	}
-	return failed_to_remove ? "Some stations cannot be removed." : NULL;
+
+	// no ctrl (shift or no modifier, including drag): route-based removal
+	route_t route;
+	if(  !calc_route(route, player, last_pos, pos)  ) {
+		return NULL; // invalid route, do not remove
+	}
+	bool failed = false;
+	for(  uint32 i = 0;  i < route.get_count();  i++  ) {
+		failed |= !remove_halt(player, route.at(i));
+	}
+	return failed ? "Some stations cannot be removed." : NULL;
 }
 
-void tool_remove_halt_t::mark_tiles(player_t *, koord3d const &start, koord3d const &end)
+void tool_remove_halt_t::mark_tiles(player_t *player, koord3d const &start, koord3d const &end)
 {
-	if (start.z != end.z) {
-		// allow only same height
+	if(  is_ctrl_pressed()  ) {
+		// ctrl (with or without shift): area marking with height range
+		const sint16 z1 = min(start.z, end.z);
+		const sint16 z2 = max(start.z, end.z);
+		for(  sint16 x = min(start.x, end.x);  x <= max(start.x, end.x);  x++  ) {
+			for(  sint16 y = min(start.y, end.y);  y <= max(start.y, end.y);  y++  ) {
+				const planquadrat_t *pl = welt->access(koord(x, y));
+				if(  !pl  ) { continue; }
+				for(  unsigned i = 0;  i < pl->get_boden_count();  i++  ) {
+					grund_t *gr = pl->get_boden_bei(i);
+					if(  gr->get_hoehe() < z1  ||  gr->get_hoehe() > z2  ) { continue; }
+					add_marker(gr);
+				}
+			}
+		}
 		return;
 	}
-	for (sint16 x = min(start.x, end.x); x <= max(start.x, end.x); x++) {
-		for (sint16 y = min(start.y, end.y); y <= max(start.y, end.y); y++) {
-			grund_t *gr = welt->lookup(koord3d(x, y, start.z));
-			if (  !gr  ) { continue; }
-			zeiger_t *marker = new zeiger_t(gr->get_pos(), NULL);
 
-			const uint8 grund_hang = gr->get_grund_hang();
-			const uint8 weg_hang = gr->get_weg_hang();
-			const uint8 hang = max(corner_sw(grund_hang), corner_sw(weg_hang)) + 3 * max(corner_se(grund_hang), corner_se(weg_hang)) + 9 * max(corner_ne(grund_hang), corner_ne(weg_hang)) + 27 * max(corner_nw(grund_hang), corner_nw(weg_hang));
-			uint8 back_hang = (hang % 3) + 3 * ((uint8)(hang / 9)) + 27;
-			marker->set_foreground_image(ground_desc_t::marker->get_image(grund_hang % 27));
-			marker->set_image(ground_desc_t::marker->get_image(back_hang));
-			marker->mark_image_dirty(marker->get_image(), 0);
-			gr->obj_add(marker);
-			marked.insert(marker);
-		}
+	// no ctrl (shift or no modifier, including drag): route-based marking
+	route_t route;
+	if(  !calc_route(route, player, start, end)  ) { return; }
+	for(  uint32 i = 0;  i < route.get_count();  i++  ) {
+		grund_t *gr = welt->lookup(route.at(i));
+		if(  gr  ) { add_marker(gr); }
 	}
 }
 
