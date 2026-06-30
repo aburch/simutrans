@@ -17,7 +17,7 @@ jobs:
     - name: install_dependencies
       run: | 
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-        brew install sdl2 libpng miniupnpc pkg-config
+        brew install sdl2 sdl3 freetype libpng zstd miniupnpc pkg-config
 #        brew install freetype
 # freetype library is in the system, but not the header
 #        curl -L "https://downloads.sourceforge.net/project/freetype/freetype2/2.10.1/ft2101.zip?&use_mirror=autoselect" > ft2101.zip
@@ -36,14 +36,19 @@ jobs:
         if [[ $GITHUB_REF == refs/tags/* ]]; then
           echo "SUFFIX=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
         else
-          echo "SUFFIX=_${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+          REF_NAME="${GITHUB_REF#refs/heads/}"
+          echo "SUFFIX=_${REF_NAME//\//_}" >> $GITHUB_ENV
         fi
 
-    - name: Rename executable
-      run: mv sim-mac-OTRP sim-mac-OTRP${{ env.SUFFIX }}
+    - name: Package app
+      run: |
+        APP_NAME=sim-mac-OTRP${{ env.SUFFIX }}.app
+        bash ./.github/package-mac-app.sh --binary build/default/sim --app "$APP_NAME"
+        mkdir -p macos-artifact
+        mv "$APP_NAME" macos-artifact/
 
-    - name: Upload the executable
+    - name: Upload the app package
       uses: actions/upload-artifact@v4
       with:
-        name: sim-mac-OTRP${{ env.SUFFIX }}
-        path: ./sim-mac-OTRP${{ env.SUFFIX }}
+        name: sim-mac-OTRP${{ env.SUFFIX }}.app
+        path: ./macos-artifact
