@@ -537,6 +537,7 @@ static PIXVAL          simgraph16_blend_colors               (PIXVAL background,
 static void            simgraph16_tint_rect                  (scr_coord_val xp, scr_coord_val yp, scr_coord_val w, scr_coord_val h, PIXVAL colval, int opacity);
 static void            simgraph16_draw_rect                  (scr_coord_val xp, scr_coord_val yp, scr_coord_val w, scr_coord_val h, PIXVAL color, bool dirty);
 static void            simgraph16_draw_rect_clipped          (scr_coord_val xp, scr_coord_val yp, scr_coord_val w, scr_coord_val h, PIXVAL color, bool dirty  CLIP_NUM_DEF);
+static void            simgraph16_draw_rect_colors_clipped   (scr_coord_val xp, scr_coord_val yp, scr_coord_val w, scr_coord_val h, PIXVAL* color, scr_coord_val num_colors, bool horizontal, bool dirty  CLIP_NUM_DEF);
 static void            simgraph16_draw_rounded_rect_clipped  (scr_coord_val xp, scr_coord_val yp, scr_coord_val w, scr_coord_val h, PIXVAL color, bool dirty);
 static void            simgraph16_draw_vline_clipped         (scr_coord_val xp, scr_coord_val yp, scr_coord_val h, PIXVAL color, bool dirty  CLIP_NUM_DEF);
 static void            simgraph16_flush_framebuffer          ();
@@ -638,6 +639,7 @@ simgraph_t g_simgraph16 = {
 	/*.tint_rect                   =*/ simgraph16_tint_rect,
 	/*.draw_rect                   =*/ simgraph16_draw_rect,
 	/*.draw_rect_clipped           =*/ simgraph16_draw_rect_clipped,
+	/*.draw_rect_colors_clipped    =*/ simgraph16_draw_rect_colors_clipped,
 	/*.draw_rounded_rect_clipped   =*/ simgraph16_draw_rounded_rect_clipped,
 	/*.draw_vline_clipped          =*/ simgraph16_draw_vline_clipped,
 	/*.flush_framebuffer           =*/ simgraph16_flush_framebuffer,
@@ -3581,6 +3583,27 @@ static void simgraph16_draw_rect(scr_coord_val xp, scr_coord_val yp, scr_coord_v
 static void simgraph16_draw_rect_clipped(scr_coord_val xp, scr_coord_val yp, scr_coord_val w, scr_coord_val h, PIXVAL color, bool dirty  CLIP_NUM_DEF)
 {
 	display_fb_internal( xp, yp, w, h, color, dirty, CR.clip_rect.x, CR.clip_rect.xx, CR.clip_rect.y, CR.clip_rect.yy );
+}
+
+
+static void simgraph16_draw_rect_colors_clipped(scr_coord_val xp, scr_coord_val yp, scr_coord_val w, scr_coord_val h, PIXVAL *colors, scr_coord_val num_colors, bool horizontal, bool dirty  CLIP_NUM_DEF)
+{
+	if (horizontal) {
+		scr_coord_val last_w = 0;
+		for (scr_coord_val i = 0; i < num_colors; i++) {
+			scr_coord_val next_w = (w * (1 + i)) / num_colors;
+			display_fb_internal(xp+last_w, yp, next_w-last_w, h, colors[i], dirty, CR.clip_rect.x, CR.clip_rect.xx, CR.clip_rect.y, CR.clip_rect.yy);
+			last_w = next_w;
+		}
+	}
+	else {
+		scr_coord_val last_h = 0;
+		for (scr_coord_val i = 0; i < num_colors; i++) {
+			scr_coord_val next_h = (h * (1 + i)) / num_colors;
+			display_fb_internal(xp, yp+last_h, w, next_h-last_h, colors[i], dirty, CR.clip_rect.x, CR.clip_rect.xx, CR.clip_rect.y, CR.clip_rect.yy);
+			last_h = next_h;
+		}
+	}
 }
 
 

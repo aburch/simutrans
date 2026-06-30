@@ -4526,8 +4526,17 @@ note=button in signal info
 --
 obj=program_text
 name=Stopping permissions
-note=button in signal info
+note=button in halt_info
 --
+obj=program_text
+name=Owner only
+note=button in halt_info and halt_list_filter_frame
+--
+obj=program_text
+name=Shared only
+note=button in halt_list_filter_frame
+--
+
 #obj=help_text
 #name=Lower values mean more local sounds
 #note=tooltip in sound frame

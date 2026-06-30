@@ -48,6 +48,7 @@ enum {
 	IDBTN_CHANGE_FONT,
 	IDBTN_INFINITE_SCROLL,
 	IDBTN_LEFTDRAG_MINIMAP,
+	IDBTN_SHARED_HORIZONTAL,
 	COLORS_MAX_BUTTONS
 };
 
@@ -493,6 +494,11 @@ station_settings_t::station_settings_t()
 	buttons[ IDBTN_SHOW_WAITING_BARS ].init( button_t::square_state, "show waiting bars" );
 	buttons[ IDBTN_SHOW_WAITING_BARS ].pressed = env_t::show_names & 2;
 	add_component( buttons + IDBTN_SHOW_WAITING_BARS, 2 );
+
+	// Show waiting bars checkbox
+	buttons[IDBTN_SHARED_HORIZONTAL].init(button_t::square_state, "Horizontal stripe ownership");
+	buttons[IDBTN_SHARED_HORIZONTAL].pressed = env_t::horizontal_stripe_owner;
+	add_component(buttons + IDBTN_SHARED_HORIZONTAL, 2);
 }
 
 traffic_settings_t::traffic_settings_t()
@@ -738,6 +744,9 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t)
 		break;
 	case IDBTN_SHOW_WAITING_BARS:
 		env_t::show_names ^= 2;
+		break;
+	case IDBTN_SHARED_HORIZONTAL:
+		env_t::horizontal_stripe_owner ^= 1;
 		break;
 	case IDBTN_HIDE_LABELS:
 		env_t::show_names ^= 1;

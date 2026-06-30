@@ -142,6 +142,7 @@ bool env_t::show_single_ways;
 bool env_t::use_transparency_station_coverage;
 uint8 env_t::station_coverage_show;
 sint32 env_t::show_names;
+bool env_t::horizontal_stripe_owner;
 sint32 env_t::message_flags[4];
 uint32 env_t::water_animation;
 uint32 env_t::ground_object_probability;
@@ -249,6 +250,7 @@ void env_t::init()
 	station_coverage_show = 0;
 
 	show_names = 3;
+	horizontal_stripe_owner = true;
 	player_finance_display_account = true;
 
 	water_animation = 250; // 250ms per wave stage
@@ -674,6 +676,10 @@ void env_t::rdwr(loadsave_t *file)
 	if (file->is_version_atleast(124, 4)) {
 		file->rdwr_bool(show_single_ways);
 		file->rdwr_bool(stack_toolbars);
+	}
+
+	if (file->is_version_atleast(124, 6)) {
+		file->rdwr_bool(horizontal_stripe_owner);
 	}
 
 	// server settings are not saved, since they are server specific

@@ -1667,69 +1667,76 @@ void grund_t::display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is
 // display text label in player colors using different styles set by env_t::show_names
 void grund_t::display_text_label(sint16 xpos, sint16 ypos, const char* text, const uint16 players_bit, bool dirty)
 {
-	player_t* players[16];
+	uint8 players[16];
 	uint16 num_players = 0;
-	players[0] = NULL;
+	players[0] = COL_ORANGE;
 	for (uint16 i = 0; i < MAX_PLAYER_COUNT; i++) {
 		if ((1 << i) & players_bit) {
-			players[num_players++] = welt->get_player(i);
+			players[num_players++] = welt->get_player(i)->get_player_color1();
 		}
 	}
 
 	if (num_players <= 1) {
-		player_t* player = players[0];
 		switch (env_t::show_names >> 2) {
-			case 0: {
-					const PIXVAL bg_color = player ? gfx->palette_lookup(player->get_player_color1() + 4) : SYSCOL_TEXT_HIGHLIGHT;
-					gfx->draw_textbox3d_clipped(xpos, ypos, bg_color, gfx->palette_lookup(COL_BLACK), text, dirty CLIP_NUM_DEFAULT);
-					break;
-				}
-			case 1: {
-					const PIXVAL text_color = player ? gfx->palette_lookup(player->get_player_color1() + 7) : SYSCOL_TEXT_HIGHLIGHT;
-					gfx->draw_text_outlined(xpos, ypos, text_color, gfx->palette_lookup(COL_BLACK), text, dirty);
-					break;
-				}
-			case 2: {
-					const PIXVAL dark = player ? gfx->palette_lookup(player->get_player_color1() + 2) : SYSCOL_TEXT_HIGHLIGHT;
-					const PIXVAL normal = player ? gfx->palette_lookup(player->get_player_color1() + 4) : SYSCOL_TEXT_HIGHLIGHT;
-					const PIXVAL bright = player ? gfx->palette_lookup(player->get_player_color1() + 6) : SYSCOL_TEXT_HIGHLIGHT;
-
-					gfx->draw_text_outlined(xpos + LINESPACE + D_H_SPACE, ypos, gfx->palette_lookup(COL_YELLOW), gfx->palette_lookup(COL_BLACK), text, dirty);
-					gfx->draw_box3d_clipped(xpos, ypos, LINESPACE, LINESPACE, dark, PLAYER_FLAG | bright);
-					gfx->draw_rect(xpos + 1, ypos + 1, LINESPACE - 2, LINESPACE - 2, normal, dirty);
-					break;
-				}
+			case 0:
+				gfx->draw_textbox3d_clipped(xpos, ypos, gfx->palette_lookup(players[0] + 4), gfx->palette_lookup(COL_BLACK), text, dirty CLIP_NUM_DEFAULT);
+				break;
+			case 1:
+				gfx->draw_text_outlined(xpos, ypos, gfx->palette_lookup(players[0] + 7), gfx->palette_lookup(COL_BLACK), text, dirty);
+				break;
+			case 2: 
+				gfx->draw_text_outlined(xpos + LINESPACE + D_H_SPACE, ypos, gfx->palette_lookup(COL_YELLOW), gfx->palette_lookup(COL_BLACK), text, dirty);
+				gfx->draw_rect(xpos, ypos, LINESPACE, LINESPACE, gfx->palette_lookup(COL_BLACK), dirty );
+				gfx->draw_rect(xpos + 1, ypos + 1, LINESPACE - 2, LINESPACE - 2, gfx->palette_lookup(players[0] + 4), false );
+				break;
 		}
 	}
 	else {
-		const int vpadding = (env_t::show_names >> 2) == 1 ? 1 : LINESPACE / 7;
-		const int h = vpadding * 2 + LINESPACE;
-		for (int i = 0; i < num_players; i++) {
-			PUSH_CLIP_FIT(xpos, ypos - vpadding + (i*h)/num_players, 1000, h / num_players + 1);
-			player_t* player = players[i];
-			switch (env_t::show_names >> 2) {
-				case 0: {
-					const PIXVAL bg_color = player ? gfx->palette_lookup(player->get_player_color1() + 4) : SYSCOL_TEXT_HIGHLIGHT;
-					gfx->draw_textbox3d_clipped(xpos, ypos, bg_color, gfx->palette_lookup(COL_BLACK), text, dirty CLIP_NUM_DEFAULT);
-					break;
-				}
-				case 1: {
-					const PIXVAL text_color = player ? gfx->palette_lookup(player->get_player_color1() + 7) : SYSCOL_TEXT_HIGHLIGHT;
-					gfx->draw_text_outlined(xpos, ypos, text_color, gfx->palette_lookup(COL_BLACK), text, dirty);
-					break;
-				}
-				case 2: {
-					const PIXVAL dark = player ? gfx->palette_lookup(player->get_player_color1() + 2) : SYSCOL_TEXT_HIGHLIGHT;
-					const PIXVAL normal = player ? gfx->palette_lookup(player->get_player_color1() + 4) : SYSCOL_TEXT_HIGHLIGHT;
-					const PIXVAL bright = player ? gfx->palette_lookup(player->get_player_color1() + 6) : SYSCOL_TEXT_HIGHLIGHT;
-
-					gfx->draw_text_outlined(xpos + LINESPACE + D_H_SPACE, ypos, gfx->palette_lookup(COL_YELLOW), gfx->palette_lookup(COL_BLACK), text, dirty);
-					gfx->draw_box3d_clipped(xpos, ypos, LINESPACE, LINESPACE, dark, PLAYER_FLAG | bright);
-					gfx->draw_rect(xpos + 1, ypos + 1 + (i*(LINESPACE-2))/num_players, LINESPACE - 2, (LINESPACE-2)/num_players +1, normal, dirty);
-					break;
+		if (env_t::show_names >> 2 == 2) {
+			PIXVAL colors[MAX_PLAYER_COUNT];
+			for (int i = 0; i < num_players; i++) {
+				colors[i] = gfx->palette_lookup(players[i] + 4);
+			}
+			gfx->draw_text_outlined(xpos + LINESPACE + D_H_SPACE, ypos, gfx->palette_lookup(COL_YELLOW), gfx->palette_lookup(COL_BLACK), text, dirty);
+			gfx->draw_rect(xpos, ypos, LINESPACE, LINESPACE, gfx->palette_lookup(COL_BLACK), dirty );
+			gfx->draw_rect_colors_clipped(xpos + 1, ypos + 1, LINESPACE - 2, (LINESPACE - 2), colors, num_players, env_t::horizontal_stripe_owner, dirty CLIP_NUM_DEFAULT);
+		}
+		else {
+			for (int i = 0; i < num_players; i++) {
+				const int hpadding = (env_t::show_names >> 2) == 1 ? 1 : LINESPACE / 4;
+				const int vpadding = (env_t::show_names >> 2) == 1 ? 1 : LINESPACE / 7;
+				const int w = hpadding * 2 + gfx->calc_text_width_n(text, 0x7FFFu);
+				const int h = vpadding * 2 + LINESPACE;
+				for (int i = 0; i < num_players; i++) {
+					int cx, cy, cw, ch;
+					if (env_t::horizontal_stripe_owner) {
+						cx = xpos + (i * w) / num_players;
+						cy = ypos - vpadding;
+						cw = w / num_players + 1;
+						ch = h;
+					}
+					else {
+						cx = xpos;
+						cy = ypos - vpadding + (i * h) / num_players;
+						cw = 1000;
+						ch = h / num_players + 1;
+					}
+					PUSH_CLIP_FIT(cx, cy, cw, ch);
+					switch (env_t::show_names >> 2) {
+						case 0: {
+							const PIXVAL bg_color = gfx->palette_lookup(players[i] + 4);
+							gfx->draw_textbox3d_clipped(xpos, ypos, bg_color, gfx->palette_lookup(COL_BLACK), text, dirty CLIP_NUM_DEFAULT);
+							break;
+						}
+						case 1: {
+							const PIXVAL text_color = gfx->palette_lookup(players[i] + 7);
+							gfx->draw_text_outlined(xpos, ypos, text_color, gfx->palette_lookup(COL_BLACK), text, dirty);
+							break;
+						}
+					}
+					POP_CLIP()
 				}
 			}
-			POP_CLIP()
 		}
 	}
 }

@@ -1074,6 +1074,9 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\display\simgraph.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\components\gui_owner.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\builder\brueckenbauer.h">
@@ -2247,6 +2250,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\script_generator_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\components\gui_owner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

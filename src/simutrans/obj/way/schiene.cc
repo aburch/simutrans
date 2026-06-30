@@ -87,8 +87,8 @@ void schiene_t::info(cbuffer_t & buf) const
 bool schiene_t::reserve(convoihandle_t c, uint32 index )
 {
 	if (is_close_diagonal()) {
-		// get entry direction
-		ribi_t::ribi from = ribi_type(c->get_route()->at(index-1), get_pos());
+		// get entry direction (if index is 0, we have to use next tile to guess)
+		ribi_t::ribi from = (index == 0) ? ribi_type(get_pos(), c->get_route()->at(index+1)) : ribi_type(c->get_route()->at(index - 1), get_pos());
 		bool use2 = (is_close_diagonal() == 2 && (from & ribi_t::northeast)) || (is_close_diagonal() == 1 && (from & ribi_t::southeast));
 		convoihandle_t& r = use2 ? reserved2 : reserved;
 		convoihandle_t& r_other = use2 ? reserved : reserved2;

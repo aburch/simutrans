@@ -254,6 +254,9 @@ struct simgraph_t
 	/// Same as @ref draw_rect, but clips to active clip rect.
 	void (*draw_rect_clipped)(scr_coord_val xp, scr_coord_val yp, scr_coord_val w, scr_coord_val h, PIXVAL color, bool dirty  CLIP_NUM_DEF);
 
+	///  banded rectangle with multicolors
+	void (*draw_rect_colors_clipped)(scr_coord_val xp, scr_coord_val yp, scr_coord_val w, scr_coord_val h, PIXVAL* color, scr_coord_val num_colors, bool horizontal, bool dirty  CLIP_NUM_DEF);
+
 	/// Draw rect with rounded corners.
 	void (*draw_rounded_rect_clipped)(scr_coord_val xp, scr_coord_val yp, scr_coord_val w, scr_coord_val h, PIXVAL color, bool dirty);
 

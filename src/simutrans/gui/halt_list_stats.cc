@@ -28,36 +28,6 @@
 static karte_ptr_t welt;
 
 
-void gui_owners_t::set_owners(uint16 mask)
-{
-	// draw ownership
-	player_mask = mask;
-	num_players = 0;
-	for (uint16 i = 0; i < MAX_PLAYER_COUNT; i++) {
-		if ((1 << i) & player_mask) {
-			num_players++;
-		}
-	}
-	set_visible(num_players != 0);
-}
-
-void gui_owners_t::draw(scr_coord offset)
-{
-	// only show if there are more than on player
-	if (num_players > 1) {
-		scr_coord pos = get_pos() + offset;
-		pos.y += 2;
-		for (uint16 i = 0; i < MAX_PLAYER_COUNT; i++) {
-			if(welt->get_player(i)  &&  (player_mask & (1 << i))!=0) {
-				gfx->draw_rect_clipped(pos.x, pos.y, LINESPACE-4, LINESPACE-4, gfx->palette_lookup(welt->get_player(i)->get_player_color1() + 3), true CLIP_NUM_DEFAULT);
-				pos.x += LINESPACE-4;
-			}
-		}
-	}
-
-}
-
-
 /**
  * Events are notified to GUI components via this method
  */

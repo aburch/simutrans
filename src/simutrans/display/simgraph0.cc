@@ -58,6 +58,7 @@ static PIXVAL          simgraph0_blend_colors               (PIXVAL, PIXVAL, int
 static void            simgraph0_tint_rect                  (scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, PIXVAL, int);
 static void            simgraph0_draw_rect                  (scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, PIXVAL, bool);
 static void            simgraph0_draw_rect_clipped          (scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, PIXVAL, bool  CLIP_NUM_DEF_NOUSE);
+static void            simgraph0_draw_rect_colors_clipped   (scr_coord_val xp, scr_coord_val yp, scr_coord_val w, scr_coord_val h, PIXVAL* color, scr_coord_val num_colors, bool horizontal, bool dirty   CLIP_NUM_DEF);
 static void            simgraph0_draw_rounded_rect_clipped  (scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, PIXVAL, bool);
 static void            simgraph0_draw_vline_clipped         (scr_coord_val, scr_coord_val, scr_coord_val, PIXVAL, bool  CLIP_NUM_DEF_NOUSE);
 static void            simgraph0_flush_framebuffer          ();
@@ -166,6 +167,7 @@ simgraph_t g_simgraph0 = {
 	/*.tint_rect                   =*/ simgraph0_tint_rect,
 	/*.draw_rect                   =*/ simgraph0_draw_rect,
 	/*.draw_rect_clipped           =*/ simgraph0_draw_rect_clipped,
+	/*.draw_rect_colors_clipped    =*/ simgraph0_draw_rect_colors_clipped,
 	/*.draw_rounded_rect_clipped   =*/ simgraph0_draw_rounded_rect_clipped,
 	/*.draw_vline_clipped          =*/ simgraph0_draw_vline_clipped,
 	/*.flush_framebuffer           =*/ simgraph0_flush_framebuffer,
@@ -409,6 +411,10 @@ static void simgraph0_draw_rect(scr_coord_val, scr_coord_val, scr_coord_val, scr
 
 
 static void simgraph0_draw_rect_clipped(scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, PIXVAL, bool  CLIP_NUM_DEF_NOUSE)
+{
+}
+
+static void simgraph0_draw_rect_colors_clipped(scr_coord_val xp, scr_coord_val yp, scr_coord_val w, scr_coord_val h, PIXVAL* color, scr_coord_val num_colors, bool horizontal, bool dirty  CLIP_NUM_DEF)
 {
 }
 

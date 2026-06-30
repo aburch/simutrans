@@ -372,6 +372,9 @@ public:
 	 */
 	static sint32 show_names;
 
+	/// In case of multiple owners, decide the orientation of the player colours
+	static bool horizontal_stripe_owner;
+
 	/// Show factory storage bar
 	static uint8 show_factory_storage_bar;
 

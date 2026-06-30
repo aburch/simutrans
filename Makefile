@@ -392,6 +392,7 @@ SOURCES += src/simutrans/gui/components/gui_label.cc
 SOURCES += src/simutrans/gui/components/gui_map_preview.cc
 SOURCES += src/simutrans/gui/components/gui_numberinput.cc
 SOURCES += src/simutrans/gui/components/gui_obj_view.cc
+SOURCES += src/simutrans/gui/components/gui_owner.cc
 SOURCES += src/simutrans/gui/components/gui_schedule.cc
 SOURCES += src/simutrans/gui/components/gui_scrollbar.cc
 SOURCES += src/simutrans/gui/components/gui_scrolled_list.cc

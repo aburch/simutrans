@@ -123,6 +123,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\components\gui_map_preview.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\components\gui_numberinput.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\components\gui_obj_view.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\components\gui_owner.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\components\gui_schedule.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\components\gui_scrollbar.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\components\gui_scrolled_list.cc" />
@@ -501,6 +502,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\components\gui_map_preview.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\components\gui_numberinput.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\components\gui_obj_view.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\components\gui_owner.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\components\gui_schedule.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\components\gui_scrollbar.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\components\gui_scrolled_list.h" />

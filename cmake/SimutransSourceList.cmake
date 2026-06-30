@@ -97,6 +97,7 @@ target_sources(simutrans PRIVATE
 		src/simutrans/gui/components/gui_map_preview.cc
 		src/simutrans/gui/components/gui_numberinput.cc
 		src/simutrans/gui/components/gui_obj_view.cc
+		src/simutrans/gui/components/gui_owner.cc
 		src/simutrans/gui/components/gui_schedule.cc
 		src/simutrans/gui/components/gui_scrollbar.cc
 		src/simutrans/gui/components/gui_scrolled_list.cc

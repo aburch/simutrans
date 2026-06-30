@@ -3376,9 +3376,14 @@ void haltestelle_t::display_status(sint16 xpos, sint16 ypos)
 {
 	// Do we need to display permissions?
 	uint16 player_count = 0;
-	for(  uint16 i = 0;  i <	PLAYER_UNOWNED;  i++  ) {
-		if(  (permissions&(1<<i))  &&  welt->get_player(i)  &&  !welt->get_player(i)->is_public_service()  ) {
-			player_count += 1;
+	PIXVAL colors[MAX_PLAYER_COUNT];
+	for(  uint16 i = 0;  i < MAX_PLAYER_COUNT;  i++  ) {
+		if (permissions & (1 << i)) {
+			if (const player_t* pl = welt->get_player(i)) {
+				if (!pl->is_public_service()) {
+					colors[player_count++] = gfx->palette_lookup(pl->get_player_color1() + 4);
+				}
+			}
 		}
 	}
  
@@ -3398,24 +3403,15 @@ void haltestelle_t::display_status(sint16 xpos, sint16 ypos)
 	if(  permissions != last_permissions  ) {
 		if(  last_player_count  ) {
 			// erase old permissions display
-			const sint16 x = xpos - (last_player_count * 17 - gfx->get_tile_raster_width()) / 2;
-			gfx->mark_rect_dirty_wc( x, ypos, x + last_player_count * 17, ypos + D_WAITINGBAR_WIDTH );
+			gfx->mark_rect_dirty_wc( xpos, ypos, xpos + gfx->get_tile_raster_width(), ypos + D_WAITINGBAR_WIDTH );
 		}
 		last_permissions = permissions;
 		last_player_count = player_count;
 		players_dirty = true;
 	}
 	if(  player_count > 1  ) {
-		uint8 old_count = 0;
-		sint16 x = xpos - (player_count * 17 - gfx->get_tile_raster_width()) / 2;
-		for(  uint16 i = 0;  i <PLAYER_UNOWNED;  i++  ) {
-			if(  (permissions&(1<<i))  &&  welt->get_player(i)  &&  !welt->get_player(i)->is_public_service()  ) {
-				const PIXVAL color = gfx->palette_lookup(welt->get_player(i)->get_player_color1()+4);
-				gfx->draw_rect_clipped( x, ypos, 16, D_WAITINGBAR_WIDTH, color, false CLIP_NUM_DEFAULT);
-				x += 17;
-			}
-		}
-		ypos += -D_WAITINGBAR_WIDTH - 1;
+		gfx->draw_rect_colors_clipped( xpos, ypos-1, gfx->get_tile_raster_width(), D_WAITINGBAR_WIDTH, colors, player_count, true, players_dirty  CLIP_NUM_DEFAULT);
+		ypos += -D_WAITINGBAR_WIDTH - 3;
 	}
 
 	if(  count != last_bar_count  ||  players_dirty  ) {
