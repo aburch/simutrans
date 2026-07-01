@@ -128,7 +128,7 @@ void export_player(HSQUIRRELVM vm, bool scenario)
 	 * Class to access player statistics.
 	 * Here, a player refers to one transport company, not to an individual playing simutrans.
 	 */
-	begin_class(vm, "player_x", "extend_get,ingame_object");
+	begin_class(vm, "player_x", "extend_get, ingame_object");
 
 	/**
 	 * Constructor.
