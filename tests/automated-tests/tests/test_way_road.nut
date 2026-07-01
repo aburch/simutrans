@@ -1156,14 +1156,16 @@ function test_way_road_cityroad_downgrade_with_cityroad()
 function test_way_road_cityroad_replace_by_normal_road()
 {
 	local public_pl = player_x(1)
+	local pl = player_x(0)
 	local start_pos = coord3d(3, 2, 0)
 	local end_pos = coord3d(3, 6, 0)
+	local road_desc = way_desc_x("cobblestone_road")
 
 	ASSERT_EQUAL(command_x(tool_build_cityroad).work(public_pl, start_pos, end_pos, "city_road"), null)
 
 	// replace cityroad by normal road
 	{
-		ASSERT_EQUAL(command_x.build_way(public_pl start_pos, end_pos, way_desc_x("cobblestone_road"), true), null)
+		ASSERT_EQUAL(command_x.build_way(pl, start_pos, end_pos, road_desc, true), null)
 
 		for (local y = start_pos.y; y < end_pos.y; ++y) {
 			local r = way_x(start_pos.x, y, start_pos.z)
@@ -1171,6 +1173,7 @@ function test_way_road_cityroad_replace_by_normal_road()
 			ASSERT_TRUE(r.is_valid())
 			ASSERT_FALSE(r.has_sidewalk())
 			ASSERT_EQUAL(r.desc.name, "cobblestone_road")
+			ASSERT_EQUAL(r.get_max_speed(), road_desc.get_topspeed())
 		}
 
 		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
