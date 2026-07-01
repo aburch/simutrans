@@ -14,6 +14,7 @@
 #include "../simdebug.h"
 #include "../simworld.h"
 #include "../bauer/wegbauer.h"
+#include "../bauer/goods_manager.h"
 #include "../descriptor/way_desc.h"
 #include "../utils/simrandom.h"
 #include "../utils/simstring.h"
@@ -1006,7 +1007,44 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long(base_waiting_ticks_for_ship_convoi);
 			file->rdwr_long(base_waiting_ticks_for_air_convoi);
 		}
-		if(  file->get_OTRP_version() >= 43  ) {
+		if(  file->get_OTRP_version() >= 56  ) {
+			if(  file->is_saving()  ) {
+				// count enabled entries that have a valid goods desc
+				uint16 count = 0;
+				for(uint16 i = 0; i < 256; i++) {
+					if(  is_time_based_routing_enabled[i]  ) {
+						const goods_desc_t *desc = goods_manager_t::get_info_catg_index(i);
+						if(  desc  ) { count++; }
+					}
+				}
+				file->rdwr_short(count);
+				for(uint16 i = 0; i < 256; i++) {
+					if(  is_time_based_routing_enabled[i]  ) {
+						const goods_desc_t *desc = goods_manager_t::get_info_catg_index(i);
+						if(  desc  ) {
+							const char *name = desc->get_name();
+							file->rdwr_str(name);
+						}
+					}
+				}
+			}
+			else {
+				// loading: reset all flags first, then restore by name
+				MEMZERON(is_time_based_routing_enabled, 256);
+				uint16 count = 0;
+				file->rdwr_short(count);
+				for(uint16 j = 0; j < count; j++) {
+					char name[256];
+					file->rdwr_str(name, lengthof(name));
+					const goods_desc_t *desc = goods_manager_t::get_info(name);
+					// get_info() falls back to 'none' when unknown — skip that case
+					if(  desc  &&  desc != goods_manager_t::none  ) {
+						is_time_based_routing_enabled[desc->get_catg_index()] = true;
+					}
+				}
+			}
+		}
+		else if(  file->get_OTRP_version() >= 43  ) {
 			for(uint16 i=0; i<256; i++) {
 				file->rdwr_bool(is_time_based_routing_enabled[i]);
 			}
