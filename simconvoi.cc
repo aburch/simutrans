@@ -6219,7 +6219,11 @@ void convoi_t::trade_convoi() {
 	}
 	// because next line's owner is invalid, unset it.
 	schedule->unset_next_line();
-	set_owner(welt->get_player(get_accept_player_nr()));
+	player_t* const new_owner = welt->get_player(get_accept_player_nr());
+	set_owner(new_owner);
+	for(  uint8 i=0;  i<get_vehicle_count();  i++  ) {
+		get_vehikel(i)->set_owner(new_owner);
+	}
 	register_stops();
 	owner->book_new_vehicle(-value, get_pos().get_2d(), fahr[0] ? fahr[0]->get_desc()->get_waytype() : ignore_wt);
 	set_permit_trade(false);
