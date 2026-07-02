@@ -52,6 +52,8 @@ protected:
 
 	void leave_tile() OVERRIDE;
 
+	virtual void initialise_journey(route_t::index_t start_route_index, bool recalc) OVERRIDE;
+
 	bool block_reserver( uint32 start, uint32 end, bool reserve ) const;
 
 	// find a route and reserve the stop position

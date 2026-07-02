@@ -225,7 +225,7 @@ bool air_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, ro
 	target_halt = halthandle_t(); // no block reserved
 
 	const weg_t *w=welt->lookup(start)->get_weg(air_wt);
-	bool start_in_the_air = (w==NULL)  ||  state==flying  ||  flying_height>0;
+	bool start_in_the_air = (w==NULL)  ||  is_flying();
 	bool end_in_air=false;
 
 	search_for_stop = takeoff = touchdown = 0x7ffffffful;
@@ -651,6 +651,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 	if (state == taxiing) {
 		// enforce on ground for taxiing
 		flying_height = 0;
+		target_height = gr->get_pos().z;
 
 		if (gr->is_halt()  &&  gr->find<air_vehicle_t>()) {
 			// the next step is a parking position. We do not enter, if occupied!
@@ -931,9 +932,10 @@ void air_vehicle_t::set_convoi(convoi_t *c)
 							else {
 								// already taxiing to stop position
 								flying_height = 0;
+								target_height = target->get_pos().z; // since the entire airport cannot have slopes
 								convoihandle_t other_cnv = target_halt->get_reserved(target);
 								if (!other_cnv.is_bound()  ||  other_cnv->is_unloading()) {
-									// lloading bay occupied
+									// loading bay occupied
 									dbg->error("air_vehicle_t::set_convoi()", "Could not restore reservation for convoi %d at %s => search new stops.", cnv->self.get_id(), get_pos().get_fullstr());
 									// stop position occupied => try to find a route to a free stop
 									target = target_halt->find_free_position(air_wt, cnv->self, obj_t::air_vehicle);
@@ -971,6 +973,7 @@ void air_vehicle_t::set_convoi(convoi_t *c)
 						// on last route tile => if not flying we are on the ground ...
 						if (state != flying) {
 							flying_height = 0;
+							target_height = get_pos().z;
 						}
 					}
 					if (route_index + 3 >= touchdown && state != taxiing) {
@@ -1001,11 +1004,12 @@ void air_vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	xml_tag_t t( file, "aircraft_t" );
 
 	// initialize as vehicle_t::rdwr_from_convoi calls get_image()
+	vehicle_t::rdwr_from_convoi(file);
 	if (file->is_loading()) {
 		state = taxiing;
 		flying_height = 0;
+		target_height = get_pos().z;
 	}
-	vehicle_t::rdwr_from_convoi(file);
 
 	file->rdwr_enum(state);
 	file->rdwr_short(flying_height);
@@ -1191,6 +1195,22 @@ void air_vehicle_t::leave_tile()
 		}
 	}
 }
+
+
+void air_vehicle_t::initialise_journey(route_t::index_t start_route_index, bool recalc)
+{
+	if (cnv) {
+		if (grund_t* gr = welt->lookup(cnv->get_route()->at(start_route_index))) {
+			if (gr->hat_weg(air_wt) && is_on_ground()) {
+				// put it on the ground
+				flying_height = 0;
+				target_height = get_pos().z;
+			}
+		}
+	}
+	vehicle_t::initialise_journey(start_route_index, recalc);
+}
+
 
 
 // this routine will display the aircraft (if in flight)

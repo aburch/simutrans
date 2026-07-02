@@ -155,7 +155,7 @@ public:
 	 * Sets route_index, pos_next, steps_next.
 	 * If @p recalc is true this sets position and recalculates/resets movement parameters.
 	 */
-	void initialise_journey( route_t::index_t start_route_index, bool recalc );
+	virtual void initialise_journey( route_t::index_t start_route_index, bool recalc );
 
 	vehicle_t();
 	vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player);
