@@ -6,9 +6,10 @@
 #ifndef OBJ_WAY_RUNWAY_H
 #define OBJ_WAY_RUNWAY_H
 
-
+#if DEBUG
 // prints the number of reservations an cleared runway path to takeoff
 #define DEBUG_RUNWAYS
+#endif
 
 #include "../../tpl/vector_tpl.h"
 #include "../../convoihandle.h"
@@ -61,9 +62,9 @@ public:
 
 #ifdef DEBUG_RUNWAYS
 #ifdef MULTI_THREAD
-	virtual void display_after(int xpos, int ypos, const sint8 clip_num) const;
+	virtual void display_after(int xpos, int ypos, const sint8 clip_num) const OVERRIDE;
 #else
-	virtual void display_after(int xpos, int ypos, bool is_global) const;
+	virtual void display_after(int xpos, int ypos, bool is_global) const OVERRIDE;
 #endif
 
 	FLAGGED_PIXVAL get_outline_colour() const OVERRIDE;

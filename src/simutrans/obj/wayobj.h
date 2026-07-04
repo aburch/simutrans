@@ -90,7 +90,7 @@ public:
 #ifdef MULTI_THREAD
 	virtual void display_after(int xpos, int ypos, const sint8 clip_num) const OVERRIDE;
 #else
-	virtual void display_after(int xpos, int ypos, bool is_global) const;
+	virtual void display_after(int xpos, int ypos, bool is_global) const OVERRIDE;
 #endif
 
 	/* the static routines */
