@@ -805,6 +805,14 @@ bool route_t::is_passable(karte_t *welt, test_driver_t *tdriver, bool need_elect
 		if (!gr || !tdriver->check_next_tile(gr, need_electric)) {
 			return false;
 		}
+		if( i==route.get_count()-1 ) {
+			continue; // The direction check is performed except for the last tile
+		}
+		// Since test_driver_t::check_next_tile cannot do the direction check, we need to do that.
+		const ribi_t::ribi dir = ribi_type(route[i], route[i+1]);
+		if( (gr->get_weg_ribi(tdriver->get_waytype())&dir) == 0 ) {
+			return false;
+		}
 	}
 	return true;
 }
