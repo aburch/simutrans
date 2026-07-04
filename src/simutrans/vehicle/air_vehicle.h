@@ -32,6 +32,8 @@ private:
 	// only used for is_target() (do not need saving)
 	ribi_t::ribi approach_dir;
 
+	bool has_reserved_runway;
+
 	// only used for route search and approach vectors of get_ribi() (do not need saving)
 	koord3d search_start;
 	koord3d search_end;
@@ -87,6 +89,8 @@ public:
 
 	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route) OVERRIDE;
 
+	bool clear_route_to_runway(bool reserve);
+
 	typ get_typ() const OVERRIDE { return air_vehicle; }
 
 	schedule_t *generate_new_schedule() const OVERRIDE;
@@ -124,13 +128,13 @@ public:
 
 	void calc_friction(const grund_t*) OVERRIDE {}
 
-	bool is_on_ground() const { return flying_height==0  &&  !(state==circling  ||  state==flying); }
-
 	const char *get_removal_error(const player_t *player) OVERRIDE;
 
-	bool is_flying() const { return !is_on_ground(); }
+	bool is_flying() const { return state==flying  ||  state==circling  ||  (state==landing  &&  flying_height>0); }
 
-	bool is_taxiing_to_stop() const { return route_index >= search_for_stop; }
+	bool is_on_ground() const { return !is_flying(); }
+
+	bool is_taxiing_to_stop() const { return state == taxiing && target_halt.is_bound(); }
 };
 
 #endif

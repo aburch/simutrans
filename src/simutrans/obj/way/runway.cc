@@ -35,10 +35,17 @@ void runway_t::info(cbuffer_t & buf) const
 	schiene_t::info(buf);
 
 	cbuffer_t reserved;
-	if(  get_desc()->get_styp()==type_runway  ) {
-		reserved.printf( "%s %i\n", translator::translate("waiting"), reservations.get_count() );
-		buf.append( reserved );
+	reserved.printf( "%s %i\n", translator::translate("waiting"), reservations.get_count() );
+	buf.append( reserved );
+}
+
+
+bool runway_t::can_reserve(koord3d ask_takeoff)
+{
+	if (takeoff == ask_takeoff  ||  reservations.get_count() == 0) {
+		return true;
 	}
+	return false;
 }
 
 
@@ -76,3 +83,36 @@ void runway_t::rdwr(loadsave_t *file)
 		set_desc(desc);
 	}
 }
+
+#ifdef DEBUG_RUNWAYS
+#ifdef MULTI_THREAD
+void runway_t::display_after(int xpos, int ypos, const sint8 clip_num) const
+{
+	weg_t::display_after(xpos, ypos+64, clip_num);
+#else
+void obj_t::display_after(int xpos, int ypos, bool) const
+{
+	::display_after(int xpos, int ypos, const sint8 clip_num);
+#endif
+	if (show_reservations && !reservations.empty()) {
+		char str[20];
+		sprintf(str, "%d", reservations.get_count());
+		gfx->draw_text(xpos + gfx->get_current_tile_raster_width() / 2, ypos + gfx->get_current_tile_raster_width() - LINESPACE, str, ALIGN_CENTER_H, gfx->palette_lookup(COL_GREEN), true);
+	}
+}
+
+
+FLAGGED_PIXVAL runway_t::get_outline_colour() const
+{
+	if (show_reservations && !reservations.empty()) {
+		FLAGGED_PIXVAL sc = schiene_t::get_outline_colour();
+		if (sc) {
+			return sc;
+		}
+		welt->set_dirty();
+		return TRANSPARENT75_FLAG | OUTLINE_FLAG | gfx->palette_lookup(COL_BROWN);
+	}
+	return 0;
+}
+
+#endif
