@@ -993,8 +993,6 @@ public:
 	bool is_selected() const OVERRIDE;
 	void draw_after(scr_coord, bool dirty) const OVERRIDE;
 	bool init(player_t *) OVERRIDE;
-	char const* work(player_t*, koord3d) OVERRIDE;
-	bool exit(player_t *) OVERRIDE;
 	bool is_init_keeps_game_state() const OVERRIDE { return true; }
 	bool is_work_keeps_game_state() const OVERRIDE { return true; }
 };

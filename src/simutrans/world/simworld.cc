@@ -5651,6 +5651,7 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 		zeiger->change_pos( koord3d::invalid ); // unmark area
 		// exit active tool to remove pointers (for two_click_tool_t's, stop mover, factory linker)
 		if(selected_tool[active_player_nr]) {
+			selected_tool[active_player_nr]->flags |= tool_t::WFL_LOCAL;
 			selected_tool[active_player_nr]->exit(active_player);
 		}
 		active_player_nr = new_player;

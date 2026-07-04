@@ -7641,49 +7641,6 @@ bool tool_show_underground_t::init( player_t * )
 }
 
 
-bool tool_show_underground_t::exit( player_t* )
-{
-	if(  grund_t::underground_mode != grund_t::ugm_none  ) {
-
-		// reset no normal view on deselect
-		grund_t::set_underground_mode( grund_t::ugm_none, 0 );
-
-		// renew toolbar
-		tool_t::update_toolbars();
-
-		// recalc all images on map
-		welt->update_underground();
-	}
-	return false;
-}
-
-
-const char *tool_show_underground_t::work( player_t *player, koord3d pos)
-{
-	koord3d zpos = welt->get_zeiger()->get_pos();
-	// move zeiger (pointer) to invalid position -> unmark tiles
-	welt->get_zeiger()->change_pos( koord3d::invalid);
-
-	save_underground_level = grund_t::underground_level;
-	grund_t::set_underground_mode( grund_t::ugm_level, pos.z);
-
-	// move zeiger (pointer) back
-	welt->get_zeiger()->change_pos( zpos);
-
-	// renew toolbar
-	tool_t::update_toolbars();
-
-	// recalc all images on map
-	welt->update_underground();
-
-	if(player == welt->get_active_player()) {
-		welt->set_tool( general_tool[TOOL_QUERY], player );
-	}
-
-	return NULL;
-}
-
-
 char const* tool_show_underground_t::get_tooltip(player_t const*) const
 {
 	// no default-param == U for backward compatibility
