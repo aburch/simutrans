@@ -1324,6 +1324,10 @@ void nwc_tool_t::do_command(karte_t *welt)
 		if (err) {
 			dbg->warning("nwc_tool_t::do_command","Tool %s failed with '%s'", tool->get_name(), err);
 		}
+		if (!local  ||  callback_id != 0) {
+			// only exit if not active player because for the latter, the tools stays active
+			tool->exit(player);
+		}
 	}
 	else {
 		err = "Init was not succesfull, returned false.";
