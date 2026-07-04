@@ -8320,6 +8320,11 @@ bool tool_remove_signal_t::calc_route(route_t &verbindung, player_t *, const koo
 	if(  wt == invalid_wt  ) { return false; }
 	if(  wt == tram_wt  ) { wt = track_wt; }
 
+	if(  start == end  ) {
+		verbindung.clear();
+		verbindung.append(start);
+		return true;
+	}
 	test_driver_t *test_driver = new way_checker_t(wt);
 	bool ok = verbindung.calc_route(welt, start, end, test_driver, 0, 0);
 	delete test_driver;
