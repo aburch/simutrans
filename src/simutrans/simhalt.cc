@@ -687,10 +687,9 @@ player_t* haltestelle_t::get_first_owner() const
 // returns the first player in the list
 uint8 haltestelle_t::get_player_color() const
 {
-	if (!owners) {
-		return NULL;
-	}
-	return get_first_owner()->get_player_color1();
+	return owners ?
+		get_first_owner()->get_player_color1() :
+		welt->get_public_player()->get_player_color1();
 }
 
 
