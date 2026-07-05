@@ -206,8 +206,8 @@ void schiene_t::rdwr(loadsave_t *file)
 		const way_desc_t *desc = way_builder_t::get_desc(bname);
 
 		if(desc==NULL) {
-			int old_max_speed=get_max_speed();
 			desc = way_builder_t::get_desc(translator::compatibility_name(bname));
+
 			if(desc==NULL) {
 				desc = default_schiene;
 				if (!desc) {

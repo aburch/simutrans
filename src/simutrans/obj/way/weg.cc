@@ -669,7 +669,7 @@ void weg_t::check_diagonal()
 	ribi_t::ribi r2 = ribi_t::none;
 
 	if (ribi_t::all == ribi) {
-		ribi_t::ribi r[4], r0=0;
+		ribi_t::ribi r[4];
 		uint8 non_bent = 0;
 		for (uint8 i = 0; i < 4; i++) {
 			if (!from->get_neighbour(to, get_waytype(), ribi_t::nesw[i])) {
