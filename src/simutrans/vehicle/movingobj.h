@@ -84,9 +84,6 @@ public:
 	void cleanup(player_t *player) OVERRIDE;
 
 	const groundobj_desc_t* get_desc() const { return movingobj_typen[movingobjtype]; }
-
-	bool is_flying() const OVERRIDE { return get_desc()->get_waytype()==air_wt; }
-
 };
 
 #endif

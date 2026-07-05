@@ -130,8 +130,7 @@ public:
 
 	const char *get_removal_error(const player_t *player) OVERRIDE;
 
-	/// @copydoc vehicle_base_t::is_flying
-	bool is_flying() const OVERRIDE { return state==flying  ||  state==circling  ||  (state==landing  &&  flying_height>0); }
+	bool is_flying() const { return state==flying  ||  state==circling  ||  (state==landing  &&  flying_height>0); }
 
 	bool is_on_ground() const { return !is_flying(); }
 

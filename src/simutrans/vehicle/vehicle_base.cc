@@ -418,7 +418,8 @@ void vehicle_base_t::calc_height(grund_t *gr)
 		// slope changed below a moving thing?!?
 		return;
 	}
-	else if(  gr->ist_tunnel()  &&  gr->ist_karten_boden()  &&  !is_flying() ) {
+	else if(gr->ist_tunnel()  &&  gr->ist_karten_boden()) {
+		// tunnel portals: maybe need hiding after half tile
 		use_calc_height = true; // to avoid errors if underground mode is switched
 		if(  grund_t::underground_mode == grund_t::ugm_none  ||
 			(grund_t::underground_mode == grund_t::ugm_level  &&  gr->get_hoehe() < grund_t::underground_level)
@@ -447,12 +448,12 @@ void vehicle_base_t::calc_height(grund_t *gr)
 			const uint slope_height = is_one_high(hang) ? 1 : 2;
 			ribi_t::ribi hang_ribi = ribi_type(hang);
 			if(  ribi_t::doubles(hang_ribi)  ==  ribi_t::doubles(direction)) {
-				zoff_start = hang_ribi & direction                      ? 2*slope_height : 0;  // 0 .. 4
+				zoff_start = hang_ribi & direction                   ? 2*slope_height : 0;  // 0 .. 4
 				zoff_end   = hang_ribi & ribi_t::backward(direction) ? 2*slope_height : 0;  // 0 .. 4
 			}
 			else {
 				// only for shadows and movingobjs ...
-				zoff_start = hang_ribi & direction                      ? slope_height+1 : 0;  // 0 .. 3
+				zoff_start = hang_ribi & direction                   ? slope_height+1 : 0;  // 0 .. 3
 				zoff_end   = hang_ribi & ribi_t::backward(direction) ? slope_height+1 : 0;  // 0 .. 3
 			}
 		}
