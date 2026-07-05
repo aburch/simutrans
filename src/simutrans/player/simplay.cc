@@ -511,7 +511,7 @@ void player_t::ai_bankrupt()
 	// remove me from all
 	slist_tpl<halthandle_t> halt_list;
 	for(halthandle_t const halt : haltestelle_t::get_alle_haltestellen()) {
-		if(  halt->get_owners()&&(1<<player_nr)  ) {
+		if(  halt->get_owners() & (1<<player_nr)  ) {
 			halt_list.append(halt);
 		}
 	}
