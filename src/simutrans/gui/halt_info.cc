@@ -631,6 +631,7 @@ void gui_halt_detail_t::update_connections( halthandle_t halt )
 			delete t;
 		}
 	}
+
 	const slist_tpl<fabrik_t *> & fab_list = halt->get_fab_list();
 	slist_tpl<const goods_desc_t *> nimmt_an;
 

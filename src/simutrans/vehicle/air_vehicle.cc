@@ -589,7 +589,7 @@ bool air_vehicle_t::clear_route_to_runway( bool reserve )
 		// but we leave the stop if already a plane wants to enter it
 		if (takeoff < rt.get_count()) {
 			koord3d our_takeoff = rt[takeoff];
-			for (int r = route_index; r < takeoff; r++) {
+			for (route_t::index_t r = route_index; r < takeoff; r++) {
 				if (grund_t* gr = welt->lookup(rt[r])) {
 					if (runway_t* rw = (runway_t *)gr->get_weg(air_wt)) {
 						if (rw->get_desc()->get_styp() == type_runway) {
@@ -613,7 +613,7 @@ bool air_vehicle_t::clear_route_to_runway( bool reserve )
 route_to_takeoff_finish:
 	// unreserve
 	has_reserved_runway = false;
-	for (int r = 0; r < idx; r++) {
+	for (route_t::index_t r = 0; r < idx; r++) {
 		if (grund_t* gr = welt->lookup(rt[r])) {
 			if (runway_t* rw = (runway_t*)gr->get_weg(air_wt)) {
 				rw->unreserve(cnv->self);
@@ -623,6 +623,7 @@ route_to_takeoff_finish:
 			break;
 		}
 	}
+
 	return ok;
 }
 
