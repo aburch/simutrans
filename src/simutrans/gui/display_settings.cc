@@ -800,7 +800,8 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	buttons[IDBTN_SHOW_STATION_COVERAGE].pressed = env_t::station_coverage_show;
 	buttons[IDBTN_UNDERGROUND_VIEW].pressed = grund_t::underground_mode == grund_t::ugm_all;
 	buttons[IDBTN_SHOW_GRID].pressed = grund_t::show_grid;
-	buttons[IDBTN_SHOW_WAITING_BARS].pressed = (env_t::show_names&2)!=0;
+	buttons[IDBTN_SHOW_WAITING_BARS].pressed = (env_t::show_names & 2) != 0;
+	buttons[IDBTN_SHARED_HORIZONTAL].pressed = env_t::horizontal_stripe_owner;
 	buttons[IDBTN_HIDE_LABELS].pressed = (env_t::show_names & 1) == 0;
 	buttons[IDBTN_SHOW_SLICE_MAP_VIEW].pressed = grund_t::underground_mode == grund_t::ugm_level;
 	buttons[IDBTN_SHOW_SCHEDULES_STOP].pressed = env_t::visualize_schedule;

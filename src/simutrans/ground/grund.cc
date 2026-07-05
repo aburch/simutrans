@@ -1671,7 +1671,7 @@ void grund_t::display_text_label(sint16 xpos, sint16 ypos, const char* text, con
 	uint16 num_players = 0;
 	players[0] = COL_ORANGE;
 	for (uint16 i = 0; i < MAX_PLAYER_COUNT; i++) {
-		if ((1 << i) & players_bit) {
+		if ((1 << i) & players_bit  &&  welt->get_player(i)) {
 			players[num_players++] = welt->get_player(i)->get_player_color1();
 		}
 	}
