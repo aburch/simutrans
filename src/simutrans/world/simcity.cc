@@ -635,7 +635,7 @@ void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb)
 		gebaeude_t* remove_gb = gr->find<gebaeude_t>();
 		remove_gb->set_stadt(NULL);
 		bool ok = buildings.remove(remove_gb);
-		assert(ok);
+		assert(ok); (void)ok;
 	}
 	recalc_city_size();
 }
@@ -645,7 +645,7 @@ void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb)
 void stadt_t::update_gebaeude_from_stadt(gebaeude_t* gb)
 {
 	bool ok = buildings.remove(gb);
-	assert(ok);
+	assert(ok); (void)ok;
 	buildings.append(gb, gb->get_tile()->get_desc()->get_level() + 1);
 }
 
