@@ -31,8 +31,9 @@ scr_size gui_owners_t::get_min_size() const
 		else {
 			return scr_size(num_players * LINESPACE - 4, LINESPACE);
 		}
-		return scr_size(0, 0);
 	}
+
+	return scr_size(0, 0);
 }
 
 void gui_owners_t::draw(scr_coord offset)
