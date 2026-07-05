@@ -1205,11 +1205,11 @@ int simu_main(int argc, char** argv)
 
 	// loading all objects in the pak
 	skinverwaltung_t::restore_all_skins(); // restore empty skins to have the pakset default
-#if DEBUG
+#if defined(DEBUG) && DEBUG
 	uint32 pakload_time = dr_time();
 #endif
 	pakset_manager_t::load_pakset(env_t::default_settings.get_with_private_paks());
-#if DEBUG
+#if defined(DEBUG) && DEBUG
 	pakload_time = dr_time() - pakload_time;
 	DBG_DEBUG("simmain", "Loading paksets took %u ms", pakload_time);
 #endif

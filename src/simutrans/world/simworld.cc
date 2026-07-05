@@ -3271,7 +3271,7 @@ void karte_t::step()
 	// now step all towns (to generate passengers)
 	DBG_DEBUG4("karte_t::step", "step cities");
 	sint64 bev=0;
-	for (int i = 0; i < cities.get_count();  i++ ) {
+	for (uint32 i = 0; i < cities.get_count();  i++ ) {
 		stadt_t* const c = cities[i];
 		c->step(delta_t);
 		bev += c->get_finance_history_month(0, HIST_CITIZENS);
@@ -3281,7 +3281,7 @@ void karte_t::step()
 	finance_history_month[0][WORLD_CITIZENS] = bev;
 
 	DBG_DEBUG4("karte_t::step", "step factories");
-	for (int i = 0; i < all_factories.get_count(); i++) {
+	for (uint32 i = 0; i < all_factories.get_count(); i++) {
 		all_factories[i]->step(delta_t);
 	}
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = all_factories.get_count();

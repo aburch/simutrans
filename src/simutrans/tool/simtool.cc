@@ -732,7 +732,7 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 		for (uint i = 0; i < gr->obj_count(); i++) {
 			obj_t* obj = gr->obj_bei(i);
 			if (obj->get_typ() == type) {
-				if(msg = obj->get_removal_error(player)) {
+				if ((msg = obj->get_removal_error(player)) != NULL) {
 					return false;
 				}
 				delete obj;
@@ -2954,7 +2954,7 @@ void tool_build_way_t::mark_tiles(player_t* player, const koord3d& start, const 
 				if (ribi_t::all == zeige) {
 
 					// a little more effor to find out if diagonal
-					ribi_t::ribi r[4], r0 = 0;
+					ribi_t::ribi r[4];
 					uint8 non_bent = 0;
 					for (uint8 i = 0; i < 4; i++) {
 						r[i] = 0;
