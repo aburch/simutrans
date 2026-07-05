@@ -671,29 +671,20 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 			if (grund_t* gr = welt->lookup(cnv->get_route()->back())) {
 				target_halt = gr->get_halt();
 				if (target_halt.is_bound()) {
-					gr_free = target_halt->get_reserved(cnv->self);
-					if(gr_free) {
-						dbg->error("air_vehicle_t::can_enter_tile()", "cnv %i flying but resevered", cnv->self.get_id());
-						target_halt->unreserve_position(NULL, cnv->self);
-					}
-					else {
+					gr_free = target_halt->find_free_position(air_wt, cnv->self, air_vehicle);
+					if(!target_halt->reserve_position(gr_free, cnv->self)) {
 						// no free stop => circle further
-						gr_free = gr->get_halt()->find_free_position(air_wt, cnv->self, air_vehicle);
-						if (!gr_free) {
-							goto circling;
-						}
+						goto circling;
 					}
+					// we have secured a stop position already
 				}
 			}
 			if (!block_reserver(touchdown, search_for_stop + 1, true)) {
-				goto circling;
-			}
-			if (target_halt.is_bound()) {
-				if (!target_halt->reserve_position(gr_free, cnv->self)) {
-					// should never happen
-					assert(false);
+				// runway blocked: release stop position (if found) and circle on
+				if (gr_free) {
+					target_halt->unreserve_position(gr_free, cnv->self);
 				}
-				//dbg->warning("air_vehicle_t::can_enter_tile()", "cnv %i reserved %s", cnv->self.get_id(), gr_free->get_pos().get_fullstr());
+				goto circling;
 			}
 			if (route_index + 16 + 3 == touchdown) {
 				route_index += 16;

@@ -3703,14 +3703,30 @@ grund_t *haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,
 			grund_t* const gr = i.grund;
 			// found a stop for this waytype but without object d ...
 			if (gr->hat_weg(w)) {
-				obj_t* o = gr->suche_obj(d);
-				if( o == NULL) {
-					// not occupied
-					return gr;
+				if (w == air_wt) {
+					bool free = true;
+					// we ignore flying airplanes but do not allow airplanes on the ground
+					for (uint8 i = 1; i < gr->obj_count(); i++) {
+						if (gr->obj_bei(i)->get_typ() == obj_t::air_vehicle) {
+							air_vehicle_t* v = (air_vehicle_t*)gr->obj_bei(i);
+							if (!v->is_flying()) {
+								// assume any airplane here is loading or trying to leave
+								free = false;
+								break;
+							}
+						}
+					}
+					if (free) {
+						return gr;
+					}
+
 				}
-				else if(w==air_wt&& ((air_vehicle_t *)o)->is_flying()) {
-					// ignore airplanes flying
-					return gr;
+				else {
+					obj_t* o = gr->suche_obj(d);
+					if (o == NULL) {
+						// not occupied
+						return gr;
+					}
 				}
 			}
 		}
