@@ -6,7 +6,7 @@
 #ifndef OBJ_WAY_RUNWAY_H
 #define OBJ_WAY_RUNWAY_H
 
-#if DEBUG
+#if defined(DEBUG) && DEBUG
 // prints the number of reservations an cleared runway path to takeoff
 #define DEBUG_RUNWAYS
 #endif

@@ -117,7 +117,7 @@ public:
 				dbg->fatal("node_body_t()", "Cannot read %lu (only %lu) for %s", size, n, type_name);
 			}
 			end = ptr + size;
-#if DEBUG
+#if defined(DEBUG) && DEBUG
 			usage++;
 #endif
 		}
@@ -127,7 +127,7 @@ public:
 		}
 	}
 
-#if DEBUG
+#if defined(DEBUG) && DEBUG
 	~node_body_t() {
 		usage--;
 		if (usage) {
@@ -244,7 +244,7 @@ private:
 		return 0;
 	}
 
-#if DEBUG
+#if defined(DEBUG) && DEBUG
 	static uint8 usage;
 #endif
 	static size_t buf_size;
