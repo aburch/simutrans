@@ -207,7 +207,7 @@ static bool passes_filter_special(halthandle_t s, uint16 player_nr)
 
 	if (halt_list_frame_t::get_filter(halt_list_frame_t::shared_filter)) {
 		uint16 permissions = s->get_permissions();
-		if (permissions & (permissions - 1) == 0) {
+		if ((permissions & (permissions - 1)) == 0) {
 			// only one permission
 			return false;
 		}
