@@ -619,8 +619,9 @@ route_to_takeoff_finish:
 				rw->unreserve(cnv->self);
 			}
 		}
-		// no ground, no runway => finish
-		return ok;
+		else {
+			break;
+		}
 	}
 	return ok;
 }
