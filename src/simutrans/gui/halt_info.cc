@@ -193,7 +193,7 @@ public:
 		update_connections(h);
 	}
 
-	bool action_triggered(gui_action_creator_t* b, value_t state)
+	bool action_triggered(gui_action_creator_t* b, value_t state) OVERRIDE
 	{
 		if (b == &all  &&  state.i == 1) {
 			halt_permissions = 0xFFFF;
