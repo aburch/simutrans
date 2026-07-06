@@ -2751,6 +2751,7 @@ void way_builder_t::build_road()
 				if (crossing_t* crossing = gr->get_crossing()) {
 					crossing->finish_rd();
 				}
+				gr->calc_image();
 			}
 		}
 		else {

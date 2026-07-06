@@ -2024,7 +2024,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player)
 		}
 
 		// may result in a crossing, but the wegebauer will recalc all images anyway
-		weg->calc_image();
+		calc_image();
 	}
 	return cost;
 }
