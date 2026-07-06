@@ -603,7 +603,7 @@ void grund_t::info(cbuffer_t& buf) const
 				buf.printf(translator::translate("Constructed by %s"), maker);
 				buf.append("\n\n");
 			}
-#if defined(DEBUG) && DEBUG
+#ifdef DEBUG
 			if (get_weg_nr(0)->get_waytype() == road_wt && get_weg_nr(0)->hat_gehweg()) {
 				buf.append("Has sidewalk (cityroad)\n\n");
 			}

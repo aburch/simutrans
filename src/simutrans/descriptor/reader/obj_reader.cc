@@ -11,7 +11,7 @@ uint8* node_body_t::ptr = 0;
 uint8* node_body_t::end = 0;
 const char* node_body_t::type_name_ = 0;
 
-#if defined(DEBUG) && DEBUG
+#ifdef DEBUG
 uint8 node_body_t::usage = 0;
 #endif
 
