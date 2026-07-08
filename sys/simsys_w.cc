@@ -711,10 +711,16 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		}
 
 		case WM_IME_SETCONTEXT:
-			// attempt to avoid crash at windows 1809> just not call DefWinodwsProc seems to work for SDL2 ...
-//			DefWindowProc( this_hwnd, msg, wParam, lParam&~ISC_SHOWUICOMPOSITIONWINDOW );
-			lParam = 0;
-			return 0;
+			// Simutrans draws the composition (preedit) string itself, so clear
+			// ISC_SHOWUICOMPOSITIONWINDOW to hide the system composition window.
+			// Clearing this bit is also the documented workaround for the IME
+			// crash seen on Windows 10 1809. The conversion candidate window
+			// (変換候補ウインドウ), however, must still be drawn by the IME, so its
+			// bits are kept and the message is forwarded to DefWindowProc.
+			// Returning without calling DefWindowProc (the previous behaviour)
+			// suppressed the candidate window entirely.
+			lParam &= ~ISC_SHOWUICOMPOSITIONWINDOW;
+			return DefWindowProcW( this_hwnd, msg, wParam, lParam );
 
 		case WM_IME_STARTCOMPOSITION:
 			break;
