@@ -812,13 +812,6 @@ bool route_t::is_passable(karte_t *welt, test_driver_t *tdriver, bool need_elect
 				return false;
 			}
 		}
-		else if( i>0 ) {
-			const ribi_t::ribi dir = ribi_type(route[i-1], route[i]);
-			const weg_t *w = gr->get_weg(tdriver->get_waytype());
-			if( w  &&  w->get_ribi_maske()  &&  ribi_t::reverse_single(dir)==w->get_ribi() ) {
-				return false;
-			}
-		}
 	}
 	return true;
 }
