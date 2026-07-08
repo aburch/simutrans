@@ -14,8 +14,11 @@
 
 #include "../simmem.h"
 #include "../simdebug.h"
-#include "../sys/simsys.h"
-
+#ifdef MAKEOBJ
+#define dr_fopen fopen
+#else
+FILE *dr_fopen(const char *filename, const char *mode);
+#endif
 
 static std::string filename_;
 

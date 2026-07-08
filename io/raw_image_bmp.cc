@@ -7,7 +7,11 @@
 
 #include "raw_image.h"
 
-#include "../sys/simsys.h"
+#ifdef MAKEOBJ
+#define dr_fopen fopen
+#else
+FILE *dr_fopen(const char *filename, const char *mode);
+#endif
 #include "../simdebug.h"
 #include "../simmem.h"
 #include "../tpl/array_tpl.h"
@@ -76,11 +80,7 @@ static bool is_format_supported(uint16 bpp, uint32 compression)
 
 bool raw_image_t::read_bmp(const char *filename)
 {
-#ifdef MAKEOBJ
-	FILE *file = fopen(filename, "rb");
-#else
 	FILE *file = dr_fopen(filename, "rb");
-#endif
 
 	bitmap_file_header_t bmp_header;
 
