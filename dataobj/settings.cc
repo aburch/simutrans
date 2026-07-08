@@ -338,6 +338,7 @@ settings_t::settings_t() :
 	base_waiting_ticks_for_ship_convoi = 60000;
 	base_waiting_ticks_for_air_convoi = 200000;
 
+	MEMZERON(reverse_base_offsets, 8);
 	default_reverse=false;
 	allow_unload_longer_convoy=false;
 	allow_higher_flight = true;
