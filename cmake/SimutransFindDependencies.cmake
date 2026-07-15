@@ -18,8 +18,6 @@ if (NOT ANDROID)
 		pkg_check_modules(FluidSynth IMPORTED_TARGET fluidsynth>=2.1.0)
 	endif ()
 
-	set(CMAKE_THREAD_PREFER_PTHREAD ON)
-	find_package(Threads)
 else ()
 
 	if (CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -150,3 +148,33 @@ else ()
 	)
 
 endif ()
+
+# EVERY platform needs this, Android included - which is exactly why it is out here now.
+#
+# This used to live inside the `if (NOT ANDROID)` branch above, so on Android
+# find_package(Threads) was simply never called. Nothing failed and nothing warned: the
+# variable it sets, CMAKE_USE_PTHREADS_INIT, was just never set, and
+# SimutransCompileOptions.cmake reads precisely that variable to decide whether to turn
+# SIMUTRANS_MULTI_THREAD on. So it turned it off, MULTI_THREAD was never defined, and
+# environment.cc fell through to `num_threads = 1`.
+#
+# The Android build has therefore been single threaded not because Android cannot do
+# threads, but because nobody ever asked whether it could.
+#
+# It can, though the route is not the obvious one, and it is worth writing down because
+# the obvious guess is wrong. On Android, FindThreads:
+#
+#   * FAILS its libc test - bionic has no pthread_cancel, and CMake's probe calls it;
+#   * finds neither libpthread nor libpthreads - Android ships neither;
+#   * accepts -pthread, and that is what settles it: Threads_FOUND, and
+#     CMAKE_USE_PTHREADS_INIT is set because CMAKE_THREAD_LIBS_INIT is now "-pthread".
+#
+# Verified against NDK r27c: with this call, MULTI_THREAD reaches the compiler and every
+# translation unit that touches threads builds for arm64-v8a and armeabi-v7a, at API 21
+# and at API 24 - both barrier paths, since bionic says
+#     #define _POSIX_BARRIERS __BIONIC_POSIX_FEATURE_SINCE(24)
+# so below 24 simthread.h falls back to its own mutex+condvar barrier (the macOS path) and
+# at 24 and above it uses the real pthread barriers. The code was ready for Android all
+# along. Only the build never turned it on.
+set(CMAKE_THREAD_PREFER_PTHREAD ON)
+find_package(Threads)
