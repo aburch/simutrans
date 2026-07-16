@@ -90,7 +90,7 @@ static const uint8 pax_dest_status_colors[4] = {
 	0,
 	COL_YELLOW,      // OK/reachable
 	COL_ORANGE,      // route overcrowded
-	COL_DARK_ORANGE, // no route
+	COL_MAGENTA,     // no route
 };
 
 
