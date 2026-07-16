@@ -25,7 +25,9 @@ class vehicle_constructor_t extends node_t
 
     c_wt = p_convoy.veh[0].get_waytype()
 
-    //local wt_name = ["", "road", "rail", "water"]
+    local wt_name = ["", "road", "rail", "water"]
+    wt_name.resize(17, null)
+    wt_name.insert(16, "wt_air")
     //gui.add_message_at(our_player, "convoy " + p_convoy.veh[0].get_name() + " - " + wt_name[c_wt], world.get_time())
 
     switch(phase) {

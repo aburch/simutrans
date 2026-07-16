@@ -127,6 +127,9 @@ class prototyper_t extends node_t
    */
   function step()
   {
+    wt_name.resize(17, null)
+    wt_name.insert(16, "wt_air")
+
     if ( print_message_box == 1 ) {
       local units = get_max_convoi_length(wt)
       gui.add_message_at(our_player, "**** ", world.get_time())

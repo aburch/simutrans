@@ -2325,8 +2325,11 @@ function find_signal(sig_type, wt) {
  */
 function find_station(wt) {
   local list = building_desc_x.get_available_stations(building_desc_x.station, wt, good_desc_x(freight))
+  local list_all = building_desc_x.get_available_stations(building_desc_x.station, wt, {})
 
   if ( list.len() > 0 ) {
+    return list[0]
+  } else if ( list_all.len() > 0 ) {
     return list[0]
   } else {
     return false
@@ -2340,7 +2343,7 @@ function find_station(wt) {
   * wt    = waytype
   * speed = speed
   */
-function find_object(obj, wt, speed) {
+function find_object(obj, wt, speed, st_type = st_flat) {
 
   local list = []
   switch(obj) {
@@ -2351,7 +2354,7 @@ function find_object(obj, wt, speed) {
       list = tunnel_desc_x.get_available_tunnels(wt)
       break
     case "way":
-      list = way_desc_x.get_available_ways(wt, st_flat)
+      list = way_desc_x.get_available_ways(wt, st_type)
       break
     case "catenary":
       local li = wayobj_desc_x.get_available_wayobjs(wt)

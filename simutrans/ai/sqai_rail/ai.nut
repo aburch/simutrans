@@ -11,7 +11,7 @@ ai <- {}
 ai.short_description <- "AI player implementation road/ship/rail"
 
 ai.author <- "dwachs/Andarix"
-ai.version <- "0.9.5.2"
+ai.version <- "0.10.0.0"
 
 // includes
 include("basic")  // .. definition of basic node classes
@@ -27,6 +27,7 @@ include("prototyper")                   /// .. plans convoy-type for a connectio
 include("road_connector")               /// .. builds road connection
 include("rail_connector")               /// .. builds rail connection
 include("ship_connector")               /// .. creates ship connection
+include("air_connector")                /// .. creates air connection
 include("station_manager")              /// .. keeps information about freight station
 include("vehicle_constructor")          /// .. constructs convoy, assign to line, start
 
