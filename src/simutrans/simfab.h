@@ -616,6 +616,9 @@ public:
 	// infostring on targets/sources
 	void info_conn(cbuffer_t& buf) const;
 
+	// infostring on electricity output; only meaningful for is_electricity_producer()
+	void info_power(cbuffer_t& buf) const;
+
 	void rdwr(loadsave_t *file);
 
 	/*

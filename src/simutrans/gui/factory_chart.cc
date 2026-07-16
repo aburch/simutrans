@@ -89,7 +89,11 @@ static const gui_chart_t::convert_proc ref_convert[MAX_FAB_REF_LINE] =
 
 static const uint8 ref_color[MAX_FAB_REF_LINE] =
 {
-	137, COL_LIGHT_BLUE, COL_LIGHT_RED,
+	// max boost electric: 140 is the pure green of the 136..143 ramp, as far as the
+	// ramp allows from both the demand line (COL_DARK_GREEN) and the boost curve
+	// (COL_LIGHT_GREEN) - all three are electricity, so all three are green, and
+	// only the brightness tells them apart.
+	140, COL_LIGHT_BLUE, COL_LIGHT_RED,
 	COL_DARK_GREEN, COL_SOFT_BLUE, COL_OPERATION
 };
 

@@ -37,7 +37,7 @@ class fabrik_info_t : public gui_frame_t, public action_listener_t
 private:
 	fabrik_t *fab;
 
-	cbuffer_t info_buf, prod_buf, details_buf;
+	cbuffer_t info_buf, prod_buf, details_buf, power_buf;
 
 	factory_chart_t chart;
 
@@ -46,7 +46,7 @@ private:
 	char fabname[256];
 	gui_textinput_t input;
 
-	gui_textarea_t prod, txt;
+	gui_textarea_t prod, txt, power;
 	gui_colorbox_t indicator_color;
 
 	gui_tab_panel_t switch_mode;
@@ -54,7 +54,7 @@ private:
 	gui_image_t boost_electric, boost_passenger, boost_mail;
 
 
-	gui_aligned_container_t container_info, container_details;
+	gui_aligned_container_t container_info, container_details, container_power;
 
 	gui_aligned_container_t all_suppliers, all_consumers, all_stops, all_cities;
 	uint32 old_suppliers_count, old_consumers_count, old_stops_count, old_cities_count;

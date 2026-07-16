@@ -79,6 +79,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	view(scr_size( max(64, gfx->get_base_tile_raster_width()), max(56, (gfx->get_base_tile_raster_width() * 7) / 8))),
 	prod(&prod_buf),
 	txt(&info_buf),
+	power(&power_buf),
 	scroll_info(&container_info)
 {
 	if (fab) {
@@ -170,6 +171,16 @@ void fabrik_info_t::init(fabrik_t* fab_, const gebaeude_t* gb)
 	// take-over chart tabs into our
 	chart.set_factory(fab);
 	switch_mode.take_tabs(chart.get_tab_panel());
+
+	// electricity figures in a tab of their own: only a power station has any,
+	// and the window is crowded enough without them
+	if(  fab->get_desc()->is_electricity_producer()  ) {
+		switch_mode.add_tab(&container_power, translator::translate("Electricity"));
+		container_power.set_table_layout(1,0);
+		container_power.add_component(&power);
+		fab->info_power(power_buf);
+		power.recalc_size();
+	}
 
 	// factory description in tab
 	{
@@ -311,6 +322,9 @@ void fabrik_info_t::update_components()
 	// update texts
 	fab->info_prod( prod_buf );
 	fab->info_conn( info_buf );
+	if(  fab->get_desc()->is_electricity_producer()  ) {
+		fab->info_power( power_buf );
+	}
 
 	// consumers
 	if(  fab->get_consumer().get_count() != old_consumers_count ) {
