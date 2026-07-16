@@ -16,6 +16,7 @@ extern const sint32 zoom_den[1] = { 1 };
 static PIXVAL          simgraph0_palette_lookup             (palette_index_t idx);
 static palette_index_t simgraph0_palette_indexof            (PIXVAL color);
 static rgb888_t        simgraph0_get_color_rgb              (palette_index_t idx);
+static rgb888_t        simgraph0_get_pixval_rgb             (PIXVAL c);
 static void            simgraph0_env_t_rgb_to_system_colors ();
 static void            simgraph0_set_player_color_scheme    (const int player, const uint8 col1, const uint8 col2);
 static void            simgraph0_set_light_color            (int light_idx, rgb888_t day_light, rgb888_t night_light);
@@ -125,6 +126,7 @@ simgraph_t g_simgraph0 = {
 	/*.palette_lookup              =*/ simgraph0_palette_lookup,
 	/*.palette_indexof             =*/ simgraph0_palette_indexof,
 	/*.get_color_rgb               =*/ simgraph0_get_color_rgb,
+	/*.get_pixval_rgb              =*/ simgraph0_get_pixval_rgb,
 	/*.env_t_rgb_to_system_colors  =*/ simgraph0_env_t_rgb_to_system_colors,
 	/*.set_player_color_scheme     =*/ simgraph0_set_player_color_scheme,
 	/*.set_light_color             =*/ simgraph0_set_light_color,
@@ -223,7 +225,12 @@ static palette_index_t simgraph0_palette_indexof(PIXVAL color)
 
 static rgb888_t simgraph0_get_color_rgb(palette_index_t)
 {
-	return {0,0,0};
+	return { 0,0,0 };
+}
+
+static rgb888_t simgraph0_get_pixval_rgb(palette_index_t)
+{
+	return { 0,0,0 };
 }
 
 static void simgraph0_env_t_rgb_to_system_colors()

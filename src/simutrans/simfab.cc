@@ -44,6 +44,7 @@
 #include "builder/fabrikbauer.h"
 
 #include "gui/fabrik_info.h"
+#include "gui/minimap.h"
 
 #include "utils/simrandom.h"
 #include "utils/cbuffer.h"
@@ -1107,6 +1108,7 @@ void fabrik_t::remove_field_at(koord pos)
 	field = fields[ fields.index_of(field) ];
 	const field_class_desc_t *const field_class = desc->get_field_group()->get_field_class( field.field_class_index );
 	fields.remove(field);
+	minimap_t::get_instance()->set_dirty();
 	// revert the field's effect on production base and storage capacities
 	set_base_production( prodbase - field_class->get_field_production() );
 }

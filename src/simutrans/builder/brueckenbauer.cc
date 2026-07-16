@@ -1252,8 +1252,6 @@ const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytyp
 			p->cleanup(p->get_owner());
 			delete p;
 		}
-		// refresh map
-		minimap_t::get_instance()->calc_map_pixel(pos.get_2d());
 	}
 
 	// finally delete the bridge ends (all are kartenboden)
@@ -1372,6 +1370,8 @@ const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytyp
 		}
 	}
 
+	// refresh map
+	minimap_t::get_instance()->set_dirty();
 	welt->set_dirty();
 	return NULL;
 }

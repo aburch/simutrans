@@ -2915,7 +2915,7 @@ void karte_t::new_month()
 	}
 
 	// recalc old settings (and maybe update the stops with the current values)
-	minimap_t::get_instance()->new_month();
+	minimap_t::get_instance()->set_dirty();
 
 	INT_CHECK( "simworld 1701" );
 

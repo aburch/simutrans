@@ -224,8 +224,8 @@ public:
 
 	MAP_DISPLAY_MODE get_display_mode() const { return mode; }
 
-	/// updates the map (if needed)
-	void new_month();
+	/// updates the map on next redraw
+	void set_dirty() { needs_redraw = true; }
 
 	void invalidate_map_lines_cache();
 

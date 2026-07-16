@@ -129,7 +129,10 @@ struct simgraph_t
 	palette_index_t (*palette_indexof)(PIXVAL color);
 
 	/// Get 24bit RGB888 colour from an index of the old 8bit palette
-	rgb888_t (*get_color_rgb)(palette_index_t idx);
+	rgb888_t(*get_color_rgb)(palette_index_t idx);
+
+	/// Get 24bit RGB888 colour from a PIVAL
+	rgb888_t(*get_pixval_rgb)(PIXVAL c);
 
 	/// Environment colours from RGB888 to system format
 	void (*env_t_rgb_to_system_colors)();

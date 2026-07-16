@@ -495,6 +495,7 @@ static const rgb888_t special_pal[SPECIAL_COLOR_COUNT] =
 static PIXVAL          simgraph16_palette_lookup             (palette_index_t idx);
 static palette_index_t simgraph16_palette_indexof            (PIXVAL color);
 static rgb888_t        simgraph16_get_color_rgb              (palette_index_t idx);
+static rgb888_t        simgraph16_get_pixval_rgb             (PIXVAL c);
 static void            simgraph16_env_t_rgb_to_system_colors ();
 static void            simgraph16_set_player_color_scheme    (const int player, const uint8 col1, const uint8 col2);
 static void            simgraph16_set_light_color            (int color_idx, rgb888_t day_colour, rgb888_t night_colour);
@@ -596,6 +597,7 @@ simgraph_t g_simgraph16 = {
 	/*.palette_lookup              =*/ simgraph16_palette_lookup,
 	/*.palette_indexof             =*/ simgraph16_palette_indexof,
 	/*.get_color_rgb               =*/ simgraph16_get_color_rgb,
+	/*.pixval_to_rgb               =*/ simgraph16_get_pixval_rgb,
 	/*.env_t_rgb_to_system_colors  =*/ simgraph16_env_t_rgb_to_system_colors,
 	/*.set_player_color_scheme     =*/ simgraph16_set_player_color_scheme,
 	/*.set_light_color             =*/ simgraph16_set_light_color,
@@ -735,6 +737,13 @@ static rgb888_t simgraph16_get_color_rgb(palette_index_t idx)
 	// Return black for anything else
 	return rgb888_t{0,0,0};
 }
+
+
+rgb888_t simgraph16_get_pixval_rgb(PIXVAL c)
+{
+	return pixval_to_rgb888(c);
+}
+
 
 /**
  * Convert indexed colors to rgb and back

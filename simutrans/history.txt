@@ -13,6 +13,8 @@
 	FIX: (Nazalassa) only send chat when hitting RETURN
 	ADD: Filter halt list also for permissions and shared ownership
 	ADD: shared ownership can be indicated by either horizontal or vertical color bars
+	CHG: no_route color for passenger overlay now magenta
+	CHG: box around factoryies not either black or white depending on contrast and draw fields in factory color
 
 
 Release of 124.5 (r11993 on 31-May-2026):
