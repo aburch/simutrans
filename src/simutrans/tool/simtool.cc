@@ -2554,14 +2554,16 @@ static const char *tool_schedule_insert_aux(karte_t *welt, player_t *player, koo
 	return NULL;
 }
 
+
 const char *tool_schedule_add_t::work( player_t *player, koord3d pos )
 {
-	return tool_schedule_insert_aux( welt, player, pos, (schedule_t*)const_cast<char *>(default_param), true );
+	return tool_schedule_insert_aux( welt, player, pos, reinterpret_cast<schedule_t *>(const_cast<char *>(default_param)), true );
 }
+
 
 const char *tool_schedule_ins_t::work( player_t *player, koord3d pos )
 {
-	return tool_schedule_insert_aux( welt, player, pos, (schedule_t*)const_cast<char *>(default_param), false );
+	return tool_schedule_insert_aux( welt, player, pos, reinterpret_cast<schedule_t *>(const_cast<char *>(default_param)), false );
 }
 
 

@@ -73,12 +73,12 @@ private:
 		const size_t chunk_mem_size = sizeof(chunklist_node_t) + (NODE_SIZE * new_chuck_size);
 		while (c_list && (p<c_list || c_list+chunk_mem_size <p)) {
 			// not in this chunk => continue
-			c_list = (char *)((chunklist_node_t *)c_list)->chunk_next;
+			c_list = (char *)(reinterpret_cast<chunklist_node_t *>(c_list))->chunk_next;
 		}
 		// we have found us (or we crash on error)
 		size_t index = ((p - c_list) - sizeof(chunklist_node_t)) / NODE_SIZE;
 		assert(index < new_chuck_size);
-		((chunklist_node_t*)c_list)->allocated_mask.set(index, b);
+		(reinterpret_cast<chunklist_node_t *>(c_list))->allocated_mask.set(index, b);
 	}
 
 	// clears all list memories
@@ -110,7 +110,7 @@ public:
 			for (unsigned i = 0; i < new_chuck_size; i++) {
 				if (c_list->allocated_mask.test(i)) {
 					// is active object
-					T *obj = (T *)&(((nodelist_node_t*)(p + (i * NODE_SIZE)))->next);
+					T *obj = (T *)&((reinterpret_cast<nodelist_node_t*>(p + (i * NODE_SIZE)))->next);
 					if (sync_result result = obj->sync_step(delta_t)) {
 						// remove from sync
 						c_list->allocated_mask.set(i, false);
@@ -149,7 +149,7 @@ public:
 			VALGRIND_MAKE_MEM_NOACCESS(p, new_chuck_size * sizeof(T) + sizeof(chunklist_node_t));
 #endif
 			// put the memory into the chunklist for free it
-			chunklist_node_t* chunk = (chunklist_node_t *)p;
+			chunklist_node_t* chunk = reinterpret_cast<chunklist_node_t *>(p);
 
 #ifdef USE_VALGRIND_MEMCHECK
 			// tell valgrind that we reserved space for one nodelist_node_t
@@ -162,7 +162,7 @@ public:
 			p += sizeof(chunklist_node_t);
 			// then enter nodes into nodelist
 			for (size_t i = 0; i < new_chuck_size; i++) {
-				nodelist_node_t* tmp = (nodelist_node_t*)(p + i * NODE_SIZE);
+				nodelist_node_t* tmp = reinterpret_cast<nodelist_node_t *>(p + i * NODE_SIZE);
 #ifdef USE_VALGRIND_MEMCHECK
 				// tell valgrind that we reserved space for one nodelist_node_t
 				VALGRIND_CREATE_MEMPOOL(tmp, 0, false);
@@ -245,7 +245,6 @@ public:
 		pthread_mutex_unlock(&freelist_mutex);
 #endif
 	}
-
 };
 
 #undef NODE_SIZE

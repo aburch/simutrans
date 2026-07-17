@@ -87,7 +87,7 @@ public:
 			VALGRIND_MAKE_MEM_NOACCESS(p, new_chunk_size*NODE_SIZE + sizeof(nodelist_node_t));
 #endif
 			// put the memory into the chunklist for free it
-			nodelist_node_t* chunk = (nodelist_node_t *)p;
+			nodelist_node_t *chunk = reinterpret_cast<nodelist_node_t *>(p);
 
 #ifdef USE_VALGRIND_MEMCHECK
 			// tell valgrind that we reserved space for one nodelist_node_t
@@ -100,7 +100,7 @@ public:
 			p += sizeof(nodelist_node_t);
 			// then enter nodes into nodelist
 			for (size_t i = 0; i < new_chunk_size; i++) {
-				nodelist_node_t* tmp = (nodelist_node_t*)(p + i*NODE_SIZE);
+				nodelist_node_t* tmp = reinterpret_cast<nodelist_node_t *>(p + i*NODE_SIZE);
 #ifdef USE_VALGRIND_MEMCHECK
 				// tell valgrind that we reserved space for one nodelist_node_t
 				VALGRIND_CREATE_MEMPOOL(tmp, 0, false);

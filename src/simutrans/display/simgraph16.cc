@@ -1431,7 +1431,7 @@ static void rezoom_img(const image_id n)
 				free( rezoom_baseimage[n % env_t::num_threads] );
 				rezoom_size[n % env_t::num_threads] = new_size;
 				rezoom_baseimage[n % env_t::num_threads]  = MALLOCN( uint8, new_size );
-				rezoom_baseimage2[n % env_t::num_threads] = (PIXVAL *)MALLOCN( uint8, new_size );
+				rezoom_baseimage2[n % env_t::num_threads] = reinterpret_cast<PIXVAL *>(MALLOCN(uint8, new_size));
 			}
 			memset( rezoom_baseimage[n % env_t::num_threads], 255, new_size ); // fill with invalid data to mark transparent regions
 
@@ -1723,7 +1723,7 @@ static void rezoom_img(const image_id n)
 			}
 
 			// now encode the image again
-			dest = (PIXVAL*)rezoom_baseimage[n % env_t::num_threads];
+			dest = reinterpret_cast<PIXVAL *>(rezoom_baseimage[n % env_t::num_threads]);
 			for(  sint16 y = 0;  y < newzoomheight;  y++  ) {
 				PIXVAL *line = ((PIXVAL *)rezoom_baseimage2[n % env_t::num_threads]) + (y * newzoomwidth);
 				PIXVAL count;
@@ -2349,7 +2349,7 @@ static void display_img_nc(scr_coord_val h, const scr_coord_val xp, const scr_co
 						// aligned fast copy loop
 						bool const postalign = runlen & 1;
 						runlen >>= 1;
-						uint32 *ld = (uint32 *)p;
+						uint32 *ld = reinterpret_cast<uint32 *>(p);
 						while (runlen--) {
 #if defined _MSC_VER // MSVC can read unaligned
 							*ld++ = *(uint32 const *const)sp;
@@ -3560,7 +3560,7 @@ static void display_fb_internal(scr_coord_val xp, scr_coord_val yp, scr_coord_va
 			// aligned fast fill loop
 			bool const postalign = count & 1;
 			count >>= 1;
-			uint32 *lp = (uint32 *)p;
+			uint32 *lp = reinterpret_cast<uint32 *>(p);
 			while(count--) {
 				*lp++ = colvald;
 			}
