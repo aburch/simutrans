@@ -3072,6 +3072,7 @@ int stadt_t::orient_city_building(const koord k, const building_desc_t *h, koord
 				}
 			}
 		}
+
 		return rotation;
 	}
 
@@ -3094,7 +3095,6 @@ int stadt_t::orient_city_building(const koord k, const building_desc_t *h, koord
 		}
 
 		sint16 street_counter_ew = 0;
-		sint16 street_counter_ew_ns = 0;
 		sint16 roads_ew = 0;
 		if (fit0) {
 			roads_ew++;
@@ -3116,19 +3116,16 @@ int stadt_t::orient_city_building(const koord k, const building_desc_t *h, koord
 			for (int offset = 0; offset < h->get_x(1); offset++) {
 				gr = welt->lookup_kartenboden(k + koord(offset, extra_offset));
 				if (gr && gr->hat_weg(road_wt)) {
-					street_counter_ew_ns++; // south
 					roads_ew++;
 				}
 				gr = welt->lookup_kartenboden(k + koord(offset,-1));
 				if (gr && gr->hat_weg(road_wt)) {
-					street_counter_ew_ns--; // south
 					roads_ew++;
 				}
 			}
 		}
 
 		sint16 street_counter_ns = 0;
-		sint16 street_counter_ns_ew = 0;
 		sint16 roads_ns = 0;
 		if (fit1) {
 			roads_ns++;
@@ -3149,12 +3146,10 @@ int stadt_t::orient_city_building(const koord k, const building_desc_t *h, koord
 			for (int offset = 0; offset < h->get_y(0); offset++) {
 				gr = welt->lookup_kartenboden(k + koord(extra_offset, offset));
 				if (gr && gr->hat_weg(road_wt)) {
-					street_counter_ns_ew++; // south
 					roads_ns++;
 				}
 				gr = welt->lookup_kartenboden(k + koord(-1,offset));
 				if (gr && gr->hat_weg(road_wt)) {
-					street_counter_ns_ew--; // south
 					roads_ns++;
 				}
 			}
