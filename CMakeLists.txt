@@ -12,9 +12,12 @@ if (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
 		"(preferrably empty) directory.")
 endif (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
 
-set(CMAKE_WARN_DEPRECATED ON)
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
+if (CMAKE_VERSION VERSION_LESS 4.4)
+	# CMAKE_WARN_DEPRECATED is ignored by CMake 4.4+
+	set(CMAKE_WARN_DEPRECATED ON)
+endif ()
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/SimutransVcpkgTriplet.cmake)
 
 project(simutrans LANGUAGES C CXX)
