@@ -228,7 +228,7 @@ static rgb888_t simgraph0_get_color_rgb(palette_index_t)
 	return { 0,0,0 };
 }
 
-static rgb888_t simgraph0_get_pixval_rgb(palette_index_t)
+static rgb888_t simgraph0_get_pixval_rgb(PIXVAL)
 {
 	return { 0,0,0 };
 }
