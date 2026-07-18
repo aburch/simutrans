@@ -7541,13 +7541,12 @@ bool tool_show_underground_t::init( player_t * )
 	koord3d zpos = welt->get_zeiger()->get_pos();
 	// move zeiger (pointer) to invalid position -> unmark tiles
 	welt->get_zeiger()->change_pos( koord3d::invalid);
-
-	sint8 old_underground_level = grund_t::underground_level;
+	if (save_underground_level == -128) {
+		save_underground_level = zpos.z;
+	}
 
 	// map needs update?
 	bool ok = true;
-	// need an extra click?
-	bool needs_click = false;
 
 	// default default-param = U for backward compatibility
 	if (default_param == NULL) {
@@ -7555,35 +7554,36 @@ bool tool_show_underground_t::init( player_t * )
 	}
 	// now check the default parameter
 	switch(default_param[0]) {
+
 		// toggle sliced view by toolbar - height taken from extra mouse click
 		case 'C':
 			if(grund_t::underground_mode==grund_t::ugm_level) {
-				grund_t::set_underground_mode( grund_t::ugm_none, 0);
-			}
-			else if(grund_t::underground_mode==grund_t::ugm_none) {
-				needs_click = true;
-				ok = false;
+				grund_t::set_underground_mode( grund_t::ugm_none, save_underground_level);
 			}
 			else {
-				ok = false;
+				grund_t::set_underground_mode(grund_t::ugm_level, save_underground_level);
 			}
 			break;
+
 		// decrease slice level
 		case 'D':
 			if(grund_t::underground_mode==grund_t::ugm_level) {
 				if(  grund_t::underground_level > welt->min_height  ) {
 					grund_t::underground_level --;
+					save_underground_level = grund_t::underground_level;
 				}
 			}
 			else {
 				ok = false;
 			}
 			break;
+
 		// increase slice level
 		case 'I':
 			if(grund_t::underground_mode==grund_t::ugm_level) {
 				if(  grund_t::underground_level < welt->max_height  ) {
 					grund_t::underground_level ++;
+					save_underground_level = grund_t::underground_level;
 				}
 			}
 			else {
@@ -7595,29 +7595,35 @@ bool tool_show_underground_t::init( player_t * )
 		case 'K':
 			if(grund_t::underground_mode==grund_t::ugm_level) {
 				// switch to normal or full-underground
-				grund_t::set_underground_mode( grund_t::ugm_none, 0);
-			}
-			else if(grund_t::underground_mode==grund_t::ugm_none) {
-				grund_t::set_underground_mode( grund_t::ugm_level, zpos.z);
+				grund_t::set_underground_mode( grund_t::ugm_none, save_underground_level);
 			}
 			else {
-				ok = false;
+				grund_t::set_underground_mode( grund_t::ugm_level, save_underground_level);
 			}
 			break;
 
-		//  switch between full underground or normal/sliced view
-		case 'U':
-			if (grund_t::underground_mode==grund_t::ugm_all) {
+		//  rotate through full underground/sliced/normal view
+		case 'T':
+			if (grund_t::underground_mode == grund_t::ugm_all) {
 				// check if the old level is valid then switch back to sliced view
-				if (-128<save_underground_level && save_underground_level<127) {
-					grund_t::set_underground_mode(grund_t::ugm_level, save_underground_level);
-				}
-				else {
-					grund_t::set_underground_mode(grund_t::ugm_none, 0);
-				}
+				save_underground_level = zpos.z;
+				grund_t::set_underground_mode(grund_t::ugm_level, save_underground_level);
+			}
+			else if (grund_t::underground_mode == grund_t::ugm_level) {
+				grund_t::set_underground_mode(grund_t::ugm_none, save_underground_level);
 			}
 			else {
-				grund_t::set_underground_mode( grund_t::ugm_all, 0);
+				grund_t::set_underground_mode(grund_t::ugm_all, save_underground_level);
+			}
+			break;
+
+		//  switch between full underground or normal view
+		case 'U':
+			if (grund_t::underground_mode==grund_t::ugm_all) {
+				grund_t::set_underground_mode(grund_t::ugm_none, save_underground_level);
+			}
+			else {
+				grund_t::set_underground_mode(grund_t::ugm_all, save_underground_level);
 			}
 			break;
 
@@ -7628,18 +7634,38 @@ bool tool_show_underground_t::init( player_t * )
 	}
 
 	// move zeiger (pointer) back
-	welt->get_zeiger()->change_pos( zpos);
+	welt->get_zeiger()->change_pos(zpos);
 
 	if (ok) {
-		save_underground_level = old_underground_level;
-
 		// renew toolbar
 		tool_t::update_toolbars();
 
 		// recalc all images on map
 		welt->update_underground();
 	}
-	return needs_click;
+	return false;
+}
+
+bool tool_show_underground_t::exit(player_t*)
+{
+	if (grund_t::underground_mode!=grund_t::ugm_none) {
+
+		koord3d zpos = welt->get_zeiger()->get_pos();
+		// move zeiger (pointer) to invalid position -> unmark tiles
+		welt->get_zeiger()->change_pos(koord3d::invalid);
+
+		grund_t::set_underground_mode(grund_t::ugm_none, 0);
+
+		// renew toolbar
+		tool_t::update_toolbars();
+
+		// recalc all images on map
+		welt->update_underground();
+
+		// move zeiger (pointer) back
+		welt->get_zeiger()->change_pos(zpos);
+	}
+	return true;
 }
 
 
@@ -7652,7 +7678,9 @@ char const* tool_show_underground_t::get_tooltip(player_t const*) const
 	// now check the default parameter
 	switch(default_param[0]) {
 		// toggle sliced view by toolbar - height taken from extra mouse click
+		// toggle sliced view by keyboard - height taken from cursor
 		case 'C':
+		case 'K':
 			return translator::translate("sliced underground mode");
 		// decrease slice level
 		case 'D':
@@ -7660,9 +7688,9 @@ char const* tool_show_underground_t::get_tooltip(player_t const*) const
 		// increase slice level
 		case 'I':
 			return translator::translate("increase underground view level");
-		// toggle sliced view by keyboard - height taken from cursor
-		case 'K':
-			return translator::translate("sliced underground mode");
+		//  toggle between full underground sliced and normal view
+		case 'T':
+			return translator::translate(grund_t::underground_mode == grund_t::ugm_all ? "sliced underground mode" : "underground mode");
 		//  switch between full underground or normal/sliced view
 		case 'U':
 		default:
@@ -7691,8 +7719,11 @@ bool tool_show_underground_t::is_selected() const
 		case 'K':
 			return grund_t::underground_mode==grund_t::ugm_level;
 		//  switch between full underground or normal/sliced view
+		case 'T':
+			return grund_t::underground_mode!= grund_t::ugm_none;
+		//  switch between full underground or normal/sliced view
 		case 'U':
-			return grund_t::underground_mode==grund_t::ugm_all;
+			return grund_t::underground_mode == grund_t::ugm_all;
 	}
 	return false;
 }

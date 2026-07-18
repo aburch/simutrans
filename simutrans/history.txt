@@ -17,6 +17,7 @@
 	CHG: box around factoryies not either black or white depending on contrast and draw fields in factory color
 	FIX: fields were not show not removed from minimap
 	ADD: (victor_18993) power tab for electricity producers
+	CHG: TOOL_SHOW_UNDERGROUND new default parameter 'T' for toggling between modes, 'U' for full underground only to properly delect the underground modes
 
 
 Release of 124.5 (r11993 on 31-May-2026):
