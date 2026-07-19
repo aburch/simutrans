@@ -18,6 +18,7 @@
 	FIX: fields were not show not removed from minimap
 	ADD: (victor_18993) power tab for electricity producers
 	CHG: TOOL_SHOW_UNDERGROUND new default parameter 'T' for toggling between modes, 'U' for full underground only to properly delect the underground modes
+	FIX: Only make owner pieces of a halt public and give an error message, if nothing was converted
 
 
 Release of 124.5 (r11993 on 31-May-2026):

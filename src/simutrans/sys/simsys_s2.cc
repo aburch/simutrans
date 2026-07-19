@@ -939,8 +939,8 @@ static void internal_GetEvents()
 				case SDLK_BACKSPACE:  code = SIM_KEYCODE_BACKSPACE;             break;
 				case SDLK_TAB:        code = SIM_KEYCODE_TAB;                   break;
 				case SDLK_RETURN:     code = SIM_KEYCODE_ENTER;                 break;
+				case SDLK_AC_BACK: // to avoid deleting text on Android instead closing windows
 				case SDLK_ESCAPE:     code = SIM_KEYCODE_ESCAPE;                break;
-				case SDLK_AC_BACK:
 				case SDLK_DELETE:     code = SIM_KEYCODE_DELETE;                break;
 				case SDLK_DOWN:       code = SIM_KEYCODE_DOWN;                  break;
 				case SDLK_END:        code = SIM_KEYCODE_END;                   break;
