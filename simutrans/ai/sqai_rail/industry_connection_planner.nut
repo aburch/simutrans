@@ -85,7 +85,7 @@ class industry_connection_planner_t extends manager_t
     }
 
     if ( get_set_name() == "pak64" ) {
-      if ( freight == "waste" && world.get_time().year > 1940 && exists_links >= 1 ) {
+      if ( freight == "waste" && exists_links >= 1 ) {
         // waste not more lines
         return r_t(RT_TOTAL_FAIL)
       }
@@ -829,7 +829,7 @@ class industry_connection_planner_t extends manager_t
     }
 
     if ( get_set_name() == "pak64" ) {
-      if ( freight == "waste" && world.get_time().year > 1940 ) {
+      if ( freight == "waste" ) { //&& world.get_time().year > 1940
         r.points -= 30
         if ( wt == wt_rail ) {
           r.points -= 30
@@ -992,6 +992,8 @@ class industry_connection_planner_t extends manager_t
 
       gui.add_message_at(our_player, "___________________________ End  plan_simple_connection __________________________", world.get_time())
     }
+
+    sleep()
 
     return r
   }

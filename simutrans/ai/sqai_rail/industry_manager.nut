@@ -85,6 +85,7 @@ class industry_link_t
   {
     lines.append(my_line_t(l))
   }
+
   function remove_line(l)
   {
     foreach(idx, line in lines) {
@@ -94,10 +95,12 @@ class industry_link_t
       }
     }
   }
+
   function _save()
   {
     return ::saveinstance("industry_link_t", this)
   }
+
   // upgrade elements in lines array from line_x to my_line_t
   function update_lines()
   {
@@ -326,6 +329,7 @@ class industry_manager_t extends manager_t
     }
 
     return r_t(RT_PARTIAL_SUCCESS);
+
   }
 
   function link_iteration()
@@ -336,6 +340,9 @@ class industry_manager_t extends manager_t
       }
       yield link
     }
+
+    sleep()
+
   }
 
   /**
