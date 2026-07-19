@@ -99,6 +99,14 @@ public:
 	sint32 get_normal_demand() const { return norm_demand; }
 
 	/**
+	 * Return the percentage of how much of the demand was fulfilled in the network.
+	 * Will have a logical value between 0.0 (no demand) and 100.0 (all supply consumed).
+	 * Will have a logical value of 0.0 when no supply is present.
+	 * Return value is percent as a double
+	 */
+	double get_usage_percent() const { return (100.0 * norm_demand) / (double)(1 << FRACTION_PRECISION); }
+
+	/**
 	 * Return the normalized value of supply in the network.
 	 * Will have a logical value between 0 (no supply) and 1 (all demand supplied).
 	 * Will have a logical value of 0 when no demand is present.

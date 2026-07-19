@@ -1678,11 +1678,7 @@ sint32 fabrik_t::get_power_consumption() const
 	if( transformers.empty() ) {
 		return 0;
 	}
-	pumpe_t *const trans = dynamic_cast<pumpe_t *>(transformers.front());
-	if(  trans == NULL  ) {
-		return 0;
-	}
-	return trans->get_power_consumption();
+	return transformers.front()->get_net()->get_normal_demand();
 }
 
 void fabrik_t::set_power_demand(uint32 demand)
@@ -1714,11 +1710,7 @@ sint32 fabrik_t::get_power_satisfaction() const
 	if( transformers.empty() ) {
 		return 0;
 	}
-	senke_t *const trans = dynamic_cast<senke_t *>(transformers.front());
-	if(  trans == NULL  ) {
-		return 0;
-	}
-	return trans->get_power_satisfaction();
+	return transformers.front()->get_net()->get_normal_demand();
 }
 
 sint64 fabrik_t::get_power() const
@@ -3070,25 +3062,28 @@ void fabrik_t::info_power(cbuffer_t& buf) const
 {
 	buf.clear();
 
-	// The supply is fed into the net by this factory's own transformer (a pumpe_t);
-	// same lookup as get_power_supply(). Without one the plant feeds no net at all,
-	// and get_power_supply() is 0, so only the net lines have to be left out.
-	pumpe_t *const trans = transformers.empty() ? NULL : dynamic_cast<pumpe_t *>(transformers.front());
-	powernet_t *const net = trans ? trans->get_net() : NULL;
+	// capacity offered to the net now, already scaled by production level and boost
+	sint64 generation = get_power_supply();
+	buf.printf(translator::translate("Generation: %.0f MW"), (double)convert_power(generation));
+	buf.append("\n");
 
-	if(  net  ) {
+	if(!transformers.empty()) {
+		// The supply is fed into the net by this factory's own transformer (a pumpe_t);
+		// this part is what the net actually draws from this plant:
+		// supply * normalised demand,
+		// the same figure the "Power (MW)" curve records every month
+		powernet_t* const net = transformers.front()->get_net();
 		buf.printf(translator::translate("Net ID: %p"), net);
 		buf.append("\n");
+		sint64 used_power = get_power();
+		double usage = 100.0 * (double)used_power / (double)generation;
+		buf.printf(translator::translate("Usage: %.0f %%"), usage);
+		buf.printf(" (%.0f MW)", (double)convert_power(used_power));
 	}
-	// capacity offered to the net now, already scaled by production level and boost
-	buf.printf(translator::translate("Generation: %.0f MW"), (double)(get_power_supply() >> POWER_TO_MW));
-	buf.append("\n");
-	// what the net actually draws from this plant: supply * normalised demand,
-	// the same figure the "Power (MW)" curve records every month
-	buf.printf("%s: %.0f", translator::translate("Power (MW)"), (double)convert_power(get_power()));
-	if(  net  ) {
-		buf.append("\n");
-		buf.printf(translator::translate("Usage: %.0f %%"), (double)((100 * net->get_normal_demand()) >> powernet_t::FRACTION_PRECISION));
+	else {
+		// Without transformer, the plant feeds nothing to a net at all,
+		// and get_power_supply() is 0, so only the net lines have to be left out.
+		buf.append(translator::translate("No transformer connected."));
 	}
 }
 

@@ -357,7 +357,7 @@ void leitung_t::info(cbuffer_t & buf) const
 	buf.printf("\n");
 	buf.printf(translator::translate("Generation: %.0f MW"), (double)(net->get_supply() >> POWER_TO_MW));
 	buf.printf("\n");
-	buf.printf(translator::translate("Usage: %.0f %%"), (double)((100 * net->get_normal_demand()) >> powernet_t::FRACTION_PRECISION));
+	buf.printf(translator::translate("Usage: %.0f %%"), net->get_usage_percent());
 }
 
 
@@ -543,12 +543,6 @@ void pumpe_t::set_power_supply(uint32 newsupply)
 	power_supply = newsupply;
 }
 
-sint32 pumpe_t::get_power_consumption() const
-{
-	powernet_t const *const p = get_net();
-	return p->get_normal_demand();
-}
-
 void pumpe_t::rdwr(loadsave_t * file)
 {
 	xml_tag_t d( file, "pumpe_t" );
@@ -607,7 +601,7 @@ void pumpe_t::info(cbuffer_t & buf) const
 	buf.printf("\n");
 	buf.printf(translator::translate("Generation: %.0f MW"), (double)(power_supply >> POWER_TO_MW));
 	buf.printf("\n");
-	buf.printf(translator::translate("Usage: %.0f %%"), (double)((100 * get_net()->get_normal_demand()) >> powernet_t::FRACTION_PRECISION));
+	buf.printf(translator::translate("Usage: %.0f %%"), get_net()->get_usage_percent());
 	buf.printf("\n"); // pad for consistent dialog size
 }
 
@@ -727,12 +721,6 @@ void senke_t::set_power_demand(uint32 newdemand)
 	}
 
 	power_demand = newdemand;
-}
-
-sint32 senke_t::get_power_satisfaction() const
-{
-	powernet_t const *const p = get_net();
-	return p->get_normal_supply();
 }
 
 sync_result senke_t::sync_step(uint32 delta_t)

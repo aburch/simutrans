@@ -4536,6 +4536,10 @@ obj=program_text
 name=Shared only
 note=button in halt_list_filter_frame
 --
+obj=program_text
+name=No transformer connected.
+note=in factory info electricity tab
+--
 
 #obj=help_text
 #name=Lower values mean more local sounds
