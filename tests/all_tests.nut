@@ -128,6 +128,7 @@ all_tests <- [
 	test_halt_build_station_extension,
 	test_halt_upgrade_downgrade,
 	test_halt_make_public_single,
+	test_halt_make_public_shared,
 	test_halt_make_public_multi_tile,
 	test_halt_make_public_underground,
 	test_halt_move_stop_invalid_param,

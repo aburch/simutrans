@@ -7128,8 +7128,11 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 	}
 
 	// change ownership
-	halt->change_owner( welt->get_public_player() );
-	halt->merge_halt( merge_to );
+	sint32 tiles = halt->change_owner( welt->get_public_player(), player );
+	halt->merge_halt(merge_to);
+	if (!merge_to.is_bound() && tiles == 0) {
+		return NOTICE_WRONG_OWNER;
+	}
 
 	return NULL;
 }

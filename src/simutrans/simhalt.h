@@ -423,14 +423,16 @@ public:
 
 	void rotate90( const sint16 y_size );
 
-//	player_t *get_owner() const {return owner;}
-
 	// just for info so far
 	sint64 calc_maintenance() const;
 
 	void merge_halt( halthandle_t halt_to_join );
 
-	void change_owner( player_t *player );
+	// Transfer stop to new_owner for all tiles belonging to old_owner
+	// Co-owners of a shared halt keep their property unless old_owner
+	// is the public player itself. Then every tile is converted.
+	// @return number of tiles converted
+	sint32 change_owner(player_t* new_owner, player_t* current_owner );
 
 	vector_tpl<connection_t> const& get_pax_connections()  const { return all_links[goods_manager_t::INDEX_PAS].connections;  }
 	vector_tpl<connection_t> const& get_mail_connections() const { return all_links[goods_manager_t::INDEX_MAIL].connections; }

@@ -1182,6 +1182,63 @@ function test_halt_make_public_single()
 }
 
 
+// Regression test for the shared-halt ownership bug (forum topic 23970):
+// making a stop public must only convert the initiating player's tiles, never the
+// tiles of a co-owner of the same (public) halt.
+function test_halt_make_public_shared()
+{
+	local pl        = player_x(0)
+	local public_pl = player_x(1)
+	local pax_halt  = building_desc_x.get_available_stations(building_desc_x.station, wt_road, good_desc_x.passenger)[0]
+	local road_desc = way_desc_x.get_available_ways(wt_road, st_flat)[0]
+	local makepublic = command_x(tool_make_stop_public)
+	local wayremover = command_x(tool_remove_way)
+
+	// second company that will co-own the halt
+	world.create_player(2, 1)
+	local pl2 = player_x(2)
+	ASSERT_TRUE(pl2.is_valid())
+	SET_PLAYER_FUNDS(pl2, 200000 * 100)
+
+	// a public road, so that stations of different players may be built along it
+	ASSERT_EQUAL(command_x.build_way(public_pl, coord3d(4, 1, 0), coord3d(4, 5, 0), road_desc, true), null)
+
+	// pl0 builds a station and turns the halt public, so other players may join it
+	ASSERT_EQUAL(command_x.build_station(pl, coord3d(4, 3, 0), pax_halt), null)
+	ASSERT_EQUAL(makepublic.work(pl, coord3d(4, 3, 0)), null)
+
+	// pl0 and pl2 each add a private station tile that joins the now public halt
+	ASSERT_EQUAL(command_x.build_station(pl,  coord3d(4, 2, 0), pax_halt), null)
+	ASSERT_EQUAL(command_x.build_station(pl2, coord3d(4, 4, 0), pax_halt), null)
+
+	// verify the setup: one shared halt with three different tile owners
+	ASSERT_TRUE(halt_x.get_halt(coord3d(4, 3, 0), public_pl) != null)
+	ASSERT_EQUAL(building_x(4, 3, 0).get_owner().nr, public_pl.nr)
+	ASSERT_EQUAL(building_x(4, 2, 0).get_owner().nr, pl.nr)
+	ASSERT_EQUAL(building_x(4, 4, 0).get_owner().nr, pl2.nr)
+
+	// pl0 makes the shared halt public again via its own tile
+	{
+		local pl2_maint = pl2.get_current_maintenance()
+
+		ASSERT_EQUAL(makepublic.work(pl, coord3d(4, 2, 0)), null)
+
+		// pl0's own tile is now public ...
+		ASSERT_EQUAL(building_x(4, 2, 0).get_owner().nr, public_pl.nr)
+		// ... but pl2's tile must be left untouched (this is the bug being fixed)
+		ASSERT_EQUAL(building_x(4, 4, 0).get_owner().nr, pl2.nr)
+		ASSERT_EQUAL(pl2.get_current_maintenance(), pl2_maint)
+	}
+
+	// cleanup
+	world.remove_player(pl2)
+	ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(4, 2, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(4, 3, 0)), null)
+	ASSERT_EQUAL(wayremover.work(public_pl, coord3d(4, 1, 0), coord3d(4, 5, 0), "" + wt_road), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
 function test_halt_make_public_multi_tile()
 {
 	local pl = player_x(0)

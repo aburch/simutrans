@@ -2671,57 +2671,64 @@ sint64 haltestelle_t::calc_maintenance() const
 
 
 
-// changes this to a public transfer exchange stop
-void haltestelle_t::change_owner( player_t *player )
+// changes (partial) ownership of halt and connected infrastructure)
+sint32 haltestelle_t::change_owner( player_t *new_owner, player_t *current_owner )
 {
+	sint32 tiles_converted = 0;
+	owners = 0;
+
 	// process every tile of stop
 	slist_tpl<halthandle_t> joining;
 	for(tile_t const& i : tiles) {
 
 		grund_t* const gr = i.grund;
 		if(  gebaeude_t* gb = gr->find<gebaeude_t>()  ) {
-			// change ownership
-			player_t *gbplayer =gb->get_owner();
-			gb->set_owner(player);
-			gb->set_flag(obj_t::dirty);
-			sint64 const monthly_costs = welt->get_settings().maint_building * gb->get_tile()->get_desc()->get_level();
-			waytype_t const costs_type = gb->get_waytype();
-			player_t::add_maintenance(gbplayer, -monthly_costs, costs_type);
-			player_t::add_maintenance(player, monthly_costs, costs_type);
+			if (gb->check_owner(current_owner)) {
+				// change ownership
+				player_t* gbplayer = gb->get_owner();
+				gb->set_owner(new_owner);
+				gb->set_flag(obj_t::dirty);
+				sint64 const monthly_costs = welt->get_settings().maint_building * gb->get_tile()->get_desc()->get_level();
+				waytype_t const costs_type = gb->get_waytype();
+				player_t::add_maintenance(gbplayer, -monthly_costs, costs_type);
+				player_t::add_maintenance(new_owner, monthly_costs, costs_type);
 
-			// cost is computed as cst_make_public_months
-			sint64 const cost = -welt->scale_with_month_length(monthly_costs * welt->get_settings().cst_make_public_months);
-			player_t::book_construction_costs(gbplayer, cost, get_basis_pos(), costs_type);
-			player_t::book_construction_costs(player, -cost, koord::invalid, costs_type);
+				// cost is computed as cst_make_public_months
+				sint64 const cost = -welt->scale_with_month_length(monthly_costs * welt->get_settings().cst_make_public_months);
+				player_t::book_construction_costs(gbplayer, cost, get_basis_pos(), costs_type);
+				player_t::book_construction_costs(new_owner, -cost, koord::invalid, costs_type);
+				tiles_converted++;
+			}
+			owners |= 1 << gb->get_owner_nr();
 		}
 
 		// change way ownership
 		bool has_been_announced = false;
 		for(  int j=0;  j<2;  j++  ) {
 			if(  weg_t *w=gr->get_weg_nr(j)  ) {
-				// change ownership of way...
-				player_t *wplayer = w->get_owner();
-				if(  wplayer!=player) {
-					w->set_owner( player );
+				if(  w->check_owner(current_owner)  ) {
+					// change ownership of way...
+					player_t* wplayer = w->get_owner();
+					w->set_owner( new_owner );
 					w->set_flag(obj_t::dirty);
 					sint64 cost = w->get_desc()->get_maintenance();
 					// of tunnel...
 					if(  tunnel_t *t=gr->find<tunnel_t>()  ) {
-						t->set_owner( player );
+						t->set_owner( new_owner );
 						t->set_flag(obj_t::dirty);
 						cost = t->get_desc()->get_maintenance();
 					}
 					waytype_t const financetype = w->get_desc()->get_finance_waytype();
 					player_t::add_maintenance( wplayer, -cost, financetype);
-					player_t::add_maintenance( player, cost, financetype);
+					player_t::add_maintenance( new_owner, cost, financetype);
 					// multiplayer notification message
-					if(  player != welt->get_public_player()  &&  env_t::networkmode  &&  !has_been_announced  ) {
+					if(  new_owner == welt->get_public_player()  &&  env_t::networkmode  &&  !has_been_announced  ) {
 						cbuffer_t buf;
 						buf.printf( translator::translate("(%s) now public way."), w->get_pos().get_str() );
-						welt->get_message()->add_message( buf, w->get_pos(), message_t::ai, PLAYER_FLAG|player->get_player_nr(), IMG_EMPTY );
+						welt->get_message()->add_message( buf, w->get_pos(), message_t::ai, PLAYER_FLAG|new_owner->get_player_nr(), IMG_EMPTY );
 						has_been_announced = true; // one message is enough
 					}
-					cost = -welt->scale_with_month_length(cost * (player==welt->get_public_player())*welt->get_settings().cst_make_public_months );
+					cost = -welt->scale_with_month_length(cost * (new_owner==welt->get_public_player())*welt->get_settings().cst_make_public_months );
 					player_t::book_construction_costs(wplayer, cost, koord::invalid, financetype);
 				}
 			}
@@ -2730,41 +2737,43 @@ void haltestelle_t::change_owner( player_t *player )
 		// make way object public if any suitable
 		for(  uint8 i = 1;  i < gr->obj_count();  i++  ) {
 			if(  wayobj_t *const wo = obj_cast<wayobj_t>(gr->obj_bei(i))  ) {
-				player_t *woplayer = wo->get_owner();
-				if(  player==woplayer  ) {
+				if(  wo->check_owner(current_owner)  ) {
+					player_t* woplayer = wo->get_owner();
 					sint64 const cost = wo->get_desc()->get_maintenance();
 					// change ownership
-					wo->set_owner( player );
+					wo->set_owner( new_owner );
 					wo->set_flag(obj_t::dirty);
 					waytype_t const financetype = wo->get_desc()->get_waytype();
 					player_t::add_maintenance( woplayer, -cost, financetype);
-					player_t::add_maintenance( player, cost, financetype);
+					player_t::add_maintenance( new_owner, cost, financetype);
 					player_t::book_construction_costs( woplayer, cost, koord::invalid, financetype);
 				}
 			}
 		}
 	}
-	owners = 1 << player->get_player_nr();
+
 	if (permissions & (permissions - 1)) {
 		// multiple permissions
 		set_permissions(permissions);
 	}
 	else {
-		set_permissions(owners);
+		// Old new_owner is still allowed to serve this stop, not breaking networks
+		set_permissions(owners | (1<<current_owner->get_player_nr()));
 	}
 
-	// Old player is still allowed to serve this stop, no breaking networks
-	// Should not matter as stops can only be made public (for now)
+	// May need rebuilding as there may be new conenctions enabled
 	rebuild_connections();
 	rebuild_linked_connections();
 	rebuild_connected_components();
 
 	// tell the world of it ...
-	if(  player == welt->get_public_player()  &&  env_t::networkmode  ) {
+	if(  new_owner == welt->get_public_player()  &&  env_t::networkmode  ) {
 		cbuffer_t buf;
 		buf.printf( translator::translate("%s at (%i,%i) now public stop."), get_name(), get_basis_pos().x, get_basis_pos().y );
-		welt->get_message()->add_message( buf, get_basis_pos3d(), message_t::ai, PLAYER_FLAG|player->get_player_nr(), IMG_EMPTY );
+		welt->get_message()->add_message( buf, get_basis_pos3d(), message_t::ai, PLAYER_FLAG|new_owner->get_player_nr(), IMG_EMPTY );
 	}
+
+	return tiles_converted;
 }
 
 
