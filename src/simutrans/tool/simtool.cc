@@ -7204,7 +7204,7 @@ void tool_merge_stop_t::mark_tiles( player_t *player, const koord3d &start, cons
 		}
 	}
 
-	if(  distance  < welt->get_settings().allow_merge_distant_halt  ) {
+	if(  distance < welt->get_settings().allow_merge_distant_halt  ) {
 		distance = clamp(distance,2u,33u)-2;
 		workcost = welt->scale_with_month_length( (1<<distance) * welt->get_settings().cst_multiply_merge_halt );
 		win_set_static_tooltip( tooltip_with_price("Building costs estimates", workcost) );
@@ -7235,7 +7235,12 @@ const char *tool_merge_stop_t::do_work( player_t *player, const koord3d &last_po
 
 	for(haltestelle_t::tile_t const& i : halt_be_merged_from->get_tiles()) {
 		for(haltestelle_t::tile_t const& j : halt_be_merged_to->get_tiles()) {
-			uint32 dist = koord_distance( i.grund->get_pos(), j.grund->get_pos() );
+			koord dx = i.grund->get_pos().get_2d() - j.grund->get_pos().get_2d();
+			uint32 dist = koord_distance(i.grund->get_pos(), j.grund->get_pos());
+			if (dx.x  &&  dx.y) {
+				// diagonal => get one unit tolerance so that (+1,+1) is actuall only 1 distance
+				dist --;
+			}
 			if(  dist < distance  ) {
 				distance = dist;
 				if(  distance <= 1  ) {
