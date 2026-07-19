@@ -2683,9 +2683,9 @@ sint32 haltestelle_t::change_owner( player_t *new_owner, player_t *current_owner
 
 		grund_t* const gr = i.grund;
 		if(  gebaeude_t* gb = gr->find<gebaeude_t>()  ) {
-			if (gb->check_owner(current_owner)) {
+			player_t* gbplayer = gb->get_owner();
+			if (gb->check_owner(current_owner)  &&  gbplayer != new_owner) {
 				// change ownership
-				player_t* gbplayer = gb->get_owner();
 				gb->set_owner(new_owner);
 				gb->set_flag(obj_t::dirty);
 				sint64 const monthly_costs = welt->get_settings().maint_building * gb->get_tile()->get_desc()->get_level();
@@ -2706,9 +2706,9 @@ sint32 haltestelle_t::change_owner( player_t *new_owner, player_t *current_owner
 		bool has_been_announced = false;
 		for(  int j=0;  j<2;  j++  ) {
 			if(  weg_t *w=gr->get_weg_nr(j)  ) {
-				if(  w->check_owner(current_owner)  ) {
+				player_t* wplayer = w->get_owner();
+				if(  w->check_owner(current_owner)  &&  wplayer != new_owner  ) {
 					// change ownership of way...
-					player_t* wplayer = w->get_owner();
 					w->set_owner( new_owner );
 					w->set_flag(obj_t::dirty);
 					sint64 cost = w->get_desc()->get_maintenance();
@@ -2737,8 +2737,8 @@ sint32 haltestelle_t::change_owner( player_t *new_owner, player_t *current_owner
 		// make way object public if any suitable
 		for(  uint8 i = 1;  i < gr->obj_count();  i++  ) {
 			if(  wayobj_t *const wo = obj_cast<wayobj_t>(gr->obj_bei(i))  ) {
-				if(  wo->check_owner(current_owner)  ) {
-					player_t* woplayer = wo->get_owner();
+				player_t* woplayer = wo->get_owner();
+				if(  wo->check_owner(current_owner)  &&  woplayer != new_owner  ) {
 					sint64 const cost = wo->get_desc()->get_maintenance();
 					// change ownership
 					wo->set_owner( new_owner );

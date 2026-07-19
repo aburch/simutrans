@@ -1120,7 +1120,7 @@ function test_halt_make_public_single()
 		local old_cash  = pl.get_current_cash()
 		local old_maint = pl.get_current_maintenance()
 
-		ASSERT_EQUAL(makepublic.work(pl, coord3d(4, 3, 0)), null)
+		ASSERT_EQUAL(makepublic.work(pl, coord3d(4, 3, 0)), "Das Feld gehoert\neinem anderen Spieler\n")
 		ASSERT_TRUE(halt_x.get_halt(coord3d(4, 3, 0), public_pl) != null)
 		ASSERT_EQUAL(halt_x.get_halt(coord3d(4, 3, 0), public_pl).get_owner().get_name(), public_pl.get_name())
 
@@ -1133,7 +1133,7 @@ function test_halt_make_public_single()
 		local old_cash  = public_pl.get_current_cash()
 		local old_maint = public_pl.get_current_maintenance()
 
-		ASSERT_EQUAL(makepublic.work(public_pl, coord3d(4, 3, 0)), null)
+		ASSERT_EQUAL(makepublic.work(public_pl, coord3d(4, 3, 0)), "Das Feld gehoert\neinem anderen Spieler\n")
 		ASSERT_TRUE(halt_x.get_halt(coord3d(4, 3, 0), public_pl) != null)
 
 		ASSERT_EQUAL(public_pl.get_current_maintenance(), old_maint)
@@ -1272,7 +1272,7 @@ function test_halt_make_public_multi_tile()
 		local old_cash  = pl.get_current_cash()
 		local old_maint = pl.get_current_maintenance()
 
-		ASSERT_EQUAL(makepublic.work(pl, coord3d(4, 3, 0)), null)
+		ASSERT_EQUAL(makepublic.work(pl, coord3d(4, 3, 0)), "Das Feld gehoert\neinem anderen Spieler\n")
 		ASSERT_TRUE(halt_x.get_halt(coord3d(4, 3, 0), public_pl) != null)
 		ASSERT_EQUAL(halt_x.get_halt(coord3d(4, 3, 0), public_pl).get_owner().get_name(), public_pl.get_name())
 
@@ -1285,7 +1285,7 @@ function test_halt_make_public_multi_tile()
 		local old_cash  = public_pl.get_current_cash()
 		local old_maint = public_pl.get_current_maintenance()
 
-		ASSERT_EQUAL(makepublic.work(public_pl, coord3d(4, 3, 0)), null)
+		ASSERT_EQUAL(makepublic.work(public_pl, coord3d(4, 3, 0)), "Das Feld gehoert\neinem anderen Spieler\n")
 		ASSERT_TRUE(halt_x.get_halt(coord3d(4, 3, 0), public_pl) != null)
 
 		ASSERT_EQUAL(public_pl.get_current_maintenance(), old_maint)
