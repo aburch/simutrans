@@ -34,7 +34,7 @@ class ship_connector_t extends manager_t
   // 2 = stations
   // 3 = depot
   // 5 = errors
-  print_message_box = 0
+  print_message_box = 2
 
   constructor()
   {
@@ -128,7 +128,9 @@ class ship_connector_t extends manager_t
           local err = find_route()
           if (err) {
             print("No way from " + coord_to_string(c_start[0])+ " to " + coord_to_string(c_end[0]))
-          if ( print_message_box == 2 ) { gui.add_message_at(pl, "No way from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]), world.get_time()) }
+            if ( print_message_box == 2 ) {
+              gui.add_message_at(pl, "No way from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]), world.get_time())
+            }
             return error_handler()
           }
           phase ++

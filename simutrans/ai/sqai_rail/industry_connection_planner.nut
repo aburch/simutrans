@@ -110,6 +110,9 @@ class industry_connection_planner_t extends manager_t
     }
 
     print("Plan link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y)
+    if ( print_message_box > 0 ) {
+      gui.add_message_at(our_player, "Plan link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y, world.get_time())
+    }
 
     // TODO check if factories are still existing
     // TODO check if connection is plannable
@@ -119,14 +122,17 @@ class industry_connection_planner_t extends manager_t
       prod = calc_production()
     }
     dbgprint("production = " + prod);
+    if ( print_message_box > 0 ) {
+      gui.add_message_at(our_player, "production = " + prod, world.get_time())
+    }
 
-    // rail
-    local rprt = plan_simple_connection(wt_rail, null, null)
+    // road
+    local rprt = plan_simple_connection(wt_road, null, null)
     if (rprt) {
       append_report(rprt)
     }
-    // road
-    rprt = plan_simple_connection(wt_road, null, null)
+    // rail
+    rprt = plan_simple_connection(wt_rail, null, null)
     if (rprt) {
       append_report(rprt)
     }
@@ -261,6 +267,9 @@ class industry_connection_planner_t extends manager_t
     }
     local planned_convoy = prototyper.best
     print("best " + planned_convoy.min_top_speed + " / " + planned_convoy.max_speed)
+    if ( print_message_box > 0 ) {
+      gui.add_message_at(our_player, "best " + planned_convoy.min_top_speed + " / " + planned_convoy.max_speed, world.get_time())
+    }
 
     // fill in report when best way is found
     local r = report_t()
@@ -302,6 +311,9 @@ class industry_connection_planner_t extends manager_t
       cnv_valuator.way_max_speed   = best_way.get_topspeed()
 
       planned_way = best_way
+      // valuate again with best way
+      r.gain_per_m = best
+
     }
 
     local planned_bridge = { cost = 0, montly_cost = 0, tiles = 0 }
@@ -337,7 +349,7 @@ class industry_connection_planner_t extends manager_t
     }
 
     // valuate again with best way
-    r.gain_per_m = cnv_valuator.valuate_monthly_transport(planned_convoy)
+    //r.gain_per_m = cnv_valuator.valuate_monthly_transport(planned_convoy)
 
     if ( print_message_box == 1 ) {
       gui.add_message_at(our_player, "*** ", world.get_time())

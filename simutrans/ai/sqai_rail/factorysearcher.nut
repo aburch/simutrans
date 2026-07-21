@@ -217,7 +217,7 @@ class factorysearcher_t extends manager_t
 
       if (!g_complete  &&  !end_consumer) {
         dbgprint(indent + "No supply of " + good + " for " + fab.get_name())
-        //gui.add_message_at(our_player, " No supply of  " + good + " for " + fab.get_name(), world.get_time())
+        gui.add_message_at(our_player, " No supply of  " + good + " for " + fab.get_name(), world.get_time())
         // no suppliers for this good
         return -1
       }
@@ -232,8 +232,8 @@ class factorysearcher_t extends manager_t
         }
       }
       dbgprint(indent + "Supply of " + good + " for " + fab.get_name() + " has " + g_count + " missing links")
-      if ( g_count > 0 ) {
-        //gui.add_message_at(our_player, " Supply of  " + good + " for " + fab.get_name() + " has " + g_count + " missing links", world.get_time())
+      if ( g_count > 0 && end_consumer) {
+        //gui.add_message_at(our_player, " Supply of  " + good + " for " + fab.get_name() + " at " + fab.x + "," + fab.y + " has " + g_count + " missing links", world.get_time())
       }
     }
 
@@ -290,10 +290,12 @@ class factorysearcher_t extends manager_t
         local oslot = s.output[good]
 
         dbgprint(indent + ".. Factory " + s.get_name() + " at " + s.x + "," + s.y + " supplies " + good)
+        gui.add_message_at(our_player, indent + ".. Factory " + s.get_name() + " at " + s.x + "," + s.y + " supplies " + good, world.get_time())
 
         if (8*oslot.get_storage()[0] > oslot.max_storage  ||  !plan_missing_link(s, indent + "  ")) {
           // this is our link
           dbgprint(indent + ".. plan this connection")
+          gui.add_message_at(our_player, indent + ".. plan this connection", world.get_time())
           plan_connection(s, fab, good)
         }
         return true
