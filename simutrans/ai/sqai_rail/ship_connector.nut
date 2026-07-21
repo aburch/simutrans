@@ -34,7 +34,7 @@ class ship_connector_t extends manager_t
   // 2 = stations
   // 3 = depot
   // 5 = errors
-  print_message_box = 2
+  print_message_box = 0
 
   constructor()
   {

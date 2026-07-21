@@ -187,7 +187,9 @@ class prototyper_t extends node_t
            * speed < 161 - max speed 160 for rail lines factory goods
            */
           if ( speed < 80 && wt == wt_rail && pakset_list.find(get_set_name()) != null && world.get_time().year >= 1940) {
-            gui.add_message_at(our_player, "1940 min speed 80 km/h ", world.get_time())
+            if ( print_message_box == 2 ) {
+              gui.add_message_at(our_player, "1940 min speed 80 km/h ", world.get_time())
+            }
             //list_first.append(veh)
           } else if ( speed < 161 && wt == wt_rail ) {
             list_first.append(veh)
@@ -222,7 +224,7 @@ class prototyper_t extends node_t
 
     local count_cnv_length = false
 
-    local show_message = true
+    local show_message = false
 
       //max_vehicles
       local a = 0

@@ -290,12 +290,12 @@ class factorysearcher_t extends manager_t
         local oslot = s.output[good]
 
         dbgprint(indent + ".. Factory " + s.get_name() + " at " + s.x + "," + s.y + " supplies " + good)
-        gui.add_message_at(our_player, indent + ".. Factory " + s.get_name() + " at " + s.x + "," + s.y + " supplies " + good, world.get_time())
+        //gui.add_message_at(our_player, indent + ".. Factory " + s.get_name() + " at " + s.x + "," + s.y + " supplies " + good, world.get_time())
 
         if (8*oslot.get_storage()[0] > oslot.max_storage  ||  !plan_missing_link(s, indent + "  ")) {
           // this is our link
           dbgprint(indent + ".. plan this connection")
-          gui.add_message_at(our_player, indent + ".. plan this connection", world.get_time())
+          //gui.add_message_at(our_player, indent + ".. plan this connection", world.get_time())
           plan_connection(s, fab, good)
         }
         return true
