@@ -2662,6 +2662,19 @@ bool way_builder_t::build_tunnel_tile()
 		}
 	}
 
+	// maybe need to recalc the diagonals and fourway tiles along the route
+	if (desc->has_diagonal_image()) {
+		for (koord3d& i : route) {
+			grund_t* gr = welt->lookup(i);
+			if (weg_t* weg = gr->get_weg(desc->get_wtyp())) {
+				ribi_t::ribi r = weg->get_ribi_unmasked();
+				if (ribi_t::is_bend(r) || ribi_t::all == r) {
+					weg->calc_image();
+				}
+			}
+		}
+	}
+
 	player_t::book_construction_costs(player_builder, cost, route[0].get_2d(), tunnel_desc->get_waytype());
 	return true;
 }
@@ -2685,6 +2698,21 @@ void way_builder_t::build_elevated()
 			monorail->calc_image();
 		}
 	}
+
+	// maybe need to recalc the diagonals and fourway tiles along the route
+	if (desc->has_diagonal_image()) {
+		for (koord3d& i : route) {
+			grund_t* gr = welt->lookup(i);
+			if (weg_t* weg = gr->get_weg(desc->get_wtyp())) {
+				ribi_t::ribi r = weg->get_ribi_unmasked();
+				if (ribi_t::is_bend(r) || ribi_t::all == r) {
+					weg->calc_image();
+				}
+			}
+		}
+	}
+
+
 }
 
 
