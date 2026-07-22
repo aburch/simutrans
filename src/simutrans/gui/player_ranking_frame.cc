@@ -204,7 +204,8 @@ player_ranking_frame_t::player_ranking_frame_t(uint8 selected_player_nr) :
 	add_table(2, 1)->set_alignment(ALIGN_TOP);
 	{
 		add_component(&chart);
-		sint32 years_back = clamp(welt->get_last_year() - welt->get_settings().get_starting_year(), 2, MAX_PLAYER_HISTORY_YEARS);
+		// +1: span starting_year..last_year inclusive, else the first year is cut off
+		sint32 years_back = clamp(welt->get_last_year() - welt->get_settings().get_starting_year() + 1, 2, MAX_PLAYER_HISTORY_YEARS);
 		chart.set_dimension(years_back, 10000);
 		chart.set_seed(welt->get_last_year());
 		chart.set_background(SYSCOL_CHART_BACKGROUND);
@@ -436,7 +437,8 @@ void player_ranking_frame_t::update_chart(bool full_update)
 	}
 
 	const bool is_atv = history_type_idx[selected_item * 2];
-	sint32 chart_years_back = clamp(welt->get_last_year() - welt->get_settings().get_starting_year(), 2, MAX_PLAYER_HISTORY_YEARS);
+	// +1: span starting_year..last_year inclusive, else the first year is cut off
+	sint32 chart_years_back = clamp(welt->get_last_year() - welt->get_settings().get_starting_year() + 1, 2, MAX_PLAYER_HISTORY_YEARS);
 	if (full_update) {
 		chart.set_dimension(chart_years_back, 10000);
 
