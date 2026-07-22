@@ -27,6 +27,18 @@ public:
 
 	uint16 get_count() const { return count; }
 
+	// returns true, if all images are undefined in this list
+	bool is_empty() const {
+		for (uint16 i = 0; i < count; i++) {
+			if (const image_t* image = get_child<image_t>(i)) {
+				if (image->get_id() != IMG_EMPTY) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 	image_t const* get_image(uint16 i) const { return i < count ? get_child<image_t>(i) : 0; }
 
 	image_id get_image_id(uint16 i) const {

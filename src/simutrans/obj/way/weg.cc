@@ -452,9 +452,14 @@ bool weg_t::check_season(const bool calc_only_season_change)
 
 	if(  is_close_diagonal()  ) {
 		// double diagonals
-		set_images(image_close_diagonal, is_close_diagonal(), snow);
+		if (desc->has_close_diagonal_image()) {
+			set_images(image_close_diagonal, is_close_diagonal(), snow);
+		}
+		else {
+			set_images(image_diagonal, is_close_diagonal() == 1 ? ribi_t::southeast : ribi_t::northeast, snow);
+		}
 	}
-	if(  is_diagonal()  ) {
+	else if(  is_diagonal()  ) {
 		set_images( image_diagonal, ribi, snow );
 	}
 	else if(  ribi_t::is_threeway( ribi )  &&  desc->get_waytype()!=road_wt  ) {

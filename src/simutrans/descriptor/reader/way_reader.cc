@@ -26,6 +26,21 @@ void way_reader_t::register_obj(obj_desc_t *&data)
 	desc->switches = desc->get_child<image_list_t>(2)->get_count() > 16 || desc->get_child<image_list_t>(desc->image_list_base_index(false, true))->get_count() > 16;
 	desc->double_slopes = desc->get_child<image_list_t>(3)->get_count() > 4 || desc->get_child<image_list_t>(desc->image_list_base_index(false, true) + 1)->get_count() > 4;
 
+	// find out if we really have front images
+	desc->front_images =false;
+	if (desc->front_image_lists) {
+		bool no_front = true;
+		for (int i = 0;  i < 3 && no_front;  i++) {
+			uint16 n = desc->image_list_base_index(0, true)+i;
+			no_front = desc->get_child<image_list_t>(n)->is_empty();
+		}
+		for (int i = 0;  i < 3 && no_front;  i++) {
+			uint16 n = desc->image_list_base_index(1, true) + i;
+			no_front = desc->get_child<image_list_t>(n)->is_empty();
+		}
+		// if all lists contains no images => no front images
+		desc->front_images = !no_front;
+	}
 
 	way_builder_t::register_desc(desc);
 	pakset_manager_t::obj_for_xref(get_type(), desc->get_name(), data);
@@ -187,7 +202,7 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	// front images from version 5 on
-	desc->front_images = version > 4;
+	desc->front_image_lists = version > 4;
 
 	return desc;
 }

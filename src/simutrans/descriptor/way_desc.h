@@ -58,6 +58,7 @@ private:
 	sint8 number_of_seasons;
 
 	/// if true front_images lists exists as nodes
+	bool front_image_lists : 1;
 	bool front_images : 1;
 
 	bool clip_below : 1; // only relevant for elevated ways
@@ -76,7 +77,7 @@ private:
 	uint16 image_list_base_index(bool snow, bool front) const
 	{
 		if (number_of_seasons == 0  ||  !snow) {
-			if (front  &&  front_images) {
+			if (front  &&  front_image_lists) {
 				return (number_of_seasons == 0) ? 6 : 9;
 			}
 			else {
@@ -84,7 +85,7 @@ private:
 			}
 		}
 		else { // winter images
-			if (front  &&  front_images) {
+			if (front  &&  front_image_lists) {
 				return 12;
 			}
 			else {
@@ -127,7 +128,7 @@ public:
 		const uint16 n = image_list_base_index(season, front);
 		image_list_t const* const imglist = get_child<image_list_t>(n);
 		// only do this if extended switches are there
-		if(  imglist->get_count()>16  ) {
+		if(switches) {
 			static uint8 ribi_to_extra[16] = {
 				255, 255, 255, 255, 255, 255, 255, 0,
 				255, 255, 255, 1, 255, 2, 3, 4
