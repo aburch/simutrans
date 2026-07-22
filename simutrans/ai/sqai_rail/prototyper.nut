@@ -114,6 +114,7 @@ class prototyper_t extends node_t
   // 2 = vehicle found
   // 3 = convoy check lenght and wt_rail
   // 4 = evaluate convoy
+  // 5 = best convoy
   print_message_box = 0
   wt_name = ["", "road", "rail", "water"]
 
@@ -202,6 +203,9 @@ class prototyper_t extends node_t
         if ( print_message_box == 2 && wt == wt_rail && pwer ) {
           gui.add_message_at(our_player, "* vehicle found: " + veh.get_name() + " power " + power + " speed " + speed + " ## " + t, world.get_time())
         }
+        if ( print_message_box > 0 && wt == wt_air ) {
+          gui.add_message_at(our_player, "* vehicle found: " + veh.get_name() + " power " + power + " speed " + speed + " ## " + t, world.get_time())
+        }
       }
     }
 
@@ -258,6 +262,22 @@ class prototyper_t extends node_t
       gui.add_message_at(our_player, "list_first.len() " + list_first.len(), world.get_time())
     }
     local cnv_test = 0
+
+    local speed_diff = 0
+    switch (wt) {
+      case wt_road:
+        speed_diff = 15
+        break
+      case wt_rail:
+        speed_diff = 10
+        break
+      case wt_water:
+        speed_diff = 30
+        break
+      case wt_air:
+        speed_diff = 50
+        break
+    }
 
     while(true) {
 
@@ -323,10 +343,10 @@ class prototyper_t extends node_t
 
       // no more by max length
       // no more by speed < max speed convoy
-      if ((l + test.get_length()) > a  || c["min_top_speed"] < c["max_speed"]) { //) { max_length   CARUNITS_PER_TILE
+      if ( (l + test.get_length()) > a  || c["min_top_speed"] < c["max_speed"] ) { //) { max_length   CARUNITS_PER_TILE
         //gui.add_message_at(our_player, "c['min_top_speed']: " + c["min_top_speed"], world.get_time())
         //gui.add_message_at(our_player, "c['max_speed']: " + c["max_speed"], world.get_time())
-        if ( (c["max_speed"]-c["min_top_speed"]) < 10 ) {
+        if ( ((c["max_speed"]-c["min_top_speed"]) < speed_diff) ) {
           count_cnv_length = true
         } else if ( (l + test.get_length()) > a ) {
           //gui.add_message_at(our_player, "#prototyper 277# tiles_length: " + a + " - (l + test.get_length()): " + (l + test.get_length()), world.get_time())
@@ -339,10 +359,13 @@ class prototyper_t extends node_t
 
       }
 
+        if ( print_message_box > 0 && wt == wt_air ) {
+          gui.add_message_at(our_player, "min_speed: " + min_speed, world.get_time())
+        }
       // check if convoy finished
       if (test.can_be_last() && !c.missing_freight  &&  c.min_top_speed >= min_speed) {
         // evaluate this candidate
-          //gui.add_message_at(our_player, "valuate: " + valuate, world.get_time())
+        //gui.add_message_at(our_player, "valuate: " + valuate, world.get_time())
         if (valuate) {
           local value = valuate.call(getroottable(), c)
           if ( print_message_box == 4 ) {
@@ -394,7 +417,7 @@ class prototyper_t extends node_t
     if (best) {
       foreach(ind, test in best.veh) {
         print("Best[" + ind + "] = " + test.get_name())
-        if ( print_message_box == 2 ) {
+        if ( print_message_box == 5 ) {
           gui.add_message_at(our_player, "Best[" + ind + "] = " + test.get_name(), world.get_time())
         }
       }
