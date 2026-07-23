@@ -353,18 +353,22 @@ void wayobj_t::calc_cached_image()
 		}
 		// find out whether using diagonals or curves
 		else if(ribi_t::is_bend(dir)  &&  desc->has_diagonal_image()) {
-			ribi_t::ribi r1 = ribi_t::none, r2 = ribi_t::none;
+			ribi_t::ribi r1 = ribi_t::none, r2 = ribi_t::none, rback = ribi_t::backward(dir);
 
 			// get the ribis of the ways that connect to us
 			// r1 will be 45 degree clockwise ribi (eg northeast->east), r2 will be anticlockwise ribi (eg northeast->north)
 			r1 = find_next_ribi( gr, ribi_t::rotate45(dir), wt );
 			r2 = find_next_ribi( gr, ribi_t::rotate45l(dir), wt );
 
-			if (ribi_t::is_threeway(r1) && ribi_t::is_threeway(r1)) {
-				// between two switches
+			diagonal = (r1 == rback || ribi_t::is_threeway(r1)) && (r2 == rback || ribi_t::is_threeway(r2));
+
+			if ((ribi_t::is_straight(r1) && r2 == rback) || (ribi_t::is_straight(r2) && r1 == rback)) {
+				// start and end tile handling
 				diagonal = true;
 			}
-			else if (r1 == ribi_t::backward(dir) || r2 == ribi_t::backward(dir)) {
+
+
+			if (!diagonal && w->is_close_diagonal()) {
 				diagonal = true;
 			}
 
@@ -480,7 +484,6 @@ void wayobj_t::extend_wayobj(koord3d pos, player_t *new_owner, ribi_t::ribi dir,
 			else {
 				// extend this one instead
 				existing_wayobj->set_dir(dir|existing_wayobj->get_dir());
-				existing_wayobj->calc_cached_image();
 				return;
 			}
 		}
@@ -504,7 +507,6 @@ void wayobj_t::extend_wayobj(koord3d pos, player_t *new_owner, ribi_t::ribi dir,
 		wayobj_t* wo = new wayobj_t(pos, new_owner, new_dir, desc);
 		gr->obj_add(wo);
 		wo->finish_rd();
-		wo->calc_cached_image();
 		player_t::book_construction_costs(new_owner, -desc->get_price(), pos.get_2d(), desc->get_wtyp());
 	}
 }

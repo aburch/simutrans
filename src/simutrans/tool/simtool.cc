@@ -4094,9 +4094,26 @@ const char *tool_build_wayobj_t::do_work( player_t* player, const koord3d &start
 							}
 						}
 						else {
-							wo->set_dir(dir);
 							wo->calc_cached_image();
+							wo->set_dir(dir);
 						}
+					}
+				}
+			}
+		}
+	}
+	// recalculate images along the route as we may have diagoanl images
+	if (build) {
+		koord3d_vector_t const& r = verbindung.get_route();
+		// in principle one coudl conly recalc threeways and bend ribis ...
+		for (uint32 i = 0; i < verbindung.get_count(); i++) {
+			grund_t* gr = welt->lookup(r[i]);
+			for (int n = 0; n < gr->obj_count(); n++) {
+				obj_t* obj = gr->obj_bei(n);
+				if (obj && obj->get_typ() == obj_t::wayobj) {
+					wayobj_t* wo = static_cast<wayobj_t*>(obj);
+					if (wo->get_waytype() == wt) {
+						wo->calc_cached_image();
 					}
 				}
 			}
