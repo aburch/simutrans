@@ -9,8 +9,8 @@
 
 #include "../simmem.h"
 #include "../simconst.h"
+#include "../simtypes.h"
 
-#include <bitset>
 #include <typeinfo>
 
 #ifdef MULTI_THREADx
@@ -22,6 +22,92 @@
 #ifdef USE_VALGRIND_MEMCHECK
 #include <valgrind/memcheck.h>
 #endif
+
+#if defined(_MSC_VER)
+#include <intrin.h>
+#endif
+
+
+// index of the lowest set bit; x must not be zero (portable across GCC/Clang/MSVC, 32/64 bit)
+static inline uint32 freelist_ctz64(uint64 x)
+{
+#if defined(_MSC_VER)
+	unsigned long idx;
+#	if defined(_WIN64) || defined(_M_X64) || defined(_M_ARM64)
+	_BitScanForward64(&idx, x);
+	return (uint32)idx;
+#	else
+	if(  (uint32)x  ) {
+		_BitScanForward(&idx, (uint32)x);
+		return (uint32)idx;
+	}
+	_BitScanForward(&idx, (uint32)(x >> 32));
+	return (uint32)idx + 32u;
+#	endif
+#elif defined(__clang__) || defined(__GCC__)
+	return (uint32)__builtin_ctzll(x);
+#else
+	// just in case compatibility code
+	if (x == 0) return 64;
+	int n = 0;
+	if (!(x & 0x0000FFFFFFFFFFFFULL)) { n += 48; x >>= 48; }
+	if (!(x & 0x00000000FFFFFFFFULL)) { n += 32; x >>= 32; }
+	if (!(x & 0x000000000000FFFFULL)) { n += 16; x >>= 16; }
+	if (!(x & 0x00000000000000FFULL)) { n += 8;  x >>= 8; }
+	if (!(x & 0x000000000000000FULL)) { n += 4;  x >>= 4; }
+	if (!(x & 0x0000000000000003ULL)) { n += 2;  x >>= 2; }
+	if (!(x & 0x0000000000000001ULL)) { n += 1; }
+	return n;
+#endif
+}
+
+
+/**
+ * Fixed-size occupancy bitmap with a fast "next set bit" scan, so freelist
+ * iteration can jump from one live slot to the next instead of testing every
+ * (mostly empty) slot. Trivially zero-initialisable via memset (POD).
+ */
+template<size_t N> struct freelist_bitmap_t {
+	static const size_t WORDS = (N + 63u) / 64u;
+	uint64 words[WORDS];
+
+	inline void set(size_t i) {
+		words[i >> 6] |= ((uint64)1 << (i & 63));
+	}
+
+	inline void unset(size_t i) {
+		words[i >> 6] &= ~((uint64)1 << (i & 63));
+	}
+
+	inline bool test(size_t i) const {
+		return (words[i >> 6] >> (i & 63)) & 1;
+	}
+
+	// lowest set-bit index >= from, or N if none
+	size_t first_from(size_t from) const {
+		if(  from >= N  ) {
+			return N;
+		}
+		size_t wi = from >> 6;
+		uint64 bits = words[wi] & ((~(uint64)0) << (from & 63));
+		while(  bits == 0  ) {
+			if(  ++wi >= WORDS  ) {
+				return N;
+			}
+			bits = words[wi];
+		}
+		// at this point, bits!=0 as ctz64 is undefined on 0
+		const size_t idx = (wi << 6) + freelist_ctz64(bits);
+		return idx < N ? idx : N;
+	}
+	size_t find_first() const {
+		return first_from(0);
+	}
+
+	size_t find_next(size_t i) const {
+		return first_from(i + 1);
+	}
+};
 
 
 /**
@@ -61,7 +147,7 @@ private:
 	struct chunklist_node_t {
 		chunklist_node_t *chunk_next;
 		// marking empty and allocated tiles for fast interation
-		std::bitset<(32250*8) / (NODE_SIZE*8+1)> allocated_mask;
+		freelist_bitmap_t<new_chuck_size> allocated_mask;
 	};
 
 	// list of all allocated memory
@@ -78,7 +164,12 @@ private:
 		// we have found us (or we crash on error)
 		size_t index = ((p - c_list) - sizeof(chunklist_node_t)) / NODE_SIZE;
 		assert(index < new_chuck_size);
-		(reinterpret_cast<chunklist_node_t *>(c_list))->allocated_mask.set(index, b);
+		if (b) {
+			(reinterpret_cast<chunklist_node_t*>(c_list))->allocated_mask.set(index);
+		}
+		else {
+			(reinterpret_cast<chunklist_node_t*>(c_list))->allocated_mask.unset(index);
+		}
 	}
 
 	// clears all list memories
@@ -107,19 +198,18 @@ public:
 		chunklist_node_t* c_list = chunk_list;
 		while (c_list) {
 			char *p = ((char *)c_list)+sizeof(chunklist_node_t);
-			for (unsigned i = 0; i < new_chuck_size; i++) {
-				if (c_list->allocated_mask.test(i)) {
-					// is active object
-					T *obj = (T *)&((reinterpret_cast<nodelist_node_t*>(p + (i * NODE_SIZE)))->next);
-					if (sync_result result = obj->sync_step(delta_t)) {
-						// remove from sync
-						c_list->allocated_mask.set(i, false);
-						// and maybe delete
-						if (result == SYNC_DELETE) {
-							delete obj;
-							if (nodecount == 0) {
-								return; // since even the main chunk list became invalid
-							}
+			// jump from set bit to set bit instead of scanning every (mostly empty) slot
+			for (size_t i = c_list->allocated_mask.find_first(); i < new_chuck_size; i = c_list->allocated_mask.find_next(i)) {
+				// is active object
+				T *obj = (T *)&((reinterpret_cast<nodelist_node_t*>(p + (i * NODE_SIZE)))->next);
+				if (sync_result result = obj->sync_step(delta_t)) {
+					// remove from sync
+					c_list->allocated_mask.unset(i);
+					// and maybe delete
+					if (result == SYNC_DELETE) {
+						delete obj;
+						if (nodecount == 0) {
+							return; // since even the main chunk list became invalid
 						}
 					}
 				}
