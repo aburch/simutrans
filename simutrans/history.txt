@@ -21,6 +21,7 @@
 	FIX: Only make owner pieces of a halt public and give an error message, if nothing was converted
 	ADD: (victor_18993) quicker iterating through freelists in sync_step
 	FIX: minimap destination overlay for cities was broken
+	CHG: (poppo) elevated ways also allowed on top of bridges
 
 
 Release of 124.5 (r11993 on 31-May-2026):

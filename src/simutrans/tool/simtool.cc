@@ -2817,7 +2817,10 @@ const char *tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d 
 	if(  is_shift_pressed()  &&  (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt)  ) {
 		grund_t *gr=welt->lookup(my_end);
 		if(  gr->get_weg( desc->get_waytype() )  ) {
-			my_end.z -= welt->get_settings().get_way_height_clearance();
+			// find the base ground this elevated way was built above; this accounts for the
+			// extra height added on bridge ramp connection tiles (see grund_t::get_bridge_slope_extra_height)
+			grund_t *base_gr = bauigel.find_base_for_elevated(my_end);
+			my_end = base_gr ? base_gr->get_pos() : my_end - koord3d(0, 0, welt->get_settings().get_way_height_clearance());
 		}
 	}
 
@@ -2919,7 +2922,8 @@ void tool_build_way_t::mark_tiles(player_t* player, const koord3d& start, const 
 	const char* err = calc_route(bauigel, start, end);
 	bool keep_city_roads = is_shift_pressed() && desc->get_styp() == type_flat && desc->get_wtyp() == road_wt;
 
-	uint8 offset = (desc->get_styp() == type_elevated && desc->get_wtyp() != air_wt) ? welt->get_settings().get_way_height_clearance() : 0;
+	bool is_elevated = desc->get_styp() == type_elevated && desc->get_wtyp() != air_wt;
+	uint8 offset = is_elevated ? welt->get_settings().get_way_height_clearance() : 0;
 
 	if (bauigel.get_count() > 1) {
 		// Set tooltip first (no dummygrounds, if bauigel.calc_casts() is called).
@@ -2927,12 +2931,15 @@ void tool_build_way_t::mark_tiles(player_t* player, const koord3d& start, const 
 
 		// make dummy route from bauigel
 		for (uint32 j = 0; j < bauigel.get_count(); j++) {
-			koord3d pos = bauigel.get_route()[j] + koord3d(0, 0, offset);
+			koord3d base_pos = bauigel.get_route()[j];
+			grund_t* base_gr = welt->lookup(base_pos);
+			sint8 extra_h = (is_elevated && base_gr) ? base_gr->get_bridge_slope_extra_height() : 0;
+			koord3d pos = base_pos + koord3d(0, 0, offset + extra_h);
 			grund_t* gr = welt->lookup(pos);
 			if (!gr) {
 				gr = new monorailboden_t(pos, slope_t::flat);
 				// should only be here when elevated/monorail, therefore will be at height offset above ground
-				gr->set_grund_hang(welt->lookup(pos - koord3d(0, 0, offset))->get_grund_hang());
+				gr->set_grund_hang(base_gr->get_weg_hang());
 				welt->access(pos.get_2d())->boden_hinzufuegen(gr);
 			}
 			if (gr->is_water()) {
