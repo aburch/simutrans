@@ -436,7 +436,7 @@ map_frame_t::map_frame_t() :
 void map_frame_t::update_buttons()
 {
 	for(  int i=0;  i<MAP_MAX_BUTTONS;  i++  ) {
-		filter_buttons[i].pressed = (button_init[i].mode&env_t::default_mapmode)!=0;
+		filter_buttons[i].pressed = (button_init[i].mode &env_t::default_mapmode)!=0;
 		filter_buttons[i].background_color = gfx->palette_lookup(filter_buttons[i].pressed ? button_init[i].select_color : button_init[i].color);
 	}
 }
@@ -694,6 +694,8 @@ void map_frame_t::set_windowsize(scr_size size)
  */
 void map_frame_t::draw(scr_coord pos, scr_size size)
 {
+	filter_buttons[3].enable(!minimap_t::get_instance()->is_city_selected(NULL));
+
 	// update our stored screen position
 	screenpos = pos;
 	minimap_t::get_instance()->set_xy_offset_size( scr_coord(scrolly.get_scroll_x(), scrolly.get_scroll_y()), scrolly.get_client().get_size() );

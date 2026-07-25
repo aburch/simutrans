@@ -251,6 +251,7 @@ void city_info_t::init()
 		button_to_chart.append(buttons[i], &mchart, curve);
 	}
 
+	minimap_t::get_instance()->set_selected_city(city);
 	update_labels();
 	set_resizemode(diagonal_resize);
 	reset_min_windowsize();
@@ -267,6 +268,10 @@ city_info_t::~city_info_t()
 		if (b2c->get_button()->pressed) {
 			flags |= 1 << b2c->get_curve();
 		}
+	}
+	if (minimap_t::get_instance()->is_city_selected(city)) {
+		// unselect us
+		minimap_t::get_instance()->set_selected_city(NULL);
 	}
 	city->stadtinfo_options = flags;
 }
@@ -387,6 +392,10 @@ void city_info_t::update_labels()
 
 void city_info_t::draw(scr_coord pos, scr_size size)
 {
+	if (minimap_t::get_instance()->is_city_selected(NULL)) {
+		// nothing there => we claim it
+		minimap_t::get_instance()->set_selected_city(city);
+	}
 	// update chart seed
 	chart.set_seed(welt->get_last_year());
 	update_labels();

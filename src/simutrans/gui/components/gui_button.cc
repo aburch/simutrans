@@ -355,9 +355,14 @@ void button_t::draw(scr_coord offset)
 		case box: // Colored background box
 			{
 				gfx->draw_stretch_map( gui_theme_t::button_tiles[get_state_offset()], area );
-				gfx->draw_stretch_map_blend( gui_theme_t::button_color_tiles[b_enabled && pressed], area, background_color | TRANSPARENT75_FLAG | OUTLINE_FLAG );
-				if(  text  ) {
+				if (b_enabled) {
 					text_color = pressed ? SYSCOL_COLORED_BUTTON_TEXT_SELECTED : text_color;
+					gfx->draw_stretch_map_blend(gui_theme_t::button_color_tiles[pressed], area, background_color | TRANSPARENT75_FLAG | OUTLINE_FLAG);
+				}
+				else {
+					gfx->draw_stretch_map_blend(gui_theme_t::button_color_tiles[pressed], area, background_color | TRANSPARENT75_FLAG | OUTLINE_FLAG);
+				}
+				if(  text  ) {
 					// move the text to leave evt. space for a colored box top left or bottom right of it
 					scr_rect area_text = area - gui_theme_t::gui_color_button_text_offset_right;
 					area_text.set_pos( gui_theme_t::gui_color_button_text_offset + area.get_pos() );

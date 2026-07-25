@@ -1294,13 +1294,13 @@ void minimap_t::draw(scr_coord pos)
 		return;
 	}
 
-	if(  mode & MAP_PAX_DEST  &&  selected_city!=NULL  ) {
-		const uint32 current_pax_destinations = selected_city->get_pax_destinations_new_change();
-		if(  pax_destinations_last_change > current_pax_destinations  ) {
-			// new month started.
+	if(  mode & MAP_PAX_DEST) {
+		if(  selected_city==NULL ||  pax_destinations_last_change > selected_city->get_pax_destinations_new_change()) {
+			// new month started or deselect.
 			calc_map();
+			pax_destinations_last_change = 0;
 		}
-		else if(  pax_destinations_last_change < current_pax_destinations  ) {
+		else if(  pax_destinations_last_change < selected_city->get_pax_destinations_new_change()) {
 			// new pax_dest in city.
 			const sparse_tpl<pax_dest_status_t> &pax_dests = selected_city->get_pax_destinations_new();
 			koord pos, min, max;
@@ -1313,16 +1313,20 @@ void minimap_t::draw(scr_coord pos)
 				max = koord(((pos.x+1)*world->get_size().x)/PAX_DESTINATIONS_SIZE,
 				            ((pos.y+1)*world->get_size().y)/PAX_DESTINATIONS_SIZE);
 				pos = min;
+				PIXVAL sc = gfx->palette_lookup(pax_dest_status_colors[dst_status]);
 				do {
 					do {
-						set_map_color(pos, pax_dest_status_colors[dst_status]);
+						set_map_color(pos, sc);
 						pos.y++;
 					} while(pos.y < max.y);
 					pos.x++;
+					pos.y = min.y;
 				} while (pos.x < max.x);
 			}
 		}
-		pax_destinations_last_change = selected_city->get_pax_destinations_new_change();
+		if (selected_city) {
+			pax_destinations_last_change = selected_city->get_pax_destinations_new_change();
+		}
 	}
 
 	if(  (uint16)cur_size.w > map_data->get_width()  ) {
@@ -1853,13 +1857,11 @@ void minimap_t::draw(scr_coord pos)
 }
 
 
-void minimap_t::set_selected_city( const stadt_t* _city )
+void minimap_t::set_selected_city(const stadt_t* _city)
 {
-	if(  selected_city != _city  ) {
+	if (selected_city != _city) {
 		selected_city = _city;
-		if(  _city  ) {
-			pax_destinations_last_change = _city->get_pax_destinations_new_change();
-		}
+		pax_destinations_last_change = 0;
 		calc_map();
 	}
 }
