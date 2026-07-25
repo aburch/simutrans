@@ -23,6 +23,9 @@
 #endif
 
 
+#define IMG_VERSION 3
+
+
 struct dimension
 {
 	int xmin;
@@ -452,55 +455,52 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, std::string an_i
 		dbg->debug( "", "image[%3u] =%-30s %-20s %5u %5u %5u %5u %5u %6u %4s", index, an_imagekey.c_str(), imagekey.c_str(), 0, 0, image.x, image.y, image.w, image.h, (image.zoomable) ? "yes" : "no" );
 	}
 
-#ifdef IMG_VERSION0
-	// version 0
+#if IMG_VERSION == 0
 	obj_node_t node(this, 12 + (image.len * sizeof(uint16)), &parent);
 
-	// to avoid any problems due to structure changes, we write manually the data
-	node.write_uint8 (outfp, image.x,         0);
-	node.write_uint8 (outfp, image.w,         1);
-	node.write_uint8 (outfp, image.y,         2);
-	node.write_uint8 (outfp, image.h,         3);
-	node.write_uint32(outfp, image.len,       4);
-	node.write_uint16(outfp, 0,              8);
-	node.write_uint8 (outfp, image.zoomable, 10);
-	node.write_uint8 (outfp, 0,             11);
+	// to avoid any problems due to structure changes, we write the data manually
+	node.write_uint8 (outfp, image.x);
+	node.write_uint8 (outfp, image.w);
+	node.write_uint8 (outfp, image.y);
+	node.write_uint8 (outfp, image.h);
+	node.write_uint32(outfp, image.len);
+	node.write_uint16(outfp, 0);
+	node.write_uint8 (outfp, image.zoomable);
+	node.write_uint8 (outfp, 0);
 
 	if (image.len) {
-		// only called, if there is something to store
-		node.write_data_at(outfp, pixdata, 12, image.len * sizeof(PIXVAL));
+		// only called if there is something to store
+		node.write_bytes(outfp, image.len * sizeof(PIXVAL), pixdata);
 		delete [] pixdata;
 	}
-#elif IMG_VERSION2
+#elif IMG_VERSION == 1 || IMG_VERSION == 2
 	// version 1 or 2
 	obj_node_t node(this, 10 + (image.len * sizeof(uint16)), &parent);
 
-	// to avoid any problems due to structure changes, we write manually the data
-	node.write_uint16(outfp, image.x,        0);
-	node.write_uint16(outfp, image.y,        2);
-	node.write_uint8 (outfp, image.w,        4);
-	node.write_uint8 (outfp, image.h,        5);
-	node.write_uint8 (outfp, 2,             6); // version
-	node.write_uint16(outfp, image.len,      7);
-	node.write_uint8 (outfp, image.zoomable, 9);
+	// to avoid any problems due to structure changes, we write the data manually
+	node.write_uint16(outfp, image.x);
+	node.write_uint16(outfp, image.y);
+	node.write_uint8 (outfp, image.w);
+	node.write_uint8 (outfp, image.h);
+	node.write_uint8 (outfp, IMG_VERSION);
+	node.write_uint16(outfp, image.len);
+	node.write_uint8 (outfp, image.zoomable);
 
 	if (image.len) {
-		// only called, if there is something to store
-		node.write_data_at(outfp, pixdata, 10, image.len * sizeof(PIXVAL));
+		// only called if there is something to store
+		node.write_bytes(outfp, image.len * sizeof(PIXVAL), pixdata);
 		delete [] pixdata;
 	}
-#else
-	// version 3
+#elif IMG_VERSION == 3
 	obj_node_t node(this, 10 + (image.len * sizeof(uint16)), &parent);
 
 	// to avoid any problems due to structure changes, we write the data manually
 	node.write_uint16(outfp, image.x);
 	node.write_uint16(outfp, image.y);
 	node.write_uint16(outfp, image.w);
-	node.write_uint8 (outfp, 3); // version, always at position 6!
+	node.write_uint8 (outfp, IMG_VERSION);
 	node.write_uint16(outfp, image.h);
-
-	// len is now automatically calculated
+	// no need to write len, it is now calculated automatically
 	node.write_uint8 (outfp, image.zoomable);
 
 	if (image.len) {
@@ -508,6 +508,8 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, std::string an_i
 		node.write_bytes(outfp, image.len * sizeof(uint16), pixdata);
 		delete [] pixdata;
 	}
+#else
+#  error "Unknown image version"
 #endif
 
 	node.check_and_write_header(outfp);
