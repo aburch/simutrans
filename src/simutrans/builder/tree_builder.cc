@@ -54,6 +54,13 @@ uint8 tree_builder_t::plant_tree_on_coordinate(koord pos, const uint8 maximum_co
 {
 	grund_t *gr = welt->lookup_kartenboden(pos);
 	if(  gr  ) {
+		// not under an elevated way or bridge deck: a tree carries no height and
+		// the draw clip cannot hide one poking above a low deck (thread 23992),
+		// so it is not planted there in the first place. gr is on the map, so the
+		// plan exists.
+		if(  welt->access(pos)->get_overhead_clearance() < 127  ) {
+			return 0;
+		}
 		if(  has_trees_for_climate( welt->get_climate(pos) )  &&  gr->ist_natur()  &&  gr->obj_count() < maximum_count  ) {
 			obj_t *obj = gr->obj_bei(0);
 			if(obj) {
@@ -99,6 +106,10 @@ bool tree_builder_t::plant_tree_on_coordinate(koord pos, const tree_desc_t *desc
 
 	grund_t *gr = welt->lookup_kartenboden(pos);
 	if(  gr  ) {
+		// not under an elevated way or bridge deck (see the other overload).
+		if(  welt->access(pos)->get_overhead_clearance() < 127  ) {
+			return false;
+		}
 		if(  gr->ist_natur()  &&  gr->obj_count() < welt->get_settings().get_max_no_of_trees_on_square()  &&  (!check_climate  ||  desc->is_allowed_climate( welt->get_climate(pos) ))  ) {
 			if(  gr->obj_count() > 0  ) {
 				switch(gr->obj_bei(0)->get_typ()) {

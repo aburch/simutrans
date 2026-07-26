@@ -11,7 +11,85 @@
 #include "building_desc.h"
 #include "intro_dates.h"
 #include "../network/checksum.h"
+#include "../display/simgraph.h"
+#include "../dataobj/environment.h"
+#include "../simconst.h"
 
+
+
+/**
+ * How far this tile's artwork rises above its ground line, in height levels.
+ *
+ * The ground line is at half the cell and image coordinates run from the top
+ * left, so one row of artwork reaches (cell/2 - y) above it. Each further image
+ * row is drawn a whole tile higher again (gebaeude_t::display).
+ *
+ * Read from the base images and returned as a count of levels, so the value does
+ * not change with the zoom. Computed, not stored: it is only wanted once, to seed
+ * the building's single height_clearance.
+ */
+uint8 building_tile_desc_t::get_drawn_height() const
+{
+	uint8 height_levels = 0;
+
+	const sint16 cell = gfx->get_base_tile_raster_width();
+	// image pixels per height level. Not the raw tile_height from simuconf.tab:
+	// pak128 says 8 and pak128.german says 16, and both are 128 wide.
+	const sint16 level_h = max((sint16)1, (sint16)tile_raster_scale_y(TILE_HEIGHT_STEP, cell));
+
+	for(  uint8 season = 0;  season < seasons;  season++  ) {
+		image_array_t const* const imglist = get_child<image_array_t>(0 + 2 * season);
+		if(  imglist == NULL  ) {
+			continue;
+		}
+
+		// topmost row holding an image, and how far the ground row reaches up
+		sint16 rows  = 0;
+		sint16 above = 0;
+		for(  uint16 h = 0;  h < imglist->get_count();  h++  ) {
+			if(  image_t const* const image = imglist->get_image(h, 0)  ) {
+				rows = h + 1;
+				if(  h == 0  ) {
+					above = cell / 2 - image->y;
+				}
+			}
+		}
+		if(  rows == 0  ) {
+			continue;
+		}
+
+		// artwork that stays below the ground line does not rise above it at all
+		const sint16 levels = ((rows - 1) * cell + max((sint16)0, above)) / level_h;
+
+		if(  levels > height_levels  ) {
+			height_levels = (uint8)min(levels, (sint16)255);
+		}
+	}
+
+	return height_levels;
+}
+
+
+void building_desc_t::calc_height_clearance()
+{
+	// One height for the whole building, the tallest of its tiles. The draw path
+	// reads this single value for every tile: a per-tile lookup so less cache miss per tile.
+
+	if (height_clearance != 255) {
+		// this building has its height clearance set in its dat file => do not touch it
+		return;
+	}
+
+	// now recaulculate
+	height_clearance = 0;
+
+	for(  uint16 i = 0;  i < (uint16)(layouts * size.x * size.y);  i++  ) {
+		const uint8 h = get_tile(i)->get_drawn_height();
+		if(  h > height_clearance  ) {
+			height_clearance = h;
+		}
+	}
+}
 
 
 /**

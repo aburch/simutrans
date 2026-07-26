@@ -22,6 +22,9 @@
 	ADD: (victor_18993) quicker iterating through freelists in sync_step
 	FIX: minimap destination overlay for cities was broken
 	CHG: (poppo) elevated ways also allowed on top of bridges
+	CHG: (victor_18993) Prevent too high buildings to appear under bridges and elevated ways
+	     new building parameter in dat file "height_clearance" The allowed spacign to groudn above it
+		 (If not set recalculated from the images)
 
 
 Release of 124.5 (r11993 on 31-May-2026):

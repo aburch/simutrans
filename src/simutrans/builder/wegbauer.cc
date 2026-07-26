@@ -628,7 +628,7 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 			if(gb) {
 				// no halt => citybuilding => do not touch
 				// also check for too high buildings ...
-				if(!check_owner(gb->get_owner(),player_builder)  ||  gb->get_tile()->get_background(0,1,0) != IMG_EMPTY) {
+				if(!check_owner(gb->get_owner(),player_builder)  ||  gb->get_tile()->has_upper_storey()) {
 					return false;
 				}
 				// building above houses is expensive ... avoid it!

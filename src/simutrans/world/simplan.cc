@@ -87,6 +87,20 @@ grund_t *planquadrat_t::get_boden_von_obj(obj_t *obj) const
 }
 
 
+sint16 planquadrat_t::get_overhead_clearance() const
+{
+	sint16 clearance = 127;
+	const sint8 base_h = get_kartenboden()->get_hoehe();
+	for(  unsigned b = 1;  b < get_boden_count();  b++  ) {
+		const sint8 diff_h = get_boden_bei(b)->get_hoehe() - base_h;
+		if(  diff_h > 0  &&  diff_h < clearance  ) {
+			clearance = diff_h;
+		}
+	}
+	return clearance;
+}
+
+
 void planquadrat_t::boden_hinzufuegen(grund_t *bd)
 {
 	assert(!bd->ist_karten_boden());
@@ -484,17 +498,44 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 		// clip everything at the next tile above
 		if(  i < ground_size  ) {
 			// there are grounds above => check height of height object below
+			// How far the objects on this tile rise above its ground, in HEIGHT
+			// LEVELS - which is the unit (htop - hmin) is measured in below.
 			sint16 max_height = 0;
-			sint16 rw = gfx->get_base_tile_raster_width();
-			const sint16 clip_h = rw / 2 + (env_t::pak_height_conversion_factor * rw / 8);
+			// get_image_offset() returns the zoomed offsets, so take the raster
+			// width zoomed too; the quotient is the same count either way.
+			const sint16 rw = gfx->get_tile_raster_width();
+			const sint16 level_h = max((sint16)1, (sint16)tile_raster_scale_y(TILE_HEIGHT_STEP, rw));
 
 			for (uint8 i = 0; i < gr0->obj_count(); i++) {
 				obj_t* o = gr0->obj_bei(i);
-				if (o->get_typ() == obj_t::baum   ||  dynamic_cast<gebaeude_t *>(o)) {
+				// This is a hot loop - the draw path runs it for every tile.
+				// get_typ() + static_cast, never dynamic_cast, and a single
+				// cached height off the desc, never a per-tile computation:
+				// almost every tile is a cache miss).
+				if (o->get_typ() == obj_t::gebaeude) {
+					const gebaeude_t *gb = static_cast<const gebaeude_t *>(o);
+					// the building's get_image() is its ground row alone, so
+					// measuring that image would call a tower one storey tall;
+					// the height was computed once at load.
+					max_height = max(max_height, (sint16)gb->get_tile()->get_desc()->get_height_clearance());
+				}
+				else if (o->get_typ() == obj_t::baum) {
 					image_id img = o->get_image();
 					if (img != IMG_EMPTY) {
 						const scr_rect area = gfx->get_image_offset(img);
-						max_height = max(max_height, (area.h - area.y) / clip_h);
+						// The ground line is at half the cell and image
+						// coordinates run from the top left, so the artwork
+						// reaches (rw/2 - y) above it. What stood here,
+						// (area.h - area.y), subtracted an offset from a size:
+						// negative for 144 of pak128's 550 tree images.
+						// A tree also carries a per-instance offset (baum_t::
+						// calc_off): a negative yoff lifts it toward the top
+						// corner, so its real screen-top rises higher than the
+						// sprite box alone. Fold in the same scaled yoff the draw
+						// path applies (simobj.cc: ypos += scale(get_yoff())), or
+						// a top-corner tree slips through the gate below
+						const sint16 yoff = tile_raster_scale_y(o->get_yoff(), rw);
+						max_height = max(max_height, max((sint16)0, (sint16)(rw / 2 - area.y - yoff)) / level_h);
 					}
 				}
 			}

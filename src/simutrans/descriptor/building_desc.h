@@ -46,8 +46,34 @@ public:
 	uint8 get_seasons() const { return seasons; }
 	uint8 get_phases() const { return phases; }
 
+	/**
+	 * How far this tile's artwork rises above its ground line, in HEIGHT LEVELS.
+	 * Computed from the images, not read off the image list, because:
+	 *
+	 * - the height index of get_background() is not a height level. Each further
+	 *   image row lifts the artwork by a whole tile (gebaeude_t::display does
+	 *   ypos -= raster_width), which is eight levels in pak128;
+	 * - within a row, the artwork's own top edge matters, because makeobj crops
+	 *   every image to its opaque bounding box and stores where that box was
+	 *   (image_writer.cc). A single-row building can still be several levels tall.
+	 *
+	 * Needs the base tile raster width, so it can only be called once the pakset
+	 * is fully loaded (the "Outside" ground sets it). Used once, to seed the
+	 * building's height_clearance; the draw path never calls this.
+	 */
+	uint8 get_drawn_height() const;
+
 	bool has_image() const {
 		return get_background(0,0,0)!=IMG_EMPTY  ||  get_foreground(0,0)!=IMG_EMPTY;
+	}
+
+	/**
+	 * Does this tile draw anything above the ground storey?
+	 * This is the test that decides whether an elevated way may pass over the
+	 * building, so it lives here rather than being spelled out at each use.
+	 */
+	bool has_upper_storey() const {
+		return get_background(0, 1, 0) != IMG_EMPTY;
 	}
 
 	image_id get_background(uint16 phase, uint16 height, uint8 season) const
@@ -209,6 +235,9 @@ private:
 
 	uint16 preservation_year_month;
 
+	/// @see get_height_clearance
+	uint8 height_clearance;
+
 	bool is_type(building_desc_t::btype u) const {
 		return type == u;
 	}
@@ -285,7 +314,37 @@ public:
 		return get_child<building_tile_desc_t>(index + 2);
 	}
 
+	/**
+	 * The clearance this building needs above its ground, in height levels: the
+	 * tallest of its tiles, over every layout.
+	 *
+	 * It is the whole building and not the single tile on purpose. A tile that
+	 * draws nothing above the ground may still belong to a tower, and asking
+	 * only the tile a way happens to cross lets the way through the low corner
+	 * of a tall building. In pak128.german, 90 of the 128 multi-tile city
+	 * buildings have a one-row tile beside a taller one.
+	 */
+	uint8 get_height_clearance() const { return height_clearance; }
+
+	/// Derive get_height_clearance() from the tiles. @see building_tile_desc_t::calc_height_levels
+	void calc_height_clearance();
+
 	const building_tile_desc_t *get_tile(uint8 layout, sint16 x, sint16 y) const;
+
+	/**
+	 * Does any tile of this building draw above the ground storey?
+	 * An elevated way cannot pass over such a building (see way_builder_t),
+	 * so a replacement chosen for a spot that already has one overhead must
+	 * not have an upper storey either.
+	 */
+	bool has_upper_storey() const {
+		for(  uint16 i = 0;  i < layouts * size.x * size.y;  i++  ) {
+			if(  get_tile(i)->has_upper_storey()  ) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	// returns true,if building can be rotated
 	bool can_rotate() const {

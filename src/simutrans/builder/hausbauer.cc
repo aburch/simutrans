@@ -142,6 +142,11 @@ bool hausbauer_t::successfully_loaded()
 	for(auto const& i : desc_table) {
 		building_desc_t const* const desc = i.value;
 
+		// How tall this building is drawn. Only now: it needs the base tile
+		// raster width, which is set when the "Outside" ground is registered,
+		// and nothing guarantees that happened before this building was read.
+		const_cast<building_desc_t *>(desc)->calc_height_clearance();
+
 		if (desc->is_city_building()) {
 			// find city build sizes
 			if (desc->get_size().x > 3 || desc->get_size().y > 3) {
@@ -886,7 +891,7 @@ const building_desc_t* hausbauer_t::get_special(uint32 bev, building_desc_t::bty
  * @param start_level the minimum level of the house/station
  * @param cl allowed climates
  */
-static const building_desc_t* get_city_building_from_list(const vector_tpl<const building_desc_t*>& list, int start_level, uint16 time, climate cl, uint32 clusters, sint16 minsize, sint16 maxsize, vector_tpl<const building_desc_t*>* exclude )
+static const building_desc_t* get_city_building_from_list(const vector_tpl<const building_desc_t*>& list, int start_level, uint16 time, climate cl, uint32 clusters, sint16 minsize, sint16 maxsize, vector_tpl<const building_desc_t*>* exclude, sint16 max_clearance )
 {
 	weighted_vector_tpl<const building_desc_t *> selections(16);
 	int level = start_level;
@@ -910,7 +915,12 @@ static const building_desc_t* get_city_building_from_list(const vector_tpl<const
 		     desc->is_available(time)  &&
 		     // size check
 			(desc->get_area()>=minsize  &&  desc->get_area() <= maxsize)  &&
-			(!exclude  ||  !exclude->is_contained(desc))
+			(!exclude  ||  !exclude->is_contained(desc))  &&
+			// a way or bridge deck overhead limits the height: the replacement
+			// must fit under the clearance measured from the planquadrat, so a
+			// building the player could not have built the way over cannot grow
+			// here either. 127 (nothing overhead) admits everything.
+			(desc->get_height_clearance() <= max_clearance)
 		) {
 			desc_at_least = desc;
 			if( thislevel == level ) {
@@ -946,21 +956,21 @@ static const building_desc_t* get_city_building_from_list(const vector_tpl<const
 }
 
 
-const building_desc_t* hausbauer_t::get_commercial(int level, uint16 time, climate cl, uint32 clusters, sint16 minsize, sint16 maxsize, vector_tpl<const building_desc_t*>* exclude)
+const building_desc_t* hausbauer_t::get_commercial(int level, uint16 time, climate cl, uint32 clusters, sint16 minsize, sint16 maxsize, vector_tpl<const building_desc_t*>* exclude, sint16 max_clearance)
 {
-	return get_city_building_from_list(city_commercial, level, time, cl, clusters, minsize, maxsize, exclude );
+	return get_city_building_from_list(city_commercial, level, time, cl, clusters, minsize, maxsize, exclude, max_clearance );
 }
 
 
-const building_desc_t* hausbauer_t::get_industrial(int level, uint16 time, climate cl, uint32 clusters, sint16 minsize, sint16 maxsize, vector_tpl<const building_desc_t*>* exclude)
+const building_desc_t* hausbauer_t::get_industrial(int level, uint16 time, climate cl, uint32 clusters, sint16 minsize, sint16 maxsize, vector_tpl<const building_desc_t*>* exclude, sint16 max_clearance)
 {
-	return get_city_building_from_list(city_industry, level, time, cl, clusters, minsize, maxsize, exclude );
+	return get_city_building_from_list(city_industry, level, time, cl, clusters, minsize, maxsize, exclude, max_clearance );
 }
 
 
-const building_desc_t* hausbauer_t::get_residential(int level, uint16 time, climate cl, uint32 clusters, sint16 minsize, sint16 maxsize, vector_tpl<const building_desc_t*> *exclude)
+const building_desc_t* hausbauer_t::get_residential(int level, uint16 time, climate cl, uint32 clusters, sint16 minsize, sint16 maxsize, vector_tpl<const building_desc_t*> *exclude, sint16 max_clearance)
 {
-	return get_city_building_from_list(city_residential, level, time, cl, clusters, minsize, maxsize, exclude );
+	return get_city_building_from_list(city_residential, level, time, cl, clusters, minsize, maxsize, exclude, max_clearance );
 }
 
 

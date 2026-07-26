@@ -235,6 +235,9 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		obj.get_int("preservation_year", DEFAULT_RETIRE_YEAR) * 12 +
 		obj.get_int("preservation_month", 1) - 1;
 
+	// height clearance needed above; if not set, take from tile images
+	uint8 const height_clearance = obj.get_int("height_clearance", 255);
+
 	// capacity and price information.
 	// Stands in place of the "level" setting, but uses "level" data by default.
 
@@ -345,10 +348,9 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 
 	// write version data
-	node.write_version(fp, 11);
+	node.write_version(fp, 12);
 
 	// write desc data
-	node.write_uint8 (fp, 0); // was gtyp
 	node.write_uint8 (fp, type);
 	node.write_uint16(fp, level);
 	node.write_uint32(fp, extra_data);
@@ -367,6 +369,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_sint64(fp, price);
 	node.write_uint8 (fp, allow_underground);
 	node.write_uint16(fp, preservation_date);
+	node.write_uint8 (fp, height_clearance);
 
 	// probably add some icons, if defined
 	slist_tpl<string> cursorkeys;

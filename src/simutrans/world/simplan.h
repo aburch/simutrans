@@ -136,6 +136,14 @@ public:
 	unsigned int get_boden_count() const { return ground_size; }
 
 	/**
+	* How much clear height there is above the kartenboden, in height levels:
+	* the smallest positive gap to a ground stacked above it (an elevated way or
+	* bridge deck). Returns 127 when nothing is overhead. Used to stop tall
+	* objects being placed where they would poke through a deck.
+	*/
+	sint16 get_overhead_clearance() const;
+
+	/**
 	* returns climate of plan (lowest 3 bits of climate byte)
 	*/
 	inline climate get_climate() const { return (climate)(climate_data & 7); }

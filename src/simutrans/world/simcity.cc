@@ -521,6 +521,15 @@ class monument_placefinder_t : public placefinder_t {
 				return false;
 			}
 
+			// not under an elevated way or bridge deck. A monument is a showcase
+			// object that belongs on open ground; the draw clip cannot hide the
+			// part poking above a low deck (thread 23992), and its unusual art
+			// makes a per-height test unreliable - so keep it off overhead tiles
+			// entirely rather than trust a measured height.
+			if(  plan->get_overhead_clearance() < 127  ) {
+				return false;
+			}
+
 			if (is_boundary_tile(d)) {
 				return
 					gr->get_grund_hang() == slope_t::flat &&     // Flat
@@ -3391,19 +3400,27 @@ void stadt_t::build_city_building(koord k_org)
 	const uint16 current_month = welt->get_timeline_year_month();
 	const climate cl = welt->get_climate(k);
 
+	// How much clear height is above this tile - same limit renovation uses, so a
+	// city expanding under an elevated way or bridge deck also only places a
+	// building that fits under it. 127 = nothing overhead, no limit.
+	sint16 max_clearance = 127;
+	if(  const planquadrat_t *plan = welt->access(k)  ) {
+		max_clearance = plan->get_overhead_clearance();
+	}
+
 	// Find a house to build
 	const building_desc_t* h = NULL;
 
 	if (sum_commercial > sum_industrial && sum_commercial >= sum_residential) {
-		h = hausbauer_t::get_commercial(0, current_month, cl, neighbor_building_clusters, 1, max_area, &exclude_desc);
+		h = hausbauer_t::get_commercial(0, current_month, cl, neighbor_building_clusters, 1, max_area, &exclude_desc, max_clearance);
 	}
 
 	if (h == NULL && sum_industrial > sum_residential && sum_industrial >= sum_commercial) {
-		h = hausbauer_t::get_industrial(0, current_month, cl, neighbor_building_clusters, 1, max_area, &exclude_desc);
+		h = hausbauer_t::get_industrial(0, current_month, cl, neighbor_building_clusters, 1, max_area, &exclude_desc, max_clearance);
 	}
 
 	if (h == NULL && sum_residential > sum_industrial && sum_residential >= sum_commercial) {
-		h = hausbauer_t::get_residential(0, current_month, cl, neighbor_building_clusters, 1, max_area, &exclude_desc);
+		h = hausbauer_t::get_residential(0, current_month, cl, neighbor_building_clusters, 1, max_area, &exclude_desc, max_clearance);
 	}
 
 	if (h == NULL) {
@@ -3505,11 +3522,23 @@ bool stadt_t::renovate_city_building(gebaeude_t *gb)
 	building_desc_t::btype want_to_have = building_desc_t::unknown;
 	int sum = 0;
 
+	// How much clear height is above this tile, in levels. An elevated way or a
+	// bridge deck sitting a few levels up limits how tall a replacement may be:
+	// a building the player could never have built the way over must not appear
+	// by renovation either. Reading it off the planquadrat is cheap - the ground
+	// stack is short and already in cache. A taller deck
+	// admits taller buildings on its own, which is why a numeric limit is more
+	// future proof than a yes/no test. 127 = nothing overhead, no limit.
+	sint16 max_clearance = 127;
+	if(  const planquadrat_t *plan = welt->access(k)  ) {
+		max_clearance = plan->get_overhead_clearance();
+	}
+
 	// try to build
 	const building_desc_t* h = NULL;
 	if (sum_commercial > sum_industrial && sum_commercial > sum_residential) {
 		// we must check, if we can really update to higher level ...
-		h = hausbauer_t::get_commercial(level+1, current_month, cl, neighbor_building_clusters, 1, max_area, &exclude_desc);
+		h = hausbauer_t::get_commercial(level+1, current_month, cl, neighbor_building_clusters, 1, max_area, &exclude_desc, max_clearance);
 		if(  h != NULL  &&  h->get_level() >= level+1  ) {
 			want_to_have = building_desc_t::city_com;
 			sum = sum_commercial;
@@ -3519,7 +3548,7 @@ bool stadt_t::renovate_city_building(gebaeude_t *gb)
 	if(    (sum_industrial > sum_commercial  &&  sum_industrial > sum_residential) ||
 	       (sum_commercial > sum_residential  &&  want_to_have == building_desc_t::unknown)  ) {
 		// we must check, if we can really update to higher level ...
-		h = hausbauer_t::get_industrial(level+1 , current_month, cl, neighbor_building_clusters, 1, max_area, &exclude_desc);
+		h = hausbauer_t::get_industrial(level+1, current_month, cl, neighbor_building_clusters, 1, max_area, &exclude_desc, max_clearance);
 		if(  h != NULL  &&  h->get_level() >= level+1  ) {
 			want_to_have = building_desc_t::city_ind;
 			sum = sum_industrial;
@@ -3529,7 +3558,7 @@ bool stadt_t::renovate_city_building(gebaeude_t *gb)
 	// (sum_wohnung>sum_industrie  &&  sum_wohnung>sum_gewerbe
 	if(  want_to_have == building_desc_t::unknown  ) {
 		// we must check, if we can really update to higher level ...
-		h = hausbauer_t::get_residential(level+1, current_month, cl, neighbor_building_clusters, 1, max_area, &exclude_desc);
+		h = hausbauer_t::get_residential(level+1, current_month, cl, neighbor_building_clusters, 1, max_area, &exclude_desc, max_clearance);
 		if(  h != NULL  &&  h->get_level() >= level+1  ) {
 			want_to_have = building_desc_t::city_res;
 			sum = sum_residential;
