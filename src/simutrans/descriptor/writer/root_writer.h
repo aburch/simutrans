@@ -57,7 +57,7 @@ public:
 	void expand_dat(const char* name, int argc, char* argv[]);
 
 	/* makes single files from a merged file */
-	void uncopy(const char* name);
+	void uncopy(const char *name);
 
 	static const std::string & get_inpath() { return inpath; }
 

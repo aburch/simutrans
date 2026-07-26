@@ -410,6 +410,6 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/SimutransInstall.cmake)
 # Nettool/Makeobj
 #
 if (NOT ANDROID)
-	add_subdirectory(src/makeobj EXCLUDE_FROM_ALL)
-	add_subdirectory(src/nettool EXCLUDE_FROM_ALL)
+	add_subdirectory(src/makeobj)
+	add_subdirectory(src/nettool)
 endif ()

@@ -316,26 +316,30 @@ bool root_writer_t::do_copy(FILE* outfp, obj_node_info_t& root, const char* open
 void root_writer_t::copy(const char* name, int argc, char* argv[])
 {
 	searchfolder_t find;
+	std::string filename = name;
+	FILE *outfp = NULL;
 
-	FILE* outfp = NULL;
-	if (strchr(name, '*') == NULL) {
+	if (strchr(filename.c_str(), '*') == NULL) {
 		// is not a wildcard name
-		outfp = fopen(name, "wb");
+		outfp = fopen(filename.c_str(), "wb");
 	}
+
 	if (outfp == NULL) {
-		name = find.complete(name, "pak").c_str();
-		outfp = fopen(name, "wb");
+		filename = find.complete(filename, "pak").c_str();
+		outfp = fopen(filename.c_str(), "wb");
 	}
+
 	if (!outfp) {
-		dbg->fatal( "Merge", "Cannot open destination file %s", name);
+		dbg->fatal( "Merge", "Cannot open destination file %s", filename.c_str());
 	}
+
 	fclose(outfp);
-	if (remove(name) != 0) {
+	if (remove(filename.c_str()) != 0) {
 		dbg->warning("Merge", "Could not delete %s");
 	}
+
 	// create temporary file
-	std::string tmpfile_name = name;
-	tmpfile_name += ".tmp";
+	std::string tmpfile_name = filename + ".tmp";
 	outfp = fopen(tmpfile_name.c_str(), "wb");
 
 	printf("writing to temporary file %s\n", tmpfile_name.c_str());
@@ -357,7 +361,7 @@ void root_writer_t::copy(const char* name, int argc, char* argv[])
 		} else {
 			find.search(argv[i], "pak");
 			for(const char* const& i : find) {
-				if (strcmp(i, name) != 0) {
+				if (strcmp(i, filename.c_str()) != 0) {
 					any |= do_copy(outfp, root, i);
 				}
 				else {
@@ -376,28 +380,30 @@ void root_writer_t::copy(const char* name, int argc, char* argv[])
 
 	fclose(outfp);
 
-	printf("renaming temporary file %s to %s\n", tmpfile_name.c_str(), name);
+	printf("renaming temporary file %s to %s\n", tmpfile_name.c_str(), filename.c_str());
 
-	rename(tmpfile_name.c_str(), name);
+	rename(tmpfile_name.c_str(), filename.c_str());
 }
 
 
 /* makes single files from a merged file */
-void root_writer_t::uncopy(const char* name)
+void root_writer_t::uncopy(const char *name)
 {
+	std::string filename = name;
+
 	FILE* infp = NULL;
-	if (strchr(name,'*') == NULL) {
+	if (strchr(filename.c_str(),'*') == NULL) {
 		// is not a wildcard name
-		infp = fopen(name, "rb");
+		infp = fopen(filename.c_str(), "rb");
 	}
 	if (infp == NULL) {
 		searchfolder_t find;
-		name = find.complete(name, "pak").c_str();
-		infp = fopen(name, "rb");
+		filename = find.complete(filename, "pak");
+		infp = fopen(filename.c_str(), "rb");
 	}
 
 	if (!infp) {
-		dbg->fatal( "Unmerge", "Cannot open archive file %s\n", name);
+		dbg->fatal( "Unmerge", "Cannot open archive file %s\n", filename.c_str());
 	}
 
 	if (skip_header(infp)) {
@@ -409,7 +415,7 @@ void root_writer_t::uncopy(const char* name)
 			obj_node_info_t root;
 			obj_node_t::read_node( infp, root );
 			if (root.nchildren == 1) {
-				dbg->error( "Unmerge", "%s is not an archive (aborting)", name);
+				dbg->error( "Unmerge", "%s is not an archive (aborting)", filename.c_str());
 				fclose(infp);
 				exit(3);
 			}
@@ -488,7 +494,7 @@ void root_writer_t::uncopy(const char* name)
 			}
 		}
 		else {
-			dbg->warning( "Unmerge", "Skipping file %s - version mismatch", name);
+			dbg->warning( "Unmerge", "Skipping file %s - version mismatch", filename.c_str());
 		}
 	}
 	fclose(infp);
