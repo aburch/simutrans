@@ -25,7 +25,7 @@
 	CHG: (victor_18993) Prevent too high buildings to appear under bridges and elevated ways
 	     new building parameter in dat file "height_clearance" The allowed spacign to groudn above it
 		 (If not set recalculated from the images)
-	FIX: Crash when using makeobj 'copy' or 'uncopy' commands
+	FIX: Crash when using makeobj 'merge' or 'extract' commands
 
 
 Release of 124.5 (r11993 on 31-May-2026):
