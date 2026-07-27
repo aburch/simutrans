@@ -606,7 +606,7 @@ bool factory_builder_t::can_factory_tree_rotate( const factory_desc_t *desc )
  * is the maximum number of good types for which suppliers chains are built
  * (meaning there are no unfinished factory chains).
  */
-int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, sint32 initial_prod_base, int rotate, koord3d* pos, player_t* player, int number_of_chains, bool ignore_climates)
+int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, sint32 initial_prod_base, int rotate, koord3d* pos, player_t* player, int number_of_chains, bool ignore_climates, factory_desc_t::site_t placement)
 {
 	int n = 1;
 	int org_rotation = -1;
@@ -617,7 +617,7 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 	}
 
 	// no cities at all?
-	if (info->get_placement() == factory_desc_t::City  &&  welt->get_cities().empty()) {
+	if (placement == factory_desc_t::City  &&  welt->get_cities().empty()) {
 		return 0;
 	}
 
@@ -632,7 +632,7 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 	}
 
 	// in town we need a different place search
-	if (info->get_placement() == factory_desc_t::City) {
+	if (placement == factory_desc_t::City) {
 
 		koord size=info->get_building()->get_size(0);
 
@@ -861,8 +861,12 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 		koord3d parent_pos = our_fab->get_pos();
 		// ignore climates after 40 tries
 
-		// if climates are ignored, then placement as well ...
-		factory_desc_t::site_t placement = ignore_climates ? (producer_d->get_placement() == factory_desc_t::City ? factory_desc_t::City : factory_desc_t::Land) : producer_d->get_placement();
+		factory_desc_t::site_t placement = producer_d->get_placement();
+		// if climates are ignored, then special placements as well => either Land, water, or City
+		if (ignore_climates  &&  placement >= factory_desc_t::City) {
+			// ignore Shore, River, Forest to Land
+			placement = factory_desc_t::Land;
+		}
 
 		INT_CHECK("fabrikbauer 697");
 
@@ -884,7 +888,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 		INT_CHECK("fabrikbauer 697");
 
 		DBG_MESSAGE("factory_builder_t::build_chain_link","Try to built supplier %s at (%i,%i) r=%i for %s.",producer_d->get_name(),k.x,k.y,rotate,info->get_name());
-		n += build_link(&parent_pos, producer_d, -1 /*random prodbase */, rotate, &k, player, 10000, ignore_climates);
+		n += build_link(&parent_pos, producer_d, -1 /*random prodbase */, rotate, &k, player, 10000, ignore_climates, placement);
 		lfound ++;
 
 		INT_CHECK( "fabrikbauer 702" );
@@ -1071,8 +1075,15 @@ int factory_builder_t::increase_industry_density( bool tell_me )
 		for(int retries=20;  retries>0;  retries--  ) {
 			const factory_desc_t *fab=get_random_consumer( no_electric==0, ALL_CLIMATES, welt->get_timeline_year_month() );
 			if(fab) {
-				const bool in_city = fab->get_placement() == factory_desc_t::City;
-				if (in_city && welt->get_cities().empty()) {
+				factory_desc_t::site_t placement = fab->get_placement();
+				// if climates are ignored, then special placements as well => either Land, water, or City
+				if (ignore_climates && placement >= factory_desc_t::City) {
+					// ignore Shore, River, Forest to Land
+					placement = factory_desc_t::Land;
+				}
+
+				const bool in_city = placement == factory_desc_t::City;
+				if (in_city  &&  welt->get_cities().empty()) {
 					// we cannot build this factory here
 					continue;
 				}
@@ -1090,7 +1101,7 @@ int factory_builder_t::increase_industry_density( bool tell_me )
 				}
 				if(welt->lookup(pos)) {
 					// Space found...
-					nr += build_link(NULL, fab, -1 /* random prodbase */, rotation, &pos, welt->get_public_player(), 1, ignore_climates);
+					nr += build_link(NULL, fab, -1 /* random prodbase */, rotation, &pos, welt->get_public_player(), 1, ignore_climates, placement);
 					if(nr>0) {
 						fabrik_t *our_fab = fabrik_t::get_fab( pos.get_2d() );
 						minimap_t::get_instance()->calc_map_size();

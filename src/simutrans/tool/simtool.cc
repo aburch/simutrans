@@ -6218,7 +6218,13 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 	if(hat_platz) {
 		// eventually adjust production
 		koord3d build_pos = gr->get_pos();
-		int count = factory_builder_t::build_link(NULL, fab, initial_prod, rotation, &build_pos, welt->get_public_player(), 10000, ignore_climates);
+		factory_desc_t::site_t placement = fab->get_placement();
+		// if climates are ignored, then special placements as well => either Land, water, or City
+		if (ignore_climates && placement >= factory_desc_t::City) {
+			// ignore Shore, River, Forest to Land
+			placement = factory_desc_t::Land;
+		}
+		int count = factory_builder_t::build_link(NULL, fab, initial_prod, rotation, &build_pos, welt->get_public_player(), 10000, ignore_climates, placement);
 
 		if(count>0) {
 			// at least one factory has been built
@@ -6287,9 +6293,15 @@ const char *tool_city_chain_t::work( player_t *player, koord3d pos )
 
 	// process ignore climates switch
 	bool ignore_climates = default_param  &&  default_param[0]=='1';
+	factory_desc_t::site_t placement = fab->get_placement();
+	// if climates are ignored, then special placements as well => either Land, water, or City
+	if (ignore_climates && placement >= factory_desc_t::City) {
+		// ignore Shore, River, Forest to Land
+		placement = factory_desc_t::Land;
+	}
 
 	pos = gr->get_pos();
-	int count = factory_builder_t::build_link(NULL, fab, initial_prod, 0, &pos, welt->get_public_player(), 10000, ignore_climates);
+	int count = factory_builder_t::build_link(NULL, fab, initial_prod, 0, &pos, welt->get_public_player(), 10000, ignore_climates, placement);
 	if(count>0) {
 		// at least one factory has been built
 		welt->get_viewport()->change_world_position( pos );

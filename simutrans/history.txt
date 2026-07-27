@@ -23,7 +23,7 @@
 	FIX: minimap destination overlay for cities was broken
 	CHG: (poppo) elevated ways also allowed on top of bridges
 	CHG: (victor_18993) Prevent too high buildings to appear under bridges and elevated ways
-	     new building parameter in dat file "height_clearance" The allowed spacign to groudn above it
+	     + new building parameter in dat file "height_clearance" The allowed spacing to grounds above it
 		 (If not set recalculated from the images)
 	FIX: Crash when using makeobj 'merge' or 'extract' commands
 
