@@ -1270,7 +1270,10 @@ void way_builder_t::check_for_bridge(const grund_t* parent_from, const grund_t* 
 				continue;
 			}
 			uint32 length = koord_distance(from->get_pos(), end);
-			if(!ziel.is_contained(end)  &&  bridge_builder_t::check_start_tile(player_builder, gr_end, ribi_type(-zv), bridge_desc)) {
+			// check_start_tile returns an error message, NULL meaning the tile is usable,
+			// so the test has to be negated - it replaced can_place_ramp(), which returned
+			// a plain bool with true meaning usable.
+			if(!ziel.is_contained(end)  &&  !bridge_builder_t::check_start_tile(player_builder, gr_end, ribi_type(-zv), bridge_desc)) {
 				// If there is a slope on the starting tile, it's taken into account in is_allowed_step, but a bridge will be flat!
 				sint8 num_slopes = (from->get_grund_hang() == slope_t::flat) ? 1 : -1;
 				// On the end tile, we haven't to subtract way_count_slope, since is_allowed_step isn't called with this tile.
