@@ -354,8 +354,6 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, std::string an_i
 	dimension dim;
 	uint16 *pixdata = NULL;
 
-	MEMZERO(image);
-
 	// if first char is a '>' then this image is not zoomable
 	if(  an_imagekey[0] == '>'  ) {
 		an_imagekey = an_imagekey.substr(1);

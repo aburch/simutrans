@@ -19,8 +19,6 @@ class obj_desc_t
 	friend class pakset_manager_t;
 
 public:
-	obj_desc_t() : children() {}
-
 	~obj_desc_t() { delete [] children; }
 
 	void* operator new(size_t size)
@@ -51,7 +49,7 @@ private:
 	 * Internal Node information - the derived class knows,
 	 * how many node child nodes really exist.
 	 */
-	obj_desc_t** children;
+	obj_desc_t** children = NULL;
 
 	friend class factory_field_group_reader_t;
 	friend class obj_reader_t;

@@ -30,16 +30,16 @@ class image_t : public obj_desc_t
 public:
 	static const uint32 rgbtab[SPECIAL];
 
-	size_t len;       ///< length of data[] in PIXVAL units
-	scr_coord_val x;  ///< x offset of data[] image
-	scr_coord_val y;  ///< y offset of data[] image
-	scr_coord_val w;  ///< width of data[] image
-	scr_coord_val h;  ///< height of data[] image
-	image_id imageid; ///< Graphics renderer image id
-	uint8 zoomable;   ///< some images may not be zoomed i.e. icons
-	PIXVAL *data;     ///< RLE encoded image data
+	size_t len = 0;       ///< length of data[] in PIXVAL units
+	scr_coord_val x = 0;  ///< x offset of data[] image
+	scr_coord_val y = 0;  ///< y offset of data[] image
+	scr_coord_val w = 0;  ///< width of data[] image
+	scr_coord_val h = 0;  ///< height of data[] image
+	image_id imageid = 0; ///< Graphics renderer image id
+	uint8 zoomable = 0;   ///< some images may not be zoomed i.e. icons
+	PIXVAL *data = NULL;  ///< RLE encoded image data
 
-	image_t(size_t len_=0) : data(NULL)
+	image_t(size_t len_=0)
 	{
 		if (len_) {
 			alloc(len_);
