@@ -3364,6 +3364,32 @@ gebaeude_t* stadt_t::build_city_house(koord3d base_pos, const building_desc_t* h
 }
 
 
+/**
+ * Smallest clear height over the tiles a building of @p size anchored at @p k would
+ * cover, in levels. 127 means nothing overhead anywhere under it.
+ *
+ * The clearance passed to the building selection is read from the anchor tile alone,
+ * because the size is not known until a building has been picked. A city building may
+ * be up to 3x3, so the anchor saying "nothing overhead" tells us nothing about the
+ * other eight tiles: an elevated way or a bridge deck may cross any of them.
+ */
+static sint16 min_overhead_clearance(karte_t *welt, koord k, koord size)
+{
+	sint16 lowest = 127;
+	for(  sint16 x = 0;  x < size.x;  x++  ) {
+		for(  sint16 y = 0;  y < size.y;  y++  ) {
+			if(  const planquadrat_t *plan = welt->access( k + koord(x, y) )  ) {
+				const sint16 c = plan->get_overhead_clearance();
+				if(  c < lowest  ) {
+					lowest = c;
+				}
+			}
+		}
+	}
+	return lowest;
+}
+
+
 void stadt_t::build_city_building(koord k_org)
 {
 	if (grund_t* gr = welt->lookup_kartenboden(k_org)) {
@@ -3455,6 +3481,15 @@ void stadt_t::build_city_building(koord k_org)
 
 	// so we found at least one suitable building for this place
 	rotation = orient_city_building( k, h, max_size );
+
+	// Now the footprint is known, so the height can be tested against every tile the
+	// building would cover and not just the anchor. Nothing is built this round if it
+	// does not fit; the city tries again, and the choice is weighted-random, so a
+	// building that does fit gets its turn.
+	if(  h->get_height_clearance() > min_overhead_clearance( welt, k, h->get_size(rotation) )  ) {
+		return;
+	}
+
 	grund_t *gr = welt->lookup_kartenboden_nocheck(k);
 	koord3d base_pos = koord3d(k, gr->get_hoehe() + slope_t::max_diff(gr->get_grund_hang()));
 	const gebaeude_t* gb = build_city_house(base_pos, h, rotation, cl, &exclude_desc);
@@ -3614,6 +3649,14 @@ bool stadt_t::renovate_city_building(gebaeude_t *gb)
 		}
 
 		int rotation2 = orient_city_building(k, h, max_size);
+
+		// See build_city_building(): the clearance used to pick h was the anchor tile
+		// alone, and a renovation may grow the building over up to 3x3 tiles. Test the
+		// real footprint before replacing anything.
+		if(  h->get_height_clearance() > min_overhead_clearance( welt, k, h->get_size(rotation2) )  ) {
+			return false;
+		}
+
 		const gebaeude_t *gb= build_city_house(koord3d(k, base_pos.z), h, rotation2, cl, &exclude_desc);
 		if (gb) {
 			// more tests for larger building ...
