@@ -13,6 +13,7 @@
 #include "../api_function.h"
 #include "../../builder/brueckenbauer.h"
 #include "../../builder/wegbauer.h"
+#include "../../dataobj/settings.h"
 #include "../../descriptor/bridge_desc.h"
 #include "../../descriptor/way_desc.h"
 #include "../../tpl/binary_heap_tpl.h"
@@ -121,7 +122,13 @@ bool way_builder_is_allowed_step(way_builder_t *bob, grund_t *from, grund_t *to)
 }
 
 
-koord3d bridge_builder_find_end_pos(player_t *player, koord3d pos, my_ribi_t mribi, const bridge_desc_t *bridge, uint32 min_length)
+/**
+ * Highest length a script may ask for: bridge_builder_t::find_end_pos counts the
+ * tested lengths in an uint8, so 255 would never terminate.
+ */
+static const uint32 MAX_SCRIPT_BRIDGE_LEN = 254;
+
+koord3d bridge_builder_find_end_pos(player_t *player, koord3d pos, my_ribi_t mribi, const bridge_desc_t *bridge, uint32 min_length, sint32 max_length, bool allow_flat_ends)
 {
 	sint8 height;
 	ribi_t::ribi ribi(mribi);
@@ -129,10 +136,43 @@ koord3d bridge_builder_find_end_pos(player_t *player, koord3d pos, my_ribi_t mri
 	if (player == NULL  ||  bridge == NULL) {
 		return koord3d::invalid;
 	}
-	if (bridge_builder_t::find_end_pos(player, pos, ribi, height, bridge, min_length, 10, false) != NULL) {
+	// a script must not search further than the player could build
+	uint32 limit = min( welt->get_settings().way_max_bridge_len, MAX_SCRIPT_BRIDGE_LEN );
+	if (bridge->get_max_length() > 0) {
+		// a bridge of max_length spans a distance of max_length+1, see bridge_builder_t::can_span_bridge
+		limit = min( limit, (uint32)bridge->get_max_length() + 1 );
+	}
+	// max_length <= 0 means: as far as this bridge and the settings allow
+	const uint32 length = max_length <= 0 ? limit : min( (uint32)max_length, limit );
+
+	if (min_length > length) {
+		return koord3d::invalid;
+	}
+	if (bridge_builder_t::find_end_pos(player, pos, ribi, height, bridge, min_length, length, allow_flat_ends) != NULL) {
 		return koord3d::invalid;
 	}
 	return pos;
+}
+
+
+typedef koord3d (*bfe_type)(player_t*, koord3d, my_ribi_t, const bridge_desc_t*, uint32, sint32, bool);
+
+SQInteger bridge_planner_find_end(HSQUIRRELVM vm)
+{
+	/* possible calling conventions:
+	 *
+	 * find_end(pl, pos, dir, bridge, min_length)                            - top == 6
+	 * find_end(pl, pos, dir, bridge, min_length, max_length)                - top == 7
+	 * find_end(pl, pos, dir, bridge, min_length, max_length, flat_ends)     - top == 8
+	 */
+	if (sq_gettop(vm) == 6) {
+		// keep the length the old binding used
+		sq_pushinteger(vm, 10);
+	}
+	if (sq_gettop(vm) == 7) {
+		sq_pushbool(vm, false);
+	}
+	return embed_call_t<bfe_type>::call_function(vm, bridge_builder_find_end_pos, false);
 }
 
 
@@ -210,14 +250,24 @@ void export_pathfinding(HSQUIRRELVM vm)
 	create_class(vm, "bridge_planner_x", 0);
 	/**
 	 * Find suitable end tile for bridge starting at @p pos going into direction @p dir.
+	 *
+	 * The search never goes further than the player could build: it is limited by the
+	 * maximum length of @p bridge and by the @c way_max_bridge_len setting.
+	 *
 	 * @param pl who wants to build a bridge
 	 * @param pos start tile for bridge
 	 * @param dir direction
 	 * @param bridge bridge descriptor
 	 * @param min_length bridge should have this minimal length
+	 * @param max_length (optional parameter) bridge should not be longer than this, zero or negative means as long as allowed. Defaults to 10.
+	 * @param flat_ends (optional parameter) if true then an end on flat ground is accepted too, not only an end at a slope. Defaults to false.
 	 * @returns coordinate of end tile or an invalid coordinate
+	 * @typemask coord3d(player_x,coord3d,dir,bridge_desc_x,integer,integer,bool)
 	 */
-	STATIC register_method(vm, bridge_builder_find_end_pos, "find_end", false, true);
+	STATIC register_function(vm, bridge_planner_find_end, "find_end", -6 /* at least 6 parameters */,
+	                         func_signature_t<bfe_type>::get_typemask(false).c_str(), true /* static */);
+
+	log_squirrel_type(func_signature_t<bfe_type>::get_squirrel_class(false), "find_end", func_signature_t<bfe_type>::get_squirrel_type(false, 0));
 
 	end_class(vm);
 }

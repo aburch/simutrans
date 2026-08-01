@@ -86,7 +86,7 @@ public:
 	 */
 	const char *get_help_filename() const OVERRIDE {return "industry_info.txt";}
 
-	koord3d get_weltpos(bool) OVERRIDE { return fab->get_pos(); }
+	koord3d get_weltpos(bool) OVERRIDE { return fab ? fab->get_pos() : koord3d::invalid; }
 
 	bool is_weltpos() OVERRIDE;
 

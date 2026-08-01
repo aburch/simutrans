@@ -634,3 +634,196 @@ function test_way_bridge_planner()
 	ASSERT_EQUAL(pl.get_current_maintenance(), 0)
 	RESET_ALL_PLAYER_FUNDS()
 }
+
+
+// helper for the bridge planner tests: puts a ramp at the end of the corridor,
+// asks for the end of the bridge and restores the ground again
+function BRIDGE_FIND_END(pl, bridge_desc, start_pos, len, max_length, flat_ends)
+{
+	local end_pos = start_pos + coord3d(0, len, 0)
+	local has_ramp = len > 0
+	if (has_ramp) {
+		ASSERT_EQUAL(command_x.set_slope(pl, end_pos, slope.north), null)
+	}
+
+	local res
+	if (max_length == null) {
+		// the call as it was available before max_length/flat_ends were added
+		res = bridge_planner_x.find_end(pl, start_pos, dir.south, bridge_desc, 0)
+	}
+	else if (flat_ends == null) {
+		res = bridge_planner_x.find_end(pl, start_pos, dir.south, bridge_desc, 0, max_length)
+	}
+	else {
+		res = bridge_planner_x.find_end(pl, start_pos, dir.south, bridge_desc, 0, max_length, flat_ends)
+	}
+
+	if (has_ramp) {
+		ASSERT_EQUAL(command_x.set_slope(pl, end_pos, slope.flat), null)
+	}
+	return res.tostring()
+}
+
+
+function test_way_bridge_planner_max_length()
+{
+	local pl          = player_x(0)
+	local start_pos   = coord3d(11, 1, 0)
+	local bridge_desc = bridge_desc_x.get_available_bridges(wt_road)[0]
+	local invalid     = coord3d(-1, -1, -1).tostring()
+
+	// this test needs a bridge that can span more than ten tiles
+	ASSERT_TRUE(bridge_desc != null)
+	ASSERT_TRUE(bridge_desc.get_max_length() >= 12)
+
+	ASSERT_EQUAL(command_x.set_slope(pl, start_pos, slope.south), null)
+
+	// the old five parameter call keeps its length limit of ten tiles
+	ASSERT_EQUAL(BRIDGE_FIND_END(pl, bridge_desc, start_pos,  5, null, null), coord3d(11,  6, 0).tostring())
+	ASSERT_EQUAL(BRIDGE_FIND_END(pl, bridge_desc, start_pos, 10, null, null), coord3d(11, 11, 0).tostring())
+	ASSERT_EQUAL(BRIDGE_FIND_END(pl, bridge_desc, start_pos, 11, null, null), invalid)
+
+	// with an explicit maximum length longer bridges are found
+	ASSERT_EQUAL(BRIDGE_FIND_END(pl, bridge_desc, start_pos, 11, 11, null), coord3d(11, 12, 0).tostring())
+	ASSERT_EQUAL(BRIDGE_FIND_END(pl, bridge_desc, start_pos, 12, 12, null), coord3d(11, 13, 0).tostring())
+
+	// ... but the maximum length is obeyed
+	ASSERT_EQUAL(BRIDGE_FIND_END(pl, bridge_desc, start_pos, 12, 11, null), invalid)
+
+	// zero means: as long as this bridge allows
+	ASSERT_EQUAL(BRIDGE_FIND_END(pl, bridge_desc, start_pos, 12, 0, null), coord3d(11, 13, 0).tostring())
+
+	// min_length larger than max_length finds nothing
+	ASSERT_EQUAL(command_x.set_slope(pl, coord3d(11, 6, 0), slope.north), null)
+	ASSERT_EQUAL(bridge_planner_x.find_end(pl, start_pos, dir.south, bridge_desc, 8, 5).tostring(), invalid)
+	// same query twice gives the same answer
+	local first  = bridge_planner_x.find_end(pl, start_pos, dir.south, bridge_desc, 0, 12).tostring()
+	local second = bridge_planner_x.find_end(pl, start_pos, dir.south, bridge_desc, 0, 12).tostring()
+	ASSERT_EQUAL(first, coord3d(11, 6, 0).tostring())
+	ASSERT_EQUAL(second, first)
+	ASSERT_EQUAL(command_x.set_slope(pl, coord3d(11, 6, 0), slope.flat), null)
+
+	// clean up
+	ASSERT_EQUAL(command_x.set_slope(pl, start_pos, slope.flat), null)
+	ASSERT_EQUAL(pl.get_current_maintenance(), 0)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_way_bridge_planner_desc_limits()
+{
+	local pl        = player_x(0)
+	local start_pos = coord3d(11, 1, 0)
+	local invalid   = coord3d(-1, -1, -1).tostring()
+
+	// a bridge without a length limit of its own, and a short one
+	local unlimited = null
+	local short_one = null
+	foreach (b in bridge_desc_x.get_available_bridges(wt_road)) {
+		if (unlimited == null  &&  b.get_max_length() == 0) {
+			unlimited = b
+		}
+		if (short_one == null  &&  b.get_max_length() > 0  &&  b.get_max_length() < 10) {
+			short_one = b
+		}
+	}
+	ASSERT_TRUE(unlimited != null)
+	ASSERT_TRUE(short_one != null)
+
+	ASSERT_EQUAL(command_x.set_slope(pl, start_pos, slope.south), null)
+
+	// a bridge without own limit is only bounded by what the caller asks for
+	ASSERT_EQUAL(BRIDGE_FIND_END(pl, unlimited, start_pos, 12, 0, null), coord3d(11, 13, 0).tostring())
+	ASSERT_EQUAL(BRIDGE_FIND_END(pl, unlimited, start_pos, 12, 10, null), invalid)
+
+	// a bridge with own limit spans get_max_length()+1 tiles, no matter what the caller asks for
+	local max_span = short_one.get_max_length() + 1
+	ASSERT_EQUAL(BRIDGE_FIND_END(pl, short_one, start_pos, max_span,     20, null), (start_pos + coord3d(0, max_span, 0)).tostring())
+	ASSERT_EQUAL(BRIDGE_FIND_END(pl, short_one, start_pos, max_span + 1, 20, null), invalid)
+
+	// clean up
+	ASSERT_EQUAL(command_x.set_slope(pl, start_pos, slope.flat), null)
+	ASSERT_EQUAL(pl.get_current_maintenance(), 0)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_way_bridge_planner_flat_ends()
+{
+	local pl          = player_x(0)
+	local start_pos   = coord3d(9, 12, 0)
+	local bridge_desc = bridge_desc_x.get_available_bridges(wt_road)[0]
+	local invalid     = coord3d(-1, -1, -1).tostring()
+
+	ASSERT_EQUAL(command_x.set_slope(pl, start_pos, slope.south), null)
+
+	// there is no ramp in the corridor, only flat ground
+	ASSERT_EQUAL(bridge_planner_x.find_end(pl, start_pos, dir.south, bridge_desc, 2, 3, false).tostring(), invalid)
+	ASSERT_EQUAL(bridge_planner_x.find_end(pl, start_pos, dir.south, bridge_desc, 2, 3, true).tostring(), coord3d(9, 14, 0).tostring())
+
+	// clean up
+	ASSERT_EQUAL(command_x.set_slope(pl, start_pos, slope.flat), null)
+	ASSERT_EQUAL(pl.get_current_maintenance(), 0)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_way_bridge_planner_ownership()
+{
+	local pl          = player_x(0)
+	local start_pos   = coord3d(11, 1, 0)
+
+	// player 1 is the public player, its property may be used by everybody
+	if (!player_x(2).is_valid()) {
+		world.create_player(2, 1)
+	}
+	local other = player_x(2)
+
+	local bridge_desc = bridge_desc_x.get_available_bridges(wt_road)[0]
+	local remover     = command_x(tool_remover)
+	local invalid     = coord3d(-1, -1, -1).tostring()
+
+	ASSERT_TRUE(other.is_valid())
+	ASSERT_TRUE(bridge_desc != null)
+
+	ASSERT_EQUAL(command_x.set_slope(pl, start_pos, slope.south), null)
+	ASSERT_EQUAL(command_x.set_slope(pl, coord3d(11, 6, 0), slope.north), null)
+
+	// the start tile now carries an object of another player
+	ASSERT_EQUAL(label_x.create(start_pos, other, "Foo Bar"), null)
+
+	ASSERT_EQUAL(bridge_planner_x.find_end(pl,    start_pos, dir.south, bridge_desc, 0, 12).tostring(), invalid)
+	ASSERT_EQUAL(bridge_planner_x.find_end(other, start_pos, dir.south, bridge_desc, 0, 12).tostring(), coord3d(11, 6, 0).tostring())
+
+	// clean up
+	ASSERT_EQUAL(remover.work(other, start_pos), null)
+	ASSERT_EQUAL(command_x.set_slope(pl, coord3d(11, 6, 0), slope.flat), null)
+	ASSERT_EQUAL(command_x.set_slope(pl, start_pos, slope.flat), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_way_bridge_planner_forbidden_by_scenario()
+{
+	local pl          = player_x(0)
+	local start_pos   = coord3d(11, 1, 0)
+	local bridge_desc = bridge_desc_x.get_available_bridges(wt_road)[0]
+	local invalid     = coord3d(-1, -1, -1).tostring()
+
+	ASSERT_EQUAL(command_x.set_slope(pl, start_pos, slope.south), null)
+	ASSERT_EQUAL(command_x.set_slope(pl, coord3d(11, 6, 0), slope.north), null)
+
+	ASSERT_EQUAL(bridge_planner_x.find_end(pl, start_pos, dir.south, bridge_desc, 0, 12).tostring(), coord3d(11, 6, 0).tostring())
+
+	rules.forbid_way_tool_rect(0, tool_build_bridge, wt_road, "", coord(11, 0), coord(11, 15), "Foo Bar")
+	ASSERT_EQUAL(bridge_planner_x.find_end(pl, start_pos, dir.south, bridge_desc, 0, 12).tostring(), invalid)
+	rules.clear()
+
+	ASSERT_EQUAL(bridge_planner_x.find_end(pl, start_pos, dir.south, bridge_desc, 0, 12).tostring(), coord3d(11, 6, 0).tostring())
+
+	// clean up
+	ASSERT_EQUAL(command_x.set_slope(pl, coord3d(11, 6, 0), slope.flat), null)
+	ASSERT_EQUAL(command_x.set_slope(pl, start_pos, slope.flat), null)
+	ASSERT_EQUAL(pl.get_current_maintenance(), 0)
+	RESET_ALL_PLAYER_FUNDS()
+}
