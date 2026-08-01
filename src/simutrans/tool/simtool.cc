@@ -27,6 +27,7 @@
 #include "../obj/depot.h"
 #include "../simfab.h"
 #include "../display/simimg.h"
+#include "../pathes.h"
 #include "../simintr.h"
 #include "../simhalt.h"
 #include "../simskin.h"
@@ -7837,18 +7838,25 @@ bool tool_toggle_reservation_t::is_selected() const
 
 bool tool_screenshot_t::init( player_t * )
 {
-	bool ok;
-	const scr_rect screen_area = { { 0, 0 }, gfx->get_screen_size() };
+	if (access(SCREENSHOT_PATH_X, W_OK) == -1) {
+		return false; // directory not accessible
+	}
+
+	static int number = 0;
+	char filename[80];
+
+	// find the first not used screenshot image
+	do {
+		sprintf(filename, SCREENSHOT_PATH_X "simscr%02d.png", number++);
+	} while (access(filename, W_OK) != -1);
+
 	const gui_frame_t *topwin = win_get_top();
 
-	if(  is_ctrl_pressed()  &&  topwin != NULL  ) {
-		ok = gfx->take_screenshot(scr_rect(win_get_pos(topwin), topwin->get_windowsize()));
-	}
-	else {
-		ok = gfx->take_screenshot(screen_area);
-	}
+	const scr_rect area = is_ctrl_pressed()  &&  topwin != NULL ?
+		scr_rect(win_get_pos(topwin), topwin->get_windowsize()) :
+		scr_rect{ { 0, 0 }, gfx->get_screen_size() };
 
-	if (ok) {
+	if (gfx->take_screenshot(area, filename)) {
 		create_win( new news_img("Screenshot\ngespeichert.\n"), w_time_delete, magic_none);
 	}
 	else {

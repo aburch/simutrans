@@ -568,7 +568,7 @@ static void            simgraph16_draw_empty_circle          (scr_coord_val, scr
 static void            simgraph16_draw_filled_circle         (scr_coord_val, scr_coord_val, int, const PIXVAL);
 static void            simgraph16_draw_bezier                (scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, const PIXVAL, scr_coord_val, scr_coord_val);
 static void            simgraph16_draw_right_triangle        (scr_coord_val, scr_coord_val, scr_coord_val, const PIXVAL, const bool);
-static bool            simgraph16_take_screenshot            (const scr_rect &);
+static bool            simgraph16_take_screenshot            (const scr_rect &, const char *);
 static void            simgraph16_draw_signal_direction      (scr_coord_val, scr_coord_val, uint8, uint8, PIXVAL, PIXVAL, bool, uint8);
 static void            simgraph16_set_clip_rect              (scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val  CLIP_NUM_DEF, bool fit);
 static clip_dimension  simgraph16_get_clip_rect              (CLIP_NUM_DEF_NOUSE0);
@@ -4842,20 +4842,8 @@ static void simgraph16_on_window_resized(scr_size new_window_size)
 /**
  * Take Screenshot
  */
-static bool simgraph16_take_screenshot(const scr_rect &area)
+static bool simgraph16_take_screenshot(const scr_rect &area, const char *filename)
 {
-	if (access(SCREENSHOT_PATH_X, W_OK) == -1) {
-		return false; // directory not accessible
-	}
-
-	static int number = 0;
-	char filename[80];
-
-	// find the first not used screenshot image
-	do {
-		sprintf(filename, SCREENSHOT_PATH_X "simscr%02d.png", number++);
-	} while (access(filename, W_OK) != -1);
-
 	// now save the screenshot
 	scr_rect clipped_area = area;
 	clipped_area.clip(scr_rect(0, 0, disp_actual_width, disp_height));
