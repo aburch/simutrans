@@ -31,13 +31,6 @@
 #include <cstring>
 
 
-#ifdef _MSC_VER
-#	include <io.h>
-#	define W_OK 2
-#else
-#	include <unistd.h>
-#endif
-
 #ifdef MULTI_THREAD
 #include "../utils/simthread.h"
 

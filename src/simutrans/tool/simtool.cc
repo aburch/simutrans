@@ -97,6 +97,15 @@
 #include "../tool/simtool.h"
 #include "../player/finance.h"
 
+// for access()
+#ifdef _MSC_VER
+#	include <io.h>
+#	define W_OK 2
+#else
+#	include <unistd.h>
+#endif
+
+
 #define is_scenario()  welt->get_scenario()->is_scripted()
 
 #define CHECK_FUNDS() \
