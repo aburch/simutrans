@@ -178,7 +178,7 @@ int number_to_string(char * p, double f, int decimals  )
 	else {
 		sprintf(tp,"%.0f", f);
 		// some compilers produce trailing dots then ...
-		has_decimals = strchr(tp,'.')!=NULL;
+		has_decimals = (strchr(tp, '.') != NULL) || (strchr(tp, ',') != NULL);
 	}
 
 	// skip sign
@@ -187,7 +187,11 @@ int number_to_string(char * p, double f, int decimals  )
 	}
 
 	// format string
-	l = has_decimals ? (long)(size_t)(strchr(tp,'.') - tp) : strlen(tp);
+	const char *decimal_ptr = strchr(tp, '.');
+	if (!decimal_ptr) {
+		decimal_ptr = strchr(tp, ',');
+	}
+	l = (has_decimals && decimal_ptr) ? (long)(size_t)(decimal_ptr - tp) : strlen(tp);
 
 	i = l % thousand_sep_exponent;
 
